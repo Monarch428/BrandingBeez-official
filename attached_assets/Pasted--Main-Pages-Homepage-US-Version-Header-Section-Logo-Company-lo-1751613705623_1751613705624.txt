@@ -1,0 +1,214 @@
+## **Main Pages**
+
+### **/ (Homepage - US Version)**
+
+#### **Header Section**
+- **Logo:** Company logo with tagline
+- **Navigation Menu:** Services | About | Contact
+- **Region Selector:** Dropdown (US selected)
+- **CTA Button:** "Book Free Strategy Call" (Primary red button)
+
+#### **Hero Section**
+- **Main Headline:** "Scale Your Agency with White-Label Excellence"
+- **Sub-headline:** "Transform your agency with premium design, development, SEO, and AI solutions that deliver results your clients will love"
+- **Key Benefits Bullets:**
+  - ✓ Premium white-label services
+  - ✓ Client-ready deliverables
+  - ✓ Lightning-fast turnaround
+- **Primary CTA:** "Book Free Strategy Call" (Red button)
+- **Secondary CTA:** "Download Pricing Guide" (Purple button)
+- **Hero Image/Video:** Animated showcase of services
+
+#### **Statistics Bar**
+- **500+** Projects Delivered
+- **98%** Client Satisfaction
+- **24h** Average Turnaround
+
+#### **Partnership Logos Section**
+- **Trusted Partners:** BNI, Master Network, H7 logos
+- **Additional Stats:**
+  - 150+ Agencies Powered
+  - 500+ Projects Completed
+  - 98% Client Satisfaction
+  - 24h Average Response
+
+#### **Client Success Stories (Carousel)**
+- **Client 1:** "Increased our capacity by 300% while maintaining quality"
+- **Client 2:** "Best white-label partner we've ever worked with"
+- **Client 3:** "ROI was visible within the first month"
+- **CTA:** "View All Success Stories"
+
+#### **Services Overview Grid**
+- **SEO Services**
+  - Icon: Search graph
+  - Description: "Drive organic traffic and rankings"
+  - Starting at: $1,500/month
+  - CTA: "Learn More"
+- **Website Development**
+  - Icon: Code brackets
+  - Description: "Custom websites that convert"
+  - Starting at: $2,500/project
+  - CTA: "View Portfolio"
+- **N8N Automation**
+  - Icon: Workflow diagram
+  - Description: "Streamline business processes"
+  - Starting at: $2,000/month
+  - CTA: "See Automations"
+- **Google Ads**
+  - Icon: Google logo
+  - Description: "Maximize advertising ROI"
+  - Starting at: $1,500/month
+  - CTA: "Get Free Audit"
+
+#### **Why Choose Us Section**
+- **Quality Guarantee:** "We stand behind every deliverable"
+- **Fast Turnaround:** "24-48 hour typical delivery"
+- **Dedicated Support:** "Direct access to your project team"
+- **Scalable Solutions:** "Grow with confidence"
+
+#### **Contact Section**
+- **Headline:** "Ready to Scale Your Agency?"
+- **Contact Form:**
+  - Name (Required)
+  - Email (Required)
+  - Phone Number
+  - Agency Name
+  - Services Interested In (Dropdown)
+  - Message
+  - Submit Button: "Schedule Free Consultation"
+- **Contact Info:**
+  - Phone: (555) 123-SCALE
+  - Email: hello@agency.com
+  - Address: 123 Business Ave, NYC
+
+---
+
+### **/services (Services Overview - US Market)**
+
+#### **Header Section**
+- **Breadcrumb:** Home > Services
+- **Page Title:** "White-Label Services for Growing Agencies"
+- **Sub-title:** "Comprehensive solutions to scale your business"
+
+#### **Featured Service Banner**
+- **This Month's Special:** "50% Off First Month of SEO Services"
+- **Discount Details:** "Limited time offer for new clients"
+- **CTA:** "Claim Your Discount" (Flashing button)
+- **Timer:** "Offer expires in: 15 days, 3 hours"
+
+#### **Service Categories Grid**
+
+##### **SEO Services Card**
+- **Icon:** Search graph with upward trend
+- **Title:** "SEO Services"
+- **Description:** "Drive organic traffic and improve search rankings with data-driven SEO strategies"
+- **Features:**
+  - ✓ Keyword research & strategy
+  - ✓ Technical SEO optimization
+  - ✓ Content creation & optimization
+  - ✓ Link building campaigns
+- **Pricing:** Starting at $1,500/month
+- **CTA:** "View SEO Packages"
+- **Badge:** "Most Popular"
+
+##### **Website Development Card**
+- **Icon:** Code window
+- **Title:** "Website Development"
+- **Description:** "Custom websites built for performance, conversion, and user experience"
+- **Features:**
+  - ✓ WordPress & Shopify development
+  - ✓ Custom web applications
+  - ✓ E-commerce solutions
+  - ✓ Mobile-responsive design
+- **Pricing:** Starting at $2,500/project
+- **CTA:** "Browse Portfolio"
+
+##### **N8N Automation Card**
+- **Icon:** Workflow nodes
+- **Title:** "Process Automation"
+- **Description:** "Streamline operations with custom automation workflows"
+- **Features:**
+  - ✓ Custom workflow design
+  - ✓ System integrations
+  - ✓ Process optimization
+  - ✓ Ongoing support
+- **Pricing:** Starting at $2,000/month
+- **CTA:** "Explore Automations"
+
+##### **Google Ads Card**
+- **Icon:** Google Ads logo
+- **Title:** "Google Ads Management"
+- **Description:** "Maximize ROI with expertly managed advertising campaigns"
+- **Features:**
+  - ✓ Campaign setup & optimization
+  - ✓ Keyword research
+  - ✓ Ad copy creation
+  - ✓ Performance reporting
+- **Pricing:** Starting at $1,500/month
+- **CTA:** "Get Free Audit"
+
+#### **Success Metrics Section**
+- **Client Success Stats:**
+  - 427% Average ROI increase
+  - 89% Client retention rate
+  - 24h Average project turnaround
+  - 15+ Industries served
+
+#### **Process Overview**
+- **Step 1:** "Discovery & Strategy"
+  - Icon: Magnifying glass
+  - Description: "We analyze your needs and create a custom strategy"
+- **Step 2:** "Development & Execution"
+  - Icon: Gear
+  - Description: "Our experts implement solutions using proven methodologies"
+- **Step 3:** "Testing & Optimization"
+  - Icon: Chart
+  - Description: "We test, refine, and optimize for maximum performance"
+- **Step 4:** "Delivery & Support"
+  - Icon: Handshake
+  - Description: "White-label delivery with ongoing support and maintenance"
+
+#### **Team Expertise Highlights**
+- **SEO Specialists:** 8+ certified professionals
+- **Developers:** Full-stack expertise across all platforms
+- **Automation Engineers:** N8N certified specialists
+- **PPC Managers:** Google Partner certified
+- **Project Managers:** Dedicated account management
+
+#### **Contact Form for Service Inquiries**
+- **Form Fields:**
+  - Full Name (Required)
+  - Business Email (Required)
+  - Phone Number
+  - Company Name (Required)
+  - Current Monthly Revenue (Dropdown)
+  - Services Needed (Multi-select checkboxes)
+  - Project Timeline (Dropdown)
+  - Budget Range (Dropdown)
+  - Project Details (Text area)
+- **Submit Button:** "Get Custom Proposal"
+- **Security Note:** "Your information is secure and confidential"
+
+---
+
+### **/about (About Us - US Team & Operations)**
+
+#### **Header Section**
+- **Breadcrumb:** Home > About Us
+- **Page Title:** "Meet the Team Behind Your Success"
+- **Sub-title:** "Dedicated professionals committed to scaling your agency"
+
+#### **Company Story Section**
+- **Headline:** "Founded by Agency Owners, For Agency Owners"
+- **Story Content:**
+  "Started in 2018 by former digital agency owners who understood the challenges of scaling quality services. After struggling with unreliable freelancers and expensive in-house teams, we created the white-label solution we wished existed. Today, we power over 150 agencies across North America with premium services that help them grow without compromise."
+
+#### **Mission & Vision**
+- **Mission:** "To empower digital agencies with premium white-label services that scale their business while maintaining exceptional quality standards."
+- **Vision:** "To become the most trusted white-label partner for ambitious agencies worldwide."
+
+#### **Core Values**
+- **Quality First:** "We never compromise on deliverable quality"
+- **Transparency:** "Open communication and honest reporting"
+- **Partnership:** "Your success is our success"
+- **Innovation:** "Staying ahead of industry trends and technology"

@@ -1,0 +1,56 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why is digital marketing important for law firms in 2025?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Digital marketing helps law firms appear where potential clients are searching—mainly on Google. With over 70% of legal service seekers using search engines before hiring an attorney, having a strong online presence is crucial for attracting qualified leads."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can law firms get more clients through SEO?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Law firms can increase clients through SEO by optimizing for local keywords like 'personal injury lawyer in Chicago', claiming their Google Business Profile, publishing legal blogs that answer common questions, and collecting positive client reviews."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do Google Ads work for lawyers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Although legal keywords are highly competitive and expensive, Google Ads can deliver immediate high-intent leads. Many law firms run targeted PPC campaigns to connect directly with clients searching for services like divorce lawyers, personal injury attorneys, or corporate legal support."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What type of content should law firms publish?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Law firms should focus on content that builds trust—such as legal guides, FAQs, checklists, and blog posts answering common client concerns. Sharing case studies and success stories can also enhance credibility."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can AI help in law firm marketing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AI tools improve efficiency by automating client intake, qualifying leads through chatbots, and personalizing follow-up emails. Additionally, AI-driven analytics can help law firms identify the most profitable keywords and marketing channels."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What’s the best social media platform for lawyers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For B2B practices, LinkedIn is ideal for networking and publishing thought leadership. For B2C areas like family law or personal injury, platforms such as Facebook and Instagram are great for building community trust and engagement."
+      }
+    }
+  ]
+}
+</script>
