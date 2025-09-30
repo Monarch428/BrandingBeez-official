@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useRegion } from "@/hooks/use-region";
 import { Link } from "wouter";
-import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { OptimizedImage } from "@/components/optimized-image";
 import {
@@ -24,9 +23,9 @@ import {
   ArrowRight,
   TrendingUp,
   Target,
-  Users,
   Globe,
 } from "lucide-react";
+import { getAllBlogPostsData } from "@/lib/blog-posts-map";
 
 // Blog post interface for type safety
 interface BlogPost {
@@ -50,8 +49,6 @@ interface BlogPost {
   category?: string;
 }
 
-import { getAllBlogPostsData } from "@/lib/blog-posts-map";
-
 // Get static blog posts from mapping
 const staticBlogPosts: BlogPost[] = getAllBlogPostsData();
 
@@ -68,8 +65,6 @@ export default function Blog() {
   } = useQuery({
     queryKey: ["blog-posts"],
     queryFn: async () => {
-      console.log("🚀 Fetching published blog posts from /api/blog");
-
       try {
         const response = await fetch("/api/blog", {
           method: "GET",
@@ -86,53 +81,53 @@ export default function Blog() {
         }
 
         const posts = await response.json();
-        console.log("✅ Published blog posts received:", posts?.length || 0);
 
-        // Ensure we return an array of published posts only
         const publishedPosts = Array.isArray(posts)
           ? posts.filter((post) => post.isPublished)
           : [];
-        console.log("📋 Filtered published posts:", publishedPosts.length);
 
         return publishedPosts;
-      } catch (error) {
-        console.error("❌ Error fetching blog posts:", error);
-        throw error;
+      } catch (err) {
+        console.error("❌ Error fetching blog posts:", err);
+        return []; // fallback to empty, avoids crash
       }
     },
-    staleTime: 1000 * 60 * 15, // 15 minutes cache
-    gcTime: 1000 * 60 * 30, // 30 minutes cache
+    staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
     retry: 2,
   });
 
   // Use database posts if available, otherwise use static posts
   const blogPosts = useMemo(() => {
-    if (databasePosts && databasePosts.length > 0) {
-      return databasePosts;
-    }
-    // Fallback to static posts if database is empty or failed
-    return staticBlogPosts;
+    let allPosts =
+      databasePosts && databasePosts.length > 0
+        ? databasePosts
+        : staticBlogPosts;
+
+    // 🚫 Filter out the blog we want to remove
+    return allPosts.filter(
+      (post: BlogPost) =>
+        !post.imageUrl.includes("Blog_-_Ad_Fatigue_in_Digital_Marketing.png")
+    );
   }, [databasePosts]);
 
   const openCalendly = () => {
     window.open(regionConfig.calendlyUrl, "_blank");
   };
 
-  // Use useMemo for memoizing categories to avoid recalculating on every render
+  // Use useMemo for memoizing categories
   const categories = useMemo(() => {
     if (!blogPosts || !Array.isArray(blogPosts)) return [];
 
     const categoryMap = new Map();
 
     blogPosts.forEach((post: BlogPost) => {
-      // Extract category from tags or use a default
       const postCategory =
         post.category ||
         (Array.isArray(post.tags) && post.tags.length > 0
           ? post.tags[0]
           : "General");
 
-      // Count by category
       const existingCategory = categoryMap.get(postCategory.toLowerCase());
       if (existingCategory) {
         existingCategory.count += 1;
@@ -144,7 +139,6 @@ export default function Blog() {
         });
       }
 
-      // Count by tags
       if (Array.isArray(post.tags)) {
         post.tags.forEach((tag) => {
           if (tag && typeof tag === "string") {
@@ -166,14 +160,12 @@ export default function Blog() {
       }
     });
 
-    // Add "All Posts" category
     const allPostsCategory = {
       id: "all",
       name: "All Posts",
       count: blogPosts.length,
     };
 
-    // Convert Map to array and sort by count (descending) then name
     const sortedCategories = Array.from(categoryMap.values()).sort((a, b) => {
       if (b.count !== a.count) return b.count - a.count;
       return a.name.localeCompare(b.name);
@@ -182,17 +174,17 @@ export default function Blog() {
     return [allPostsCategory, ...sortedCategories];
   }, [blogPosts]);
 
-  // Filter posts by category and search
+  // Filter posts
   const filteredPosts = useMemo(() => {
     if (!blogPosts || !Array.isArray(blogPosts)) return [];
 
     return blogPosts.filter((post: BlogPost) => {
-      // Category matching
       const postCategory =
         post.category ||
         (Array.isArray(post.tags) && post.tags.length > 0
           ? post.tags[0]
           : "General");
+
       const matchesCategory =
         selectedCategory === "all" ||
         postCategory.toLowerCase().includes(selectedCategory) ||
@@ -200,10 +192,9 @@ export default function Blog() {
           post.tags.some(
             (tag) =>
               typeof tag === "string" &&
-              tag.toLowerCase().includes(selectedCategory),
+              tag.toLowerCase().includes(selectedCategory)
           ));
 
-      // Search matching
       const matchesSearch =
         searchQuery === "" ||
         (post.title &&
@@ -216,24 +207,21 @@ export default function Blog() {
           post.tags.some(
             (tag) =>
               typeof tag === "string" &&
-              tag.toLowerCase().includes(searchQuery.toLowerCase()),
+              tag.toLowerCase().includes(searchQuery.toLowerCase())
           ));
 
       return matchesCategory && matchesSearch;
     });
   }, [blogPosts, selectedCategory, searchQuery]);
 
-  // Get featured post (prioritize isFeatured flag, fallback to first post)
+  // Featured post
   const featuredPost = useMemo(() => {
-    if (!blogPosts || !Array.isArray(blogPosts) || blogPosts.length === 0)
-      return null;
+    if (!blogPosts || blogPosts.length === 0) return null;
 
-    // Look for a post marked as featured
-    const markedFeatured = blogPosts.find((post: BlogPost) => post.isFeatured);
+    const markedFeatured = blogPosts.find((post) => post.isFeatured);
     if (markedFeatured) return markedFeatured;
 
-    // Fallback to the first published post
-    const firstPublished = blogPosts.find((post: BlogPost) => post.isPublished);
+    const firstPublished = blogPosts.find((post) => post.isPublished);
     return firstPublished || blogPosts[0];
   }, [blogPosts]);
 
@@ -296,7 +284,6 @@ export default function Blog() {
                     width={600}
                     height={400}
                     className="w-full h-64 object-cover"
-                    disableWebP={featuredPost.imageUrl.includes('Industry-Specific_Digital_Marketing_1.png') || featuredPost.imageUrl.includes('Blog_-_Ad_Fatigue_in_Digital_Marketing.png') || featuredPost.imageUrl.includes('hir.png') || featuredPost.imageUrl.includes('wls.png')}
                   />
                 </div>
                 <div className="md:w-1/2 p-8">
@@ -319,7 +306,7 @@ export default function Blog() {
                     <div className="flex items-center gap-1">
                       <Calendar className="h-4 w-4" />
                       {new Date(
-                        featuredPost.publishedAt || featuredPost.createdAt,
+                        featuredPost.publishedAt || featuredPost.createdAt
                       ).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
@@ -380,14 +367,12 @@ export default function Blog() {
           {/* Blog Posts Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post: BlogPost) => {
-              // Extract category for display
               const displayCategory =
                 post.category ||
                 (Array.isArray(post.tags) && post.tags.length > 0
                   ? post.tags[0]
                   : "Digital Marketing");
 
-              // Format date safely
               const publishDate = post.publishedAt || post.createdAt;
               const formattedDate = publishDate
                 ? new Date(publishDate).toLocaleDateString("en-US", {
@@ -397,7 +382,6 @@ export default function Blog() {
                   })
                 : "Recent";
 
-              // Ensure required fields have fallbacks
               const postTitle = post.title || "Untitled Article";
               const postExcerpt =
                 post.excerpt ||
@@ -418,7 +402,6 @@ export default function Blog() {
                     width={400}
                     height={250}
                     className="w-full h-48 object-cover"
-                    disableWebP={postImage.includes('Industry-Specific_Digital_Marketing_1.png') || postImage.includes('Blog_-_Ad_Fatigue_in_Digital_Marketing.png') || postImage.includes('hir.png') || postImage.includes('wls.png')}
                   />
                   <CardHeader>
                     <Badge variant="secondary" className="w-fit mb-2">
@@ -460,132 +443,6 @@ export default function Blog() {
               );
             })}
           </div>
-
-          {filteredPosts.length === 0 && blogPosts && blogPosts.length > 0 && (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                No articles found matching your criteria.
-              </p>
-              <p className="text-sm text-gray-400 mt-2">
-                Try adjusting your search or filters.
-              </p>
-              <div className="mt-6">
-                <Button
-                  onClick={() => {
-                    setSelectedCategory("all");
-                    setSearchQuery("");
-                  }}
-                  variant="outline"
-                >
-                  Clear Filters
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {(!blogPosts || blogPosts.length === 0) && !isLoading && (
-            <div className="text-center py-16">
-              <div className="max-w-md mx-auto">
-                <h3 className="text-xl font-semibold text-gray-700 mb-4">
-                  Expert Insights Available
-                </h3>
-                <p className="text-gray-500 mb-6">
-                  Explore our collection of digital marketing insights and
-                  strategies to grow your business.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {filteredPosts.length > 0 && (
-            <div className="mt-12 text-center">
-              <p className="text-sm text-gray-500 mb-4">
-                Showing {filteredPosts.length} article
-                {filteredPosts.length !== 1 ? "s" : ""}
-                {selectedCategory !== "all" &&
-                  ` in ${categories.find((c) => c.id === selectedCategory)?.name || selectedCategory}`}
-                {searchQuery && ` matching "${searchQuery}"`}
-              </p>
-              {(selectedCategory !== "all" || searchQuery) && (
-                <Button
-                  onClick={() => {
-                    setSelectedCategory("all");
-                    setSearchQuery("");
-                  }}
-                  variant="outline"
-                  size="sm"
-                >
-                  View All Articles
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Newsletter CTA */}
-      <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Stay Updated with Latest Insights
-          </h2>
-          <p className="text-xl mb-8 text-white/90">
-            Get expert digital marketing strategies delivered to your inbox
-          </p>
-          <div className="flex flex-col md:flex-row gap-4 max-w-md mx-auto">
-            <Input
-              placeholder="Enter your email"
-              className="bg-white text-gray-900 border-0"
-            />
-            <Button
-              className="bg-yellow-400 text-gray-900 hover:bg-yellow-300 font-semibold"
-              onClick={openCalendly}
-            >
-              Subscribe
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="grid md:grid-cols-3 gap-8 mb-12">
-            <div className="text-center">
-              <TrendingUp className="h-12 w-12 text-brand-purple mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Growth Strategies</h3>
-              <p className="text-gray-600">
-                Proven tactics to scale your business
-              </p>
-            </div>
-            <div className="text-center">
-              <Target className="h-12 w-12 text-brand-coral mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Expert Insights</h3>
-              <p className="text-gray-600">
-                Industry knowledge from our specialists
-              </p>
-            </div>
-            <div className="text-center">
-              <Globe className="h-12 w-12 text-brand-purple mx-auto mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Global Trends</h3>
-              <p className="text-gray-600">Stay ahead of market changes</p>
-            </div>
-          </div>
-
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to Transform Your Digital Strategy?
-          </h2>
-          <p className="text-xl text-gray-600 mb-8">
-            Let our experts help you implement these insights for your business
-          </p>
-          <Button
-            onClick={openCalendly}
-            size="lg"
-            className="bg-brand-purple hover:bg-brand-purple/90"
-          >
-            Get Free Strategy Session
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
         </div>
       </section>
 
