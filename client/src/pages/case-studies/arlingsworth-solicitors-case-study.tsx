@@ -93,7 +93,7 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                   href="https://www.arlingsworth.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600  flex items-center justify-center gap-1"
+                  className="text-blue-600 flex items-center justify-center gap-1"
                 >
                   arlingsworth.com <ExternalLink className="w-3 h-3" />
                 </a>
@@ -262,10 +262,10 @@ export default function ArlingsworthSolicitorsCaseStudy() {
             </div>
             <div className="max-w-4xl mx-auto">
               <OptimizedImage
-                src="/images/arlingsworth-solicitors-case.png"
+                src="/images/img_g1.png"
                 alt="Arlingsworth Solicitors Google Ads campaign performance showing £6.51 CPA and 18.95% conversion rate"
                 className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
-                fallbackSrc="/images/arlingsworth-solicitors-case.jpeg"
+                fallbackSrc="/images/img_g1.png"
                 loading="lazy"
               />
             </div>

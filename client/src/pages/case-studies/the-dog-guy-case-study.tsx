@@ -258,10 +258,10 @@ export default function TheDogGuyCaseStudy() {
             </div>
             <div className="max-w-4xl mx-auto">
               <OptimizedImage
-                src="/images/the-dog-guy-case.webp"
+                src="/images/img_g3.png"
                 alt="The Dog Guy Google Ads campaign performance showing 12.06% conversion rate and 192 total conversions"
                 className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
-                fallbackSrc="/images/the-dog-guy-case.png"
+                fallbackSrc="/images/img_g3.png"
                 loading="lazy"
               />
             </div>

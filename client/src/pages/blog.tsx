@@ -21,13 +21,9 @@ import {
   User,
   Clock,
   ArrowRight,
-  TrendingUp,
-  Target,
-  Globe,
 } from "lucide-react";
 import { getAllBlogPostsData } from "@/lib/blog-posts-map";
 
-// Blog post interface for type safety
 interface BlogPost {
   id: number;
   slug: string;
@@ -49,7 +45,6 @@ interface BlogPost {
   category?: string;
 }
 
-// Get static blog posts from mapping
 const staticBlogPosts: BlogPost[] = getAllBlogPostsData();
 
 export default function Blog() {
@@ -57,173 +52,61 @@ export default function Blog() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch blog posts from the API - with fallback to static posts
-  const {
-    data: databasePosts,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: databasePosts, isLoading } = useQuery({
     queryKey: ["blog-posts"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/blog", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache, no-store, must-revalidate",
-            Pragma: "no-cache",
-            Expires: "0",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch blog posts: ${response.status}`);
-        }
-
+        const response = await fetch("/api/blog");
+        if (!response.ok) throw new Error("Failed to fetch");
         const posts = await response.json();
-
-        const publishedPosts = Array.isArray(posts)
-          ? posts.filter((post) => post.isPublished)
-          : [];
-
-        return publishedPosts;
-      } catch (err) {
-        console.error("❌ Error fetching blog posts:", err);
-        return []; // fallback to empty, avoids crash
+        return Array.isArray(posts) ? posts.filter((p) => p.isPublished) : [];
+      } catch {
+        return [];
       }
     },
     staleTime: 1000 * 60 * 15,
-    gcTime: 1000 * 60 * 30,
     retry: 2,
   });
 
-  // Use database posts if available, otherwise use static posts
   const blogPosts = useMemo(() => {
-    let allPosts =
-      databasePosts && databasePosts.length > 0
-        ? databasePosts
-        : staticBlogPosts;
-
-    // 🚫 Filter out the blog we want to remove
+    let allPosts = databasePosts?.length ? databasePosts : staticBlogPosts;
     return allPosts.filter(
       (post: BlogPost) =>
         !post.imageUrl.includes("Blog_-_Ad_Fatigue_in_Digital_Marketing.png")
     );
   }, [databasePosts]);
 
-  const openCalendly = () => {
-    window.open(regionConfig.calendlyUrl, "_blank");
-  };
+  const openCalendly = () => window.open(regionConfig.calendlyUrl, "_blank");
 
-  // Use useMemo for memoizing categories
   const categories = useMemo(() => {
-    if (!blogPosts || !Array.isArray(blogPosts)) return [];
-
     const categoryMap = new Map();
-
     blogPosts.forEach((post: BlogPost) => {
-      const postCategory =
-        post.category ||
-        (Array.isArray(post.tags) && post.tags.length > 0
-          ? post.tags[0]
-          : "General");
-
-      const existingCategory = categoryMap.get(postCategory.toLowerCase());
-      if (existingCategory) {
-        existingCategory.count += 1;
-      } else {
-        categoryMap.set(postCategory.toLowerCase(), {
-          id: postCategory.toLowerCase(),
-          name: postCategory,
-          count: 1,
-        });
-      }
-
-      if (Array.isArray(post.tags)) {
-        post.tags.forEach((tag) => {
-          if (tag && typeof tag === "string") {
-            const tagKey = tag.toLowerCase().trim();
-            if (tagKey !== postCategory.toLowerCase()) {
-              const existingTag = categoryMap.get(tagKey);
-              if (existingTag) {
-                existingTag.count += 1;
-              } else {
-                categoryMap.set(tagKey, {
-                  id: tagKey,
-                  name: tag.trim(),
-                  count: 1,
-                });
-              }
-            }
-          }
-        });
-      }
+      const cat = post.category || post.tags?.[0] || "General";
+      categoryMap.set(cat.toLowerCase(), {
+        id: cat.toLowerCase(),
+        name: cat,
+        count: (categoryMap.get(cat.toLowerCase())?.count || 0) + 1,
+      });
     });
-
-    const allPostsCategory = {
-      id: "all",
-      name: "All Posts",
-      count: blogPosts.length,
-    };
-
-    const sortedCategories = Array.from(categoryMap.values()).sort((a, b) => {
-      if (b.count !== a.count) return b.count - a.count;
-      return a.name.localeCompare(b.name);
-    });
-
-    return [allPostsCategory, ...sortedCategories];
+    return [
+      { id: "all", name: "All Posts", count: blogPosts.length },
+      ...Array.from(categoryMap.values()).sort((a, b) => b.count - a.count),
+    ];
   }, [blogPosts]);
 
-  // Filter posts
   const filteredPosts = useMemo(() => {
-    if (!blogPosts || !Array.isArray(blogPosts)) return [];
-
     return blogPosts.filter((post: BlogPost) => {
-      const postCategory =
-        post.category ||
-        (Array.isArray(post.tags) && post.tags.length > 0
-          ? post.tags[0]
-          : "General");
-
+      const postCategory = post.category || post.tags?.[0] || "General";
       const matchesCategory =
         selectedCategory === "all" ||
-        postCategory.toLowerCase().includes(selectedCategory) ||
-        (Array.isArray(post.tags) &&
-          post.tags.some(
-            (tag) =>
-              typeof tag === "string" &&
-              tag.toLowerCase().includes(selectedCategory)
-          ));
-
+        postCategory.toLowerCase().includes(selectedCategory);
       const matchesSearch =
-        searchQuery === "" ||
-        (post.title &&
-          post.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (post.excerpt &&
-          post.excerpt.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (post.subtitle &&
-          post.subtitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (Array.isArray(post.tags) &&
-          post.tags.some(
-            (tag) =>
-              typeof tag === "string" &&
-              tag.toLowerCase().includes(searchQuery.toLowerCase())
-          ));
-
+        !searchQuery ||
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       return matchesCategory && matchesSearch;
     });
   }, [blogPosts, selectedCategory, searchQuery]);
-
-  // Featured post
-  const featuredPost = useMemo(() => {
-    if (!blogPosts || blogPosts.length === 0) return null;
-
-    const markedFeatured = blogPosts.find((post) => post.isFeatured);
-    if (markedFeatured) return markedFeatured;
-
-    const firstPublished = blogPosts.find((post) => post.isPublished);
-    return firstPublished || blogPosts[0];
-  }, [blogPosts]);
 
   if (isLoading) {
     return (
@@ -233,9 +116,6 @@ export default function Blog() {
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple mx-auto mb-4"></div>
             <p className="text-lg font-semibold">Loading Articles...</p>
-            <p className="text-sm text-gray-500 mt-2">
-              Fetching latest blog posts
-            </p>
           </div>
         </div>
         <Footer />
@@ -268,70 +148,7 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Featured Post */}
-      {featuredPost && (
-        <section className="py-16 px-4 bg-gray-50">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold mb-8 text-center">
-              Featured Article
-            </h2>
-            <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="md:flex">
-                <div className="md:w-1/2">
-                  <OptimizedImage
-                    src={featuredPost.imageUrl}
-                    alt={featuredPost.title}
-                    width={600}
-                    height={400}
-                    className="w-full h-64 object-cover"
-                  />
-                </div>
-                <div className="md:w-1/2 p-8">
-                  <Badge variant="secondary" className="mb-4">
-                    {featuredPost.category ||
-                      (Array.isArray(featuredPost.tags) &&
-                      featuredPost.tags.length > 0
-                        ? featuredPost.tags[0]
-                        : "Featured")}
-                  </Badge>
-                  <h3 className="text-2xl font-bold mb-4 text-gray-900">
-                    {featuredPost.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
-                  <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
-                    <div className="flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      {featuredPost.author || "BrandingBeez Team"}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(
-                        featuredPost.publishedAt || featuredPost.createdAt
-                      ).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {featuredPost.readTime || 5} min read
-                    </div>
-                  </div>
-                  <Link href={`/blog/${featuredPost.slug}`}>
-                    <Button className="bg-brand-purple hover:bg-brand-purple/90">
-                      Read Article
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </section>
-      )}
-
-      {/* Search and Filter */}
+      {/* Search & Category Filter */}
       <section className="py-12 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row gap-6 mb-8">
@@ -348,9 +165,7 @@ export default function Blog() {
               {categories.map((category) => (
                 <Button
                   key={category.id}
-                  variant={
-                    selectedCategory === category.id ? "default" : "outline"
-                  }
+                  variant={selectedCategory === category.id ? "default" : "outline"}
                   onClick={() => setSelectedCategory(category.id)}
                   className={
                     selectedCategory === category.id
@@ -364,15 +179,10 @@ export default function Blog() {
             </div>
           </div>
 
-          {/* Blog Posts Grid */}
+          {/* Blog Grid */}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post: BlogPost) => {
-              const displayCategory =
-                post.category ||
-                (Array.isArray(post.tags) && post.tags.length > 0
-                  ? post.tags[0]
-                  : "Digital Marketing");
-
+              const displayCategory = post.category || post.tags?.[0] || "Digital Marketing";
               const publishDate = post.publishedAt || post.createdAt;
               const formattedDate = publishDate
                 ? new Date(publishDate).toLocaleDateString("en-US", {
@@ -382,23 +192,14 @@ export default function Blog() {
                   })
                 : "Recent";
 
-              const postTitle = post.title || "Untitled Article";
-              const postExcerpt =
-                post.excerpt ||
-                post.subtitle ||
-                "Read this insightful article about digital marketing strategies and business growth.";
-              const postAuthor = post.author || "BrandingBeez Team";
-              const postReadTime = post.readTime || 5;
-              const postImage = post.imageUrl || "";
-
               return (
                 <Card
                   key={post.id}
                   className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
                 >
                   <OptimizedImage
-                    src={postImage}
-                    alt={postTitle}
+                    src={post.imageUrl || ""}
+                    alt={post.title || "Untitled"}
                     width={400}
                     height={250}
                     className="w-full h-48 object-cover"
@@ -408,17 +209,17 @@ export default function Blog() {
                       {displayCategory}
                     </Badge>
                     <CardTitle className="text-lg line-clamp-2 hover:text-brand-purple transition-colors">
-                      {postTitle}
+                      {post.title || "Untitled Article"}
                     </CardTitle>
                     <CardDescription className="line-clamp-3">
-                      {postExcerpt}
+                      {post.excerpt || post.subtitle || "Insightful digital marketing article."}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <User className="h-4 w-4" />
-                        {postAuthor}
+                        {post.author || "BrandingBeez Team"}
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
@@ -426,7 +227,7 @@ export default function Blog() {
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {postReadTime} min
+                        {post.readTime || 5} min
                       </div>
                     </div>
                     <Link href={`/blog/${post.slug}`}>
