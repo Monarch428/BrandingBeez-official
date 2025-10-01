@@ -1349,7 +1349,7 @@ export default function Services() {
                       </div>
 
                       {/* Fixed button container at bottom */}
-                      <div className="mt-auto pt-6 space-y-3">
+                      <div className="mt-auto pt-6 space-y-6">
                         {service.id === "n8n-automations" ? (
                           <>
                             <div className="text-center py-3 mb-2">
@@ -1368,62 +1368,61 @@ export default function Services() {
                             </Link>
                           </>
                         ) : hasCoupon ? (
-                          <>
-                            {!showCoupons[service.id] ? (
-                              <Button
-                                onClick={() => handleRevealCoupon(service.id)}
-                                className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold transition-colors"
-                              >
-                                <Gift className="w-4 h-4 mr-2" />
-                                Get {service.discount} - {service.discountDescription}
-                              </Button>
-                            ) : (
-                              <div className="space-y-4">
-                                <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 rounded-lg">
-                                  <div className="text-sm font-medium text-brand-purple mb-3">
-                                    Your coupon code:
-                                  </div>
-                                  <div className="flex items-center gap-2 p-3 bg-white rounded border">
-                                    <code className="font-mono text-sm font-bold text-brand-purple flex-1">
-                                      {service.couponCode}
-                                    </code>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      onClick={() =>
-                                        handleCopyCoupon(
-                                          service.couponCode,
-                                          service.id,
-                                        )
-                                      }
-                                      className="h-8 px-3 text-xs border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
-                                    >
-                                      <Copy className="w-3 h-3 mr-1" />
-                                      {couponCopied[service.id] ? "✓" : "Copy"}
-                                    </Button>
-                                  </div>
-                                </div>
-                                <Link
-                                  href={`/contact?coupon=${service.couponCode}&service=${service.id}`}
-                                >
-                                  <Button className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold transition-colors">
-                                    Use Coupon in Contact Form
-                                    <ArrowRight className="w-4 h-4 ml-2" />
-                                  </Button>
-                                </Link>
-                              </div>
-                            )}
-                            <Link href={service.href}>
-                              <Button
-                                variant="outline"
-                                className="w-full h-11 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
-                              >
-                                Learn More
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                              </Button>
-                            </Link>
-                          </>
-                        ) : (
+  <div className="space-y-4">
+    {!showCoupons[service.id] ? (
+      <Button
+        onClick={() => handleRevealCoupon(service.id)}
+        className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold transition-colors"
+      >
+        <Gift className="w-4 h-4 mr-2" />
+        Get {service.discount} - {service.discountDescription}
+      </Button>
+    ) : (
+      <div className="space-y-4">
+        <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 rounded-lg">
+          <div className="text-sm font-medium text-brand-purple mb-3">
+            Your coupon code:
+          </div>
+          <div className="flex items-center gap-2 p-3 bg-white rounded border">
+            <code className="font-mono text-sm font-bold text-brand-purple flex-1">
+              {service.couponCode}
+            </code>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() =>
+                handleCopyCoupon(service.couponCode, service.id)
+              }
+              className="h-8 px-3 text-xs border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
+            >
+              <Copy className="w-3 h-3 mr-1" />
+              {couponCopied[service.id] ? "✓" : "Copy"}
+            </Button>
+          </div>
+        </div>
+        <Link
+          href={`/contact?coupon=${service.couponCode}&service=${service.id}`}
+        >
+          <Button className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold transition-colors">
+            Use Coupon in Contact Form
+            <ArrowRight className="w-4 h-4 ml-2" />
+          </Button>
+        </Link>
+      </div>
+    )}
+
+    <Link href={service.href}>
+      <Button
+        variant="outline"
+        className="w-full h-11 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
+      >
+        Learn More
+        <ArrowRight className="w-4 h-4 ml-2" />
+      </Button>
+    </Link>
+  </div>
+)
+ : (
                           <Link href={service.href}>
                             <Button className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white transition-colors">
                               Learn More
@@ -1507,7 +1506,7 @@ export default function Services() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-10 justify-center items-center">
               <Button
                 asChild
                 size="lg"
