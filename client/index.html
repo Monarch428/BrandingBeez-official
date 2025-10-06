@@ -1,6 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
+    <meta http-equiv="Content-Security-Policy"
+    content="
+      default-src 'self' data: blob:;
+      script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://c.clarity.ms https://scripts.clarity.ms https://cdn.jsdelivr.net https://assets.calendly.com https://replit.com 'unsafe-inline' 'unsafe-eval';
+      script-src-attr 'unsafe-inline';
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com;
+      img-src 'self' data: blob: https://www.googletagmanager.com https://www.google-analytics.com https://www.google.co.in https://www.google.com https://assets.calendly.com https://stats.g.doubleclick.net https://c.clarity.ms https://www.clarity.ms;
+      connect-src 'self' https://*.google-analytics.com https://*.doubleclick.net https://*.clarity.ms https://assets.calendly.com;
+      font-src 'self' https://fonts.gstatic.com https://assets.calendly.com;
+      frame-src https://calendly.com https://*.calendly.com;
+      object-src 'none';
+      base-uri 'self';
+    ">
+
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -21,7 +36,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
     <meta name="format-detection" content="telephone=no" />
     <base href="/" />
-    <meta http-equiv="Content-Security-Policy"
+    <!-- <meta http-equiv="Content-Security-Policy"
       content="
       default-src 'self' data: blob:;
       script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://c.clarity.ms https://scripts.clarity.ms https://cdn.jsdelivr.net https://assets.calendly.com https://replit.com 'unsafe-inline' 'unsafe-eval';
@@ -33,7 +48,7 @@
       frame-src https://calendly.com https://*.calendly.com;
       object-src 'none';
       base-uri 'self';
-      ">
+      "> -->
     <title>BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies</title>
     <meta name="description" content="Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide." />
     
