@@ -374,18 +374,24 @@ export default function WebDevelopment() {
                       ))}
                     </ul>
 
-                    <div className="mt-auto pt-8 border-t border-gray-100">
-                      <Button
-                        className={`w-full py-6 px-8 font-bold text-lg transition-all duration-300 ${
-                          pkg.popular
-                            ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
-                            : "bg-brand-purple hover:bg-brand-purple/90 text-white"
-                        }`}
-                      >
-                        {pkg.id === 1 ? 'Start Your Website' : pkg.id === 2 ? 'Get Business Website' : 'Launch Your Store'}
-                        <Gift className="w-5 h-5 ml-3" />
-                      </Button>
-                    </div>
+                   <div className="mt-auto pt-8 border-t border-gray-100">
+  <Link href="/contact" className="w-full">
+    <Button
+      className={`w-full py-6 px-8 font-bold text-lg transition-all duration-300 ${
+        pkg.popular
+          ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+          : "bg-brand-purple hover:bg-brand-purple/90 text-white"
+      }`}
+    >
+      {pkg.id === 1
+        ? "Start Your Website"
+        : pkg.id === 2
+        ? "Get Business Website"
+        : "Launch Your Store"}
+      <Gift className="w-5 h-5 ml-3" />
+    </Button>
+  </Link>
+</div>
                   </CardContent>
                 </Card>
               ))}

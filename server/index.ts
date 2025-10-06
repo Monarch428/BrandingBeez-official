@@ -269,10 +269,9 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
+      port,
+      host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
   }, () => {
-    log(`serving on port ${port}`);
+      log(`serving on port ${port}`);
   });
 })();

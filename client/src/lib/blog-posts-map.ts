@@ -4,7 +4,9 @@ import { lazy } from "react";
 // Lazy load blog post components
 const AIBusinessGrowthBlog = lazy(() => import("@/pages/blog/posts/ai-solutions-business-growth-2025"));
 const WhiteLabelSEOPPCBlog = lazy(() => import("@/pages/blog/posts/white-label-seo-ppc-2025"));
-const DedicatedTeamHiringBlog = lazy(() => import("@/pages/blog/posts/dedicated-team-hiring-2025"));
+const DedicatedTeamHiringBlogPost = lazy(() => import("@/pages/blog/posts/dedicated-team-hiring-2025"));
+const DedicatedTeamHiringBlog = lazy(() => import("@/pages/blog/dedicated-team-hiring-2025"));
+
 const IndustrySpecificDigitalMarketingBlog = lazy(() => import("@/pages/blog/industry-specific-digital-marketing-strategies-2025"));
 const AdFatigueDigitalMarketingBlog = lazy(() => import("@/pages/blog/ad-fatigue-digital-marketing-2025"));
 const BeautyDigitalMarketingBlog = lazy(() => import("@/pages/blog/beauty-digital-marketing-2025"));
@@ -12,7 +14,7 @@ const LawFirmDigitalMarketingBlog = lazy(() => import("@/pages/blog/digital-mark
 
 // Blog post mapping with full content
 export const blogPostsMap: Record<string, { component: React.ComponentType; data: any }> = {
-  "ai-solutions-business-growth-2025": {
+  "ai-solutions-for-business-growth-2025-transform-your-operations": {
     component: AIBusinessGrowthBlog,
     data: {
       id: 1,
@@ -43,7 +45,7 @@ In today's customer-centric world, delivering personalized experiences is vital 
 Top AI development companies are designing these tools to adapt to diverse markets, ensuring relevance across different cultures and regions. In 2025, as consumer expectations continue to rise, leveraging AI to craft personalized experiences will be crucial for retaining customers and driving sales. This global approach to customer engagement positions businesses for success in an increasingly connected world.`
     }
   },
-  "white-label-seo-ppc-2025": {
+  "white-label-seo-ppc-agency-scaling": {
     component: WhiteLabelSEOPPCBlog,
     data: {
       id: 2,
@@ -72,8 +74,10 @@ White label SEO includes a wide range of tasks such as keyword research, on-page
 Similarly, white label PPC services cover comprehensive pay-per-click campaign management from ad creation to bid management, conversion tracking, and continuous optimization. These services use data-driven strategies to maximize your clients' ROI. Your agency benefits from the expertise of PPC professionals without the need for an in-house team.`
     }
   },
+
+  
   "dedicated-team-hiring-2025": {
-    component: DedicatedTeamHiringBlog,
+    component: DedicatedTeamHiringBlogPost,
     data: {
       id: 3,
       slug: "dedicated-team-hiring-2025",
@@ -103,6 +107,37 @@ From mobile applications to enterprise systems, dedicated software developers de
 A dedicated SEO specialist ensures your website ranks well in search engines, increasing visibility and attracting qualified traffic. Their work includes keyword strategy, technical SEO audits, and link-building campaigns. You can also hire dedicated designers, content writers, marketers, or analysts — depending on your project needs.`
     }
   },
+
+  "white-label-seo-2025": {
+    component: WhiteLabelSEOPPCBlog,
+    data: {
+      id: 2,
+      slug: "white-label-seo-2025",
+      title: "White Label SEO & PPC Explained: The 2025 Solution to Scale Your Agency Globally",
+      subtitle: "Complete guide to white label services for agencies",
+      excerpt: "Discover how white label SEO and PPC services can help your agency scale globally in 2025. Learn about cost savings, dedicated expertise, and local SEO strategies for business growth.",
+      tags: ["White Label", "SEO", "PPC", "Agency Growth"],
+      author: "Digital Marketing Team",
+      readTime: 10,
+      isPublished: true,
+      isFeatured: false,
+      metaDescription: "Discover how white label SEO and PPC services can help your agency scale globally in 2025. Learn about cost savings, dedicated expertise, and local SEO strategies for business growth.",
+      metaTitle: "White Label SEO & PPC Explained: The 2025 Solution to Scale Your Agency Globally | BrandingBeez",
+      createdAt: "2025-01-20T00:00:00Z",
+      updatedAt: "2025-01-20T00:00:00Z",
+      publishedAt: "2025-01-20T00:00:00Z",
+      category: "Digital Marketing",
+      imageUrl: "@assets/image_1756200790366.png",
+      content: `In today's competitive digital marketing landscape, agencies worldwide are seeking smarter ways to grow their offerings without the burden and costs of expanding internal teams. White label SEO and PPC services have emerged as a game-changing solution, allowing agencies to provide expert services under their own brand while outsourcing the actual work to trusted partners. This approach lets agencies tap into advanced skill sets, cutting-edge white label SEO tools, and scalable resources without the overhead of hiring and training new employees.
+
+White label SEO and PPC services enable digital marketing agencies to extend their portfolio without hiring more internal staff or investing heavily in new technology. In this setup, an experienced provider performs the SEO and PPC work behind the scenes, while your agency retains full branding and client ownership.
+
+White label SEO includes a wide range of tasks such as keyword research, on-page optimization, link building, and technical SEO audits. Providers use sophisticated white label SEO tools to analyze competition, track rankings, and provide actionable insights. Local SEO whitelabel strategies further help your clients dominate search results in their geographical service areas with targeted optimization.
+
+Similarly, white label PPC services cover comprehensive pay-per-click campaign management from ad creation to bid management, conversion tracking, and continuous optimization. These services use data-driven strategies to maximize your clients' ROI. Your agency benefits from the expertise of PPC professionals without the need for an in-house team.`
+    }
+  },
+
   "industry-specific-digital-marketing-strategies-2025": {
     component: IndustrySpecificDigitalMarketingBlog,
     data: {
@@ -138,6 +173,46 @@ Digital dental marketing includes SEO for "dentist near me" and service keywords
 Every niche requires a custom approach. From beauty to healthcare, the key to success in 2025 is tailored digital marketing that aligns with audience needs and industry regulations.`
     }
   },
+
+
+
+"dedicated-team-hiring-guide": {
+    component: DedicatedTeamHiringBlog,
+    data: {
+      id: 4,
+      slug: "industry-specific-digital-marketing-strategies-2025",
+      title: "Industry-Specific Digital Marketing: Tailored Strategies for Every Niche",
+      subtitle: "Specialized marketing strategies for different industries",
+      excerpt: "Discover tailored digital marketing strategies for beauty, healthcare, real estate, restaurants, and more. Learn the latest trends shaping each industry in 2025.",
+      tags: ["Industry Marketing", "Digital Strategy", "Healthcare Marketing", "Real Estate Marketing"],
+      author: "BrandingBeez Team",
+      readTime: 15,
+      isPublished: true,
+      isFeatured: false,
+      metaDescription: "Discover tailored digital marketing strategies for beauty, healthcare, real estate, restaurants, and more. Learn the latest trends shaping each industry in 2025.",
+      metaTitle: "Industry-Specific Digital Marketing: Tailored Strategies for Every Niche | BrandingBeez",
+      createdAt: "2025-08-22T00:00:00Z",
+      updatedAt: "2025-08-22T00:00:00Z",
+      publishedAt: "2025-08-22T00:00:00Z",
+      category: "Industry Marketing",
+      imageUrl: "client\public\images\hir.png",
+      content: `Not all industries market the same way. A strategy that works for a restaurant won't work for a chiropractor or a real estate agent. That's where industry-specific digital marketing comes in.
+
+Connect with the right audience at the right time. Improve engagement and conversions. Maximize ROI with targeted strategies. Below are proven approaches across major industries in 2025.
+
+A beauty digital marketing agency focuses on branding, visual storytelling, and influencer-driven campaigns. Instagram, TikTok, and YouTube tutorials. Partnerships with beauty influencers. Social commerce with shoppable posts. SEO for product-focused searches (e.g., "best vegan skincare").
+
+For chiropractors, digital marketing drives local patient acquisition. Local SEO (optimize Google Business Profile). Patient testimonials and video case studies. Targeted Facebook & Google Ads ("chiropractor near me"). Email nurturing for appointment reminders and follow-ups.
+
+Construction and contractor marketing focuses on building credibility and showcasing past work. Local SEO + service area optimization. Paid ads targeting "contractor + city" searches. Project galleries and case study videos. LinkedIn marketing for B2B construction firms.
+
+Digital dental marketing includes SEO for "dentist near me" and service keywords. Paid Google Ads for high-intent services. Reviews & reputation management. Patient education blogs and explainer videos.
+
+Every niche requires a custom approach. From beauty to healthcare, the key to success in 2025 is tailored digital marketing that aligns with audience needs and industry regulations.`
+    }
+  },
+
+
   "ad-fatigue-digital-marketing-2025": {
     component: AdFatigueDigitalMarketingBlog,
     data: {

@@ -448,7 +448,7 @@ export function BlogPostsManager() {
           </Dialog>
 
           {/* Test Blog Creation Button */}
-          <Button 
+          {/* <Button 
             variant="outline" 
             onClick={() => {
               const testBlogData = {
@@ -502,7 +502,8 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
             }}
           >
             Create Test Blog
-          </Button>
+          </Button> */}
+        
 
           {/* Manual Blog Creation Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

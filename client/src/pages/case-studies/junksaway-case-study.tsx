@@ -267,10 +267,10 @@ export default function JunksAwayCaseStudy() {
             </div>
             <div className="max-w-4xl mx-auto">
               <OptimizedImage
-                src="/images/junksaway-case.webp"
+                src="/images/img_g2.png"
                 alt="JunksAway Google Ads campaign performance showing $6.09 CPA and 706 total conversions"
                 className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
-                fallbackSrc="/images/junksaway-case.png"
+                fallbackSrc="/images/img_g2.png"
                 loading="lazy"
               />
             </div>
