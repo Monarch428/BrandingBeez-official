@@ -55,11 +55,12 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com https://www.clarity.ms https://c.clarity.ms https://scripts.clarity.ms",
     "script-src-elem 'self' 'unsafe-inline' https://scripts.clarity.ms https://www.clarity.ms https://c.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com",
+    "script-src-attr 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com",
     "font-src 'self' https://fonts.gstatic.com https://assets.calendly.com",
     "img-src 'self' data: blob: https: http: https://c.clarity.ms https://www.clarity.ms",
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.clarity.ms https://c.clarity.ms https://api.calendly.com https://region1.google-analytics.com https://stats.g.doubleclick.net",
-    "frame-src 'self' https://calendly.com https://www.googletagmanager.com",
+    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.clarity.ms https://c.clarity.ms https://k.clarity.ms https://o.clarity.ms https://s.clarity.ms https://api.calendly.com https://calendly.com https://*.calendly.com https://region1.google-analytics.com https://stats.g.doubleclick.net",
+    "frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com",
     "object-src 'none'",
     "base-uri 'self'"
   ].join('; ');

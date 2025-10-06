@@ -82,10 +82,6 @@
     <link rel="modulepreload" href="/src/pages/home.tsx">
     <link rel="preload" href="/src/index.css" as="style">
     
-    <!-- Critical resource priorities to eliminate sequential loading -->
-    <link rel="preload" href="https://assets.calendly.com/assets/external/widget.js" as="script" crossorigin>
-    <link rel="preload" href="https://assets.calendly.com/assets/external/widget.css" as="style" crossorigin>
-    
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
@@ -97,13 +93,8 @@
     <link rel="dns-prefetch" href="https://analytics.google.com">
     
     
-    <!-- Load font CSS completely non-blocking -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet';">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"></noscript>
-    
-    <!-- Load Calendly CSS completely non-blocking -->
-    <link rel="preload" href="https://assets.calendly.com/assets/external/widget.css" as="style" onload="this.onload=null;this.rel='stylesheet';">
-    <noscript><link rel="stylesheet" href="https://assets.calendly.com/assets/external/widget.css"></noscript>
+    <!-- Load font CSS -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
     
     <!-- Performance optimizations -->
     <meta name="robots" content="index, follow">
@@ -214,9 +205,8 @@
       }
     </style>
     
-    <!-- Main CSS bundle loads completely non-blocking to eliminate render blocking -->
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" media="print" onload="this.media='all';this.onload=null;">
-    <noscript><link rel="stylesheet" href="/src/index.css"></noscript>
+    <!-- Main CSS bundle -->
+    <link rel="stylesheet" href="/src/index.css">
     
     <!-- Resource optimization will be handled via external script -->
     
