@@ -5,6 +5,7 @@ import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
+import cors from "cors";
 
 const viteLogger = createLogger();
 
@@ -39,6 +40,17 @@ export async function setupVite(app: Express, server: Server) {
     server: serverOptions,
     appType: "custom",
   });
+
+
+  app.use(cors({
+    origin: [
+      "https://brandingbeez-official.onrender.com",  // your Render production URL
+      "http://localhost:5173",                       // local Vite dev URL
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }));
 
   app.use(vite.middlewares);
   app.use("*", async (req, res, next) => {
@@ -80,6 +92,15 @@ export function serveStatic(app: Express) {
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
+app.use(cors({
+    origin: [
+      "https://brandingbeez-official.onrender.com",
+      "http://localhost:5173",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }));
 
   app.use(express.static(distPath));
 
