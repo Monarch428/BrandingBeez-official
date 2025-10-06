@@ -34,11 +34,9 @@ if (process.env.NODE_ENV === 'production') {
 
 // Security and performance headers
 app.use((req: Request, res: Response, next: NextFunction) => {
-  // Performance headers
+  // Performance headers (helmet handles most security headers via security.ts)
   res.setHeader('X-DNS-Prefetch-Control', 'on');
-  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  
+
   // Proper MIME types to fix PageSpeed errors
   if (req.path.endsWith('.css')) {
     res.setHeader('Content-Type', 'text/css; charset=utf-8');
@@ -49,24 +47,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   } else if (req.path.endsWith('.json')) {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
   }
-  
-  // Content Security Policy with comprehensive Clarity support
-  const cspHeader = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com https://www.clarity.ms https://c.clarity.ms https://scripts.clarity.ms",
-    "script-src-elem 'self' 'unsafe-inline' https://scripts.clarity.ms https://www.clarity.ms https://c.clarity.ms https://www.googletagmanager.com https://www.google-analytics.com https://assets.calendly.com",
-    "script-src-attr 'unsafe-inline'",
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://assets.calendly.com",
-    "font-src 'self' https://fonts.gstatic.com https://assets.calendly.com",
-    "img-src 'self' data: blob: https: http: https://c.clarity.ms https://www.clarity.ms",
-    "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.clarity.ms https://c.clarity.ms https://k.clarity.ms https://o.clarity.ms https://s.clarity.ms https://api.calendly.com https://calendly.com https://*.calendly.com https://region1.google-analytics.com https://stats.g.doubleclick.net",
-    "frame-src 'self' https://calendly.com https://*.calendly.com https://www.googletagmanager.com",
-    "object-src 'none'",
-    "base-uri 'self'"
-  ].join('; ');
-  
-  res.setHeader('Content-Security-Policy', cspHeader);
-  
+
   // Enable server push for HTTP/2
   if (req.headers['accept'] && req.headers['accept'].includes('text/html')) {
     res.setHeader('Link', '</src/main.tsx>; rel=modulepreload, </src/index.css>; rel=preload; as=style');
