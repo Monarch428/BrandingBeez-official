@@ -183,7 +183,7 @@ export default function WebDevelopment() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                  🏆 Featured UK White-Label Partnership
+                  🏆 UK White-Label Partnership
                 </Badge>
                 <h1 className="text-4xl font-bold mb-6">
                   SocialLand Digital
