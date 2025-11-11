@@ -45,7 +45,8 @@ export async function setupVite(app: Express, server: Server) {
   app.use(cors({
     origin: [
       "https://brandingbeez-official.onrender.com",  // your Render production URL
-      "http://localhost:5173",                       // local Vite dev URL
+      "http://localhost:5173",
+      "https://brandingbeez.co.uk"                       // local Vite dev URL
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
