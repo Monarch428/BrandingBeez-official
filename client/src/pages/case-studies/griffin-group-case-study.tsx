@@ -361,7 +361,7 @@ export default function GriffinGroupCaseStudy() {
 
         {/* Strategy & Implementation */}
         <section className="py-16 bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-          <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-6xl mx-auto px-4">
             <div className="text-center mb-12">
               <Badge className="bg-brand-coral text-white mb-4">
                 SEO Strategy
@@ -376,10 +376,10 @@ export default function GriffinGroupCaseStudy() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* <div className="grid md:grid-cols-2 gap-8 mb-12">
               <Card className="p-8  transition-shadow">
-                <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-6">
-                  <Search className="w-6 h-6 text-brand-coral" />
+                <div className="w-10 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
+                  <Search className="w-6 h-6 text-white" />
                 </div>
                 <h4 className="text-xl font-bold text-gray-900 mb-4">
                   Keyword Research & Targeting
@@ -479,6 +479,249 @@ export default function GriffinGroupCaseStudy() {
                     <span>Map visibility and citation accuracy</span>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Local press and PR outreach</span>
+                  </div>
+                </div>
+              </Card>
+            </div> */}
+
+            {/* <div className="grid md:grid-cols-2 gap-8 mb-12 items-center text-center">
+              <Card className="p-8 transition-shadow flex flex-col items-center">
+                <div className="flex items-center justify-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center shrink-0">
+                    <Search className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    Keyword Research & Targeting
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-600">
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>High-intent local property and agent terms</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>"estate agents in Essex" optimization</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>"homes for sale Grays" targeting</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Local development-specific queries</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow flex flex-col items-center text-center">
+                <div className="flex items-center justify-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center shrink-0">
+                    <Settings className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    Technical SEO Fixes
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-600">
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Implemented proper schema markup</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Fixed duplicate metadata issues</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Enhanced internal linking structure</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Mobile Core Web Vitals optimization</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow flex flex-col items-center text-center">
+                <div className="flex items-center justify-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center shrink-0">
+                    <Globe className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    Content Strategy
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-600">
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Refreshed property listings and area pages</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Development-specific landing pages</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Location-specific service guides</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Enhanced city/town content targeting</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow flex flex-col items-center text-center">
+                <div className="flex items-center justify-start gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center shrink-0">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    Local SEO Optimization
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-600">
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Google Business Profile optimization</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Local business directory submissions</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Map visibility and citation accuracy</span>
+                  </div>
+                  <div className="flex items-center justify-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Local press and PR outreach</span>
+                  </div>
+                </div>
+              </Card>
+            </div> */}
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <Card className="p-8 transition-shadow h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center shrink-0">
+                    <Search className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 leading-tight">
+                    Keyword Research & Targeting
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>High-intent local property and agent terms</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>"estate agents in Essex" optimization</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>"homes for sale Grays" targeting</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Local development-specific queries</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center shrink-0">
+                    <Settings className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 leading-tight">
+                    Technical SEO Fixes
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Implemented proper schema markup</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Fixed duplicate metadata issues</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Enhanced internal linking structure</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Mobile Core Web Vitals optimization</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center shrink-0">
+                    <Globe className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 leading-tight">
+                    Content Strategy
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Refreshed property listings and area pages</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Development-specific landing pages</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Location-specific service guides</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Enhanced city/town content targeting</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow h-full">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center shrink-0">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 leading-tight">
+                    Local SEO Optimization
+                  </h4>
+                </div>
+
+                <div className="space-y-3 text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Google Business Profile optimization</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Local business directory submissions</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Map visibility and citation accuracy</span>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <CheckCircle className="w-4 h-4 text-brand-purple" />
                     <span>Local press and PR outreach</span>
                   </div>
@@ -643,56 +886,56 @@ export default function GriffinGroupCaseStudy() {
             </div>
 
             {/* The Human Element */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-6">
                 What Made Collaboration Work
               </h3>
-              <div className="space-y-6">
-                <div>
-                  <p className="text-gray-600 leading-relaxed">
-                    Frequent, clear reporting enabled Social Land and Griffin
-                    Group to align on priorities and pivot fast when analytics
-                    revealed new opportunities. Success was driven by a mix of
-                    disciplined technical work, transparent progress logs, and
-                    proactive content ideation tailored to local search intent.
-                  </p>
-                </div>
 
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3 text-brand-purple">
+              <div className="space-y-6">
+                <p className="text-gray-600 leading-relaxed max-w-6xl mx-auto">
+                  Frequent, clear reporting enabled Social Land and Griffin Group to align on
+                  priorities and pivot fast when analytics revealed new opportunities.
+                  Success was driven by a mix of disciplined technical work, transparent
+                  progress logs, and proactive content ideation tailored to local search intent.
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-8 justify-items-center">
+                  {/* Communication Structure */}
+                  <div className="flex flex-col items-center text-center">
+                    <h3 className="text-lg font-bold text-brand-purple mb-4">
                       Communication Structure
                     </h3>
-                    <div className="space-y-2 text-gray-600">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-3 text-gray-600">
+                      <div className="flex items-center justify-start gap-3">
                         <CheckCircle className="w-4 h-4 text-brand-purple" />
                         <span>Weekly check-ins for priority alignment</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-start gap-3">
                         <CheckCircle className="w-4 h-4 text-brand-purple" />
                         <span>Monthly executive summaries</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-start gap-3">
                         <CheckCircle className="w-4 h-4 text-brand-purple" />
                         <span>Real-time reporting dashboards</span>
                       </div>
                     </div>
                   </div>
 
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-3 text-brand-coral">
+                  {/* Key Success Factors */}
+                  <div className="flex flex-col items-center text-center">
+                    <h3 className="text-lg font-bold text-brand-coral mb-4">
                       Key Success Factors
                     </h3>
-                    <div className="space-y-2 text-gray-600">
-                      <div className="flex items-center gap-2">
+                    <div className="space-y-3 text-gray-600">
+                      <div className="flex items-center justify-start gap-3">
                         <CheckCircle className="w-4 h-4 text-brand-coral" />
                         <span>Proactive documentation approach</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-start gap-3">
                         <CheckCircle className="w-4 h-4 text-brand-coral" />
                         <span>Ready-to-send branded dashboards</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-start gap-3">
                         <CheckCircle className="w-4 h-4 text-brand-coral" />
                         <span>Step-by-step change logs</span>
                       </div>
@@ -721,7 +964,7 @@ export default function GriffinGroupCaseStudy() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* <div className="grid md:grid-cols-2 gap-8 mb-12">
               <Card className="p-8  transition-shadow">
                 <div className="w-12 h-12 bg-brand-purple/10 rounded-lg flex items-center justify-center mb-6">
                   <BarChart3 className="w-6 h-6 text-brand-purple" />
@@ -775,48 +1018,113 @@ export default function GriffinGroupCaseStudy() {
                   </div>
                 </div>
               </Card>
+            </div> */}
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <Card className="p-8 transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-8 bg-brand-purple rounded-lg flex items-center justify-center shrink-0">
+                    <BarChart3 className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    Tools & Technology
+                  </h4>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Google Analytics & Search Console</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Screaming Frog technical audits</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>SurferSEO content optimization</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-purple" />
+                    <span>Looker Studio reporting dashboards</span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-8 bg-brand-coral rounded-lg flex items-center justify-center shrink-0">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    Key Innovations
+                  </h4>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Auto-updating Looker dashboard</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Split-testing property page templates</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Granular local content targeting</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>Phased technical sprint methodology</span>
+                  </div>
+                </div>
+              </Card>
             </div>
 
             {/* Challenges & Solutions */}
-            <div className="bg-white rounded-2xl p-8 shadow-lg">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+            <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-8">
                 Challenges Overcome
               </h3>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-4 text-brand-coral">
+
+              <div className="grid md:grid-cols-2 gap-8 justify-items-center">
+                {/* Main Challenges */}
+                <div className="flex flex-col items-center text-center">
+                  <h4 className="text-lg font-bold text-brand-coral mb-4">
                     Main Challenges
                   </h4>
                   <div className="space-y-3">
-                    <div className="flex items-start gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-brand-coral rounded-full mt-2"></div>
+                    <div className="flex items-center justify-start gap-3 text-gray-600">
+                      <div className="w-2 h-2 bg-brand-coral rounded-full"></div>
                       <span>Deeply inconsistent metadata across site</span>
                     </div>
-                    <div className="flex items-start gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-brand-coral rounded-full mt-2"></div>
+                    <div className="flex items-center justify-start gap-3 text-gray-600">
+                      <div className="w-2 h-2 bg-brand-coral rounded-full"></div>
                       <span>Weak mobile Core Web Vitals performance</span>
                     </div>
-                    <div className="flex items-start gap-2 text-gray-600">
-                      <div className="w-2 h-2 bg-brand-coral rounded-full mt-2"></div>
+                    <div className="flex items-center justify-start gap-3 text-gray-600">
+                      <div className="w-2 h-2 bg-brand-coral rounded-full"></div>
                       <span>Overlapping search intent for town/area names</span>
                     </div>
                   </div>
                 </div>
-                <div>
-                  <h4 className="text-lg font-bold text-gray-900 mb-4 text-brand-purple">
+
+                {/* Solutions Implemented */}
+                <div className="flex flex-col items-center text-center">
+                  <h4 className="text-lg font-bold text-brand-purple mb-4">
                     Solutions Implemented
                   </h4>
                   <div className="space-y-3">
-                    <div className="flex items-start gap-2 text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-brand-purple mt-1" />
+                    <div className="flex items-center justify-start gap-3 text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span>Rapid systemic templating for metadata</span>
                     </div>
-                    <div className="flex items-start gap-2 text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-brand-purple mt-1" />
+                    <div className="flex items-center justify-start gap-3 text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span>Staged rollouts minimizing site risk</span>
                     </div>
-                    <div className="flex items-start gap-2 text-gray-600">
-                      <CheckCircle className="w-4 h-4 text-brand-purple mt-1" />
+                    <div className="flex items-center justify-start gap-3 text-gray-600">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span>Granular content targeting strategy</span>
                     </div>
                   </div>
@@ -843,7 +1151,7 @@ export default function GriffinGroupCaseStudy() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* <div className="grid md:grid-cols-2 gap-8 mb-12">
               <Card className="p-8  transition-shadow">
                 <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-6">
                   <Target className="w-6 h-6 text-brand-coral" />
@@ -889,6 +1197,63 @@ export default function GriffinGroupCaseStudy() {
                     <span>
                       Town/area names had confusing overlapping search
                       intent—solved with granular content targeting
+                    </span>
+                  </div>
+                </div>
+              </Card>
+            </div> */}
+
+            <div className="grid md:grid-cols-2 gap-8 mb-12">
+              <Card className="p-8 transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center shrink-0">
+                    <Target className="w-6 h-6 text-brand-coral" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900">
+                    What We'd Do Differently
+                  </h4>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 text-gray-600">
+                    <div className="w-2 h-2 bg-brand-coral rounded-full mt-2"></div>
+                    <span>
+                      Initiate mobile performance improvements at the audit phase to
+                      accelerate Core Web Vitals gains
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2 text-gray-600">
+                    <div className="w-2 h-2 bg-brand-coral rounded-full mt-2"></div>
+                    <span>
+                      Prepare location landing page templates in advance for smoother rollout
+                    </span>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="p-8 transition-shadow">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-brand-purple/10 rounded-lg flex items-center justify-center shrink-0">
+                    <Award className="w-6 h-6 text-brand-purple" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Unexpected Challenges
+                  </h3>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-start gap-2 text-gray-600">
+                    <div className="w-2 h-2 bg-brand-purple rounded-full mt-2"></div>
+                    <span>
+                      High duplicate metadata revealed only after in-depth crawl—required
+                      rapid, systemic templating
+                    </span>
+                  </div>
+                  <div className="flex items-start gap-2 text-gray-600">
+                    <div className="w-2 h-2 bg-brand-purple rounded-full mt-2"></div>
+                    <span>
+                      Town/area names had confusing overlapping search intent—solved with
+                      granular content targeting
                     </span>
                   </div>
                 </div>
@@ -958,21 +1323,26 @@ export default function GriffinGroupCaseStudy() {
                   href={regionConfig.calendlyUrl}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2"
                 >
                   Book Your SEO Strategy Call
                 </a>
               </Button>
+
               <Button
                 size="lg"
                 variant="outline"
                 className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
               >
-                <Link href="/services/seo">
-                  Explore SEO Services
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                <Link
+                  href="/services/seo"
+                  className="flex items-center justify-center gap-2"
+                > <ArrowRight className="h-4 w-4" />
+                  <span>Explore SEO Services</span>
                 </Link>
               </Button>
             </div>
+
           </div>
         </section>
       </main>

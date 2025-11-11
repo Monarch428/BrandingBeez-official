@@ -260,26 +260,32 @@ export default function WebDevelopment() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {caseStudies.map((study, index) => (
-                <Card key={study.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                  {/* Case Study Images */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+              {caseStudies.map((study) => (
+                <Card
+                  key={study.id}
+                  className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
+                >
+                  {/* Image */}
                   <div className="aspect-video rounded-t-lg overflow-hidden bg-gray-100">
-                    <img 
-                      src={study.image} 
+                    <img
+                      src={study.image}
                       alt={`${study.client} website case study showcasing ${study.industry.toLowerCase()}`}
                       className="w-full h-full object-cover"
                       loading="lazy"
-                      data-testid={`case-study-image-${study.id}`}
                     />
                   </div>
-                  <CardContent className="p-6">
+
+                  {/* Card Content */}
+                  <CardContent className="flex flex-col flex-grow p-6">
                     <h3 className="text-xl font-bold text-brand-purple mb-2">
                       {study.title}
                     </h3>
-                    <p className="text-gray-600 mb-4">{study.description}</p>
+                    <p className="text-gray-600 mb-4 flex-grow">
+                      {study.description}
+                    </p>
 
-                    <div className="space-y-2 mb-4">
+                    <div className="space-y-2 mb-6">
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Performance</span>
                         <span className="font-bold text-green-600">
@@ -300,19 +306,23 @@ export default function WebDevelopment() {
                       </div>
                     </div>
 
-                    <Button
-                      className="w-full bg-brand-coral hover:bg-brand-coral/90 text-white border-0"
-                      asChild
-                    >
-                      <Link href={study.link || "/case-studies"}>
-                        View Full Case Study
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Link>
-                    </Button>
+                    {/* Button pinned to bottom */}
+                    <div className="mt-auto pt-2">
+                      <Button
+                        className="w-full bg-brand-coral hover:bg-brand-coral/90 text-white border-0"
+                        asChild
+                      >
+                        <Link href={study.link || "/case-studies"}>
+                          View Full Case Study
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
+
           </div>
         </section>
 
@@ -337,11 +347,10 @@ export default function WebDevelopment() {
               {pricingPackages.map((pkg) => (
                 <Card
                   key={pkg.id}
-                  className={`relative flex flex-col h-full ${
-                    pkg.popular 
-                      ? 'border-2 border-brand-coral scale-105' 
+                  className={`relative flex flex-col h-full ${pkg.popular
+                      ? 'border-2 border-brand-coral scale-105'
                       : 'border border-gray-200 hover:border-brand-coral/50'
-                  } transition-all duration-300`}
+                    } transition-all duration-300`}
                 >
                   {pkg.popular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -374,24 +383,23 @@ export default function WebDevelopment() {
                       ))}
                     </ul>
 
-                   <div className="mt-auto pt-8 border-t border-gray-100">
-  <Link href="/contact" className="w-full">
-    <Button
-      className={`w-full py-6 px-8 font-bold text-lg transition-all duration-300 ${
-        pkg.popular
-          ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
-          : "bg-brand-purple hover:bg-brand-purple/90 text-white"
-      }`}
-    >
-      {pkg.id === 1
-        ? "Start Your Website"
-        : pkg.id === 2
-        ? "Get Business Website"
-        : "Launch Your Store"}
-      <Gift className="w-5 h-5 ml-3" />
-    </Button>
-  </Link>
-</div>
+                    <div className="mt-auto pt-8 border-t border-gray-100">
+                      <Link href="/contact" className="w-full">
+                        <Button
+                          className={`w-full py-6 px-8 font-bold text-lg transition-all duration-300 ${pkg.popular
+                              ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                              : "bg-brand-purple hover:bg-brand-purple/90 text-white"
+                            }`}
+                        >
+                          {pkg.id === 1
+                            ? "Start Your Website"
+                            : pkg.id === 2
+                              ? "Get Business Website"
+                              : "Launch Your Store"}
+                          <Gift className="w-5 h-5 ml-3" />
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -419,10 +427,10 @@ export default function WebDevelopment() {
             <h2 className="text-3xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
             <p className="text-xl mb-8 text-white/90">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-                onClick={() => window.open('https://zcmp.in/JzHy', '_blank')}
+                onClick={() => window.open('/newsletter', '_blank')}
               >Subscribe Now</Button>
             </div>
           </div>

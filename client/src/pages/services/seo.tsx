@@ -688,7 +688,7 @@ export default function SEOServices() {
               <Button 
                 size="lg" 
                 className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral font-semibold"
-                onClick={() => window.open('https://zcmp.in/JzHy', '_blank')}
+                onClick={() => window.open('/newsletter', '_blank')}
               >Subscribe for Free</Button>
             </div>
           </div>

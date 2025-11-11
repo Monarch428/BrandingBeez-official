@@ -403,7 +403,7 @@ export default function WebsiteArchitectCaseStudy() {
                     <Star className="w-8 h-8 text-orange-600 mx-auto mb-2" />
                     <h4 className="font-semibold mb-1">Built on Trust</h4>
                     <p className="text-sm text-gray-600">
-                      More than service provider—true growth partners
+                      More than service provider true growth partners
                     </p>
                   </div>
                   <div className="text-center">
@@ -674,7 +674,7 @@ export default function WebsiteArchitectCaseStudy() {
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               </Link>
-              <Link href="/services/dedicated-resources">
+              <Link href="/services">
                 <Button
                   size="lg"
                   variant="outline"

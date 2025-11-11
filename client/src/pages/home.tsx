@@ -17,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "wouter";
-import { 
+import {
   CheckCircle,
   ArrowRight,
   Search,
@@ -86,7 +86,7 @@ export default function Home() {
   const handleSubServiceChange = (subService: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      subServices: checked 
+      subServices: checked
         ? [...prev.subServices, subService]
         : prev.subServices.filter(s => s !== subService)
     }));
@@ -135,22 +135,22 @@ export default function Home() {
 
     // Build comprehensive submission message
     let comprehensiveMessage = `Home Page Contact Form Submission`;
-    
+
     if (formData.servicesInterested) {
       comprehensiveMessage += `\n\n📋 SERVICES REQUESTED:`;
       comprehensiveMessage += `\n• Primary Service: ${formData.servicesInterested}`;
-      
+
       if (formData.subServices.length > 0) {
         comprehensiveMessage += `\n• Sub-services: ${formData.subServices.join(', ')}`;
       }
     }
-    
+
     if (formData.message) {
       comprehensiveMessage += `\n\n💬 CUSTOMER MESSAGE:\n${formData.message}`;
     }
-    
+
     comprehensiveMessage += `\n\n📍 REGION: ${regionConfig.name}`;
-    
+
     // Build submission data with comprehensive details
     const submissionData = {
       name: formData.name,
@@ -237,7 +237,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <SEOHead 
+      <SEOHead
         title="White Label Digital Services | Scale Your Agency Without Hiring"
         description="Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide."
         keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
@@ -249,68 +249,68 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral text-white py-12 sm:py-16 lg:py-20 px-4">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[84rem] mx-auto p-6">            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              <div>
-                <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-6">
-                  <span className="text-sm font-semibold text-white">✓ Trusted by 25+ Agencies Worldwide</span>
-                </div>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                  Scale Your Agency 
-                  <span className="text-brand-yellow"> Without Hiring</span>
-                </h1>
-                <p className="text-lg sm:text-xl text-white/90 mb-8 leading-relaxed">
-                  White-label digital services that help agencies hire expert teams for web development, PPC, and SEO. 
-                  We handle the entire process so you can focus on growing your business and delivering results for your clients.
-                </p>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-8 leading-relaxed">
-                  A Team of 20+ Ready to Help
-                </h2>
+            <div>
+              <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-6">
+                <span className="text-sm font-semibold text-white">✓ Trusted by 25+ Agencies Worldwide</span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+                Scale Your Agency
+                <span className="text-brand-yellow"> Without Hiring</span>
+              </h1>
+              <p className="text-lg sm:text-xl text-white/90 mb-8 leading-relaxed">
+                White-label digital services that help agencies hire expert teams for web development, PPC, and SEO.
+                We handle the entire process so you can focus on growing your business and delivering results for your clients.
+              </p>
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-8 leading-relaxed">
+                A Team of 20+ Ready to Help
+              </h2>
 
-                {/* Key Benefits */}
-                <div className="space-y-3 mb-8">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                    <span className="text-lg text-white">100% White-Label</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                    <span className="text-lg text-white">24hr Response Time</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                    <span className="text-lg text-white">85% Satisfaction Rate</span>
-                  </div>
+              {/* Key Benefits */}
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                  <span className="text-lg text-white">100% White-Label</span>
                 </div>
-
-                {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                  <Button 
-                    size="lg" 
-                    className="bg-brand-coral hover:bg-brand-coral-dark text-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
-                    asChild
-                  >
-                    <Link href="/onboarding-wizard">
-                      <span className="hidden sm:inline">Find Your Perfect Service</span>
-                      <span className="sm:hidden">Find Service</span>
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button 
-                    size="lg" 
-                    className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
-                    onClick={openCalendly}
-                  >
-                    <span className="hidden sm:inline">Book Free Strategy Call</span>
-                    <span className="sm:hidden">Book Call</span>
-                  </Button>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                  <span className="text-lg text-white">24hr Response Time</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                  <span className="text-lg text-white">85% Satisfaction Rate</span>
                 </div>
               </div>
 
-              <div className="relative">
-                <HomeTeamBanner />
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <Button
+                  size="lg"
+                  className="bg-brand-coral hover:bg-brand-coral-dark text-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
+                  asChild
+                >
+                  <Link href="/onboarding-wizard">
+                    <span className="hidden sm:inline">Find Your Perfect Service</span>
+                    <span className="sm:hidden">Find Service</span>
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
+                  onClick={openCalendly}
+                >
+                  <span className="hidden sm:inline">Book Free Strategy Call</span>
+                  <span className="sm:hidden">Book Call</span>
+                </Button>
               </div>
             </div>
+
+            <div className="relative">
+              <HomeTeamBanner />
+            </div>
+          </div>
           </div>
         </section>
 
@@ -387,72 +387,72 @@ export default function Home() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-6xl mx-auto">
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={socialLandLogo} 
-                  alt="Social Land" 
+                <img
+                  src={socialLandLogo}
+                  alt="Social Land"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Social Land</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={websiteArchitectLogo} 
-                  alt="Website Architect" 
+                <img
+                  src={websiteArchitectLogo}
+                  alt="Website Architect"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Website Architect</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={focusEcommerceLogo} 
-                  alt="Focus E-commerce" 
+                <img
+                  src={focusEcommerceLogo}
+                  alt="Focus E-commerce"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Focus E-commerce</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={smartConnectingLogo} 
-                  alt="Koala Digital" 
+                <img
+                  src={smartConnectingLogo}
+                  alt="Koala Digital"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Koala Digital</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={newVisionTechLogo} 
-                  alt="New Vision Tech" 
+                <img
+                  src={newVisionTechLogo}
+                  alt="New Vision Tech"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">New Vision Tech</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={carolinaWebLogo} 
-                  alt="Carolina Web" 
+                <img
+                  src={carolinaWebLogo}
+                  alt="Carolina Web"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Carolina Web</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={intrinsicLogo} 
-                  alt="Intrinsic" 
+                <img
+                  src={intrinsicLogo}
+                  alt="Intrinsic"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Intrinsic</p>
               </div>
               <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200">
-                <img 
-                  src={socialBrainLogo} 
-                  alt="Social Brain" 
+                <img
+                  src={socialBrainLogo}
+                  alt="Social Brain"
                   className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain max-w-[120px] sm:max-w-[140px] md:max-w-[150px]"
                   loading="eager"
                 />
@@ -517,7 +517,7 @@ export default function Home() {
               </ul>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Button 
+                <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation"
                   asChild
                 >
@@ -526,8 +526,8 @@ export default function Home() {
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white" />
                   </Link>
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 touch-manipulation"
                   asChild
                 >
@@ -617,220 +617,220 @@ export default function Home() {
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name" className="text-sm font-medium text-gray-700">Name *</Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => handleInputChange('name', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => handleInputChange('email', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="agencyName" className="text-sm font-medium text-gray-700">Agency Name</Label>
-                      <Input
-                        id="agencyName"
-                        type="text"
-                        value={formData.agencyName}
-                        onChange={(e) => handleInputChange('agencyName', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="servicesInterested" className="text-sm font-medium text-gray-700">Services Interested In</Label>
-                    <Select value={formData.servicesInterested} onValueChange={(value) => handleInputChange('servicesInterested', value)}>
-                      <SelectTrigger aria-label="Select services interested in">
-                        <SelectValue placeholder="Select services" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SEO Services">SEO Services</SelectItem>
-                        <SelectItem value="PPC/Google Ads">PPC/Google Ads</SelectItem>
-                        <SelectItem value="Website Development">Website Development</SelectItem>
-                        <SelectItem value="AI Web Agents/AI Development">AI Web Agents/AI Development</SelectItem>
-                        <SelectItem value="Dedicated Resource">Dedicated Resource</SelectItem>
-                        <SelectItem value="N8N Automations">N8N Automations (Coming Soon)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Step 2: Sub-Service Selection */}
-                  {formData.servicesInterested && (
-                    <div className="space-y-4">
-                      <Label className="text-sm font-medium text-gray-700">
-                        What are you specifically looking for in {formData.servicesInterested}? *
-                      </Label>
-                      <div className="grid grid-cols-1 gap-3">
-
-                        {/* SEO Services Options */}
-                        {formData.servicesInterested === 'SEO Services' && (
-                          <>
-                            {[
-                              'Link building',
-                              'Local SEO',
-                              'Technical SEO audit & fixes',
-                              'Content marketing & SEO Blogging',
-                              'E-Commerce SEO'
-                            ].map((option) => (
-                              <div key={option} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(option)}
-                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
-                                />
-                                <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-                        {/* PPC/Google Ads Options */}
-                        {formData.servicesInterested === 'PPC/Google Ads' && (
-                          <>
-                            {[
-                              'Starter Package',
-                              'Growth Package',
-                              'Scale Package'
-                            ].map((option) => (
-                              <div key={option} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(option)}
-                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
-                                />
-                                <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-                        {/* Website Development Options */}
-                        {formData.servicesInterested === 'Website Development' && (
-                          <>
-                            {[
-                              'WordPress',
-                              'Shopify',
-                              'BigCommerce',
-                              'Custom Coded'
-                            ].map((option) => (
-                              <div key={option} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(option)}
-                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
-                                />
-                                <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-
-                        {/* Dedicated Resource Options */}
-                        {formData.servicesInterested === 'Dedicated Resource' && (
-                          <>
-                            {[
-                              'Graphic Designer',
-                              'Video Editor',
-                              'SEO Specialist',
-                              'Google Ads Expert',
-                              'Web Developer',
-                              'Full-Stack Developer',
-                              'Others (Data Entry/Virtual Assistants/Social Media Managers)'
-                            ].map((option) => (
-                              <div key={option} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(option)}
-                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
-                                />
-                                <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-                        {/* AI Web Agents/AI Development Options */}
-                        {formData.servicesInterested === 'AI Web Agents/AI Development' && (
-                          <>
-                            {[
-                              'AI Powered web app/Mobile app development',
-                              'AI Agentic Platform development',
-                              'AI Integration into existing platforms'
-                            ].map((option) => (
-                              <div key={option} className="flex items-center space-x-2">
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(option)}
-                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
-                                />
-                                <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
-
-                        {/* N8N Automations Options */}
-                        {formData.servicesInterested === 'N8N Automations (Coming Soon)' && (
-                          <div className="text-center py-4">
-                            <p className="text-gray-500 font-medium">Coming Soon!</p>
-                            <p className="text-sm text-gray-400">We're working on bringing you the best N8N automation solutions.</p>
-                          </div>
-                        )}
-
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="name" className="text-sm font-medium text-gray-700">Name *</Label>
+                          <Input
+                            id="name"
+                            type="text"
+                            required
+                            value={formData.name}
+                            onChange={(e) => handleInputChange('name', e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email *</Label>
+                          <Input
+                            id="email"
+                            type="email"
+                            required
+                            value={formData.email}
+                            onChange={(e) => handleInputChange('email', e.target.value)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</Label>
+                          <Input
+                            id="phone"
+                            type="tel"
+                            value={formData.phone}
+                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="agencyName" className="text-sm font-medium text-gray-700">Agency Name</Label>
+                          <Input
+                            id="agencyName"
+                            type="text"
+                            value={formData.agencyName}
+                            onChange={(e) => handleInputChange('agencyName', e.target.value)}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="servicesInterested" className="text-sm font-medium text-gray-700">Services Interested In</Label>
+                        <Select value={formData.servicesInterested} onValueChange={(value) => handleInputChange('servicesInterested', value)}>
+                          <SelectTrigger aria-label="Select services interested in">
+                            <SelectValue placeholder="Select services" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SEO Services">SEO Services</SelectItem>
+                            <SelectItem value="PPC/Google Ads">PPC/Google Ads</SelectItem>
+                            <SelectItem value="Website Development">Website Development</SelectItem>
+                            <SelectItem value="AI Web Agents/AI Development">AI Web Agents/AI Development</SelectItem>
+                            <SelectItem value="Dedicated Resource">Dedicated Resource</SelectItem>
+                            <SelectItem value="N8N Automations">N8N Automations (Coming Soon)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  <div>
-                    <Label htmlFor="message" className="text-sm font-medium text-gray-700">Message</Label>
-                    <Textarea
-                      id="message"
-                      rows={4}
-                      value={formData.message}
-                      onChange={(e) => handleInputChange('message', e.target.value)}
-                      placeholder="Tell us about your agency and goals..."
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    disabled={contactMutation.isPending}
-                    className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral-darker hover:to-brand-purple shadow-lg"
-                  >
-                    {contactMutation.isPending ? 'Submitting...' : 'Submit Form'}
-                  </Button>
+                      {/* Step 2: Sub-Service Selection */}
+                      {formData.servicesInterested && (
+                        <div className="space-y-4">
+                          <Label className="text-sm font-medium text-gray-700">
+                            What are you specifically looking for in {formData.servicesInterested}? *
+                          </Label>
+                          <div className="grid grid-cols-1 gap-3">
+
+                            {/* SEO Services Options */}
+                            {formData.servicesInterested === 'SEO Services' && (
+                              <>
+                                {[
+                                  'Link building',
+                                  'Local SEO',
+                                  'Technical SEO audit & fixes',
+                                  'Content marketing & SEO Blogging',
+                                  'E-Commerce SEO'
+                                ].map((option) => (
+                                  <div key={option} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={option}
+                                      checked={formData.subServices.includes(option)}
+                                      onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
+                                    />
+                                    <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+
+                            {/* PPC/Google Ads Options */}
+                            {formData.servicesInterested === 'PPC/Google Ads' && (
+                              <>
+                                {[
+                                  'Starter Package',
+                                  'Growth Package',
+                                  'Scale Package'
+                                ].map((option) => (
+                                  <div key={option} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={option}
+                                      checked={formData.subServices.includes(option)}
+                                      onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
+                                    />
+                                    <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+
+                            {/* Website Development Options */}
+                            {formData.servicesInterested === 'Website Development' && (
+                              <>
+                                {[
+                                  'WordPress',
+                                  'Shopify',
+                                  'BigCommerce',
+                                  'Custom Coded'
+                                ].map((option) => (
+                                  <div key={option} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={option}
+                                      checked={formData.subServices.includes(option)}
+                                      onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
+                                    />
+                                    <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+
+
+                            {/* Dedicated Resource Options */}
+                            {formData.servicesInterested === 'Dedicated Resource' && (
+                              <>
+                                {[
+                                  'Graphic Designer',
+                                  'Video Editor',
+                                  'SEO Specialist',
+                                  'Google Ads Expert',
+                                  'Web Developer',
+                                  'Full-Stack Developer',
+                                  'Others (Data Entry/Virtual Assistants/Social Media Managers)'
+                                ].map((option) => (
+                                  <div key={option} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={option}
+                                      checked={formData.subServices.includes(option)}
+                                      onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
+                                    />
+                                    <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+
+                            {/* AI Web Agents/AI Development Options */}
+                            {formData.servicesInterested === 'AI Web Agents/AI Development' && (
+                              <>
+                                {[
+                                  'AI Powered web app/Mobile app development',
+                                  'AI Agentic Platform development',
+                                  'AI Integration into existing platforms'
+                                ].map((option) => (
+                                  <div key={option} className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={option}
+                                      checked={formData.subServices.includes(option)}
+                                      onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
+                                    />
+                                    <Label htmlFor={option} className="text-sm font-medium text-gray-700 cursor-pointer">
+                                      {option}
+                                    </Label>
+                                  </div>
+                                ))}
+                              </>
+                            )}
+
+                            {/* N8N Automations Options */}
+                            {formData.servicesInterested === 'N8N Automations (Coming Soon)' && (
+                              <div className="text-center py-4">
+                                <p className="text-gray-500 font-medium">Coming Soon!</p>
+                                <p className="text-sm text-gray-400">We're working on bringing you the best N8N automation solutions.</p>
+                              </div>
+                            )}
+
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <Label htmlFor="message" className="text-sm font-medium text-gray-700">Message</Label>
+                        <Textarea
+                          id="message"
+                          rows={4}
+                          value={formData.message}
+                          onChange={(e) => handleInputChange('message', e.target.value)}
+                          placeholder="Tell us about your agency and goals..."
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={contactMutation.isPending}
+                        className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral-darker hover:to-brand-purple shadow-lg"
+                      >
+                        {contactMutation.isPending ? 'Submitting...' : 'Submit Form'}
+                      </Button>
                     </form>
                   </CardContent>
                 </Card>
@@ -845,8 +845,8 @@ export default function Home() {
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
               <p className="text-xl text-white/90 mb-8">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="bg-white text-brand-purple hover:bg-white/90 px-8 py-4"
                 asChild
               >

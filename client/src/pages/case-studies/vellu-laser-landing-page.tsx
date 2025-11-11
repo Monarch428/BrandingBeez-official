@@ -555,12 +555,12 @@ export default function VelluLaserLandingPageCaseStudy() {
               <Button size="lg" className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral">
                 Start Your Landing Page
               </Button>
-              <Link href="/case-studies">
+              {/* <Link href="/case-studies">
                 <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-brand-coral">
                   View More Case Studies
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-              </Link>
+              </Link> */}
             </div>
           </div>
         </section>

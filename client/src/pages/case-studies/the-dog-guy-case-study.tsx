@@ -41,7 +41,7 @@ export default function TheDogGuyCaseStudy() {
 
       <main>
         {/* Hero Section */}
-        <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white text-gray-900">
+        <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-7xl mx-auto px-4">
             <div className="max-w-4xl mx-auto text-center">
               <Badge className="bg-brand-coral text-white mb-6 text-lg px-4 py-2">

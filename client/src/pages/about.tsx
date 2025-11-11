@@ -14,16 +14,18 @@ import vigneshImage from "@assets/Vignesh Stroke_1753273695214.png";
 import rajeImage from "@assets/Raje Stroke_1753273695213.png";
 import charanImage from "@assets/Charan Stroke_1753273701283.png";
 import priyaImage from "@assets/Priya Stroke_1753273695213.png";
-import Mathavanimage from "@assets/Mathavan_Stroke.png";
+import Mathavanimage from "../../public/images/Mathavan-team-member.png";
 import loguImage from "@assets/Logu_Stroke.png";
 import SatheshImage from "@assets/Sathish_Stroke.png";
 import azeezImage from "@assets/Azeez_Stroke.png";
 import nijuImage from "@assets/Niju Stroke_1753273695212.png";
-import prabhaImage from "@assets/Prabha Stroke_1753273695212.png";
+import rajaImage from "../../public/images/Raja-team-member.png";
+import pradeepImage from "../../public/images/Pradeep-team-member.png";
 import vishnuImage from "@assets/Vishnu Stroke_1753273695214.png";
 import yuvaImage from "@assets/Yuva Stroke_1753273695215.png";
 import gopalImage from "@assets/Gopal Stroke_1753273701284.png";
 import athiraImage from "@assets/Athira Stroke_1753273701280.png";
+import jithenImage from "../../public/images/Jithen-team-member.png";
 import {
   MapPin,
   Users,
@@ -67,7 +69,7 @@ const teamMembers = [
     location: "India",
     image: charanImage,
     bio: "Shaping the future vision and strategic direction",
-    linkedin: "https://www.linkedin.com/in/charan-brandingbeez",
+    linkedin: "#", //https://www.linkedin.com/in/charan-brandingbeez
     specialties: ["Strategic Vision", "Innovation", "Leadership"],
   },
   {
@@ -113,6 +115,26 @@ const teamMembers = [
     specialties: ["Full-Stack Development", "React", "Node.js"],
   },
   {
+    name: "Raja",
+    role: "AI Specialist",
+    location: "India",
+    image: rajaImage,
+    bio: "AI specialist with expertise in generative AI and NLP, Machine Learning",
+    linkedin:
+      "https://www.linkedin.com/in/rajakrishnank/",
+    specialties: ["Gen-AI", "NLP", "AI Solutions"],
+  },
+  {
+    name: "Pradeep",
+    role: "Full Stack Developer",
+    location: "India",
+    image: pradeepImage,
+    bio: "Full-stack development specialist with modern Web Technologies",
+    linkedin:
+      "https://www.linkedin.com/in/l-pradeep/",
+    specialties: ["Full-Stack Development", "MERN Stack", "API Development"],
+  },
+  {
     name: "Azeez",
     role: "Senior Graphic Designer",
     location: "India",
@@ -137,30 +159,6 @@ const teamMembers = [
     ],
   },
   {
-    name: "Prabha",
-    role: "Senior WordPress Developer",
-    location: "India",
-    image: prabhaImage,
-    bio: "Senior WordPress developer with e-commerce expertise",
-    linkedin:
-      "https://www.linkedin.com/in/praba-karan-746b39321?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-    specialties: ["WordPress", "E-commerce", "WooCommerce"],
-  },
-  {
-    name: "Vishnu",
-    role: "Senior WordPress Developer & UI/UX Designer",
-    location: "India",
-    image: vishnuImage,
-    bio: "Combining development skills with exceptional design expertise",
-    linkedin:
-      "https://www.linkedin.com/in/vishnupriyaa-rajan?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-    specialties: [
-      "WordPress Development",
-      "UI/UX Design",
-      "Frontend Development",
-    ],
-  },
-  {
     name: "Yuva",
     role: "SEO Specialist",
     location: "India",
@@ -180,6 +178,20 @@ const teamMembers = [
     specialties: ["Google Ads", "SEO", "PPC Management"],
   },
   {
+    name: "Vishnu",
+    role: "Senior WordPress Developer & UI/UX Designer",
+    location: "India",
+    image: vishnuImage,
+    bio: "Combining development skills with exceptional design expertise",
+    linkedin:
+      "https://www.linkedin.com/in/vishnupradeep-v-670681179?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    specialties: [
+      "WordPress Development",
+      "UI/UX Design",
+      "Frontend Development",
+    ],
+  },
+  {
     name: "Athira",
     role: "HR",
     location: "India",
@@ -188,6 +200,16 @@ const teamMembers = [
     linkedin:
       "https://www.linkedin.com/in/athirasrihari?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
     specialties: ["Human Resources", "Team Development", "Culture Building"],
+  },
+  {
+    name: "Jithendran",
+    role: "Video Editor",
+    location: "India",
+    image: jithenImage,
+    bio: "Creative video editor crafting engaging visual stories",
+    linkedin:
+      "https://www.linkedin.com/in/jithendran-natarajan-50976b187?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    specialties: ["Video Editing", "Creative Storytelling", "Post-Production"],
   },
 ];
 
@@ -455,24 +477,23 @@ export default function About() {
         <section className="py-16 px-4 bg-white">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              <h2 className="text-3xl font-bold mb-6 text-gray-900">
                 Meet Our Global Team
               </h2>
-              <div className="mt-8 space-y-4">
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Leadership Team
-                </h3>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Technical Experts
-                </h3>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Support Team
-                </h3>
-                <h3 className="text-xl font-semibold text-gray-900">
-                  Get to Know Our Team
-                </h3>
+
+              {/* Inline team category titles */}
+              <div className="flex flex-wrap items-center justify-center gap-3 text-lg font-semibold text-gray-900">
+                <h3 className="text-brand-purple">Leadership Team</h3>
+                <span className="text-gray-400">|</span>
+                <h3 className="text-brand-purple">Technical Experts</h3>
+                <span className="text-gray-400">|</span>
+                <h3 className="text-brand-purple">Support Team</h3>
+                <span className="text-gray-400">|</span>
+                <h3 className="text-brand-purple">Get to Know Our Team</h3>
               </div>
             </div>
+
+            {/* Team Member Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {teamMembers.map((member, index) => (
                 <Card key={index} className="h-full">
@@ -482,6 +503,7 @@ export default function About() {
                       alt={`${member.name} - ${member.role}`}
                       name={member.name}
                     />
+
                     <h3 className="font-bold text-lg text-brand-purple mb-1">
                       {member.name === "Vignesh"
                         ? "Vignesh - Founder"
@@ -513,16 +535,16 @@ export default function About() {
                                                   ? "Athira - HR"
                                                   : member.name}
                     </h3>
-                    <p className="text-brand-coral font-medium mb-2">
-                      {member.role}
-                    </p>
+
+                    <p className="text-brand-coral font-medium mb-2">{member.role}</p>
+
                     <div className="flex items-center justify-center gap-1 text-sm text-gray-600 mb-3">
                       <MapPin className="w-4 h-4" />
                       <span>{member.location}</span>
                     </div>
-                    <p className="text-sm text-gray-600 mb-4 flex-grow">
-                      {member.bio}
-                    </p>
+
+                    <p className="text-sm text-gray-600 mb-4 flex-grow">{member.bio}</p>
+
                     <div className="flex flex-wrap gap-1 justify-center mb-4">
                       {member.specialties.map((specialty, i) => (
                         <Badge key={i} variant="secondary" className="text-xs">
@@ -530,6 +552,7 @@ export default function About() {
                         </Badge>
                       ))}
                     </div>
+
                     <Button
                       variant="outline"
                       size="sm"
@@ -551,6 +574,7 @@ export default function About() {
             </div>
           </div>
         </section>
+
 
         {/* Mission & Vision */}
         <section className="py-16 px-4">

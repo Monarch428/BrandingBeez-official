@@ -548,7 +548,7 @@ export default function GoogleAds() {
               <Button 
                 size="lg" 
                 className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-                onClick={() => window.open('https://zcmp.in/JzHy', '_blank')}
+                onClick={() => window.open('/newsletter', '_blank')}
               >
                 Subscribe Free
               </Button>

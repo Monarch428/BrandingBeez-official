@@ -130,9 +130,9 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
             <div className="max-w-5xl mx-auto">
               <div className="relative">
                 <div className="aspect-video bg-white rounded-2xl border-2 border-gray-200 shadow-xl overflow-hidden">
-                  <img 
-                    src={greenParadiseImage} 
-                    alt="Green Paradise Landscaping - Brand and Website Development" 
+                  <img
+                    src={greenParadiseImage}
+                    alt="Green Paradise Landscaping - Brand and Website Development"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
@@ -471,9 +471,11 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
               Join agencies like Mark who trust BrandingBeez for complete digital transformation solutions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral">
-                Start Your Brand Project
-              </Button>
+              <Link href="/contact">
+                <Button size="lg" className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral">
+                  Start Your Brand Project
+                </Button>
+              </Link>
             </div>
           </div>
         </section>

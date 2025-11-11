@@ -720,14 +720,14 @@ export default function StatPlanningCaseStudy() {
               >
                 Book Your Free SEO Consultation
               </Button>
-              <Button
+              {/* <Button
                 size="lg"
                 variant="outline"
                 className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
                 asChild
               >
                 <Link href="/case-studies">View More Case Studies</Link>
-              </Button>
+              </Button> */}
             </div>
           </div>
         </section>

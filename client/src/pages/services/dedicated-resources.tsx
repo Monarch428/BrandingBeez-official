@@ -74,9 +74,9 @@ export default function DedicatedResources() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-sm">
-                    <img 
-                      src={socialLandLogo} 
-                      alt="Social Land Logo" 
+                    <img
+                      src={socialLandLogo}
+                      alt="Social Land Logo"
                       className="w-full h-full object-contain"
                     />
                   </div>
@@ -132,198 +132,213 @@ export default function DedicatedResources() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Target className="w-6 h-6 text-brand-coral" />
+              {/* 1 - Graphic Designer */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <Target className="w-6 h-6 text-white" />
                   </div>
-                  <h3>Graphic Designer</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">Graphic Designer</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     Visual design experts for all your branding needs
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Junior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Senior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Creative Director</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Zap className="w-6 h-6 text-brand-coral" />
+              {/* 2 - Video Editor */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-white" />
                   </div>
-                  <h3>Video Editor</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">Video Editor</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     Professional video editing and motion graphics
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Junior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Senior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Production Lead</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <TrendingUp className="w-6 h-6 text-brand-coral" />
+              {/* 3 - SEO Specialist */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-6 h-6 text-white" />
                   </div>
-                  <h3>SEO Specialist</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">SEO Specialist</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     Organic search optimization experts
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Junior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Senior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Specialist</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Target className="w-6 h-6 text-brand-coral" />
+              {/* 4 - Google Ads Expert */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <Target className="w-6 h-6 text-white" />
                   </div>
-                  <h3>Google Ads Expert</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">Google Ads Expert</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     PPC campaign management professionals
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Senior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Specialist</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Building className="w-6 h-6 text-brand-coral" />
+              {/* 5 - Web Developer */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <Building className="w-6 h-6 text-white" />
                   </div>
-                  <h3>Web Developer</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">Web Developer</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     Frontend and WordPress development experts
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Junior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Senior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">E-comm Specialist</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Users className="w-6 h-6 text-brand-coral" />
+              {/* 6 - Full-Stack Developer */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
                   </div>
-                  <h3>Full-Stack Developer</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">Full-Stack Developer</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     Complete web application development
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Junior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Senior Level</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Lead/Manager</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className=" transition-shadow">
-                <CardHeader>
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Handshake className="w-6 h-6 text-brand-coral" />
+              {/* 7 - Others */}
+              <Card className="transition-shadow">
+                <div className="flex flex-row items-center gap-2 m-4">
+                  <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                    <Handshake className="w-6 h-6 text-white" />
                   </div>
-                  <h3>Others</h3>
-                </CardHeader>
+                  <h3 className="text-lg font-bold text-brand-purple">Others</h3>
+                </div>
+
                 <CardContent>
                   <p className="text-gray-600 mb-4">
                     Administrative and social media support
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Data Entry</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Virtual Assistants</span>
                     </li>
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
                       <span className="text-sm">Social Media Managers</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
             </div>
+
           </div>
         </section>
 
@@ -397,9 +412,9 @@ export default function DedicatedResources() {
                       Digital Marketing
                     </Badge>
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm border">
-                      <img 
-                        src={socialLandLogo} 
-                        alt="Social Land Logo" 
+                      <img
+                        src={socialLandLogo}
+                        alt="Social Land Logo"
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -455,9 +470,9 @@ export default function DedicatedResources() {
                       Digital Marketing
                     </Badge>
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm border">
-                      <img 
-                        src={koalaDigitalLogo} 
-                        alt="Koala Digital Logo" 
+                      <img
+                        src={koalaDigitalLogo}
+                        alt="Koala Digital Logo"
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -513,9 +528,9 @@ export default function DedicatedResources() {
                       Web Development
                     </Badge>
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm border">
-                      <img 
-                        src={websiteArchitectLogo} 
-                        alt="Website Architect Logo" 
+                      <img
+                        src={websiteArchitectLogo}
+                        alt="Website Architect Logo"
                         className="w-full h-full object-contain"
                       />
                     </div>
@@ -718,7 +733,7 @@ export default function DedicatedResources() {
                 size="lg"
                 variant="outline"
                 className="border-white text-white hover:bg-white hover:text-brand-purple bg-[#ee4977]"
-                onClick={() => window.open('https://zcmp.in/JzHy', '_blank')}
+                onClick={() => window.open('/newsletter', '_blank')}
               >Subscribe Now</Button>
             </div>
           </div>

@@ -165,7 +165,7 @@ app.use('/attached_assets', express.static('attached_assets', {
 
 // Serve static files from public directory with optimized caching
 app.use(express.static('public', {
-  maxAge: '30d', // Cache images for 30 days
+  maxAge: '30d', 
   etag: true,
   lastModified: true,
   setHeaders: (res, path) => {

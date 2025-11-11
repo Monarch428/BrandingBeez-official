@@ -38,7 +38,7 @@ export default function UBUDesignCaseStudy() {
 
       <main className="pt-0">
         {/* Hero Section */}
-        <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white text-gray-900">
+        <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white "> {/* text-gray-900 */}
           <div className="max-w-7xl mx-auto px-4">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
@@ -102,55 +102,95 @@ export default function UBUDesignCaseStudy() {
                 </p>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <Card className="p-6">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+                {/* Company Profile */}
+                <Card className="p-6 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
                     <Building className="w-8 h-8 text-brand-purple" />
                     <h3 className="text-xl font-bold text-gray-900">
                       Company Profile
                     </h3>
                   </div>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• Boutique UK architecture firm</li>
-                    <li>• Specializes in commercial projects</li>
-                    <li>• B2B business model</li>
-                    <li>• Premium design services</li>
+                  <ul className="space-y-2 text-gray-700 flex-grow">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>Boutique UK architecture firm</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>Specializes in commercial projects</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>B2B business model</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>Premium design services</span>
+                    </li>
                   </ul>
                 </Card>
 
-                <Card className="p-6">
+                {/* Target Audience */}
+                <Card className="p-6 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
                     <Users className="w-8 h-8 text-brand-coral" />
                     <h3 className="text-xl font-bold text-gray-900">
                       Target Audience
                     </h3>
                   </div>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• UK developers</li>
-                    <li>• Commercial investors</li>
-                    <li>• Property owners</li>
-                    <li>• Project decision-makers</li>
+                  <ul className="space-y-2 text-gray-700 flex-grow">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral" />
+                      <span>UK developers</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral" />
+                      <span>Commercial investors</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral" />
+                      <span>Property owners</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral" />
+                      <span>Project decision-makers</span>
+                    </li>
                   </ul>
                 </Card>
 
-                <Card className="p-6">
+                {/* Project Details */}
+                <Card className="p-6 h-full flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
                     <Calendar className="w-8 h-8 text-brand-purple" />
                     <h3 className="text-xl font-bold text-gray-900">
                       Project Details
                     </h3>
                   </div>
-                  <ul className="space-y-2 text-gray-700">
-                    <li>• Duration: May-July 2025</li>
-                    <li>• White-label partnership</li>
-                    <li>• Through Gemma's Agency</li>
-                    <li>• 90-day transformation</li>
+                  <ul className="space-y-2 text-gray-700 flex-grow">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>Duration: May–July 2025</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>White-label partnership</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>Through Gemma's Agency</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-purple" />
+                      <span>90-day transformation</span>
+                    </li>
                   </ul>
                 </Card>
               </div>
             </div>
           </div>
         </section>
+
 
         {/* Before & After Metrics */}
         <section className="py-16 bg-white">
@@ -351,7 +391,7 @@ export default function UBUDesignCaseStudy() {
                   <div className="space-y-6">
                     <Card className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <div className="w-14 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
                           <Search className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -369,7 +409,7 @@ export default function UBUDesignCaseStudy() {
 
                     <Card className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center">
+                        <div className="w-14 h-8 bg-brand-coral rounded-lg flex items-center justify-center">
                           <PenTool className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -386,7 +426,7 @@ export default function UBUDesignCaseStudy() {
 
                     <Card className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <div className="w-14 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
                           <Settings className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -404,7 +444,7 @@ export default function UBUDesignCaseStudy() {
 
                     <Card className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center">
+                        <div className="w-14 h-8 bg-brand-coral rounded-lg flex items-center justify-center">
                           <Globe className="w-6 h-6 text-white" />
                         </div>
                         <div>
@@ -502,7 +542,9 @@ export default function UBUDesignCaseStudy() {
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
-                      <Award className="w-5 h-5 text-brand-purple mt-1" />
+                      <div className="w-10 h-8 bg-brand-coral rounded-full flex items-center justify-center">
+                        <Award className="w-4 h-4 text-white" />
+                      </div>
                       <div>
                         <h4 className="font-bold mb-1">
                           No Direct Client Contact
@@ -514,7 +556,9 @@ export default function UBUDesignCaseStudy() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <Users className="w-5 h-5 text-brand-coral mt-1" />
+                      <div className="w-10 h-8 bg-brand-purple rounded-full flex items-center justify-center">
+                        <Users className="w-4 h-4 text-white" />
+                      </div>
                       <div>
                         <h4 className="font-bold mb-1">
                           Agency-Branded Deliverables
@@ -526,7 +570,9 @@ export default function UBUDesignCaseStudy() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1" />
+                      <div className="w-10 h-8 bg-brand-coral rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-4 h-4 text-white " />
+                      </div>
                       <div>
                         <h4 className="font-bold mb-1">
                           Seamless Client Experience
@@ -570,7 +616,7 @@ export default function UBUDesignCaseStudy() {
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-brand-purple rounded-full flex items-center justify-center">
+                      <div className="w-10 h-8 bg-brand-purple rounded-full flex items-center justify-center">
                         <Users className="w-4 h-4 text-white" />
                       </div>
                       <div>
@@ -594,57 +640,86 @@ export default function UBUDesignCaseStudy() {
         <section className="py-16 bg-white">
           <div className="max-w-7xl mx-auto px-4">
             <div className="max-w-6xl mx-auto">
-              <div className="grid lg:grid-cols-2 gap-12">
-                <Card className="p-8">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              <div className="grid lg:grid-cols-2 gap-12 items-stretch">
+                {/* Tools & Technology */}
+                <Card className="p-8 h-full flex flex-col gap-6">
+                  <h2 className="text-2xl font-bold text-gray-900">
                     Tools & Technology
                   </h2>
-                  <div className="grid md:grid-cols-2 gap-4">
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Analytics & Monitoring */}
                     <div>
-                      <h3 className="font-bold text-lg mb-3">
+                      <h3 className="font-bold text-lg mb-3 text-brand-purple">
                         Analytics & Monitoring
                       </h3>
                       <ul className="space-y-2 text-gray-700">
-                        <li>• Google Analytics 4</li>
-                        <li>• Google Search Console</li>
-                        <li>• Looker Studio</li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />
+                          <span>Google Analytics 4</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />
+                          <span>Google Search Console</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple shrink-0" />
+                          <span>Looker Studio</span>
+                        </li>
                       </ul>
                     </div>
+
+                    {/* SEO Tools */}
                     <div>
-                      <h3 className="font-bold text-lg mb-3">SEO Tools</h3>
+                      <h3 className="font-bold text-lg mb-3 text-brand-coral">
+                        SEO Tools
+                      </h3>
                       <ul className="space-y-2 text-gray-700">
-                        <li>• Screaming Frog</li>
-                        <li>• SurferSEO</li>
-                        <li>• Google Business Profile</li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                          <span>Screaming Frog</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                          <span>SurferSEO</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                          <span>Google Business Profile</span>
+                        </li>
                       </ul>
                     </div>
                   </div>
                 </Card>
 
-                <Card className="p-8">
+                {/* Key Lessons Learned */}
+                <Card className="p-8 h-full flex flex-col justify-between">
                   <h2 className="text-2xl font-bold text-gray-900 mb-6">
                     Key Lessons Learned
                   </h2>
-                  <div className="space-y-4">
+
+                  <div className="space-y-5">
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1" />
-                      <p className="text-gray-700">
-                        Start technical fixes ASAP; allocate more time for
-                        unexpected web platform issues
+                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1 shrink-0" />
+                      <p className="text-gray-700 leading-relaxed">
+                        Start technical fixes ASAP; allocate more time for unexpected
+                        web platform issues.
                       </p>
                     </div>
+
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1" />
-                      <p className="text-gray-700">
-                        Agile reporting is vital in white-label: ready-to-send,
-                        agency-branded dashboards avoided bottlenecks
+                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1 shrink-0" />
+                      <p className="text-gray-700 leading-relaxed">
+                        Agile reporting is vital in white-label projects — ready-to-send,
+                        branded dashboards prevent bottlenecks.
                       </p>
                     </div>
+
                     <div className="flex items-start gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1" />
-                      <p className="text-gray-700">
-                        Proactive support for agency partners delivers not only
-                        SEO impact but strengthens client relationships
+                      <CheckCircle className="w-5 h-5 text-brand-coral mt-1 shrink-0" />
+                      <p className="text-gray-700 leading-relaxed">
+                        Proactive partner support strengthens relationships while boosting
+                        overall SEO impact and client retention.
                       </p>
                     </div>
                   </div>
@@ -653,6 +728,7 @@ export default function UBUDesignCaseStudy() {
             </div>
           </div>
         </section>
+
 
         {/* Client Testimonial */}
         <section className="py-16 bg-gray-50">
@@ -711,14 +787,14 @@ export default function UBUDesignCaseStudy() {
               >
                 Book Your Free SEO Consultation
               </Button>
-              <Button
+              {/* <Button
                 size="lg"
                 variant="outline"
                 className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
                 asChild
               >
                 <Link href="/case-studies">View More Case Studies</Link>
-              </Button>
+              </Button> */}
             </div>
           </div>
         </section>

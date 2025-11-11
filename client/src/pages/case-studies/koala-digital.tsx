@@ -19,6 +19,7 @@ import {
   DollarSign,
   Monitor,
 } from "lucide-react";
+import Niji from "../../../public/images/niju-team-member.png";
 
 export default function KoalaDigitalCaseStudy() {
   return (
@@ -74,8 +75,8 @@ export default function KoalaDigitalCaseStudy() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-1">
-                    <img 
-                      src="/images/koala-digital-logo.jpeg" 
+                    <img
+                      src="/images/koala-digital-logo.jpeg"
                       alt="Koala Digital Agency Logo"
                       className="w-full h-full object-contain rounded-lg"
                     />
@@ -150,34 +151,60 @@ export default function KoalaDigitalCaseStudy() {
                       </div>
                       <h4 className="font-bold text-gray-900 text-lg mb-1">Gopal</h4>
                       <p className="text-sm text-green-600 font-semibold mb-3">Google Ads Expert</p>
-                      <ul className="text-xs text-gray-600 space-y-1">
-                        <li>• PPC Campaign Management</li>
-                        <li>• Ad Creative Optimization</li>
-                        <li>• Performance Analytics</li>
-                        <li>• ROI Maximization</li>
+
+                      <ul className="text-xs text-gray-700 space-y-1 text-left inline-block">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>PPC Campaign Management</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>Ad Creative Optimization</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>Performance Analytics</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>ROI Maximization</span>
+                        </li>
                       </ul>
                     </div>
 
-                    {/* Prabha - Web Developer */}
+                    {/* Nijathan - Web Developer */}
                     <div className="text-center">
                       <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-3 border-green-500/20">
                         <picture>
-                          <source srcSet="/images/prabha-team-member.webp" type="image/webp" />
+                          <source srcSet="/images/niju-team-member.webp" type="image/webp" />
                           <img
-                            src="/images/prabha-team-member.png"
-                            alt="Prabha - Web Developer"
+                            src={Niji}
+                            alt="Nijathan - Web Developer"
                             className="w-full h-full object-cover"
                             loading="lazy"
                           />
                         </picture>
                       </div>
-                      <h4 className="font-bold text-gray-900 text-lg mb-1">Prabha</h4>
+                      <h4 className="font-bold text-gray-900 text-lg mb-1">Nijathan</h4>
                       <p className="text-sm text-green-600 font-semibold mb-3">Web Developer</p>
-                      <ul className="text-xs text-gray-600 space-y-1">
-                        <li>• WordPress Development</li>
-                        <li>• Custom Theme Creation</li>
-                        <li>• Performance Optimization</li>
-                        <li>• Mobile Responsiveness</li>
+
+                      <ul className="text-xs text-gray-700 space-y-1 text-left inline-block">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>WordPress Development</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>Custom Theme Creation</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>Performance Optimization</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                          <span>Mobile Responsiveness</span>
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -317,6 +344,7 @@ export default function KoalaDigitalCaseStudy() {
         {/* Team Composition Section */}
         <section className="py-16 px-4 bg-gray-50">
           <div className="max-w-7xl mx-auto">
+            {/* Section Heading */}
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-brand-purple mb-4">
                 Dedicated Specialist Team
@@ -326,43 +354,68 @@ export default function KoalaDigitalCaseStudy() {
               </p>
             </div>
 
+            {/* Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <Card className="text-center">
+              {/* Gopal - Google Ads Expert */}
+              <Card className="text-center transition-shadow hover:shadow-lg">
                 <CardContent className="p-8">
                   <div className="w-16 h-16 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-6">
                     <Zap className="w-8 h-8 text-brand-coral" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    Gopal
-                  </h3>
-                  <p className="text-brand-coral font-semibold mb-3">
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Gopal</h3>
+                  <p className="text-brand-coral font-semibold mb-4">
                     Google Ads Expert
                   </p>
-                  <ul className="text-sm text-gray-600 space-y-2">
-                    <li>• PPC Campaign Management</li>
-                    <li>• Ad Creative Optimization</li>
-                    <li>• Performance Analytics</li>
-                    <li>• ROI Maximization</li>
+
+                  <ul className="text-sm text-gray-700 space-y-2 text-left inline-block">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>PPC Campaign Management</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>Ad Creative Optimization</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>Performance Analytics</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>ROI Maximization</span>
+                    </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              <Card className="text-center">
+              {/* Nijathan - Web Developer */}
+              <Card className="text-center transition-shadow hover:shadow-lg">
                 <CardContent className="p-8">
                   <div className="w-16 h-16 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-6">
                     <Monitor className="w-8 h-8 text-brand-coral" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    Prabha
-                  </h3>
-                  <p className="text-brand-coral font-semibold mb-3">
-                    Web Developer
-                  </p>
-                  <ul className="text-sm text-gray-600 space-y-2">
-                    <li>• WordPress Development</li>
-                    <li>• Custom Theme Creation</li>
-                    <li>• Performance Optimization</li>
-                    <li>• Mobile Responsiveness</li>
+
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Nijathan</h3>
+                  <p className="text-brand-coral font-semibold mb-4">Web Developer</p>
+
+                  <ul className="text-sm text-gray-700 space-y-2 text-left inline-block">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>WordPress Development</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>Custom Theme Creation</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>Performance Optimization</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-brand-coral shrink-0" />
+                      <span>Mobile Responsiveness</span>
+                    </li>
                   </ul>
                 </CardContent>
               </Card>
@@ -400,7 +453,7 @@ export default function KoalaDigitalCaseStudy() {
                     <li className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
                       <span className="text-sm">
-                        Carla chats directly with Gopal and Prabha
+                        Carla chats directly with Gopal and Nijathan
                       </span>
                     </li>
                     <li className="flex items-center gap-2">
@@ -707,7 +760,7 @@ export default function KoalaDigitalCaseStudy() {
                 <CardContent className="p-8">
                   <Quote className="w-8 h-8 mb-4 opacity-80" />
                   <blockquote className="text-lg font-light mb-6 leading-relaxed">
-                    "Working directly with Gopal and Prabha on Slack means we're
+                    "Working directly with Gopal and Nijathan on Slack means we're
                     never out of sync. They understand the brief, the brand, and
                     the urgency. We're launching faster and serving clients
                     better."
@@ -761,11 +814,13 @@ export default function KoalaDigitalCaseStudy() {
               an extension of your agency.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple">
-                Build Your Dedicated Team
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Link href="/services/dedicated-resources">
+              <Link href="/pricing-calculator">
+                <Button size="lg" className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple">
+                  Build Your Dedicated Team
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/services">
                 <Button
                   size="lg"
                   variant="outline"

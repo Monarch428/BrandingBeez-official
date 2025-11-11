@@ -29,8 +29,12 @@ import {
   Trash2,
   Building,
 } from "lucide-react";
+import { useRegion } from "@/hooks/use-region";
 
 export default function JunksAwayCaseStudy() {
+  const { regionConfig } = useRegion();
+  const getCalendlyUrl = () => regionConfig.calendlyUrl;
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -523,7 +527,7 @@ export default function JunksAwayCaseStudy() {
               <Button
                 size="lg"
                 className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-                onClick={() => window.open("https://calendly.com/brandingbeez/strategy-call", "_blank")}
+                onClick={() => window.open(getCalendlyUrl(), "_blank")}
               >
                 Book Your Strategy Call
                 <ArrowRight className="ml-2 w-5 h-5" />

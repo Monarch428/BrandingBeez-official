@@ -69,8 +69,8 @@ export default function SocialLandCaseStudy() {
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-1">
-                    <img 
-                      src="/images/socialland-logo.jpeg" 
+                    <img
+                      src="/images/socialland-logo.jpeg"
                       alt="Social Land Digital Agency Logo"
                       className="w-full h-full object-contain rounded-lg"
                     />
@@ -247,7 +247,7 @@ export default function SocialLandCaseStudy() {
                   compromising quality. They needed a solution that felt like
                   one unified team.
                 </p>
-                
+
                 <h3 className="text-xl font-semibold text-gray-900 mb-4 mt-8">
                   Partnership Impact
                 </h3>
@@ -434,7 +434,7 @@ export default function SocialLandCaseStudy() {
                 Revolutionary approach to cross-border teamwork that feels like
                 one office
               </p>
-              
+
               <h4 className="text-xl font-semibold text-gray-900 mb-6">
                 Mobile-First Design
               </h4>
@@ -669,7 +669,7 @@ export default function SocialLandCaseStudy() {
                     <div className="space-y-3">
                       <div className="text-sm text-gray-600">
                         <span className="font-semibold">Direct Access:</span> UK
-                        leadership chats directly with specialists—no
+                        leadership chats directly with specialists no
                         gatekeepers
                       </div>
                       <div className="text-sm text-gray-600">
@@ -754,11 +754,13 @@ export default function SocialLandCaseStudy() {
               dedicated team that feels like one office.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-white text-brand-purple hover:bg-white/90 hover:text-brand-purple">
-                Build Your Dedicated Team
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-              <Link href="/services/dedicated-resources">
+              <Link href="/pricing-calculator">
+                <Button size="lg" className="bg-white text-brand-purple hover:bg-white/90 hover:text-brand-purple">
+                  Build Your Dedicated Team
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </Link>
+              <Link href="/services">
                 <Button
                   size="lg"
                   variant="outline"
