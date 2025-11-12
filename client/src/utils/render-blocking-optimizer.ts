@@ -31,7 +31,7 @@ export function optimizeRenderBlocking(): void {
   const style = document.createElement('style');
   style.textContent = `
     @font-face {
-      font-family: 'Inter';
+      font-family: 'Poppins';
       font-display: swap;
     }
   `;

@@ -1,6 +1,6 @@
 import { Facebook, Linkedin, Phone, Mail, MapPin, Instagram, Globe, Award } from "lucide-react";
 import { useRegion } from "@/hooks/use-region";
-import brandingBeezLogo from "@assets/BB-logo-white_1752920561295.png";
+import brandingBeezLogo from "@assets/BB_Logo_footer.png";
 import designRushBadge from "@assets/View our Profile - Inverted 2_1754040098404.png";
 import clutchLogo from "@assets/clutch_1754040557107.png";
 import goodFirmsLogo from "@assets/Unknown_1754040557107.png";
@@ -18,7 +18,7 @@ export default function Footer() {
     <img 
       src={brandingBeezLogo} 
       alt="BrandingBeez" 
-      className="h-6 sm:h-8 w-auto mb-4" 
+      className="h-8 sm:h-9 w-30 mb-4" 
       width="112" 
       height="32" 
       style={{aspectRatio: '3.5/1'}}

@@ -331,8 +331,8 @@ export default function Services() {
       <Header />
       <main>
         {/* Hero Section with Dual Forms */}
-        <section className="pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-          <div className="max-w-7xl mx-auto">
+        <section className="text-white py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral">
+          <div className="max-w-7xl mx-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
               {/* Left Side - Dedicated Resources Form */}
               <div>
@@ -496,11 +496,10 @@ export default function Services() {
                       </label>
                       <div className="space-y-3">
                         <label
-                          className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${
-                            selectedLevel === "junior-graphic"
-                              ? "bg-white/20 border-white/50"
-                              : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                          className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-graphic"
+                            ? "bg-white/20 border-white/50"
+                            : "bg-white/10 border-white/20 hover:bg-white/15"
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -525,11 +524,10 @@ export default function Services() {
                           </div>
                         </label>
                         <label
-                          className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${
-                            selectedLevel === "mid-graphic"
-                              ? "bg-white/20 border-white/50"
-                              : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                          className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-graphic"
+                            ? "bg-white/20 border-white/50"
+                            : "bg-white/10 border-white/20 hover:bg-white/15"
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -559,7 +557,7 @@ export default function Services() {
                             ${selectedLevel === "director-graphic"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -598,7 +596,7 @@ export default function Services() {
                             ${selectedLevel === "junior-video"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -627,7 +625,7 @@ export default function Services() {
                             ${selectedLevel === "senior-video"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -656,7 +654,7 @@ export default function Services() {
                             ${selectedLevel === "lead-video"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -695,7 +693,7 @@ export default function Services() {
                             ${selectedLevel === "junior-seo"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -724,7 +722,7 @@ export default function Services() {
                             ${selectedLevel === "senior-seo"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -753,7 +751,7 @@ export default function Services() {
                             ${selectedLevel === "specialist-seo"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -792,7 +790,7 @@ export default function Services() {
                             ${selectedLevel === "senior-ads"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -821,7 +819,7 @@ export default function Services() {
                             ${selectedLevel === "mid-ads"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -850,7 +848,7 @@ export default function Services() {
                             ${selectedLevel === "specialist-ads"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -889,7 +887,7 @@ export default function Services() {
                             ${selectedLevel === "junior-web"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -918,7 +916,7 @@ export default function Services() {
                             ${selectedLevel === "senior-web"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -947,7 +945,7 @@ export default function Services() {
                             ${selectedLevel === "ecomm-web"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -986,7 +984,7 @@ export default function Services() {
                             ${selectedLevel === "junior-fullstack"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -1015,7 +1013,7 @@ export default function Services() {
                             ${selectedLevel === "senior-fullstack"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -1044,7 +1042,7 @@ export default function Services() {
                             ${selectedLevel === "lead-fullstack"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -1084,7 +1082,7 @@ export default function Services() {
                             ${selectedLevel === "data-entry"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -1113,7 +1111,7 @@ export default function Services() {
                             ${selectedLevel === "social-media"
                               ? "bg-white/20 border-white/50"
                               : "bg-white/10 border-white/20 hover:bg-white/15"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center gap-3">
                             <input
@@ -1287,80 +1285,93 @@ export default function Services() {
         </section>
 
         {/* Services Grid Section */}
-        <section className="py-16 px-4 bg-white">
+        <section className="py-12 px-4 bg-white">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
                 Complete Service Portfolio
               </h2>
-              <p className="text-xl text-gray-700">
+              <p className="text-base md:text-lg text-gray-700 mt-2">
                 Comprehensive digital solutions delivered under your brand
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch auto-rows-fr">
               {serviceCategories.slice(0, 6).map((service) => {
                 const Icon = service.icon;
                 const hasCoupon = service.couponCode;
+
                 return (
-                  <Card key={service.id} className="relative overflow-hidden flex flex-col h-full">
-                    {hasCoupon && (
-                      <div className="absolute top-4 right-4 z-10">
-                        <Badge className="bg-brand-coral text-white text-xs font-bold animate-pulse">
-                          {service.discount}
-                        </Badge>
+                  <Card
+                    key={service.id}
+                    className="relative overflow-hidden h-full flex flex-col p-6 shadow-sm border"
+                  >
+                    {/* Header */}
+                    <div className="flex items-center justify-start gap-3 mb-4">
+                      <div className="w-10 h-10 bg-brand-coral/10 rounded-lg flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5 text-brand-coral" />
                       </div>
-                    )}
-                    <CardHeader className="pb-4">
-                      <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                        <Icon className="w-6 h-6 text-brand-coral" />
+                      <div className="min-w-0">
+                        <h3 className="text-lg font-semibold text-brand-purple leading-snug line-clamp-2">
+                          {service.title}
+                        </h3>
                       </div>
-                      <CardTitle className="text-xl font-bold text-brand-purple min-h-[3.5rem] flex items-center">
-                        <h3>{service.title}</h3>
-                      </CardTitle>
-                      <p className="text-gray-700 min-h-[3rem] flex items-start">{service.description}</p>
-                    </CardHeader>
-                    <CardContent className="flex-1 flex flex-col">
-                      <div className="space-y-4 flex-1">
-                        <div className="text-2xl font-bold text-brand-purple">
+                    </div>
+
+                    <p className="text-sm text-gray-700 mt-1 leading-snug line-clamp-2">
+                      {service.description}
+                    </p>
+
+                    {/* Content */}
+                    <div className="flex-1 flex flex-col">
+                      {/* Pricing and inline discount */}
+                      <div className="flex items-center justify-between gap-3 mt-3">
+                        <div className="text-xl font-semibold text-brand-purple">
                           {service.pricing}
                         </div>
-                        {service.id === "dedicated-resources" ? (
-                          <div className="space-y-2 min-h-[2.5rem]">
-                            <div className="text-sm text-brand-coral font-semibold">
-                              Average 60% cost savings vs. in-house team
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-sm text-brand-coral font-semibold min-h-[2.5rem] flex items-start">
-                            {service.metrics}
-                          </div>
+
+                        {service.discount && (
+                          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 bg-brand-coral text-white text-xs font-bold animate-pulse">
+                            {service.discount}
+                          </span>
                         )}
-                        <ul className="space-y-2 flex-1 min-h-[8rem]">
-                          {service.features.map((feature, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-2 text-sm"
-                            >
-                              <CheckCircle className="w-4 h-4 text-brand-coral mt-0.5 flex-shrink-0" />
-                              <span>{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
                       </div>
 
-                      {/* Fixed button container at bottom */}
-                      <div className="mt-auto pt-6 space-y-6">
+                      {service.id === "dedicated-resources" ? (
+                        <div className="text-xs text-brand-coral font-semibold mt-2">
+                          Average 60% cost savings vs. in-house team
+                        </div>
+                      ) : (
+                        <div className="text-xs text-brand-coral font-semibold mt-2 leading-snug">
+                          {service.metrics}
+                        </div>
+                      )}
+
+                      <ul className="mt-3 space-y-2">
+                        {service.features.map((feature, index) => (
+                          <li
+                            key={index}
+                            className="flex items-start gap-2 text-sm leading-tight"
+                          >
+                            <CheckCircle className="w-4 h-4 text-brand-coral mt-0.5 shrink-0" />
+                            <span className="line-clamp-2">{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* Actions */}
+                      <div className="mt-auto pt-5">
                         {service.id === "n8n-automations" ? (
                           <>
-                            <div className="text-center py-3 mb-2">
-                              <span className="text-brand-coral font-semibold text-lg">
+                            <div className="text-center py-2">
+                              <span className="text-brand-coral font-semibold">
                                 Coming Soon
                               </span>
                             </div>
                             <Link href={service.href}>
                               <Button
                                 variant="outline"
-                                className="w-full h-11 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
+                                className="w-full h-10 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
                               >
                                 Learn More
                                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -1368,70 +1379,74 @@ export default function Services() {
                             </Link>
                           </>
                         ) : hasCoupon ? (
-  <div className="space-y-4">
-    {!showCoupons[service.id] ? (
-      <Button
-        onClick={() => handleRevealCoupon(service.id)}
-        className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold transition-colors"
-      >
-        <Gift className="w-4 h-4 mr-2" />
-        Get {service.discount} - {service.discountDescription}
-      </Button>
-    ) : (
-      <div className="space-y-4">
-        <div className="p-4 bg-brand-coral/10 border border-brand-coral/20 rounded-lg">
-          <div className="text-sm font-medium text-brand-purple mb-3">
-            Your coupon code:
-          </div>
-          <div className="flex items-center gap-2 p-3 bg-white rounded border">
-            <code className="font-mono text-sm font-bold text-brand-purple flex-1">
-              {service.couponCode}
-            </code>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() =>
-                handleCopyCoupon(service.couponCode, service.id)
-              }
-              className="h-8 px-3 text-xs border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
-            >
-              <Copy className="w-3 h-3 mr-1" />
-              {couponCopied[service.id] ? "✓" : "Copy"}
-            </Button>
-          </div>
-        </div>
-        <Link
-          href={`/contact?coupon=${service.couponCode}&service=${service.id}`}
-        >
-          <Button className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold transition-colors">
-            Use Coupon in Contact Form
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
-        </Link>
-      </div>
-    )}
+                          <div className="flex flex-col gap-4 mt-4">
+                            {!showCoupons[service.id] ? (
+                              <Button
+                                onClick={() => handleRevealCoupon(service.id)}
+                                className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium"
+                              >
+                                <Gift className="w-4 h-4 mr-2" />
+                                Get {service.discount} –{" "}
+                                {service.discountDescription}
+                              </Button>
+                            ) : (
+                              <div className="flex flex-col gap-4">
+                                <div className="p-3 bg-brand-coral/10 border border-brand-coral/20 rounded-lg">
+                                  <div className="text-xs font-medium text-brand-purple mb-2">
+                                    Your coupon code:
+                                  </div>
+                                  <div className="flex items-center gap-2 p-2 bg-white rounded border">
+                                    <code className="font-mono text-sm font-bold text-brand-purple flex-1">
+                                      {service.couponCode}
+                                    </code>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={() =>
+                                        handleCopyCoupon(
+                                          service.couponCode,
+                                          service.id
+                                        )
+                                      }
+                                      className="h-8 px-3 text-xs border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
+                                    >
+                                      <Copy className="w-3 h-3 mr-1" />
+                                      {couponCopied[service.id] ? "✓" : "Copy"}
+                                    </Button>
+                                  </div>
+                                </div>
 
-    <Link href={service.href}>
-      <Button
-        variant="outline"
-        className="w-full h-11 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-colors"
-      >
-        Learn More
-        <ArrowRight className="w-4 h-4 ml-2" />
-      </Button>
-    </Link>
-  </div>
-)
- : (
+                                <Link
+                                  href={`/contact?coupon=${service.couponCode}&service=${service.id}`}
+                                >
+                                  <Button className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium">
+                                    Use Coupon in Contact Form
+                                    <ArrowRight className="w-4 h-4 ml-2" />
+                                  </Button>
+                                </Link>
+                              </div>
+                            )}
+
+                            <Link href={service.href}>
+                              <Button
+                                variant="outline"
+                                className="w-full h-10 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
+                              >
+                                Learn More
+                                <ArrowRight className="w-4 h-4 ml-2" />
+                              </Button>
+                            </Link>
+                          </div>
+                        ) : (
                           <Link href={service.href}>
-                            <Button className="w-full py-3 bg-brand-coral hover:bg-brand-coral/90 text-white transition-colors">
+                            <Button className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium">
                               Learn More
                               <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                           </Link>
                         )}
                       </div>
-                    </CardContent>
+                    </div>
                   </Card>
                 );
               })}
@@ -1440,111 +1455,106 @@ export default function Services() {
         </section>
 
         {/* SEO Special Offer Section - Enhanced Design */}
-        <section className="relative py-20 px-4 overflow-hidden bg-gradient-to-br from-brand-purple via-brand-coral to-brand-purple">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full blur-xl"></div>
-            <div className="absolute top-32 right-20 w-16 h-16 bg-white rounded-full blur-lg"></div>
-            <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-white rounded-full blur-2xl"></div>
-            <div className="absolute bottom-10 right-10 w-12 h-12 bg-white rounded-full blur-lg"></div>
+        <section className="relative overflow-hidden bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral py-20 px-4">
+          {/* Soft glow & pattern */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-20 -left-10 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute top-1/3 -right-16 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute bottom-10 left-1/4 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+            {/* subtle grid pattern */}
+            <svg className="absolute inset-0 h-full w-full opacity-10" aria-hidden="true">
+              <defs>
+                <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                  <path d="M32 0H0V32" fill="none" stroke="white" strokeWidth="0.5" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#grid)" />
+            </svg>
           </div>
 
-          <div className="relative max-w-6xl mx-auto">
-            {/* Special Badge */}
-            <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-6 py-3 rounded-full border border-white/30 shadow-2xl">
-                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                <h2 className="text-sm font-bold text-white tracking-wide uppercase">
-                  Limited Time Offer
-                </h2>
-                <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-              </div>
+          <div className="relative mx-auto max-w-6xl">
+            {/* Top badge */}
+            <div className="mb-8 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md shadow-sm">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-300" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-white">
+                  Limited time offer
+                </span>
+                <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-300" />
+              </span>
             </div>
 
-            {/* Main Content */}
-            <div className="text-center mb-12">
-              <div className="text-5xl md:text-6xl font-extrabold mb-6 text-white leading-tight">
-                <h3 className="block text-2xl md:text-3xl font-semibold text-yellow-300 mb-2">
-                  This Month's Special: 50% OFF Any SEO Service!
-                </h3>
-              </div>
-              <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-4xl mx-auto leading-relaxed">
-                Supercharge your clients' results for half the price—all with
-                our
-                <span className="font-bold text-yellow-300">
-                  {" "}
-                  industry-leading, fully white-label SEO solutions
-                </span>
+            {/* Headline & copy */}
+            <div className="mb-10 text-center">
+              <h2 className="text-3xl md:text-5xl font-extrabold leading-tight text-white">
+                This Month Only: <span className="text-yellow-300">50% OFF</span> Any SEO Service
+              </h2>
+              <p className="mx-auto mt-4 max-w-3xl text-base md:text-lg leading-relaxed text-white/90">
+                Supercharge your clients’ growth with our
+                <span className="font-semibold text-yellow-300"> white-label, results driven SEO</span> done by senior experts, delivered under your brand.
               </p>
             </div>
 
-            {/* SEO Services Grid */}
+            {/* Services chips */}
             <div className="mb-12">
-              <h3 className="text-2xl font-bold text-center text-white mb-8">
-                For a limited time, get 50% off any of our expert SEO services:
+              <h3 className="mb-6 text-center text-lg md:text-xl font-semibold text-white/90">
+                Choose any SEO service and get <span className="text-yellow-300">50% off</span>:
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-                <div className="bg-whover:bg-white/15 backdrop-blur-md rounded-xl p-4 text-center border border-white/20">
-                  <div className="text-white font-semibold">Local SEO</div>
-                </div>
-                <div className="bg-whover:bg-white/15 backdrop-blur-md rounded-xl p-4 text-center border border-white/20">
-                  <div className="text-white font-semibold">Ecommerce SEO</div>
-                </div>
-                <div className="bg-whover:bg-white/15 backdrop-blur-md rounded-xl p-4 text-center border border-white/20">
-                  <div className="text-white font-semibold">Technical SEO</div>
-                </div>
-                <div className="bg-whover:bg-white/15 backdrop-blur-md rounded-xl p-4 text-center border border-white/20">
-                  <div className="text-white font-semibold">Link Building</div>
-                </div>
-                <div className="bg-whover:bg-white/15 backdrop-blur-md rounded-xl p-4 text-center border border-white/20">
-                  <div className="text-white font-semibold">Content SEO</div>
-                </div>
-                <div className="bg-whover:bg-white/15 backdrop-blur-md rounded-xl p-4 text-center border border-white/20">
-                  <div className="text-white font-semibold">& More</div>
-                </div>
+
+              <div className="mx-auto grid max-w-4xl grid-cols-2 md:grid-cols-3 gap-4">
+                {[
+                  "Local SEO",
+                  "Ecommerce SEO",
+                  "Technical SEO",
+                  "Link Building",
+                  "Content SEO",
+                  "…and more",
+                ].map((label) => (
+                  <div
+                    key={label}
+                    className="rounded-xl border border-white/15 bg-white/10 p-4 text-center text-white backdrop-blur-md transition-all hover:border-white/30 hover:bg-white/15"
+                  >
+                    <span className="text-sm font-medium">{label}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-10 justify-center items-center">
+            {/* CTAs */}
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Button
                 asChild
                 size="lg"
-                className="bg-yellow-400 hover:bg-yellow-300 text-brand-purple font-bold text-lg px-10 py-6 rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300"
+                className="group h-12 rounded-xl bg-yellow-400 px-8 font-bold text-brand-purple shadow-md transition-all hover:translate-y-[-1px] hover:bg-yellow-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-300"
+                aria-label="Claim 50% discount now"
               >
                 <Link href="/contact?coupon=SEO50&service=seo">
-                  🚀 Claim 50% Discount Now
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                  <span className="mr-2">🚀 Claim 50% Discount Now</span>
+                  <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </Button>
-              <Link href="/services/seo">
+
+              <Link href="/services/seo" aria-label="View SEO case studies">
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-brand-purple font-semibold text-lg px-10 py-6 rounded-2xl backdrop-blur-md bg-white/10 shadow-2xl hover:scale-105 transition-all duration-300"
+                  className="h-12 rounded-xl border-2 border-white/70 bg-white/10 px-8 font-semibold text-white backdrop-blur-md transition-all hover:bg-white hover:text-brand-purple focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white"
                 >
                   📊 View SEO Case Studies
                 </Button>
               </Link>
             </div>
 
-            {/* Urgency Footer */}
-            <div className="text-center mt-8">
-              <p className="text-white/90 font-semibold">
-                ⏰ Offer expires in{" "}
-                <span className="text-yellow-300 font-bold">7 days</span> |
-                <span className="text-yellow-300 font-bold">
-                  {" "}
-                  New clients only
-                </span>{" "}
-                |
-                <span className="text-yellow-300 font-bold"> No setup fees</span>
+            {/* Footer note */}
+            <div className="mt-8 text-center">
+              <p className="text-sm font-medium text-white/85">
+                ⏰ Offer expires in <span className="font-bold text-yellow-300">7 days</span> ·
+                <span className="font-bold text-yellow-300"> New clients only</span> ·
+                <span className="font-bold text-yellow-300"> No setup fees</span>
               </p>
             </div>
           </div>
         </section>
-
-
 
         {/* CTA Section */}
         <section className="py-16 px-4 bg-brand-purple text-white">
@@ -1557,7 +1567,7 @@ export default function Services() {
               <Link href="/newsletter">
                 <Button
                   size="lg"
-                  className="bg-brand-coral hover:bg-brand-coral/90 text-white px-8 py-4 font-semibold transition-all duration-300"
+                  className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white px-8 py-4 font-semibold transition-all duration-300"
                 >
                   Subscribe to Our Newsletter!
                 </Button>
@@ -1566,7 +1576,7 @@ export default function Services() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white bg-white px-8 py-4 font-semibold transition-all duration-300"
+                  className="border-2 border-brand-purple text-brand-purple hover:bg-brand-coral hover:text-white bg-white px-8 py-4 font-semibold transition-all duration-300"
                 >
                   View Pricing Calculator
                 </Button>

@@ -15,13 +15,13 @@ import statPlanningResults from "@assets/stat-planning-seo-portfolio_17541174476
 import ubuDesignResults from "@assets/ubu-design-seo-performance_1754117447634.png";
 import griffinGroupAnalytics from "@assets/Screenshot 2025-07-30 191221_1754117459762.png";
 import citypatResults from "@assets/citypat-seo-case-study_1754117494248.png";
-import { 
-  Search, 
-  TrendingUp, 
-  Target, 
-  BarChart3, 
-  Users, 
-  CheckCircle, 
+import {
+  Search,
+  TrendingUp,
+  Target,
+  BarChart3,
+  Users,
+  CheckCircle,
   ArrowRight,
   Star,
   Award,
@@ -207,7 +207,7 @@ export default function SEOServices() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <SEOHead 
+      <SEOHead
         title="White-Label SEO Services for Agencies Worldwide | BrandingBeez"
         description="Grow your agency globally with white-label SEO services from BrandingBeez. Scalable packages, proven case studies, and expert support tailored for worldwide clients."
         keywords="white label SEO, SEO services for agencies, white label search engine optimization, technical SEO, content optimization, link building services"
@@ -239,8 +239,8 @@ export default function SEOServices() {
       <Header />
       <main>
         {/* Featured SEO Client Section */}
-        <section className="py-12 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-          <div className="max-w-7xl mx-auto">
+        <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+          <div className="max-w-7xl mx-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <Badge className="bg-white/20 text-white border-white/30 mb-6">
@@ -267,12 +267,12 @@ export default function SEOServices() {
 
                 <div className="flex flex-col sm:flex-row gap-4 items-center">
                   <Link href="/contact?service=SEO Services">
-                    <Button className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple">
+                    <Button className="bg-white text-brand-purple hover:bg-brand-coral hover:text-white">
                       Subscribe Free
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </Link>
-                  <Button asChild className="border-white text-white hover:bg-white hover:text-brand-purple border-2">
+                  <Button asChild className="text-white hover:bg-white hover:text-brand-purple">
                     <a href={featuredClient.website} target="_blank" rel="noopener noreferrer">
                       Visit Website
                       <ExternalLink className="w-4 h-4 ml-2" />
@@ -283,7 +283,7 @@ export default function SEOServices() {
 
               <div className="relative">
                 <div className="aspect-video bg-white rounded-2xl border-2 border-gray-200 shadow-xl overflow-hidden p-4">
-                  <img 
+                  <img
                     src={analyticsScreenshot}
                     alt="Griffin Group Google Analytics Results - User acquisition data showing organic search traffic growth"
                     className="w-full h-full object-contain bg-white rounded-lg"
@@ -292,26 +292,26 @@ export default function SEOServices() {
                       target.style.display = 'none';
                       const fallbackDiv = document.createElement('div');
                       fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl flex items-center justify-center';
-                      
+
                       const textCenter = document.createElement('div');
                       textCenter.className = 'text-center text-white p-8';
-                      
+
                       const iconDiv = document.createElement('div');
                       iconDiv.className = 'text-4xl font-bold mb-2';
                       iconDiv.textContent = '📊';
-                      
+
                       const titleDiv = document.createElement('div');
                       titleDiv.className = 'text-lg font-semibold mb-1';
                       titleDiv.textContent = 'Google Analytics Results';
-                      
+
                       const sessionDiv = document.createElement('div');
                       sessionDiv.className = 'text-sm opacity-90';
                       sessionDiv.textContent = '16.24% session growth';
-                      
+
                       const userDiv = document.createElement('div');
                       userDiv.className = 'text-sm opacity-90';
                       userDiv.textContent = '12.02% user growth';
-                      
+
                       textCenter.appendChild(iconDiv);
                       textCenter.appendChild(titleDiv);
                       textCenter.appendChild(sessionDiv);
@@ -356,7 +356,7 @@ export default function SEOServices() {
                 <Card key={study.id} className="flex flex-col h-full">
                   {study.id === 1 ? (
                     <div className="aspect-video bg-white rounded-t-lg overflow-hidden border-b border-gray-200 p-2">
-                      <img 
+                      <img
                         src={atlanticSearchConsole}
                         alt="Atlantic Foundation Google Search Console Performance Results"
                         className="w-full h-full object-contain rounded"
@@ -365,18 +365,18 @@ export default function SEOServices() {
                           target.style.display = 'none';
                           const fallbackDiv = document.createElement('div');
                           fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center';
-                          
+
                           const textCenter = document.createElement('div');
                           textCenter.className = 'text-center';
-                          
+
                           const iconDiv = document.createElement('div');
                           iconDiv.className = 'w-16 h-16 text-brand-coral mx-auto mb-2';
                           iconDiv.textContent = '📊';
-                          
+
                           const industryP = document.createElement('p');
                           industryP.className = 'text-sm font-medium text-gray-600';
                           industryP.textContent = study.industry;
-                          
+
                           textCenter.appendChild(iconDiv);
                           textCenter.appendChild(industryP);
                           fallbackDiv.appendChild(textCenter);
@@ -386,7 +386,7 @@ export default function SEOServices() {
                     </div>
                   ) : study.id === 2 ? (
                     <div className="aspect-video bg-white rounded-t-lg overflow-hidden border-b border-gray-200 p-2">
-                      <img 
+                      <img
                         src={scubaSearchResults}
                         alt="By The Shore Scuba Google Search Console Performance Results"
                         className="w-full h-full object-contain rounded"
@@ -395,18 +395,18 @@ export default function SEOServices() {
                           target.style.display = 'none';
                           const fallbackDiv = document.createElement('div');
                           fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center';
-                          
+
                           const textCenter = document.createElement('div');
                           textCenter.className = 'text-center';
-                          
+
                           const iconDiv = document.createElement('div');
                           iconDiv.className = 'w-16 h-16 text-brand-coral mx-auto mb-2';
                           iconDiv.textContent = '📊';
-                          
+
                           const industryP = document.createElement('p');
                           industryP.className = 'text-sm font-medium text-gray-600';
                           industryP.textContent = study.industry;
-                          
+
                           textCenter.appendChild(iconDiv);
                           textCenter.appendChild(industryP);
                           fallbackDiv.appendChild(textCenter);
@@ -416,7 +416,7 @@ export default function SEOServices() {
                     </div>
                   ) : study.id === 3 ? (
                     <div className="aspect-video bg-white rounded-t-lg overflow-hidden border-b border-gray-200 p-2">
-                      <img 
+                      <img
                         src={statPlanningResults}
                         alt="Stat Planning Google Search Console Performance - 218 clicks, 4.41K impressions"
                         className="w-full h-full object-contain rounded"
@@ -425,18 +425,18 @@ export default function SEOServices() {
                           target.style.display = 'none';
                           const fallbackDiv = document.createElement('div');
                           fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center';
-                          
+
                           const textCenter = document.createElement('div');
                           textCenter.className = 'text-center';
-                          
+
                           const iconDiv = document.createElement('div');
                           iconDiv.className = 'w-16 h-16 text-brand-coral mx-auto mb-2';
                           iconDiv.textContent = '📊';
-                          
+
                           const industryP = document.createElement('p');
                           industryP.className = 'text-sm font-medium text-gray-600';
                           industryP.textContent = study.industry;
-                          
+
                           textCenter.appendChild(iconDiv);
                           textCenter.appendChild(industryP);
                           fallbackDiv.appendChild(textCenter);
@@ -446,7 +446,7 @@ export default function SEOServices() {
                     </div>
                   ) : study.id === 4 ? (
                     <div className="aspect-video bg-white rounded-t-lg overflow-hidden border-b border-gray-200 p-2">
-                      <img 
+                      <img
                         src={ubuDesignResults}
                         alt="UBU Design Google Search Console Performance - 516 clicks, 55.4K impressions"
                         className="w-full h-full object-contain rounded"
@@ -455,18 +455,18 @@ export default function SEOServices() {
                           target.style.display = 'none';
                           const fallbackDiv = document.createElement('div');
                           fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center';
-                          
+
                           const textCenter = document.createElement('div');
                           textCenter.className = 'text-center';
-                          
+
                           const iconDiv = document.createElement('div');
                           iconDiv.className = 'w-16 h-16 text-brand-coral mx-auto mb-2';
                           iconDiv.textContent = '📊';
-                          
+
                           const industryP = document.createElement('p');
                           industryP.className = 'text-sm font-medium text-gray-600';
                           industryP.textContent = study.industry;
-                          
+
                           textCenter.appendChild(iconDiv);
                           textCenter.appendChild(industryP);
                           fallbackDiv.appendChild(textCenter);
@@ -476,7 +476,7 @@ export default function SEOServices() {
                     </div>
                   ) : study.id === 5 ? (
                     <div className="aspect-video bg-white rounded-t-lg overflow-hidden border-b border-gray-200 p-2">
-                      <img 
+                      <img
                         src={citypatResults}
                         alt="CityPat Google Search Console Performance - 244 clicks, 34.6K impressions"
                         className="w-full h-full object-contain rounded"
@@ -485,18 +485,18 @@ export default function SEOServices() {
                           target.style.display = 'none';
                           const fallbackDiv = document.createElement('div');
                           fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center';
-                          
+
                           const textCenter = document.createElement('div');
                           textCenter.className = 'text-center';
-                          
+
                           const iconDiv = document.createElement('div');
                           iconDiv.className = 'w-16 h-16 text-brand-coral mx-auto mb-2';
                           iconDiv.textContent = '📊';
-                          
+
                           const industryP = document.createElement('p');
                           industryP.className = 'text-sm font-medium text-gray-600';
                           industryP.textContent = study.industry;
-                          
+
                           textCenter.appendChild(iconDiv);
                           textCenter.appendChild(industryP);
                           fallbackDiv.appendChild(textCenter);
@@ -506,7 +506,7 @@ export default function SEOServices() {
                     </div>
                   ) : study.id === 6 ? (
                     <div className="aspect-video bg-white rounded-t-lg overflow-hidden border-b border-gray-200 p-2">
-                      <img 
+                      <img
                         src={griffinGroupAnalytics}
                         alt="Griffin Group Google Analytics User Acquisition Data"
                         className="w-full h-full object-contain rounded"
@@ -515,18 +515,18 @@ export default function SEOServices() {
                           target.style.display = 'none';
                           const fallbackDiv = document.createElement('div');
                           fallbackDiv.className = 'w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center';
-                          
+
                           const textCenter = document.createElement('div');
                           textCenter.className = 'text-center';
-                          
+
                           const iconDiv = document.createElement('div');
                           iconDiv.className = 'w-16 h-16 text-brand-coral mx-auto mb-2';
                           iconDiv.textContent = '📊';
-                          
+
                           const industryP = document.createElement('p');
                           industryP.className = 'text-sm font-medium text-gray-600';
                           industryP.textContent = study.industry;
-                          
+
                           textCenter.appendChild(iconDiv);
                           textCenter.appendChild(industryP);
                           fallbackDiv.appendChild(textCenter);
@@ -565,7 +565,7 @@ export default function SEOServices() {
 
                     <div className="mt-auto">
                       <Link href={study.id === 1 ? "/case-studies/seo-case-study" : study.id === 2 ? "/case-studies/scuba-diving-case-study" : study.id === 3 ? "/case-studies/stat-planning-case-study" : study.id === 4 ? "/case-studies/ubu-design-case-study" : study.id === 5 ? "/case-studies/citypat-case-study" : "/case-studies/griffin-group-case-study"}>
-                        <Button className="w-full bg-brand-coral hover:bg-brand-coral/90 text-white">
+                        <Button className="w-full bg-brand-coral hover:bg-brand-purple text-white">
                           View Full Case Study
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -581,74 +581,90 @@ export default function SEOServices() {
         {/* Pricing Packages Section */}
         <section className="py-16 px-4 bg-white">
           <div className="max-w-7xl mx-auto">
+            {/* Header */}
             <div className="text-center mb-12">
               <h2 className="bg-brand-purple text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
                 💎 White-Label SEO Packages
               </h2>
-              <h3 className="text-4xl font-bold text-brand-purple mb-6">
+              <h3 className="text-4xl font-bold text-brand-purple mb-4">
                 Choose Your SEO Package
               </h3>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              <p className="text-xl text-gray-900/80 max-w-3xl mx-auto">
                 Scalable SEO solutions designed for agencies and businesses of all sizes. All packages include white-label reporting.
               </p>
             </div>
 
+            {/* Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {pricingPackages.map((pkg) => (
-                <Card 
-                  key={pkg.id} 
-                  className={`relative flex flex-col h-full ${
-                    pkg.popular 
-                      ? 'border-2 border-brand-coral scale-105' 
-                      : 'border border-gray-200 hover:border-brand-coral/50'
-                  } transition-all duration-300`}
+                <Card
+                  key={pkg.id}
+                  className={[
+                    "relative flex flex-col h-full transition-all duration-300",
+                    pkg.popular
+                      ? "border-2 border-brand-coral shadow-sm scale-[1.02]"
+                      : "border border-brand-purple/20 hover:border-brand-purple/40 hover:shadow-sm",
+                  ].join(" ")}
                 >
+                  {/* Popular badge */}
                   {pkg.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-brand-coral text-white px-4 py-1">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-brand-coral text-white px-4 py-1 rounded-full">
                         Most Popular
                       </Badge>
                     </div>
                   )}
 
+                  {/* Header */}
                   <CardHeader className="text-center pb-4 flex-shrink-0">
-                    <h4 className="text-2xl font-bold text-brand-purple">
-                      {pkg.name}
-                    </h4>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold text-brand-coral">{pkg.price}</span>
-                      <span className="text-gray-600">{pkg.period}</span>
+                    <h4 className="text-2xl font-bold text-brand-purple">{pkg.name}</h4>
+
+                    <div className="mt-4 flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-extrabold text-brand-coral">
+                        {pkg.price}
+                      </span>
+                      <span className="text-gray-900/70">{pkg.period}</span>
                     </div>
-                    <p className="text-gray-600 mt-2">{pkg.description}</p>
+
+                    <p className="text-gray-900/80 mt-2">{pkg.description}</p>
                   </CardHeader>
 
+                  {/* Features */}
                   <CardContent className="flex flex-col flex-grow">
                     <ul className="space-y-3 mb-8 flex-grow">
                       {pkg.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-700 text-sm leading-relaxed">{feature}</span>
+                          <CheckCircle className="w-5 h-5 text-brand-coral mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-900 text-sm leading-relaxed">
+                            {feature}
+                          </span>
                         </li>
                       ))}
                     </ul>
 
-                    <div className="mt-auto pt-8 border-t border-gray-100">
-                      <div className="space-y-3">
+                    {/* Actions */}
+                    <div className="mt-auto pt-8 border-t border-brand-purple/10">
+                      <div className="flex flex-col gap-4">
                         <Link href="/contact?service=SEO Services">
-                          <Button 
-                            className={`w-full h-11 px-4 font-medium text-sm transition-all duration-300 ${
-                              pkg.popular 
-                                ? 'bg-brand-coral hover:bg-brand-coral/90 text-white' 
-                                : 'bg-brand-purple hover:bg-brand-purple/90 text-white'
-                            }`}
+                          <Button
+                            asChild
+                            className={[
+                              "w-full h-11 px-4 text-sm font-medium",
+                              "transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-offset-2",
+                              pkg.popular
+                                ? "bg-brand-coral hover:bg-brand-coral text-white"
+                                : "bg-brand-purple hover:bg-brand-purple text-white",
+                            ].join(" ")}
                           >
-                            Get Started with SEO
-                            <ArrowRight className="w-4 h-4 ml-2" />
+                            <Link href={`/contact?service=${encodeURIComponent("SEO Services")}`}>
+                              Get Started with SEO
+                              <ArrowRight className="w-4 h-4 ml-2" />
+                            </Link>
                           </Button>
                         </Link>
 
                         <Link href="/onboarding-wizard">
-                          <Button 
+                          <Button
                             variant="outline"
                             className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                           >
@@ -663,14 +679,15 @@ export default function SEOServices() {
               ))}
             </div>
 
+            {/* Footer CTA */}
             <div className="text-center mt-12">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-900/80 mb-4">
                 Need a custom solution? We offer tailored SEO strategies for enterprise clients.
               </p>
               <Link href="/contact?service=SEO Services">
-                <Button 
-                  variant="outline" 
-                  className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
+                <Button
+                  variant="outline"
+                  className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
                 >
                   Contact Us for Custom Pricing
                 </Button>
@@ -679,15 +696,16 @@ export default function SEOServices() {
           </div>
         </section>
 
+
         {/* CTA Section */}
         <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-4">Stay on Top of SEO Trends</h2>
             <p className="text-xl mb-8 text-white/90">Join marketers & agencies getting expert tips, ranking strategies, and SEO case studies from BrandingBeez—straight to your inbox.</p>
             <div className="flex flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral font-semibold"
+              <Button
+                size="lg"
+                className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white font-semibold"
                 onClick={() => window.open('/newsletter', '_blank')}
               >Subscribe for Free</Button>
             </div>

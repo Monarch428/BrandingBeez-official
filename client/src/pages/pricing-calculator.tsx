@@ -964,8 +964,8 @@ export default function PricingCalculator() {
       <Header />
       
       {/* Hero Section */}
-      <section className="pt-16 sm:pt-20 pb-12 sm:pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-        <div className="max-w-4xl mx-auto text-center">
+      <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+        <div className="max-w-4xl mx-auto text-center p-6">
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
             <Calculator className="w-10 h-10 sm:w-12 sm:h-12" />
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">

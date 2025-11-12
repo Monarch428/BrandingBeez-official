@@ -70,7 +70,7 @@ export function HomeTeamBanner() {
           {teamMembers.map((member, index) => (
             <div key={index} className="group text-center">
               <div className="relative mb-3">
-                <div className="w-14 sm:w-14 md:w-14 lg:w-16 h-10 sm:h-12 md:h-14 lg:h-16 mx-auto relative">
+                <div className="w-14 sm:w-14 md:w-14 lg:w-16 h-14 sm:h-12 md:h-14 lg:h-16 mx-auto relative">
                   <div className="absolute inset-0 bg-white/20 rounded-full blur-sm"></div>
                   <img
                     src={member.image}

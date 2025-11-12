@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
-import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
+import brandingBeezLogo from "@assets/BB_Logo_Color.png";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -85,6 +85,13 @@ export default function Header() {
                 About
               </span>
             </Link>
+            <Link href="/portfolio">
+              <span
+                className={`font-medium transition-colors cursor-pointer ${location === "/portfolio" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
+              >
+                Portfolio
+              </span>
+            </Link>
             <Link href="/contact">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/contact" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
@@ -92,9 +99,6 @@ export default function Header() {
                 Contact
               </span>
             </Link>
-
-            
-
             <Link href="/newsletter">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/news-letter" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
@@ -185,6 +189,14 @@ export default function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
+                </button>
+              </Link>
+              <Link href="/portfolio">
+                <button
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio" ? "text-brand-coral-darker bg-brand-coral/10" : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Portfolio
                 </button>
               </Link>
               <Link href="/contact">

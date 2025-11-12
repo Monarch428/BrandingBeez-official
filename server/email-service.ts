@@ -89,7 +89,7 @@ export async function sendEmailViaGmail(submission: {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Subscription Confirmation</title>
       </head>
-      <body style="margin:0; padding:0; font-family: 'Inter', Arial, sans-serif; 
+      <body style="margin:0; padding:0; font-family: 'Poppins', Arial, sans-serif; 
         background: linear-gradient(to right, #CF4163, #552265); color:#fff;">
 
         <table width="100%" cellspacing="0" cellpadding="0">

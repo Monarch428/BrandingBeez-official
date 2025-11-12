@@ -8,12 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 import { Link, useLocation } from "wouter";
-import { 
-  TrendingUp, 
-  Target, 
-  BarChart3, 
-  Users, 
-  CheckCircle, 
+import {
+  TrendingUp,
+  Target,
+  BarChart3,
+  Users,
+  CheckCircle,
   ArrowRight,
   Star,
   Globe,
@@ -146,14 +146,14 @@ const pricingPackages = [
 
 export default function GoogleAds() {
   const [, setLocation] = useLocation();
-  
+
   const navigateToPricingCalculator = () => {
     setLocation('/pricing-calculator');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <SEOHead 
+      <SEOHead
         title="White-Label Google Ads Services | £6.51 CPA | Expert PPC for Agencies"
         description="Professional white-label Google Ads management for agencies. Proven results with £6.51 CPA and 18.95% conversion rates. Performance Max, Search, and Shopping campaigns delivered under your brand."
         keywords="white label Google Ads, PPC services for agencies, white label pay per click, Google Ads management, Performance Max campaigns, Search campaigns"
@@ -185,8 +185,8 @@ export default function GoogleAds() {
       <Header />
       <main className="pt-0">
         {/* Featured Google Ads Client Section */}
-        <section className="py-12 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-          <div className="max-w-7xl mx-auto">
+        <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+          <div className="max-w-7xl mx-auto p-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div>
                 <Badge className="bg-white/20 text-white border-white/30 mb-6">
@@ -198,7 +198,7 @@ export default function GoogleAds() {
                 <p className="text-xl text-gray-100 mb-8">
                   {featuredClient.description}
                 </p>
-                
+
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
                   <h2 className="text-xl font-bold mb-4">Google Ads Results in 30 days</h2>
                   <ul className="space-y-2 text-gray-100">
@@ -218,8 +218,8 @@ export default function GoogleAds() {
                       <ArrowRight className="w-4 h-4 ml-2" />
                     </Link>
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
                     asChild
                   >
@@ -230,7 +230,7 @@ export default function GoogleAds() {
                   </Button>
                 </div>
               </div>
-              
+
               <div className="relative">
                 <Card className="bg-white/95 backdrop-blur-sm border border-white/20 p-6">
                   <div className="mb-4">
@@ -244,15 +244,15 @@ export default function GoogleAds() {
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 mb-1">{featuredClient.name}</h3>
                   </div>
-                  
+
                   <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <img 
-                      src="/attached_assets/Time_series(2025.05.01-2025.05.31)_1753339120036.png" 
+                    <img
+                      src="/attached_assets/Time_series(2025.05.01-2025.05.31)_1753339120036.png"
                       alt="Arlingsworth Solicitors Google Ads performance dashboard showing impressions, clicks, conversions, and cost metrics"
                       className="w-full rounded-lg shadow-sm"
                     />
                   </div>
-                  
+
                   <p className="text-xs text-gray-600 text-center">
                     Live Google Ads dashboard showing 30-day performance metrics including 24.8K impressions, 839 clicks, 100 conversions, and £20.66 cost per conversion.
                   </p>
@@ -278,7 +278,7 @@ export default function GoogleAds() {
                 See how we've helped businesses across industries achieve exceptional ROI with strategic Google Ads campaigns and data-driven optimization.
               </p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {caseStudies.map((study, index) => (
                 <Card key={study.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -384,7 +384,7 @@ export default function GoogleAds() {
                       {study.client}
                     </h3>
                     <p className="text-gray-600 mb-4">{study.description}</p>
-                    
+
                     <div className="space-y-2 mb-4">
                       {study.results.cpa && (
                         <div className="flex justify-between text-sm">
@@ -423,9 +423,9 @@ export default function GoogleAds() {
                         </div>
                       )}
                     </div>
-                    
-                    <Button 
-                      className="w-full bg-brand-coral rand-coral/90 text-white group- "
+
+                    <Button
+                      className="w-full bg-brand-coral hover:bg-brand-purple text-white"
                       asChild
                     >
                       <Link href={study.link}>
@@ -440,81 +440,93 @@ export default function GoogleAds() {
           </div>
         </section>
 
-        {/* Pricing Packages Section */}
+        {/* Google Ads Management Packages Section */}
         <section className="py-16 px-4 bg-white">
           <div className="max-w-7xl mx-auto">
+            {/* Header */}
             <div className="text-center mb-12">
               <h2 className="bg-brand-purple text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
                 💎 Google Ads Management Packages
               </h2>
-              <h3 className="text-4xl font-bold text-brand-purple mb-6">
+              <h3 className="text-4xl font-bold text-brand-purple mb-4">
                 Choose Your Google Ads Package
               </h3>
-              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                Professional Google Ads management designed to maximize your return on investment. All packages include setup, optimization, and detailed reporting.
+              <p className="text-xl text-gray-900/80 max-w-3xl mx-auto">
+                Professional Google Ads management designed to maximize your return on investment.
+                All packages include setup, optimization, and detailed reporting.
               </p>
             </div>
-            
+
+            {/* Pricing Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {pricingPackages.map((pkg) => (
-                <Card 
-                  key={pkg.id} 
-                  className={`relative flex flex-col h-full ${
-                    pkg.popular 
-                      ? 'border-2 border-brand-coral scale-105' 
-                      : 'border border-gray-200 hover:border-brand-coral/50'
-                  } transition-all duration-300`}
+                <Card
+                  key={pkg.id}
+                  className={`relative flex flex-col h-full transition-all duration-300 ${pkg.popular
+                      ? "border-2 border-brand-coral shadow-sm scale-[1.02]"
+                      : "border border-brand-purple/20 hover:border-brand-purple/40 hover:shadow-sm"
+                    }`}
                 >
+                  {/* Badge */}
                   {pkg.popular && (
-                    <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-brand-coral text-white px-4 py-1">
+                    <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                      <Badge className="bg-brand-coral text-white px-4 py-1 rounded-full shadow-sm">
                         Most Popular
                       </Badge>
                     </div>
                   )}
-                  
+
+                  {/* Card Header */}
                   <CardHeader className="text-center pb-4 flex-shrink-0">
-                    <h4 className="text-2xl font-bold text-brand-purple">
-                      {pkg.name}
-                    </h4>
-                    <div className="mt-4">
-                      <span className="text-4xl font-bold text-brand-coral">{pkg.price}</span>
-                      <span className="text-gray-600">{pkg.period}</span>
+                    <h4 className="text-2xl font-bold text-brand-purple">{pkg.name}</h4>
+
+                    <div className="mt-4 flex items-baseline justify-center gap-2">
+                      <span className="text-4xl font-extrabold text-brand-coral">{pkg.price}</span>
+                      <span className="text-gray-900/70">{pkg.period}</span>
                     </div>
-                    <p className="text-gray-600 mt-2">{pkg.description}</p>
+
+                    <p className="text-gray-900/80 mt-2">{pkg.description}</p>
                   </CardHeader>
-                  
+
+                  {/* Card Content */}
                   <CardContent className="flex flex-col flex-grow">
                     <ul className="space-y-3 mb-8 flex-grow">
                       {pkg.features.map((feature, index) => (
                         <li key={index} className="flex items-start gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-gray-700 text-sm leading-relaxed">{feature}</span>
+                          <CheckCircle className="w-5 h-5 text-brand-coral mt-0.5 flex-shrink-0" />
+                          <span className="text-gray-900 text-sm leading-relaxed">{feature}</span>
                         </li>
                       ))}
                     </ul>
-                    
-                    <div className="mt-auto pt-8 border-t border-gray-100">
-                      <div className="space-y-6">
-                        <Button 
-                          className={`w-full py-6 px-8 font-bold text-lg transition-all duration-300 ${
-                            pkg.popular 
-                              ? 'bg-brand-coral hover:bg-brand-coral/90 text-white' 
-                              : 'bg-brand-purple hover:bg-brand-purple/90 text-white'
-                          }`}
-                        >
-                          {pkg.id === 1 ? 'Start Google Ads Campaign' : pkg.id === 2 ? 'Launch Growth Campaign' : 'Begin Premium Management'}
-                          <Gift className="w-5 h-5 ml-3" />
-                        </Button>
-                        
-                        <Button 
-                          variant="outline"
-                          className="w-full py-5 px-8 font-semibold text-lg border-3 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+
+                    {/* Bottom Buttons */}
+                    <div className="mt-auto pt-8 border-t border-brand-purple/10">
+                      <div className="flex flex-col gap-4">
+                        <Button
                           asChild
+                          className={`w-full h-11 px-4 font-medium text-sm transition-all duration-300 ${pkg.popular
+                              ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                              : "bg-brand-purple hover:bg-brand-purple/90 text-white"
+                            }`}
+                        >
+                          <Link href="/contact?service=Google Ads">
+                            {pkg.id === 1
+                              ? "Start Google Ads Campaign"
+                              : pkg.id === 2
+                                ? "Launch Growth Campaign"
+                                : "Begin Premium Management"}
+                            <Gift className="w-4 h-4 ml-2" />
+                          </Link>
+                        </Button>
+
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                         >
                           <Link href="/pricing-calculator">
                             View Google Ads Details
-                            <ArrowRight className="w-5 h-5 ml-3" />
+                            <ArrowRight className="w-4 h-4 ml-2" />
                           </Link>
                         </Button>
                       </div>
@@ -523,15 +535,18 @@ export default function GoogleAds() {
                 </Card>
               ))}
             </div>
-            
+
+            {/* Footer CTA */}
             <div className="text-center mt-12">
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-900/80 mb-4">
                 Managing large ad spends? Contact us for enterprise-level Google Ads management.
               </p>
-              <Button 
-                variant="outline" 
-                className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
-                onClick={() => window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")}
+              <Button
+                variant="outline"
+                className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
+                onClick={() =>
+                  window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")
+                }
               >
                 Contact Us for Enterprise Pricing
               </Button>
@@ -545,9 +560,9 @@ export default function GoogleAds() {
             <h2 className="text-3xl font-bold mb-4">Google Ads Tips That Drive ROI</h2>
             <p className="text-xl mb-8 text-white/90">Get expert tips, campaign strategies, and real case studies to boost your ROI—delivered straight to your inbox.</p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+              <Button
+                size="lg"
+                className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white"
                 onClick={() => window.open('/newsletter', '_blank')}
               >
                 Subscribe Free

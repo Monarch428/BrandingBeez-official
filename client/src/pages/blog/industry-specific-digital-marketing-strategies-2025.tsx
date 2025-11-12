@@ -1,12 +1,43 @@
 import React from "react";
-import { Link } from "wouter";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Link } from "wouter";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "wouter";
+import { OptimizedImage } from "@/components/optimized-image";
+import { 
+  ArrowLeft,
+  Calendar,
+  User,
+  Clock,
+  Share2,
+  Search,
+  Globe,
+  BarChart3,
+  Zap,
+  CheckCircle
+} from "lucide-react";
 const industryDigitalMarketingImage = "/images/Industry-Specific_Digital_Marketing_1.png";
 
 export default function IndustrySpecificDigitalMarketingBlog() {
+
+    const shareArticle = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "White Label SEO & PPC Explained: The 2025 Solution to Scale Your Agency Globally",
+        url: "https://brandingbeez.com/blog/white-label-seo-ppc"
+      });
+    } else {
+      navigator.clipboard.writeText("https://brandingbeez.com/blog/white-label-seo-ppc");
+      alert("Article link copied to clipboard!");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
       <SEOHead 
@@ -28,6 +59,50 @@ export default function IndustrySpecificDigitalMarketingBlog() {
       }} />
 
       <Header />
+      {/* Article Header */}
+      <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+        <div className="max-w-4xl mx-auto">
+          <Link href="/blog">
+            <Button variant="ghost" className="text-white hover:bg-white/20 mb-6 bg-transparent">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Blog
+            </Button>
+          </Link>
+          
+          <Badge className="bg-white/20 text-white border-white/30 mb-4">
+            <Search className="w-4 h-4 mr-2" />
+            Digital Marketing
+          </Badge>
+          
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+          Industry-Specific Digital Marketing: Tailored Strategies for Every Niche
+          </h1>
+          
+          <div className="flex flex-wrap items-center gap-6 text-white/90 mb-6">
+            <div className="flex items-center">
+              <User className="w-4 h-4 mr-2" />
+              Digital Marketing Team
+            </div>
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 mr-2" />
+              January 20, 2025
+            </div>
+            <div className="flex items-center">
+              <Clock className="w-4 h-4 mr-2" />
+              12 min read
+            </div>
+          </div>
+          
+          <Button 
+            onClick={shareArticle}
+            variant="outline"
+            className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent"
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Share Article
+          </Button>
+        </div>
+      </section>
       <article className="max-w-5xl mx-auto px-6 py-12">
         {/* Blog Title & Hero Image */}
         <h1 className="text-3xl md:text-4xl font-bold mb-6 bg-gradient-to-r from-brand-purple to-brand-coral bg-clip-text text-transparent">

@@ -22,7 +22,7 @@ export function loadCSSAsync(href: string, id?: string): Promise<void> {
 // Load font CSS with proper fallback
 export function loadFontsAsync(): Promise<void> {
   return loadCSSAsync(
-    'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap',
+    'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap',
     'google-fonts'
   );
 }
@@ -32,7 +32,7 @@ export function optimizeFontDisplay(): void {
   const style = document.createElement('style');
   style.textContent = `
     @font-face {
-      font-family: 'Inter';
+      font-family: 'Poppins';
       font-display: swap;
     }
   `;
