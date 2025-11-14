@@ -398,188 +398,137 @@ export default function DedicatedResources() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
               {/* Social Land - Digital Marketing Agency Success */}
-              <Card className="bg-white  ">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-brand-coral text-white">
-                    Featured Success
-                  </Badge>
+              <Card className="relative bg-white h-full flex flex-col">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-brand-coral text-white">Featured Success</Badge>
                 </div>
-                <CardContent className="p-8 pt-10">
+
+                <CardContent className="p-8 pt-10 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-6">
-                    <Badge className="bg-purple-100 text-purple-800 border-purple-200">
-                      Digital Marketing
-                    </Badge>
+                    <Badge className="bg-purple-100 text-purple-800 border-purple-200">Digital Marketing</Badge>
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm border">
-                      <img
-                        src={socialLandLogo}
-                        alt="Social Land Logo"
-                        className="w-full h-full object-contain"
-                      />
+                      <img src={socialLandLogo} alt="Social Land Logo" className="w-full h-full object-contain" />
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    Social Land
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Social Land</h3>
                   <p className="text-gray-600 mb-4">
-                    6-person dedicated team with UK agency achieving seamless
-                    borderless collaboration
+                    6-person dedicated team with UK agency achieving seamless borderless collaboration
                   </p>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Project Output
-                      </span>
-                      <span className="text-lg font-bold text-green-600">
-                        +150%
-                      </span>
+                      <span className="text-sm text-gray-600">Project Output</span>
+                      <span className="text-lg font-bold text-green-600">+150%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Cost Savings
-                      </span>
-                      <span className="text-lg font-bold text-blue-600">
-                        60%
-                      </span>
+                      <span className="text-sm text-gray-600">Cost Savings</span>
+                      <span className="text-lg font-bold text-blue-600">60%</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Team Size</span>
-                      <span className="text-lg font-bold text-brand-purple">
-                        6 People
-                      </span>
+                      <span className="text-lg font-bold text-brand-purple">6 People</span>
                     </div>
                   </div>
 
-                  <Link href="/case-studies/social-land">
-                    <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
-                      View Full Case Study
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  {/* Pinned CTA */}
+                  <div className="mt-auto pt-4 border-t border-gray-100">
+                    <Link href="/case-studies/social-land">
+                      <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        View Full Case Study
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Koala Digital - Digital Marketing Agency */}
-              <Card className="bg-white  ">
-                <CardContent className="p-8">
+              <Card className="bg-white h-full flex flex-col">
+                <CardContent className="p-8 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-6">
-                    <Badge className="bg-green-100 text-green-800 border-green-200">
-                      Digital Marketing
-                    </Badge>
+                    <Badge className="bg-green-100 text-green-800 border-green-200">Digital Marketing</Badge>
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm border">
-                      <img
-                        src={koalaDigitalLogo}
-                        alt="Koala Digital Logo"
-                        className="w-full h-full object-contain"
-                      />
+                      <img src={koalaDigitalLogo} alt="Koala Digital Logo" className="w-full h-full object-contain" />
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    Koala Digital
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Koala Digital</h3>
                   <p className="text-gray-600 mb-4">
-                    2-person specialized team transformed UK agency delivery
-                    with 55% cost savings
+                    2-person specialized team transformed UK agency delivery with 55% cost savings
                   </p>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Campaign Output
-                      </span>
-                      <span className="text-lg font-bold text-green-600">
-                        +150%
-                      </span>
+                      <span className="text-sm text-gray-600">Campaign Output</span>
+                      <span className="text-lg font-bold text-green-600">+150%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Cost Reduction
-                      </span>
-                      <span className="text-lg font-bold text-blue-600">
-                        55%
-                      </span>
+                      <span className="text-sm text-gray-600">Cost Reduction</span>
+                      <span className="text-lg font-bold text-blue-600">55%</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Team Size</span>
-                      <span className="text-lg font-bold text-brand-purple">
-                        2 People
-                      </span>
+                      <span className="text-lg font-bold text-brand-purple">2 People</span>
                     </div>
                   </div>
 
-                  <Link href="/case-studies/koala-digital">
-                    <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
-                      View Full Case Study
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  {/* Pinned CTA */}
+                  <div className="mt-auto pt-4 border-t border-gray-100">
+                    <Link href="/case-studies/koala-digital">
+                      <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        View Full Case Study
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
 
               {/* Website Architect - Web Development Agency */}
-              <Card className="bg-white  ">
-                <CardContent className="p-8">
+              <Card className="bg-white h-full flex flex-col">
+                <CardContent className="p-8 flex-1 flex flex-col">
                   <div className="flex items-center justify-between mb-6">
-                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-                      Web Development
-                    </Badge>
+                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">Web Development</Badge>
                     <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm border">
-                      <img
-                        src={websiteArchitectLogo}
-                        alt="Website Architect Logo"
-                        className="w-full h-full object-contain"
-                      />
+                      <img src={websiteArchitectLogo} alt="Website Architect Logo" className="w-full h-full object-contain" />
                     </div>
                   </div>
 
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">
-                    Website Architect
-                  </h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-3">Website Architect</h3>
                   <p className="text-gray-600 mb-4">
-                    3-person team transformed solo founder from overworked to
-                    empowered growth
+                    3-person team transformed solo founder from overworked to empowered growth
                   </p>
 
                   <div className="space-y-3 mb-6">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        Monthly Output
-                      </span>
-                      <span className="text-lg font-bold text-green-600">
-                        +200%
-                      </span>
+                      <span className="text-sm text-gray-600">Monthly Output</span>
+                      <span className="text-lg font-bold text-green-600">+200%</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600">
-                        New Services
-                      </span>
-                      <span className="text-lg font-bold text-blue-600">
-                        SEO Added
-                      </span>
+                      <span className="text-sm text-gray-600">New Services</span>
+                      <span className="text-lg font-bold text-blue-600">SEO Added</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600">Team Size</span>
-                      <span className="text-lg font-bold text-brand-purple">
-                        3 People
-                      </span>
+                      <span className="text-lg font-bold text-brand-purple">3 People</span>
                     </div>
                   </div>
 
-                  <Link href="/case-studies/website-architect">
-                    <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
-                      View Full Case Study
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
+                  {/* Pinned CTA */}
+                  <div className="mt-auto pt-4 border-t border-gray-100">
+                    <Link href="/case-studies/website-architect">
+                      <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        View Full Case Study
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </Link>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-
-
           </div>
         </section>
 
@@ -596,128 +545,194 @@ export default function DedicatedResources() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Card className="border-2 border-transparent hover:border-brand-coral/20 transition-colors">
-                <CardHeader>
-                  <h3 className="text-center">
-                    Individual Resources
-                  </h3>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-brand-coral">
-                      From $800
-                    </div>
-                    <div className="text-gray-600">/month per resource</div>
+              {/* Individual Resources */}
+              <Card
+                className={[
+                  "relative flex flex-col h-full transition-all duration-300",
+                  "border border-brand-purple/20 hover:border-brand-purple/40 hover:shadow-sm",
+                ].join(" ")}
+              >
+                {/* Header */}
+                <CardHeader className="text-center pb-4 flex-shrink-0">
+                  <h3 className="text-xl font-bold text-brand-purple">Individual Resources</h3>
+                  <div className="mt-4">
+                    <div className="text-3xl font-extrabold text-brand-coral">From $800</div>
+                    <div className="text-gray-900/70">/month per resource</div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Junior to Senior levels available</span>
+
+                {/* Features */}
+                <CardContent className="flex flex-col flex-grow">
+                  <ul className="space-y-3 mb-8 flex-grow">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Junior to Senior levels available
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>11 specialist roles available</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        11 specialist roles available
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Direct communication</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Direct communication
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Weekly progress reports</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Weekly progress reports
+                      </span>
                     </li>
                   </ul>
-                  <Link href="/pricing-calculator">
-                    <Button className="w-full h-11 mt-6 bg-brand-coral hover:bg-brand-coral/90">
-                      Get Started
-                    </Button>
-                  </Link>
+
+                  {/* Actions */}
+                  <div className="mt-auto pt-8 border-t border-brand-purple/10">
+                    <div className="flex flex-col gap-4">
+                      <Link href="/pricing-calculator">
+                        <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-2 border-brand-coral relative">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-brand-coral text-white">
+              {/* Small Team (2-4 People) */}
+              <Card
+                className={[
+                  "relative flex flex-col h-full transition-all duration-300",
+                  "border-2 border-brand-coral shadow-sm scale-[1.02]",
+                ].join(" ")}
+              >
+                {/* Badge */}
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <Badge className="bg-brand-coral text-white px-4 py-1 rounded-full">
                     Most Popular
                   </Badge>
                 </div>
-                <CardHeader>
-                  <h3 className="text-center">
-                    Small Team (2-4 People)
+
+                {/* Header */}
+                <CardHeader className="text-center pb-4 flex-shrink-0">
+                  <h3 className="text-xl font-bold text-brand-purple">
+                    Small Team (2–4 People)
                   </h3>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-brand-coral">
-                      5-10% Off
-                    </div>
-                    <div className="text-gray-600">Team discount applied</div>
+                  <div className="mt-4">
+                    <div className="text-3xl font-extrabold text-brand-coral">5–10% Off</div>
+                    <div className="text-gray-900/70">Team discount applied</div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Mix of developers, designers & specialists</span>
+
+                {/* Features */}
+                <CardContent className="flex flex-col flex-grow">
+                  <ul className="space-y-3 mb-8 flex-grow">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Mix of developers, designers & specialists
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Team coordination included</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Team coordination included
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Daily standups & sprints</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Daily standups & sprints
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Volume pricing benefits</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Volume pricing benefits
+                      </span>
                     </li>
                   </ul>
-                  <Link href="/pricing-calculator">
-                    <Button className="w-full h-11 mt-6 bg-brand-coral hover:bg-brand-coral/90">
-                      Build Your Team
-                    </Button>
-                  </Link>
+
+                  {/* Actions */}
+                  <div className="mt-auto pt-8 border-t border-brand-purple/10">
+                    <div className="flex flex-col gap-4">
+                      <Link href="/pricing-calculator">
+                        <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
+                          Build Your Team
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-2 border-transparent hover:border-brand-coral/20 transition-colors">
-                <CardHeader>
-                  <h3 className="text-center">
+              {/* Large Team (5+ People) */}
+              <Card
+                className={[
+                  "relative flex flex-col h-full transition-all duration-300",
+                  "border border-brand-purple/20 hover:border-brand-purple/40 hover:shadow-sm",
+                ].join(" ")}
+              >
+                {/* Header */}
+                <CardHeader className="text-center pb-4 flex-shrink-0">
+                  <h3 className="text-xl font-bold text-brand-purple">
                     Large Team (5+ People)
                   </h3>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-brand-coral">
-                      15-20% Off
+                  <div className="mt-4">
+                    <div className="text-3xl font-extrabold text-brand-coral">
+                      15–20% Off
                     </div>
-                    <div className="text-gray-600">Maximum team discount</div>
+                    <div className="text-gray-900/70">Maximum team discount</div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Full-scale development teams</span>
+
+                {/* Features */}
+                <CardContent className="flex flex-col flex-grow">
+                  <ul className="space-y-3 mb-8 flex-grow">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Full-scale development teams
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Technical lead & project manager</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Technical lead & project manager
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Best volume pricing available</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Best volume pricing available
+                      </span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span>Priority support & dedicated account manager</span>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-900 text-sm leading-relaxed">
+                        Priority support & dedicated account manager
+                      </span>
                     </li>
                   </ul>
-                  <Link href="/pricing-calculator">
-                    <Button className="w-full h-11 mt-6 bg-brand-coral hover:bg-brand-coral/90">
-                      Scale Your Team
-                    </Button>
-                  </Link>
+
+                  {/* Actions */}
+                  <div className="mt-auto pt-8 border-t border-brand-purple/10">
+                    <div className="flex flex-col gap-4">
+                      <Link href="/pricing-calculator">
+                        <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
+                          Scale Your Team
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </div>
+
           </div>
         </section>
 

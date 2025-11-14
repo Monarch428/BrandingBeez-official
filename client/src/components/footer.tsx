@@ -18,9 +18,9 @@ export default function Footer() {
     <img 
       src={brandingBeezLogo} 
       alt="BrandingBeez" 
-      className="h-8 sm:h-9 w-30 mb-4" 
+      className="h-10 sm:h-12 w-32 mb-4" 
       width="112" 
-      height="32" 
+      height="42" 
       style={{aspectRatio: '3.5/1'}}
     />
   );
@@ -60,7 +60,7 @@ export default function Footer() {
         {/* Footer Content */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
           {/* Company Info */}
-          <div className="sm:col-span-2 lg:col-span-2">
+          <div className="sm:col-span-1 lg:col-span-1">
             <h2 className="font-semibold mb-4 text-base">BrandingBeez</h2>
             <BrandingBeezLogo />
             <p className="text-gray-400 mb-4 max-w-md text-sm">
@@ -126,11 +126,21 @@ export default function Footer() {
               <li><a href="/services/dedicated-resources" className="hite transition-colors text-sm touch-manipulation">Dedicated Resources</a></li>
             </ul>
           </div>
+
+          <div>
+            <h3 className="font-semibold mb-4 text-base">Menus</h3>
+            <ul className="space-y-2 text-gray-400">
+              {/* <li><a href="https://brandingbeez.co.uk/services/ai-development" className="hite transition-colors text-sm touch-manipulation">AI Development</a></li> */}
+              <li><a href="/onboarding-wizard" className="hite transition-colors text-sm touch-manipulation">Find Service</a></li>
+              <li><a href="/pricing-calculator" className="hite transition-colors text-sm touch-manipulation">Calculator</a></li>
+              <li><a href="/contact" className="hite transition-colors text-sm touch-manipulation">Contact</a></li>
+              {/* <li><a href="/services/dedicated-resources" className="hite transition-colors text-sm touch-manipulation">Dedicated Resources</a></li> */}
+            </ul>
+          </div>
           
           {/* Contact Information */}
           <div>
             <h3 className="font-semibold mb-4 flex items-center gap-2 text-base">
-              <MapPin className="w-4 h-4 text-brand-coral flex-shrink-0" />
               <span className="truncate">Contact</span>
             </h3>
             <ul className="space-y-3 text-gray-400">

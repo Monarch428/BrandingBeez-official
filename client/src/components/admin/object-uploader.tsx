@@ -70,76 +70,60 @@ export function ObjectUploader({
 
     try {
       const formData = new FormData();
-      formData.append('image', selectedFile);
+      formData.append("image", selectedFile);
 
-      const token = localStorage.getItem('adminToken');
+      const token = localStorage.getItem("adminToken");
       if (!token) {
-        throw new Error('No authentication token found');
+        throw new Error("No authentication token found");
       }
 
-      // Simulate upload for now - replace with actual implementation
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const uploadResponse = await fetch("/api/upload/image", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
 
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          if (prev >= 90) {
-            clearInterval(progressInterval);
-            return 90;
-          }
-          return prev + 10;
-        });
-      }, 100);
-
-
-      // This part is replaced with simulation
-      // const uploadResponse = await fetch('/api/upload/image', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': `Bearer ${token}`,
-      //   },
-      //   body: formData
-      // });
-      //
-      // if (!uploadResponse.ok) {
-      //   const errorData = await uploadResponse.json();
-      //   throw new Error(errorData.error || 'Upload failed');
-      // }
-      //
-      // const result = await uploadResponse.json();
-
-      // Simulate a successful response
-      const simulatedResult = { imageUrl: `https://picsum.photos/800/600?random=${Date.now()}` };
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-
-      if (simulatedResult.imageUrl) {
-        console.log('Upload successful:', simulatedResult.imageUrl);
-
-        // Call the onUpload callback with the image URL
-        onUpload?.(simulatedResult.imageUrl);
-
-        // Call onComplete for compatibility
-        onComplete?.({
-          successful: [{ uploadURL: simulatedResult.imageUrl }]
-        });
-
-        setUploadStatus('success');
-        setSelectedFile(null);
-        setPreview(null);
-
-        // Reset file input
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+      if (!uploadResponse.ok) {
+        let errorMessage = "Upload failed";
+        try {
+          const errorData = await uploadResponse.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // ignore JSON parse error, use default message
         }
-      } else {
-        throw new Error('Upload failed - no URL returned');
+        throw new Error(errorMessage);
+      }
+
+      const result = await uploadResponse.json();
+      if (!result?.imageUrl) {
+        throw new Error("Upload failed - no URL returned");
+      }
+
+      setUploadProgress(100);
+      console.log("Upload successful:", result.imageUrl);
+
+      onUpload?.(result.imageUrl);
+      onComplete?.({
+        successful: [{ uploadURL: result.imageUrl }],
+      });
+
+      setUploadStatus("success");
+      setSelectedFile(null);
+      setPreview(null);
+
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
       }
     } catch (error) {
-      console.error('Upload failed:', error);
-      setError(error instanceof Error ? error.message : 'Upload failed. Please try again.');
-      setUploadStatus('error');
+      console.error("Upload failed:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Upload failed. Please try again.",
+      );
+      setUploadStatus("error");
     } finally {
       setIsUploading(false);
       setUploadProgress(0);

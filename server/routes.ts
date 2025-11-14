@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
+import multer from "multer";
 import newsletterRoutes from "./routes/newsletter";
 
 // Extend Express Request type to include user
@@ -13,17 +14,11 @@ declare global {
         id: string | string[] | undefined;
         name: string | string[] | undefined;
       };
-      file?: {
-        filename: string;
-        originalname: string;
-        mimetype: string;
-        size: number;
-        path: string;
-      };
+      file?: Express.Multer.File;
     }
   }
 }
-import { storage } from "./db-storage";
+import { storage } from "./storage";
 import {
   analyzeSEOAudit,
   analyzeWebsiteSEO,
@@ -56,10 +51,13 @@ import {
   insertCaseStudySchema,
   insertPricingPackageSchema,
   insertServicePageSchema,
+  insertPortfolioItemSchema,
+  insertPortfolioContentSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import { sendContactNotification, sendEmailViaGmail } from "./email-service";
 import { notificationService } from "./notification-service";
+import { connectToDatabase, getMongooseConnection } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Apply security middleware
@@ -129,17 +127,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
   app.use("/api/newsletter", newsletterRoutes);
 
   // Database health check endpoint
   app.get("/api/health/database", async (req, res) => {
     try {
-      const { db } = await import("./db");
+      await connectToDatabase();
+      const connection = getMongooseConnection();
+      const database = connection.db;
+      if (!database) {
+        throw new Error("Database connection not initialized");
+      }
+      await database.admin().command({ ping: 1 });
 
-      // Test basic database connectivity
-      const result = await db.execute("SELECT 1 as health_check");
-
-      // Test blog_posts table specifically
+      // Test blog_posts collection specifically
       const blogCount = await storage.getAllBlogPosts();
       const publishedCount = await storage.getPublishedBlogPosts();
 
@@ -150,7 +152,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stats: {
           totalBlogPosts: blogCount.length,
           publishedBlogPosts: publishedCount.length,
-          healthCheck: result?.[0]?.health_check === 1 ? "passed" : "failed",
+          healthCheck: "passed",
         },
       });
     } catch (error) {
@@ -1392,7 +1394,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       console.log(
         "📊 Database connection status:",
-        process.env.DATABASE_URL ? "URL Present" : "URL Missing",
+        process.env.MONGODB_URI || process.env.MONGODB_URI_DEVELOPMENT
+          ? "URL Present"
+          : "URL Missing",
       );
       console.log(
         "🌐 Request origin:",
@@ -1404,9 +1408,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Test database connection first
       console.log("🔄 Testing database connection...");
-      const { db } = await import("./db");
-      const dbTest = await db.execute("SELECT 1 as test");
-      console.log("✅ Database connection test result:", dbTest);
+      await connectToDatabase();
+      const connection = getMongooseConnection();
+      const database = connection.db;
+      if (!database) {
+        throw new Error("Database connection not initialized");
+      }
+      await database.admin().command({ ping: 1 });
+      console.log("✅ MongoDB connection healthy");
 
       // Force fresh data from database - no caching
       console.log("🔄 Calling storage.getPublishedBlogPosts()...");
@@ -1435,17 +1444,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const formattedPosts = blogPosts.map((post, index) => {
         console.log(`🔧 Formatting post ${index + 1}: ${post.title}`);
 
-        let formattedTags = [];
-        if (Array.isArray(post.tags)) {
-          formattedTags = post.tags;
-        } else if (typeof post.tags === "string") {
+        let formattedTags: string[] = [];
+        const rawTags = post.tags;
+        if (Array.isArray(rawTags)) {
+          formattedTags = rawTags.map((tag) => String(tag));
+        } else if (typeof rawTags === "string") {
+          const tagsString: string = rawTags;
           try {
-            formattedTags = JSON.parse(post.tags);
+            const parsed = JSON.parse(tagsString);
+            formattedTags = Array.isArray(parsed)
+              ? parsed.map((tag: unknown) => String(tag))
+              : tagsString
+                  .split(",")
+                  .map((tag: string) => tag.trim())
+                  .filter((tag: string) => tag.length > 0);
           } catch {
-            formattedTags = post.tags
+            formattedTags = tagsString
               .split(",")
-              .map((tag) => tag.trim())
-              .filter((tag) => tag.length > 0);
+              .map((tag: string) => tag.trim())
+              .filter((tag: string) => tag.length > 0);
           }
         } else {
           formattedTags = [];
@@ -1508,9 +1525,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("❌ Error message:", (error as Error).message);
       console.error("❌ Environment details:", {
         nodeEnv: process.env.NODE_ENV,
-        hasDbUrl: !!process.env.DATABASE_URL,
-        hasDevelopmentUrl: !!process.env.DATABASE_URL_DEVELOPMENT,
-        hasProductionUrl: !!process.env.DATABASE_URL_PRODUCTION,
+        hasDbUrl: !!process.env.MONGODB_URI,
+        hasDevelopmentUrl: !!process.env.MONGODB_URI_DEVELOPMENT,
+        hasProductionUrl: !!process.env.MONGODB_URI_PRODUCTION,
         timestamp: new Date().toISOString(),
       });
       console.error("=== BLOG API ERROR END ===\n");
@@ -1750,19 +1767,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // File upload endpoint for blog images
   app.post("/api/upload/image", authenticateAdmin, async (req, res) => {
     try {
-      const multer = require("multer");
-      const path = require("path");
-      const fs = require("fs");
+      const resolveUploadDir = () => {
+        if (process.env.BLOG_UPLOAD_DIR) {
+          return path.resolve(process.env.BLOG_UPLOAD_DIR);
+        }
+
+        // default: projectRoot/client/public/upload_image/blog_image
+        return path.resolve(
+          process.cwd(),
+          "client",
+          "public",
+          "upload_image",
+          "blog_image",
+        );
+      };
 
       // Configure multer for file uploads
       const storage = multer.diskStorage({
         destination: (req: any, file: any, cb: any) => {
-          const uploadPath = path.join(__dirname, "../client/public/images");
-          // Ensure directory exists
-          if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
+          try {
+            const uploadPath = resolveUploadDir();
+            if (!fs.existsSync(uploadPath)) {
+              fs.mkdirSync(uploadPath, { recursive: true });
+            }
+            cb(null, uploadPath);
+          } catch (err) {
+            cb(err, null);
           }
-          cb(null, uploadPath);
         },
         filename: (req: any, file: any, cb: any) => {
           // Generate unique filename with timestamp
@@ -1792,18 +1823,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
         },
       });
 
+      console.log("[upload-image] Starting upload request");
       upload.single("image")(req, res, (err: any) => {
         if (err) {
-          console.error("Upload error:", err);
+          console.error("[upload-image] Multer error:", err);
           return res.status(400).json({ error: err.message });
         }
 
         if (!req.file) {
+          console.warn("[upload-image] No file provided in request");
           return res.status(400).json({ error: "No file uploaded" });
         }
 
+        console.log("[upload-image] File saved:", {
+          filename: req.file.filename,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+        });
+
         // Return the URL path that can be used in the frontend
-        const imageUrl = `/images/${req.file.filename}`;
+        const publicPath = "/upload_image/blog_image";
+        const imageUrl = `${publicPath}/${req.file.filename}`;
+        console.log("[upload-image] Responding with URL:", imageUrl);
+
         res.json({
           success: true,
           imageUrl: imageUrl,
@@ -1813,6 +1855,191 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error uploading image:", error);
       res.status(500).json({ error: "Failed to upload image" });
+    }
+  });
+
+  // File upload endpoint for portfolio images
+  app.post("/api/upload/portfolio-image", authenticateAdmin, async (req, res) => {
+    try {
+      const resolveUploadDir = () => {
+        if (process.env.PORTFOLIO_UPLOAD_DIR) {
+          return path.resolve(process.env.PORTFOLIO_UPLOAD_DIR);
+        }
+        // default: projectRoot/client/public/upload_image/portfolio_images
+        return path.resolve(
+          process.cwd(),
+          "client",
+          "public",
+          "upload_image",
+          "portfolio_images",
+        );
+      };
+
+      const storage = multer.diskStorage({
+        destination: (req: any, file: any, cb: any) => {
+          try {
+            const uploadPath = resolveUploadDir();
+            if (!fs.existsSync(uploadPath)) {
+              fs.mkdirSync(uploadPath, { recursive: true });
+            }
+            cb(null, uploadPath);
+          } catch (err) {
+            cb(err, null);
+          }
+        },
+        filename: (req: any, file: any, cb: any) => {
+          const uniqueSuffix =
+            Date.now() + "-" + Math.round(Math.random() * 1e9);
+          const ext = path.extname(file.originalname);
+          const name = file.originalname
+            .replace(ext, "")
+            .replace(/[^a-zA-Z0-9]/g, "-")
+            .toLowerCase();
+          cb(null, `${name}-${uniqueSuffix}${ext}`);
+        },
+      });
+
+      const upload = multer({
+        storage: storage,
+        limits: { fileSize: 5 * 1024 * 1024 },
+        fileFilter: (req: any, file: any, cb: any) => {
+          if (file.mimetype.startsWith("image/")) {
+            cb(null, true);
+          } else {
+            cb(new Error("Only image files are allowed!"), false);
+          }
+        },
+      });
+
+      upload.single("image")(req, res, (err: any) => {
+        if (err) {
+          return res.status(400).json({ error: err.message });
+        }
+        if (!req.file) {
+          return res.status(400).json({ error: "No file uploaded" });
+        }
+        const publicPath = "/upload_image/portfolio_images";
+        const imageUrl = `${publicPath}/${req.file.filename}`;
+        res.json({
+          success: true,
+          imageUrl,
+          filename: req.file.filename,
+        });
+      });
+    } catch (error) {
+      console.error("Error uploading portfolio image:", error);
+      res.status(500).json({ error: "Failed to upload portfolio image" });
+    }
+  });
+
+  // Portfolio public routes
+  app.get("/api/portfolio", publicContentRateLimit, async (req, res) => {
+    try {
+      const items = await storage.getPublicPortfolioItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+
+  app.get("/api/portfolio/content", publicContentRateLimit, async (req, res) => {
+    try {
+      const content = await storage.getPortfolioContent();
+      res.json(content);
+    } catch (error) {
+      console.error("Error fetching portfolio content:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio content" });
+    }
+  });
+
+  app.get("/api/portfolio/:slug", publicContentRateLimit, async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const item = await storage.getPortfolioItemBySlug(slug);
+      if (!item) {
+        return res.status(404).json({ message: "Portfolio item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error fetching portfolio item:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio item" });
+    }
+  });
+
+  // Admin portfolio content routes
+  app.get("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
+    try {
+      const content = await storage.getPortfolioContent();
+      res.json(content);
+    } catch (error) {
+      console.error("Failed to fetch portfolio content:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio content" });
+    }
+  });
+
+  app.put("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
+    try {
+      const validated = insertPortfolioContentSchema.parse(req.body);
+      const content = await storage.upsertPortfolioContent(validated);
+      res.json(content);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio content:", error);
+      res.status(500).json({ message: "Failed to update portfolio content" });
+    }
+  });
+
+  // Admin portfolio items routes
+  app.get("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
+    try {
+      const items = await storage.getAllPortfolioItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Failed to fetch portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+
+  app.post("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
+    try {
+      const validated = insertPortfolioItemSchema.parse(req.body);
+      const item = await storage.createPortfolioItem(validated);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to create portfolio item:", error);
+      res.status(500).json({ message: "Failed to create portfolio item" });
+    }
+  });
+
+  app.put("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validated = insertPortfolioItemSchema.partial().parse(req.body);
+      const item = await storage.updatePortfolioItem(id, validated);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio item:", error);
+      res.status(500).json({ message: "Failed to update portfolio item" });
+    }
+  });
+
+  app.delete("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePortfolioItem(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete portfolio item:", error);
+      res.status(500).json({ message: "Failed to delete portfolio item" });
     }
   });
 
@@ -1875,6 +2102,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.redirect(`/api/placeholder/400/300`);
     }
   });
+
+  app.use(
+    "/upload_image",
+    (req: Request, res: Response, next: NextFunction) => {
+      const uploadPath = path.join(
+        process.cwd(),
+        "client/public/upload_image",
+        req.path,
+      );
+
+      if (fs.existsSync(uploadPath)) {
+        res.sendFile(uploadPath);
+      } else {
+        res.redirect(`/api/placeholder/400/300`);
+      }
+    },
+  );
 
   // Health check endpoint
   app.get("/api/health", (req: Request, res: Response) => {

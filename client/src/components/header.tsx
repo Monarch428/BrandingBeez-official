@@ -57,7 +57,7 @@ export default function Header() {
                 Services
               </span>
             </Link>
-            <Link href="/onboarding-wizard">
+            {/* <Link href="/onboarding-wizard">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/onboarding-wizard" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
               >
@@ -70,7 +70,7 @@ export default function Header() {
               >
                 Calculator
               </span>
-            </Link>
+            </Link> */}
             <Link href="/blog">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/blog" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
@@ -92,13 +92,13 @@ export default function Header() {
                 Portfolio
               </span>
             </Link>
-            <Link href="/contact">
+            {/* <Link href="/contact">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/contact" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
               >
                 Contact
               </span>
-            </Link>
+            </Link> */}
             <Link href="/newsletter">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/news-letter" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}

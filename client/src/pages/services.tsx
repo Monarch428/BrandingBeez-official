@@ -405,7 +405,7 @@ export default function Services() {
               {/* Right Side - Call Booking Form */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
                 <h3 className="text-2xl font-bold mb-6 text-white">
-                  Subscribe Free
+                  {/* Subscribe Free */} Book Your Dedicated Resource
                 </h3>
                 <form onSubmit={handleSubmitLead} className="space-y-4">
                   <div>
@@ -1267,11 +1267,11 @@ export default function Services() {
                   <Button
                     type="submit"
                     disabled={submitLeadMutation.isPending}
-                    className="w-full bg-white text-brand-purple ray-100 py-3 disabled:opacity-50 ml-[0px] mr-[0px] mt-[13px] mb-[13px]"
+                    className="w-full bg-white text-brand-purple text-md font-bold ray-100 py-3 disabled:opacity-50 ml-[0px] mr-[0px] mt-[13px] mb-[13px]"
                   >
                     {submitLeadMutation.isPending
                       ? "Processing..."
-                      : "Subscribe Free"}
+                      : "Book Now"}
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
 
@@ -1312,7 +1312,7 @@ export default function Services() {
                         <Icon className="w-5 h-5 text-brand-coral" />
                       </div>
                       <div className="min-w-0">
-                        <h3 className="text-lg font-semibold text-brand-purple leading-snug line-clamp-2">
+                        <h3 className="text-lg font-bold text-brand-purple leading-snug line-clamp-2">
                           {service.title}
                         </h3>
                       </div>
@@ -1326,7 +1326,7 @@ export default function Services() {
                     <div className="flex-1 flex flex-col">
                       {/* Pricing and inline discount */}
                       <div className="flex items-center justify-between gap-3 mt-3">
-                        <div className="text-xl font-semibold text-brand-purple">
+                        <div className="text-xl font-bold text-brand-purple">
                           {service.pricing}
                         </div>
 
@@ -1589,3 +1589,6 @@ export default function Services() {
     </div>
   );
 }
+
+
+

@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/header";
@@ -6,7 +6,27 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Clock, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { blogPostsMap, getBlogPost } from "@/lib/blog-posts-map";
+
+interface BlogPost {
+  id: number;
+  slug: string;
+  title: string;
+  subtitle?: string;
+  excerpt?: string;
+  content: string;
+  imageUrl?: string;
+  tags?: string[];
+  author?: string;
+  readTime?: number;
+  isPublished?: boolean;
+  isFeatured?: boolean;
+  metaDescription?: string;
+  metaTitle?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt?: string;
+  category?: string;
+}
 
 // Loading component
 const PageLoader = () => (
@@ -25,56 +45,124 @@ const PageLoader = () => (
 
 export default function DynamicBlogPost() {
   const [location] = useLocation();
-  const slug = location.replace(/^\/blog\/?/, ""); // safer slug extraction
+  const slug = location.replace(/^\/blog\/?/, "").split("?")[0];
 
-  // Static post first
-  const staticPostMapping = blogPostsMap[slug];
-  const staticPost = getBlogPost(slug);
-
-  // Fetch dynamic post only if static not found
-  const { data: dynamicPost, isLoading, error } = useQuery({
+  const {
+    data: blogPost,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<BlogPost | null>({
     queryKey: ["blog-post", slug],
+    enabled: !!slug,
     queryFn: async () => {
-      if (!slug || staticPost) return null;
+      if (!slug) {
+        throw new Error("Missing blog slug");
+      }
+
       const res = await fetch(`/api/blog/${slug}`, {
         headers: { "Content-Type": "application/json" },
         cache: "no-store",
       });
-      if (!res.ok) {
-        if (res.status === 404) throw new Error("Article not found");
-        throw new Error(`Failed to load article: ${res.status}`);
+
+      if (res.status === 404) {
+        return null;
       }
-      return res.json();
+
+      if (!res.ok) {
+        const message = await res.text();
+        throw new Error(
+          message || `Failed to load article (status ${res.status})`,
+        );
+      }
+
+      const data = await res.json();
+      return data as BlogPost;
     },
-    enabled: !!slug && !staticPost,
-    retry: 2,
+    retry: 1,
     staleTime: 1000 * 60 * 10,
-    cacheTime: 1000 * 60 * 30,
   });
 
-  // Render static component if available
-  if (staticPostMapping) {
-    const BlogComponent = staticPostMapping.component;
+  const htmlContent = useMemo(() => {
+    const rawContent = blogPost?.content?.trim();
+    if (!rawContent) return "";
+
+    // If the content already contains HTML tags, trust it and return as-is
+    const hasHtmlTags = /<\/?[a-z][\s\S]*>/i.test(rawContent);
+    if (hasHtmlTags) return rawContent;
+
+    // Normalize newlines
+    let normalized = rawContent.replace(/\r\n/g, "\n");
+
+    // 1) Turn any occurrence of heading markers (inline or at line start)
+    //    into paragraph breaks so heading text becomes its own paragraph.
+    //    e.g. "Success ## Introduction" -> "Success\n\nIntroduction"
+    normalized = normalized.replace(/#{1,6}\s*/g, "\n\n");
+
+    // 2) Remove any remaining leading # (defensive) at the start of lines
+    normalized = normalized.replace(/^\s*#{1,6}\s*/gm, "");
+
+    // Split into paragraphs on one-or-more blank lines
+    const paragraphs = normalized
+      .split(/\n\s*\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map((p) => {
+        // Preserve single line breaks inside a paragraph as <br/>
+        const withLineBreaks = p.replace(/\n/g, "<br/>");
+
+        // Inline formatting: bold and italic
+        const withFormatting = withLineBreaks
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.*?)\*/g, "<em>$1</em>");
+
+        return `<p>${withFormatting}</p>`;
+      })
+      .join("");
+
+    return paragraphs;
+  }, [blogPost?.content]);
+
+  const publishDate = blogPost?.publishedAt || blogPost?.createdAt;
+  const formattedPublishDate = publishDate
+    ? new Date(publishDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "Recent";
+  const author = blogPost?.author || "BrandingBeez Team";
+  const readTime = blogPost?.readTime || 5;
+
+  if (isLoading) return <PageLoader />;
+
+  if (isError) {
     return (
-      <Suspense fallback={<PageLoader />}>
-        <BlogComponent />
-      </Suspense>
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Unable to load blog post
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            {(error as Error)?.message || "Please try again later."}
+          </p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
+        </div>
+        <Footer />
+      </div>
     );
   }
 
-  // Loading state
-  if (isLoading && !staticPost) return <PageLoader />;
-
-  // Merge static or dynamic safely
-  const blogPost = staticPost || dynamicPost;
-
-  // Not found
   if (!blogPost) {
     return (
       <div className="min-h-screen bg-white">
         <Header />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Blog Post Not Found</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Blog Post Not Found
+          </h1>
           <p className="text-xl text-gray-600 mb-8">
             The blog post you're looking for doesn't exist or has been moved.
           </p>
@@ -102,13 +190,13 @@ export default function DynamicBlogPost() {
     <div className="min-h-screen bg-white">
       {/* SEO */}
       <title>{blogPost.metaTitle || `${blogPost.title} | BrandingBeez`}</title>
-      <meta name="description" content={blogPost.metaDescription || blogPost.excerpt} />
+      <meta name="description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
       <meta name="keywords" content={Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""} />
       <meta property="og:title" content={blogPost.metaTitle || blogPost.title} />
-      <meta property="og:description" content={blogPost.metaDescription || blogPost.excerpt} />
+      <meta property="og:description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
       <meta property="og:image" content={blogPost.imageUrl || "/api/placeholder/800/600"} />
-      <meta property="article:author" content={blogPost.author || "BrandingBeez Team"} />
-      <meta property="article:published_time" content={blogPost.publishedAt || blogPost.createdAt} />
+      <meta property="article:author" content={author} />
+      <meta property="article:published_time" content={publishDate} />
 
       <Header />
 
@@ -130,15 +218,15 @@ export default function DynamicBlogPost() {
           <div className="flex flex-wrap items-center gap-6 text-white/90 mb-6">
             <div className="flex items-center">
               <User className="w-4 h-4 mr-2" />
-              {blogPost.author}
+              {author}
             </div>
             <div className="flex items-center">
               <Calendar className="w-4 h-4 mr-2" />
-              {new Date(blogPost.createdAt).toLocaleDateString()}
+              {formattedPublishDate}
             </div>
             <div className="flex items-center">
               <Clock className="w-4 h-4 mr-2" />
-              {blogPost.readTime} min read
+              {readTime} min read
             </div>
           </div>
 
@@ -188,18 +276,10 @@ export default function DynamicBlogPost() {
           )}
 
           <div
-            className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
+            className="prose prose-lg max-w-none text-gray-700 leading-relaxed text-justify"
             style={{ whiteSpace: "pre-wrap", lineHeight: 1.8, fontSize: "18px" }}
             dangerouslySetInnerHTML={{
-              __html: blogPost.content
-                .replace(/\n\n/g, "</p><p>")
-                .replace(/^/, "<p>")
-                .replace(/$/, "</p>")
-                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                .replace(/\*(.*?)\*/g, "<em>$1</em>")
-                .replace(/^# (.*$)/gm, '<h1 class="text-3xl font-bold text-brand-purple mb-4 mt-8">$1</h1>')
-                .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold text-brand-purple mb-4 mt-6">$1</h2>')
-                .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold text-brand-purple mb-3 mt-4">$1</h3>'),
+              __html: htmlContent,
             }}
           />
 
@@ -223,6 +303,7 @@ export default function DynamicBlogPost() {
                 </a>
               </p>
             </div>
+
           </div>
         </div>
       </article>

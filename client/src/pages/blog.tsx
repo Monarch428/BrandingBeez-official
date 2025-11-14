@@ -3,20 +3,13 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useRegion } from "@/hooks/use-region";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { OptimizedImage } from "@/components/optimized-image";
 import { Search, Calendar, User, Clock, ArrowRight } from "lucide-react";
-import { getAllBlogPostsData } from "@/lib/blog-posts-map";
 
 interface BlogPost {
   id: number;
@@ -39,35 +32,35 @@ interface BlogPost {
   category?: string;
 }
 
-const staticBlogPosts: BlogPost[] = getAllBlogPostsData();
-
 export default function Blog() {
   const { regionConfig } = useRegion();
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data: databasePosts, isLoading } = useQuery({
+  const {
+    data: databasePosts = [],
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
     queryKey: ["blog-posts"],
     queryFn: async () => {
-      try {
-        const response = await fetch("/api/blog");
-        if (!response.ok) throw new Error("Failed to fetch");
-        const posts = await response.json();
-        return Array.isArray(posts) ? posts.filter((p) => p.isPublished) : [];
-      } catch {
-        return [];
+      const response = await fetch("/api/blog", { cache: "no-store" });
+      if (!response.ok) {
+        throw new Error("Failed to fetch blog posts");
       }
+      const posts = await response.json();
+      return Array.isArray(posts) ? posts.filter((p) => p.isPublished) : [];
     },
     staleTime: 1000 * 60 * 15,
     retry: 2,
   });
 
   const blogPosts = useMemo(() => {
-    let allPosts = databasePosts?.length ? databasePosts : staticBlogPosts;
-    return allPosts.filter(
-      (post: BlogPost) =>
-        !post.imageUrl.includes("Blog_-_Ad_Fatigue_in_Digital_Marketing.png")
-    );
+    return databasePosts.filter((post: BlogPost) => {
+      if (!post.imageUrl) return true;
+      return !post.imageUrl.includes("Blog_-_Ad_Fatigue_in_Digital_Marketing.png");
+    });
   }, [databasePosts]);
 
   // ✅ Determine Featured Post
@@ -122,6 +115,29 @@ export default function Blog() {
     );
   }
 
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Header />
+        <div className="flex items-center justify-center py-20">
+          <div className="text-center space-y-4">
+            <div className="text-3xl">⚠️</div>
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Unable to load blog posts
+            </h2>
+            <p className="text-gray-600">
+              {(error as Error)?.message || "Please try again in a moment."}
+            </p>
+            <Button onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -163,16 +179,7 @@ export default function Blog() {
                     width={600}
                     height={400}
                     className="w-full h-64 object-cover"
-                    disableWebP={
-                      featuredPost.imageUrl.includes(
-                        "Industry-Specific_Digital_Marketing_1.png"
-                      ) ||
-                      featuredPost.imageUrl.includes(
-                        "Blog_-_Ad_Fatigue_in_Digital_Marketing.png"
-                      ) ||
-                      featuredPost.imageUrl.includes("hir.png") ||
-                      featuredPost.imageUrl.includes("wls.png")
-                    }
+                    fallbackSrc="/images/blog-featured-image.webp"
                   />
                 </div>
                 <div className="md:w-1/2 p-8">
@@ -323,10 +330,8 @@ export default function Blog() {
                     {/* CTA pinned to bottom */}
                     <div className="mt-auto pt-4 border-t">
                       <Link href={`/blog/${post.slug}`}>
-                        <Button
-                          variant="outline"
-                          className="w-full hover:bg-brand-purple hover:text-white transition-colors"
-                        >
+                        <Button variant="outline"
+                          className="w-full hover:bg-brand-purple hover:text-white transition-colors" >
                           Read Article
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>

@@ -249,7 +249,7 @@ export default function Home() {
       <main>
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral text-white py-12 sm:py-16 lg:py-20 px-4">
-          <div className="max-w-[84rem] mx-auto p-6">            
+          <div className="max-w-[84rem] mx-auto p-2">            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             <div>
               <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-6">
@@ -259,11 +259,11 @@ export default function Home() {
                 Scale Your Agency
                 <span className="text-brand-yellow"> Without Hiring</span>
               </h1>
-              <p className="text-lg sm:text-xl text-white/90 mb-8 leading-relaxed">
+              <p className="text-lg sm:text-lg lg:text-lg text-white/90 mb-8 lg:text-justify leading-relaxed">
                 White-label digital services that help agencies hire expert teams for web development, PPC, and SEO.
                 We handle the entire process so you can focus on growing your business and delivering results for your clients.
               </p>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white/90 mb-8 leading-relaxed">
+              <h2 className="text-2xl sm:text-md lg:text-2xl font-semibold text-white/90 mb-8 leading-relaxed">
                 A Team of 20+ Ready to Help
               </h2>
 
@@ -271,15 +271,15 @@ export default function Home() {
               <div className="space-y-3 mb-8">
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                  <span className="text-lg text-white">100% White-Label</span>
+                  <span className="text-md lg:text-md text-white">100% White-Label</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                  <span className="text-lg text-white">24hr Response Time</span>
+                  <span className="text-md lg:text-md text-white">24hr Response Time</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                  <span className="text-lg text-white">85% Satisfaction Rate</span>
+                  <span className="text-md lg:text-md text-white">85% Satisfaction Rate</span>
                 </div>
               </div>
 
@@ -315,54 +315,63 @@ export default function Home() {
         </section>
 
         {/* Services Section */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-14 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Services</h2>
-              <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
                 We offer a wide range of digital marketing services to help you grow your business.
               </p>
             </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
               {services.map((service) => {
                 const Icon = service.icon;
+
                 return (
                   <Card
                     key={service.id}
                     className="group border-gray-200 shadow-sm transition-all duration-300 flex flex-col h-full"
                   >
+                    {/* Header */}
                     <CardHeader className="flex-shrink-0">
                       <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-brand-coral/20 transition-colors">
                         <Icon className="w-6 h-6 text-brand-coral-darker" />
                       </div>
+
                       <CardTitle className="text-xl font-bold text-brand-purple min-h-[3.5rem] flex items-center">
                         <h3>{service.title}</h3>
                       </CardTitle>
-                      <p className="text-gray-700 min-h-[3rem] flex items-start">{service.description}</p>
+
+                      <p className="text-gray-700 min-h-[3rem] flex items-start text-justify">
+                        {service.description}
+                      </p>
                     </CardHeader>
-                    <CardContent className="pt-0 flex-1 flex flex-col">
-                      <div className="space-y-4 flex-1">
+
+                    {/* Body + Button */}
+                    <CardContent className="pt-0 flex flex-col flex-1">
+                      <div className="flex flex-col flex-1 space-y-4">
+
                         <div className="text-lg font-bold text-brand-coral-darker">
                           {service.pricing}
                         </div>
+
                         <ul className="space-y-2 flex-1">
                           {service.features.map((feature, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-2 text-sm"
-                            >
+                            <li key={index} className="flex items-start gap-2 text-sm">
                               <CheckCircle className="w-4 h-4 text-brand-coral-darker mt-0.5 flex-shrink-0" />
                               <span>{feature}</span>
                             </li>
                           ))}
                         </ul>
+
+                        {/* FORCE BUTTON TO BOTTOM */}
                         <div className="mt-auto pt-4">
                           <Link href={service.href}>
-                            <Button className="w-full min-h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base py-3 px-4 flex items-center justify-center gap-2 shadow-lg">
-                              <span className="flex-1 text-center leading-tight text-white">
-                                Learn More
-                              </span>
-                              <ArrowRight className="w-4 h-4 flex-shrink-0" />
+                            <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker 
+                              text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
+                              <span className="leading-tight text-white text-md">Learn More</span>
+                              <ArrowRight className="w-4 h-4" />
                             </Button>
                           </Link>
                         </div>
@@ -380,7 +389,7 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Partner Agencies</h2>
-              <p className="text-lg text-gray-700 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-700 max-w-3xl mx-auto">
                 Trusted by leading agencies worldwide who rely on our expert teams to deliver exceptional results for their clients.
               </p>
             </div>
@@ -458,31 +467,26 @@ export default function Home() {
                 />
                 <p className="text-xs sm:text-sm font-medium text-gray-900">Social Brain</p>
               </div>
-
-
-
             </div>
           </div>
         </section>
 
-
-
         {/* Dedicated Resources Section */}
-        <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+        <section className="py-12 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-5xl mx-auto text-center">
             <Badge className="bg-white/20 text-white border-white/30 mb-8 mx-auto">
               🔥 Most Sought-After Service
             </Badge>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 sm:mb-8 leading-tight">
+            <h2 className="text-4xl sm:text-2xl md:text-3xl lg:text-5xl font-bold mb-6 sm:mb-8 leading-tight">
               Dedicated Resources for US Agencies
             </h2>
-            <p className="text-lg sm:text-xl lg:text-2xl text-gray-100 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-lg sm:text-md lg:text-lg text-gray-100 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed">
               Scale your agency with handpicked pros who integrate seamlessly
             </p>
 
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/20 max-w-3xl mx-auto">
               <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3">Starting at $400/month</div>
-              <div className="text-base sm:text-lg lg:text-xl text-gray-200 mb-2 sm:mb-3">Team Discounts: Up to 20% Off</div>
+              <div className="text-base sm:text-md lg:text-lg text-gray-200 mb-2 sm:mb-3">Team Discounts: Up to 20% Off</div>
               <div className="text-sm sm:text-base lg:text-lg text-gray-200 mb-6 sm:mb-8">Average 60% cost savings vs. in-house team</div>
 
               <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
@@ -517,18 +521,15 @@ export default function Home() {
               </ul>
 
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation"
-                  asChild
-                >
+                <Button className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-base lg:text-md sm:text-md px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation" asChild >
                   <Link href="/contact?coupon=SETUP FREE&service=dedicated-resources&promo=setup-free">
                     Free Setup Cost
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white hover:text-brand-purple"/>
                   </Link>
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 touch-manipulation"
+                  className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent text-base sm:text-md px-6 sm:px-8 py-3 sm:py-4 touch-manipulation"
                   asChild
                 >
                   <Link href="/services/dedicated-resources">Learn More</Link>
@@ -545,7 +546,7 @@ export default function Home() {
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                 Ready to Scale Your Agency?
               </h2>
-              <p className="text-lg sm:text-xl text-gray-700 px-4 sm:px-0">
+              <p className="text-lg sm:text-md text-gray-700 px-4 sm:px-0">
                 Get a free consultation and discover how we can help you grow
               </p>
             </div>
@@ -554,7 +555,7 @@ export default function Home() {
               {/* Left Column - Strategy Call Agenda */}
               <div className="space-y-6">
                 <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-xl border border-purple-100">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
                     What to Expect in Your 30-Minute Strategy Call
                   </h3>
                   <ul className="space-y-4">
@@ -601,7 +602,7 @@ export default function Home() {
                       </div>
                     </li>
                   </ul>
-                  <div className="mt-6 pt-6 border-t border-purple-200">
+                  <div className="mt-6 pt-2 border-t border-purple-200">
                     <p className="text-sm text-gray-700 italic">
                       This call is designed to be a genuine business-to-business conversation focused on mutual growth and partnership opportunities.
                     </p>
@@ -827,7 +828,7 @@ export default function Home() {
                       <Button
                         type="submit"
                         disabled={contactMutation.isPending}
-                        className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral-darker hover:to-brand-purple shadow-lg"
+                        className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg"
                       >
                         {contactMutation.isPending ? 'Submitting...' : 'Submit Form'}
                       </Button>
@@ -844,10 +845,10 @@ export default function Home() {
           <div className="max-w-7xl mx-auto">
             <div className="text-center">
               <h2 className="text-3xl md:text-4xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
-              <p className="text-xl text-white/90 mb-8">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
+              <p className="text-lg text-white/90 mb-8">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
               <Button
                 size="lg"
-                className="bg-white text-brand-purple hover:bg-white/90 px-8 py-4"
+                className="bg-white text-md text-brand-purple hover:bg-white/90 px-8 py-4"
                 asChild
               >
                 <Link href="/newsletter">

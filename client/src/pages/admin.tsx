@@ -12,7 +12,9 @@ import { CaseStudiesManager } from "@/components/admin/case-studies-manager";
 import { PricingPackagesManager } from "@/components/admin/pricing-packages-manager";
 import { ServicePagesManager } from "@/components/admin/service-pages-manager";
 import { ContactsManager } from "@/components/admin/contacts-manager";
+import { NewsletterSubscribersManager } from "@/components/admin/newsletter-subscribers-manager";
 import { BlogPostsManager } from "@/components/admin/blog-posts-manager";
+import { PortfolioItemsManager } from "@/components/admin/portfolio-items-manager";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Settings, 
@@ -24,6 +26,7 @@ import {
   Target,
   Briefcase,
   MessageCircle,
+  Mail,
   Lock,
   Shield,
   Eye,
@@ -152,6 +155,21 @@ export default function Admin() {
         }
       });
       if (!response.ok) throw new Error('Failed to fetch contacts');
+      return response.json();
+    },
+    enabled: isAuthenticated
+  });
+
+  const newsletterSubscribersQuery = useQuery({
+    queryKey: ["/api/newsletter/subscribers"],
+    queryFn: async () => {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('/api/newsletter/subscribers', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch newsletter subscribers');
       return response.json();
     },
     enabled: isAuthenticated
@@ -332,12 +350,19 @@ export default function Admin() {
       icon: MessageCircle,
       color: "text-indigo-600",
       bgColor: "bg-indigo-50"
+    },
+    {
+      title: "Newsletter Subscribers",
+      value: newsletterSubscribersQuery.data?.length || 0,
+      icon: Mail,
+      color: "text-pink-600",
+      bgColor: "bg-pink-50"
     }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
 
       <main className="pt-16 pb-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -369,14 +394,16 @@ export default function Admin() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-9">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="contacts">Contacts</TabsTrigger>
+              <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
               <TabsTrigger value="featured-clients">Featured Clients</TabsTrigger>
               <TabsTrigger value="case-studies">Case Studies</TabsTrigger>
               <TabsTrigger value="pricing">Pricing</TabsTrigger>
               <TabsTrigger value="service-pages">Service Pages</TabsTrigger>
               <TabsTrigger value="blog-posts">Blog Posts</TabsTrigger>
+              <TabsTrigger value="portfolio-items">Portfolio</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -510,6 +537,10 @@ export default function Admin() {
               <ContactsManager />
             </TabsContent>
 
+            <TabsContent value="newsletter">
+              <NewsletterSubscribersManager />
+            </TabsContent>
+
             <TabsContent value="featured-clients">
               <FeaturedClientsManager />
             </TabsContent>
@@ -528,6 +559,10 @@ export default function Admin() {
 
             <TabsContent value="blog-posts">
               <BlogPostsManager />
+            </TabsContent>
+
+            <TabsContent value="portfolio-items">
+              <PortfolioItemsManager />
             </TabsContent>
           </Tabs>
         </div>

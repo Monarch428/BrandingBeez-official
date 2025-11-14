@@ -35,7 +35,7 @@ export const lazyLoadImage = (img: HTMLImageElement): void => {
 
 export const prefetchCriticalResources = (): void => {
   const criticalResources = [
-    { href: 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', as: 'style' },
+    { href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap', as: 'style' },
     { href: '/src/main.tsx', as: 'script' },
     { href: '/src/index.css', as: 'style' }
   ];

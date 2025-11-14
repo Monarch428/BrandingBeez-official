@@ -171,9 +171,9 @@ app.use(express.static('public', {
   setHeaders: (res, path) => {
     // Set specific cache headers for different file types
     if (path.match(/\.(jpg|jpeg|png|gif|ico|svg|webp)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
+      res.setHeader('Cache-Control', 'public, max-age=2592000'); 
     } else if (path.match(/\.(css|js)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day
+      res.setHeader('Cache-Control', 'public, max-age=86400'); 
     }
   }
 }));

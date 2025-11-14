@@ -41,12 +41,10 @@ export async function setupVite(app: Express, server: Server) {
     appType: "custom",
   });
 
-
   app.use(cors({
     origin: [
-      "https://brandingbeez-official.onrender.com",  // your Render production URL
-      "http://localhost:5173",
-      "https://brandingbeez.co.uk"                       // local Vite dev URL
+      "https://brandingbeez-official.onrender.com",  
+      "http://localhost:5173",                       
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -70,7 +68,6 @@ export async function setupVite(app: Express, server: Server) {
         "index.html",
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
@@ -105,7 +102,6 @@ app.use(cors({
 
   app.use(express.static(distPath));
 
-  // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
