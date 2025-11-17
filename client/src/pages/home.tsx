@@ -614,7 +614,7 @@ export default function Home() {
               <div>
                 <Card className="shadow-xl">
                   <CardHeader>
-                    <CardTitle className="text-center font-bold text-gray-900">Schedule Strategy Call</CardTitle>                  
+                    <CardTitle className="text-center font-bold text-gray-900">Schedule Strategy Call</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">

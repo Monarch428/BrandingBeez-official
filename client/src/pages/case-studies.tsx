@@ -184,26 +184,28 @@ export default function CaseStudies() {
                 your business.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link href="/contact">
                 <Button
                   size="lg"
                   variant="secondary"
                   className="bg-white text-brand-purple ray-100"
                 >
-                  <Link href="/contact">Get Started</Link>
+                  Get Started
                 </Button>
+                </Link>
+                <Link href="/services">
                 <Button
                   size="lg"
                   variant="outline"
                   className="border-white text-brand-purple hite/10"
-                >
-                  <Link href="/services">Explore Our Services</Link>
+                >Explore our Services
                 </Button>
+                </Link>
               </div>
             </div>
           </div>
         </section>
       </main>
-
       <Footer />
     </div>
   );

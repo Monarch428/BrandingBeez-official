@@ -32,6 +32,7 @@ type PortfolioItem = {
   isFeatured: boolean;
   orderIndex: number;
   isActive: boolean;
+  serviceCategory?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -80,6 +81,7 @@ const emptyForm: Partial<PortfolioItem> = {
   isFeatured: false,
   isActive: true,
   orderIndex: 0,
+  serviceCategory: "",
 };
 
 const emptyContent: PortfolioContent = {
@@ -96,6 +98,34 @@ const emptyContent: PortfolioContent = {
   testimonialsSubtitle: "",
   testimonials: [],
 };
+
+// Service categories matching your services page
+const serviceCategories = [
+  {
+    id: "seo",
+    title: "SEO Services",
+  },
+  {
+    id: "web-development",
+    title: "Website Design & Development",
+  },
+  {
+    id: "dedicated-resources",
+    title: "Dedicated Resources",
+  },
+  {
+    id: "google-ads",
+    title: "Google Ads",
+  },
+  {
+    id: "ai-development",
+    title: "AI Web Agents/AI Development",
+  },
+  {
+    id: "custom-app-development",
+    title: "Custom Web & Mobile App Development",
+  },
+];
 
 export function PortfolioItemsManager() {
   const [form, setForm] = useState<Partial<PortfolioItem>>(emptyForm);
@@ -253,6 +283,7 @@ export function PortfolioItemsManager() {
         isFeatured: Boolean(form.isFeatured),
         orderIndex: Number(form.orderIndex || 0),
         isActive: form.isActive !== false,
+        serviceCategory: form.serviceCategory || undefined,
       };
 
       const url = editingId
@@ -617,6 +648,21 @@ export function PortfolioItemsManager() {
                   onChange={(e) => handleChange("badge", e.target.value)}
                   placeholder="Featured Case Study"
                 />
+              </div>
+              <div>
+                <Label>Service Category</Label>
+                <select
+                  value={form.serviceCategory || ""}
+                  onChange={(e) => handleChange("serviceCategory", e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white"
+                >
+                  <option value="">Select a service category...</option>
+                  {serviceCategories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <Label>Description</Label>

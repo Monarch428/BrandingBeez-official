@@ -153,3 +153,149 @@
 
 <!--  -->
 
+
+
+
+
+db.getCollection("portfolio_items").insertMany([
+  {
+    _id: ObjectId("6915af858bce42ae65cb93cb"),
+    id: 1,
+    slug: "ac-graphics-arm",
+    title: "AC Graphics CRM",
+    industry: "Manufacturing",
+    client: "Mathew",
+    badge: "Phase-Based Implementation",
+    investment: "$2.3K",
+    totalValue: "$7.5K",
+    roi: "226%",
+    description: "Custom CRM system with lead automation, pipeline tracking, and quote generation.",
+    features: [
+      "Lead automation",
+      "Pipeline tracking",
+      "Quote generation",
+      "Client management"
+    ],
+    techStack: [
+      "Typescript",
+      "MongoDB"
+    ],
+    timeline: "2 months Phase 1, scalable",
+    imageUrl: "/upload_image/portfolio_images/ac-graphics-1763030982614-320181973.jpg",
+    isFeatured: true,
+    orderIndex: 1,
+    isActive: true,
+    createdAt: ISODate("2025-11-13T10:14:29.994Z"),
+    updatedAt: ISODate("2025-11-17T09:38:34.569Z"),
+    image: "/upload_image/portfolio_images/ac-graphics-1763030982614-320181973.jpg",
+    serviceCategory: "custom-app-development"
+  },
+
+  {
+    _id: ObjectId("6915b6e58bce42ae65cb9407"),
+    id: 2,
+    slug: "myvkard",
+    title: "MyVKard",
+    industry: "SaaS Startup",
+    client: "MyVKard",
+    badge: "Rapid MVP Development",
+    investment: "$2.3k",
+    totalValue: "$12k",
+    roi: "422%",
+    description: "NFC-enabled digital identity platform with payment processing and customer dashboard.",
+    features: [
+      "NFC integration",
+      "Payment processing",
+      "Profile builder",
+      "QR code generation"
+    ],
+    techStack: [
+      "React JS Vite",
+      "Node.js",
+      "Stripe API",
+      "NFC Protocols"
+    ],
+    timeline: "7 weeks from concept to launch",
+    imageUrl: "/upload_image/portfolio_images/myvkard-nfc1-1763030755477-346132474.png",
+    isFeatured: true,
+    orderIndex: 2,
+    isActive: true,
+    createdAt: ISODate("2025-11-13T10:45:57.634Z"),
+    updatedAt: ISODate("2025-11-17T09:38:18.668Z"),
+    image: "/upload_image/portfolio_images/myvkard-nfc1-1763030755477-346132474.png",
+    serviceCategory: "custom-app-development"
+  },
+
+  {
+    _id: ObjectId("6915b79a8bce42ae65cb940d"),
+    id: 3,
+    slug: "wellenplus-health-app",
+    title: "Wellenpuls Health App",
+    industry: "HealthTech",
+    client: "Wellenpuls Health App",
+    badge: "Hardware Integration",
+    investment: "$1.3K",
+    totalValue: "$10K",
+    roi: "669%",
+    description: "Mobile health application with Bluetooth hardware integration and AI-powered insights.",
+    features: [
+      "Bluetooth connectivity",
+      "AI health coach",
+      "Progress tracking",
+      "Personalized insights"
+    ],
+    techStack: [
+      "React Native",
+      "Bluetooth APIs",
+      "AI Integration"
+    ],
+    timeline: "6 weeks mobile development",
+    imageUrl: "/upload_image/portfolio_images/wellenpuls-app-1763030959964-27829571.png",
+    isFeatured: true,
+    orderIndex: 3,
+    isActive: true,
+    createdAt: ISODate("2025-11-13T10:48:58.210Z"),
+    updatedAt: ISODate("2025-11-17T09:38:08.127Z"),
+    image: "/upload_image/portfolio_images/wellenpuls-app-1763030959964-27829571.png",
+    serviceCategory: "custom-app-development"
+  },
+
+  {
+    _id: ObjectId("6915bdc08bce42ae65cb945b"),
+    id: 4,
+    slug: "octupus-ai",
+    title: "Octupus.ai – AI Agent Platform",
+    industry: "Telecom Industry",
+    client: "Octupus.ai",
+    badge: "AI Agent Featured Platform",
+    investment: "$6.9K",
+    totalValue: "$24K",
+    roi: "247%",
+    description: "Multi-agent AI platform with human-in-the-loop review, tool orchestration, and workflow automation.",
+    features: [],
+    techStack: [
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Express",
+      "PostgreSQL",
+      "OpenAI",
+      "GPT-4",
+      "LinkedIn API",
+      "Facebook API",
+      "Instagram API",
+      "AWS",
+      "Docker",
+      "Redis"
+    ],
+    timeline: "6 weeks",
+    imageUrl: "/upload_image/portfolio_images/octupus-1763032358282-852385614.png",
+    isFeatured: true,
+    orderIndex: 0,
+    isActive: true,
+    createdAt: ISODate("2025-11-13T11:15:12.536Z"),
+    updatedAt: ISODate("2025-11-17T09:52:40.773Z"),
+    image: "/upload_image/portfolio_images/octupus-1763032358282-852385614.png",
+    serviceCategory: "custom-app-development"
+  }
+])

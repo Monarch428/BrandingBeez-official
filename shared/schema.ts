@@ -156,6 +156,7 @@ export const insertPortfolioItemSchema = z.object({
   isFeatured: z.boolean().optional(),
   orderIndex: z.number().int().optional(),
   isActive: z.boolean().optional(),
+  serviceCategory: z.string().optional(),
 });
 export type InsertPortfolioItem = z.infer<typeof insertPortfolioItemSchema>;
 export interface PortfolioItem extends InsertPortfolioItem {
@@ -163,6 +164,7 @@ export interface PortfolioItem extends InsertPortfolioItem {
   isFeatured: boolean;
   orderIndex: number;
   isActive: boolean;
+  serviceCategory?: string;
   createdAt: Date;
   updatedAt: Date;
 }

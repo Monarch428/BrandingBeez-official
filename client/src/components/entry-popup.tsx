@@ -320,7 +320,6 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
 
 
 
-
 // import { useState } from "react";
 // import { X, Star, Users, TrendingUp, ArrowRight } from "lucide-react";
 // import { Button } from "@/components/ui/button";

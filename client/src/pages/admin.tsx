@@ -31,7 +31,8 @@ import {
   Shield,
   Eye,
   EyeOff,
-  PenTool
+  PenTool,
+  ImageIcon
 } from "lucide-react";
 
 export default function Admin() {
@@ -170,6 +171,21 @@ export default function Admin() {
         }
       });
       if (!response.ok) throw new Error('Failed to fetch newsletter subscribers');
+      return response.json();
+    },
+    enabled: isAuthenticated
+  });
+
+  const portfolioItemsQuery = useQuery({
+    queryKey: ["/api/admin/portfolio-items"],
+    queryFn: async () => {
+      const token = localStorage.getItem('adminToken');
+      const response = await fetch('/api/admin/portfolio-items', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch portfolio items');
       return response.json();
     },
     enabled: isAuthenticated
@@ -357,6 +373,13 @@ export default function Admin() {
       icon: Mail,
       color: "text-pink-600",
       bgColor: "bg-pink-50"
+    },
+    {
+      title: "Portfolio Items",
+      value: portfolioItemsQuery.data?.length || 0,
+      icon: ImageIcon,
+      color: "text-orange-600",
+      bgColor: "bg-orange-50"
     }
   ];
 

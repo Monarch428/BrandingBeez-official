@@ -91,7 +91,6 @@ const serviceCategories = [
     discount: "Free Setup Cost",
     discountDescription: "No setup fees",
   },
-
   {
     id: "google-ads",
     title: "Google Ads",
@@ -129,24 +128,45 @@ const serviceCategories = [
     discountDescription: "your first AI project",
   },
   {
-    id: "n8n-automations",
-    title: "N8N Automations",
-    description: "Streamline operations with intelligent automation solutions",
-    icon: Zap,
-    href: "/services/n8n-automations",
-    pricing: "Coming Soon",
-    features: [
-      "HR workflows",
-      "Email workflows",
-      "Marketing Workflows",
-      "Chat bot workflow & More coming soon..",
-    ],
-    metrics: "Coming Soon",
-    couponCode: "",
-    discount: "",
-    discountDescription: "",
-  },
+  id: "custom-app-development",
+  title: "Custom Web & Mobile App Development",
+  description: "High-performance custom apps built for scalability and seamless user experience",
+  icon: Code,
+  href: "/services/custom-app-development",
+  pricing: "Starting at $1,500/project",
+  features: [
+    "Custom Web Application Development",
+    "iOS & Android Mobile App Development",
+    "Full-Stack Web Applications",
+    "UI/UX Design & Prototyping",
+    "API Development & Integrations",
+    "Maintenance & Support"
+  ],
+  metrics: "Average delivery time: 4–6 weeks",
+  couponCode: "APP20",
+  discount: "20% OFF",
+  discountDescription: "your first app project",
+},
 ];
+
+ // {
+  //   id: "n8n-automations",
+  //   title: "N8N Automations",
+  //   description: "Streamline operations with intelligent automation solutions",
+  //   icon: Zap,
+  //   href: "/services/n8n-automations",
+  //   pricing: "Coming Soon",
+  //   features: [
+  //     "HR workflows",
+  //     "Email workflows",
+  //     "Marketing Workflows",
+  //     "Chat bot workflow & More coming soon..",
+  //   ],
+  //   metrics: "Coming Soon",
+  //   couponCode: "",
+  //   discount: "",
+  //   discountDescription: "",
+  // },
 
 const industriesWeServe = [
   {
@@ -1326,7 +1346,7 @@ export default function Services() {
                     <div className="flex-1 flex flex-col">
                       {/* Pricing and inline discount */}
                       <div className="flex items-center justify-between gap-3 mt-3">
-                        <div className="text-xl font-bold text-brand-purple">
+                        <div className="text-lg font-bold text-brand-purple">
                           {service.pricing}
                         </div>
 

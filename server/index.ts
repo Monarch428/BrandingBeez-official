@@ -77,83 +77,322 @@ Sitemap: https://brandingbeez.co.uk/sitemap.xml`);
 // Explicit sitemap.xml serving  
 app.get('/sitemap.xml', (req: Request, res: Response) => {
   res.type('application/xml');
-  res.setHeader('Cache-Control', 'public, max-age=3600'); // Cache for 1 hour
-  res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.send(`
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
   <url>
     <loc>https://brandingbeez.co.uk/</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.00</priority>
   </url>
-  <url>
-    <loc>https://brandingbeez.co.uk/services</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://brandingbeez.co.uk/services/ai-development</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://brandingbeez.co.uk/services/web-development</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://brandingbeez.co.uk/services/google-ads</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://brandingbeez.co.uk/services/seo</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://brandingbeez.co.uk/services/dedicated-resources</loc>
-    <lastmod>2025-08-26</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
+
+  <!-- Core pages / Services -->
   <url>
     <loc>https://brandingbeez.co.uk/about</loc>
-    <lastmod>2025-08-26</lastmod>
+    <lastmod>2025-11-07</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.80</priority>
   </url>
   <url>
     <loc>https://brandingbeez.co.uk/contact</loc>
-    <lastmod>2025-08-26</lastmod>
+    <lastmod>2025-11-07</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.80</priority>
   </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/privacy-policy</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.30</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/services</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/services/web-development</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/services/seo</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/services/google-ads</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/services/dedicated-resources</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/services/ai-development</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
+
+  <!-- Tools / Features -->
+  <url>
+    <loc>https://brandingbeez.co.uk/pricing-calculator</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/onboarding-wizard</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.50</priority>
+  </url>
+
+  <!-- Case studies -->
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/website-architect</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/vellu-laser-landing-page</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/ubu-design-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/ts-landscaping-website</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/stat-planning-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/socialland-website-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/social-land</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/seo-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/scuba-diving-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/koala-digital</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/green-paradise-branding-website</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/citypat-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/the-dog-guy-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/junksaway-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/griffin-group-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/case-studies/arlingsworth-solicitors-case-study</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- Blog hub and posts -->
   <url>
     <loc>https://brandingbeez.co.uk/blog</loc>
-    <lastmod>2025-08-26</lastmod>
+    <lastmod>2025-11-07</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://brandingbeez.co.uk/case-studies</loc>
-    <lastmod>2025-08-26</lastmod>
+    <loc>https://brandingbeez.co.uk/blog/white-label-seo-ppc-2025</loc>
+    <lastmod>2025-11-07</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.65</priority>
   </url>
   <url>
-    <loc>https://brandingbeez.co.uk/pricing</loc>
-    <lastmod>2025-08-26</lastmod>
+    <loc>https://brandingbeez.co.uk/blog/industry-specific-digital-marketing-strategies-2025</loc>
+    <lastmod>2025-11-07</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.65</priority>
   </url>
-</urlset>`);
+  <url>
+    <loc>https://brandingbeez.co.uk/blog/digital-marketing-for-law-firms</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/blog/dedicated-team-hiring-2025</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/blog/beauty-digital-marketing-2025</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/blog/ai-solutions-business-growth-2025</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://brandingbeez.co.uk/blog/ad-fatigue-digital-marketing-2025</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+
+  <!-- Newsletter -->
+  <url>
+    <loc>https://brandingbeez.co.uk/newsletter</loc>
+    <lastmod>2025-11-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.60</priority>
+  </url>
+</urlset>
+`);
 });
+//     <?xml version="1.0" encoding="UTF-8"?>
+// <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+//   <url>
+//     <loc>https://brandingbeez.co.uk/</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>weekly</changefreq>
+//     <priority>1.0</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>weekly</changefreq>
+//     <priority>0.9</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/ai-development</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/web-development</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/google-ads</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/seo</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/dedicated-resources</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/about</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.7</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/contact</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.7</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/blog</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>weekly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/case-studies</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.7</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/pricing</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+// </urlset>
+
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
 // Optimized static file serving with caching headers

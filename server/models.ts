@@ -382,6 +382,7 @@ const portfolioItemSchema = new Schema<PortfolioItemDocument>(
     isFeatured: { type: Boolean, default: false },
     orderIndex: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+    serviceCategory: String,
   },
   {
     collection: "portfolio_items",

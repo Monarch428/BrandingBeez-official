@@ -1992,6 +1992,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update hero stats only
+  app.put("/api/admin/portfolio-content/stats", authenticateAdmin, async (req, res) => {
+    try {
+      const { heroStats } = req.body;
+      
+      if (!Array.isArray(heroStats)) {
+        return res.status(400).json({ message: "heroStats must be an array" });
+      }
+
+      // Get existing content and merge with new stats
+      const existingContent = await storage.getPortfolioContent();
+      const updatedContent = {
+        ...existingContent,
+        heroStats,
+      };
+
+      const validated = insertPortfolioContentSchema.parse(updatedContent);
+      const content = await storage.upsertPortfolioContent(validated);
+      res.json({ success: true, content });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio stats:", error);
+      res.status(500).json({ message: "Failed to update portfolio stats" });
+    }
+  });
+
   // Admin portfolio items routes
   app.get("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
     try {
