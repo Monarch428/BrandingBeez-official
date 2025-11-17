@@ -1,0 +1,346 @@
+
+#### **Company Culture Section**
+- **Work Environment:** "Collaborative, results-driven, continuous learning"
+- **Team Activities:** Weekly team building, quarterly offsites
+- **Professional Development:** $2,000 annual learning budget per employee
+- **Benefits:** Health insurance, 401k, flexible work arrangements
+
+---
+
+### **/contact (Contact - US Offices & Phone Numbers)**
+
+#### **Header Section**
+- **Breadcrumb:** Home > Contact
+- **Page Title:** "Get in Touch with Our Team"
+- **Sub-title:** "Ready to scale your agency? Let's discuss your needs."
+
+#### **Quick Contact Bar**
+- **Phone:** (855) SCALE-UP | **Email:** hello@agency.com | **Chat:** Live support available
+
+#### **Office Locations with Maps**
+
+##### **New York Headquarters**
+- **Interactive Map:** Google Maps embed
+- **Address:** 123 Business Avenue, Suite 500, New York, NY 10001
+- **Phone:** (212) 555-SCALE
+- **Email:** ny@agency.com
+- **Hours:** 
+  - Monday-Friday: 9:00 AM - 6:00 PM EST
+  - Saturday: 10:00 AM - 2:00 PM EST
+  - Sunday: Closed
+- **Parking:** Street parking and nearby garages
+- **Public Transit:** 2 blocks from Union Square subway
+
+
+#### **Primary Contact Form**
+- **Form Title:** "Start Your Project Today"
+- **Fields:**
+  - **Personal Information:**
+    - First Name (Required)
+    - Last Name (Required)
+    - Business Email (Required)
+    - Phone Number (Required)
+  - **Company Information:**
+    - Company Name (Required)
+    - Website URL
+    - Industry (Dropdown selection)
+    - Company Size (Dropdown: 1-5, 6-25, 26-100, 100+ employees)
+  - **Project Details:**
+    - Services Needed (Multi-select checkboxes):
+      □ SEO Services
+      □ Website Development
+      □ N8N Automation
+      □ Google Ads Management
+      □ Dedicated Resources
+      □ AI SaaS Development
+    - Project Timeline (Dropdown):
+      - ASAP (Within 2 weeks)
+      - 1 Month
+      - 2-3 Months
+      - 3+ Months
+      - Just exploring
+    - Budget Range (Dropdown):
+      - Under $5,000
+      - $5,000 - $15,000
+      - $15,000 - $50,000
+      - $50,000+
+      - Not sure yet
+    - Project Description (Text area, 500 char limit)
+  - **Preferred Contact Method:**
+    - □ Phone call
+    - □ Email
+    - □ Video meeting
+    - □ In-person meeting
+- **Submit Button:** "Schedule Free Consultation"
+- **Privacy Notice:** "We respect your privacy. Your information will never be shared."
+
+#### **Live Chat Integration**
+- **Chat Widget:** Bottom-right corner
+- **Availability:** "Online - Average response time: 2 minutes"
+- **Offline Message:** "We're currently offline. Leave a message and we'll respond within 4 hours."
+
+#### **Alternative Contact Methods**
+
+##### **Sales Inquiries**
+- **Email:** sales@agency.com
+- **Phone:** (855) SCALE-UP ext. 1
+- **Best for:** New project discussions, pricing questions
+
+##### **Support Requests**
+- **Email:** support@agency.com
+- **Phone:** (855) SCALE-UP ext. 2
+- **Portal:** client.agency.com
+- **Best for:** Existing project support, technical issues
+
+##### **Partnership Opportunities**
+- **Email:** partners@agency.com
+- **Phone:** (855) SCALE-UP ext. 3
+- **Best for:** Referral partnerships, strategic alliances
+
+#### **FAQ Section**
+- **Q:** "What's your typical response time?"
+  **A:** "We respond to all inquiries within 4 hours during business hours."
+- **Q:** "Do you offer free consultations?"
+  **A:** "Yes, all initial strategy consultations are complimentary."
+- **Q:** "Can we visit your office?"
+  **A:** "Absolutely! Schedule an appointment and we'll give you a tour."
+
+---
+
+## **Service Pages Breakdown**
+
+### **SEO Services Section**
+
+#### **/services/seo**
+
+##### **Header Section**
+- **Breadcrumb:** Home > Services > SEO
+- **Page Title:** "Drive Organic Traffic with Expert SEO"
+- **Sub-title:** "Proven strategies that deliver measurable results"
+
+##### **Hero Section with Featured Client**
+- **Headline:** "We Increased TechStart's Organic Traffic by 847% in 6 Months"
+- **Client Logo:** TechStart Inc.
+- **Key Metrics Display:**
+  - **847%** Organic traffic increase
+  - **#1** Rankings for target keywords
+  - **312%** Lead generation improvement
+  - **$2.4M** Additional annual revenue
+- **Case Study Preview:** "See how we transformed their digital presence"
+- **Primary CTA:** "View Full Case Study"
+- **Secondary CTA:** "Get Your Free SEO Audit"
+
+##### **Client Logos & Success Stories**
+- **Trusted by 50+ Businesses:**
+  - TechStart Inc. - 847% traffic increase
+  - LocalLaw Firm - 500% local visibility
+  - E-Store Plus - 623% e-commerce traffic
+  - MedPractice - 290% patient inquiries
+- **CTA:** "See All Success Stories"
+
+##### **SEO Methodology Section**
+- **Our Proven Process:**
+  
+  **Phase 1: Comprehensive SEO Audit**
+  - Technical SEO analysis
+  - Competitor research
+  - Keyword opportunity assessment
+  - Content gap analysis
+  
+  **Phase 2: Strategy Development**
+  - Custom SEO roadmap
+  - Keyword targeting strategy
+  - Content calendar creation
+  - Link building plan
+  
+  **Phase 3: Implementation**
+  - Technical optimizations
+  - On-page optimization
+  - Content creation
+  - Link acquisition
+  
+  **Phase 4: Monitor & Optimize**
+  - Performance tracking
+  - Continuous optimization
+  - Monthly reporting
+  - Strategy refinement
+
+##### **What Makes Our SEO Different**
+- **Data-Driven Approach:** "Every decision backed by analytics"
+- **White-Hat Methods:** "Only Google-approved techniques"
+- **Custom Strategies:** "Tailored to your industry and goals"
+- **Transparent Reporting:** "Real-time access to performance data"
+
+##### **Case Study Previews**
+**Case Study 1: E-commerce Success**
+- **Client:** Online Retailer
+- **Challenge:** Low product visibility
+- **Results:** 623% organic traffic, 400% revenue
+- **CTA:** "Read Full Case Study"
+
+**Case Study 2: Local Business Domination**
+- **Client:** Law Firm
+- **Challenge:** Poor local rankings
+- **Results:** #1 for 15 local keywords
+- **CTA:** "View Local SEO Results"
+
+**Case Study 3: B2B Lead Generation**
+- **Client:** SaaS Company
+- **Challenge:** Low qualified leads
+- **Results:** 847% organic leads increase
+- **CTA:** "See B2B SEO Strategy"
+
+##### **SEO Packages (US Pricing)**
+
+**Starter SEO Package - $1,500/month**
+- **Perfect for:** Small businesses and startups
+- **Includes:**
+  - Up to 10 target keywords
+  - Technical SEO audit & fixes
+  - 4 optimized pages/month
+  - Monthly performance report
+  - Email support
+- **Contract:** 3-month minimum
+- **CTA:** "Start with Starter Package"
+
+**Professional SEO Package - $3,500/month**
+- **Perfect for:** Growing businesses
+- **Includes:**
+  - Up to 25 target keywords
+  - Complete technical SEO
+  - 8 optimized pages/month
+  - 2 SEO articles/month
+  - Link building (5 links/month)
+  - Bi-weekly reports
+  - Priority support
+- **Contract:** 6-month minimum
+- **Badge:** "Most Popular"
+- **CTA:** "Choose Professional"
+
+**Enterprise SEO Package - $6,500/month**
+- **Perfect for:** Large businesses and agencies
+- **Includes:**
+  - Unlimited target keywords
+  - Advanced technical SEO
+  - 15 optimized pages/month
+  - 4 SEO articles/month
+  - Advanced link building (12 links/month)
+  - Weekly reports
+  - Dedicated account manager
+  - Phone support
+- **Contract:** 12-month minimum
+- **CTA:** "Scale with Enterprise"
+
+**Custom SEO Solutions**
+- **For:** Unique requirements
+- **Includes:** Tailored strategy and execution
+- **CTA:** "Request Custom Quote"
+
+##### **Client Testimonials**
+**Video Testimonial 1:**
+- **Client:** Sarah Johnson, CEO of TechStart
+- **Quote:** "The results speak for themselves. 847% traffic increase in just 6 months."
+- **Video Player:** Embedded testimonial video
+
+**Written Testimonials:**
+- **★★★★★** "Best SEO agency we've worked with. Professional, results-driven, and transparent." - Mike Chen, Marketing Director
+- **★★★★★** "ROI was incredible. Paid for itself in the first month." - Lisa Rodriguez, Business Owner
+- **★★★★★** "Finally found an SEO partner we can trust with our clients." - David Park, Agency Owner
+
+##### **Free SEO Audit CTA Section**
+- **Headline:** "Discover Your SEO Opportunities"
+- **Sub-headline:** "Get a comprehensive analysis of your website's SEO performance"
+- **Audit Includes:**
+  - Technical SEO analysis
+  - Keyword opportunity report
+  - Competitor comparison
+  - Actionable recommendations
+- **Form Fields:**
+  - Website URL (Required)
+  - Business Email (Required)
+  - Phone Number
+  - Industry (Dropdown)
+- **CTA Button:** "Get My Free SEO Audit"
+- **Guarantee:** "No obligation. Results delivered within 24 hours."
+
+---
+
+#### **/services/seo/packages**
+
+##### **Header Section**
+- **Breadcrumb:** Home > Services > SEO > Packages
+- **Page Title:** "Choose Your SEO Success Plan"
+- **Sub-title:** "Flexible packages designed to grow with your business"
+
+##### **Package Comparison Table**
+**Interactive Comparison:**
+- **Features Listed:**
+  - Target Keywords
+  - Technical SEO
+  - Page Optimization
+  - Content Creation
+  - Link Building
+  - Reporting Frequency
+  - Support Level
+  - Contract Length
+  - Setup Fee
+
+**Starter vs Professional vs Enterprise**
+- **Visual indicators:** ✓ Included, ✗ Not included, ⭐ Premium version
+
+##### **Package Selection Wizard**
+- **Step 1:** "What's your monthly marketing budget?"
+  - Under $2,000
+  - $2,000 - $5,000
+  - $5,000 - $10,000
+  - $10,000+
+  
+- **Step 2:** "What's your primary goal?"
+  - Increase website traffic
+  - Generate more leads
+  - Improve local visibility
+  - Beat competitors
+  
+- **Step 3:** "How competitive is your industry?"
+  - Low competition
+  - Moderate competition
+  - High competition
+  - Extremely competitive
+
+- **Results:** "Based on your answers, we recommend: Professional Package"
+
+##### **ROI Calculator**
+- **Input Fields:**
+  - Current monthly website visitors
+  - Current conversion rate
+  - Average customer value
+  - SEO package selection
+- **Output:**
+  - Projected traffic increase
+  - Expected new customers
+  - Estimated additional revenue
+  - ROI percentage
+  - Payback period
+
+##### **Frequently Asked Questions**
+- **Q:** "What if I don't see results?"
+  **A:** "We offer a 90-day performance guarantee. If you don't see improvement, we'll refund your investment."
+  
+- **Q:** "Can I upgrade or downgrade my package?"
+  **A:** "Yes, you can change packages at any time with 30 days notice."
+  
+- **Q:** "What's included in the setup?"
+  **A:** "Complete technical audit, keyword research, competitor analysis, and strategy development."
+
+##### **Custom Package Inquiry Form**
+- **When to Use:** "Need something more specific?"
+- **Form Fields:**
+  - Company Name (Required)
+  - Contact Email (Required)
+  - Phone Number
+  - Website URL (Required)
+  - Current SEO Challenges (Text area)
+  - Specific Requirements (Text area)
+  - Budget Range (Dropdown)
+  - Timeline (Dropdown)
+- **CTA:** "Request Custom Proposal"
