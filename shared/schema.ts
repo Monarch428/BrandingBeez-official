@@ -21,27 +21,29 @@ export interface User extends InsertUser {
 
 // Contacts
 export const insertContactSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  company: z.string().optional(),
-  inquiry_type: z.string().min(1),
-  message: z.string().min(1),
-  preferred_contact: z.string().min(1),
-  agencyName: z.string().optional(),
-  country: z.string().min(1),
-  topPriority: z.string().min(1),
-  couponCode: z.string().optional(),
-  servicesSelected: z.array(z.string()).optional(),
-  budget: z.string().optional(),
-  timeline: z.string().optional(),
-  referralSource: z.string().optional(),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional().nullable(),
+  company: z.string().optional().nullable(),
+  inquiry_type: z.string().min(1, "Inquiry type is required"),
+  message: z.string().min(1, "Message is required"),
+  preferred_contact: z.string().min(1, "Preferred contact is required"),
+  agencyName: z.string().optional().nullable(),
+  country: z.string().min(1, "Country is required"),
+  topPriority: z.string().min(1, "Top priority is required"),
+  couponCode: z.string().optional().nullable(),
+  servicesSelected: z.array(z.string()).optional().nullable(),
+  service: z.string().optional().nullable(),
+  budget: z.string().optional().nullable(),
+  timeline: z.string().optional().nullable(),
+  referralSource: z.string().optional().nullable(),
   serviceDetails: jsonValueSchema.optional(),
   automationDetails: jsonValueSchema.optional(),
   dedicatedResourceDetails: jsonValueSchema.optional(),
   websiteDetails: jsonValueSchema.optional(),
-  contactFormType: z.string().optional(),
-});
+  contactFormType: z.string().optional().nullable(),
+}).passthrough(); // Allow additional fields
+
 export type InsertContact = z.infer<typeof insertContactSchema>;
 export interface Contact extends InsertContact {
   id: number;

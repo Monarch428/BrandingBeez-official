@@ -6,6 +6,7 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Clock, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Helmet } from "react-helmet";
 
 interface BlogPost {
   id: number;
@@ -126,10 +127,10 @@ export default function DynamicBlogPost() {
   const publishDate = blogPost?.publishedAt || blogPost?.createdAt;
   const formattedPublishDate = publishDate
     ? new Date(publishDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : "Recent";
   const author = blogPost?.author || "BrandingBeez Team";
   const readTime = blogPost?.readTime || 5;
@@ -189,15 +190,18 @@ export default function DynamicBlogPost() {
   return (
     <div className="min-h-screen bg-white">
       {/* SEO */}
-      <title>{blogPost.metaTitle || `${blogPost.title} | BrandingBeez`}</title>
-      <meta name="description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
-      <meta name="keywords" content={Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""} />
-      <meta property="og:title" content={blogPost.metaTitle || blogPost.title} />
-      <meta property="og:description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
-      <meta property="og:image" content={blogPost.imageUrl || "/api/placeholder/800/600"} />
-      <meta property="article:author" content={author} />
-      <meta property="article:published_time" content={publishDate} />
+      <Helmet>
+        <title>{blogPost.metaTitle || `${blogPost.title} | BrandingBeez`}</title>
+        <meta name="description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
+        <meta name="keywords" content={Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""} />
+        <meta property="og:title" content={blogPost.metaTitle || blogPost.title} />
+        <meta property="og:description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
+        <meta property="og:image" content={blogPost.imageUrl || "/api/placeholder/800/600"} />
+        <meta property="article:author" content={author} />
+        <meta property="article:published_time" content={publishDate} />
+      </Helmet>
 
+      
       <Header />
 
       {/* Article Header */}

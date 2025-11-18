@@ -29,13 +29,8 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
           email: data.email,
           company: "Unknown",
           service: data.interest,
-          message: `Entry popup submission - Selected Interest: ${data.interest} | Email: ${data.email} | Popup Type: Entry Welcome Flow`,
-          source: "entry_popup",
+          message: `Entry popup submission - Selected Interest: ${data.interest}`,
           region: "US",
-          inquiry_type: "entry-popup-contact-form",
-          preferred_contact: "email",
-          topPriority: "entry-popup-lead",
-          contactFormType: "entry-popup-contact-form",
         }),
       });
       if (!response.ok) {

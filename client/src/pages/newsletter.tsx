@@ -147,6 +147,11 @@
 // }
 
 
+import Footer from "@/components/footer";
+import Header from "@/components/header";
+import { SchemaMarkup } from "@/components/schema-markup";
+import { SEOHead } from "@/components/seo-head";
+import { ThankYouPopup } from "@/components/thank-you-popup";
 import { useState } from "react";
 import { Helmet } from "react-helmet";
 
@@ -155,6 +160,7 @@ export default function Newsletter() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showThankYouPopup, setShowThankYouPopup] = useState(false);
 
   const handleSubscribe = async () => {
     if (!name.trim() || !email.trim()) {
@@ -173,15 +179,13 @@ export default function Newsletter() {
       });
 
       const data = await response.json();
-      setStatus(
-        data.success
-          ? "✅ Subscription successful! Check your email."
-          : `❌ ${data.message}`
-      );
-
+      
       if (data.success) {
+        setShowThankYouPopup(true);
         setName("");
         setEmail("");
+      } else {
+        setStatus(`❌ ${data.message}`);
       }
     } catch (err) {
       console.error(err);
@@ -194,14 +198,33 @@ export default function Newsletter() {
   return (
     <>
       <Helmet>
-        <title>Newsletter Subscription</title>
+        <title>Subscribe to Branding Beez 1-Minute Agency Growth Tips</title>
         <meta
           name="description"
-          content="Subscribe to our newsletter - Agency Growth, Made Simple"
+          content="Get weekly 1-minute reads packed with client-winning strategies, pricing hacks, AI tips, and success stories from real agencies. Subscribe free today."
         />
+        <link rel="canonical" href="https://brandingbeez.co.uk/newsletter" />
+        <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
 
+      <ThankYouPopup
+        isOpen={showThankYouPopup}
+        onClose={() => setShowThankYouPopup(false)}
+        title="Thanks for Subscribing!"
+        message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
+        formType="inquiry"
+      />
+
+      <Header/>
       <div className="min-h-screen flex items-center justify-center px-6 py-20 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white font-['Inter']">
+        <SEOHead
+          title="Subscribe to Branding Beez 1-Minute Agency Growth Tips"
+          description="Stay ahead with quick, actionable marketing insights — from client strategies to AI tools. Subscribe free in 1 minute."
+          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
+          canonicalUrl="https://brandingbeez.co.uk/newsletter"
+          ogType="website"
+        />
+        <SchemaMarkup type="custom" />
         <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center">
 
           {/* Left Content */}
@@ -269,9 +292,8 @@ export default function Newsletter() {
               <button
                 type="submit"
                 disabled={loading}
-                className={`bg-white text-[#552265] font-semibold py-3 rounded-lg hover:bg-gray-100 transition ${
-                  loading ? "opacity-60 cursor-not-allowed" : ""
-                }`}
+                className={`bg-white text-[#552265] font-semibold py-3 rounded-lg hover:bg-gray-100 transition ${loading ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
               >
                 {loading ? "Subscribing..." : "Subscribe Now"}
               </button>
@@ -281,6 +303,7 @@ export default function Newsletter() {
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 }
