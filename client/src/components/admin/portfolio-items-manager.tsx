@@ -268,15 +268,15 @@ export function PortfolioItemsManager() {
         features: Array.isArray(form.features)
           ? form.features
           : String(form.features || "")
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean),
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
         techStack: Array.isArray(form.techStack)
           ? form.techStack
           : String(form.techStack || "")
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean),
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
         timeline: form.timeline,
         imageUrl: form.imageUrl,
         image: form.image || form.imageUrl,
@@ -607,6 +607,21 @@ export function PortfolioItemsManager() {
           <CardContent>
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
+                <Label>Service Category</Label>
+                <select
+                  value={form.serviceCategory || ""}
+                  onChange={(e) => handleChange("serviceCategory", e.target.value)}
+                  className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white"
+                >
+                  <option value="">Select a service category...</option>
+                  {serviceCategories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
                 <Label>Slug</Label>
                 <Input
                   value={form.slug || ""}
@@ -648,21 +663,6 @@ export function PortfolioItemsManager() {
                   onChange={(e) => handleChange("badge", e.target.value)}
                   placeholder="Featured Case Study"
                 />
-              </div>
-              <div>
-                <Label>Service Category</Label>
-                <select
-                  value={form.serviceCategory || ""}
-                  onChange={(e) => handleChange("serviceCategory", e.target.value)}
-                  className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white"
-                >
-                  <option value="">Select a service category...</option>
-                  {serviceCategories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.title}
-                    </option>
-                  ))}
-                </select>
               </div>
               <div>
                 <Label>Description</Label>
