@@ -167,7 +167,7 @@ const serviceCategories = [
 // Helper function to group portfolio items by service category
 function groupPortfolioItemsByService(items: PortfolioItem[]) {
     const grouped: { [key: string]: PortfolioItem[] } = {};
-    
+
     items.forEach((item) => {
         const category = item.serviceCategory || "other";
         if (!grouped[category]) {
@@ -178,7 +178,7 @@ function groupPortfolioItemsByService(items: PortfolioItem[]) {
 
     // Return groups in the order of serviceCategories
     const ordered: { category: typeof serviceCategories[0] | null; items: PortfolioItem[] }[] = [];
-    
+
     serviceCategories.forEach((cat) => {
         if (grouped[cat.id]) {
             ordered.push({ category: cat, items: grouped[cat.id] });
@@ -235,8 +235,8 @@ function calculatePortfolioStats(items: PortfolioItem[]): PortfolioHeroStat[] {
     const averageRoi = roiCount > 0 ? Math.round(totalRoi / roiCount) : 0;
 
     // Format total value with proper decimal places
-    const formattedTotalValue = totalValueInThousands > 0 
-        ? `$${totalValueInThousands.toFixed(1)}K` 
+    const formattedTotalValue = totalValueInThousands > 0
+        ? `$${totalValueInThousands.toFixed(1)}K`
         : "$0K";
 
     return [
@@ -259,7 +259,7 @@ function calculatePortfolioStats(items: PortfolioItem[]): PortfolioHeroStat[] {
 async function saveStatsToDatabase(stats: PortfolioHeroStat[]): Promise<boolean> {
     try {
         const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
-        
+
         if (!token) {
             console.log("Not authenticated - skipping stats save");
             return false;
@@ -301,7 +301,7 @@ export default function PortfolioPage() {
         const styleElement = document.createElement('style');
         styleElement.textContent = scrollbarStyles;
         document.head.appendChild(styleElement);
-        
+
         return () => {
             document.head.removeChild(styleElement);
         };
@@ -509,8 +509,8 @@ export default function PortfolioPage() {
                                     {groupPortfolioItemsByService(gridItems)
                                         .filter(group => group.category) // Only show groups with categories
                                         .map((group) => (
-                                            <a 
-                                                key={group.category?.id} 
+                                            <a
+                                                key={group.category?.id}
                                                 href={`#section-${group.category?.id}`}
                                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 hover:border-brand-purple hover:text-brand-purple transition-all duration-200 text-gray-700 hover:shadow-md cursor-pointer"
                                                 onClick={(e) => {
@@ -535,13 +535,13 @@ export default function PortfolioPage() {
                         )}
 
                         {/* Featured (simple wide card) */}
-                        {featured && featured.serviceCategory && (
+                        {/* {featured && featured.serviceCategory && (
                             <div className="mb-12 p-6 bg-blue-50 border-l-4 border-brand-purple rounded-lg">
                                 <p className="text-sm text-gray-600 mb-2">
                                     <span className="font-semibold">Featured Project:</span> This item will be displayed in the <strong>{serviceCategories.find(c => c.id === featured.serviceCategory)?.title}</strong> section below
                                 </p>
                             </div>
-                        )}
+                        )} */}
 
                         {/* Grid grouped by service category */}
                         {loading ? (
@@ -552,7 +552,7 @@ export default function PortfolioPage() {
                                     <div key={group.category?.id || "other"}>
                                         {/* Section Header */}
                                         {group.category && (
-                                            <div 
+                                            <div
                                                 id={`section-${group.category?.id || "other"}`}
                                                 className="mb-8 scroll-mt-20"
                                             >
@@ -576,29 +576,29 @@ export default function PortfolioPage() {
 
                                         {/* Portfolio Carousel */}
                                         <div className="relative">
-                                            <div 
+                                            <div
                                                 id={`carousel-${group.category?.id || "other"}`}
                                                 className="carousel-scroll flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory"
                                             >
                                                 {group.items.map((item) => {
                                                     const isExpanded = expandedItems[item.id] || false;
                                                     return (
-                                                        <div 
+                                                        <div
                                                             key={item.id}
                                                             className="flex-shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start"
                                                         >
-                                                            <Card 
+                                                            <Card
                                                                 className="relative overflow-hidden h-full flex flex-col shadow-sm border hover:shadow-md transition-all duration-300 bg-white"
                                                             >
                                                                 {/* Featured Badge */}
-                                                                {item.isFeatured && (
+                                                                {/* {item.isFeatured && (
                                                                     <div className="absolute top-3 right-3 z-10">
                                                                         <div className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
                                                                             <Star className="w-3 h-3 fill-current" />
                                                                             Featured
                                                                         </div>
                                                                     </div>
-                                                                )}
+                                                                )} */}
 
                                                                 {/* Image Section - Full Width at Top */}
                                                                 <div className="relative w-full aspect-video bg-gray-200 overflow-hidden">
@@ -644,15 +644,18 @@ export default function PortfolioPage() {
                                                                             <div className="font-bold text-brand-purple text-sm">{item.totalValue || "-"}</div>
                                                                             <div className="text-gray-500 text-xs mt-0.5">Value</div>
                                                                         </div>
+                                                                        {item.serviceCategory === "google-ads" &&
                                                                         <div className="text-center">
                                                                             <div className="font-bold text-brand-coral text-sm">{item.roi || "-"}</div>
                                                                             <div className="text-gray-500 text-xs mt-0.5">ROI</div>
-                                                                        </div>
+                                                                        </div> 
+                                                                        }
                                                                     </div>
 
                                                                     {/* Expandable Details Section */}
                                                                     {isExpanded && (
                                                                         <div className="space-y-4 mb-4 pb-4 border-b border-gray-200">
+                                                                    
                                                                             {/* Tech Stack */}
                                                                             {item.techStack && item.techStack.length > 0 && (
                                                                                 <div>
@@ -695,17 +698,66 @@ export default function PortfolioPage() {
                                                                     {/* Action Buttons */}
                                                                     <div className="flex flex-col gap-2 mt-auto pt-2">
                                                                         {/* Expand/Collapse Button */}
-                                                                        <Button
+                                                                        {/* <Button
                                                                             variant="outline"
                                                                             size="sm"
                                                                             className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                                            onClick={() => setExpandedItems({ ...expandedItems, [item.id]: !isExpanded })}
+                                                                            // onClick={() => setExpandedItems({ ...expandedItems, [item.id]: !isExpanded })}
+                                                                            onClick={() => setExpandedItems({ [item.id]: !isExpanded })
+                                                                            }
                                                                         >
                                                                             {isExpanded ? "Show Less" : "Show Details"}
                                                                             <span className={`ml-2 transition-transform ${isExpanded ? "rotate-180" : ""}`}>
                                                                                 ▼
                                                                             </span>
+                                                                        </Button> */}
+
+                                                                        {/* <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
+                                                                            onClick={() => {
+                                                                                const allExpanded: { [key: number]: boolean } = {};
+                                                                                group.items.forEach((i) => {
+                                                                                    allExpanded[i.id] = true; // expand ALL cards
+                                                                                });
+                                                                                setExpandedItems(allExpanded);
+                                                                            }}
+                                                                        >
+                                                                            Show All Details
+                                                                            <span className="ml-2">▼</span>
+                                                                        </Button> */}
+
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
+                                                                            onClick={() => {
+                                                                                const areAllExpanded = group.items.every((i) => expandedItems[i.id]);
+
+                                                                                if (areAllExpanded) {
+                                                                                    // collapse all
+                                                                                    const collapsed: { [key: number]: boolean } = {};
+                                                                                    group.items.forEach((i) => {
+                                                                                        collapsed[i.id] = false;
+                                                                                    });
+                                                                                    setExpandedItems(collapsed);
+                                                                                } else {
+                                                                                    // expand all
+                                                                                    const expanded: { [key: number]: boolean } = {};
+                                                                                    group.items.forEach((i) => {
+                                                                                        expanded[i.id] = true;
+                                                                                    });
+                                                                                    setExpandedItems(expanded);
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            {group.items.every((i) => expandedItems[i.id]) ? "Close All Details" : "Show All Details"}
+                                                                            <span className="ml-2">
+                                                                                {group.items.every((i) => expandedItems[i.id]) ? "▲" : "▼"}
+                                                                            </span>
                                                                         </Button>
+
 
                                                                         {/* View Case Study Button 
                                                                         <Button 
@@ -725,36 +777,32 @@ export default function PortfolioPage() {
                                                 })}
                                             </div>
 
-                                            {/* Carousel Navigation Buttons */}
                                             <button
                                                 onClick={() => {
                                                     const carousel = document.getElementById(`carousel-${group.category?.id || "other"}`);
                                                     if (carousel) {
-                                                        carousel.scrollBy({ 
-                                                            left: -400, 
-                                                            behavior: 'smooth' 
-                                                        });
+                                                        carousel.scrollBy({ left: -400, behavior: "smooth" });
                                                     }
                                                 }}
-                                                className="absolute left-0 top-1/3 -translate-y-1/2 -translate-x-14 md:-translate-x-16 z-20 p-2 rounded-full bg-brand-purple text-white hover:bg-brand-purple/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 md:-translate-x-16 z-20 
+             p-0 bg-transparent shadow-none hover:shadow-none"
                                                 aria-label="Scroll left"
                                             >
-                                                <ChevronLeft className="w-5 h-5" />
+                                                <ChevronLeft className="w-14 h-14 text-brand-purple hover:text-brand-coral transition-colors" />
                                             </button>
+
                                             <button
                                                 onClick={() => {
                                                     const carousel = document.getElementById(`carousel-${group.category?.id || "other"}`);
                                                     if (carousel) {
-                                                        carousel.scrollBy({ 
-                                                            left: 400, 
-                                                            behavior: 'smooth' 
-                                                        });
+                                                        carousel.scrollBy({ left: 400, behavior: "smooth" });
                                                     }
                                                 }}
-                                                className="absolute right-0 top-1/3 -translate-y-1/2 translate-x-14 md:translate-x-16 z-20 p-2 rounded-full bg-brand-purple text-white hover:bg-brand-purple/90 transition-all shadow-md hover:shadow-lg active:scale-95"
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 md:translate-x-16 z-20 
+             p-0 bg-transparent shadow-none hover:shadow-none"
                                                 aria-label="Scroll right"
                                             >
-                                                <ChevronRight className="w-5 h-5" />
+                                                <ChevronRight className="w-14 h-14 text-brand-purple hover:text-brand-coral transition-colors" />
                                             </button>
                                         </div>
                                     </div>

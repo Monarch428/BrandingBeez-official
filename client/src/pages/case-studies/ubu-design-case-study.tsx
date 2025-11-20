@@ -57,7 +57,7 @@ export default function UBUDesignCaseStudy() {
 
         <main className="pt-0">
           {/* Hero Section */}
-          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white "> {/* text-gray-900 */}
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white "> 
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>

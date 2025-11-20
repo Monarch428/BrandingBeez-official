@@ -96,7 +96,8 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com"
         ],
-        frameSrc: [
+       frameSrc: [
+          "'self'",
           "https://calendly.com",
           "https://*.calendly.com",
           "https://www.google.com",
@@ -104,7 +105,7 @@ export function securityHeaders() {
           "https://*.youtube.com",
           "https://youtube.com",
           "https://www.youtube-nocookie.com",
-          "https://*.youtube-nocookie.com"
+          "https://*.youtube-nocookie.com",
         ],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: []

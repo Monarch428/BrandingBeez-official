@@ -46,7 +46,7 @@ const services = [
   { value: "seo", label: "SEO Services" },
   { value: "google-ads", label: "Google Ads" },
   { value: "dedicated-resources", label: "Dedicated Resources" },
-  { value: "n8n-automations", label: "N8N Automations" },
+  { value: "custom-app-development", label: "Custom Web & Mobile App Development" },
   { value: "ai-development", label: "AI Web Agents/AI Development" },
   { value: "other", label: "Other" }
 ];
@@ -222,9 +222,9 @@ export function ContactFormOptimized() {
         });
       }
       
-      // Add N8N automation details
-      if (data.service === 'n8n-automations' && data.n8nDetails.length > 0) {
-        structuredMessage += `\n\n⚙️ N8N AUTOMATIONS:`;
+      // Add Custom Web & Mobile App Development details
+      if (data.service === 'custom-app-development' && data.n8nDetails.length > 0) {
+        structuredMessage += `\n\n⚙️ Custom Web & Mobile App Development:`;
         data.n8nDetails.forEach(detail => {
           const n8nLabel = n8nTypes.find(t => t.value === detail)?.label;
           structuredMessage += `\n• ${n8nLabel}`;
@@ -735,13 +735,13 @@ export function ContactFormOptimized() {
             </div>
           )}
 
-          {/* N8N Automations Details */}
-          {formData.service === 'n8n-automations' && (
+          {/* Custom Web & Mobile App Development Details */}
+          {formData.service === 'custom-app-development' && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in N8N Automations? *</h3>
+              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in Custom Web & Mobile App Development? *</h3>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                 <p className="text-yellow-800 text-sm">
-                  <strong>Coming Soon!</strong> N8N automation services will be available shortly. Select your areas of interest below.
+                  <strong></strong> Custom Web & Mobile App Development services will be available shortly. Select your areas of interest below.
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-3">
