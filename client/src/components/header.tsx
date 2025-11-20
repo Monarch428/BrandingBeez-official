@@ -101,7 +101,7 @@ export default function Header() {
             </Link> */}
             <Link href="/newsletter">
               <span
-                className={`font-medium transition-colors cursor-pointer ${location === "/news-letter" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/newsletter" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
               >
                 News letter
               </span>

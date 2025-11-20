@@ -367,7 +367,7 @@ export default function Services() {
                   <Badge className="bg-white/20 text-white border-white/30 mb-4 sm:mb-6 text-xs sm:text-sm">
                     🔥 Most Sought-After Service
                   </Badge>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 leading-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
                     Dedicated Resources for US & UK Marketing & IT Companies
                   </h1>
                   <h2 className="text-lg sm:text-lg lg:text-xl font-semibold text-gray-100 mb-6 sm:mb-8 leading-relaxed">
@@ -431,12 +431,12 @@ export default function Services() {
                 </div>
 
                 {/* Right Side - Call Booking Form */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)]">
                   <h3 className="text-2xl font-bold mb-6 text-white">
                     {/* Subscribe Free */} Book Your Dedicated Resource
                   </h3>
                   <form onSubmit={handleSubmitLead} className="space-y-4 flex flex-col h-full">
-                    <div className="space-y-4 max-h-[55vh] overflow-y-auto pr-2 scrollbar-thin">
+                    <div className="space-y-4 max-h-[55vh] overflow-y-auto p-2 scrollbar-thin">
                       <div>
                         <label className="block text-sm font-medium text-gray-200 mb-2">
                           Full Name
@@ -477,7 +477,7 @@ export default function Services() {
                           className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50"
                           onChange={(e) => {
                             setSelectedService(e.target.value);
-                            setSelectedLevel(""); 
+                            setSelectedLevel("");
                           }}
                         >
                           <option value="" className="text-gray-900">
@@ -1314,18 +1314,21 @@ export default function Services() {
           </section>
 
           {/* Services Grid Section */}
-          <section className="py-12 px-4 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
+          <section className="py-8 sm:py-12 md:py-16 px-4 bg-white">
+            <div className="max-w-6xl xl:max-w-7xl mx-auto">
+
+              {/* Header Section */}
+              <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
                   Complete Service Portfolio
                 </h2>
-                <p className="text-base md:text-lg text-gray-700 mt-2">
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 mt-2">
                   Comprehensive digital solutions delivered under your brand
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch auto-rows-fr">
+              {/* Responsive Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 auto-rows-fr">
                 {serviceCategories.slice(0, 6).map((service) => {
                   const Icon = service.icon;
                   const hasCoupon = service.couponCode;
@@ -1333,34 +1336,50 @@ export default function Services() {
                   return (
                     <Card
                       key={service.id}
-                      className="relative overflow-hidden h-full flex flex-col p-6 shadow-sm border"
+                      className="
+              relative overflow-hidden flex flex-col h-full
+              p-4 sm:p-5 md:p-6 shadow-sm border rounded-xl 
+              hover:shadow-md transition-shadow 
+              max-w-[420px] w-full mx-auto
+            "
                     >
+
+                      {/* 🔥 Badge - Only for Dedicated Resources */}
+                      {service.id === "dedicated-resources" && (
+                        <div className="absolute top-3 right-3">
+                          <span className="bg-brand-coral text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full shadow-md animate-shimmer">
+                            Recommended
+                          </span>
+                        </div>
+                      )}
+
                       {/* Header */}
-                      <div className="flex items-center justify-start gap-3 mb-4">
-                        <div className="w-10 h-10 bg-brand-coral/10 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-5 h-5 text-brand-coral" />
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-brand-coral/10 rounded-lg flex items-center justify-center shrink-0">
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-coral" />
                         </div>
-                        <div className="min-w-0">
-                          <h3 className="text-lg font-bold text-brand-purple leading-snug line-clamp-2">
-                            {service.title}
-                          </h3>
-                        </div>
+
+                        <h3 className="text-base sm:text-lg font-bold text-brand-purple leading-snug line-clamp-2">
+                          {service.title}
+                        </h3>
                       </div>
 
-                      <p className="text-sm text-gray-700 mt-1 leading-snug line-clamp-2">
+                      {/* Description */}
+                      <p className="text-xs sm:text-sm text-gray-700 leading-snug line-clamp-2">
                         {service.description}
                       </p>
 
                       {/* Content */}
-                      <div className="flex-1 flex flex-col">
-                        {/* Pricing and inline discount */}
-                        <div className="flex items-center justify-between gap-3 mt-3">
+                      <div className="flex-1 flex flex-col mt-3">
+
+                        {/* Pricing & Inline Discount */}
+                        <div className="flex items-center justify-between gap-3">
                           <div className="text-lg font-bold text-brand-purple">
                             {service.pricing}
                           </div>
 
                           {service.discount && (
-                            <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent hover:bg-primary/80 bg-brand-coral text-white text-xs font-bold animate-pulse">
+                            <span className="text-[10px] sm:text-xs inline-flex items-center rounded-full bg-brand-coral text-white font-bold px-2.5 py-0.5 animate-shimmer">
                               {service.discount}
                             </span>
                           )}
@@ -1376,26 +1395,22 @@ export default function Services() {
                           </div>
                         )}
 
-                        <ul className="mt-3 space-y-2">
+                        {/* Features */}
+                        <ul className="mt-3 space-y-1.5 sm:space-y-2">
                           {service.features.map((feature, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-2 text-sm leading-tight"
-                            >
-                              <CheckCircle className="w-4 h-4 text-brand-coral mt-0.5 shrink-0" />
+                            <li key={index} className="flex items-start gap-2 text-xs sm:text-sm leading-tight">
+                              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-coral mt-0.5 shrink-0" />
                               <span className="line-clamp-2">{feature}</span>
                             </li>
                           ))}
                         </ul>
 
                         {/* Actions */}
-                        <div className="mt-auto pt-5">
+                        <div className="mt-auto pt-4 sm:pt-5">
                           {service.id === "n8n-automations" ? (
                             <>
                               <div className="text-center py-2">
-                                <span className="text-brand-coral font-semibold">
-                                  Coming Soon
-                                </span>
+                                <span className="text-brand-coral font-semibold">Coming Soon</span>
                               </div>
                               <Link href={service.href}>
                                 <Button
@@ -1415,8 +1430,7 @@ export default function Services() {
                                   className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium"
                                 >
                                   <Gift className="w-4 h-4 mr-2" />
-                                  Get {service.discount} –{" "}
-                                  {service.discountDescription}
+                                  Get {service.discount} – {service.discountDescription}
                                 </Button>
                               ) : (
                                 <div className="flex flex-col gap-4">
@@ -1431,12 +1445,7 @@ export default function Services() {
                                       <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() =>
-                                          handleCopyCoupon(
-                                            service.couponCode,
-                                            service.id
-                                          )
-                                        }
+                                        onClick={() => handleCopyCoupon(service.couponCode, service.id)}
                                         className="h-8 px-3 text-xs border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
                                       >
                                         <Copy className="w-3 h-3 mr-1" />
@@ -1445,9 +1454,7 @@ export default function Services() {
                                     </div>
                                   </div>
 
-                                  <Link
-                                    href={`/contact?coupon=${service.couponCode}&service=${service.id}#contact-form`}
-                                  >
+                                  <Link href={`/contact?coupon=${service.couponCode}&service=${service.id}#contact-form`}>
                                     <Button className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium">
                                       Use Coupon in Contact Form
                                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -1505,11 +1512,11 @@ export default function Services() {
               {/* Top badge */}
               <div className="mb-8 text-center">
                 <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2 backdrop-blur-md shadow-sm">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-300" />
+                  <span className="h-2 w-2 animate-shimmer rounded-full bg-yellow-300" />
                   <span className="text-xs font-semibold uppercase tracking-wider text-white">
                     Limited time offer
                   </span>
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-300" />
+                  <span className="h-2 w-2 animate-shimmer rounded-full bg-yellow-300" />
                 </span>
               </div>
 

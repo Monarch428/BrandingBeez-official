@@ -352,7 +352,8 @@ export default function Home() {
                           <h3>{service.title}</h3>
                         </CardTitle>
 
-                        <p className="text-gray-700 min-h-[3rem] flex items-start text-justify">
+                        {/* FIXED */}
+                        <p className="text-gray-700 min-h-[3rem] leading-relaxed text-left line-clamp-4">
                           {service.description}
                         </p>
                       </CardHeader>
@@ -360,7 +361,6 @@ export default function Home() {
                       {/* Body + Button */}
                       <CardContent className="pt-0 flex flex-col flex-1">
                         <div className="flex flex-col flex-1 space-y-4">
-
                           <div className="text-lg font-bold text-brand-coral-darker">
                             {service.pricing}
                           </div>
@@ -377,8 +377,7 @@ export default function Home() {
                           {/* FORCE BUTTON TO BOTTOM */}
                           <div className="mt-auto pt-4">
                             <Link href={service.href}>
-                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker 
-                              text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
+                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
                                 <span className="leading-tight text-white text-md">Learn More</span>
                                 <ArrowRight className="w-4 h-4" />
                               </Button>
@@ -392,6 +391,7 @@ export default function Home() {
               </div>
             </div>
           </section>
+
 
           {/* Partner Agencies Section - Rebuilt */}
           {/* <section className="py-16 bg-gray-50">
@@ -550,20 +550,43 @@ export default function Home() {
           {/* Dedicated Resources Section */}
           <section className="py-12 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-5xl mx-auto text-center">
+
               <Badge className="bg-white/20 text-white border-white/30 mb-8 mx-auto">
                 🔥 Most Sought-After Service
               </Badge>
+
               <h2 className="text-4xl sm:text-2xl md:text-3xl lg:text-5xl font-bold mb-6 sm:mb-8 leading-tight">
                 Dedicated Resources for US Agencies
               </h2>
+
               <p className="text-lg sm:text-md lg:text-lg text-gray-100 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed">
                 Scale your agency with handpicked pros who integrate seamlessly
               </p>
 
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/20 max-w-3xl mx-auto">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3">Starting at $400/month</div>
-                <div className="text-base sm:text-md lg:text-lg text-gray-200 mb-2 sm:mb-3">Team Discounts: Up to 20% Off</div>
-                <div className="text-sm sm:text-base lg:text-lg text-gray-200 mb-6 sm:mb-8">Average 60% cost savings vs. in-house team</div>
+              {/* UPDATED GLASSMORPH CARD */}
+              <div
+                className="
+        bg-[rgba(40,20,50,0.6)]
+        backdrop-blur-xl
+        rounded-2xl
+        p-6 sm:p-8 lg:p-10
+        mb-8 sm:mb-10 lg:mb-12
+        border border-white/10
+        shadow-[0px_8px_32px_rgba(0,0,0,0.3)]
+        max-w-3xl mx-auto
+      "
+              >
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-white">
+                  Starting at $400/month
+                </div>
+
+                <div className="text-base sm:text-md lg:text-lg text-gray-200 mb-2 sm:mb-3">
+                  Team Discounts: Up to 20% Off
+                </div>
+
+                <div className="text-sm sm:text-base lg:text-lg text-gray-200 mb-6 sm:mb-8">
+                  Average 60% cost savings vs. in-house team
+                </div>
 
                 <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <li className="flex items-center gap-2 sm:gap-3">
@@ -597,12 +620,16 @@ export default function Home() {
                 </ul>
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-                  <Button className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-base lg:text-md sm:text-md px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation" asChild >
+                  <Button
+                    className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-base lg:text-md sm:text-md px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation group"
+                    asChild
+                  >
                     <Link href="/contact?coupon=SETUP FREE&service=dedicated-resources&promo=setup-free">
                       Free Setup Cost
-                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white hover:text-brand-purple" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white group-hover:text-brand-purple transition-colors duration-300" />
                     </Link>
                   </Button>
+
                   <Button
                     variant="outline"
                     className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent text-base sm:text-md px-6 sm:px-8 py-3 sm:py-4 touch-manipulation"

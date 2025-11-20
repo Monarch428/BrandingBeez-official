@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Shield, 
-  Lock, 
-  Eye, 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  Shield,
+  Lock,
+  Eye,
+  AlertTriangle,
+  CheckCircle,
   Globe,
   Server,
   Zap
@@ -94,7 +94,7 @@ export function SecurityHeaders() {
       <Alert className="border-green-200 bg-green-50">
         <CheckCircle className="h-4 w-4 text-green-600" />
         <AlertDescription>
-          <strong>All security systems are operational.</strong> Last security audit: January 2025. 
+          <strong>All security systems are operational.</strong> Last security audit: January 2025.
           All vulnerabilities addressed within 24 hours of discovery.
         </AlertDescription>
       </Alert>
@@ -211,7 +211,7 @@ export function SecurityHeaders() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-600 mb-4">
-            If you discover a security vulnerability or have security concerns, 
+            If you discover a security vulnerability or have security concerns,
             please contact our security team immediately.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -237,7 +237,7 @@ export function SecurityHeaders() {
 export function useSecurityStatus() {
   const isSecure = window.location.protocol === 'https:';
   const hasSecurityHeaders = typeof window !== 'undefined';
-  
+
   return {
     isSecure,
     hasSecurityHeaders,
@@ -249,7 +249,7 @@ export function useSecurityStatus() {
 export function SecurityHeadersProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Client-side security measures
-    
+
     // Disable right-click context menu in production
     if (process.env.NODE_ENV === 'production') {
       const handleContextMenu = (e: MouseEvent) => {
@@ -274,14 +274,21 @@ export function SecurityHeadersProvider({ children }: { children: React.ReactNod
     // Add security-related meta tags
     addMetaTag('referrer', 'strict-origin-when-cross-origin');
     addMetaTag('format-detection', 'telephone=no');
-    
+
     // Add CSP meta tag (backup to server headers)
     if (!document.querySelector('meta[http-equiv="Content-Security-Policy"]')) {
       const csp = document.createElement('meta');
       csp.httpEquiv = 'Content-Security-Policy';
-      csp.content = "default-src 'self'; script-src 'self' 'unsafe-inline' *.google.com *.googleapis.com; style-src 'self' 'unsafe-inline' *.googleapis.com; img-src 'self' data: *.google.com *.googleapis.com; connect-src 'self' *.google.com;";
+      csp.content =
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' *.google.com *.googleapis.com; " +
+        "style-src 'self' 'unsafe-inline' *.googleapis.com; " +
+        "img-src 'self' data: *.google.com *.googleapis.com; " +
+        "connect-src 'self' *.google.com; " +        
+        "frame-src 'self' https://www.youtube.com/ https://www.youtube-nocookie.com/;";
       document.head.appendChild(csp);
     }
+
   }, []);
 
   return <>{children}</>;

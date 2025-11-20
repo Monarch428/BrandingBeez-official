@@ -395,6 +395,13 @@ export function PortfolioItemsManager() {
     }
   };
 
+  const selectedCategory = serviceCategories.find(
+    (c) => c.id === form.serviceCategory
+  );
+
+  const showROI =
+    selectedCategory?.title?.toLowerCase().includes("google ads") ?? false;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -690,14 +697,16 @@ export function PortfolioItemsManager() {
                     placeholder="$24K"
                   />
                 </div>
-                <div>
-                  <Label>ROI</Label>
-                  <Input
-                    value={form.roi || ""}
-                    onChange={(e) => handleChange("roi", e.target.value)}
-                    placeholder="247%"
-                  />
-                </div>
+                {showROI && (
+                  <div>
+                    <Label>ROI</Label>
+                    <Input
+                      value={form.roi || ""}
+                      onChange={(e) => handleChange("roi", e.target.value)}
+                      placeholder="247%"
+                    />
+                  </div>
+                )}
               </div>
               <div>
                 <Label>Timeline</Label>

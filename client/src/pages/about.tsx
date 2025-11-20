@@ -266,6 +266,7 @@ const TeamMemberImage = ({
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
+
   const handleImageError = () => {
     console.warn(`Failed to load image for ${name}`);
     setImageError(true);
@@ -310,6 +311,8 @@ const TeamMemberImage = ({
 
 export default function About() {
   const { regionConfig } = useRegion();
+  const [showVideo, setShowVideo] = useState(false);
+
 
   return (
     <>
@@ -412,54 +415,39 @@ export default function About() {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl p-8 text-white text-center shadow-2xl">
+                  <div className="bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl p-8 text-white text-center shadow-2xl w-full max-w-md">
+
+                    {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-6">
-                      <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-4 border-white/20">
-                        <img
-                          src={vigneshImage}
-                          alt="Vignesh Waran - Founder & CEO"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                      <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                        <iframe
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/J4RRz15Q73s?autoplay=0&mute=1"
+                          title="Founder Video — Our Story"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
                         />
                       </div>
-                      <h3 className="text-2xl font-bold mb-2">Vignesh Waran</h3>
-                      <p className="text-white/90 mb-4">Founder</p>
                     </div>
 
+                    {/* DETAILS */}
                     <div className="space-y-4 text-left">
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                         <h4 className="font-semibold mb-2">Our Mission</h4>
                         <p className="text-white/90 text-sm">
-                          "We built BrandingBeez to solve the pain points we
-                          experienced as agency owners - finding reliable partners
-                          who understand quality and deadlines."
+                          "We built BrandingBeez to solve the pain points we experienced as agency owners — finding reliable partners who understand quality and deadlines."
                         </p>
                       </div>
+
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                         <h4 className="font-semibold mb-2">Our Commitment</h4>
                         <p className="text-white/90 text-sm">
-                          "Every partnership is built on transparency, quality,
-                          and mutual success. Your growth is our success."
+                          "Every partnership is built on transparency, quality, and mutual success. Your growth is our success."
                         </p>
                       </div>
                     </div>
-
-                    <div className="mt-6">
-                      <Button
-                        variant="outline"
-                        className="bg-white text-brand-purple border-white hover:bg-white/90"
-                        asChild
-                      >
-                        <a
-                          href="https://www.youtube.com/watch?v=J4RRz15Q73s"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Watch Our Story
-                        </a>
-                      </Button>
-                    </div>
                   </div>
+
                 </div>
               </div>
             </div>

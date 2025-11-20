@@ -179,7 +179,7 @@ export default function Newsletter() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setShowThankYouPopup(true);
         setName("");
@@ -207,15 +207,7 @@ export default function Newsletter() {
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
 
-      <ThankYouPopup
-        isOpen={showThankYouPopup}
-        onClose={() => setShowThankYouPopup(false)}
-        title="Thanks for Subscribing!"
-        message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
-        formType="inquiry"
-      />
-
-      <Header/>
+      <Header />
       <div className="min-h-screen flex items-center justify-center px-6 py-20 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white font-['Inter']">
         <SEOHead
           title="Subscribe to Branding Beez 1-Minute Agency Growth Tips"
@@ -255,54 +247,98 @@ export default function Newsletter() {
             </ul>
           </div>
 
-          {/* Right Form Card */}
-          <div className="bg-white/15 backdrop-blur-lg rounded-xl p-8 border border-white/20">
-            <h2 className="text-2xl font-bold text-center mb-2">
+          {/* Newsletter Form - Updated to Match Hero Section Form */}
+          <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-md mx-auto w-full">
+
+            {/* Header */}
+            <h2 className="text-xl sm:text-2xl font-bold text-center mb-2 text-white">
               Subscribe Free
             </h2>
-            <p className="text-gray-200 text-center mb-6">
+            <p className="text-gray-200 text-center text-sm sm:text-base mb-6">
               Join 3,000+ agency owners — no spam.
             </p>
 
+            {/* Form */}
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSubscribe();
               }}
-              className="flex flex-col gap-4"
+              className="flex flex-col h-full space-y-4"
             >
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your Name"
-                required
-                className="w-full bg-white/20 border border-white/30 rounded-lg py-3 px-4 text-white placeholder-gray-300 focus:ring-2 focus:ring-white/40 outline-none"
-              />
+              {/* Scrollable Fields (Mobile friendly) */}
+              <div className="space-y-4 max-h-[55vh] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
 
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your Email"
-                required
-                className="w-full bg-white/20 border border-white/30 rounded-lg py-3 px-4 text-white placeholder-gray-300 focus:ring-2 focus:ring-white/40 outline-none"
-              />
+                {/* Name */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your full name"
+                    required
+                    className="w-full px-2 py-3 rounded-lg bg-white/25 text-white placeholder-gray-300
+          border border-white/30 shadow-inner
+          focus:border-white/60 focus:ring-1 focus:ring-white/40 
+          focus:shadow-lg focus:scale-[1.01] transition-all duration-200"
+                  />
+                </div>
 
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email"
+                    required
+                    className="w-full px-2 py-3 rounded-lg bg-white/25 text-white placeholder-gray-300
+          border border-white/30 shadow-inner
+          focus:border-white/60 focus:ring-1 focus:ring-white/40 
+          focus:shadow-lg focus:scale-[1.01] transition-all duration-200"
+                  />
+                </div>
+              </div>
+
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={loading}
-                className={`bg-white text-[#552265] font-semibold py-3 rounded-lg hover:bg-gray-100 transition ${loading ? "opacity-60 cursor-not-allowed" : ""
-                  }`}
+                className={`
+                        w-full bg-white text-brand-purple font-bold py-3 rounded-lg
+                        shadow-lg transition-colors duration-200
+                        hover:bg-brand-coral hover:text-white
+                        ${loading ? "opacity-60 cursor-not-allowed hover:bg-white hover:text-brand-purple" : ""}
+                      `}
               >
                 {loading ? "Subscribing..." : "Subscribe Now"}
               </button>
-            </form>
 
-            {status && <p className="mt-4 text-center text-sm">{status}</p>}
+
+
+              {/* Confirmation Text */}
+              {status && (
+                <p className="text-sm text-gray-300 text-center mt-4">
+                  {status}
+                </p>
+              )}
+            </form>
           </div>
         </div>
       </div>
+      <ThankYouPopup
+        isOpen={showThankYouPopup}
+        onClose={() => setShowThankYouPopup(false)}
+        title="Thanks for Subscribing!"
+        message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
+        formType="inquiry"
+      />
       <Footer />
     </>
   );
