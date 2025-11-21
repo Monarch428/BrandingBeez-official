@@ -453,7 +453,7 @@ export default function PortfolioPage() {
                             )}
 
                             {/* Stats (glassy) */}
-                            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                            {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
                                 {heroStats.map((s, i) => (
                                     <div
                                         key={`${s.kpi}-${s.label}-${i}`}
@@ -463,7 +463,7 @@ export default function PortfolioPage() {
                                         <div className="text-sm text-white/80">{s.label}</div>
                                     </div>
                                 ))}
-                            </div>
+                            </div> */}
 
                             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                                 {primaryCtaText && (

@@ -90,11 +90,11 @@ const pricingPackages = [
   {
     id: 1,
     name: "Starter",
-    price: "$399",
+    price: "$800",
     period: "/month + ad spend",
     description: "Perfect for small businesses starting with Google Ads",
     features: [
-      "Ad spend range: $1,000 - $3,000",
+      "Ad spend range: $2,500 - $5,000",
       "Search Ads & Performance Max",
       "Remarketing campaigns",
       "Up to 2 target locations",
@@ -108,11 +108,11 @@ const pricingPackages = [
   {
     id: 2,
     name: "Growth",
-    price: "$799",
+    price: "$1200",
     period: "/month + ad spend",
     description: "Ideal for growing businesses",
     features: [
-      "Ad spend range: $3,000 - $8,000",
+      "Ad spend range: $6,000 - $8,500",
       "Search, PMax, Display & Brand campaigns",
       "Up to 5 target locations",
       "5 search + 1 display creative",
@@ -127,11 +127,11 @@ const pricingPackages = [
   {
     id: 3,
     name: "Scale",
-    price: "$1,299",
+    price: "$1,500",
     period: "/month + ad spend",
     description: "For large businesses and complex campaigns",
     features: [
-      "Ad spend range: $8,000 - $15,000",
+      "Ad spend range: $8,500 - $15,000",
       "Full funnel ads: Search, Display, YouTube",
       "Shopping ads (if e-commerce)",
       "Nationwide or up to 10 locations",
@@ -553,7 +553,8 @@ export default function GoogleAds() {
                   variant="outline"
                   className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
                   onClick={() =>
-                    window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")
+                    // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")
+                    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank")
                   }
                 >
                   Contact Us for Enterprise Pricing

@@ -731,7 +731,8 @@ export default function StatPlanningCaseStudy() {
                   size="lg"
                   onClick={() =>
                     window.open(
-                      "https://calendly.com/vignesh-velusamy/30min",
+                      // "https://calendly.com/vignesh-velusamy/30min",
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
                       "_blank",
                     )
                   }

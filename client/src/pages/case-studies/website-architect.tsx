@@ -80,7 +80,8 @@ export default function WebsiteArchitectCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          "https://calendly.com/vignesh-velusamy/30min",
+                          // "https://calendly.com/vignesh-velusamy/30min",
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
                           "_blank",
                         )
                       }

@@ -207,7 +207,7 @@ export default function Newsletter() {
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
 
-      <Header />
+      {/* <Header /> */}
       <div className="min-h-screen flex items-center justify-center px-6 py-20 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white font-['Inter']">
         <SEOHead
           title="Subscribe to Branding Beez 1-Minute Agency Growth Tips"
@@ -217,7 +217,7 @@ export default function Newsletter() {
           ogType="website"
         />
         <SchemaMarkup type="custom" />
-        <div className="max-w-6xl w-full grid md:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl w-full grid md:grid-cols-2 gap-12 items-center">
 
           {/* Left Content */}
           <div>
@@ -339,7 +339,7 @@ export default function Newsletter() {
         message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
         formType="inquiry"
       />
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }

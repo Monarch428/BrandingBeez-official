@@ -44,7 +44,7 @@ const serviceCategories = [
     description: "Drive organic traffic with proven SEO strategies",
     icon: Search,
     href: "/services/seo",
-    pricing: "Starting at $300",
+    pricing: "Starting at $500",
     features: [
       "Link Building",
       "Local SEO",
@@ -63,7 +63,7 @@ const serviceCategories = [
     description: "Custom websites that turn visitors into lifelong customers",
     icon: Globe,
     href: "/services/web-development",
-    pricing: "Starting at $500",
+    pricing: "Starting at $900",
     features: ["WordPress", "Shopify", "BigCommerce", "Custom Coded"],
     metrics: "Average build time: 3 weeks",
     couponCode: "WEB20",
@@ -98,7 +98,7 @@ const serviceCategories = [
     description: "Maximize ROI with expert PPC campaign management",
     icon: TrendingUp,
     href: "/services/google-ads",
-    pricing: "Starting at $400/project",
+    pricing: "Starting at $800/project",
     features: [
       "Starter Package",
       "Growth Package",
@@ -117,7 +117,7 @@ const serviceCategories = [
       "Intelligent AI solutions to automate and enhance your business",
     icon: Bot,
     href: "/services/ai-development",
-    pricing: "Starting at $2,000/project",
+    pricing: "Starting at $4,000/project",
     features: [
       "AI Powered web app/Mobile app development",
       "AI Agentic Platform development",
@@ -134,7 +134,7 @@ const serviceCategories = [
     description: "High-performance custom apps built for scalability and seamless user experience",
     icon: Code,
     href: "/services/custom-app-development",
-    pricing: "Starting at $1,500/project",
+    pricing: "Starting at $3,500/project",
     features: [
       "Custom Web Application Development",
       "iOS & Android Mobile App Development",
@@ -222,7 +222,8 @@ export default function Services() {
       setSelectedLevel("");
       // Redirect to Calendly
       setTimeout(() => {
-        window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
+        // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
+        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank");
       }, 1000);
     },
     onError: () => {

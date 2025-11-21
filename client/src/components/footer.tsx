@@ -158,7 +158,8 @@ export default function Footer() {
               </li>
               <li className="text-sm">
                 <a 
-                  href="https://calendly.com/vignesh-velusamy/30min" 
+                  // href="https://calendly.com/vignesh-velusamy/30min" 
+                  href="https://calendar.app.google/Y8XZq71qtvPRhktH9" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="text-brand-coral rand-coral-light transition-colors touch-manipulation"

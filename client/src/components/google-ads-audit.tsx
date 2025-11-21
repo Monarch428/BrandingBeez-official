@@ -338,7 +338,8 @@ export function GoogleAdsAudit() {
                   </p>
                   <Button 
                     className="bg-brand-coral rand-coral/90 text-white"
-                    onClick={() => window.open('https://calendly.com/vignesh-velusamy/30min', '_blank')}
+                    // onClick={() => window.open('https://calendly.com/vignesh-velusamy/30min', '_blank')}
+                    onClick={() => window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", '_blank')}
                   >
                     Book Strategy Call
                   </Button>

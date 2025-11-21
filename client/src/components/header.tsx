@@ -9,7 +9,8 @@ export default function Header() {
   const [location] = useLocation();
 
   const openCalendly = () => {
-    window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
+    // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
+    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank");
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -40,7 +41,7 @@ export default function Header() {
 
           {/* Navigation - Prevent layout shift with min-width */}
           <nav
-            className="hidden md:flex space-x-8"
+            className="hidden md:flex items-center justify-center space-x-8"
             style={{ minWidth: "560px" }}
           >
             <Link href="/">
@@ -99,13 +100,13 @@ export default function Header() {
                 Contact
               </span>
             </Link> */}
-            <Link href="/newsletter">
+            {/* <Link href="/newsletter">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/newsletter" ? "text-brand-coral-darker" : "text-gray-700 hover:text-brand-coral-darker"}`}
               >
                 News letter
               </span>
-            </Link>
+            </Link> */}
           </nav>
 
           {/* CTA */}
