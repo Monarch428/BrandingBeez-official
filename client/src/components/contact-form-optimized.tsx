@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Shield, Lock, CheckCircle, Clock, Star, Award, Plus, Minus, Gift, Copy } from "lucide-react";
+import PhoneInput from "react-phone-input-2";
 
 interface ContactFormData {
   name: string;
@@ -132,6 +133,39 @@ const regions = [
 ];
 
 export function ContactFormOptimized() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const { hash, search } = window.location;
+    const params = new URLSearchParams(search);
+    const couponFromUrl = params.get("coupon");
+
+    // Autofill coupon code if present in URL
+    if (couponFromUrl) {
+      setFormData(prev => ({
+        ...prev,
+        couponCode: couponFromUrl.toUpperCase(),
+      }));
+    }
+
+    // Smooth scroll to #contact-form with header offset
+    if (hash === "#contact-form") {
+      setTimeout(() => {
+        const formEl = document.getElementById("contact-form");
+        if (formEl) {
+          const headerOffset = 100; // adjust to match your fixed header height
+          const elementPosition = formEl.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = elementPosition - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      }, 150);
+    }
+  }, []);
+
   const { toast } = useToast();
   const [formData, setFormData] = useState<ContactFormData>({
     name: '',
@@ -163,7 +197,7 @@ export function ContactFormOptimized() {
     const urlParams = new URLSearchParams(window.location.search);
     const couponFromUrl = urlParams.get('coupon');
     const serviceFromUrl = urlParams.get('service');
-    
+
     if (couponFromUrl) {
       setFormData(prev => ({ ...prev, couponCode: couponFromUrl }));
     }
@@ -178,12 +212,12 @@ export function ContactFormOptimized() {
     mutationFn: async (data: ContactFormData) => {
       // Build structured message with service details
       let structuredMessage = data.message || 'Contact form submission';
-      
+
       // Add service selections
       if (data.service) {
         structuredMessage += `\n\n📋 PRIMARY SERVICE: ${services.find(s => s.value === data.service)?.label || data.service}`;
       }
-      
+
       // Add website details
       if (data.service === 'website-development' && data.websiteDetails.platform) {
         structuredMessage += `\n\n🌐 WEBSITE DETAILS:`;
@@ -192,7 +226,7 @@ export function ContactFormOptimized() {
           structuredMessage += `\n• Tier: ${websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label}`;
         }
       }
-      
+
       // Add dedicated resources details
       if (data.service === 'dedicated-resources' && data.dedicatedResourceDetails.roles.length > 0) {
         structuredMessage += `\n\n👥 DEDICATED RESOURCES:`;
@@ -203,7 +237,7 @@ export function ContactFormOptimized() {
           }
         });
       }
-      
+
       // Add SEO details
       if (data.service === 'seo' && data.seoDetails.length > 0) {
         structuredMessage += `\n\n🔍 SEO SERVICES:`;
@@ -212,7 +246,7 @@ export function ContactFormOptimized() {
           structuredMessage += `\n• ${seoLabel}`;
         });
       }
-      
+
       // Add Google Ads details
       if (data.service === 'google-ads' && data.googleAdsDetails.length > 0) {
         structuredMessage += `\n\n🎯 GOOGLE ADS:`;
@@ -221,7 +255,7 @@ export function ContactFormOptimized() {
           structuredMessage += `\n• ${adsLabel}`;
         });
       }
-      
+
       // Add Custom Web & Mobile App Development details
       if (data.service === 'custom-app-development' && data.n8nDetails.length > 0) {
         structuredMessage += `\n\n⚙️ Custom Web & Mobile App Development:`;
@@ -230,7 +264,7 @@ export function ContactFormOptimized() {
           structuredMessage += `\n• ${n8nLabel}`;
         });
       }
-      
+
       // Add AI details
       if (data.service === 'ai-development' && data.aiDetails.length > 0) {
         structuredMessage += `\n\n🤖 AI DEVELOPMENT:`;
@@ -239,16 +273,16 @@ export function ContactFormOptimized() {
           structuredMessage += `\n• ${aiLabel}`;
         });
       }
-      
+
       // Add budget and timeline
       if (data.budget) {
         structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
       }
-      
+
       if (data.timeline) {
         structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline}`;
       }
-      
+
       if (data.referral) {
         structuredMessage += `\n\n📢 REFERRAL: ${data.referral}`;
       }
@@ -287,7 +321,7 @@ export function ContactFormOptimized() {
         description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
         duration: 5000,
       });
-      
+
       // Reset form
       setFormData({
         name: '',
@@ -313,12 +347,12 @@ export function ContactFormOptimized() {
         referral: '',
         couponCode: ''
       });
-      
+
       setErrors({});
     },
     onError: (error: any) => {
       console.error('Contact form error:', error);
-      
+
       // Extract user-friendly message from server response
       let errorMessage = "Please try again or contact us directly.";
       if (error?.response?.data?.message) {
@@ -326,7 +360,7 @@ export function ContactFormOptimized() {
       } else if (error?.message) {
         errorMessage = error.message;
       }
-      
+
       toast({
         title: "Please check your information",
         description: errorMessage,
@@ -368,7 +402,7 @@ export function ContactFormOptimized() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (validateForm()) {
       contactMutation.mutate(formData);
     }
@@ -376,7 +410,7 @@ export function ContactFormOptimized() {
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -405,7 +439,7 @@ export function ContactFormOptimized() {
       ...prev,
       dedicatedResourceDetails: {
         ...prev.dedicatedResourceDetails,
-        roles: prev.dedicatedResourceDetails.roles.map((role, i) => 
+        roles: prev.dedicatedResourceDetails.roles.map((role, i) =>
           i === index ? { ...role, [field]: value } : role
         )
       }
@@ -425,7 +459,7 @@ export function ContactFormOptimized() {
   const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
     setFormData(prev => ({
       ...prev,
-      [field]: checked 
+      [field]: checked
         ? [...(prev[field as keyof ContactFormData] as string[]), value]
         : (prev[field as keyof ContactFormData] as string[]).filter(item => item !== value)
     }));
@@ -433,7 +467,7 @@ export function ContactFormOptimized() {
 
   const getAvailableTiers = () => {
     if (!formData.websiteDetails.platform) return [];
-    
+
     return websiteTiers.filter(tier => {
       if (tier.platform) return tier.platform === formData.websiteDetails.platform;
       if (tier.platforms) return tier.platforms.includes(formData.websiteDetails.platform);
@@ -441,12 +475,40 @@ export function ContactFormOptimized() {
     });
   };
 
+  {/* <div>
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={(e) => handleInputChange('phone', e.target.value)}
+                placeholder="Enter your phone number"
+                autoComplete="tel"
+              />
+  </div> */}
+
   return (
     <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-8">
+      <CardContent className="p-8 relative" id="contact-form">
+        {formData.couponCode && (
+          <>
+            <div className="hidden md:flex absolute top-3 right-4 items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1 shadow-sm">
+              <Gift className="w-4 h-4 text-emerald-600" />
+              <span className="text-xs font-bold text-emerald-800">
+                Coupon <span className="font-bold">{formData.couponCode}</span> applied
+              </span>
+            </div>
 
+            <div className="md:hidden mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-2">
+              <Gift className="w-4 h-4 text-emerald-600" />
+              <div className="text-xs text-emerald-800">
+                <span className="font-bold">Coupon {formData.couponCode}</span> will be applied to your project.
+              </div>
+            </div>
+          </>
+        )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 p-2">
           {/* Personal Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -455,12 +517,14 @@ export function ContactFormOptimized() {
                 id="name"
                 type="text"
                 value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
-                className={errors.name ? 'border-red-500' : ''}
+                className={errors.name ? "border-red-500" : ""}
                 autoComplete="name"
               />
-              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              {errors.name && (
+                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+              )}
             </div>
 
             <div>
@@ -469,12 +533,14 @@ export function ContactFormOptimized() {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleInputChange('email', e.target.value)}
+                onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="Enter your email address"
-                className={errors.email ? 'border-red-500' : ''}
+                className={errors.email ? "border-red-500" : ""}
                 autoComplete="email"
               />
-              {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              )}
             </div>
           </div>
 
@@ -485,23 +551,36 @@ export function ContactFormOptimized() {
                 id="company"
                 type="text"
                 value={formData.company}
-                onChange={(e) => handleInputChange('company', e.target.value)}
+                onChange={(e) => handleInputChange("company", e.target.value)}
                 placeholder="Enter your company name"
-                className={errors.company ? 'border-red-500' : ''}
+                className={errors.company ? "border-red-500" : ""}
                 autoComplete="organization"
               />
-              {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
+              {errors.company && (
+                <p className="text-red-500 text-sm mt-1">{errors.company}</p>
+              )}
             </div>
 
             <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
+              <Label
+                htmlFor="phone"
+                className="text-sm font-medium text-gray-700"
+              >
+                Phone Number
+              </Label>
+
+              <PhoneInput
+                country={"us"}
                 value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="Enter your phone number"
-                autoComplete="tel"
+                onChange={(value) => handleInputChange("phone", value)}
+                inputProps={{
+                  name: "phone",
+                  id: "phone",
+                  className:
+                    "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+                  required: false,
+                }}
+                containerClass="w-full"
               />
             </div>
           </div>
@@ -509,35 +588,49 @@ export function ContactFormOptimized() {
           {/* Project Details */}
           <div>
             <Label htmlFor="service">Service Needed *</Label>
-            <Select value={formData.service} onValueChange={(value) => handleInputChange('service', value)}>
-              <SelectTrigger className={errors.service ? 'border-red-500' : ''}>
+            <Select
+              value={formData.service}
+              onValueChange={(value) => handleInputChange("service", value)}
+            >
+              <SelectTrigger
+                className={errors.service ? "border-red-500" : ""}
+              >
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
               <SelectContent>
-                {services.map(service => (
+                {services.map((service) => (
                   <SelectItem key={service.value} value={service.value}>
                     {service.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.service && <p className="text-red-500 text-sm mt-1">{errors.service}</p>}
+            {errors.service && (
+              <p className="text-red-500 text-sm mt-1">{errors.service}</p>
+            )}
           </div>
 
           {/* Website Development Details */}
-          {formData.service === 'website-development' && (
+          {formData.service === "website-development" && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in Website Development? *</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900">
+                What are you specifically looking for in Website Development? *
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label>Platform</Label>
-                  <Select value={formData.websiteDetails.platform} onValueChange={(value) => handleWebsiteDetailsChange('platform', value)}>
+                  <Select
+                    value={formData.websiteDetails.platform}
+                    onValueChange={(value) =>
+                      handleWebsiteDetailsChange("platform", value)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Choose platform..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {websitePlatforms.map(platform => (
+                      {websitePlatforms.map((platform) => (
                         <SelectItem key={platform.value} value={platform.value}>
                           {platform.label}
                         </SelectItem>
@@ -549,12 +642,17 @@ export function ContactFormOptimized() {
                 {formData.websiteDetails.platform && (
                   <div>
                     <Label>Tier</Label>
-                    <Select value={formData.websiteDetails.tier} onValueChange={(value) => handleWebsiteDetailsChange('tier', value)}>
+                    <Select
+                      value={formData.websiteDetails.tier}
+                      onValueChange={(value) =>
+                        handleWebsiteDetailsChange("tier", value)
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Choose tier..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {getAvailableTiers().map(tier => (
+                        {getAvailableTiers().map((tier) => (
                           <SelectItem key={tier.value} value={tier.value}>
                             {tier.label}
                           </SelectItem>
@@ -569,8 +667,16 @@ export function ContactFormOptimized() {
                 <h4 className="font-medium text-gray-700">Selected:</h4>
                 {formData.websiteDetails.platform && (
                   <Badge variant="outline" className="mr-2">
-                    {websitePlatforms.find(p => p.value === formData.websiteDetails.platform)?.label}
-                    {formData.websiteDetails.tier && ` - ${getAvailableTiers().find(t => t.value === formData.websiteDetails.tier)?.label}`}
+                    {
+                      websitePlatforms.find(
+                        (p) => p.value === formData.websiteDetails.platform
+                      )?.label
+                    }
+                    {formData.websiteDetails.tier &&
+                      ` - ${getAvailableTiers().find(
+                        (t) => t.value === formData.websiteDetails.tier
+                      )?.label
+                      }`}
                   </Badge>
                 )}
               </div>
@@ -578,35 +684,47 @@ export function ContactFormOptimized() {
           )}
 
           {/* Dedicated Resources Details */}
-          {formData.service === 'dedicated-resources' && (
+          {formData.service === "dedicated-resources" && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in Dedicated Resource? *</h3>
-              
+              <h3 className="text-lg font-semibold text-gray-900">
+                What are you specifically looking for in Dedicated Resource? *
+              </h3>
+
               <div className="space-y-4">
                 {formData.dedicatedResourceDetails.roles.map((role, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                  <div
+                    key={index}
+                    className="border border-gray-200 rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex justify-between items-center">
-                      <h4 className="font-medium text-gray-700">Resource #{index + 1}</h4>
+                      <h4 className="font-medium text-gray-700">
+                        Resource #{index + 1}
+                      </h4>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
                         onClick={() => handleResourceRoleRemove(index)}
-                        className="text-red-600 ed-700"
+                        className="text-red-600"
                       >
                         <Minus className="w-4 h-4" />
                       </Button>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
                         <Label>Role Type</Label>
-                        <Select value={role.type} onValueChange={(value) => handleResourceRoleUpdate(index, 'type', value)}>
+                        <Select
+                          value={role.type}
+                          onValueChange={(value) =>
+                            handleResourceRoleUpdate(index, "type", value)
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder="Choose role..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {dedicatedResourceTypes.map(type => (
+                            {dedicatedResourceTypes.map((type) => (
                               <SelectItem key={type.value} value={type.value}>
                                 {type.label}
                               </SelectItem>
@@ -618,16 +736,28 @@ export function ContactFormOptimized() {
                       {role.type && (
                         <div>
                           <Label>Skill Level</Label>
-                          <Select value={role.skillLevel} onValueChange={(value) => handleResourceRoleUpdate(index, 'skillLevel', value)}>
+                          <Select
+                            value={role.skillLevel}
+                            onValueChange={(value) =>
+                              handleResourceRoleUpdate(
+                                index,
+                                "skillLevel",
+                                value
+                              )
+                            }
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Choose level..." />
                             </SelectTrigger>
                             <SelectContent>
-                              {dedicatedResourceTypes.find(t => t.value === role.type)?.skillLevels.map(level => (
-                                <SelectItem key={level} value={level}>
-                                  {level.charAt(0).toUpperCase() + level.slice(1)}
-                                </SelectItem>
-                              ))}
+                              {dedicatedResourceTypes
+                                .find((t) => t.value === role.type)
+                                ?.skillLevels.map((level) => (
+                                  <SelectItem key={level} value={level}>
+                                    {level.charAt(0).toUpperCase() +
+                                      level.slice(1)}
+                                  </SelectItem>
+                                ))}
                             </SelectContent>
                           </Select>
                         </div>
@@ -640,7 +770,13 @@ export function ContactFormOptimized() {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => handleResourceRoleUpdate(index, 'quantity', Math.max(1, role.quantity - 1))}
+                            onClick={() =>
+                              handleResourceRoleUpdate(
+                                index,
+                                "quantity",
+                                Math.max(1, role.quantity - 1)
+                              )
+                            }
                           >
                             <Minus className="w-4 h-4" />
                           </Button>
@@ -648,14 +784,26 @@ export function ContactFormOptimized() {
                             type="number"
                             min="1"
                             value={role.quantity}
-                            onChange={(e) => handleResourceRoleUpdate(index, 'quantity', parseInt(e.target.value) || 1)}
+                            onChange={(e) =>
+                              handleResourceRoleUpdate(
+                                index,
+                                "quantity",
+                                parseInt(e.target.value) || 1
+                              )
+                            }
                             className="text-center w-16"
                           />
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() => handleResourceRoleUpdate(index, 'quantity', role.quantity + 1)}
+                            onClick={() =>
+                              handleResourceRoleUpdate(
+                                index,
+                                "quantity",
+                                role.quantity + 1
+                              )
+                            }
                           >
                             <Plus className="w-4 h-4" />
                           </Button>
@@ -677,15 +825,25 @@ export function ContactFormOptimized() {
 
                 {formData.dedicatedResourceDetails.roles.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="font-medium text-gray-700">Selected Resources:</h4>
+                    <h4 className="font-medium text-gray-700">
+                      Selected Resources:
+                    </h4>
                     <div className="flex flex-wrap gap-2">
-                      {formData.dedicatedResourceDetails.roles.map((role, index) => (
-                        role.type && role.skillLevel && (
-                          <Badge key={index} variant="outline">
-                            {role.quantity}x {dedicatedResourceTypes.find(t => t.value === role.type)?.label} ({role.skillLevel})
-                          </Badge>
-                        )
-                      ))}
+                      {formData.dedicatedResourceDetails.roles.map(
+                        (role, index) =>
+                          role.type &&
+                          role.skillLevel && (
+                            <Badge key={index} variant="outline">
+                              {role.quantity}x{" "}
+                              {
+                                dedicatedResourceTypes.find(
+                                  (t) => t.value === role.type
+                                )?.label
+                              }{" "}
+                              ({role.skillLevel})
+                            </Badge>
+                          )
+                      )}
                     </div>
                   </div>
                 )}
@@ -694,18 +852,32 @@ export function ContactFormOptimized() {
           )}
 
           {/* SEO Services Details */}
-          {formData.service === 'seo' && (
+          {formData.service === "seo" && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in SEO Services? *</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                What are you specifically looking for in SEO Services? *
+              </h3>
               <div className="grid grid-cols-1 gap-3">
-                {seoTypes.map(type => (
-                  <div key={type.value} className="flex items-center space-x-2">
+                {seoTypes.map((type) => (
+                  <div
+                    key={type.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={type.value}
                       checked={formData.seoDetails.includes(type.value)}
-                      onCheckedChange={(checked) => handleCheckboxChange('seoDetails', type.value, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          "seoDetails",
+                          type.value,
+                          checked as boolean
+                        )
+                      }
                     />
-                    <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                    <Label
+                      htmlFor={type.value}
+                      className="text-sm font-normal cursor-pointer"
+                    >
                       {type.label}
                     </Label>
                   </div>
@@ -715,18 +887,34 @@ export function ContactFormOptimized() {
           )}
 
           {/* Google Ads Details */}
-          {formData.service === 'google-ads' && (
+          {formData.service === "google-ads" && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in Google Ads? *</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                What are you specifically looking for in Google Ads? *
+              </h3>
               <div className="grid grid-cols-1 gap-3">
-                {googleAdsTiers.map(tier => (
-                  <div key={tier.value} className="flex items-center space-x-2">
+                {googleAdsTiers.map((tier) => (
+                  <div
+                    key={tier.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={tier.value}
-                      checked={formData.googleAdsDetails.includes(tier.value)}
-                      onCheckedChange={(checked) => handleCheckboxChange('googleAdsDetails', tier.value, checked as boolean)}
+                      checked={formData.googleAdsDetails.includes(
+                        tier.value
+                      )}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          "googleAdsDetails",
+                          tier.value,
+                          checked as boolean
+                        )
+                      }
                     />
-                    <Label htmlFor={tier.value} className="text-sm font-normal cursor-pointer">
+                    <Label
+                      htmlFor={tier.value}
+                      className="text-sm font-normal cursor-pointer"
+                    >
                       {tier.label}
                     </Label>
                   </div>
@@ -736,23 +924,39 @@ export function ContactFormOptimized() {
           )}
 
           {/* Custom Web & Mobile App Development Details */}
-          {formData.service === 'custom-app-development' && (
+          {formData.service === "custom-app-development" && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in Custom Web & Mobile App Development? *</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                What are you specifically looking for in Custom Web & Mobile
+                App Development? *
+              </h3>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
                 <p className="text-yellow-800 text-sm">
-                  <strong></strong> Custom Web & Mobile App Development services will be available shortly. Select your areas of interest below.
+                  Custom Web & Mobile App Development services will be
+                  available shortly. Select your areas of interest below.
                 </p>
               </div>
               <div className="grid grid-cols-1 gap-3">
-                {n8nTypes.map(type => (
-                  <div key={type.value} className="flex items-center space-x-2">
+                {n8nTypes.map((type) => (
+                  <div
+                    key={type.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={type.value}
                       checked={formData.n8nDetails.includes(type.value)}
-                      onCheckedChange={(checked) => handleCheckboxChange('n8nDetails', type.value, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          "n8nDetails",
+                          type.value,
+                          checked as boolean
+                        )
+                      }
                     />
-                    <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                    <Label
+                      htmlFor={type.value}
+                      className="text-sm font-normal cursor-pointer"
+                    >
                       {type.label}
                     </Label>
                   </div>
@@ -762,18 +966,33 @@ export function ContactFormOptimized() {
           )}
 
           {/* AI Development Details */}
-          {formData.service === 'ai-development' && (
+          {formData.service === "ai-development" && (
             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">What are you specifically looking for in AI Web Agents/AI Development? *</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                What are you specifically looking for in AI Web Agents/AI
+                Development? *
+              </h3>
               <div className="grid grid-cols-1 gap-3">
-                {aiTypes.map(type => (
-                  <div key={type.value} className="flex items-center space-x-2">
+                {aiTypes.map((type) => (
+                  <div
+                    key={type.value}
+                    className="flex items-center space-x-2"
+                  >
                     <Checkbox
                       id={type.value}
                       checked={formData.aiDetails.includes(type.value)}
-                      onCheckedChange={(checked) => handleCheckboxChange('aiDetails', type.value, checked as boolean)}
+                      onCheckedChange={(checked) =>
+                        handleCheckboxChange(
+                          "aiDetails",
+                          type.value,
+                          checked as boolean
+                        )
+                      }
                     />
-                    <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                    <Label
+                      htmlFor={type.value}
+                      className="text-sm font-normal cursor-pointer"
+                    >
                       {type.label}
                     </Label>
                   </div>
@@ -785,29 +1004,39 @@ export function ContactFormOptimized() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="region">Your Region *</Label>
-              <Select value={formData.region} onValueChange={(value) => handleInputChange('region', value)}>
-                <SelectTrigger className={errors.region ? 'border-red-500' : ''}>
+              <Select
+                value={formData.region}
+                onValueChange={(value) => handleInputChange("region", value)}
+              >
+                <SelectTrigger
+                  className={errors.region ? "border-red-500" : ""}
+                >
                   <SelectValue placeholder="Select your region" />
                 </SelectTrigger>
                 <SelectContent>
-                  {regions.map(region => (
+                  {regions.map((region) => (
                     <SelectItem key={region.value} value={region.value}>
                       {region.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.region && <p className="text-red-500 text-sm mt-1">{errors.region}</p>}
+              {errors.region && (
+                <p className="text-red-500 text-sm mt-1">{errors.region}</p>
+              )}
             </div>
 
             <div>
               <Label htmlFor="budget">Project Budget</Label>
-              <Select value={formData.budget} onValueChange={(value) => handleInputChange('budget', value)}>
+              <Select
+                value={formData.budget}
+                onValueChange={(value) => handleInputChange("budget", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select budget range" />
                 </SelectTrigger>
                 <SelectContent>
-                  {budgets.map(budget => (
+                  {budgets.map((budget) => (
                     <SelectItem key={budget.value} value={budget.value}>
                       {budget.label}
                     </SelectItem>
@@ -819,12 +1048,15 @@ export function ContactFormOptimized() {
 
           <div>
             <Label htmlFor="timeline">Timeline</Label>
-            <Select value={formData.timeline} onValueChange={(value) => handleInputChange('timeline', value)}>
+            <Select
+              value={formData.timeline}
+              onValueChange={(value) => handleInputChange("timeline", value)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select timeline" />
               </SelectTrigger>
               <SelectContent>
-                {timelines.map(timeline => (
+                {timelines.map((timeline) => (
                   <SelectItem key={timeline.value} value={timeline.value}>
                     {timeline.label}
                   </SelectItem>
@@ -838,7 +1070,9 @@ export function ContactFormOptimized() {
             <Textarea
               id="message"
               value={formData.message}
-              onChange={(e) => handleInputChange('message', e.target.value)}
+              onChange={(e) =>
+                handleInputChange("message", e.target.value)
+              }
               placeholder="Tell us about your agency and goals... (Optional)"
               className="min-h-[120px]"
               rows={5}
@@ -851,7 +1085,9 @@ export function ContactFormOptimized() {
               id="referral"
               type="text"
               value={formData.referral}
-              onChange={(e) => handleInputChange('referral', e.target.value)}
+              onChange={(e) =>
+                handleInputChange("referral", e.target.value)
+              }
               placeholder="Google, referral, social media, etc."
             />
           </div>
@@ -870,7 +1106,9 @@ export function ContactFormOptimized() {
                   type="text"
                   placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
                   value={formData.couponCode}
-                  onChange={(e) => handleInputChange('couponCode', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("couponCode", e.target.value)
+                  }
                   className="flex-1"
                 />
                 {formData.couponCode && (
@@ -878,27 +1116,29 @@ export function ContactFormOptimized() {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => handleInputChange('couponCode', '')}
+                    onClick={() => handleInputChange("couponCode", "")}
                   >
                     Clear
                   </Button>
                 )}
               </div>
               {formData.couponCode && (
-                <p className="text-sm text-green-600 mt-1 flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" />
-                  Coupon code "{formData.couponCode}" will be applied to your project
+                <p className="text-xs text-gray-500 mt-1">
+                  You can update or clear the code here. The applied coupon is
+                  shown at the top-right of this form.
                 </p>
               )}
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 urple-700 ink-700 text-white font-semibold py-4 text-lg"
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 lg:text-lg md:text-md sm:text-md"
             disabled={contactMutation.isPending}
           >
-            {contactMutation.isPending ? "Sending..." : "Schedule Free Consultation"}
+            {contactMutation.isPending
+              ? "Sending..."
+              : "Schedule Free Consultation"}
           </Button>
         </form>
       </CardContent>

@@ -16,11 +16,11 @@ import { NewsletterSubscribersManager } from "@/components/admin/newsletter-subs
 import { BlogPostsManager } from "@/components/admin/blog-posts-manager";
 import { PortfolioItemsManager } from "@/components/admin/portfolio-items-manager";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Settings, 
-  Users, 
-  FileText, 
-  DollarSign, 
+import {
+  Settings,
+  Users,
+  FileText,
+  DollarSign,
   Star,
   BarChart3,
   Target,
@@ -44,6 +44,7 @@ export default function Admin() {
   const [loginError, setLoginError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loggingIn, setLoggingIn] = useState(false);
+
 
   // Mock state setters for data fetching, these would typically be managed by useQuery or useState directly
   const [contacts, setContacts] = useState<any[]>([]);
@@ -303,8 +304,8 @@ export default function Admin() {
                   </div>
                 )}
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-brand-purple hover:bg-brand-purple/90"
                   disabled={loggingIn}
                 >
@@ -340,7 +341,7 @@ export default function Admin() {
       bgColor: "bg-yellow-50"
     },
     {
-      title: "Case Studies", 
+      title: "Case Studies",
       value: caseStudiesQuery.data?.length || 0,
       icon: FileText,
       color: "text-blue-600",
@@ -402,8 +403,8 @@ export default function Admin() {
                 </div>
               </div>
 
-              <Button 
-                onClick={handleLogout} 
+              <Button
+                onClick={handleLogout}
                 variant="outline"
                 className="text-red-600 hover:bg-red-50"
               >
@@ -418,15 +419,68 @@ export default function Admin() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-9">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="contacts">Contacts</TabsTrigger>
-              <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
-              <TabsTrigger value="featured-clients">Featured Clients</TabsTrigger>
-              <TabsTrigger value="case-studies">Case Studies</TabsTrigger>
-              <TabsTrigger value="pricing">Pricing</TabsTrigger>
-              <TabsTrigger value="service-pages">Service Pages</TabsTrigger>
-              <TabsTrigger value="blog-posts">Blog Posts</TabsTrigger>
-              <TabsTrigger value="portfolio-items">Portfolio</TabsTrigger>
+              <TabsTrigger
+                value="overview"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Overview
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="contacts"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Contacts
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="newsletter"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Newsletter
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="featured-clients"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Featured Clients
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="case-studies"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Case Studies
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="pricing"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Pricing
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="service-pages"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Service Pages
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="blog-posts"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Blog Posts
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="portfolio-items"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Portfolio
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -487,8 +541,8 @@ export default function Admin() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      <Button 
-                        className="w-full justify-start" 
+                      <Button
+                        className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("featured-clients");
@@ -498,8 +552,8 @@ export default function Admin() {
                         <Star className="w-4 h-4 mr-2" />
                         Add Featured Client
                       </Button>
-                      <Button 
-                        className="w-full justify-start" 
+                      <Button
+                        className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("case-studies");
@@ -509,8 +563,8 @@ export default function Admin() {
                         <FileText className="w-4 h-4 mr-2" />
                         Create Case Study
                       </Button>
-                      <Button 
-                        className="w-full justify-start" 
+                      <Button
+                        className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("pricing");
@@ -520,8 +574,8 @@ export default function Admin() {
                         <DollarSign className="w-4 h-4 mr-2" />
                         Manage Pricing
                       </Button>
-                      <Button 
-                        className="w-full justify-start" 
+                      <Button
+                        className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("service-pages");
@@ -531,8 +585,8 @@ export default function Admin() {
                         <Briefcase className="w-4 h-4 mr-2" />
                         Edit Service Pages
                       </Button>
-                      <Button 
-                        className="w-full justify-start" 
+                      <Button
+                        className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("contacts");
@@ -542,8 +596,8 @@ export default function Admin() {
                         <MessageCircle className="w-4 h-4 mr-2" />
                         View Contacts
                       </Button>
-                      <Button 
-                        className="w-full justify-start" 
+                      <Button
+                        className="w-full justify-start"
                         variant="outline"
                         onClick={() => setActiveTab("blog-posts")}
                       >
@@ -595,3 +649,5 @@ export default function Admin() {
     </div>
   );
 }
+
+
