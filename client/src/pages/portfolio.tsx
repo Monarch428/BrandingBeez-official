@@ -96,7 +96,7 @@ const defaultContent: PortfolioContent = {
     heroStats: [
         { kpi: "15+", label: "Projects Delivered" },
         { kpi: "$127K", label: "Total Value Created" },
-        { kpi: "325%", label: "Average ROI" },
+        { kpi: "0%", label: "Average ROI" },
     ],
     heroPrimaryCtaText: "Explore Case Studies",
     heroPrimaryCtaHref: "/case-studies",

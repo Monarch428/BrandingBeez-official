@@ -1564,7 +1564,7 @@ export default function Services() {
                   className="group h-12 rounded-xl bg-yellow-400 px-8 font-bold text-brand-purple shadow-md transition-all hover:translate-y-[-1px] hover:bg-yellow-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-yellow-300"
                   aria-label="Claim 50% discount now"
                 >
-                  <Link href="/contact?coupon=SEO50&service=seo">
+                  <Link href="/contact?coupon=SEO50&service=seo#contact-form">
                     <span className="mr-2">🚀 Claim 50% Discount Now</span>
                     <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
                   </Link>
