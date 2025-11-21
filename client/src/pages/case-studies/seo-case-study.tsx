@@ -912,10 +912,8 @@ export default function SEOCaseStudy() {
                         variant="outline"
                         className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                         onClick={() =>
-                          window.open(
-                            "https://calendly.com/vignesh-velusamy/30min",
-                            "_blank",
-                          )
+                          // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                          window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
                         }
                       >
                         <Calendar className="w-4 h-4 mr-2" />

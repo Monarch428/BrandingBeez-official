@@ -299,3 +299,93 @@ db.getCollection("portfolio_items").insertMany([
     serviceCategory: "custom-app-development"
   }
 ])
+
+
+
+<section className="py-20 px-6 bg-gradient-to-br from-[#2B0A3D] via-[#4D1A59] to-[#8A2E70] text-white">
+            <div className="max-w-7xl mx-auto">
+
+              {/* SECTION HEADER */}
+              <div className="text-center mb-12">
+                <h2 className="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+                  🚀 NEW: AI Search Optimization (AIO)
+                </h2>
+                <h3 className="text-4xl font-bold mb-4">Rank Inside AI Search Results</h3>
+                <p className="text-xl text-white/80 max-w-3xl mx-auto">
+                  Get your brand ranked in Google SGE, Perplexity, Copilot, ChatGPT Search
+                  — the future of search visibility.
+                </p>
+              </div>
+
+              {/* 3 PACKAGE CARDS */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                {/* STARTER AIO */}
+                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
+                  <h4 className="text-2xl font-bold mb-2">Starter AIO</h4>
+                  <p className="text-3xl font-extrabold text-brand-yellow mb-4">$650 <span className="text-lg text-white/90">/mo</span></p>
+                  <ul className="space-y-2 text-white/90 mb-6">
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> AIO baseline audit</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 10 AI-intent keywords</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 5 pages AI-formatted</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> Basic schema + entity setup</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 1 AIO blog / month</li>
+                  </ul>
+                  <Link href="/services/ai-search-optimization">
+                    <Button className="w-full bg-white text-brand-purple hover:bg-brand-coral hover:text-white">
+                      Learn More <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+
+                {/* GROWTH AIO */}
+                <div className="rounded-2xl bg-white/20 border-2 border-brand-yellow p-7 shadow-2xl backdrop-blur-xl scale-[1.03]">
+                  <Badge className="bg-brand-yellow text-black mb-3 px-3 py-1">Most Popular</Badge>
+                  <h4 className="text-2xl font-bold mb-2">Growth AIO</     h4>
+                  <p className="text-3xl font-extrabold text-brand-yellow mb-4">$900 <span className="text-lg text-white/90">/mo</span></p>
+                  <ul className="space-y-2 text-white/90 mb-6">
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> Full semantic AIO audit</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 25 AI-intent keywords</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 10 pages rewritten</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> Enhanced schema & topic graph</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 2 blogs + 5 links / month</li>
+                  </ul>
+                  <Link href="/services/ai-search-optimization">
+                    <Button className="w-full bg-brand-purple text-white hover:bg-brand-coral hover:text-white">
+                      Learn More <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+
+                {/* PRO AIO */}
+                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
+                  <h4 className="text-2xl font-bold mb-2">Pro AIO</h4>
+                  <p className="text-3xl font-extrabold text-brand-yellow mb-4">$1,200 <span className="text-lg text-white/90">/mo</span></p>
+                  <ul className="space-y-2 text-white/90 mb-6">
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> Deep AIO crawl</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 50+ AI-intent keywords</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 20 predictive-optimized pages</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> Advanced schema + topic clusters</li>
+                    <li className="flex gap-2"><CheckCircle className="w-5 h-5 text-green-300" /> 4 blogs + 10 links / month</li>
+                  </ul>
+                  <Link href="/services/ai-search-optimization">
+                    <Button className="w-full bg-white text-brand-purple hover:bg-brand-coral hover:text-white">
+                      Learn More <ArrowRight className="ml-2 w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+
+              </div>
+
+              {/* BOTTOM CTA */}
+              <div className="text-center mt-14">
+                <Link href="/services/ai-search-optimization">
+                  <Button className="bg-brand-coral text-white font-bold px-8 py-4 hover:bg-brand-purple hover:text-white">
+                    Explore Full AIO Service
+                    {/* <ArrowRight className="ml-2 w-4 h-4" /> */}
+                  </Button>
+                </Link>
+              </div>
+
+            </div>
+          </section>

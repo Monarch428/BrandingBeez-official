@@ -91,10 +91,8 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                       size="lg"
                       className="bg-white text-brand-purple hover:bg-white/90"
                       onClick={() =>
-                        window.open(
-                          "https://calendly.com/vignesh-velusamy/30min",
-                          "_blank",
-                        )
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
                       }
                     >
                       Start Your Brand Project

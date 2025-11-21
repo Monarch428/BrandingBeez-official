@@ -143,7 +143,7 @@ const pricingPackages = [
   {
     id: 1,
     name: "Starter SEO",
-    price: "$400",
+    price: "$500",
     period: "/month",
     description: "Perfect for local businesses and startups",
     features: [
@@ -341,8 +341,6 @@ export default function SEOServices() {
               </div>
             </div>
           </section>
-
-
 
           {/* Case Studies Section */}
           <section className="py-16 px-4 bg-gray-50">
@@ -586,6 +584,113 @@ export default function SEOServices() {
             </div>
           </section>
 
+          {/* AI SEARCH OPTIMIZATION (AIO) OVERVIEW SECTION */}
+          <section className="py-20 px-6 bg-gradient-to-br from-[#2B0A3D] via-[#4D1A59] to-[#8A2E70] text-white">
+            <div className="max-w-7xl mx-auto">
+
+              {/* SECTION HEADER */}
+              <div className="text-center mb-12">
+                <h2 className="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+                  🚀 NEW: AI Search Optimization (AIO)
+                </h2>
+                <h3 className="text-4xl font-bold mb-4">Rank Inside AI Search Results</h3>
+                <p className="text-xl text-white/80 max-w-3xl mx-auto">
+                  AI Search Optimization (AIO) is how we help your brand show up inside
+                  AI-generated answers across Google SGE, Perplexity, Copilot, and ChatGPT
+                  — not just in traditional blue links.
+                </p>
+              </div>
+
+              {/* 3 EXPLANATION CARDS – NOT PACKAGES */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                {/* AIO FOR LOCAL & EARLY-STAGE BRANDS */}
+                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
+                  <h4 className="text-2xl font-bold mb-3">AIO for Local & Early-Stage Brands</h4>
+                  <p className="text-white/90 text-sm leading-relaxed mb-5">
+                    For businesses who’ve never thought about AI search before. We focus on making
+                    sure AI tools can clearly understand who you are, what you do, and where you operate.
+                  </p>
+                  <ul className="space-y-2 text-white/90 text-sm">
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Clarify your brand, service, and location entities for AI engines.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Shape key pages so they’re easy for AI to quote as an answer.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Lay the foundation for appearing in local AI search results.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* AIO FOR GROWING COMPANIES */}
+                <div className="rounded-2xl bg-white/20 border border-brand-yellow/80 p-7 shadow-2xl backdrop-blur-xl scale-[1.02]">
+                  <h4 className="text-2xl font-bold mb-3">AIO for Growing Companies & Agencies</h4>
+                  <p className="text-white/90 text-sm leading-relaxed mb-5">
+                    For brands that already get SEO traffic and now want to be seen repeatedly
+                    inside AI answer summaries, comparison blocks, and conversational searches.
+                  </p>
+                  <ul className="space-y-2 text-white/90 text-sm">
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Build topic clusters so AI treats you as an authority, not just a result.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Re-structure key pages for answer extraction and rich AI snippets.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Align schema, internal links, and content with AI-first intent.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* AIO FOR ENTERPRISE & E-COMMERCE */}
+                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
+                  <h4 className="text-2xl font-bold mb-3">AIO for Enterprise & E-Commerce</h4>
+                  <p className="text-white/90 text-sm leading-relaxed mb-5">
+                    For teams managing multiple locations, products, or service lines who need
+                    AI visibility at scale across markets, categories, and brand experiences.
+                  </p>
+                  <ul className="space-y-2 text-white/90 text-sm">
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Align technical SEO, Core Web Vitals, and AIO signals together.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Design full topic graphs and entity networks across products & regions.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Track AI surfacing across SGE, Perplexity, Copilot & ChatGPT Search.</span>
+                    </li>
+                  </ul>
+                </div>
+
+              </div>
+
+              {/* BOTTOM CTA */}
+              <div className="text-center mt-14">
+                <Link href="/services/ai-search-optimization">
+                  <Button
+                    className="bg-brand-coral text-white font-bold px-8 py-4 hover:bg-brand-purple hover:text-white"
+                  >
+                    Explore Full AIO Service 
+                  </Button>
+                </Link>
+              </div>
+
+            </div>
+          </section>
+
+
+
           {/* Pricing Packages Section */}
           <section className="py-16 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
@@ -703,7 +808,6 @@ export default function SEOServices() {
               </div>
             </div>
           </section>
-
 
           {/* CTA Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">

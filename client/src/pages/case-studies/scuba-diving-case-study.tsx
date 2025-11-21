@@ -470,7 +470,8 @@ export default function ScubaDivingCaseStudy() {
                     className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   >
                     <a
-                      href="https://calendly.com/vignesh-velusamy/30min"
+                      // href="https://calendly.com/vignesh-velusamy/30min"
+                      href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

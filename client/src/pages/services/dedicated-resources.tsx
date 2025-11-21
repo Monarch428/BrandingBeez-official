@@ -575,7 +575,7 @@ export default function DedicatedResources() {
                   <CardHeader className="text-center pb-4 flex-shrink-0">
                     <h3 className="text-xl font-bold text-brand-purple">Individual Resources</h3>
                     <div className="mt-4">
-                      <div className="text-3xl font-extrabold text-brand-coral">From $800</div>
+                      <div className="text-3xl font-extrabold text-brand-coral">From $1200</div>
                       <div className="text-gray-900/70">/month per resource</div>
                     </div>
                   </CardHeader>

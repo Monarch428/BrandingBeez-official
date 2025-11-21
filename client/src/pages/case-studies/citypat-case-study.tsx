@@ -89,10 +89,8 @@ export default function CitypatCaseStudy() {
                     <Button
                       size="lg"
                       onClick={() =>
-                        window.open(
-                          "https://calendly.com/vignesh-velusamy/30min",
-                          "_blank",
-                        )
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
                       }
                       className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple mr-4"
                     >
@@ -553,10 +551,8 @@ export default function CitypatCaseStudy() {
                 <Button
                   size="lg"
                   onClick={() =>
-                    window.open(
-                      "https://calendly.com/vignesh-velusamy/30min",
-                      "_blank",
-                    )
+                    // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
                   }
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                 >

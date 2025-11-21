@@ -293,7 +293,7 @@ export default function AIDevelopment() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <Badge className="bg-yellow-400 text-brand-purple font-semibold">
+                    <Badge className="bg-white/20 text-white border-white/30">
                       🤖 AI Solutions
                     </Badge>
                     <Badge className="bg-white/20 text-white border-white/30">
@@ -317,11 +317,11 @@ export default function AIDevelopment() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button
                       size="lg"
-                      className="bg-yellow-400 text-brand-purple hover:bg-yellow-300 font-semibold"
+                      className="bg-white text-brand-purple hover:bg-brand-coral hover:text-white font-bold"
                       asChild
                     >
                       <Link href="/contact">
-                        🚀 Get AI Consultation
+                        Get AI Consultation
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Link>
                     </Button>
@@ -341,7 +341,7 @@ export default function AIDevelopment() {
                       <h2 className="text-2xl font-bold text-white mb-2">
                         Featured AI Client
                       </h2>
-                      <Badge className="bg-green-500 text-white">
+                      <Badge className="bg-brand-purple text-white">
                         Active Project
                       </Badge>
                     </div>
@@ -357,12 +357,12 @@ export default function AIDevelopment() {
                             AI Platform Implementation
                           </span>
                         </div>
-                        <Badge className="bg-yellow-400 text-brand-purple">
+                        <Badge className="bg-green-600 text-white font-bold">
                           Live
                         </Badge>
                       </div>
                       <div className="bg-white/10 rounded-lg p-4">
-                        <div className="text-yellow-400 text-2xl font-bold">
+                        <div className="text-white text-2xl font-bold">
                           85%
                         </div>
                         <div className="text-white/80 text-sm">
@@ -370,7 +370,7 @@ export default function AIDevelopment() {
                         </div>
                       </div>
                       <div className="bg-white/10 rounded-lg p-4">
-                        <div className="text-yellow-400 text-2xl font-bold">
+                        <div className="text-white text-2xl font-bold">
                           24/7
                         </div>
                         <div className="text-white/80 text-sm">
@@ -382,7 +382,7 @@ export default function AIDevelopment() {
                           href="https://octupus.ai"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-yellow-300 ellow-200 text-sm flex items-center gap-2 justify-center transition-colors"
+                          className="text-white hover:text-brand-purple font-bold ellow-200 text-sm flex items-center gap-2 justify-center transition-colors"
                         >
                           🌐 Visit Octupus.ai
                           <ArrowRight className="w-3 h-3" />
@@ -498,10 +498,10 @@ export default function AIDevelopment() {
                 <CardHeader className="bg-gradient-to-r from-brand-purple to-brand-coral text-white">
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                      <FileText className="w-8 h-8 text-yellow-300" />
+                      <FileText className="w-8 h-8 text-white" />
                     </div>
                     <div>
-                      <h3 className="bg-yellow-400 text-brand-purple font-semibold mb-2 inline-block px-4 py-2 rounded-full text-sm">
+                      <h3 className="bg-brand-coral text-white font-bold mb-2 inline-block px-4 py-2 rounded-full text-sm">
                         🎯 AI Development Case Study
                       </h3>
                       <h3 className="text-3xl font-bold text-white">
@@ -636,7 +636,7 @@ export default function AIDevelopment() {
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {aiServices.map((service) => {
                   const Icon = service.icon;
                   return (
@@ -692,7 +692,7 @@ export default function AIDevelopment() {
                     </Card>
                   );
                 })}
-              </div>
+              </div> */}
             </div>
           </section>
 
@@ -721,7 +721,7 @@ export default function AIDevelopment() {
                       />
                     </div>
                     <div>
-                      <h3 className="bg-yellow-400 text-brand-purple font-semibold mb-2 inline-block px-4 py-2 rounded-full text-sm">
+                      <h3 className="bg-brand-coral text-white font-semibold mb-2 inline-block px-4 py-2 rounded-full text-sm">
                         🚀 Featured Platform
                       </h3>
                       <h3 className="text-3xl font-bold text-white">
@@ -1120,7 +1120,7 @@ export default function AIDevelopment() {
           </section>
 
           {/* Pricing Section */}
-          <section className="py-20 px-4">
+          {/* <section className="py-20 px-4">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
                 <h2 className="text-4xl font-bold text-brand-purple mb-6">
@@ -1202,7 +1202,7 @@ export default function AIDevelopment() {
                 </Button>
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Technology Stack */}
           <section className="py-20 px-4 bg-gray-50">

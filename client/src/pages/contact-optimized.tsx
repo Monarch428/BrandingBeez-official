@@ -24,7 +24,8 @@ export default function Contact() {
   const { regionConfig } = useRegion();
 
   const openCalendly = () => {
-    window.open('https://calendly.com/vignesh-velusamy/30min', '_blank');
+    // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank');
+    window.open('https://calendar.app.google/Y8XZq71qtvPRhktH9', '_blank');
   };
 
   return (

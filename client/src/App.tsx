@@ -37,6 +37,8 @@ const DedicatedResources = lazy(
 );
 const AIDevelopment = lazy(() => import("@/pages/services/ai-development"));
 const N8NAutomations = lazy(() => import("@/pages/services/n8n-automations"));
+const AIO = lazy(() => import("@/pages/services/ai-search-optimization"));
+const custApp = lazy(() => import ("@/pages/services/custom-app-development"));
 
 // Tools and utilities - lazy loaded
 const SEOAudit = lazy(() => import("@/pages/seo-audit"));
@@ -186,6 +188,15 @@ function Router() {
         path="/services/n8n-automations"
         component={() => <LazyRoute component={N8NAutomations} />}
       />
+      <Route
+        path="/services/ai-search-optimization"
+        component={() => <LazyRoute component={AIO} />}
+      />
+      <Route
+        path="/services/custom-app-development"
+        component={() => <LazyRoute component={custApp} />}
+      />
+
       {/* <Route path="/blog" component={() => <LazyRoute component={Blog} />} /> */}
 
       <Route path="/blog" component={BlogPage} />
@@ -396,8 +407,8 @@ function App() {
             <Router />
             {/* <AIChatbot /> */}
             <CookieConsent />
-            <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
-            <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
+            {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
+            <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} /> */}
             <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
           </TooltipProvider>
         </QueryClientProvider>
