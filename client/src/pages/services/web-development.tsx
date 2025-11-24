@@ -35,6 +35,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { WebDevelopmentSchema } from "@/utils/all-schemas";
+import { navigate } from "wouter/use-browser-location";
 
 // Featured client data
 const featuredClient = {
@@ -445,7 +446,7 @@ export default function WebDevelopment() {
                 <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-                  onClick={() => window.open('/newsletter', '_blank')}
+                  onClick={() => navigate('/#newsletter')}
                 >Subscribe Now</Button>
               </div>
             </div>

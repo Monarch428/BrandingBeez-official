@@ -3267,9 +3267,9 @@ export default function PricingCalculator() {
                       <SelectContent>
                         <SelectItem value="dedicated-resources">Dedicated Resources</SelectItem>
                         <SelectItem value="google-ads">Google Ads Management</SelectItem>
-                        <SelectItem value="seo">SEO Services</SelectItem>
+                        <SelectItem value="seo">SEO / AIO Services</SelectItem>
                         <SelectItem value="web-development">Web Development</SelectItem>
-                        <SelectItem value="ai-development">AI Development</SelectItem>
+                        <SelectItem value="ai-development">AI powered Apps</SelectItem>
                       </SelectContent>
                     </Select>
                     {selectedService && (

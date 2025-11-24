@@ -997,7 +997,7 @@
 
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { HomeTeamBanner } from "@/components/home-team-banner";
@@ -1049,11 +1049,40 @@ import intrinsicLogo from "@assets/IMG-20250719-WA0276_1752907768844.jpg";
 import socialBrainLogo from "@assets/IMG-20250719-WA0277_1752907768845.jpg";
 import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
 import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
+import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
+import museLogo from "../../public/images/White-MDM-logo.webp";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
 
 export default function Home() {
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleScrollToNewsletter = () => {
+      const { hash } = window.location;
+      if (hash === "#newsletter") {
+        requestAnimationFrame(() => {
+          const targetEl = document.getElementById("newsletter");
+          if (targetEl) {
+            const headerOffset = 100;
+            const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
+            const offsetPosition = elementPosition - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+          }
+        });
+      }
+    };
+
+    setTimeout(handleScrollToNewsletter, 50);
+  }, []);
+
+
   const { regionConfig } = useRegion();
   const { toast } = useToast();
   const [showThankYouPopup, setShowThankYouPopup] = useState(false);
@@ -1570,6 +1599,27 @@ export default function Home() {
                           Social Brain
                         </p>
                       </div>
+                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
+                        <img
+                          src={fsbLogo}
+                          alt="FSB Digital"
+                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
+                        />
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">
+                          FSB Digital
+                        </p>
+                      </div>
+                      <div className="bg-blue-600 rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
+                        <img
+                          src={museLogo}
+                          alt="MUSE Digital Media"
+                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
+                          typeof=""
+                        />
+                        <p className="text-xs sm:text-sm font-medium text-gray-900">
+                          MUSE Digital Media
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1676,7 +1726,7 @@ export default function Home() {
           <section className="py-16 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
+                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                   Ready to Scale Your Agency?
                 </h2>
                 <p className="text-lg sm:text-md text-gray-700 px-4 sm:px-0">
@@ -2155,15 +2205,15 @@ export default function Home() {
           </section>
 
           {/* Newsletter CTA Section (inline newsletter page design) */}
-          <section className="py-16 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">
+          <section id="newsletter" className="py-16 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">
             <div className="text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
               <p className="text-lg text-white/90 mb-8">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
             </div>
             <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
               {/* Left: Newsletter content */}
               <div>
-                <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
+                <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-4">
                   Your Weekly 1-Minute Agency Growth Insights
                 </h2>
 

@@ -26,6 +26,7 @@ import {
   Gift
 } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { navigate } from "wouter/use-browser-location";
 
 // Featured Google Ads client data
 const featuredClient = {
@@ -572,7 +573,7 @@ export default function GoogleAds() {
                 <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white"
-                  onClick={() => window.open('/newsletter', '_blank')}
+                  onClick={() => navigate('/#newsletter')}
                 >
                   Subscribe Free
                 </Button>

@@ -28,6 +28,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { DedicatedResourcesSchema } from "@/utils/all-schemas";
+import { navigate } from "wouter/use-browser-location";
 
 export default function DedicatedResources() {
   return (
@@ -212,7 +213,11 @@ export default function DedicatedResources() {
                 </Card>
 
                 {/* 3 - SEO Specialist */}
-                <Card className="transition-shadow">
+                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow">
+                  <span className="absolute top-3 right-3 rounded-full bg-brand-coral text-white text-xs font-semibold px-3 py-1">
+                    Most in demand
+                  </span>
+
                   <div className="flex flex-row items-center gap-2 m-4">
                     <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
                       <TrendingUp className="w-6 h-6 text-white" />
@@ -242,7 +247,11 @@ export default function DedicatedResources() {
                 </Card>
 
                 {/* 4 - Google Ads Expert */}
-                <Card className="transition-shadow">
+                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow">
+                  <span className="absolute top-3 right-3 rounded-full bg-brand-coral text-white text-xs font-semibold px-3 py-1">
+                    Most in demand
+                  </span>
+
                   <div className="flex flex-row items-center gap-2 m-4">
                     <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
                       <Target className="w-6 h-6 text-white" />
@@ -268,7 +277,11 @@ export default function DedicatedResources() {
                 </Card>
 
                 {/* 5 - Web Developer */}
-                <Card className="transition-shadow">
+                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow">
+                  <span className="absolute top-3 right-3 rounded-full bg-brand-coral text-white text-xs font-semibold px-3 py-1">
+                    Most in demand
+                  </span>
+
                   <div className="flex flex-row items-center gap-2 m-4">
                     <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
                       <Building className="w-6 h-6 text-white" />
@@ -765,9 +778,9 @@ export default function DedicatedResources() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white hover:text-brand-purple bg-[#ee4977]"
-                  onClick={() => window.open('/newsletter', '_blank')}
+                  // variant="outline"
+                  className="text-white hover:bg-white hover:text-brand-purple bg-[#ee4977]"
+                  onClick={() => navigate('/#newsletter')}
                 >Subscribe Now</Button>
               </div>
             </div>

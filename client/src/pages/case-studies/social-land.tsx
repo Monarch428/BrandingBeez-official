@@ -23,6 +23,9 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SocialLandSchema } from "@/utils/all-schemas";
+import loguImage from "../../../../attached_assets/Logu_Stroke.png";
+import rajaImage from "../../../public/images/Raja-team-member.png";
+import jithenImage from "../../../public/images/Jithen-team-member.png";
 
 export default function SocialLandCaseStudy() {
   return (
@@ -126,7 +129,7 @@ export default function SocialLandCaseStudy() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Website Showcase
+                  The Team Involved
                 </h2>
                 <p className="text-gray-600 text-lg">
                   Project management metrics showing 150% project output increase and 60% cost savings
@@ -139,8 +142,8 @@ export default function SocialLandCaseStudy() {
                   <div className="bg-gradient-to-r from-brand-purple to-brand-coral text-white p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-xl font-bold">Desktop Experience</h3>
-                        <p className="text-white/90 text-sm">6-Person Specialist Partnership</p>
+                        {/* <h3 className="text-xl font-bold">Desktop Experience</h3> */}
+                        <h3 className="text-white/90 text-sm">6-Person Specialist Partnership</h3>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
@@ -151,7 +154,7 @@ export default function SocialLandCaseStudy() {
 
                   {/* Team Members Grid */}
                   <div className="p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                       {/* Priya - Graphic Designer */}
                       <div className="text-center">
                         <div className="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-3 border-brand-coral/20">
@@ -186,38 +189,55 @@ export default function SocialLandCaseStudy() {
                         <p className="text-xs text-brand-coral">Senior Graphic designer</p>
                       </div>
 
-                      {/* Niju - Video Editor */}
+                      {/* Jithen - Video Editor */}
                       <div className="text-center">
                         <div className="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-3 border-brand-coral/20">
                           <picture>
-                            <source srcSet="/images/niju-team-member.webp" type="image/webp" />
+                            <source srcSet={jithenImage} type="image/webp" />
                             <img
-                              src="/images/niju-team-member.png"
-                              alt="Niju - Video Editor"
+                              src={jithenImage}
+                              alt="Jithen - Video Editor"
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />
                           </picture>
                         </div>
-                        <h4 className="font-semibold text-gray-900 text-sm">Niju</h4>
-                        <p className="text-xs text-brand-coral">Wordpress developer</p>
+                        <h4 className="font-semibold text-gray-900 text-sm">Jithendran</h4>
+                        <p className="text-xs text-brand-coral">Video Editor</p>
                       </div>
 
-                      {/* Raje - SEO Specialist */}
+                      {/* Logu - Video Editor */}
                       <div className="text-center">
                         <div className="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-3 border-brand-coral/20">
                           <picture>
-                            <source srcSet="/images/raje-team-member.webp" type="image/webp" />
+                            <source srcSet={loguImage} type="image/webp" />
                             <img
-                              src="/images/raje-team-member.png"
-                              alt="Raje - SEO Specialist"
+                              src={loguImage}
+                              alt="Logu - Full Stack developer"
                               className="w-full h-full object-cover"
                               loading="lazy"
                             />
                           </picture>
                         </div>
-                        <h4 className="font-semibold text-gray-900 text-sm">Raje</h4>
-                        <p className="text-xs text-brand-coral">Manager</p>
+                        <h4 className="font-semibold text-gray-900 text-sm">Loguvan</h4>
+                        <p className="text-xs text-brand-coral">Full Stack developer</p>
+                      </div>
+
+                      {/* Raja - AI Specialist */}
+                      <div className="text-center">
+                        <div className="w-20 h-20 mx-auto mb-3 rounded-full overflow-hidden border-3 border-brand-coral/20">
+                          <picture>
+                            <source srcSet={rajaImage} type="image/webp" />
+                            <img
+                              src={rajaImage}
+                              alt="Raja - AI Specialist"
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                            />
+                          </picture>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 text-sm">Raja</h4>
+                        <p className="text-xs text-brand-coral">AI Specialist</p>
                       </div>
                     </div>
 
@@ -253,12 +273,12 @@ export default function SocialLandCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <h2 className="text-3xl font-bold text-brand-purple mb-6">
+                  {/* <h2 className="text-3xl font-bold text-brand-purple mb-6">
                     Project Overview
                   </h2>
                   <h3 className="text-xl font-semibold text-gray-900 mb-4">
                     Project Goals
-                  </h3>
+                  </h3> */}
                   <p className="text-lg text-gray-600 mb-6">
                     Social Land, a thriving UK digital marketing agency led by Joe
                     and George, wanted to scale operations, deliver more projects,
@@ -345,7 +365,7 @@ export default function SocialLandCaseStudy() {
           </section>
 
           {/* Team Composition Section */}
-          <section className="py-16 px-4 bg-gray-50">
+          {/* <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-brand-purple mb-4">
@@ -440,7 +460,7 @@ export default function SocialLandCaseStudy() {
                 </Card>
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Implementation Process Section */}
           <section className="py-16 px-4">
@@ -454,9 +474,9 @@ export default function SocialLandCaseStudy() {
                   one office
                 </p>
 
-                <h4 className="text-xl font-semibold text-gray-900 mb-6">
+                {/* <h4 className="text-xl font-semibold text-gray-900 mb-6">
                   Mobile-First Design
-                </h4>
+                </h4> */}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -584,14 +604,14 @@ export default function SocialLandCaseStudy() {
           {/* Results Section */}
           <section className="py-16 px-4 bg-gradient-to-br from-purple-50 to-pink-50">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
+              {/* <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-brand-purple mb-4">
                   Client Feedback
                 </h2>
                 <p className="text-xl text-gray-600">
                   Measurable transformation through borderless team collaboration
                 </p>
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
                 <Card className="text-center bg-white">
@@ -712,6 +732,14 @@ export default function SocialLandCaseStudy() {
           {/* Testimonial Section */}
           <section className="py-16 px-4">
             <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-bold text-brand-purple mb-4">
+                  Client Feedback
+                </h2>
+                <p className="text-xl text-gray-600">
+                  Measurable transformation through borderless team collaboration
+                </p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white">
                   <CardContent className="p-8">

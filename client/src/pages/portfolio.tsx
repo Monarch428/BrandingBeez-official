@@ -465,15 +465,15 @@ export default function PortfolioPage() {
                                 ))}
                             </div> */}
 
-                            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                                {primaryCtaText && (
+                            <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                {/* {primaryCtaText && (
                                     <Link href={primaryCtaHref}>
                                         <Button className="bg-white text-brand-purple hover:bg-brand-purple hover:text-white">
                                             {primaryCtaText}
                                             <ArrowRight className="ml-2 h-5 w-5" />
                                         </Button>
                                     </Link>
-                                )}
+                                )} */}
                                 {secondaryCtaText && (
                                     <Link href={secondaryCtaHref}>
                                         <Button

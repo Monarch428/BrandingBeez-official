@@ -143,7 +143,7 @@ const serviceCategories = [
       "API Development & Integrations",
       "Maintenance & Support"
     ],
-    metrics: "Average delivery time: 4–6 weeks",
+    metrics: "Average delivery time: 4–8 weeks",
     couponCode: "APP20",
     discount: "20% OFF",
     discountDescription: "your first app project",
@@ -1601,7 +1601,7 @@ export default function Services() {
               </h2>
               <p className="text-xl mb-8 text-gray-200">Get weekly insights, case studies, and proven strategies delivered to your inbox. Join 2,500+ marketing professionals who trust our expertise.</p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <Link href="/newsletter">
+                <Link href="/#newsletter">
                   <Button
                     size="lg"
                     className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white px-8 py-4 font-semibold transition-all duration-300"

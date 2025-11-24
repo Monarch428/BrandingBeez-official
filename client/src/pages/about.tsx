@@ -418,7 +418,7 @@ export default function About() {
                   <div className="bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl p-8 text-white text-center shadow-2xl w-full max-w-md">
 
                     {/* VIDEO ALWAYS SHOWN */}
-                    <div className="mb-6">
+                    <div className="mb-0">
                       <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
                         <iframe
                           className="w-full h-full"
@@ -431,7 +431,7 @@ export default function About() {
                     </div>
 
                     {/* DETAILS */}
-                    <div className="space-y-4 text-left">
+                    {/* <div className="space-y-4 text-left">
                       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
                         <h4 className="font-semibold mb-2">Our Mission</h4>
                         <p className="text-white/90 text-sm">
@@ -445,7 +445,7 @@ export default function About() {
                           "Every partnership is built on transparency, quality, and mutual success. Your growth is our success."
                         </p>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
 
                 </div>

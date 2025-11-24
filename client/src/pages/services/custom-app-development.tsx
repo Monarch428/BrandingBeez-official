@@ -23,12 +23,74 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+
+const applicationTypes = [
+    "Mobile App (iOS)",
+    "Mobile App (Android)",
+    "Cross-platform App",
+    "Web Application",
+    "Web + Mobile App",
+    "Not sure yet",
+];
+
+const userTypes = [
+    "Customers",
+    "Internal team",
+    "Vendors / partners",
+    "A mix of the above",
+];
+
+const mustHaveFeatures = [
+    "User accounts / login",
+    "Payment gateway",
+    "Booking / scheduling",
+    "Chat / messaging",
+    "Dashboard / reports",
+    "Push notifications",
+    "Maps / location tracking",
+    "API integrations",
+    "Something custom (explain)",
+];
+
+const buildTypeOptions = [
+    "New build",
+    "Upgrade / redesign",
+    "Migration from another platform",
+];
+
+const projectTimelines = [
+    "ASAP (1–3 months)",
+    "3–6 months",
+    "Flexible / not urgent",
+];
+
+const budgetRanges = [
+    "$5K–$10K",
+    "$10K–$20K",
+    "$20K–$40K",
+    "$40K+",
+    "Not sure yet",
+];
+
+const techPreferences = [
+    "iOS (Swift)",
+    "Android (Kotlin)",
+    "React Native",
+    "Flutter",
+    "Web (React / Next.js)",
+    "Not sure — need guidance",
+];
 
 export default function CustomAppDevelopment() {
     const { regionConfig } = useRegion();
 
     const redirectToContact = () => {
-        window.location.href = "/contact?service=Custom Web & Mobile App Development";
+        window.location.href =
+            "/contact?service=Custom Web & Mobile App Development";
     };
 
     const schemaData = {
@@ -50,6 +112,54 @@ export default function CustomAppDevelopment() {
             availability: "https://schema.org/InStock",
         },
     };
+
+    const [submitted, setSubmitted] = useState(false);
+    const [step, setStep] = useState(1);
+    const totalSteps = 10;
+
+    const [formData, setFormData] = useState({
+        applicationTypes: [] as string[],
+        appDescription: "",
+        userTypes: [] as string[],
+        mustHaveFeatures: [] as string[],
+        customFeatureDetails: "",
+        referenceApps: "",
+        buildType: "",
+        projectTimeline: "",
+        budgetRange: "",
+        techPreferences: [] as string[],
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+    });
+
+    const toggleArrayValue = (field: keyof typeof formData, value: string) => {
+        setFormData((prev) => {
+            const current = prev[field] as string[];
+            const exists = current.includes(value);
+            const next = exists
+                ? current.filter((v) => v !== value)
+                : [...current, value];
+            return { ...prev, [field]: next };
+        });
+    };
+
+    const handleNext = () => {
+        if (step < totalSteps) setStep(step + 1);
+    };
+
+    const handlePrev = () => {
+        if (step > 1) setStep(step - 1);
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        console.log("Custom App Questionnaire Submission:", formData);
+        setSubmitted(true);
+    };
+
+    const progress = (step / totalSteps) * 100;
 
     return (
         <>
@@ -178,121 +288,130 @@ export default function CustomAppDevelopment() {
                     {/* What We Build */}
                     <section className="py-16 px-4 bg-white">
                         <div className="max-w-7xl mx-auto">
+                            {/* HEADER */}
                             <div className="text-center mb-12">
                                 <h2 className="text-3xl font-bold text-brand-purple mb-4">
                                     What We Build
                                 </h2>
                                 <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                                    End-to-end product development across web, mobile, and
-                                    internal tools – matched to your workflow, users, and growth
-                                    goals.
+                                    End-to-end product development across web, mobile, and internal tools –
+                                    matched to your workflow, users, and growth goals.
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                                <Card>
-                                    <CardHeader>
-                                        <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                                            <Code className="w-6 h-6 text-brand-coral" />
+                            {/* GRID */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                                {/* CARD 1 */}
+                                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
+                                    <CardHeader className="flex flex-col items-start space-y-4 pb-0">
+                                        <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
+                                            <Code className="w-7 h-7 text-brand-coral" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-brand-purple">
+                                        <h3 className="text-xl font-bold text-brand-purple leading-snug">
                                             Custom Web Apps
                                         </h3>
                                     </CardHeader>
-                                    <CardContent>
-                                        <p className="text-gray-600 text-sm mb-3">
-                                            High-performance web applications, portals, and dashboards
-                                            built with modern front-end frameworks.
+
+                                    <CardContent className="mt-4 flex flex-col justify-between flex-1">
+                                        <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                                            High-performance web applications, portals, and dashboards built
+                                            with modern frameworks.
                                         </p>
                                         <ul className="space-y-2 text-sm text-gray-600">
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                Responsive, mobile-friendly UIs
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>Responsive, mobile-friendly UIs</span>
                                             </li>
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                Role-based dashboards & admin panels
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>Role-based dashboards & admin panels</span>
                                             </li>
                                         </ul>
                                     </CardContent>
                                 </Card>
 
-                                <Card>
-                                    <CardHeader>
-                                        <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                                            <Smartphone className="w-6 h-6 text-brand-coral" />
+                                {/* CARD 2 */}
+                                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
+                                    <CardHeader className="flex flex-col items-start space-y-4 pb-0">
+                                        <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
+                                            <Smartphone className="w-7 h-7 text-brand-coral" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-brand-purple">
+                                        <h3 className="text-xl font-bold text-brand-purple leading-snug">
                                             Mobile Apps (iOS & Android)
                                         </h3>
                                     </CardHeader>
-                                    <CardContent>
-                                        <p className="text-gray-600 text-sm mb-3">
-                                            Native-feel mobile experiences built with modern cross-
-                                            platform frameworks.
+
+                                    <CardContent className="mt-4 flex flex-col justify-between flex-1">
+                                        <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                                            Native-feel mobile experiences built with modern cross-platform
+                                            frameworks.
                                         </p>
                                         <ul className="space-y-2 text-sm text-gray-600">
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                iOS & Android from a single codebase
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>iOS & Android from a single codebase</span>
                                             </li>
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                App store deployment support
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>App store deployment support</span>
                                             </li>
                                         </ul>
                                     </CardContent>
                                 </Card>
 
-                                <Card>
-                                    <CardHeader>
-                                        <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                                            <LayoutTemplate className="w-6 h-6 text-brand-coral" />
+                                {/* CARD 3 */}
+                                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
+                                    <CardHeader className="flex flex-col items-start space-y-4 pb-0">
+                                        <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
+                                            <LayoutTemplate className="w-7 h-7 text-brand-coral" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-brand-purple">
+                                        <h3 className="text-xl font-bold text-brand-purple leading-snug">
                                             Full-Stack Platforms
                                         </h3>
                                     </CardHeader>
-                                    <CardContent>
-                                        <p className="text-gray-600 text-sm mb-3">
-                                            Business-critical platforms with secure backends, APIs,
-                                            and integrations.
+
+                                    <CardContent className="mt-4 flex flex-col justify-between flex-1">
+                                        <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                                            Business-critical platforms with secure backends, APIs, and
+                                            integrations.
                                         </p>
                                         <ul className="space-y-2 text-sm text-gray-600">
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                REST/GraphQL APIs & microservices
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>REST/GraphQL APIs & microservices</span>
                                             </li>
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                Integrations with CRM, ERP & third-party tools
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>Integrations with CRM, ERP & third-party tools</span>
                                             </li>
                                         </ul>
                                     </CardContent>
                                 </Card>
 
-                                <Card>
-                                    <CardHeader>
-                                        <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                                            <Shield className="w-6 h-6 text-brand-coral" />
+                                {/* CARD 4 */}
+                                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
+                                    <CardHeader className="flex flex-col items-start space-y-4 pb-0">
+                                        <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
+                                            <Shield className="w-7 h-7 text-brand-coral" />
                                         </div>
-                                        <h3 className="text-xl font-bold text-brand-purple">
+                                        <h3 className="text-xl font-bold text-brand-purple leading-snug">
                                             Maintenance & Support
                                         </h3>
                                     </CardHeader>
-                                    <CardContent>
-                                        <p className="text-gray-600 text-sm mb-3">
-                                            Ongoing care for your applications with monitoring,
-                                            updates, and enhancements.
+
+                                    <CardContent className="mt-4 flex flex-col justify-between flex-1">
+                                        <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+                                            Ongoing care for your applications with monitoring, updates, and
+                                            enhancements.
                                         </p>
                                         <ul className="space-y-2 text-sm text-gray-600">
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                Bug fixes & performance tuning
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>Bug fixes & performance tuning</span>
                                             </li>
-                                            <li className="flex items-center gap-2">
-                                                <CheckCircle className="w-4 h-4 text-green-500" />
-                                                New feature iterations & UX upgrades
+                                            <li className="flex items-start gap-2">
+                                                <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                                                <span>New feature iterations & UX upgrades</span>
                                             </li>
                                         </ul>
                                     </CardContent>
@@ -300,6 +419,7 @@ export default function CustomAppDevelopment() {
                             </div>
                         </div>
                     </section>
+
 
                     {/* Process (Lightweight) */}
                     <section className="py-16 px-4 bg-gray-50">
@@ -339,8 +459,8 @@ export default function CustomAppDevelopment() {
                                     </CardHeader>
                                     <CardContent>
                                         <p className="text-sm text-gray-600">
-                                            Wireframes, clickable prototypes, and visual design
-                                            aligned with your brand.
+                                            Wireframes, clickable prototypes, and visual design aligned
+                                            with your brand.
                                         </p>
                                     </CardContent>
                                 </Card>
@@ -378,6 +498,487 @@ export default function CustomAppDevelopment() {
                         </div>
                     </section>
 
+                    {/* === CUSTOM APP PROJECT QUESTIONNAIRE – SAME UI AS AI DEV === */}
+                    <section className="py-20 px-4 bg-white">
+                        <div className="max-w-5xl mx-auto">
+                            <div className="text-center mb-10">
+                                <h2 className="text-3xl md:text-4xl font-bold text-brand-purple mb-4">
+                                    Custom Mobile & Web Application – Simple Questionnaire
+                                </h2>
+                                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                                    Instead of generic pricing tables, answer a few focused
+                                    questions and we&apos;ll prepare a{" "}
+                                    <span className="font-semibold text-brand-coral">
+                                        tailored app scope & investment range
+                                    </span>{" "}
+                                    for your project.
+                                </p>
+                            </div>
+
+                            <Card className="shadow-xl">
+                                <CardHeader className="border-b border-gray-100 bg-gray-50">
+                                    <div className="flex items-center justify-between gap-4">
+                                        <div>
+                                            <p className="text-xs uppercase tracking-wide text-gray-500">
+                                                Step {step} of {totalSteps}
+                                            </p>
+                                            <h3 className="text-xl font-semibold text-brand-purple">
+                                                {step === 1 && "Application Type"}
+                                                {step === 2 && "Core Idea"}
+                                                {step === 3 && "Who Will Use It?"}
+                                                {step === 4 && "Must-Have Features"}
+                                                {step === 5 && "Reference Apps / Websites"}
+                                                {step === 6 && "New Build or Upgrade?"}
+                                                {step === 7 && "Project Timeline"}
+                                                {step === 8 && "Estimated Budget Range"}
+                                                {step === 9 && "Technical Preferences"}
+                                                {step === 10 && "Contact Details"}
+                                            </h3>
+                                        </div>
+                                        <div className="w-40">
+                                            <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-brand-coral to-brand-purple transition-all duration-300"
+                                                    style={{ width: `${progress}%` }}
+                                                />
+                                            </div>
+                                            <p className="mt-1 text-[11px] text-right text-gray-500">
+                                                {Math.round(progress)}% complete
+                                            </p>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+
+                                <CardContent className="p-6 md:p-8">
+                                    {submitted ? (
+                                        <div className="text-center py-10">
+                                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                                                <CheckCircle className="h-7 w-7 text-green-500" />
+                                            </div>
+                                            <h4 className="text-2xl font-semibold text-brand-purple mb-2">
+                                                Thanks for sharing your project! 🎉
+                                            </h4>
+                                            <p className="text-gray-600 max-w-md mx-auto">
+                                                We&apos;ll review your answers and come back with a
+                                                concise scope outline, suggested tech stack, and next
+                                                steps for your custom web or mobile app.
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <form onSubmit={handleSubmit} className="space-y-6">
+                                            {/* STEP CONTENTS */}
+                                            {step === 1 && (
+                                                <div className="space-y-4">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        What type of application do you want to build?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {applicationTypes.map((type) => (
+                                                            <button
+                                                                key={type}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    toggleArrayValue("applicationTypes", type)
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.applicationTypes.includes(type)
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                <span className="mr-2">
+                                                                    {formData.applicationTypes.includes(type)
+                                                                        ? "✅"
+                                                                        : "⬜"}
+                                                                </span>
+                                                                {type}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step === 2 && (
+                                                <div className="space-y-2">
+                                                    <Label
+                                                        htmlFor="appDescription"
+                                                        className="text-base font-medium text-gray-800"
+                                                    >
+                                                        Briefly describe what the app should do.
+                                                    </Label>
+                                                    <p className="text-xs text-gray-500">
+                                                        1–3 sentences explaining the core idea.
+                                                    </p>
+                                                    <Textarea
+                                                        id="appDescription"
+                                                        value={formData.appDescription}
+                                                        onChange={(e) =>
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                appDescription: e.target.value,
+                                                            }))
+                                                        }
+                                                        placeholder="For example: A booking app for our clients to schedule services, manage payments, and receive live status updates."
+                                                        className="min-h-[140px]"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {step === 3 && (
+                                                <div className="space-y-4">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        Who will use this application?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {userTypes.map((u) => (
+                                                            <button
+                                                                key={u}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    toggleArrayValue("userTypes", u)
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.userTypes.includes(u)
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover-border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                <span className="mr-2">
+                                                                    {formData.userTypes.includes(u)
+                                                                        ? "✅"
+                                                                        : "⬜"}
+                                                                </span>
+                                                                {u}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step === 4 && (
+                                                <div className="space-y-3">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        What are the must-have features?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                        {mustHaveFeatures.map((f) => (
+                                                            <button
+                                                                key={f}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    toggleArrayValue("mustHaveFeatures", f)
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.mustHaveFeatures.includes(f)
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                <span className="mr-2">
+                                                                    {formData.mustHaveFeatures.includes(f)
+                                                                        ? "✅"
+                                                                        : "⬜"}
+                                                                </span>
+                                                                {f}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                    {formData.mustHaveFeatures.includes(
+                                                        "Something custom (explain)"
+                                                    ) && (
+                                                            <div className="mt-2">
+                                                                <Label
+                                                                    htmlFor="customFeatureDetails"
+                                                                    className="text-sm text-gray-700"
+                                                                >
+                                                                    Describe any custom or unique features
+                                                                </Label>
+                                                                <Textarea
+                                                                    id="customFeatureDetails"
+                                                                    value={formData.customFeatureDetails}
+                                                                    onChange={(e) =>
+                                                                        setFormData((prev) => ({
+                                                                            ...prev,
+                                                                            customFeatureDetails: e.target.value,
+                                                                        }))
+                                                                    }
+                                                                    placeholder="For example: offline mode, multi-tenant access, complex pricing rules, multi-role approval workflow..."
+                                                                    className="mt-1"
+                                                                />
+                                                            </div>
+                                                        )}
+                                                </div>
+                                            )}
+
+                                            {step === 5 && (
+                                                <div className="space-y-2">
+                                                    <Label
+                                                        htmlFor="referenceApps"
+                                                        className="text-base font-medium text-gray-800"
+                                                    >
+                                                        Do you have any reference apps or websites you like?
+                                                    </Label>
+                                                    <p className="text-xs text-gray-500">
+                                                        Links or names – this helps us understand your taste
+                                                        in UX/UI.
+                                                    </p>
+                                                    <Textarea
+                                                        id="referenceApps"
+                                                        value={formData.referenceApps}
+                                                        onChange={(e) =>
+                                                            setFormData((prev) => ({
+                                                                ...prev,
+                                                                referenceApps: e.target.value,
+                                                            }))
+                                                        }
+                                                        placeholder="e.g. Airbnb for UX, Slack for messaging, Xero for dashboards, or links to similar apps."
+                                                        className="min-h-[120px]"
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {step === 6 && (
+                                                <div className="space-y-3">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        Is this a new build or an upgrade to an existing
+                                                        system?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        {buildTypeOptions.map((b) => (
+                                                            <button
+                                                                key={b}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        buildType: b,
+                                                                    }))
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.buildType === b
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                {b}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step === 7 && (
+                                                <div className="space-y-3">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        What is your project timeline?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        {projectTimelines.map((t) => (
+                                                            <button
+                                                                key={t}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        projectTimeline: t,
+                                                                    }))
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.projectTimeline === t
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                {t}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step === 8 && (
+                                                <div className="space-y-3">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        What is your estimated budget range?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        {budgetRanges.map((b) => (
+                                                            <button
+                                                                key={b}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        budgetRange: b,
+                                                                    }))
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.budgetRange === b
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                {b}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step === 9 && (
+                                                <div className="space-y-3">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        Any specific technical preferences?
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                                        {techPreferences.map((tech) => (
+                                                            <button
+                                                                key={tech}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    toggleArrayValue("techPreferences", tech)
+                                                                }
+                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.techPreferences.includes(tech)
+                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                                                    }`}
+                                                            >
+                                                                <span className="mr-2">
+                                                                    {formData.techPreferences.includes(tech)
+                                                                        ? "✅"
+                                                                        : "⬜"}
+                                                                </span>
+                                                                {tech}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {step === 10 && (
+                                                <div className="space-y-4">
+                                                    <Label className="text-base font-medium text-gray-800">
+                                                        Contact details
+                                                    </Label>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div>
+                                                            <Label
+                                                                htmlFor="name"
+                                                                className="text-sm text-gray-700"
+                                                            >
+                                                                Name
+                                                            </Label>
+                                                            <Input
+                                                                id="name"
+                                                                value={formData.name}
+                                                                onChange={(e) =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        name: e.target.value,
+                                                                    }))
+                                                                }
+                                                                placeholder="Your name"
+                                                                className="mt-1"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label
+                                                                htmlFor="company"
+                                                                className="text-sm text-gray-700"
+                                                            >
+                                                                Company (optional)
+                                                            </Label>
+                                                            <Input
+                                                                id="company"
+                                                                value={formData.company}
+                                                                onChange={(e) =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        company: e.target.value,
+                                                                    }))
+                                                                }
+                                                                placeholder="Your company"
+                                                                className="mt-1"
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label
+                                                                htmlFor="email"
+                                                                className="text-sm text-gray-700"
+                                                            >
+                                                                Email
+                                                            </Label>
+                                                            <Input
+                                                                id="email"
+                                                                type="email"
+                                                                value={formData.email}
+                                                                onChange={(e) =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        email: e.target.value,
+                                                                    }))
+                                                                }
+                                                                placeholder="you@example.com"
+                                                                className="mt-1"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <Label
+                                                                htmlFor="phone"
+                                                                className="text-sm text-gray-700"
+                                                            >
+                                                                Phone (optional)
+                                                            </Label>
+                                                            <Input
+                                                                id="phone"
+                                                                value={formData.phone}
+                                                                onChange={(e) =>
+                                                                    setFormData((prev) => ({
+                                                                        ...prev,
+                                                                        phone: e.target.value,
+                                                                    }))
+                                                                }
+                                                                placeholder="+44 ..."
+                                                                className="mt-1"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Navigation buttons */}
+                                            <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    disabled={step === 1}
+                                                    onClick={handlePrev}
+                                                    className="border-gray-300 text-gray-700"
+                                                >
+                                                    Back
+                                                </Button>
+
+                                                {step < totalSteps ? (
+                                                    <Button
+                                                        type="button"
+                                                        onClick={handleNext}
+                                                        className="bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold"
+                                                    >
+                                                        Next
+                                                        <ArrowRight className="w-4 h-4 ml-2" />
+                                                    </Button>
+                                                ) : (
+                                                    <Button
+                                                        type="submit"
+                                                        className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold"
+                                                    >
+                                                        Submit & Get My App Scope
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </form>
+                                    )}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </section>
+
                     {/* Tech Stack */}
                     <section className="py-16 px-4 bg-white">
                         <div className="max-w-7xl mx-auto">
@@ -394,11 +995,9 @@ export default function CustomAppDevelopment() {
                             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
                                 {[
                                     { name: "React / Next.js", icon: Code },
-                                    //   { name: "Angular", icon: Code },
                                     { name: "React Native", icon: Smartphone },
                                     { name: "Flutter", icon: MonitorSmartphone },
                                     { name: "Node.js / NestJS", icon: Cpu },
-                                    //   { name: "Laravel / PHP", icon: Code },
                                     { name: "PostgreSQL", icon: Database },
                                     { name: "MongoDB", icon: Database },
                                     { name: "REST / GraphQL APIs", icon: Globe2 },
@@ -432,11 +1031,6 @@ export default function CustomAppDevelopment() {
                                 Whether you&apos;re validating an MVP or upgrading an existing
                                 platform, we&apos;ll help you ship a reliable, scalable product
                                 with a polished user experience.
-                            </p>
-                            <p className="text-sm mb-6 text-white/80">
-                                Use coupon code <span className="font-semibold">APP20</span> for{" "}
-                                <span className="font-semibold">20% off</span> your first app
-                                project.
                             </p>
                             <div className="flex flex-row gap-4 justify-center">
                                 <Button

@@ -34,6 +34,7 @@ import {
   Calendar
 } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { navigate } from "wouter/use-browser-location";
 
 // Featured SEO Client Data
 const featuredClient = {
@@ -818,7 +819,7 @@ export default function SEOServices() {
                 <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white font-semibold"
-                  onClick={() => window.open('/newsletter', '_blank')}
+                  onClick={() => navigate('/#newsletter')}
                 >Subscribe for Free</Button>
               </div>
             </div>

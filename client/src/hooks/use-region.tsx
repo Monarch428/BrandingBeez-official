@@ -33,7 +33,7 @@ const regionConfigs: Record<Region, RegionConfig> = {
     // calendlyUrl: import.meta.env.VITE_CALENDLY_US_URL || "https://calendly.com/vignesh-velusamy/30min",
     calendlyUrl: import.meta.env.VITE_CALENDLY_US_URL || "https://calendar.app.google/Y8XZq71qtvPRhktH9",
     phone: "+91 99524 62833",
-    email: "info@brandingbeez.com",
+    email: "info@brandingbeez.com",   
     heroTitle: "Scale Your US Agency with White-Label Excellence",
     heroSubtitle: "Premium design, development, SEO, and AI solutions delivered to your US clients under your brand. Focus on growth while we handle delivery.",
     heroTagline: "🚀 Premium white-label services • 🎯 US market expertise • ⚡ Lightning-fast turnaround",

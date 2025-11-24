@@ -179,7 +179,7 @@ export default function Contact() {
                   </h3>
                   <div className="space-y-2 text-sm text-white/80">
                     <p><strong>Email:</strong> raje@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +91 99524 62833</p>
+                    <p><strong>Phone:</strong> +91 78719 90263</p>
                     <p><strong>
                       {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
                     </strong> {regionConfig.code === 'DE' ? 'Neue Projekte, Preisfragen' : 'New project discussions, pricing questions'}</p>
@@ -197,7 +197,7 @@ export default function Contact() {
                   </h3>
                   <div className="space-y-2 text-sm text-white/80">
                     <p><strong>Email:</strong> hr@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +91 99524 62833</p>
+                    <p><strong>Phone:</strong> +91 72006 26556</p>
                     <p><strong>
                       {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
                     </strong> {regionConfig.code === 'DE' ? 'Stellenbewerbungen' : 'Job applications & career opportunities'}</p>
@@ -215,7 +215,7 @@ export default function Contact() {
                   </h3>
                   <div className="space-y-2 text-sm text-white/80">
                     <p><strong>Email:</strong> info@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +91 99524 62833</p>
+                    <p><strong>Phone:</strong> +91 78719 90263</p>
                     <p><strong>
                       {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
                     </strong> {regionConfig.code === 'DE' ? 'Agentur-Partnerschaften' : 'Agency partnerships'}</p>
