@@ -1050,7 +1050,7 @@ import socialBrainLogo from "@assets/IMG-20250719-WA0277_1752907768845.jpg";
 import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
 import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
 import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
-import museLogo from "../../public/images/White-MDM-logo.webp";
+import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
@@ -1609,7 +1609,7 @@ export default function Home() {
                           FSB Digital
                         </p>
                       </div>
-                      <div className="bg-blue-600 rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
+                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
                         <img
                           src={museLogo}
                           alt="MUSE Digital Media"
@@ -1654,8 +1654,9 @@ export default function Home() {
                   max-w-3xl mx-auto
                 "
               >
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-white">
-                  Starting at $1200/month
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-yellow-200">
+                  <span className="text-2xl sm:text-xl lg:text-2xl text-white"> Starting at </span>
+                 $1200/month
                 </div>
 
                 <div className="text-base sm:text-md lg:text-lg text-gray-200 mb-2 sm:mb-3">

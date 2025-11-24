@@ -207,6 +207,106 @@ export async function sendContactNotification(submission: ContactSubmission) {
   return { success: true, method: "console_log_and_memory" };
 }
 
+// Send a full questionnaire to the admin email as a text attachment
+export async function sendQuestionnaireToAdmin(submission: {
+  name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  questionnaire: any;
+  submittedAt?: Date;
+}) {
+  // Store notification in memory for admin panel viewing
+  notificationService.addNotification("custom_app_questionnaire", {
+    name: submission.name,
+    email: submission.email,
+    company: submission.company,
+    phone: submission.phone,
+    questionnaire: submission.questionnaire,
+    submittedAt: submission.submittedAt || new Date(),
+  });
+
+  const SMTP_HOST = process.env.SMTP_HOST || "smtppro.zoho.in";
+  const SMTP_PORT = process.env.SMTP_PORT || "465";
+  const SMTP_USER = process.env.SMTP_USER;
+  const SMTP_PASS = process.env.SMTP_PASSWORD;
+
+  const adminEmail = "pradeep.brandingbeez@gmail.com";
+
+  // Build text content for attachment
+  const lines: string[] = [];
+  lines.push("Custom App Questionnaire Submission");
+  lines.push("Submitted At: " + (submission.submittedAt || new Date()).toString());
+  lines.push("");
+  lines.push(`Name: ${submission.name}`);
+  lines.push(`Email: ${submission.email}`);
+  lines.push(`Company: ${submission.company || "(not provided)"}`);
+  lines.push(`Phone: ${submission.phone || "(not provided)"}`);
+  lines.push("");
+  lines.push("--- Answers ---");
+
+  const q = submission.questionnaire || {};
+  try {
+    if (Array.isArray(q.applicationTypes)) {
+      lines.push(`Application Types: ${q.applicationTypes.join(", ")}`);
+    }
+    if (q.appDescription) lines.push(`App Description: ${q.appDescription}`);
+    if (Array.isArray(q.userTypes)) lines.push(`User Types: ${q.userTypes.join(", ")}`);
+    if (Array.isArray(q.mustHaveFeatures)) lines.push(`Must-Have Features: ${q.mustHaveFeatures.join(", ")}`);
+    if (q.customFeatureDetails) lines.push(`Custom Feature Details: ${q.customFeatureDetails}`);
+    if (q.referenceApps) lines.push(`Reference Apps: ${q.referenceApps}`);
+    if (q.buildType) lines.push(`Build Type: ${q.buildType}`);
+    if (q.projectTimeline) lines.push(`Timeline: ${q.projectTimeline}`);
+    if (q.budgetRange) lines.push(`Budget: ${q.budgetRange}`);
+    if (Array.isArray(q.techPreferences)) lines.push(`Tech Preferences: ${q.techPreferences.join(", ")}`);
+  } catch (err) {
+    lines.push("(Error building questionnaire text)");
+    lines.push(JSON.stringify(q));
+  }
+
+  const attachmentContent = lines.join("\n");
+
+  // If SMTP not configured, just log and return (notification already stored)
+  if (!SMTP_USER || !SMTP_PASS) {
+    console.log("SMTP credentials not configured. Questionnaire content:\n", attachmentContent);
+    return { success: true, method: "console_log" };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: Number(SMTP_PORT),
+      secure: true,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    });
+
+    const filename = `custom-app-questionnaire-${Date.now()}.txt`;
+
+    const mailOptions = {
+      from: SMTP_USER,
+      to: adminEmail,
+      subject: `New Custom App Questionnaire from ${submission.name}`,
+      text: `New questionnaire submitted by ${submission.name} <${submission.email}>. See attached file for full answers.`,
+      attachments: [
+        {
+          filename,
+          content: attachmentContent,
+        },
+      ],
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Questionnaire emailed to", adminEmail);
+    return { success: true, method: "smtp" };
+  } catch (error) {
+    console.error("Failed to send questionnaire email:", error);
+    return { success: false, error };
+  }
+}
+
 // -----------------------------------------------------
 // Gmail SMTP - Backup Method (Still kept – not removed)
 // -----------------------------------------------------

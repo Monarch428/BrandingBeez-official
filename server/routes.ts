@@ -55,7 +55,7 @@ import {
   insertPortfolioContentSchema,
 } from "@shared/schema";
 import { z } from "zod";
-import { sendContactNotification, sendEmailViaGmail } from "./email-service";
+import { sendContactNotification, sendEmailViaGmail, sendQuestionnaireToAdmin } from "./email-service";
 import { notificationService } from "./notification-service";
 import { connectToDatabase, getMongooseConnection } from "./db";
 
@@ -357,6 +357,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (emailError) {
         console.error("Email notification failed:", emailError);
         // Don't fail the form submission if email fails
+      }
+
+      // If this submission included a questionnaire object, email it to admin
+      if (req.body && req.body.questionnaire) {
+        try {
+          await sendQuestionnaireToAdmin({
+            name: validatedData.name,
+            email: validatedData.email,
+            company: validatedData.company || undefined,
+            phone: validatedData.phone || undefined,
+            questionnaire: req.body.questionnaire,
+            submittedAt: new Date(),
+          });
+        } catch (qErr) {
+          console.error("Questionnaire email failed:", qErr);
+        }
       }
 
       res.json({ success: true, contact });

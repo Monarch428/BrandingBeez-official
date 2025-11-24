@@ -114,6 +114,7 @@ export default function CustomAppDevelopment() {
     };
 
     const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [step, setStep] = useState(1);
     const totalSteps = 10;
 
@@ -153,10 +154,44 @@ export default function CustomAppDevelopment() {
         if (step > 1) setStep(step - 1);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Custom App Questionnaire Submission:", formData);
-        setSubmitted(true);
+        setIsSubmitting(true);
+
+        try {
+            const payload = {
+                name: formData.name,
+                email: formData.email,
+                phone: formData.phone,
+                company: formData.company,
+                service: "custom-app-questionnaire",
+                questionnaire: formData,
+            };
+
+            const res = await fetch("/api/contacts", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                console.error("Submission failed", err || res.statusText);
+                alert(
+                    "Sorry — we couldn't submit your questionnaire. Please try again or email us directly.",
+                );
+                return;
+            }
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Submission failed. Please check your connection and try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const progress = (step / totalSteps) * 100;
