@@ -1605,7 +1605,7 @@ export default function DedicatedResources() {
                     </h3>
                     <div className="mt-4">
                       <div className="text-3xl font-extrabold text-brand-coral">
-                        5–10% Off
+                        10% Off
                       </div>
                       <div className="text-gray-900/70">
                         Team discount applied
@@ -1669,7 +1669,7 @@ export default function DedicatedResources() {
                     </h3>
                     <div className="mt-4">
                       <div className="text-3xl font-extrabold text-brand-coral">
-                        15–20% Off
+                        20% Off
                       </div>
                       <div className="text-gray-900/70">
                         Maximum team discount
