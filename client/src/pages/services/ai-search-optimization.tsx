@@ -1,77 +1,4 @@
 import { Header } from "@/components/header";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-// Questionnaire fields
-const initialForm = {
-    businessType: "",
-    website: "",
-    mainGoal: "",
-    currentVisibility: "",
-    aiPlatforms: [] as string[],
-    locations: "",
-    competitors: "",
-    name: "",
-    email: "",
-    phone: "",
-    company: "",
-};
-    // Questionnaire state
-    const [form, setForm] = useState(initialForm);
-    const [step, setStep] = useState(1);
-    const [submitted, setSubmitted] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const totalSteps = 6;
-
-    const aiPlatformOptions = [
-        "Google SGE",
-        "Perplexity",
-        "Copilot",
-        "ChatGPT Search",
-        "Other",
-    ];
-
-    function togglePlatform(platform: string) {
-        setForm((prev) => {
-            const exists = prev.aiPlatforms.includes(platform);
-            return {
-                ...prev,
-                aiPlatforms: exists
-                    ? prev.aiPlatforms.filter((p) => p !== platform)
-                    : [...prev.aiPlatforms, platform],
-            };
-        });
-    }
-
-    async function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        setIsSubmitting(true);
-        try {
-            const payload = {
-                name: form.name,
-                email: form.email,
-                phone: form.phone,
-                company: form.company,
-                service: "ai-search-optimization-questionnaire",
-                questionnaire: form,
-            };
-            const res = await fetch("/api/contacts", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-            });
-            if (!res.ok) {
-                alert("Sorry — we couldn't submit your questionnaire. Please try again or email us directly.");
-                return;
-            }
-            setSubmitted(true);
-        } catch (err) {
-            alert("Submission failed. Please check your connection and try again.");
-        } finally {
-            setIsSubmitting(false);
-        }
-    }
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,6 +16,10 @@ import {
     Star,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 
@@ -111,6 +42,84 @@ const AiSearchOptimizationSchema = {
 };
 
 export default function AiSearchOptimization() {
+    const [submitted, setSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formData, setFormData] = useState({
+        projectBrief: "",
+        website: "",
+        goals: "",
+        name: "",
+        email: "",
+        phone: "",
+        company: "",
+    });
+    const [attachment, setAttachment] = useState<File | null>(null);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            let res: Response;
+
+            // If a file is attached, send multipart/form-data so server can save and email it
+            if (attachment) {
+                const form = new FormData();
+                form.append("name", formData.name);
+                form.append("email", formData.email);
+                form.append("phone", formData.phone);
+                form.append("company", formData.company);
+                form.append("service", "ai-search-questionnaire");
+                form.append(
+                    "questionnaire",
+                    JSON.stringify({
+                        projectBrief: formData.projectBrief,
+                        website: formData.website,
+                        goals: formData.goals,
+                    }),
+                );
+                form.append("questionFile", attachment, attachment.name);
+
+                res = await fetch("/api/contacts", {
+                    method: "POST",
+                    body: form,
+                });
+            } else {
+                const payload = {
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    company: formData.company,
+                    service: "ai-search-questionnaire",
+                    questionnaire: {
+                        projectBrief: formData.projectBrief,
+                        website: formData.website,
+                        goals: formData.goals,
+                    },
+                };
+
+                res = await fetch("/api/contacts", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+            }
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => null);
+                console.error("AI questionnaire submit failed", err || res.statusText);
+                alert("Submission failed. Please try again or email us directly.");
+                return;
+            }
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Submission failed. Please check your connection and try again.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
     return (
         <>
             <Helmet>
@@ -140,239 +149,6 @@ export default function AiSearchOptimization() {
 
                 <Header />
                 <main>
-                    {/* === AI SEARCH OPTIMIZATION QUESTIONNAIRE === */}
-                    <section className="py-20 px-4 bg-white">
-                        <div className="max-w-3xl mx-auto">
-                            <div className="text-center mb-10">
-                                <h2 className="text-3xl md:text-4xl font-bold text-brand-purple mb-4">
-                                    AI Search Optimization — Quick Questionnaire
-                                </h2>
-                                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                                    Answer a few focused questions and we’ll prepare a custom AIO scope & pricing for your brand.
-                                </p>
-                            </div>
-                            <Card className="shadow-xl">
-                                <CardHeader className="border-b border-gray-100 bg-gray-50">
-                                    <div className="flex items-center justify-between gap-4">
-                                        <div>
-                                            <p className="text-xs uppercase tracking-wide text-gray-500">
-                                                Step {step} of {totalSteps}
-                                            </p>
-                                            <h3 className="text-xl font-semibold text-brand-purple">
-                                                {step === 1 && "Business Type & Website"}
-                                                {step === 2 && "Main Goal"}
-                                                {step === 3 && "Current AI Visibility"}
-                                                {step === 4 && "AI Platforms & Locations"}
-                                                {step === 5 && "Competitors"}
-                                                {step === 6 && "Contact Details"}
-                                            </h3>
-                                        </div>
-                                        <div className="w-40">
-                                            <div className="h-2 rounded-full bg-gray-200 overflow-hidden">
-                                                <div
-                                                    className="h-full bg-gradient-to-r from-brand-coral to-brand-purple transition-all duration-300"
-                                                    style={{ width: `${(step / totalSteps) * 100}%` }}
-                                                />
-                                            </div>
-                                            <p className="mt-1 text-[11px] text-right text-gray-500">
-                                                {Math.round((step / totalSteps) * 100)}% complete
-                                            </p>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="p-6 md:p-8">
-                                    {submitted ? (
-                                        <div className="text-center py-10">
-                                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                                                <CheckCircle className="h-7 w-7 text-green-500" />
-                                            </div>
-                                            <h4 className="text-2xl font-semibold text-brand-purple mb-2">
-                                                Thanks for sharing your AIO needs! 🎉
-                                            </h4>
-                                            <p className="text-gray-600 max-w-md mx-auto">
-                                                We’ll review your answers and come back with a tailored AIO scope, pricing, and next steps for your brand.
-                                            </p>
-                                        </div>
-                                    ) : (
-                                        <form onSubmit={handleSubmit} className="space-y-6">
-                                            {step === 1 && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        What type of business/brand is this for?
-                                                    </Label>
-                                                    <Input
-                                                        value={form.businessType}
-                                                        onChange={e => setForm(f => ({ ...f, businessType: e.target.value }))}
-                                                        placeholder="e.g. Local business, SaaS, e-commerce, agency, etc."
-                                                        required
-                                                    />
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        Website URL
-                                                    </Label>
-                                                    <Input
-                                                        value={form.website}
-                                                        onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
-                                                        placeholder="https://yourwebsite.com"
-                                                        required
-                                                    />
-                                                </div>
-                                            )}
-                                            {step === 2 && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        What’s your main goal with AI Search Optimization?
-                                                    </Label>
-                                                    <Textarea
-                                                        value={form.mainGoal}
-                                                        onChange={e => setForm(f => ({ ...f, mainGoal: e.target.value }))}
-                                                        placeholder="e.g. Get quoted in SGE, increase AI answer visibility, improve entity recognition, etc."
-                                                        required
-                                                    />
-                                                </div>
-                                            )}
-                                            {step === 3 && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        How visible is your brand in AI-generated results right now?
-                                                    </Label>
-                                                    <Textarea
-                                                        value={form.currentVisibility}
-                                                        onChange={e => setForm(f => ({ ...f, currentVisibility: e.target.value }))}
-                                                        placeholder="e.g. We rarely show up, we sometimes appear, we’re quoted often, etc."
-                                                        required
-                                                    />
-                                                </div>
-                                            )}
-                                            {step === 4 && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        Which AI platforms matter most for you?
-                                                    </Label>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                        {aiPlatformOptions.map((p) => (
-                                                            <button
-                                                                key={p}
-                                                                type="button"
-                                                                onClick={() => togglePlatform(p)}
-                                                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${form.aiPlatforms.includes(p)
-                                                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                                                    }`}
-                                                            >
-                                                                <span className="mr-2">
-                                                                    {form.aiPlatforms.includes(p) ? "✅" : "⬜"}
-                                                                </span>
-                                                                {p}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                    <Label className="text-base font-medium text-gray-800 mt-4">
-                                                        Main locations or markets you serve
-                                                    </Label>
-                                                    <Input
-                                                        value={form.locations}
-                                                        onChange={e => setForm(f => ({ ...f, locations: e.target.value }))}
-                                                        placeholder="e.g. London, UK; New York, US; Europe-wide, etc."
-                                                        required
-                                                    />
-                                                </div>
-                                            )}
-                                            {step === 5 && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        Who are your main competitors (if any)?
-                                                    </Label>
-                                                    <Textarea
-                                                        value={form.competitors}
-                                                        onChange={e => setForm(f => ({ ...f, competitors: e.target.value }))}
-                                                        placeholder="List a few competitors or similar brands (optional)"
-                                                    />
-                                                </div>
-                                            )}
-                                            {step === 6 && (
-                                                <div className="space-y-4">
-                                                    <Label className="text-base font-medium text-gray-800">
-                                                        Contact details
-                                                    </Label>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div>
-                                                            <Label htmlFor="name" className="text-sm text-gray-700">Name</Label>
-                                                            <Input
-                                                                id="name"
-                                                                value={form.name}
-                                                                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                                                                placeholder="Your name"
-                                                                required
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <Label htmlFor="company" className="text-sm text-gray-700">Company (optional)</Label>
-                                                            <Input
-                                                                id="company"
-                                                                value={form.company}
-                                                                onChange={e => setForm(f => ({ ...f, company: e.target.value }))}
-                                                                placeholder="Your company"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <Label htmlFor="email" className="text-sm text-gray-700">Email</Label>
-                                                            <Input
-                                                                id="email"
-                                                                type="email"
-                                                                value={form.email}
-                                                                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                                                                placeholder="you@example.com"
-                                                                required
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <Label htmlFor="phone" className="text-sm text-gray-700">Phone (optional)</Label>
-                                                            <Input
-                                                                id="phone"
-                                                                value={form.phone}
-                                                                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                                                                placeholder="+44 ..."
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {/* Navigation buttons */}
-                                            <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
-                                                <Button
-                                                    type="button"
-                                                    variant="outline"
-                                                    disabled={step === 1}
-                                                    onClick={() => setStep((s) => Math.max(1, s - 1))}
-                                                    className="border-gray-300 text-gray-700"
-                                                >
-                                                    Back
-                                                </Button>
-                                                {step < totalSteps ? (
-                                                    <Button
-                                                        type="button"
-                                                        onClick={() => setStep((s) => Math.min(totalSteps, s + 1))}
-                                                        className="bg-brand-coral hover:bg-brand-coral/90 text-white font-semibold"
-                                                    >
-                                                        Next
-                                                        <ArrowRight className="w-4 h-4 ml-2" />
-                                                    </Button>
-                                                ) : (
-                                                    <Button
-                                                        type="submit"
-                                                        className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold"
-                                                        disabled={isSubmitting}
-                                                    >
-                                                        {isSubmitting ? "Submitting..." : "Submit & Get My AIO Scope"}
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </form>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        </div>
-                    </section>
                     {/* Hero Section */}
                     <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
                         <div className="max-w-7xl mx-auto">
@@ -1063,6 +839,105 @@ export default function AiSearchOptimization() {
                                         </li>
                                     </ul>
                                 </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* === AIO Quick Questionnaire === */}
+                    <section className="py-16 px-4 bg-white">
+                        <div className="max-w-4xl mx-auto">
+                            <div className="text-center mb-8">
+                                <h2 className="text-3xl font-bold text-brand-purple mb-2">
+                                    Quick AIO Questionnaire
+                                </h2>
+                                <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                                    Share a few details and we&apos;ll email you a tailored plan.
+                                </p>
+                            </div>
+
+                            <div className="bg-white border rounded-xl shadow-sm p-6">
+                                {submitted ? (
+                                    <div className="text-center py-8">
+                                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                                            <CheckCircle className="h-7 w-7 text-green-500" />
+                                        </div>
+                                        <h4 className="text-2xl font-semibold text-brand-purple mb-2">
+                                            Thanks — we received your answers!
+                                        </h4>
+                                        <p className="text-gray-600">We&apos;ll review and email a tailored AIO outline shortly.</p>
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleSubmit} className="space-y-4">
+                                        <div>
+                                            <Label htmlFor="projectBrief" className="text-sm text-gray-700">Briefly describe your AI visibility goals</Label>
+                                            <Textarea
+                                                id="projectBrief"
+                                                value={formData.projectBrief}
+                                                onChange={(e) => setFormData((p) => ({ ...p, projectBrief: e.target.value }))}
+                                                placeholder="What outcome do you want from AI search (SGE, Perplexity, Copilot)?"
+                                                className="mt-1"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="website" className="text-sm text-gray-700">Website (optional)</Label>
+                                            <Input
+                                                id="website"
+                                                value={formData.website}
+                                                onChange={(e) => setFormData((p) => ({ ...p, website: e.target.value }))}
+                                                placeholder="https://your-site.com"
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="goals" className="text-sm text-gray-700">Top goals / priorities</Label>
+                                            <Textarea
+                                                id="goals"
+                                                value={formData.goals}
+                                                onChange={(e) => setFormData((p) => ({ ...p, goals: e.target.value }))}
+                                                placeholder="e.g. Local SGE presence, Product answers, FAQ extraction"
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label htmlFor="name" className="text-sm text-gray-700">Name</Label>
+                                                <Input id="name" value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} placeholder="Your name" className="mt-1" required />
+                                            </div>
+                                            <div>
+                                                <Label htmlFor="company" className="text-sm text-gray-700">Company (optional)</Label>
+                                                <Input id="company" value={formData.company} onChange={(e) => setFormData((p) => ({ ...p, company: e.target.value }))} placeholder="Company name" className="mt-1" />
+                                            </div>
+                                            <div>
+                                                <Label htmlFor="email" className="text-sm text-gray-700">Email</Label>
+                                                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))} placeholder="you@example.com" className="mt-1" required />
+                                            </div>
+                                            <div>
+                                                <Label htmlFor="phone" className="text-sm text-gray-700">Phone (optional)</Label>
+                                                <Input id="phone" value={formData.phone} onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))} placeholder="+44 ..." className="mt-1" />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="questionFile" className="text-sm text-gray-700">Attach questionnaire (optional)</Label>
+                                            <input
+                                                id="questionFile"
+                                                type="file"
+                                                accept=".pdf,.doc,.docx,.txt"
+                                                onChange={(e) => setAttachment(e.target.files ? e.target.files[0] : null)}
+                                                className="mt-1"
+                                            />
+                                        </div>
+
+                                        <div className="pt-4 border-t border-gray-100 flex items-center justify-between gap-4">
+                                            <div className="text-xs text-gray-500">We may contact you to clarify details.</div>
+                                            <Button type="submit" className="bg-brand-purple text-white" disabled={isSubmitting}>{isSubmitting ? "Sending..." : "Submit & Email Me"}</Button>
+                                        </div>
+                                    </form>
+                                )}
                             </div>
                         </div>
                     </section>

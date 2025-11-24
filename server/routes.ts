@@ -212,8 +212,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.send(svg);
   });
 
+  // Multer storage for contact file attachments (questionnaires)
+  const contactFilesDir = path.resolve(process.cwd(), "uploads", "contact_files");
+  const contactStorage = multer.diskStorage({
+    destination: (req: any, file: any, cb: any) => {
+      try {
+        if (!fs.existsSync(contactFilesDir)) {
+          fs.mkdirSync(contactFilesDir, { recursive: true });
+        }
+        cb(null, contactFilesDir);
+      } catch (err) {
+        cb(err, null);
+      }
+    },
+    filename: (req: any, file: any, cb: any) => {
+      const ext = path.extname(file.originalname);
+      const name = file.originalname.replace(ext, "").replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
+      cb(null, `${name}-${Date.now()}${ext}`);
+    },
+  });
+
+  const contactUpload = multer({
+    storage: contactStorage,
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    fileFilter: (req: any, file: any, cb: any) => {
+      const allowed = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
+      ];
+      if (allowed.includes(file.mimetype)) cb(null, true);
+      else cb(new Error("Invalid file type. Allowed: pdf, doc, docx, txt"), false);
+    },
+  });
+
   // Contact form submission endpoint (with enhanced security)
-  app.post("/api/contacts", contactRateLimit, async (req, res) => {
+  // Accept optional questionnaire file under field name `questionFile`
+  app.post("/api/contacts", contactRateLimit, contactUpload.single("questionFile"), async (req, res) => {
     try {
       const {
         name,
@@ -340,6 +376,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         topPriority: service || formType,
         couponCode: couponCode || null,
       };
+      // If a file was uploaded via multer, include its path and original name in contact record
+      if ((req as any).file) {
+        (contactData as any).attachmentPath = (req as any).file.path;
+        (contactData as any).attachmentFilename = (req as any).file.filename;
+        (contactData as any).attachmentOriginalName = (req as any).file.originalname;
+      }
 
       const validatedData = insertContactSchema.parse(contactData);
       const contact = await storage.createContact(validatedData);
@@ -362,6 +404,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // If this submission included a questionnaire object, email it to admin
       if (req.body && req.body.questionnaire) {
         try {
+          const fileInfo = req.file
+            ? {
+                path: (req.file as Express.Multer.File).path,
+                originalname: (req.file as Express.Multer.File).originalname,
+                mimetype: (req.file as Express.Multer.File).mimetype,
+              }
+            : undefined;
+
           await sendQuestionnaireToAdmin({
             name: validatedData.name,
             email: validatedData.email,
@@ -369,7 +419,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             phone: validatedData.phone || undefined,
             questionnaire: req.body.questionnaire,
             submittedAt: new Date(),
-          });
+            file: fileInfo,
+          } as any);
         } catch (qErr) {
           console.error("Questionnaire email failed:", qErr);
         }
@@ -386,6 +437,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Contact creation error:", error);
         res.status(500).json({ message: "Internal server error" });
       }
+    }
+  });
+
+  // Serve uploaded contact files (admin access recommended)
+  app.get("/uploads/contact_files/:filename", async (req, res) => {
+    try {
+      const { filename } = req.params;
+      const filePath = path.join(contactFilesDir, filename);
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).send("File not found");
+      }
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error("Error serving contact file:", error);
+      res.status(500).send("Failed to serve file");
     }
   });
 

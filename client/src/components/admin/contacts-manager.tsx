@@ -24,6 +24,8 @@ interface Contact {
   email: string;
   phone?: string;
   company?: string;
+  attachmentFilename?: string;
+  attachmentOriginalName?: string;
   inquiry_type: string;
   message: string;
   preferred_contact: string;
@@ -209,6 +211,14 @@ export function ContactsManager() {
                             <span>{new Date(contact.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
+                        {contact.attachmentFilename && (
+                          <div className="mt-2">
+                            <a href={`/uploads/contact_files/${encodeURIComponent(contact.attachmentFilename)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 inline-flex items-center gap-2">
+                              <ExternalLink className="w-4 h-4" />
+                              Download attachment {contact.attachmentOriginalName ? `(${contact.attachmentOriginalName})` : ''}
+                            </a>
+                          </div>
+                        )}
                       </div>
 
                       {/* Message & Details */}
