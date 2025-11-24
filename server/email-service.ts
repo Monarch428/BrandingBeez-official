@@ -157,6 +157,7 @@
 
 
 
+import path from "path";
 import nodemailer from "nodemailer";
 import { notificationService } from "./notification-service";
 
@@ -215,6 +216,7 @@ export async function sendQuestionnaireToAdmin(submission: {
   phone?: string;
   questionnaire: any;
   submittedAt?: Date;
+  file?: { path: string; originalname?: string; mimetype?: string };
 }) {
   // Store notification in memory for admin panel viewing
   notificationService.addNotification("custom_app_questionnaire", {
@@ -283,7 +285,8 @@ export async function sendQuestionnaireToAdmin(submission: {
       },
     });
 
-    const filename = `custom-app-questionnaire-${Date.now()}.txt`;
+    const filenameTxt = `custom-app-questionnaire-${Date.now()}.txt`;
+    const filenameDoc = filenameTxt.replace(/\.txt$/, ".doc");
 
     const mailOptions = {
       from: SMTP_USER,
@@ -292,11 +295,28 @@ export async function sendQuestionnaireToAdmin(submission: {
       text: `New questionnaire submitted by ${submission.name} <${submission.email}>. See attached file for full answers.`,
       attachments: [
         {
-          filename,
+          filename: filenameTxt,
           content: attachmentContent,
+        },
+        // Also attach a .doc copy (plain text) so recipients expecting a Word doc see an attachment
+        {
+          filename: filenameDoc,
+          content: attachmentContent,
+          contentType: "application/msword",
         },
       ],
     };
+
+    // If server saved an uploaded questionnaire file, attach it as well
+    if ((submission as any).file && (submission as any).file.path) {
+      const f: any = (submission as any).file;
+      // Push the uploaded file as an attachment (keep original filename)
+      (mailOptions as any).attachments.push({
+        filename: f.originalname || path.basename(f.path),
+        path: f.path,
+        contentType: f.mimetype || undefined,
+      });
+    }
 
     await transporter.sendMail(mailOptions);
     console.log("Questionnaire emailed to", adminEmail);
