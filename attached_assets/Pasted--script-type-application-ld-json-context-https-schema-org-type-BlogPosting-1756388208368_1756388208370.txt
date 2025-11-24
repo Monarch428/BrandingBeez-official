@@ -1,0 +1,61 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://brandingbeez.co.uk/ad-fatigue-in-digital-marketing"
+  },
+  "headline": "What is Ad Fatigue in Digital Marketing and How to Overcome It",
+  "description": "Learn what ad fatigue in digital marketing is, why it happens, and proven strategies to overcome it in 2025 for better campaign performance.",
+  "image": "https://brandingbeez.co.uk/images/ad-fatigue-digital-marketing.jpg", 
+  "author": {
+    "@type": "Organization",
+    "name": "BrandingBeez",
+    "url": "https://brandingbeez.co.uk"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "BrandingBeez",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://brandingbeez.co.uk/logo.png"
+    }
+  },
+  "datePublished": "2025-08-22",
+  "dateModified": "2025-08-22"
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How often should I refresh my ads?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ads should be refreshed every 2–3 weeks depending on your budget and audience size to avoid ad fatigue."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can small businesses face ad fatigue?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, even small businesses with limited ad budgets can experience ad fatigue if the same ad is shown repeatedly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which platforms are most affected by ad fatigue?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ad fatigue is most common on social platforms like Meta (Facebook & Instagram), LinkedIn, and TikTok where users quickly notice repeated ads."
+      }
+    }
+  ]
+}
+</script>

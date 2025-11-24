@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /src/
+Disallow: /_next/
+Disallow: /api/
+Disallow: /api/admin/
+Disallow: /admin/
+Disallow: /.well-known/
+Disallow: /__vite/
+
+Sitemap: https://brandingbeez.co.uk/sitemap.xml

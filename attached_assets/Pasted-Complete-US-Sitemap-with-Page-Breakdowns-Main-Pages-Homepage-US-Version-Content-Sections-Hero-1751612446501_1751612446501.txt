@@ -1,0 +1,407 @@
+Complete US Sitemap with Page Breakdowns
+Main Pages
+/ (Homepage - US Version)
+Content Sections:
+Hero section with US market messaging
+Statistics from US operations
+US client logos and testimonials
+Services overview for US market
+Featured US case studies
+US contact information and CTA with BNI, Master network & H7 logos..
+/services (Services Overview - US Market):
+Featured service for the US market (With discounts & CTA)
+Service category grid with US pricing
+US client success metrics
+Process overview
+US team expertise highlights
+Contact form for service inquiries
+/about (About Us - US Team & Operations)
+Company story and US market focus
+US team member profiles with photos
+US office locations and facilities
+Company culture and values
+/contact (Contact - US Offices & Phone Numbers)
+Content Sections:
+US office locations with maps
+US phone numbers and business hours
+Contact form with US-specific fields
+Live chat integration
+Directions and parking information
+
+Service Pages Breakdown
+SEO Services Section
+/services/seo:
+Hero with Featured US client SEO performance metrics
+US client logos and success stories
+SEO methodology and process
+Case study previews
+Packages with US pricing (3 packages)
+Testimonials from US clients
+Free audit CTA
+Web Development Services Section
+/services/web-development
+
+
+Featured website in the hero section with link to the case study page
+Web development overview
+Technology stack expertise (Wordpress, Shopify, Full-stack)
+US client portfolio highlights
+
+/services/web-development/wordpress
+WordPress expertise overview
+Featured wordpress site with link to case study
+Custom theme development capabilities
+WordPress portfolio showcase (Case studies with links)
+WordPress package pricing
+Testimonials
+Free website audit CTA
+/services/web-development/wordpress/site-1 (Case study)
+
+Project overview and client background
+Technologies and plugins used
+Custom features developed
+Performance metrics achieved
+Client testimonial and feedback
+/services/web-development/shopify
+Featured shopify site (With CTA & details)
+Custom theme development
+App integration capabilities
+Shopify Plus experience
+E-commerce optimization features
+Conversion rate improvement strategies
+Shopify package pricing
+
+/services/web-development/shopify/site-1
+Content Sections:
+Shopify store development overview
+Custom theme design and development
+Product catalog organization
+Checkout process optimization
+Payment gateway setup
+Inventory management integration
+/services/web-development/full-stack
+Full-stack development capabilities
+Technology stack options
+Custom application development
+Database design and optimization
+API development and integration
+Scalability and performance focus
+Full-stack project pricing
+/services/web-development/full-stack/site-1
+Content Sections:
+Custom web application project
+Frontend framework implementation
+Backend architecture design
+Database schema and optimization
+User authentication and security
+API development and documentation
+Performance benchmarks achieved
+Automation Services Section
+/services/automation
+
+Features N8N automation with price & CTA
+Automation benefits and ROI
+Industry-specific automation solutions
+Integration capabilities
+Custom workflow development
+Support and maintenance services
+Automation consulting services
+/services/automation/real-estate
+
+Features Real estate automation with price & CTA.
+Property management workflow solutions
+Tenant and landlord portal integrations
+Lead generation and nurturing automation
+Maintenance request workflows
+Financial reporting automation
+Real estate CRM integrations
+CTA
+
+
+
+/services/automation/real-estate/automation-1
+
+Tenant screening automation overview
+Application processing workflow
+Background check integration
+Credit score verification automation
+Reference contact and verification
+Approval/rejection notification system
+Compliance and documentation features
+Pricing with CTA.
+/services/automation/real-estate/automation-2
+
+Automated rent collection system
+Payment reminder workflows
+Multiple payment method integration
+Late fee calculation and application
+Eviction notice generation
+Financial reporting automation
+Tenant communication sequences
+Pricing with CTA.
+/services/automation/real-estate/automation-3
+Maintenance request automation
+Tenant portal integration
+Vendor assignment and notification
+Work order generation and tracking
+Completion verification workflows
+Cost tracking and reporting
+Preventive maintenance scheduling
+Pricing with CTA
+/services/automation/real-estate/automation-4
+
+Lease renewal automation system
+Market rate analysis integration
+Renewal offer generation
+Document management and e-signatures
+Lease expiration tracking
+Vacancy prevention workflows
+Legal compliance automation
+Pricing with CTA
+/services/automation/accounting
+
+Accounting firm automation solutions
+Client onboarding automation
+Document processing workflows
+Tax preparation automation
+Bookkeeping process optimization
+Compliance and deadline management
+Client communication automation
+Pricing with CTA
+
+/services/automation/accounting/automation-1
+Client intake automation system
+Document collection workflows
+KYC compliance automation
+Engagement letter processing
+File organization and setup
+Team assignment automation
+Client portal access setup
+Pricing with CTA
+/services/automation/accounting/automation-2
+Document categorization automation
+Data extraction from financial documents
+Bank statement processing
+Receipt and invoice automation
+Document storage and retrieval
+OCR integration and accuracy
+Audit trail maintenance
+Pricing with CTA
+/services/automation/accounting/automation-3
+Tax document automation
+Client data aggregation
+Tax form population
+Review workflow automation
+Client approval processes
+E-filing integration
+Tax deadline management
+Pricing with CTA
+/services/automation/accounting/automation-4
+Automated financial statement generation
+Multi-client reporting workflows
+Performance metrics tracking
+Client dashboard automation
+Regulatory compliance reporting
+Custom report generation
+Distribution and delivery automation
+Pricing with CTA
+/services/automation/marketing
+Marketing agency automation solutions
+Lead management automation
+Campaign workflow optimization
+Client reporting automation
+Social media management workflows
+Email marketing automation
+Performance tracking integration
+Pricing with CTA
+/services/automation/marketing/automation-1
+Lead capture and qualification automation
+CRM integration and data sync
+Lead scoring and prioritization
+Follow-up sequence automation
+Sales handoff processes
+Lead nurturing workflows
+Conversion tracking and attribution
+Pricing with CTA
+/services/automation/marketing/automation-2
+Multi-channel campaign coordination
+Campaign approval workflows
+Asset management and distribution
+Performance monitoring automation
+Budget tracking and alerts
+Campaign optimization triggers
+ROI calculation and reporting
+Pricing with CTA
+/services/automation/marketing/automation-3
+Content scheduling automation
+Multi-platform posting workflows
+Engagement monitoring and response
+Hashtag research and optimization
+Performance analytics aggregation
+Client approval workflows
+Crisis management protocols
+Pricing with CTA
+/services/automation/marketing/automation-4
+Automated report generation
+Data aggregation from multiple sources
+Custom dashboard creation
+Scheduled report delivery
+Performance benchmark tracking
+Client presentation automation
+Action item and recommendation generation
+Pricing with CTA
+/services/automation/law-firms
+Legal practice automation solutions
+Case management workflows
+Client intake automation
+Document assembly and review
+Billing and time tracking automation
+Court filing and deadline management
+Client communication workflows
+Pricing with CTA
+/services/automation/law-firms/automation-1
+Initial consultation scheduling
+Conflict checking automation
+Client information gathering
+Retainer agreement processing
+Case file creation and organization
+Team assignment workflows
+Client portal setup automation
+Pricing with CTA
+/services/automation/law-firms/automation-2
+Document assembly automation
+Template management and customization
+Version control and collaboration
+Document review workflows
+Client approval processes
+Secure document sharing
+Compliance and audit trails
+Pricing with CTA
+/services/automation/law-firms/automation-3
+Case timeline and milestone tracking
+Court deadline management
+Task assignment and monitoring
+Evidence collection and organization
+Witness management workflows
+Discovery process automation
+Case status reporting
+Pricing with CTA
+/services/automation/law-firms/automation-4
+Automated time entry and tracking
+Expense capture and categorization
+Invoice generation and customization
+Payment processing workflows
+Trust account management
+Financial reporting automation
+Client billing communication
+Pricing with CTA
+Additional Service Pages
+/services/google-ads
+Featured Google Ads management with CTA
+Campaign strategy and optimization
+US market advertising expertise
+Performance metrics and ROI
+Account audit and recommendations
+Certification and partnership status
+Success stories and case studies
+Package pricing and management fees
+Free audit offer and process
+/services/dedicated-resources
+Dedicated resource overview
+Available skill sets and expertise
+Developer categories (Frontend, Backend, Full-stack, Mobile)
+Designer categories (UI/UX, Graphic)
+Marketing specialists (SEO, PPC, Content)
+Project manager availability
+Hiring and vetting process
+Flexible engagement models
+Cost comparison with in-house hiring
+Team integration procedures
+Success stories and testimonials
+/services/ai-saas
+AI SaaS development capabilities
+Custom AI solution development
+Technology stack and frameworks
+Industry applications and use cases
+Development process and methodology
+Support and maintenance services
+AI consulting and strategy services
+Package pricing and consultation options
+
+Resources & Tools
+/resources (US Resources Hub)
+Content Sections:
+Resource library overview
+Free tools and calculators
+Industry guides and whitepapers
+Best practices and tutorials
+Webinar and event listings
+Newsletter signup
+Resource request form
+/resources/seo-checklist
+Content Sections:
+Comprehensive SEO checklist
+Technical SEO requirements
+On-page optimization checklist
+Content optimization guidelines
+Link building best practices
+Local SEO checklist
+Downloadable PDF version
+/resources/website-audit-tool
+Content Sections:
+Free website audit tool
+Performance analysis features
+SEO audit capabilities
+Mobile responsiveness check
+Security vulnerability assessment
+Audit report generation
+Improvement recommendations
+/resources/roi-calculator
+Content Sections:
+ROI calculator for various services
+SEO investment calculator
+PPC ROI estimation tool
+Website development ROI
+Automation savings calculator
+Custom calculation options
+Results interpretation guide
+/resources/pricing-guide
+Content Sections:
+Comprehensive pricing guide
+Service pricing breakdowns
+Package comparison charts
+Custom pricing factors
+ROI justification tools
+Budget planning worksheets
+Downloadable pricing sheets
+
+Legal & Compliance
+/privacy-policy (US Privacy Policy)
+Content Sections:
+US privacy law compliance
+Data collection and usage policies
+Cookie usage and consent
+Third-party service disclosures
+User rights and data access
+Contact information for privacy concerns
+Policy update procedures
+/terms-of-service (US Terms)
+Content Sections:
+Service agreement terms
+Intellectual property rights
+Limitation of liability
+Dispute resolution procedures
+Governing law specifications
+Service modification rights
+Account termination policies
+/cookie-policy (US Cookie Policy)
+Content Sections:
+Cookie usage explanation
+Types of cookies used
+Cookie consent management
+Third-party cookie disclosures
+Opt-out procedures
+Cookie preference settings
+Policy update notifications
+
+

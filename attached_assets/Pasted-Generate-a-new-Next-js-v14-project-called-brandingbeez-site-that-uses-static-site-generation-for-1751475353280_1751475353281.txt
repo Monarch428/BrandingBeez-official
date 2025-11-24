@@ -1,0 +1,47 @@
+Generate a new Next.js (v14) project called “brandingbeez-site” that uses static-site generation for optimal performance. The site must include:
+
+1. **Hero section**  
+   - An H1: “Your White-Label Growth Engine — Trusted by Agencies in the US, UK & Germany”  
+   - A subhead: “On-demand design, dev, SEO & AI integrations — delivered under your brand.”  
+   - Two CTAs: a primary “Book a Call” button that opens an embedded Calendly widget, and a secondary “Download Service Guide” link.
+
+2. **Trust bar** (just below hero)  
+   - Inline logos for: BNI, Master Networks, H7Networks, Google Cloud Academy Partner.  
+   - A horizontal “Agencies We Power” carousel of placeholder agency logos.
+
+3. **Services grid** (eight cards)  
+   - **AI Agents Development**  
+   - **AI-Powered Tools & Software**  
+   - **N8N Automation Solutions**  
+   - **Branding**  
+   - **Dedicated Resources** (graphic designers, web designers, video editors, SEO specialists, full-stack developers, personal assistants)  
+   - **SEO**  
+   - **Google Ads**  
+   - **Websites** (WordPress, Shopify, WooCommerce, BigCommerce & full-stack)  
+   Each card should have an icon, a title, and a 2–3 line description.
+
+4. **How It Works**  
+   - A 3-column stepper (“Onboard → Align → Deliver”) with simple icons and captions.
+
+5. **Regional selector** in the header  
+   - Flags/dropdown for US, UK, DE.  
+   - Toggling changes the contact email/phone UI text and the Calendly embed’s locale/time-zone.
+
+6. **Case studies**  
+   - Three mini case-study cards: Industry, Challenge → Solution → Result metrics.
+
+7. **Final CTA section**  
+   - Full-width Calendly embed.  
+   - Or a lightweight form (Name, Email, Agency Name, Country, “Top Priority” dropdown).
+
+8. **Footer**  
+   - Repeat trust logos.  
+   - Links: Privacy, Terms, Careers.  
+   - “Powered by BrandingBeez — your white-label partner since 2025.”
+
+Also configure:  
+- Global CDN and image optimization (`next/image`) serving WebP.  
+- Inline critical CSS, tree-shake JS, lazy load non-essential scripts.  
+- Lighthouse CI GitHub Action enforcing: TTI <1 s, page weight ≤ 1 MB.  
+
+Scaffold all pages and components, include placeholder content and comments where to drop real text, logos, and API keys (e.g., Calendly). Use Tailwind CSS for styling. Initialize git and include a README with setup instructions.
