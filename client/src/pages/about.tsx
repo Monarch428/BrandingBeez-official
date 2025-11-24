@@ -739,7 +739,7 @@ export default function About() {
                 Get the latest SEO, AI, and growth tips in your inbox.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/newsletter">
+                <Link href="/#newsletter">
                   <Button
                     size="lg"
                     className="bg-brand-coral hover:bg-brand-coral/90 text-white"

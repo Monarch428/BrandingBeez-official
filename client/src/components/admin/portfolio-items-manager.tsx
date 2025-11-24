@@ -574,7 +574,7 @@ export function PortfolioItemsManager() {
                     </div>
                   </div>
                 ))}
-                <Button type="button" variant="outline" onClick={addTestimonial}>
+                <Button className="bg-brand-coral text-white" type="button" variant="outline" onClick={addTestimonial}>
                   Add Testimonial
                 </Button>
               </div>

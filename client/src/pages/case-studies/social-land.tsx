@@ -613,7 +613,7 @@ export default function SocialLandCaseStudy() {
                 </p>
               </div> */}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
                 <Card className="text-center bg-white">
                   <CardContent className="p-8">
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -659,7 +659,7 @@ export default function SocialLandCaseStudy() {
                   </CardContent>
                 </Card>
 
-                <Card className="text-center bg-white">
+                {/* <Card className="text-center bg-white">
                   <CardContent className="p-8">
                     <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Users className="w-8 h-8 text-orange-600" />
@@ -672,7 +672,7 @@ export default function SocialLandCaseStudy() {
                       Dedicated stability
                     </div>
                   </CardContent>
-                </Card>
+                </Card> */}
               </div>
 
               <Card className="bg-white border-2 border-purple-200">

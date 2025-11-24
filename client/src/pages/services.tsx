@@ -377,8 +377,8 @@ export default function Services() {
                   </h2>
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
-                    <div className="text-3xl font-bold mb-2">
-                      Starting at $400/month
+                    <div className="text-3xl font-bold mb-2 text-yellow-200">
+                      <span className="text-white text-2xl">Starting at</span> $1200/month
                     </div>
                     <div className="text-lg text-gray-200 mb-4">
                       Per dedicated professional • Team discounts available
