@@ -114,7 +114,6 @@ export default function Footer() {
               </a>
             </div>
           </div>
-
           {/* Services */}
           <div>
             <h3 className="font-semibold mb-4 text-base">Services</h3>
@@ -137,7 +136,6 @@ export default function Footer() {
               {/* <li><a href="/services/dedicated-resources" className="hite transition-colors text-sm touch-manipulation">Dedicated Resources</a></li> */}
             </ul>
           </div>
-
           {/* Contact Information */}
           <div>
             <h3 className="font-semibold mb-4 flex items-center gap-2 text-base">
@@ -170,7 +168,6 @@ export default function Footer() {
             </ul>
           </div>
         </div>
-
         {/* Directory Listings & Networking Partners */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-8 border-t border-gray-800">
           {/* Directory Listings */}
@@ -214,7 +211,6 @@ export default function Footer() {
               </a>
             </div>
           </div>
-
           {/* Networking Partners */}
           <div>
             <h3 className="font-semibold mb-4 text-base flex items-center gap-2">
@@ -255,7 +251,6 @@ export default function Footer() {
             <a href="/terms-of-service" className="hover:text-white transition-colors touch-manipulation">Terms of Service</a>
           </div>
         </div>
-
         {/* Footer Bottom */}
         <div className="pt-4 sm:pt-6 border-t border-gray-800 text-center">
           <p className="text-gray-400 text-xs sm:text-sm">
