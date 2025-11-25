@@ -106,6 +106,8 @@ const GriffinGroupCaseStudy = lazy(
   () => import("@/pages/case-studies/griffin-group-case-study"),
 );
 
+const FSEDigital = lazy(() => import("@/pages/case-studies/fse-digital"));
+
 // Legal pages - lazy loaded
 const PrivacyPolicyPage = lazy(() => import("@/pages/privacy-policy"));
 const TermsOfServicePage = lazy(() => import("@/pages/terms-of-service"));
@@ -307,12 +309,18 @@ function Router() {
         path="/case-studies/website-architect"
         component={() => <LazyRoute component={WebsiteArchitectCaseStudy} />}
       />
-      <Route
-        path="/case-studies/payflow-systems"
-        component={() => (
-          <LazyRoute component={DedicatedResourcesFintechCaseStudy} />
-        )}
-      />
+        <Route
+          path="/case-studies/payflow-systems"
+          component={() => (
+            <LazyRoute component={DedicatedResourcesFintechCaseStudy} />
+          )}
+        />
+        <Route
+          path="/case-studies/fse-digital"
+          component={() => (
+            <LazyRoute component={FSEDigital} />
+          )}
+        />
 
       {/* Tools and utilities */}
       <Route

@@ -44,7 +44,7 @@ interface ContactFormData {
 
 const services = [
   { value: "website-development", label: "Website Development" },
-  { value: "seo", label: "SEO Services" },
+  { value: "seo", label: "SEO / AIO Services" },
   { value: "google-ads", label: "Google Ads" },
   { value: "dedicated-resources", label: "Dedicated Resources" },
   { value: "custom-app-development", label: "Custom Web & Mobile App Development" },

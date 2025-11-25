@@ -1496,12 +1496,12 @@ export default function DedicatedResources() {
 
                     {/* Pinned CTA - optional, can be linked later */}
                     <div className="mt-auto pt-4 border-t border-gray-100">
-                      <Button
-                        className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90"
-                        disabled
-                      >
-                        Case Study Coming Soon
-                      </Button>
+                     <Link href="/case-studies/fse-digital">
+                        <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                          View Full Case Study
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
