@@ -24,6 +24,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 // TODO: create this schema in your all-schemas file
 // import { FSEDigitalPpcSchema } from "@/utils/all-schemas";
+import FSELogo from "../../../public/images/FSE-Digital-Logo.jpg";
 
 export default function FSEDigitalPpcCaseStudy() {
   return (
@@ -101,8 +102,8 @@ export default function FSEDigitalPpcCaseStudy() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white flex items-center justify-center text-brand-purple font-bold text-xl">
-                      FSE
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white flex items-center justify-center text-brand-purple font-bold text-xl p-1">
+                      <img src={FSELogo} alt="FSE Digital Logo" />
                     </div>
                     <Badge className="bg-purple-100 text-purple-800 border-purple-200">
                       Performance Marketing Agency

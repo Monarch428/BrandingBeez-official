@@ -1295,17 +1295,17 @@ export default function Home() {
     },
     {
       id: 4,
-      title: "AI Development",
+      title: "Custom Mobile App Development",
       description:
-        "Transform your business with custom AI solutions including chatbots, automation, and intelligent web agents.",
+        "High-performance custom apps built for scalability and seamless user experience.",
       pricing: "Starting at $2,000/project",
       features: [
-        "AI chatbots",
-        "Custom AI models",
-        "Process automation",
-        "AI integrations",
+        "Custom Web Application Development",
+        "iOS & Android Mobile App Development",
+        "Full-Stack Web Applications",
+        "UI/UX Design & Prototyping",
       ],
-      href: "/services/ai-development",
+      href: "/services/custom-app-development",
       icon: Zap,
     },
   ];
