@@ -89,8 +89,8 @@ const serviceCategories = [
     ],
     metrics: "Setup Cost: Free\nAverage 60% cost savings vs. in-house team",
     couponCode: "SETUP FREE",
-    discount: "Free Setup Cost",
-    discountDescription: "No setup fees",
+    // discount: "Free Setup Cost",
+    discountDescription: "Dedicated Resources",
   },
   {
     id: "google-ads",
