@@ -1832,13 +1832,7 @@ export default function Home() {
                   Average 60% cost savings vs. in-house team
                 </div>
 
-                <ul className="
-  space-y-2 sm:space-y-3 
-  text-left text-gray-100 
-  mb-6 sm:mb-8 
-  grid grid-cols-1 sm:grid-cols-2 
-  gap-2 sm:gap-3
-">
+                <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Graphic Designers</span>
