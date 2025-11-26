@@ -464,7 +464,6 @@ export default function About() {
                   Meet Our Global Team
                 </h2>
 
-                {/* Inline team category titles */}
                 <div className="flex flex-wrap items-center justify-center gap-3 text-lg font-semibold text-gray-900">
                   <h3 className="text-brand-purple">Leadership Team</h3>
                   <span className="text-gray-400">|</span>
@@ -476,7 +475,6 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Team Member Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {teamMembers.map((member, index) => (
                   <Card key={index} className="h-full">
@@ -557,7 +555,6 @@ export default function About() {
               </div>
             </div>
           </section>
-
 
           {/* Mission & Vision */}
           <section className="py-16 px-4">
