@@ -1832,28 +1832,39 @@ export default function Home() {
                   Average 60% cost savings vs. in-house team
                 </div>
 
-                <ul className="space-y-2 sm:space-y-3 text-center text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+                <ul className="
+  space-y-2 sm:space-y-3 
+  text-left text-gray-100 
+  mb-6 sm:mb-8 
+  grid grid-cols-1 sm:grid-cols-2 
+  gap-2 sm:gap-3
+">
+                  <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Graphic Designers</span>
                   </li>
-                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+
+                  <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Video Editors</span>
                   </li>
-                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+
+                  <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">SEO Specialists</span>
                   </li>
-                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+
+                  <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Google Ads Experts</span>
                   </li>
-                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+
+                  <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Web Developers</span>
                   </li>
-                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+
+                  <li className="flex items-center gap-2 sm:gap-3">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Full-Stack Developers</span>
                   </li>
@@ -1864,8 +1875,8 @@ export default function Home() {
                     className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation group"
                     asChild
                   >
-                    <Link href="/contact?coupon=SETUP FREE&service=dedicated-resources&promo=setup-free">
-                      Free Setup Cost
+                    <Link href="/contact?service=dedicated-resources&#contact-form">
+                      Get Dedicated Resources
                       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white group-hover:text-brand-purple transition-colors duration-300" />
                     </Link>
                   </Button>
