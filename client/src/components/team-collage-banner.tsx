@@ -183,7 +183,8 @@ const teamMembers: TeamMember[] = [
   { name: "Charan", role: "Chief Visionary Officer", image: CharanStroke, position: { x: 75, y: 25, size: 120 } },
 
   // Second row - technical leads
-  { name: "Mathavan", role: "AI Developer", image: Mathavan_Stroke, position: { x: 10, y: 65, size: 100 } },
+  // { name: "Mathavan", role: "AI Developer", image: Mathavan_Stroke, position: { x: 10, y: 65, size: 100 } },
+  { name: "Niju", role: "WordPress Developer", image: NijuStroke, position: { x: 10, y: 65, size: 100 } },
   { name: "Logu", role: "Full-Stack Developer", image: Logu_Stroke, position: { x: 30, y: 65, size: 100 } },
   { name: "Vishnu", role: "WordPress Developer", image: VishnuStroke, position: { x: 50, y: 65, size: 100 } },
   { name: "Yuva", role: "SEO Specialist", image: YuvaStroke, position: { x: 70, y: 65, size: 100 } },
@@ -197,7 +198,6 @@ const teamMembers: TeamMember[] = [
   { name: "Priya", role: "Automation Specialist", image: PriyaStroke, position: { x: 55, y: 5, size: 90 } },
   { name: "Athira", role: "HR", image: AthiraStroke, position: { x: 75, y: 5, size: 90 } },
   { name: "Azeez", role: "Graphic Designer", image: Azeez_Stroke, position: { x: 95, y: 5, size: 90 } },
-  { name: "Niju", role: "WordPress Developer", image: NijuStroke, position: { x: 85, y: 85, size: 90 } },
 ];
 
 export function TeamCollageBanner() {
@@ -224,7 +224,7 @@ export function TeamCollageBanner() {
 
             {/* Team member images positioned absolutely */}
             {teamMembers.map((member, index) => {
-              const showBelow = member.position.y < 35; 
+              const showBelow = member.position.y < 35;
               const tooltipBase =
                 "absolute left-1/2 -translate-x-1/2 px-3 py-2 bg-black/80 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-20";
               const tooltipPos = showBelow

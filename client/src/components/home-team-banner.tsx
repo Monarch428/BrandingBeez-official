@@ -36,10 +36,10 @@ const teamMembers: TeamMember[] = [
   { name: "Vishnu", role: "WordPress Dev", image: VishnuStroke, position: { x: 30, y: 65, scale: 0.9, delay: 1.0 } },
   { name: "Yuva", role: "SEO Expert", image: YuvaStroke, position: { x: 65, y: 70, scale: 0.8, delay: 1.2 } },
   { name: "Gopal", role: "Ads Expert", image: GopalStroke, position: { x: 40, y: 85, scale: 0.85, delay: 1.4 } },
-  { name: "Mathavan", role: "AI Developer", image: Mathavan_Stroke, position: { x: 10, y: 50, scale: 0.8, delay: 0.6 } },
+  // { name: "Mathavan", role: "AI Developer", image: Mathavan_Stroke, position: { x: 10, y: 50, scale: 0.8, delay: 0.6 } },
   { name: "Logu", role: "Full-Stack Dev", image: Logu_Stroke, position: { x: 85, y: 55, scale: 0.85, delay: 0.8 } },
-  { name: "Sathesh", role: "Full-Stack Dev", image: Sathish_Stroke, position: { x: 5, y: 80, scale: 0.7, delay: 1.6 } },
   { name: "Raja", role: "AI Specialist", image: Raja_Stroke, position: { x: 60, y: 45, scale: 0.7, delay: 2.4 } },
+  { name: "Sathesh", role: "Full-Stack Dev", image: Sathish_Stroke, position: { x: 5, y: 80, scale: 0.7, delay: 1.6 } },
   { name: "Pradeep", role: "Full-Stack Dev", image: Pradeep_Stroke, position: { x: 60, y: 45, scale: 0.7, delay: 2.4 } },
 
 

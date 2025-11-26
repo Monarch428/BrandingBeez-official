@@ -798,6 +798,9 @@ import jithenImage from "../../public/images/Jithen-team-member.png";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png";
+import playImage from "../../public/images/com_3.jpg";
+import learnImage from "../../public/images/com_1.png";
+import growImage from "../../public/images/com_2.jpg";
 import {
   MapPin,
   Users,
@@ -858,19 +861,19 @@ const teamMembers = [
       "https://www.linkedin.com/in/vishnupriyaa-rajan?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
     specialties: ["Automation", "Process Design", "Workflow Optimization"],
   },
-  {
-    name: "Mathavan",
-    role: "AI Developer",
-    location: "India",
-    image: Mathavanimage,
-    bio: "Cutting-edge AI solutions and machine learning expert",
-    linkedin: "https://www.linkedin.com/in/mathavan-mukesh-7a53a3360",
-    specialties: [
-      "AI & Machine Learning Solutions",
-      "Generative AI & LLMs",
-      "Data Engineering & Automation",
-    ],
-  },
+  // {
+  //   name: "Mathavan",
+  //   role: "AI Developer",
+  //   location: "India",
+  //   image: Mathavanimage,
+  //   bio: "Cutting-edge AI solutions and machine learning expert",
+  //   linkedin: "https://www.linkedin.com/in/mathavan-mukesh-7a53a3360",
+  //   specialties: [
+  //     "AI & Machine Learning Solutions",
+  //     "Generative AI & LLMs",
+  //     "Data Engineering & Automation",
+  //   ],
+  // },
   {
     name: "Logu",
     role: "Full-Stack Developer",
@@ -1265,15 +1268,110 @@ export default function About() {
           {/* Team Collage Banner */}
           <TeamCollageBanner />
 
+          {/* Company Culture Section */}
+          <section className="py-16 px-4 bg-gray-50">
+            <div className="max-w-7xl mx-auto">
+              {/* Section Header */}
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">
+                  Company Culture
+                </h2>
+                <p className="text-lg md:text-xl text-gray-600">
+                  Building a workplace where excellence thrives
+                </p>
+              </div>
+
+              {/* Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                {/* CARD TEMPLATE (Repeat for all 3) */}
+                {/* Work Environment */}
+                <div className="bg-white border border-gray-200 rounded-3xl shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
+
+                  {/* Image */}
+                  <img
+                    src={playImage}
+                    alt="Collaborative work environment"
+                    className="w-full aspect-[4/3] object-cover rounded-t-3xl"
+                  />
+
+                  {/* CONTENT + ICON */}
+                  <div className="px-6 py-6 flex items-start justify-between">
+
+                    {/* LEFT: Title + Description */}
+                    <div className="max-w-[80%]">
+                      <h3 className="text-lg md:text-xl font-semibold text-[#59168B]">
+                        Work Environment
+                      </h3>
+                      <p className="text-sm md:text-base text-[#4A5565] mt-1 leading-relaxed">
+                        Collaborative, results-driven, continuous learning
+                      </p>
+                    </div>
+
+                    {/* RIGHT: Icon */}
+                    <div className="w-12 h-12 rounded-full bg-[#F6339A] flex items-center justify-center shadow-lg shrink-0">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Team Activities */}
+                <div className="bg-white border border-gray-200 rounded-3xl shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
+                  <img
+                    src={growImage}
+                    alt="Team activities"
+                    className="w-full aspect-[4/3] object-cover rounded-t-3xl"
+                  />
+                  <div className="px-6 py-6 flex items-start justify-between">
+                    <div className="max-w-[80%]">
+                      <h3 className="text-lg md:text-xl font-semibold text-[#59168B]">
+                        Team Activities
+                      </h3>
+                      <p className="text-sm md:text-base text-[#4A5565] mt-1 leading-relaxed">
+                        Weekly team building, quarterly offsites
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-[#F6339A] flex items-center justify-center shadow-lg shrink-0">
+                      <Calendar className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Professional Development */}
+                <div className="bg-white border border-gray-200 rounded-3xl shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
+                  <img
+                    src={learnImage}
+                    alt="Professional development"
+                    className="w-full aspect-[4/3] object-cover rounded-t-3xl"
+                  />
+                  <div className="px-6 py-6 flex items-start justify-between">
+                    <div className="max-w-[80%]">
+                      <h3 className="text-lg md:text-xl font-semibold text-[#59168B]">
+                        Professional Development
+                      </h3>
+                      <p className="text-sm md:text-base text-[#4A5565] mt-1 leading-relaxed">
+                        $2,000 annual learning budget per employee
+                      </p>
+                    </div>
+                    <div className="w-12 h-12 rounded-full bg-[#F6339A] flex items-center justify-center shadow-lg shrink-0">
+                      <BookOpen className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </section>
+
           {/* Team Details Section */}
-          <section className="py-16 px-4 bg-white">
+          <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-6 text-gray-900">
                   Meet Our Global Team
                 </h2>
 
-                {/* Inline team category titles */}
                 <div className="flex flex-wrap items-center justify-center gap-3 text-lg font-semibold text-gray-900">
                   <h3 className="text-brand-purple">Leadership Team</h3>
                   <span className="text-gray-400">|</span>
@@ -1285,7 +1383,6 @@ export default function About() {
                 </div>
               </div>
 
-              {/* Team Member Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {teamMembers.map((member, index) => (
                   <Card key={index} className="h-full">
@@ -1372,9 +1469,8 @@ export default function About() {
           </section>
 
           {/* 🌍 Regional Business Partners Section */}
-          <section className="py-20 px-4 md:px-6 bg-gray-50">
+          {/* <section className="py-20 px-4 md:px-6 bg-gray-50">
             <div className="max-w-7xl mx-auto">
-              {/* Header */}
               <div className="text-center mb-16">
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-coral/10 text-brand-coral rounded-full text-xs md:text-sm font-medium mb-4">
                   <Globe size={16} className="animate-pulse" />
@@ -1389,7 +1485,6 @@ export default function About() {
                 </p>
               </div>
 
-              {/* Regional Partners Grid */}
               <div className="grid md:grid-cols-3 gap-8 mb-14">
                 {regionalPartners.map((partner, index) => (
                   <Card
@@ -1397,7 +1492,6 @@ export default function About() {
                     className="h-full border border-brand-purple/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                   >
                     <CardContent className="p-6 flex flex-col h-full">
-                      {/* Top: avatar + basic info */}
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
                           <img
@@ -1424,12 +1518,10 @@ export default function About() {
                         </div>
                       </div>
 
-                      {/* Role / description */}
                       <p className="text-sm text-gray-600 mb-4">
                         {partner.role}
                       </p>
 
-                      {/* Expertise list */}
                       <div className="mb-4">
                         <p className="text-xs font-semibold text-gray-700 mb-2">
                           Key expertise
@@ -1447,7 +1539,6 @@ export default function About() {
                         </ul>
                       </div>
 
-                      {/* Contact line */}
                       <div className="mt-auto pt-3 border-t border-gray-100">
                         <p className="text-xs md:text-sm text-brand-coral font-medium">
                           {partner.contact}
@@ -1458,7 +1549,6 @@ export default function About() {
                 ))}
               </div>
 
-              {/* Global Partnership Benefits */}
               <div className="bg-white/90 backdrop-blur-sm border border-brand-purple/10 rounded-2xl p-8 shadow-sm">
                 <h3 className="font-bold text-xl text-brand-purple mb-2 text-center">
                   Global Partnership Benefits
@@ -1507,8 +1597,7 @@ export default function About() {
                 </div>
               </div>
             </div>
-          </section>
-
+          </section> */}
 
           {/* Mission & Vision */}
           <section className="py-16 px-4">
@@ -1538,7 +1627,7 @@ export default function About() {
           </section>
 
           {/* Core Values */}
-          <section className="py-16 px-4 bg-white">
+          <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-4 text-gray-900">
@@ -1601,78 +1690,6 @@ export default function About() {
                     </h3>
                     <p className="text-gray-600 text-sm">
                       Staying ahead of industry trends and technology
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
-
-          {/* Company Culture Section */}
-          <section className="py-16 px-4">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4 text-gray-900">
-                  Company Culture
-                </h2>
-                <p className="text-xl text-gray-600">
-                  Building a workplace where excellence thrives
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <Card className="text-center  transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Users className="w-6 h-6 text-brand-coral" />
-                    </div>
-                    <h3 className="font-bold text-lg text-brand-purple mb-2">
-                      Work Environment
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Collaborative, results-driven, continuous learning
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="text-center  transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Calendar className="w-6 h-6 text-brand-coral" />
-                    </div>
-                    <h3 className="font-bold text-lg text-brand-purple mb-2">
-                      Team Activities
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Weekly team building, quarterly offsites
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="text-center  transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="w-6 h-6 text-brand-coral" />
-                    </div>
-                    <h3 className="font-bold text-lg text-brand-purple mb-2">
-                      Professional Development
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      $2,000 annual learning budget per employee
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="text-center  transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                      <Heart className="w-6 h-6 text-brand-coral" />
-                    </div>
-                    <h3 className="font-bold text-lg text-brand-purple mb-2">
-                      Benefits
-                    </h3>
-                    <p className="text-gray-600 text-sm">
-                      Health insurance, 401k, flexible work arrangements
                     </p>
                   </CardContent>
                 </Card>
