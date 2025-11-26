@@ -507,7 +507,7 @@ export default function AiSearchOptimization() {
                                                     <span>Conversational keyword ranking</span>
                                                 </li>
                                             </ul>
-                                            <Link href="/contact">
+                                            <Link href="/contact?service=seo#contact-form">
                                                 <Button className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90">
                                                     Choose Starter AIO
                                                 </Button>
@@ -620,7 +620,7 @@ export default function AiSearchOptimization() {
                                                     <span>Entity relationship graph growth</span>
                                                 </li>
                                             </ul>
-                                            <Link href="/contact">
+                                            <Link href="/contact?service=seo#contact-form">
                                                 <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
                                                     Choose Growth AIO
                                                 </Button>
@@ -733,7 +733,7 @@ export default function AiSearchOptimization() {
                                                     <span>E-E-A-T & brand authority growth</span>
                                                 </li>
                                             </ul>
-                                            <Link href="/contact">
+                                            <Link href="/contact?service=seo#contact-form">
                                                 <Button className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90">
                                                     Choose Pro AIO
                                                 </Button>
@@ -844,7 +844,7 @@ export default function AiSearchOptimization() {
                     </section>
 
                     {/* === AIO Quick Questionnaire === */}
-                    <section className="py-16 px-4 bg-white">
+                    {/* <section className="py-16 px-4 bg-white">
                         <div className="max-w-4xl mx-auto">
                             <div className="text-center mb-8">
                                 <h2 className="text-3xl font-bold text-brand-purple mb-2">
@@ -940,7 +940,7 @@ export default function AiSearchOptimization() {
                                 )}
                             </div>
                         </div>
-                    </section>
+                    </section> */}
 
                     {/* CTA Section */}
                     <section className="py-16 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">

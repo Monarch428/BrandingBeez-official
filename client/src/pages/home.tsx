@@ -1030,6 +1030,12 @@ import {
   Code,
   Zap,
   Target,
+  Globe,
+  MapPin,
+  Award,
+  Users,
+  TrendingUp,
+  Heart,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
@@ -1054,6 +1060,65 @@ import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
 import PhoneInput from "react-phone-input-2";
+import ken from "../../public/images/Ken.png";
+import matt from "../../public/images/Matt.png";
+import phillip from "../../public/images/Phillip.png"
+
+// ✅ Regional Partners type + data
+type RegionalPartnersMember = {
+  name: string;
+  title: string;
+  location: string;
+  role: string;
+  expertise: string[];
+  contact: string;
+  image?: string;
+};
+
+const regionalPartners: RegionalPartnersMember[] = [
+  {
+    name: "Ken",
+    title: "Business Partner - United States",
+    location: "Nationwide USA Coverage",
+    role: "Ken represents BrandingBeez across the United States, connecting with local businesses and forums to bring AI automation solutions to American SMBs.",
+    expertise: [
+      "US market AI adoption strategies",
+      "Local business development and networking",
+      "SMB outreach and community engagement",
+      "Regional compliance and business practices",
+    ],
+    contact: "Reach Ken for US-based projects and consultations",
+    image: ken,
+  },
+  {
+    name: "Matt",
+    title: "Business Partner - Miami/Southeast",
+    location: "Miami, Florida & Southeast Region",
+    role: "Matt focuses on the vibrant Miami business ecosystem and Southeast markets, specializing in connecting with local entrepreneurs and established businesses.",
+    expertise: [
+      "Southeast US market penetration",
+      "Miami startup and SMB ecosystem",
+      "Local networking and business development",
+      "Regional market insights and opportunities",
+    ],
+    contact: "Connect with Matt for Southeast US projects",
+    image: matt,
+  },
+  {
+    name: "Phillip Einetter",
+    title: "Business Partner - Germany/Europe",
+    location: "Germany & European Markets",
+    role: "Philip brings BrandingBeez AI solutions to German and European businesses, navigating GDPR compliance and regional business practices.",
+    expertise: [
+      "European market AI regulations (GDPR compliance)",
+      "German business culture and practices",
+      "EU-wide business development",
+      "Multi-language project coordination",
+    ],
+    contact: "Contact Philip for European projects and consultations",
+    image: phillip,
+  },
+];
 
 export default function Home() {
 
@@ -1323,6 +1388,7 @@ export default function Home() {
         <link rel="canonical" href="https://brandingbeez.co.uk/" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
+
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         <SEOHead
           title="White-Label Digital Agency Partner | Branding Beez"
@@ -1333,28 +1399,33 @@ export default function Home() {
         />
         <SchemaMarkup type="localBusiness" />
         <Header />
+
         <main>
           {/* Hero Section */}
-          <section className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral text-white py-12 sm:py-16 lg:py-20 px-4">
-            <div className="max-w-[84rem] mx-auto p-2">
+          <section className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral text-white py-10 sm:py-14 lg:py-20 px-4 sm:px-6">
+            <div className="max-w-[84rem] mx-auto px-2 sm:px-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                {/* Left: Copy */}
                 <div>
-                  <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-6">
-                    <span className="text-sm font-semibold text-white">
+                  <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-5 sm:mb-6">
+                    <span className="text-xs sm:text-sm font-semibold text-white">
                       ✓ Trusted by 25+ Agencies Worldwide
                     </span>
                   </div>
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
+
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
                     Scale Your Agency
                     <span className="text-brand-yellow"> Without Hiring</span>
                   </h1>
-                  <p className="text-lg sm:text-lg lg:text-lg text-white/90 mb-8 lg:text-justify leading-relaxed">
-                    White-label digital services that help agencies hire expert
-                    teams for web development, PPC, and SEO. We handle the entire
-                    process so you can focus on growing your business and
-                    delivering results for your clients.
+
+                  <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 text-left lg:text-justify leading-relaxed">
+                    White-label digital services that help agencies hire expert teams
+                    for web development, PPC, and SEO. We handle the entire process so
+                    you can focus on growing your business and delivering results for
+                    your clients.
                   </p>
-                  <h2 className="text-2xl sm:text-md lg:text-2xl font-semibold text-white/90 mb-8 leading-relaxed">
+
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-white/90 mb-6 sm:mb-8 leading-snug">
                     A Team of 20+ Ready to Help
                   </h2>
 
@@ -1362,19 +1433,19 @@ export default function Home() {
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                      <span className="text-md lg:text-md text-white">
+                      <span className="text-sm sm:text-base text-white">
                         100% White-Label
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                      <span className="text-md lg:text-md text-white">
+                      <span className="text-sm sm:text-base text-white">
                         24hr Response Time
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                      <span className="text-md lg:text-md text-white">
+                      <span className="text-sm sm:text-base text-white">
                         85% Satisfaction Rate
                       </span>
                     </div>
@@ -1395,6 +1466,7 @@ export default function Home() {
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
                     </Button>
+
                     <Button
                       size="lg"
                       className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
@@ -1408,7 +1480,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="relative">
+                {/* Right: HomeTeamBanner (hidden <= 480px) */}
+                <div className="relative max-[480px]:hidden">
                   <HomeTeamBanner />
                 </div>
               </div>
@@ -1416,13 +1489,13 @@ export default function Home() {
           </section>
 
           {/* Services Section */}
-          <section className="py-14 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <section className="py-12 sm:py-16 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+              <div className="text-center mb-10 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                   Our Services
                 </h2>
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto">
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
                   We offer a wide range of digital marketing services to help you
                   grow your business.
                 </p>
@@ -1437,33 +1510,36 @@ export default function Home() {
                       key={service.id}
                       className="group border-gray-200 shadow-sm transition-all duration-300 flex flex-col h-full"
                     >
-                      {/* Header */}
+                      {/* HEADER */}
                       <CardHeader className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-brand-coral/20 transition-colors">
-                          <Icon className="w-6 h-6 text-brand-coral-darker" />
+                        {/* ICON + TITLE ROW */}
+                        <div className="flex items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
+                          <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0" />
+                          <CardTitle className="text-base sm:text-lg font-bold text-brand-purple">
+                            {service.title}
+                          </CardTitle>
                         </div>
 
-                        <CardTitle className="text-xl font-bold text-brand-purple min-h-[3.5rem] flex items-center">
-                          <h3>{service.title}</h3>
-                        </CardTitle>
-
-                        <p className="text-gray-700 min-h-[3rem] leading-relaxed text-left line-clamp-4">
+                        {/* DESCRIPTION */}
+                        <p className="text-sm sm:text-base text-gray-700 min-h-[3rem] leading-relaxed text-left line-clamp-4">
                           {service.description}
                         </p>
                       </CardHeader>
 
-                      {/* Body + Button */}
+                      {/* BODY */}
                       <CardContent className="pt-0 flex flex-col flex-1">
                         <div className="flex flex-col flex-1 space-y-4">
-                          <div className="text-lg font-bold text-brand-coral-darker">
+                          {/* PRICING */}
+                          <div className="text-base sm:text-lg font-bold text-brand-coral-darker">
                             {service.pricing}
                           </div>
 
+                          {/* FEATURES */}
                           <ul className="space-y-2 flex-1">
                             {service.features.map((feature, index) => (
                               <li
                                 key={index}
-                                className="flex items-start gap-2 text-sm"
+                                className="flex items-start gap-2 text-xs sm:text-sm"
                               >
                                 <CheckCircle className="w-4 h-4 text-brand-coral-darker mt-0.5 flex-shrink-0" />
                                 <span>{feature}</span>
@@ -1471,11 +1547,16 @@ export default function Home() {
                             ))}
                           </ul>
 
-                          {/* FORCE BUTTON TO BOTTOM */}
+                          {/* BUTTON — STICKS TO BOTTOM */}
                           <div className="mt-auto pt-4">
                             <Link href={service.href}>
-                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
-                                <span className="leading-tight text-white text-md">
+                              <Button
+                                className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark
+                             hover:from-brand-coral-dark hover:to-brand-coral-darker text-white
+                             font-bold text-sm sm:text-base flex items-center justify-center gap-2
+                             shadow-lg whitespace-nowrap"
+                              >
+                                <span className="leading-tight text-white text-sm sm:text-base">
                                   Learn More
                                 </span>
                                 <ArrowRight className="w-4 h-4" />
@@ -1491,135 +1572,216 @@ export default function Home() {
             </div>
           </section>
 
-          <section className="py-16 bg-gray-50 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  <span className="text-5xl font-extrabold text-brand-coral">
+          {/* 🌍 Regional Business Partners Section */}
+          <section className="py-16 sm:py-20 px-4 sm:px-6 bg-white">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-12 sm:mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-brand-coral/10 text-brand-coral rounded-full text-xs md:text-sm font-medium mb-4">
+                  <Globe size={16} className="animate-pulse" />
+                  <span>Global Team, Local Expertise</span>
+                </div>
+                <h2 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-brand-purple text-balance mb-4">
+                  Regional partners growing BrandingBeez in key markets worldwide
+                </h2>
+                <p className="text-xs sm:text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+                  From the US to Europe, our local business partners help agencies and
+                  businesses adopt AI, automation, and performance marketing — with
+                  on-ground context and support.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-14">
+                {regionalPartners.map((partner, index) => (
+                  <Card
+                    key={index}
+                    className="h-full border border-brand-purple/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+                  >
+                    <CardContent className="p-5 sm:p-6 flex flex-col h-full">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                          <img
+                            src={
+                              partner.image
+                                ? partner.image
+                                : `/professional-business-partner-headshot-.jpg?height=400&width=400&query=professional business partner headshot ${partner.name}`
+                            }
+                            alt={partner.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex flex-col">
+                          <h3 className="font-semibold text-sm sm:text-base md:text-lg text-brand-purple">
+                            {partner.name}
+                          </h3>
+                          <p className="text-xs md:text-sm text-brand-coral font-medium">
+                            {partner.title}
+                          </p>
+                          <div className="flex items-center gap-1 text-[11px] md:text-xs text-gray-500 mt-1">
+                            <MapPin size={12} />
+                            <span>{partner.location}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-gray-600 mb-4">
+                        {partner.role}
+                      </p>
+
+                      <div className="mb-4">
+                        <p className="text-xs font-semibold text-gray-700 mb-2">
+                          Key expertise
+                        </p>
+                        <ul className="space-y-1">
+                          {partner.expertise.map((item, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-xs md:text-sm text-gray-600"
+                            >
+                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="mt-auto pt-3 border-t border-gray-100">
+                        <p className="text-xs md:text-sm text-brand-coral font-medium">
+                          {partner.contact}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              <div className="bg-white/90 backdrop-blur-sm border border-brand-purple/10 rounded-2xl p-6 sm:p-8 shadow-sm">
+                <h3 className="font-bold text-lg sm:text-xl text-brand-purple mb-2 text-center">
+                  Global Partnership Benefits
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-600 mb-6 sm:mb-8 text-center max-w-2xl mx-auto">
+                  One core delivery team, amplified by regional partners who
+                  understand local markets, regulations, and business cultures.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {[
+                    {
+                      icon: Globe,
+                      text: "24/7 Coverage: Time zone coverage across US, Europe, and Asia",
+                    },
+                    {
+                      icon: MapPin,
+                      text: "Local Expertise: Regional partners understand local business practices",
+                    },
+                    {
+                      icon: Award,
+                      text: "Global Standards: Consistent technical quality from our core team",
+                    },
+                    {
+                      icon: Users,
+                      text: "Cultural Fit: Solutions adapted to regional business cultures",
+                    },
+                    {
+                      icon: TrendingUp,
+                      text: "Compliance: Guidance for GDPR, HIPAA, and regional regulations",
+                    },
+                    {
+                      icon: Heart,
+                      text: "Warmer Relationships: Local networking and community access",
+                    },
+                  ].map((benefit, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-brand-wings/60 transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-brand-coral/10 flex items-center justify-center flex-shrink-0">
+                        <benefit.icon size={20} className="text-brand-coral" />
+                      </div>
+                      <p className="text-sm text-gray-700">{benefit.text}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Partner Agencies Marquee */}
+          <section className="py-12 sm:py-16 bg-gray-50 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+              <div className="text-center mb-10 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-brand-coral">
                     25+{" "}
                   </span>
                   <span className="text-gray-800">Partner Agencies</span>
                 </h2>
 
-                <p className="text-lg text-gray-700 max-w-3xl mx-auto">
-                  Trusted by leading agencies worldwide who rely on our expert
-                  teams to deliver exceptional results for their clients.
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
+                  Trusted by leading agencies worldwide who rely on our expert teams
+                  to deliver exceptional results for their clients.
                 </p>
               </div>
 
               {/* ---- MARQUEE CAROUSEL ---- */}
               <div className="relative w-full flex overflow-x-hidden">
-                <div className="flex animate-marquee whitespace-nowrap gap-6">
+                <div className="flex animate-marquee whitespace-nowrap gap-4 sm:gap-6">
                   {[...Array(2)].map((_, i) => (
-                    <div key={i} className="flex gap-6">
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={socialLandLogo}
-                          alt="Social Land"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Social Land
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={websiteArchitectLogo}
-                          alt="Website Architect"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Website Architect
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={focusEcommerceLogo}
-                          alt="Focus E-commerce"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Focus E-commerce
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={smartConnectingLogo}
-                          alt="Koala Digital"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Koala Digital
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={newVisionTechLogo}
-                          alt="New Vision Tech"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          New Vision Tech
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={carolinaWebLogo}
-                          alt="Carolina Web"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Carolina Web
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={intrinsicLogo}
-                          alt="Intrinsic"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Intrinsic
-                        </p>
-                      </div>
-
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={socialBrainLogo}
-                          alt="Social Brain"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          Social Brain
-                        </p>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={fsbLogo}
-                          alt="FSB Digital"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          FSB Digital
-                        </p>
-                      </div>
-                      <div className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[150px] md:w-[180px]">
-                        <img
-                          src={museLogo}
-                          alt="MUSE Digital Media"
-                          className="h-12 sm:h-14 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
-                          typeof=""
-                        />
-                        <p className="text-xs sm:text-sm font-medium text-gray-900">
-                          MUSE Digital Media
-                        </p>
-                      </div>
+                    <div key={i} className="flex gap-4 sm:gap-6">
+                      {[
+                        {
+                          logo: socialLandLogo,
+                          name: "Social Land",
+                        },
+                        {
+                          logo: websiteArchitectLogo,
+                          name: "Website Architect",
+                        },
+                        {
+                          logo: focusEcommerceLogo,
+                          name: "Focus E-commerce",
+                        },
+                        {
+                          logo: smartConnectingLogo,
+                          name: "Koala Digital",
+                        },
+                        {
+                          logo: newVisionTechLogo,
+                          name: "New Vision Tech",
+                        },
+                        {
+                          logo: carolinaWebLogo,
+                          name: "Carolina Web",
+                        },
+                        {
+                          logo: intrinsicLogo,
+                          name: "Intrinsic",
+                        },
+                        {
+                          logo: socialBrainLogo,
+                          name: "Social Brain",
+                        },
+                        {
+                          logo: fsbLogo,
+                          name: "FSB Digital",
+                        },
+                        {
+                          logo: museLogo,
+                          name: "MUSE Digital Media",
+                        },
+                      ].map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="bg-white rounded-lg p-3 sm:p-4 md:p-6 text-center shadow-sm border border-gray-200 flex-shrink-0 w-[140px] sm:w-[150px] md:w-[180px]"
+                        >
+                          <img
+                            src={item.logo}
+                            alt={item.name}
+                            className="h-10 sm:h-12 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
+                          />
+                          <p className="text-xs sm:text-sm font-medium text-gray-900">
+                            {item.name}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </div>
@@ -1628,81 +1790,78 @@ export default function Home() {
           </section>
 
           {/* Dedicated Resources Section */}
-          <section className="py-12 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+          <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-5xl mx-auto text-center">
-              <Badge className="bg-white/20 text-white border-white/30 mb-8 mx-auto">
+              <Badge className="bg-white/20 text-white border-white/30 mb-6 sm:mb-8 mx-auto">
                 🔥 Most Sought-After Service
               </Badge>
 
-              <h2 className="text-4xl sm:text-2xl md:text-3xl lg:text-5xl font-bold mb-6 sm:mb-8 leading-tight">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-5 sm:mb-7 leading-tight">
                 Dedicated Resources for US Agencies
               </h2>
 
-              <p className="text-lg sm:text-md lg:text-lg text-gray-100 mb-8 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed">
-                Scale your agency with handpicked pros who integrate seamlessly
+              <p className="text-sm sm:text-base lg:text-lg text-gray-100 mb-7 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed">
+                Scale your agency with handpicked pros who integrate seamlessly into
+                your workflows and client delivery.
               </p>
 
               <div
                 className="
-                  bg-[rgba(40,20,50,0.6)]
-                  backdrop-blur-xl
-                  rounded-2xl
-                  p-6 sm:p-8 lg:p-10
-                  mb-8 sm:mb-10 lg:mb-12
-                  border border-white/10
-                  shadow-[0px_8px_32px_rgba(0,0,0,0.3)]
-                  max-w-3xl mx-auto
-                "
+              bg-[rgba(40,20,50,0.6)]
+              backdrop-blur-xl
+              rounded-2xl
+              p-6 sm:p-8 lg:p-10
+              mb-8 sm:mb-10 lg:mb-12
+              border border-white/10
+              shadow-[0px_8px_32px_rgba(0,0,0,0.3)]
+              max-w-3xl mx-auto
+            "
               >
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-yellow-200">
-                  <span className="text-2xl sm:text-xl lg:text-2xl text-white"> Starting at </span>
-                 $1200/month
+                  <span className="text-lg sm:text-xl lg:text-2xl text-white">
+                    Starting at{" "}
+                  </span>
+                  $1200/month
                 </div>
 
-                <div className="text-base sm:text-md lg:text-lg text-gray-200 mb-2 sm:mb-3">
+                <div className="text-sm sm:text-base lg:text-lg text-gray-200 mb-2 sm:mb-3">
                   Team Discounts: Up to 20% Off
                 </div>
 
-                <div className="text-sm sm:text-base lg:text-lg text-gray-200 mb-6 sm:mb-8">
+                <div className="text-xs sm:text-sm lg:text-base text-gray-200 mb-6 sm:mb-8">
                   Average 60% cost savings vs. in-house team
                 </div>
 
-                <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  <li className="flex items-center gap-2 sm:gap-3">
+                <ul className="space-y-2 sm:space-y-3 text-center text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
                     <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
                     <span className="text-sm sm:text-base">Graphic Designers</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-base">Video Editors</span>
+                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Video Editors</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-base">SEO Specialists</span>
+                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                    <span className="text-sm sm:text-base">SEO Specialists</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-base">Google Ads Experts</span>
+                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Google Ads Experts</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-base">Web Developers</span>
+                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Web Developers</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-base">Full-Stack Developers</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle className="w-5 h-5 text-white flex-shrink-0" />
-                    <span className="text-base">
-                      Data Entry/Virtual Assistants/Social Media Managers
-                    </span>
+                  <li className="flex items-center gap-2 sm:gap-3 justify-center">
+                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                    <span className="text-sm sm:text-base">Full-Stack Developers</span>
                   </li>
                 </ul>
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
                   <Button
-                    className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-base lg:text-md sm:text-md px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation group"
+                    className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation group"
                     asChild
                   >
                     <Link href="/contact?coupon=SETUP FREE&service=dedicated-resources&promo=setup-free">
@@ -1713,7 +1872,7 @@ export default function Home() {
 
                   <Button
                     variant="outline"
-                    className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent text-base sm:text-md px-6 sm:px-8 py-3 sm:py-4 touch-manipulation"
+                    className="border-white text-white hover:bg-white hover:text-brand-purple bg-transparent text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 touch-manipulation"
                     asChild
                   >
                     <Link href="/services/dedicated-resources">Learn More</Link>
@@ -1724,100 +1883,66 @@ export default function Home() {
           </section>
 
           {/* Contact Form Section */}
-          <section className="py-16 px-4 bg-white">
+          <section className="py-14 sm:py-16 px-4 sm:px-6 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
                   Ready to Scale Your Agency?
                 </h2>
-                <p className="text-lg sm:text-md text-gray-700 px-4 sm:px-0">
-                  Get a free consultation and discover how we can help you grow
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 px-2 sm:px-0 max-w-2xl mx-auto">
+                  Get a free consultation and discover how we can help you grow.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
                 {/* Left Column - Strategy Call Agenda */}
                 <div className="space-y-6">
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-8 rounded-xl border border-purple-100">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 sm:p-8 rounded-xl border border-purple-100">
+                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
                       What to Expect in Your 30-Minute Strategy Call
                     </h3>
                     <ul className="space-y-4">
-                      <li className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <span className="font-semibold text-gray-900">
-                            Business Discovery
-                          </span>
-                          <p className="text-gray-700 text-sm mt-1">
-                            Understanding your current agency setup, services, and
-                            target market
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <span className="font-semibold text-gray-900">
-                            Challenge Identification
-                          </span>
-                          <p className="text-gray-700 text-sm mt-1">
-                            Pinpointing specific pain points and growth bottlenecks
-                            you're facing
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <span className="font-semibold text-gray-900">
-                            Collaboration Opportunities
-                          </span>
-                          <p className="text-gray-700 text-sm mt-1">
-                            Exploring how our services can complement your existing
-                            offerings
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <span className="font-semibold text-gray-900">
-                            Resource Assessment
-                          </span>
-                          <p className="text-gray-700 text-sm mt-1">
-                            Determining what type of support would best accelerate
-                            your growth
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <span className="font-semibold text-gray-900">
-                            Partnership Benefits
-                          </span>
-                          <p className="text-gray-700 text-sm mt-1">
-                            Discussing mutual opportunities for long-term
-                            collaboration
-                          </p>
-                        </div>
-                      </li>
-                      <li className="flex items-start space-x-3">
-                        <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                        <div>
-                          <span className="font-semibold text-gray-900">
-                            Next Steps
-                          </span>
-                          <p className="text-gray-700 text-sm mt-1">
-                            Outlining a clear action plan if there's a good fit
-                            between our businesses
-                          </p>
-                        </div>
-                      </li>
+                      {[
+                        {
+                          title: "Business Discovery",
+                          desc: "Understanding your current agency setup, services, and target market",
+                        },
+                        {
+                          title: "Challenge Identification",
+                          desc: "Pinpointing specific pain points and growth bottlenecks you're facing",
+                        },
+                        {
+                          title: "Collaboration Opportunities",
+                          desc: "Exploring how our services can complement your existing offerings",
+                        },
+                        {
+                          title: "Resource Assessment",
+                          desc: "Determining what type of support would best accelerate your growth",
+                        },
+                        {
+                          title: "Partnership Benefits",
+                          desc: "Discussing mutual opportunities for long-term collaboration",
+                        },
+                        {
+                          title: "Next Steps",
+                          desc: "Outlining a clear action plan if there's a good fit between our businesses",
+                        },
+                      ].map((item, idx) => (
+                        <li key={idx} className="flex items-start space-x-3">
+                          <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
+                          <div>
+                            <span className="font-semibold text-gray-900 text-sm sm:text-base">
+                              {item.title}
+                            </span>
+                            <p className="text-gray-700 text-xs sm:text-sm mt-1">
+                              {item.desc}
+                            </p>
+                          </div>
+                        </li>
+                      ))}
                     </ul>
                     <div className="mt-6 pt-2 border-t border-purple-200">
-                      <p className="text-sm text-gray-700 italic">
+                      <p className="text-xs sm:text-sm text-gray-700 italic">
                         This call is designed to be a genuine business-to-business
                         conversation focused on mutual growth and partnership
                         opportunities.
@@ -1830,7 +1955,7 @@ export default function Home() {
                 <div>
                   <Card className="shadow-xl">
                     <CardHeader>
-                      <CardTitle className="text-center font-bold text-gray-900">
+                      <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl">
                         Schedule Strategy Call
                       </CardTitle>
                     </CardHeader>
@@ -1872,6 +1997,7 @@ export default function Home() {
                             />
                           </div>
                         </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <Label
@@ -1912,6 +2038,7 @@ export default function Home() {
                             />
                           </div>
                         </div>
+
                         <div>
                           <Label
                             htmlFor="servicesInterested"
@@ -1930,7 +2057,7 @@ export default function Home() {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="SEO Services">
-                                SEO Services
+                                SEO/AIO Services
                               </SelectItem>
                               <SelectItem value="PPC/Google Ads">
                                 PPC/Google Ads
@@ -1944,8 +2071,8 @@ export default function Home() {
                               <SelectItem value="Dedicated Resource">
                                 Dedicated Resource
                               </SelectItem>
-                              <SelectItem value="N8N Automations">
-                                N8N Automations (Coming Soon)
+                              <SelectItem value="Custom Mobile App Development">
+                                Custom Mobile App Development
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -1961,78 +2088,70 @@ export default function Home() {
                             </Label>
                             <div className="grid grid-cols-1 gap-3">
                               {/* SEO Services Options */}
-                              {formData.servicesInterested ===
-                                "SEO Services" && (
-                                  <>
-                                    {[
-                                      "Link building",
-                                      "Local SEO",
-                                      "Technical SEO audit & fixes",
-                                      "Content marketing & SEO Blogging",
-                                      "E-Commerce SEO",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
+                              {formData.servicesInterested === "SEO Services" && (
+                                <>
+                                  {[
+                                    "Link building",
+                                    "Local SEO",
+                                    "Technical SEO audit & fixes",
+                                    "Content marketing & SEO Blogging",
+                                    "E-Commerce SEO",
+                                  ].map((option) => (
+                                    <div
+                                      key={option}
+                                      className="flex items-center space-x-2"
+                                    >
+                                      <Checkbox
+                                        id={option}
+                                        checked={formData.subServices.includes(
+                                          option
+                                        )}
+                                        onCheckedChange={(checked) =>
+                                          handleSubServiceChange(option, !!checked)
+                                        }
+                                      />
+                                      <Label
+                                        htmlFor={option}
+                                        className="text-sm font-medium text-gray-700 cursor-pointer"
                                       >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(
-                                              option,
-                                              !!checked
-                                            )
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
+                                        {option}
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </>
+                              )}
 
                               {/* PPC/Google Ads Options */}
-                              {formData.servicesInterested ===
-                                "PPC/Google Ads" && (
-                                  <>
-                                    {[
-                                      "Starter Package",
-                                      "Growth Package",
-                                      "Scale Package",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
+                              {formData.servicesInterested === "PPC/Google Ads" && (
+                                <>
+                                  {[
+                                    "Starter Package",
+                                    "Growth Package",
+                                    "Scale Package",
+                                  ].map((option) => (
+                                    <div
+                                      key={option}
+                                      className="flex items-center space-x-2"
+                                    >
+                                      <Checkbox
+                                        id={option}
+                                        checked={formData.subServices.includes(
+                                          option
+                                        )}
+                                        onCheckedChange={(checked) =>
+                                          handleSubServiceChange(option, !!checked)
+                                        }
+                                      />
+                                      <Label
+                                        htmlFor={option}
+                                        className="text-sm font-medium text-gray-700 cursor-pointer"
                                       >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(
-                                              option,
-                                              !!checked
-                                            )
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
+                                        {option}
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </>
+                              )}
 
                               {/* Website Development Options */}
                               {formData.servicesInterested ===
@@ -2054,10 +2173,7 @@ export default function Home() {
                                             option
                                           )}
                                           onCheckedChange={(checked) =>
-                                            handleSubServiceChange(
-                                              option,
-                                              !!checked
-                                            )
+                                            handleSubServiceChange(option, !!checked)
                                           }
                                         />
                                         <Label
@@ -2094,10 +2210,7 @@ export default function Home() {
                                             option
                                           )}
                                           onCheckedChange={(checked) =>
-                                            handleSubServiceChange(
-                                              option,
-                                              !!checked
-                                            )
+                                            handleSubServiceChange(option, !!checked)
                                           }
                                         />
                                         <Label
@@ -2130,10 +2243,7 @@ export default function Home() {
                                             option
                                           )}
                                           onCheckedChange={(checked) =>
-                                            handleSubServiceChange(
-                                              option,
-                                              !!checked
-                                            )
+                                            handleSubServiceChange(option, !!checked)
                                           }
                                         />
                                         <Label
@@ -2147,18 +2257,40 @@ export default function Home() {
                                   </>
                                 )}
 
-                              {/* N8N Automations Options */}
+                              {/* Custom Mobile App Development Options */}
                               {formData.servicesInterested ===
-                                "N8N Automations" && (
-                                  <div className="text-center py-4">
-                                    <p className="text-gray-500 font-medium">
-                                      Coming Soon!
-                                    </p>
-                                    <p className="text-sm text-gray-400">
-                                      We're working on bringing you the best N8N
-                                      automation solutions.
-                                    </p>
-                                  </div>
+                                "Custom Mobile App Development" && (
+                                  <>
+                                    {[
+                                      "Prototype / MVP Mobile App",
+                                      "Full-Scale Production App",
+                                      "iOS & Android App (Native/Hybrid)",
+                                      "Web + Mobile App Bundle",
+                                      "Redesign / Rebuild Existing App",
+                                      "Ongoing Maintenance & Feature Updates",
+                                    ].map((option) => (
+                                      <div
+                                        key={option}
+                                        className="flex items-center space-x-2"
+                                      >
+                                        <Checkbox
+                                          id={option}
+                                          checked={formData.subServices.includes(
+                                            option
+                                          )}
+                                          onCheckedChange={(checked) =>
+                                            handleSubServiceChange(option, !!checked)
+                                          }
+                                        />
+                                        <Label
+                                          htmlFor={option}
+                                          className="text-sm font-medium text-gray-700 cursor-pointer"
+                                        >
+                                          {option}
+                                        </Label>
+                                      </div>
+                                    ))}
+                                  </>
                                 )}
                             </div>
                           </div>
@@ -2181,10 +2313,11 @@ export default function Home() {
                             placeholder="Tell us about your agency and goals..."
                           />
                         </div>
+
                         <Button
                           type="submit"
                           disabled={contactMutation.isPending}
-                          className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg"
+                          className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
                         >
                           {contactMutation.isPending
                             ? "Submitting..."
@@ -2196,6 +2329,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
             <ThankYouPopup
               isOpen={showThankYouPopup}
               onClose={() => setShowThankYouPopup(false)}
@@ -2206,27 +2340,38 @@ export default function Home() {
           </section>
 
           {/* Newsletter CTA Section (inline newsletter page design) */}
-          <section id="newsletter" className="py-16 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">
-            <div className="text-center">
-              <h2 className="text-4xl md:text-5xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
-              <p className="text-lg text-white/90 mb-8">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
+          <section
+            id="newsletter"
+            className="py-14 sm:py-16 px-4 sm:px-6 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
+          >
+            <div className="text-center mb-8 sm:mb-10">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
+                Subscribe to Our Newsletter!
+              </h2>
+              <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto">
+                Join 1000+ marketers & agencies getting exclusive tips on SEO, AI,
+                and growth strategies delivered straight to their inbox.
+              </p>
             </div>
-            <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+
+            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12 items-center">
               {/* Left: Newsletter content */}
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-4">
                   Your Weekly 1-Minute Agency Growth Insights
                 </h2>
 
-                <p className="text-gray-200 mb-8 leading-relaxed text-justify">
+                <p className="text-sm sm:text-base text-gray-200 mb-7 sm:mb-8 leading-relaxed text-left md:text-justify">
                   Get actionable tips, pricing tricks, and automation tactics that
                   help modern agencies grow faster — delivered in clean 1-minute
                   reads.
                 </p>
 
-                <h3 className="text-xl font-semibold mb-3">What’s Inside</h3>
+                <h3 className="text-lg sm:text-xl font-semibold mb-3">
+                  What’s Inside
+                </h3>
 
-                <ul className="space-y-3 text-gray-100">
+                <ul className="space-y-3 text-gray-100 text-sm sm:text-base">
                   {[
                     "Fast client-winning strategies",
                     "Pricing & proposal hacks",
@@ -2246,7 +2391,7 @@ export default function Home() {
                 <h3 className="text-xl sm:text-2xl font-bold text-center mb-2 text-white">
                   Subscribe Free
                 </h3>
-                <p className="text-gray-200 text-center text-sm sm:text-base mb-6">
+                <p className="text-gray-200 text-center text-xs sm:text-sm md:text-base mb-6">
                   Join 3,000+ agency owners — no spam.
                 </p>
 
@@ -2257,7 +2402,7 @@ export default function Home() {
                   }}
                   className="flex flex-col h-full space-y-4"
                 >
-                  <div className="space-y-4 max-h-[45vh] overflow-y-auto p-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  <div className="space-y-4 max-h-[45vh] overflow-y-auto p-1 sm:p-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                     {/* Name */}
                     <div>
                       <label className="block text-sm font-medium text-gray-200 mb-2">
@@ -2270,9 +2415,9 @@ export default function Home() {
                         placeholder="Enter your full name"
                         required
                         className="w-full px-3 py-3 rounded-lg bg-white/25 text-white placeholder-gray-300
-                          border border-white/30 shadow-inner
-                          focus:border-white/60 focus:ring-1 focus:ring-white/40 
-                          focus:shadow-lg focus:scale-[1.01] transition-all duration-200"
+                      border border-white/30 shadow-inner
+                      focus:border-white/60 focus:ring-1 focus:ring-white/40 
+                      focus:shadow-lg focus:scale-[1.01] transition-all duration-200 text-sm sm:text-base"
                       />
                     </div>
 
@@ -2288,9 +2433,9 @@ export default function Home() {
                         placeholder="Enter your email"
                         required
                         className="w-full px-3 py-3 rounded-lg bg-white/25 text-white placeholder-gray-300
-                          border border-white/30 shadow-inner
-                          focus:border-white/60 focus:ring-1 focus:ring-white/40 
-                          focus:shadow-lg focus:scale-[1.01] transition-all duration-200"
+                      border border-white/30 shadow-inner
+                      focus:border-white/60 focus:ring-1 focus:ring-white/40 
+                      focus:shadow-lg focus:scale-[1.01] transition-all duration-200 text-sm sm:text-base"
                       />
                     </div>
                   </div>
@@ -2299,20 +2444,20 @@ export default function Home() {
                     type="submit"
                     disabled={newsletterLoading}
                     className={`
-                      w-full bg-white text-brand-purple font-bold py-3 rounded-lg
-                      shadow-lg transition-colors duration-200
-                      hover:bg-brand-coral hover:text-white
-                      ${newsletterLoading
+                  w-full bg-white text-brand-purple font-bold py-3 rounded-lg
+                  shadow-lg transition-colors duration-200 text-sm sm:text-base
+                  hover:bg-brand-coral hover:text-white
+                  ${newsletterLoading
                         ? "opacity-60 cursor-not-allowed hover:bg-white hover:text-brand-purple"
                         : ""
                       }
-                    `}
+                `}
                   >
                     {newsletterLoading ? "Subscribing..." : "Subscribe Now"}
                   </button>
 
                   {newsletterStatus && (
-                    <p className="text-sm text-gray-200 text-center mt-2">
+                    <p className="text-xs sm:text-sm text-gray-200 text-center mt-2">
                       {newsletterStatus}
                     </p>
                   )}
@@ -2328,7 +2473,15 @@ export default function Home() {
               formType="newsletter"
             />
           </section>
+
+          {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
+          <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:block">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+              <HomeTeamBanner />
+            </div>
+          </section>
         </main>
+
         <Footer />
       </div>
     </>

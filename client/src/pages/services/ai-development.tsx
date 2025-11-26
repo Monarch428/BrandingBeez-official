@@ -1632,6 +1632,8 @@ export default function AIDevelopment() {
     phone: "",
     company: "",
   });
+  const [attachment, setAttachment] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const totalSteps = 9;
 
@@ -1669,11 +1671,37 @@ export default function AIDevelopment() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: integrate with backend / CRM as needed
-    console.log("AI Questionnaire Submission:", formData);
-    setSubmitted(true);
+    setIsSubmitting(true);
+    try {
+      const formPayload = new FormData();
+      formPayload.append("name", formData.name);
+      formPayload.append("email", formData.email);
+      formPayload.append("phone", formData.phone);
+      formPayload.append("company", formData.company);
+      formPayload.append("service", "ai-development-questionnaire");
+      formPayload.append("questionnaire", JSON.stringify(formData));
+      if (attachment) {
+        formPayload.append("questionFile", attachment);
+      }
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        body: formPayload,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        console.error("Submission failed", err || res.statusText);
+        alert("Sorry — we couldn't submit your questionnaire. Please try again or email us directly.");
+        return;
+      }
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("Submission failed. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const progress = (step / totalSteps) * 100;
@@ -2837,88 +2865,31 @@ export default function AIDevelopment() {
                           </Label>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                              <Label
-                                htmlFor="name"
-                                className="text-sm text-gray-700"
-                              >
-                                Name
-                              </Label>
-                              <Input
-                                id="name"
-                                value={formData.name}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    name: e.target.value,
-                                  }))
-                                }
-                                placeholder="Your full name"
-                                className="mt-1"
-                                required
-                              />
+                              <Label htmlFor="name" className="text-sm text-gray-700">Name</Label>
+                              <Input id="name" value={formData.name} onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))} placeholder="Your full name" className="mt-1" required />
                             </div>
                             <div>
-                              <Label
-                                htmlFor="company"
-                                className="text-sm text-gray-700"
-                              >
-                                Company name
-                              </Label>
-                              <Input
-                                id="company"
-                                value={formData.company}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    company: e.target.value,
-                                  }))
-                                }
-                                placeholder="Your company"
-                                className="mt-1"
-                              />
+                              <Label htmlFor="company" className="text-sm text-gray-700">Company name</Label>
+                              <Input id="company" value={formData.company} onChange={(e) => setFormData((prev) => ({ ...prev, company: e.target.value }))} placeholder="Your company" className="mt-1" />
                             </div>
                             <div>
-                              <Label
-                                htmlFor="email"
-                                className="text-sm text-gray-700"
-                              >
-                                Email
-                              </Label>
-                              <Input
-                                id="email"
-                                type="email"
-                                value={formData.email}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    email: e.target.value,
-                                  }))
-                                }
-                                placeholder="you@example.com"
-                                className="mt-1"
-                                required
-                              />
+                              <Label htmlFor="email" className="text-sm text-gray-700">Email</Label>
+                              <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} placeholder="you@example.com" className="mt-1" required />
                             </div>
                             <div>
-                              <Label
-                                htmlFor="phone"
-                                className="text-sm text-gray-700"
-                              >
-                                Phone (optional)
-                              </Label>
-                              <Input
-                                id="phone"
-                                value={formData.phone}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    phone: e.target.value,
-                                  }))
-                                }
-                                placeholder="+44 ..."
-                                className="mt-1"
-                              />
+                              <Label htmlFor="phone" className="text-sm text-gray-700">Phone (optional)</Label>
+                              <Input id="phone" value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} placeholder="+44 ..." className="mt-1" />
                             </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="questionFile" className="text-sm text-gray-700">Attach questionnaire (optional)</Label>
+                            <input
+                              id="questionFile"
+                              type="file"
+                              accept=".pdf,.doc,.docx,.txt"
+                              onChange={(e) => setAttachment(e.target.files ? e.target.files[0] : null)}
+                              className="mt-1"
+                            />
                           </div>
                         </div>
                       )}
@@ -2948,8 +2919,9 @@ export default function AIDevelopment() {
                           <Button
                             type="submit"
                             className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold"
+                            disabled={isSubmitting}
                           >
-                            Submit & Get My AI Scope
+                            {isSubmitting ? "Sending..." : "Submit & Get My AI Scope"}
                           </Button>
                         )}
                       </div>

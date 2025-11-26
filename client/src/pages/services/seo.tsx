@@ -275,7 +275,7 @@ export default function SEOServices() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    <Link href="/contact?service=SEO Services">
+                    <Link href="/contact?service=seo#contact-form">
                       <Button className="bg-white text-brand-purple hover:bg-brand-coral hover:text-white">
                         Subscribe Free
                         <ArrowRight className="w-4 h-4 ml-2" />
@@ -759,7 +759,7 @@ export default function SEOServices() {
                       {/* Actions */}
                       <div className="mt-auto pt-8 border-t border-brand-purple/10">
                         <div className="flex flex-col gap-4">
-                          <Link href="/contact?service=SEO Services">
+                          <Link href="/contact?service=seo#contact-form">
                             <Button
                               asChild
                               className={[
@@ -770,7 +770,7 @@ export default function SEOServices() {
                                   : "bg-brand-purple hover:bg-brand-purple text-white",
                               ].join(" ")}
                             >
-                              <Link href={`/contact?service=${encodeURIComponent("SEO Services")}`}>
+                              <Link href="/contact?service=seo#contact-form">
                                 Get Started with SEO
                                 <ArrowRight className="w-4 h-4 ml-2" />
                               </Link>
@@ -798,7 +798,7 @@ export default function SEOServices() {
                 <p className="text-gray-900/80 mb-4">
                   Need a custom solution? We offer tailored SEO strategies for enterprise clients.
                 </p>
-                <Link href="/contact?service=SEO Services">
+                <Link href="/contact?service=seo#contact-form">
                   <Button
                     variant="outline"
                     className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
