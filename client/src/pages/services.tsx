@@ -87,10 +87,11 @@ const serviceCategories = [
       "Full-Stack Developers",
       "Data Entry/Virtual Assistants/Social Media Managers",
     ],
-    metrics: "Setup Cost: Free\nAverage 60% cost savings vs. in-house team",
-    couponCode: "SETUP FREE",
-    // discount: "Free Setup Cost",
-    discountDescription: "Dedicated Resources",
+    metrics: "Average 60% cost savings vs. in-house team",
+    // 🔴 No coupon fields here anymore
+    // couponCode: undefined,
+    // discount: undefined,
+    // discountDescription: undefined,
   },
   {
     id: "google-ads",
@@ -131,7 +132,8 @@ const serviceCategories = [
   {
     id: "custom-app-development",
     title: "Custom Web & Mobile App Development",
-    description: "High-performance custom apps built for scalability and seamless user experience",
+    description:
+      "High-performance custom apps built for scalability and seamless user experience",
     icon: Code,
     href: "/services/custom-app-development",
     pricing: "Starting at $3,500/project",
@@ -141,7 +143,7 @@ const serviceCategories = [
       "Full-Stack Web Applications",
       "UI/UX Design & Prototyping",
       "API Development & Integrations",
-      "Maintenance & Support"
+      "Maintenance & Support",
     ],
     metrics: "Average delivery time: 4–8 weeks",
     couponCode: "APP20",
@@ -149,6 +151,7 @@ const serviceCategories = [
     discountDescription: "your first app project",
   },
 ];
+
 
 // {
 //   id: "n8n-automations",
@@ -1332,19 +1335,18 @@ export default function Services() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 auto-rows-fr">
                 {serviceCategories.slice(0, 6).map((service) => {
                   const Icon = service.icon;
-                  const hasCoupon = service.couponCode;
+                  const hasCoupon = !!service.couponCode && service.id !== "dedicated-resources";
 
                   return (
                     <Card
                       key={service.id}
                       className="
-              relative overflow-hidden flex flex-col h-full
-              p-4 sm:p-5 md:p-6 shadow-sm border rounded-xl 
-              hover:shadow-md transition-shadow 
-              max-w-[420px] w-full mx-auto
-            "
+          relative overflow-hidden flex flex-col h-full
+          p-4 sm:p-5 md:p-6 shadow-sm border rounded-xl 
+          hover:shadow-md transition-shadow 
+          max-w-[420px] w-full mx-auto
+        "
                     >
-
                       {/* 🔥 Badge - Only for Dedicated Resources */}
                       {service.id === "dedicated-resources" && (
                         <div className="absolute top-3 right-3">
@@ -1372,14 +1374,13 @@ export default function Services() {
 
                       {/* Content */}
                       <div className="flex-1 flex flex-col mt-3">
-
                         {/* Pricing & Inline Discount */}
                         <div className="flex items-center justify-between gap-3">
                           <div className="text-lg font-bold text-brand-purple">
                             {service.pricing}
                           </div>
 
-                          {service.discount && (
+                          {service.discount && service.id !== "dedicated-resources" && (
                             <span className="text-[10px] sm:text-xs inline-flex items-center rounded-full bg-brand-coral text-white font-bold px-2.5 py-0.5 animate-shimmer">
                               {service.discount}
                             </span>
@@ -1399,7 +1400,10 @@ export default function Services() {
                         {/* Features */}
                         <ul className="mt-3 space-y-1.5 sm:space-y-2">
                           {service.features.map((feature, index) => (
-                            <li key={index} className="flex items-start gap-2 text-xs sm:text-sm leading-tight">
+                            <li
+                              key={index}
+                              className="flex items-start gap-2 text-xs sm:text-sm leading-tight"
+                            >
                               <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-coral mt-0.5 shrink-0" />
                               <span className="line-clamp-2">{feature}</span>
                             </li>
@@ -1408,10 +1412,32 @@ export default function Services() {
 
                         {/* Actions */}
                         <div className="mt-auto pt-4 sm:pt-5">
-                          {service.id === "n8n-automations" ? (
+                          {/* ✅ Dedicated Resources: NO COUPON, go straight to contact apply form */}
+                          {service.id === "dedicated-resources" ? (
+                            <div className="flex flex-col gap-3">
+                              <Link href="/contact?service=dedicated-resources#contact-form">
+                                <Button className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium">
+                                  Apply for Dedicated Resource
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </Link>
+
+                              <Link href={service.href}>
+                                <Button
+                                  variant="outline"
+                                  className="w-full h-10 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
+                                >
+                                  Learn More
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Button>
+                              </Link>
+                            </div>
+                          ) : service.id === "n8n-automations" ? (
                             <>
                               <div className="text-center py-2">
-                                <span className="text-brand-coral font-semibold">Coming Soon</span>
+                                <span className="text-brand-coral font-semibold">
+                                  Coming Soon
+                                </span>
                               </div>
                               <Link href={service.href}>
                                 <Button
@@ -1446,7 +1472,9 @@ export default function Services() {
                                       <Button
                                         size="sm"
                                         variant="outline"
-                                        onClick={() => handleCopyCoupon(service.couponCode, service.id)}
+                                        onClick={() =>
+                                          handleCopyCoupon(service.couponCode!, service.id)
+                                        }
                                         className="h-8 px-3 text-xs border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
                                       >
                                         <Copy className="w-3 h-3 mr-1" />
@@ -1455,7 +1483,9 @@ export default function Services() {
                                     </div>
                                   </div>
 
-                                  <Link href={`/contact?coupon=${service.couponCode}&service=${service.id}#contact-form`}>
+                                  <Link
+                                    href={`/contact?coupon=${service.couponCode}&service=${service.id}#contact-form`}
+                                  >
                                     <Button className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium">
                                       Use Coupon in Contact Form
                                       <ArrowRight className="w-4 h-4 ml-2" />

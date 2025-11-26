@@ -896,7 +896,7 @@ export const ContactPageSchema = {
         {
           "@type": "ContactPoint",
           "contactType": "general",
-          "email": "info@brandingbeez.com"
+          "email": "info@brandingbeez.co.uk"
         }
       ],
       "sameAs": [
@@ -969,7 +969,7 @@ export const AboutPageSchema = {
         {
           "@type": "ContactPoint",
           "contactType": "general",
-          "email": "info@brandingbeez.com",
+          "email": "info@brandingbeez.co.uk",
           "telephone": "+91 9952462833",
           "areaServed": ["IN", "GB", "US"],
           "availableLanguage": ["English"]

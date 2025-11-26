@@ -234,7 +234,8 @@ export async function sendQuestionnaireToAdmin(submission: {
   const SMTP_PASS = process.env.SMTP_PASSWORD;
 
   // const adminEmail = "pradeep.brandingbeez@gmail.com";
-   const adminEmail = "info@brandingbeez.co.uk";
+  const adminEmail = "info@brandingbeez.co.uk";
+
 
   // Build text content for attachment
   const lines: string[] = [];
