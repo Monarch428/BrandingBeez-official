@@ -798,9 +798,9 @@ import jithenImage from "../../public/images/Jithen-team-member.png";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png";
-import playImage from "../../public/images/com_3.jpg";
-import learnImage from "../../public/images/com_1.png";
-import growImage from "../../public/images/com_2.jpg";
+import teamImage from "../../public/images/Team.png";
+import learnImage from "../../public/images/work.png";
+import playImage from "../../public/images/play.png";
 import {
   MapPin,
   Users,
@@ -1286,13 +1286,13 @@ export default function About() {
 
                 {/* CARD TEMPLATE (Repeat for all 3) */}
                 {/* Work Environment */}
-                <div className="bg-white border border-gray-200 rounded-3xl shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
 
                   {/* Image */}
                   <img
-                    src={playImage}
+                    src={teamImage}
                     alt="Collaborative work environment"
-                    className="w-full aspect-[4/3] object-cover rounded-t-3xl"
+                    className="w-full aspect-[4/3] object-cover pt-2"
                   />
 
                   {/* CONTENT + ICON */}
@@ -1316,11 +1316,11 @@ export default function About() {
                 </div>
 
                 {/* Team Activities */}
-                <div className="bg-white border border-gray-200 rounded-3xl shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
                   <img
-                    src={growImage}
+                    src={playImage}
                     alt="Team activities"
-                    className="w-full aspect-[4/3] object-cover rounded-t-3xl"
+                    className="w-full aspect-[4/3] object-cover pt-2"
                   />
                   <div className="px-6 py-6 flex items-start justify-between">
                     <div className="max-w-[80%]">
@@ -1338,11 +1338,11 @@ export default function About() {
                 </div>
 
                 {/* Professional Development */}
-                <div className="bg-white border border-gray-200 rounded-3xl shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-[0_63px_63px_rgba(0,0,0,0.04)] overflow-hidden">
                   <img
                     src={learnImage}
                     alt="Professional development"
-                    className="w-full aspect-[4/3] object-cover rounded-t-3xl"
+                    className="w-full aspect-[4/3] object-cover pt-2"
                   />
                   <div className="px-6 py-6 flex items-start justify-between">
                     <div className="max-w-[80%]">
