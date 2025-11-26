@@ -32,6 +32,8 @@ import type {
   SeoAudit,
   ServicePage,
   User,
+  Appointment,
+  InsertAppointment,
 } from "@shared/schema";
 import {
   BlogPostModel,
@@ -50,13 +52,12 @@ import {
   NewsletterSubscriberModel,
   PortfolioItemModel,
   PortfolioContentModel,
+  AppointmentModel,
 } from "./models";
 import { connectToDatabase, getNextSequence } from "./db";
 
 function toPlain<T>(doc: any): T {
-  if (!doc) {
-    return doc;
-  }
+  if (!doc) return doc;
   const obj = doc.toObject ? doc.toObject() : { ...doc };
   delete obj._id;
   return obj as T;
@@ -738,6 +739,60 @@ export class DatabaseStorage implements IStorage {
     }
 
     return this.normalizePortfolioContent(updated);
+  }
+
+  async createAppointment(
+    appointment: InsertAppointment,
+  ): Promise<Appointment> {
+    await this.ensureConnection();
+    const id = await getNextSequence("appointments");
+
+    const created = await AppointmentModel.create({
+      id,
+      ...appointment,
+      status: "booked",
+    });
+
+    return toPlain<Appointment>(created);
+  }
+
+  async getAppointmentsByDate(date: string): Promise<Appointment[]> {
+    await this.ensureConnection();
+    const docs = await AppointmentModel.find({ date })
+      .sort({ startTime: 1 })
+      .lean<Appointment[]>();
+    return docs;
+  }
+
+  async getAllAppointments(): Promise<Appointment[]> {
+    await this.ensureConnection();
+    const docs = await AppointmentModel.find()
+      .sort({ date: 1, startTime: 1 })
+      .lean<Appointment[]>();
+    return docs;
+  }
+
+  async updateAppointmentStatus(
+    id: number,
+    status: "booked" | "cancelled" | "completed",
+  ): Promise<Appointment> {
+    await this.ensureConnection();
+    const updated = await AppointmentModel.findOneAndUpdate(
+      { id },
+      { status },
+      { new: true },
+    ).lean<Appointment>();
+
+    if (!updated) {
+      throw new Error("Appointment not found");
+    }
+    return updated;
+  }
+
+  async getAppointment(id: number): Promise<Appointment | undefined> {
+    await this.ensureConnection();
+    const doc = await AppointmentModel.findOne({ id }).lean<Appointment>();
+    return doc ?? undefined;
   }
 }
 

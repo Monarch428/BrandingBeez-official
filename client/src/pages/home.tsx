@@ -1063,6 +1063,7 @@ import PhoneInput from "react-phone-input-2";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png"
+import { AppointmentCalendar } from "@/components/book-appoinment";
 
 // ✅ Regional Partners type + data
 type RegionalPartnersMember = {
@@ -2478,6 +2479,33 @@ export default function Home() {
               formType="newsletter"
             />
           </section>
+
+          {/* <section
+            id="book-appointment"
+            className="py-16 md:py-24 px-4 md:px-6 bg-slate-950 border-t border-slate-900"
+          >
+            <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
+              <div className="text-center max-w-2xl mx-auto">
+                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[11px] uppercase tracking-[0.2em] mb-3">
+                  Book a free strategy call
+                </p>
+                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
+                  Ready to see what BrandingBeez can do for you?
+                </h2>
+                <p className="text-sm md:text-base text-slate-400">
+                  Pick an available slot with our lead consultant and we&apos;ll walk
+                  through your website, ads or AI idea live on the call.
+                </p>
+              </div>
+
+              <AppointmentCalendar
+                defaultServiceType="Website / SEO / AI strategy"
+                consultantName="Raja Rajeshwari"
+                consultantTitle="Founder, BrandingBeez"
+                consultantImage="/images/team/sathesh-avatar.png"
+              />
+            </div>
+          </section> */}
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
           <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:block">

@@ -112,100 +112,6 @@ export default function PricingCalculator() {
   // Normalize mutation loading state (some react-query versions/type setups use different flags)
   const contactSubmitting = (contactMutation as any).isLoading || (contactMutation as any).isPending || (contactMutation as any).status === 'loading' || false;
 
-  // Handle contact form submission
-  const handleContactSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!contactForm.name || !contactForm.email) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in your name and email address.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Build comprehensive message with all pricing calculator details
-    let comprehensiveMessage = `Pricing Calculator Quote Request for ${selectedService}`;
-
-    if (pricing) {
-      comprehensiveMessage += `\n\n📋 SERVICE DETAILS:`;
-      comprehensiveMessage += `\n• Service: ${pricing.service}`;
-      comprehensiveMessage += `\n• Monthly Price: $${pricing.monthlyPrice.toLocaleString()}`;
-      if (pricing.setupFee > 0) {
-        comprehensiveMessage += `\n• Setup Fee: $${pricing.setupFee.toLocaleString()}`;
-      }
-      if (pricing.teamDiscount) {
-        comprehensiveMessage += `\n• Team Discount: ${pricing.teamDiscount}%`;
-      }
-      if (pricing.savings) {
-        comprehensiveMessage += `\n• Annual Savings: $${pricing.savings.toLocaleString()}`;
-      }
-
-      if (pricing.features && pricing.features.length > 0) {
-        comprehensiveMessage += `\n\n✨ INCLUDED FEATURES:`;
-        pricing.features.forEach(feature => {
-          comprehensiveMessage += `\n• ${feature}`;
-        });
-      }
-    }
-
-    // Add dedicated team selections if any
-    if (Object.keys(selectedTeam).length > 0) {
-      comprehensiveMessage += `\n\n👥 DEDICATED TEAM SELECTED:`;
-      Object.entries(selectedTeam).forEach(([resource, levels]) => {
-        Object.entries(levels).forEach(([level, count]) => {
-          if (count > 0) {
-            comprehensiveMessage += `\n• ${count}x ${resource.replace(/-/g, ' ')} (${level} level)`;
-          }
-        });
-      });
-    }
-
-    // Add Google Ads client count if specified
-    if (selectedService === 'google-ads' && clients.length > 0) {
-      comprehensiveMessage += `\n\n🎯 GOOGLE ADS DETAILS:`;
-      comprehensiveMessage += `\n• Number of client accounts: ${clients.length}`;
-    }
-
-    // Add SEO client count if specified
-    if (selectedService === 'seo' && seoClients.length > 0) {
-      comprehensiveMessage += `\n\n🔍 SEO DETAILS:`;
-      comprehensiveMessage += `\n• Number of client websites: ${seoClients.length}`;
-    }
-
-    // Prepare detailed submission data with pricing calculator selections
-    const submissionData = {
-      name: contactForm.name,
-      email: contactForm.email,
-      phone: contactForm.phone || '',
-      company: contactForm.website ? extractDomain(contactForm.website) : '',
-      inquiry_type: 'pricing-calculator',
-      message: comprehensiveMessage,
-      preferred_contact: 'email',
-      country: 'US',
-      topPriority: selectedService,
-      couponCode: null,
-      service: selectedService,
-      serviceDetails: {
-        service: selectedService,
-        pricing: pricing,
-        dedicatedTeam: selectedTeam,
-        googleAdsClients: clients,
-        seoClients: seoClients,
-        calculatorData: {
-          totalMonthlyPrice: pricing?.monthlyPrice || 0,
-          setupFee: pricing?.setupFee || 0,
-          teamDiscount: pricing?.teamDiscount || 0,
-          savings: pricing?.savings || 0,
-          features: pricing?.features || []
-        }
-      }
-    };
-
-    contactMutation.mutate(submissionData);
-  };
-
   // Dedicated Resources State - Multi-team builder
   const [selectedTeam, setSelectedTeam] = useState<Record<string, Record<string, number>>>({});
   const [activeResourceType, setActiveResourceType] = useState<string>('');
@@ -282,6 +188,35 @@ export default function PricingCalculator() {
   const [dataVolume, setDataVolume] = useState<string>('');
   const [customModels, setCustomModels] = useState<boolean>(false);
   const [maintenanceSupport, setMaintenanceSupport] = useState<string>('');
+
+  // 🔹 NEW: Integration option lists
+  const ecommerceIntegrationsList = [
+    'Google Analytics',
+    'Facebook Pixel',
+    'Klaviyo',
+    'Mailchimp',
+    'Zapier',
+    'Stripe',
+    'PayPal',
+    'Razorpay',
+    'ShipStation',
+    'Zoho Inventory',
+    'QuickBooks',
+    'HubSpot CRM'
+  ];
+
+  const webIntegrationsList = [
+    'Google Analytics',
+    'CRM Integration (HubSpot, Zoho)',
+    'Payment Gateway (Stripe, PayPal)',
+    'Newsletter (Mailchimp, Klaviyo)',
+    'Chat Widget (Tidio, Intercom)',
+    'Booking System',
+    'Zapier Automation',
+    'Map / Location Integration',
+    'Blog CMS',
+    'API Integrations'
+  ];
 
   // Available resource types from Google Doc pricing structure
   const resourceTypes = [
@@ -938,6 +873,100 @@ export default function PricingCalculator() {
 
   const pricing = calculatePricing();
 
+  // Handle contact form submission
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!contactForm.name || !contactForm.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in your name and email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Build comprehensive message with all pricing calculator details
+    let comprehensiveMessage = `Pricing Calculator Quote Request for ${selectedService}`;
+
+    if (pricing) {
+      comprehensiveMessage += `\n\n📋 SERVICE DETAILS:`;
+      comprehensiveMessage += `\n• Service: ${pricing.service}`;
+      comprehensiveMessage += `\n• Monthly Price: $${pricing.monthlyPrice.toLocaleString()}`;
+      if (pricing.setupFee > 0) {
+        comprehensiveMessage += `\n• Setup Fee: $${pricing.setupFee.toLocaleString()}`;
+      }
+      if (pricing.teamDiscount) {
+        comprehensiveMessage += `\n• Team Discount: ${pricing.teamDiscount}%`;
+      }
+      if (pricing.savings) {
+        comprehensiveMessage += `\n• Annual Savings: $${pricing.savings.toLocaleString()}`;
+      }
+
+      if (pricing.features && pricing.features.length > 0) {
+        comprehensiveMessage += `\n\n✨ INCLUDED FEATURES:`;
+        pricing.features.forEach(feature => {
+          comprehensiveMessage += `\n• ${feature}`;
+        });
+      }
+    }
+
+    // Add dedicated team selections if any
+    if (Object.keys(selectedTeam).length > 0) {
+      comprehensiveMessage += `\n\n👥 DEDICATED TEAM SELECTED:`;
+      Object.entries(selectedTeam).forEach(([resource, levels]) => {
+        Object.entries(levels).forEach(([level, count]) => {
+          if (count > 0) {
+            comprehensiveMessage += `\n• ${count}x ${resource.replace(/-/g, ' ')} (${level} level)`;
+          }
+        });
+      });
+    }
+
+    // Add Google Ads client count if specified
+    if (selectedService === 'google-ads' && clients.length > 0) {
+      comprehensiveMessage += `\n\n🎯 GOOGLE ADS DETAILS:`;
+      comprehensiveMessage += `\n• Number of client accounts: ${clients.length}`;
+    }
+
+    // Add SEO client count if specified
+    if (selectedService === 'seo' && seoClients.length > 0) {
+      comprehensiveMessage += `\n\n🔍 SEO DETAILS:`;
+      comprehensiveMessage += `\n• Number of client websites: ${seoClients.length}`;
+    }
+
+    // Prepare detailed submission data with pricing calculator selections
+    const submissionData = {
+      name: contactForm.name,
+      email: contactForm.email,
+      phone: contactForm.phone || '',
+      company: contactForm.website ? extractDomain(contactForm.website) : '',
+      inquiry_type: 'pricing-calculator',
+      message: comprehensiveMessage,
+      preferred_contact: 'email',
+      country: 'US',
+      topPriority: selectedService,
+      couponCode: null,
+      service: selectedService,
+      serviceDetails: {
+        service: selectedService,
+        pricing: pricing,
+        dedicatedTeam: selectedTeam,
+        googleAdsClients: clients,
+        seoClients: seoClients,
+        calculatorData: {
+          totalMonthlyPrice: pricing?.monthlyPrice || 0,
+          setupFee: pricing?.setupFee || 0,
+          teamDiscount: pricing?.teamDiscount || 0,
+          savings: pricing?.savings || 0,
+          features: pricing?.features || []
+        }
+      }
+    };
+
+    contactMutation.mutate(submissionData);
+  };
+
   return (
     <>
       <Helmet>
@@ -1016,6 +1045,27 @@ export default function PricingCalculator() {
                       value={selectedService}
                       onValueChange={(value) => {
                         setSelectedService(value);
+
+                        // 💡 Default presets so that after Apply & Continue,
+                        // the right panel shows a ready-made quote.
+                        if (value === 'web-development') {
+                          // This combination gives exactly:
+                          // Web Development / $1,960 project
+                          setWebsiteType('wordpress-business');
+                          setWebsiteComplexity('medium');
+                          setEcommercePlatform('');
+                          setProductCount(50);
+                          setProductPageFeatures([]);
+                          setIntegrations([
+                            'Google Analytics',
+                            'Payment Gateway (Stripe, PayPal)',
+                            'Chat Widget (Tidio, Intercom)',
+                            'Zapier Automation'
+                          ]);
+                          setDesignRequirements('');
+                          setMaintenanceNeeds('');
+                        }
+
                         if (value) setShowServiceModal(true);
                       }}
                     >
@@ -1053,16 +1103,31 @@ export default function PricingCalculator() {
                     </div>
                   )}
                 </CardContent>
+
+                <div className='flex items-center justify-end p-4'>
+                  {/* 🔁 Go back to configuration popup */}
+                  {selectedService && (
+                    <Button
+                      className="bg-brand-coral text-white border border-brand-coral hover:bg-white hover:text-brand-coral transition-colors"
+                      type="button"
+                      size="sm"
+                      onClick={() => setShowServiceModal(true)}
+                    >
+                      Edit configuration
+                    </Button>
+                  )}
+                </div>
               </Card>
 
               {/* Results Panel */}
               {pricing && (
                 <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-50 to-emerald-50">
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <CardTitle className="flex items-center gap-2">
                       <Calculator className="w-5 h-5 text-green-600" />
                       Your Custom Quote
                     </CardTitle>
+
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="text-center">
@@ -1134,17 +1199,30 @@ export default function PricingCalculator() {
                               <div className="flex justify-between items-start mb-2">
                                 <div className="flex-1">
                                   <div className="font-medium text-gray-900">{client.name}</div>
-                                  <div className="text-sm text-gray-600">
-                                    {client.targetKeywords} keywords • {client.competitionLevel} competition
+                                  <div className="text-sm text-gray-600 space-y-1">
+                                    <div>Website: {client.website}</div>
+                                    <div>Keywords: {client.targetKeywords}</div>
+                                    <div>Competition: {client.competitionLevel}</div>
+                                    <div>Current Ranking: {client.currentRanking.replace('-', ' ')}</div>
+                                    <div>Industry: {client.industry || 'Not specified'}</div>
                                   </div>
                                 </div>
-                                <div className="font-semibold text-green-600">
-                                  ${calculateSeoClientPrice(client).toLocaleString()}/month
+                                <div className="flex items-center gap-2">
+                                  <div className="text-right">
+                                    <div className="font-semibold text-green-600">
+                                      ${calculateSeoClientPrice(client).toLocaleString()}/month
+                                    </div>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeSeoClient(client.id)}
+                                    className="text-red-600 ed-800"
+                                  >
+                                    Remove
+                                  </Button>
                                 </div>
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                Current ranking: {client.currentRanking.replace('-', ' ')}
-                                {client.website && ` • ${client.website}`}
                               </div>
                             </div>
                           ))}
@@ -1210,10 +1288,11 @@ export default function PricingCalculator() {
                   {/* Quick Examples */}
                   <div className="p-3 bg-gray-50 rounded-lg text-center">
                     <p className="text-sm text-gray-600">
-                      <strong>Examples:</strong> 1 Graphic Designer + 2 Full Stack Developers | 1 SEO Specialist + 1 Social Media Manager | Any combination you need! 
+                      <strong>Examples:</strong> 1 Graphic Designer + 2 Full Stack Developers | 1 SEO Specialist + 1 Social Media Manager | Any combination you need!
                     </p>
                   </div>
-{/* + 1 Virtual Assistant */}
+                  {/* + 1 Virtual Assistant */}
+
                   {/* Professional Selection Grid */}
                   <div className="space-y-4">
                     <h4 className="font-medium text-gray-900">Choose Your Professionals:</h4>
@@ -1908,7 +1987,7 @@ export default function PricingCalculator() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">5. Required integrations (select multiple)</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {['Google Analytics'].map((integration) => (
+                        {ecommerceIntegrationsList.map((integration) => (
                           <Button
                             key={integration}
                             variant={integrations.includes(integration) ? "default" : "outline"}
@@ -1933,7 +2012,7 @@ export default function PricingCalculator() {
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-gray-700">3. Required integrations (select multiple)</label>
                       <div className="grid grid-cols-2 gap-2">
-                        {['Google Analytics'].map((integration) => (
+                        {webIntegrationsList.map((integration) => (
                           <Button
                             key={integration}
                             variant={integrations.includes(integration) ? "default" : "outline"}
@@ -2148,6 +2227,7 @@ export default function PricingCalculator() {
 
             <div className="mt-6 flex justify-end">
               <div className="flex gap-3">
+                {/* Apply & Continue — just closes modal, right panel already updated */}
                 <Button type="button" className="bg-brand-purple text-white" onClick={() => setShowServiceModal(false)}>
                   Apply &amp; Continue
                 </Button>
@@ -2232,7 +2312,10 @@ export default function PricingCalculator() {
                     </div>
                     <div className="flex justify-between">
                       <span>Monthly Price:</span>
-                      <span className="font-medium">${pricing.monthlyPrice.toLocaleString()}</span>
+                      <span className="font-medium">
+                        ${(pricing.monthlyPrice || 0).toLocaleString()}
+                        {(selectedService === 'web-development' || selectedService === 'ai-development') ? ' project' : ''}
+                      </span>
                     </div>
                     {pricing.setupFee > 0 && (
                       <div className="flex justify-between">
@@ -2264,13 +2347,13 @@ export default function PricingCalculator() {
                   className="flex-1"
                 >
                   Cancel
-                    <Button
-                      onClick={() => setShowContactModal(true)}
-                      className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white"
-                      size="lg"
-                    >
-                      Get Started
-                    </Button>
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-r from-brand-coral to-pink-500 text-white"
+                  size="lg"
+                  disabled={contactSubmitting}
+                >
                   {contactSubmitting ? "Sending..." : "Get Quote"}
                 </Button>
               </div>
