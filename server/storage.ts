@@ -29,6 +29,8 @@ import type {
   SeoAudit,
   ServicePage,
   User,
+  Appointment,
+  InsertAppointment,
 } from "@shared/schema";
 import { DatabaseStorage } from "./db-storage";
 
@@ -148,6 +150,15 @@ export interface IStorage {
   upsertPortfolioContent(
     data: InsertPortfolioContent,
   ): Promise<PortfolioContent>;
+
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  getAppointmentsByDate(date: string): Promise<Appointment[]>;
+  getAllAppointments(): Promise<Appointment[]>;
+  updateAppointmentStatus(
+    id: number,
+    status: "booked" | "cancelled" | "completed",
+  ): Promise<Appointment>;
+  getAppointment(id: number): Promise<Appointment | undefined>;
 }
 
 export const storage: IStorage = new DatabaseStorage();

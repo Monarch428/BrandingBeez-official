@@ -161,6 +161,19 @@ import path from "path";
 import nodemailer from "nodemailer";
 import { notificationService } from "./notification-service";
 
+interface AppointmentNotificationPayload {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  serviceType?: string;
+  notes?: string;
+  date: string;      // YYYY-MM-DD
+  startTime: string; // "HH:mm"
+  endTime: string;   // "HH:mm"
+  createdAt?: Date;
+}
+
 interface ContactSubmission {
   name: string;
   email: string;
@@ -329,58 +342,6 @@ export async function sendQuestionnaireToAdmin(submission: {
 }
 
 // -----------------------------------------------------
-// Gmail SMTP - Backup Method (Still kept – not removed)
-// -----------------------------------------------------
-// export async function sendEmailViaGmail(submission: {
-//   name: string;
-//   email: string;
-//   message: string;
-//   submittedAt: Date;
-// }) {
-//   const SMTP_USER = process.env.SMTP_USER; 
-//   const SMTP_PASS = process.env.SMTP_PASSWORD; 
-
-//   if (!SMTP_USER || !SMTP_PASS) {
-//     console.log("Gmail credentials not configured, falling back to console logging");
-//     console.log("Submission:", submission);
-//     return { success: true, method: "console_log" };
-//   }
-
-//   try {
-//     const transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         user: SMTP_USER,
-//         pass: SMTP_PASS,
-//       },
-//     });
-
-//     const mailOptions = {
-//       from: SMTP_USER,
-//       to: submission.email,
-//       subject: "Newsletter Subscription Confirmation",
-//       html: `
-//         <!DOCTYPE html>
-//         <html lang="en">
-//         <body>
-//           <h1>Thanks ${submission.name}!</h1>
-//           <p>You subscribed via Gmail SMTP.</p>
-//           <p>Submitted at: ${submission.submittedAt.toLocaleString()}</p>
-//         </body>
-//         </html>
-//       `,
-//     };
-
-//     await transporter.sendMail(mailOptions);
-//     console.log("Email sent via Gmail to", submission.email);
-//     return { success: true, method: "gmail" };
-//   } catch (error) {
-//     console.error("Gmail send failed:", error);
-//     return { success: false, method: "failed" };
-//   }
-// }
-
-// -----------------------------------------------------
 // NEW — ZOHO SMTP METHOD (Preferred)
 // -----------------------------------------------------
 export async function sendEmailViaGmail(submission: {
@@ -480,5 +441,109 @@ export async function sendEmailViaGmail(submission: {
   } catch (error) {
     console.error("Zoho SMTP send failed:", error);
     return { success: false, method: "failed" };
+  }
+}
+
+export async function sendAppointmentNotification(
+  appt: AppointmentNotificationPayload,
+) {
+  // 🔔 Optional: also push into in-memory notifications so it shows in admin panel
+  try {
+    notificationService.addNotification("appointment_booked", {
+      id: appt.id,
+      name: appt.name,
+      email: appt.email,
+      phone: appt.phone,
+      serviceType: appt.serviceType,
+      notes: appt.notes,
+      date: appt.date,
+      startTime: appt.startTime,
+      endTime: appt.endTime,
+      createdAt: appt.createdAt || new Date(),
+    });
+  } catch (err) {
+    console.error("Failed to add in-memory appointment notification:", err);
+  }
+
+  const SMTP_HOST = process.env.SMTP_HOST || "smtppro.zoho.in";
+  const SMTP_PORT = process.env.SMTP_PORT || "465";
+  const SMTP_USER = process.env.SMTP_USER;
+  const SMTP_PASS = process.env.SMTP_PASSWORD;
+
+  // ✅ Appointment admin email (as you requested)
+  const adminEmail = "pradeep.brandingbeez@gmail.com";
+
+  // If SMTP not configured, fallback to console logging
+  if (!SMTP_USER || !SMTP_PASS) {
+    console.log("SMTP not configured. Appointment notification:");
+    console.log(appt);
+    return { success: true, method: "console_log" };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: SMTP_HOST,
+      port: Number(SMTP_PORT),
+      secure: true,
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    });
+
+    const prettyDate = appt.date;
+    const prettyTime = `${appt.startTime} – ${appt.endTime}`;
+
+    const mailOptions = {
+      from: SMTP_USER,
+      to: adminEmail,
+      subject: `New appointment booked – ${prettyDate} @ ${prettyTime}`,
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <body style="font-family: Arial, sans-serif; background:#0b1020; color:#f5f5f5; padding:24px;">
+          <div style="max-width:600px;margin:0 auto;background:#141827;border-radius:12px;padding:20px;border:1px solid #272b3b;">
+            <h2 style="margin-top:0;color:#ff6b81;">New Appointment Booked</h2>
+            <p>You have a new appointment booked via the BrandingBeez website.</p>
+
+            <h3 style="margin-bottom:8px;color:#ffffff;">Slot Details</h3>
+            <ul style="list-style:none;padding-left:0;font-size:14px;">
+              <li><b>Date:</b> ${prettyDate}</li>
+              <li><b>Time:</b> ${prettyTime}</li>
+            </ul>
+
+            <h3 style="margin-bottom:8px;color:#ffffff;">Contact Details</h3>
+            <ul style="list-style:none;padding-left:0;font-size:14px;">
+              <li><b>Name:</b> ${appt.name}</li>
+              <li><b>Email:</b> ${appt.email}</li>
+              <li><b>Phone:</b> ${appt.phone || "(not provided)"}</li>
+              <li><b>Service / Topic:</b> ${
+                appt.serviceType || "(not specified)"
+              }</li>
+            </ul>
+
+            ${
+              appt.notes
+                ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
+                   <p style="font-size:14px;white-space:pre-wrap;">${appt.notes}</p>`
+                : ""
+            }
+
+            <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
+              Appointment ID: ${appt.id}<br/>
+              Created at: ${(appt.createdAt || new Date()).toLocaleString()}
+            </p>
+          </div>
+        </body>
+        </html>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("✅ Appointment notification emailed to", adminEmail);
+    return { success: true, method: "smtp" };
+  } catch (error) {
+    console.error("❌ Failed to send appointment email:", error);
+    return { success: false, error };
   }
 }

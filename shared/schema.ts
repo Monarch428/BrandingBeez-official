@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export type AppointmentStatus = "booked" | "cancelled" | "completed";
+
 const jsonValueSchema: z.ZodType<unknown> = z.union([
   z.string(),
   z.number(),
@@ -333,3 +335,28 @@ export interface NewsletterSubscriber extends InsertNewsletterSubscriber {
   id: number;
   subscribedAt: Date;
 }
+
+export interface Appointment {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  serviceType?: string;        // e.g. "Web Development", "AI Development"
+  notes?: string;
+
+  // Slot info
+  date: string;                // "2025-11-30" (YYYY-MM-DD)
+  startTime: string;           // "10:00"
+  endTime: string;             // "10:30"
+
+  status: AppointmentStatus;
+
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+// What frontend will send
+export type InsertAppointment = Omit<
+  Appointment,
+  "id" | "status" | "createdAt" | "updatedAt"
+>;

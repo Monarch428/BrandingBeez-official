@@ -5,6 +5,8 @@ import path from "path";
 import fs from "fs";
 import multer from "multer";
 import newsletterRoutes from "./routes/newsletter";
+import appointmentsRouter from "./appointments";
+
 
 // Extend Express Request type to include user
 declare global {
@@ -129,6 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.use("/api/newsletter", newsletterRoutes);
+  app.use("/api", appointmentsRouter);
 
   // Database health check endpoint
   app.get("/api/health/database", async (req, res) => {
@@ -406,10 +409,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const fileInfo = req.file
             ? {
-                path: (req.file as Express.Multer.File).path,
-                originalname: (req.file as Express.Multer.File).originalname,
-                mimetype: (req.file as Express.Multer.File).mimetype,
-              }
+              path: (req.file as Express.Multer.File).path,
+              originalname: (req.file as Express.Multer.File).originalname,
+              mimetype: (req.file as Express.Multer.File).mimetype,
+            }
             : undefined;
 
           await sendQuestionnaireToAdmin({
@@ -1537,9 +1540,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             formattedTags = Array.isArray(parsed)
               ? parsed.map((tag: unknown) => String(tag))
               : tagsString
-                  .split(",")
-                  .map((tag: string) => tag.trim())
-                  .filter((tag: string) => tag.length > 0);
+                .split(",")
+                .map((tag: string) => tag.trim())
+                .filter((tag: string) => tag.length > 0);
           } catch {
             formattedTags = tagsString
               .split(",")
@@ -2078,7 +2081,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/admin/portfolio-content/stats", authenticateAdmin, async (req, res) => {
     try {
       const { heroStats } = req.body;
-      
+
       if (!Array.isArray(heroStats)) {
         return res.status(400).json({ message: "heroStats must be an array" });
       }

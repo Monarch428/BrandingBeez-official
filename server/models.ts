@@ -31,6 +31,8 @@ import type {
   InsertPortfolioItem,
   PortfolioContent,
   InsertPortfolioContent,
+  Appointment,
+  InsertAppointment,
 } from "@shared/schema";
 
 const { model, models } = mongoose;
@@ -58,7 +60,7 @@ export const CounterModel =
   (models.Counter as Model<CounterDocument>) ||
   model<CounterDocument>("Counter", counterSchema);
 
-interface UserDocument extends mongoose.Document, User {}
+interface UserDocument extends mongoose.Document, User { }
 const userSchema = new Schema<UserDocument>(
   {
     id: numericIdField,
@@ -70,7 +72,7 @@ const userSchema = new Schema<UserDocument>(
 export const UserModel =
   (models.User as Model<UserDocument>) || model<UserDocument>("User", userSchema);
 
-interface ContactDocument extends mongoose.Document, Contact {}
+interface ContactDocument extends mongoose.Document, Contact { }
 const contactSchema = new Schema<ContactDocument>(
   {
     id: numericIdField,
@@ -102,7 +104,7 @@ export const ContactModel =
   (models.Contact as Model<ContactDocument>) ||
   model<ContactDocument>("Contact", contactSchema);
 
-interface ClientDocument extends mongoose.Document, Client {}
+interface ClientDocument extends mongoose.Document, Client { }
 const clientSchema = new Schema<ClientDocument>(
   {
     id: numericIdField,
@@ -124,7 +126,7 @@ export const ClientModel =
   (models.Client as Model<ClientDocument>) ||
   model<ClientDocument>("Client", clientSchema);
 
-interface SeoAuditDocument extends mongoose.Document, SeoAudit {}
+interface SeoAuditDocument extends mongoose.Document, SeoAudit { }
 const seoAuditSchema = new Schema<SeoAuditDocument>(
   {
     id: numericIdField,
@@ -143,7 +145,7 @@ export const SeoAuditModel =
   (models.SeoAudit as Model<SeoAuditDocument>) ||
   model<SeoAuditDocument>("SeoAudit", seoAuditSchema);
 
-interface ChatSessionDocument extends mongoose.Document, ChatSession {}
+interface ChatSessionDocument extends mongoose.Document, ChatSession { }
 const chatSessionSchema = new Schema<ChatSessionDocument>(
   {
     id: numericIdField,
@@ -162,7 +164,7 @@ export const ChatSessionModel =
   (models.ChatSession as Model<ChatSessionDocument>) ||
   model<ChatSessionDocument>("ChatSession", chatSessionSchema);
 
-interface FeaturedClientDocument extends mongoose.Document, FeaturedClient {}
+interface FeaturedClientDocument extends mongoose.Document, FeaturedClient { }
 const featuredClientSchema = new Schema<FeaturedClientDocument>(
   {
     id: numericIdField,
@@ -186,7 +188,7 @@ export const FeaturedClientModel =
   (models.FeaturedClient as Model<FeaturedClientDocument>) ||
   model<FeaturedClientDocument>("FeaturedClient", featuredClientSchema);
 
-interface CaseStudyDocument extends mongoose.Document, CaseStudy {}
+interface CaseStudyDocument extends mongoose.Document, CaseStudy { }
 const caseStudySchema = new Schema<CaseStudyDocument>(
   {
     id: numericIdField,
@@ -209,7 +211,7 @@ export const CaseStudyModel =
   (models.CaseStudy as Model<CaseStudyDocument>) ||
   model<CaseStudyDocument>("CaseStudy", caseStudySchema);
 
-interface PricingPackageDocument extends mongoose.Document, PricingPackage {}
+interface PricingPackageDocument extends mongoose.Document, PricingPackage { }
 const pricingPackageSchema = new Schema<PricingPackageDocument>(
   {
     id: numericIdField,
@@ -232,7 +234,7 @@ export const PricingPackageModel =
   (models.PricingPackage as Model<PricingPackageDocument>) ||
   model<PricingPackageDocument>("PricingPackage", pricingPackageSchema);
 
-interface ServicePageDocument extends mongoose.Document, ServicePage {}
+interface ServicePageDocument extends mongoose.Document, ServicePage { }
 const servicePageSchema = new Schema<ServicePageDocument>(
   {
     id: numericIdField,
@@ -255,7 +257,7 @@ export const ServicePageModel =
   (models.ServicePage as Model<ServicePageDocument>) ||
   model<ServicePageDocument>("ServicePage", servicePageSchema);
 
-interface CouponDocument extends mongoose.Document, Coupon {}
+interface CouponDocument extends mongoose.Document, Coupon { }
 const couponSchema = new Schema<CouponDocument>(
   {
     id: numericIdField,
@@ -274,7 +276,7 @@ export const CouponModel =
   (models.Coupon as Model<CouponDocument>) ||
   model<CouponDocument>("Coupon", couponSchema);
 
-interface CouponUsageDocument extends mongoose.Document, CouponUsage {}
+interface CouponUsageDocument extends mongoose.Document, CouponUsage { }
 const couponUsageSchema = new Schema<CouponUsageDocument>(
   {
     id: numericIdField,
@@ -290,7 +292,7 @@ export const CouponUsageModel =
 
 interface DedicatedResourcesLeadDocument
   extends mongoose.Document,
-    DedicatedResourcesLead {}
+  DedicatedResourcesLead { }
 const dedicatedResourcesLeadSchema = new Schema<DedicatedResourcesLeadDocument>(
   {
     id: numericIdField,
@@ -314,7 +316,7 @@ export const DedicatedResourcesLeadModel =
     dedicatedResourcesLeadSchema,
   );
 
-interface BlogPostDocument extends mongoose.Document, BlogPost {}
+interface BlogPostDocument extends mongoose.Document, BlogPost { }
 const blogPostSchema = new Schema<BlogPostDocument>(
   {
     id: numericIdField,
@@ -344,7 +346,7 @@ export const BlogPostModel =
 
 interface NewsletterSubscriberDocument
   extends mongoose.Document,
-    NewsletterSubscriber {}
+  NewsletterSubscriber { }
 const newsletterSubscriberSchema = new Schema<NewsletterSubscriberDocument>(
   {
     id: numericIdField,
@@ -361,7 +363,7 @@ export const NewsletterSubscriberModel =
     newsletterSubscriberSchema,
   );
 
-interface PortfolioItemDocument extends mongoose.Document, PortfolioItem {}
+interface PortfolioItemDocument extends mongoose.Document, PortfolioItem { }
 const portfolioItemSchema = new Schema<PortfolioItemDocument>(
   {
     id: numericIdField,
@@ -396,7 +398,7 @@ export const PortfolioItemModel =
 
 interface PortfolioContentDocument
   extends mongoose.Document,
-    PortfolioContent {}
+  PortfolioContent { }
 const portfolioContentSchema = new Schema<PortfolioContentDocument>(
   {
     id: numericIdField,
@@ -446,6 +448,40 @@ export const PortfolioContentModel =
   (models.PortfolioContent as Model<PortfolioContentDocument>) ||
   model<PortfolioContentDocument>("PortfolioContent", portfolioContentSchema);
 
+
+interface AppointmentDocument extends mongoose.Document, Appointment { }
+
+const appointmentSchema = new Schema<AppointmentDocument>(
+  {
+    id: numericIdField,
+
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    phone: String,
+    serviceType: String,
+    notes: String,
+
+    date: { type: String, required: true },      // YYYY-MM-DD
+    startTime: { type: String, required: true }, // "HH:mm"
+    endTime: { type: String, required: true },   // "HH:mm"
+
+    status: {
+      type: String,
+      enum: ["booked", "cancelled", "completed"],
+      default: "booked",
+    },
+  },
+  {
+    collection: "appointments",
+    versionKey: false,
+    timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" },
+  },
+);
+
+export const AppointmentModel =
+  (models.Appointment as Model<AppointmentDocument>) ||
+  model<AppointmentDocument>("Appointment", appointmentSchema);
+
 export type {
   BlogPostDocument,
   CaseStudyDocument,
@@ -463,6 +499,7 @@ export type {
   NewsletterSubscriberDocument,
   PortfolioItemDocument,
   PortfolioContentDocument,
+  AppointmentDocument,
 };
 
 export type {
@@ -481,4 +518,5 @@ export type {
   InsertUser as UserInput,
   InsertPortfolioItem as PortfolioItemInput,
   InsertPortfolioContent as PortfolioContentInput,
+  InsertAppointment as AppointmentInput,
 };
