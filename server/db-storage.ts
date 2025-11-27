@@ -52,7 +52,7 @@ import {
   NewsletterSubscriberModel,
   PortfolioItemModel,
   PortfolioContentModel,
-  AppointmentModel,
+  AppointmentModel
 } from "./models";
 import { connectToDatabase, getNextSequence } from "./db";
 
@@ -741,35 +741,37 @@ export class DatabaseStorage implements IStorage {
     return this.normalizePortfolioContent(updated);
   }
 
-  async createAppointment(
-    appointment: InsertAppointment,
-  ): Promise<Appointment> {
+  async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
     await this.ensureConnection();
     const id = await getNextSequence("appointments");
-
     const created = await AppointmentModel.create({
       id,
-      ...appointment,
       status: "booked",
+      ...appointment,
     });
-
     return toPlain<Appointment>(created);
+  }
+
+  async getAppointment(id: number): Promise<Appointment | undefined> {
+    await this.ensureConnection();
+    const appt = await AppointmentModel.findOne({ id }).lean<Appointment>();
+    return appt ?? undefined;
   }
 
   async getAppointmentsByDate(date: string): Promise<Appointment[]> {
     await this.ensureConnection();
-    const docs = await AppointmentModel.find({ date })
+    const appts = await AppointmentModel.find({ date })
       .sort({ startTime: 1 })
       .lean<Appointment[]>();
-    return docs;
+    return appts;
   }
 
   async getAllAppointments(): Promise<Appointment[]> {
     await this.ensureConnection();
-    const docs = await AppointmentModel.find()
+    const appts = await AppointmentModel.find()
       .sort({ date: 1, startTime: 1 })
       .lean<Appointment[]>();
-    return docs;
+    return appts;
   }
 
   async updateAppointmentStatus(
@@ -786,13 +788,8 @@ export class DatabaseStorage implements IStorage {
     if (!updated) {
       throw new Error("Appointment not found");
     }
-    return updated;
-  }
 
-  async getAppointment(id: number): Promise<Appointment | undefined> {
-    await this.ensureConnection();
-    const doc = await AppointmentModel.findOne({ id }).lean<Appointment>();
-    return doc ?? undefined;
+    return updated;
   }
 }
 

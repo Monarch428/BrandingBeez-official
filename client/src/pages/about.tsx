@@ -795,6 +795,7 @@ import yuvaImage from "@assets/Yuva Stroke_1753273695215.png";
 import gopalImage from "@assets/Gopal Stroke_1753273701284.png";
 import athiraImage from "@assets/Athira Stroke_1753273701280.png";
 import jithenImage from "../../public/images/Jithen-team-member.png";
+import pranavImage from "../../public/images/Pranav-team-member.png";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png";
@@ -861,6 +862,16 @@ const teamMembers = [
       "https://www.linkedin.com/in/vishnupriyaa-rajan?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
     specialties: ["Automation", "Process Design", "Workflow Optimization"],
   },
+  {
+    name: "Athira",
+    role: "HR",
+    location: "India",
+    image: athiraImage,
+    bio: "Human resources specialist fostering team growth and culture",
+    linkedin:
+      "https://www.linkedin.com/in/athirasrihari?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    specialties: ["Human Resources", "Team Development", "Culture Building"],
+  },
   // {
   //   name: "Mathavan",
   //   role: "AI Developer",
@@ -885,15 +896,6 @@ const teamMembers = [
     specialties: ["Full-Stack Development", "React", "Node.js"],
   },
   {
-    name: "Sathesh",
-    role: "Full-Stack Developer",
-    location: "India",
-    image: SatheshImage,
-    bio: "Full-stack development specialist with modern frameworks",
-    linkedin: "https://www.linkedin.com/in/satheshkumar-v/",
-    specialties: ["Full-Stack Development", "React", "Node.js"],
-  },
-  {
     name: "Raja",
     role: "AI Specialist",
     location: "India",
@@ -901,6 +903,15 @@ const teamMembers = [
     bio: "AI specialist with expertise in generative AI and NLP, Machine Learning",
     linkedin: "https://www.linkedin.com/in/rajakrishnank/",
     specialties: ["Gen-AI", "NLP", "AI Solutions"],
+  },
+  {
+    name: "Sathesh",
+    role: "Full-Stack Developer",
+    location: "India",
+    image: SatheshImage,
+    bio: "Full-stack development specialist with modern frameworks",
+    linkedin: "https://www.linkedin.com/in/satheshkumar-v/",
+    specialties: ["Full-Stack Development", "React", "Node.js"],
   },
   {
     name: "Pradeep",
@@ -955,6 +966,16 @@ const teamMembers = [
     specialties: ["Google Ads", "SEO", "PPC Management"],
   },
   {
+    name: "Jithendran",
+    role: "Video Editor",
+    location: "India",
+    image: jithenImage,
+    bio: "Creative video editor crafting engaging visual stories",
+    linkedin:
+      "https://www.linkedin.com/in/jithendran-natarajan-50976b187?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    specialties: ["Video Editing", "Creative Storytelling", "Post-Production"],
+  },
+  {
     name: "Vishnu",
     role: "Senior WordPress Developer & UI/UX Designer",
     location: "India",
@@ -969,24 +990,14 @@ const teamMembers = [
     ],
   },
   {
-    name: "Athira",
-    role: "HR",
+    name: "Pranavkumar",
+    role: "Content Manager",
     location: "India",
-    image: athiraImage,
-    bio: "Human resources specialist fostering team growth and culture",
+    image: pranavImage,
+    bio: "Content manager driving strategic content initiatives",
     linkedin:
-      "https://www.linkedin.com/in/athirasrihari?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-    specialties: ["Human Resources", "Team Development", "Culture Building"],
-  },
-  {
-    name: "Jithendran",
-    role: "Video Editor",
-    location: "India",
-    image: jithenImage,
-    bio: "Creative video editor crafting engaging visual stories",
-    linkedin:
-      "https://www.linkedin.com/in/jithendran-natarajan-50976b187?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-    specialties: ["Video Editing", "Creative Storytelling", "Post-Production"],
+      "https://www.linkedin.com/in/pranavkumar8481?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+    specialties: ["Strategy", "Content Creation", "Editorial Management"],
   },
 ];
 
@@ -1350,7 +1361,7 @@ export default function About() {
                         Professional Development
                       </h3>
                       <p className="text-sm md:text-base text-[#4A5565] mt-1 leading-relaxed">
-                        $2,000 annual learning budget per employee
+                        $5,000 annual learning budget per employee
                       </p>
                     </div>
                     <div className="w-12 h-12 rounded-full bg-[#F6339A] flex items-center justify-center shadow-lg shrink-0">
@@ -1366,101 +1377,118 @@ export default function About() {
 
           {/* Team Details Section */}
           <section className="py-16 px-4 bg-gray-50">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-6xl xl:max-w-[80%] mx-auto">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold mb-6 text-gray-900">
                   Meet Our Global Team
                 </h2>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 text-lg font-semibold text-gray-900">
+                <div className="flex flex-wrap items-center justify-center gap-3 text-base md:text-lg font-semibold text-gray-900">
                   <h3 className="text-brand-purple">Leadership Team</h3>
-                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-400 hidden sm:inline">|</span>
                   <h3 className="text-brand-purple">Technical Experts</h3>
-                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-400 hidden sm:inline">|</span>
                   <h3 className="text-brand-purple">Support Team</h3>
-                  <span className="text-gray-400">|</span>
+                  <span className="text-gray-400 hidden sm:inline">|</span>
                   <h3 className="text-brand-purple">Get to Know Our Team</h3>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {/* ✅ 5 in a row on xl, nicely responsive below */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {teamMembers.map((member, index) => (
-                  <Card key={index} className="h-full">
-                    <CardContent className="p-6 text-center h-full flex flex-col">
-                      <TeamMemberImage
-                        src={member.image}
-                        alt={`${member.name} - ${member.role}`}
-                        name={member.name}
-                      />
+                  <Card
+                    key={index}
+                    className="h-full flex flex-col shadow-sm hover:shadow-md transition-shadow duration-150"
+                  >
+                    <CardContent className="p-5 text-center flex flex-col h-full">
+                      <div className="mb-4 flex justify-center">
+                        <TeamMemberImage
+                          src={member.image}
+                          alt={`${member.name} - ${member.role}`}
+                          name={member.name}
+                        />
+                      </div>
 
-                      <h3 className="font-bold text-lg text-brand-purple mb-1">
+                      {/* Name / Title – normalized sizes */}
+                      <h3 className="font-bold text-sm md:text-base text-gray-900 mb-1 leading-snug line-clamp-2">
                         {member.name === "Vignesh"
-                          ? "Vignesh - Founder"
+                          ? "Vignesh – Founder"
                           : member.name === "Raje"
-                            ? "Raje - CEO"
+                            ? "Raje – CEO"
                             : member.name === "Charan"
-                              ? "Charan - Chief Visionary Officer"
+                              ? "Charan – Chief Visionary Officer"
                               : member.name === "Priya"
-                                ? "Priya - Automation Specialist"
+                                ? "Priya – Automation Specialist"
                                 : member.name === "Theva"
-                                  ? "Theva - AI Developer"
+                                  ? "Theva – AI Developer"
                                   : member.name === "Logu"
-                                    ? "Logu - Full-Stack Developer"
+                                    ? "Logu – Full-Stack Developer"
                                     : member.name === "Mohan"
-                                      ? "Mohan - Graphic Designer"
+                                      ? "Mohan – Graphic Designer"
                                       : member.name === "Azeez"
-                                        ? "Azeez - Senior Graphic Designer"
+                                        ? "Azeez – Senior Graphic Designer"
                                         : member.name === "Niju"
-                                          ? "Niju - Senior WordPress Developer"
+                                          ? "Niju – Senior WordPress Developer"
                                           : member.name === "Prabha"
-                                            ? "Prabha - Senior WordPress Developer"
+                                            ? "Prabha – Senior WordPress Developer"
                                             : member.name === "Vishnu"
-                                              ? "Vishnu - Senior WordPress Developer & UI/UX Designer"
+                                              ? "Vishnu – Sr. WP Developer & UI/UX"
                                               : member.name === "Yuva"
-                                                ? "Yuva - SEO Specialist"
+                                                ? "Yuva – SEO Specialist"
                                                 : member.name === "Gopal"
-                                                  ? "Gopal - Senior Google Ads & SEO Expert"
+                                                  ? "Gopal – Sr. Google Ads & SEO Expert"
                                                   : member.name === "Athira"
-                                                    ? "Athira - HR"
+                                                    ? "Athira – HR"
                                                     : member.name}
                       </h3>
 
-                      <p className="text-brand-coral font-medium mb-2">
+                      <p className="text-brand-coral text-xs md:text-sm font-medium mb-2">
                         {member.role}
                       </p>
 
-                      <div className="flex items-center justify-center gap-1 text-sm text-gray-600 mb-3">
-                        <MapPin className="w-4 h-4" />
+                      {/* Location */}
+                      <div className="flex items-center justify-center gap-1 text-xs md:text-sm text-gray-600 mb-3">
+                        <MapPin className="w-3 h-3 md:w-4 md:h-4" />
                         <span>{member.location}</span>
                       </div>
 
-                      <p className="text-sm text-gray-600 mb-4 flex-grow">
+                      {/* Bio – clamp so all cards stay equal height */}
+                      <p className="text-xs md:text-sm text-gray-600 mb-3 flex-grow line-clamp-3">
                         {member.bio}
                       </p>
 
-                      <div className="flex flex-wrap gap-1 justify-center mb-4">
+                      {/* Specialties */}
+                      <div className="flex flex-wrap gap-1.5 justify-center mb-4">
                         {member.specialties.map((specialty, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">
+                          <Badge
+                            key={i}
+                            variant="secondary"
+                            className="text-[10px] md:text-[11px] px-2 py-0.5"
+                          >
                             {specialty}
                           </Badge>
                         ))}
                       </div>
 
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white mt-auto"
-                        asChild
-                      >
-                        <a
-                          href={member.linkedin}
-                          target="_blank"
-                          rel="noopener noreferrer"
+                      {/* Button pinned to bottom via mt-auto on wrapper */}
+                      <div className="mt-auto pt-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white w-full justify-center"
+                          asChild
                         >
-                          <Linkedin className="w-4 h-4 mr-1" />
-                          Connect
-                        </a>
-                      </Button>
+                          <a
+                            href={member.linkedin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Linkedin className="w-4 h-4 mr-1" />
+                            Connect
+                          </a>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}

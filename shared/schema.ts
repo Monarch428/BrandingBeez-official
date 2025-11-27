@@ -341,13 +341,12 @@ export interface Appointment {
   name: string;
   email: string;
   phone?: string;
-  serviceType?: string;        // e.g. "Web Development", "AI Development"
+  serviceType?: string;
   notes?: string;
 
-  // Slot info
-  date: string;                // "2025-11-30" (YYYY-MM-DD)
-  startTime: string;           // "10:00"
-  endTime: string;             // "10:30"
+  date: string;    
+  startTime: string; 
+  endTime: string;   
 
   status: AppointmentStatus;
 
@@ -355,7 +354,6 @@ export interface Appointment {
   updatedAt?: Date;
 }
 
-// What frontend will send
 export type InsertAppointment = Omit<
   Appointment,
   "id" | "status" | "createdAt" | "updatedAt"

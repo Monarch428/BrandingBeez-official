@@ -89,7 +89,7 @@ export default function Contact() {
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm md:text-base">
               <div className="flex items-center gap-2 text-gray-700">
                 <Phone className="w-4 h-4 text-brand-coral" />
-                <span className="font-semibold">(855) SCALE-UP</span>
+                <span className="font-semibold">+91 78719 90263</span>
               </div>
               <div className="hidden md:block h-4 w-px bg-gray-300" />
               <div className="flex items-center gap-2 text-gray-700">
@@ -99,7 +99,7 @@ export default function Contact() {
               <div className="hidden md:block h-4 w-px bg-gray-300" />
               <div className="flex items-center gap-2 text-gray-700">
                 <Clock className="w-4 h-4 text-brand-coral" />
-                <span className="font-semibold">Mon–Fri 9AM–6PM EST</span>
+                <span className="font-semibold">Mon – Fri 9AM – 6PM EST</span>
               </div>
             </div>
           </div>

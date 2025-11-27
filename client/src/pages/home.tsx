@@ -1064,6 +1064,7 @@ import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png"
 import { AppointmentCalendar } from "@/components/book-appoinment";
+import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 
 // ✅ Regional Partners type + data
 type RegionalPartnersMember = {
@@ -2480,16 +2481,16 @@ export default function Home() {
             />
           </section>
 
-          {/* <section
+          <section
             id="book-appointment"
             className="py-16 md:py-24 px-4 md:px-6 bg-slate-950 border-t border-slate-900"
           >
             <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
               <div className="text-center max-w-2xl mx-auto">
-                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[11px] uppercase tracking-[0.2em] mb-3">
+                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[18px] uppercase tracking-[0.2em] mb-3 font-bold">
                   Book a free strategy call
                 </p>
-                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
+                <h2 className="text-4xl lg:text-4xl md:text-3xl font-bold text-white mb-2">
                   Ready to see what BrandingBeez can do for you?
                 </h2>
                 <p className="text-sm md:text-base text-slate-400">
@@ -2501,11 +2502,11 @@ export default function Home() {
               <AppointmentCalendar
                 defaultServiceType="Website / SEO / AI strategy"
                 consultantName="Raja Rajeshwari"
-                consultantTitle="Founder, BrandingBeez"
-                consultantImage="/images/team/sathesh-avatar.png"
+                consultantTitle="CEO, BrandingBeez"
+                consultantImage={RajeStroke}
               />
             </div>
-          </section> */}
+          </section>
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
           <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:block">

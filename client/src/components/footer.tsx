@@ -79,7 +79,7 @@ export default function Footer() {
                 <Linkedin className="w-5 h-5" />
               </a>
               <a
-                href="https://www.facebook.com/BrandingBeez/"
+                href="https://www.facebook.com/Brandingbeezuk"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hite transition-colors touch-manipulation"
@@ -171,8 +171,7 @@ export default function Footer() {
                   href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-brand-coral rand-coral-light transition-colors touch-manipulation"
-                >
+                  className="text-brand-coral rand-coral-light transition-colors touch-manipulation">
                   Book Consultation
                 </a>
               </li>
@@ -270,7 +269,7 @@ export default function Footer() {
                 />
               </a>
               <a
-                href="#"
+                href="https://masternetworks.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center hover:bg-white/20 transition-all duration-300 border border-white/20"
@@ -284,7 +283,7 @@ export default function Footer() {
                 />
               </a>
               <a
-                href="#"
+                href="https://www.h7network.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center hover:bg-white/20 transition-all duration-300 border border-white/20"
@@ -321,5 +320,4 @@ export default function Footer() {
   );
 }
 
-// Export both default and named for compatibility
 export { Footer };

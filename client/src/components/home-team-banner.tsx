@@ -18,6 +18,7 @@ import Raja_Stroke from "../../public/images/Raja-team-member.png";
 import NijuStroke from "@assets/Niju Stroke_1753273695212.png";
 import Pradeep_Stroke from "../../public/images/Pradeep-team-member.png";
 import Jithendran_Stroke from "../../public/images/Jithen-team-member.png";
+import pranav_Stroke from "../../public/images/Pranav-team-member.png";
 
 interface TeamMember {
   name: string;
@@ -49,6 +50,7 @@ const teamMembers: TeamMember[] = [
   { name: "Priya", role: "Automation", image: PriyaStroke, position: { x: 80, y: 35, scale: 0.7, delay: 2.0 } },
   { name: "Athira", role: "HR", image: AthiraStroke, position: { x: 15, y: 85, scale: 0.65, delay: 2.2 } },
   { name: "Niju", role: "WordPress Dev", image: NijuStroke, position: { x: 95, y: 15, scale: 0.65, delay: 2.6 } },
+  { name: "PranavKumar", role: "Content Manager", image: pranav_Stroke, position: { x: 95, y: 15, scale: 0.65, delay: 2.6 } },
 ];
 
 export function HomeTeamBanner() {
