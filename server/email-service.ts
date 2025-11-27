@@ -153,10 +153,6 @@
 //   }
 // }
 
-
-
-
-
 import path from "path";
 import nodemailer from "nodemailer";
 import { notificationService } from "./notification-service";
@@ -168,9 +164,9 @@ interface AppointmentNotificationPayload {
   phone?: string;
   serviceType?: string;
   notes?: string;
-  date: string;      // YYYY-MM-DD
-  startTime: string; // "HH:mm"
-  endTime: string;   // "HH:mm"
+  date: string;
+  startTime: string;
+  endTime: string;
   createdAt?: Date;
 }
 
@@ -181,6 +177,34 @@ interface ContactSubmission {
   phone?: string;
   message: string;
   submittedAt: Date;
+}
+
+// 🔐 Global SMTP envs
+const SMTP_USER = process.env.SMTP_USER || "";
+const SMTP_PASS = process.env.SMTP_PASSWORD || "";
+
+function getSmtpConfig() {
+  let host = process.env.SMTP_HOST || "";
+  let port = process.env.SMTP_PORT || "";
+
+  if (!host) {
+    if (SMTP_USER.toLowerCase().endsWith("@gmail.com")) {
+      host = "smtp.gmail.com";
+    } else {
+      host = "smtppro.zoho.in";
+    }
+  }
+
+  if (!port) {
+    port = "465";
+  }
+
+  return {
+    host,
+    port: Number(port),
+    user: SMTP_USER || undefined,
+    pass: SMTP_PASS || undefined,
+  };
 }
 
 // Simple email notification using nodemailer (works with Gmail, Outlook, etc.)
@@ -241,14 +265,10 @@ export async function sendQuestionnaireToAdmin(submission: {
     submittedAt: submission.submittedAt || new Date(),
   });
 
-  const SMTP_HOST = process.env.SMTP_HOST || "smtppro.zoho.in";
-  const SMTP_PORT = process.env.SMTP_PORT || "465";
-  const SMTP_USER = process.env.SMTP_USER;
-  const SMTP_PASS = process.env.SMTP_PASSWORD;
+  const { host, port, user, pass } = getSmtpConfig();
 
   // const adminEmail = "pradeep.brandingbeez@gmail.com";
   const adminEmail = "info@brandingbeez.co.uk";
-
 
   // Build text content for attachment
   const lines: string[] = [];
@@ -284,27 +304,27 @@ export async function sendQuestionnaireToAdmin(submission: {
   const attachmentContent = lines.join("\n");
 
   // If SMTP not configured, just log and return (notification already stored)
-  if (!SMTP_USER || !SMTP_PASS) {
+  if (!user || !pass) {
     console.log("SMTP credentials not configured. Questionnaire content:\n", attachmentContent);
     return { success: true, method: "console_log" };
   }
 
   try {
     const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT),
+      host,
+      port,
       secure: true,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+        user,
+        pass,
       },
     });
 
     const filenameTxt = `custom-app-questionnaire-${Date.now()}.txt`;
     const filenameDoc = filenameTxt.replace(/\.txt$/, ".doc");
 
-    const mailOptions = {
-      from: SMTP_USER,
+    const mailOptions: any = {
+      from: user,
       to: adminEmail,
       subject: `New Custom App Questionnaire from ${submission.name}`,
       text: `New questionnaire submitted by ${submission.name} <${submission.email}>. See attached file for full answers.`,
@@ -326,7 +346,7 @@ export async function sendQuestionnaireToAdmin(submission: {
     if ((submission as any).file && (submission as any).file.path) {
       const f: any = (submission as any).file;
       // Push the uploaded file as an attachment (keep original filename)
-      (mailOptions as any).attachments.push({
+      mailOptions.attachments.push({
         filename: f.originalname || path.basename(f.path),
         path: f.path,
         contentType: f.mimetype || undefined,
@@ -343,7 +363,7 @@ export async function sendQuestionnaireToAdmin(submission: {
 }
 
 // -----------------------------------------------------
-// NEW — ZOHO SMTP METHOD (Preferred)
+// NEW — GENERIC SMTP METHOD (Gmail OR Zoho)
 // -----------------------------------------------------
 export async function sendEmailViaGmail(submission: {
   name: string;
@@ -351,30 +371,27 @@ export async function sendEmailViaGmail(submission: {
   message: string;
   submittedAt: Date;
 }) {
-  const SMTP_HOST = process.env.SMTP_HOST || "smtppro.zoho.in";
-  const SMTP_PORT = process.env.SMTP_PORT || "465";
-  const SMTP_USER = process.env.SMTP_USER;
-  const SMTP_PASS = process.env.SMTP_PASSWORD;
+  const { host, port, user, pass } = getSmtpConfig();
 
-  if (!SMTP_USER || !SMTP_PASS) {
-    console.log("Zoho SMTP credentials not configured, falling back to console logging");
+  if (!user || !pass) {
+    console.log("SMTP credentials not configured, falling back to console logging");
     console.log("Submission:", submission);
     return { success: true, method: "console_log" };
   }
 
   try {
     const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT),
+      host,
+      port,
       secure: true,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+        user,
+        pass,
       },
     });
 
     const mailOptions = {
-      from: SMTP_USER,
+      from: user,
       to: submission.email,
       subject: "Newsletter Subscription Confirmation",
       html: `
@@ -437,10 +454,10 @@ export async function sendEmailViaGmail(submission: {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Email sent via Zoho SMTP to", submission.email);
-    return { success: true, method: "zoho_smtp" };
+    console.log("Email sent via SMTP to", submission.email);
+    return { success: true, method: host.includes("gmail") ? "gmail_smtp" : "zoho_smtp" };
   } catch (error) {
-    console.error("Zoho SMTP send failed:", error);
+    console.error("SMTP send failed:", error);
     return { success: false, method: "failed" };
   }
 }
@@ -448,7 +465,6 @@ export async function sendEmailViaGmail(submission: {
 export async function sendAppointmentNotification(
   appt: AppointmentNotificationPayload,
 ) {
-  // 🔔 Optional: also push into in-memory notifications so it shows in admin panel
   try {
     notificationService.addNotification("appointment_booked", {
       id: appt.id,
@@ -466,16 +482,13 @@ export async function sendAppointmentNotification(
     console.error("Failed to add in-memory appointment notification:", err);
   }
 
-  const SMTP_HOST = process.env.SMTP_HOST || "smtppro.zoho.in";
-  const SMTP_PORT = process.env.SMTP_PORT || "465";
-  const SMTP_USER = process.env.SMTP_USER;
-  const SMTP_PASS = process.env.SMTP_PASSWORD;
+  const { host, port, user, pass } = getSmtpConfig();
 
   // ✅ Appointment admin email (as you requested)
   const adminEmail = "pradeep.brandingbeez@gmail.com";
 
   // If SMTP not configured, fallback to console logging
-  if (!SMTP_USER || !SMTP_PASS) {
+  if (!user || !pass) {
     console.log("SMTP not configured. Appointment notification:");
     console.log(appt);
     return { success: true, method: "console_log" };
@@ -483,12 +496,12 @@ export async function sendAppointmentNotification(
 
   try {
     const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: Number(SMTP_PORT),
+      host,
+      port,
       secure: true,
       auth: {
-        user: SMTP_USER,
-        pass: SMTP_PASS,
+        user,
+        pass,
       },
     });
 
@@ -496,7 +509,7 @@ export async function sendAppointmentNotification(
     const prettyTime = `${appt.startTime} – ${appt.endTime}`;
 
     const mailOptions = {
-      from: SMTP_USER,
+      from: user,
       to: adminEmail,
       subject: `New appointment booked – ${prettyDate} @ ${prettyTime}`,
       html: `
@@ -518,17 +531,15 @@ export async function sendAppointmentNotification(
               <li><b>Name:</b> ${appt.name}</li>
               <li><b>Email:</b> ${appt.email}</li>
               <li><b>Phone:</b> ${appt.phone || "(not provided)"}</li>
-              <li><b>Service / Topic:</b> ${
-                appt.serviceType || "(not specified)"
-              }</li>
+              <li><b>Service / Topic:</b> ${appt.serviceType || "(not specified)"
+        }</li>
             </ul>
 
-            ${
-              appt.notes
-                ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
+            ${appt.notes
+          ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
                    <p style="font-size:14px;white-space:pre-wrap;">${appt.notes}</p>`
-                : ""
-            }
+          : ""
+        }
 
             <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
               Appointment ID: ${appt.id}<br/>
