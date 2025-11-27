@@ -2481,7 +2481,7 @@ export default function Home() {
             />
           </section>
 
-          <section
+          {/* <section
             id="book-appointment"
             className="py-16 md:py-24 px-4 md:px-6 bg-slate-950 border-t border-slate-900"
           >
@@ -2506,7 +2506,7 @@ export default function Home() {
                 consultantImage={RajeStroke}
               />
             </div>
-          </section>
+          </section> */}
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
           <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:block">
