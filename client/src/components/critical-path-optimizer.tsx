@@ -31,6 +31,8 @@ export const CriticalPathOptimizer = () => {
     // Prefetch next likely pages
     const prefetchRoutes = () => {
       const routes = [
+        '/blog',
+        '/portfolio',
         '/services', 
         '/contact', 
         '/about',

@@ -815,9 +815,8 @@ export function ContactFormOptimized() {
 
                 <Button
                   type="button"
-                  variant="outline"
                   onClick={handleResourceRoleAdd}
-                  className="w-full"
+                  className="w-full bg-brand-coral text-white hover:bg-brand-coral-dark"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Another Resource

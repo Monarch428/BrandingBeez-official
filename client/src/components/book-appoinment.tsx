@@ -11,6 +11,14 @@ import {
   type SlotStatus,
 } from "@/lib/appointmentService";
 import { ChevronLeft, ChevronRight, Clock, User } from "lucide-react";
+import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AppointmentCalendarProps {
   defaultServiceType?: string;
@@ -19,22 +27,49 @@ interface AppointmentCalendarProps {
   consultantImage?: string;
 }
 
+// 🔹 SAME services as ContactFormOptimized
+const services = [
+  { value: "website-development", label: "Website Development" },
+  { value: "seo", label: "SEO / AIO Services" },
+  { value: "google-ads", label: "Google Ads" },
+  { value: "dedicated-resources", label: "Dedicated Resources" },
+  { value: "custom-app-development", label: "Custom Web & Mobile App Development" },
+  { value: "ai-development", label: "AI Web Agents/AI Development" },
+  { value: "other", label: "Other" },
+];
+
 const statusClasses: Record<SlotStatus, string> = {
   available:
-    "border border-emerald-500/60 text-emerald-50 bg-emerald-500/10 hover:bg-emerald-500/20",
+    "border border-emerald-400/70 text-emerald-100 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-300",
   booked:
-    "border border-amber-500/50 bg-amber-500/10 text-amber-100 cursor-not-allowed opacity-60",
+    "border border-amber-500/60 bg-amber-500/10 text-amber-100 cursor-not-allowed opacity-70",
   cancelled:
-    "border border-slate-500/40 bg-slate-800/40 text-slate-200 line-through cursor-not-allowed",
+    "border border-slate-600/70 bg-slate-900/60 text-slate-300 line-through cursor-not-allowed opacity-70",
   completed:
-    "border border-blue-500/40 bg-blue-500/10 text-blue-100 cursor-not-allowed opacity-80",
+    "border border-blue-500/60 bg-blue-500/10 text-blue-100 cursor-not-allowed opacity-80",
+};
+
+const inputBase =
+  "bg-slate-900/70 border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm focus-visible:ring-1 focus-visible:ring-brand-coral focus-visible:border-brand-coral/80 focus-visible:outline-none";
+
+// 🔹 Helpers
+const toLocalDateKey = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`; // YYYY-MM-DD in LOCAL time
+};
+
+const parseTimeToMinutes = (time: string) => {
+  const [hh, mm] = time.split(":").map(Number);
+  return hh * 60 + mm;
 };
 
 export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
-  defaultServiceType = "Web Development Consultation",
-  consultantName = "Satheshkumar V",
+  defaultServiceType = "Website Development",
+  consultantName = "Raja Rajeshwari",
   consultantTitle = "Digital Strategy & AI Consultant",
-  consultantImage = "/images/team/sathesh-avatar.png", // adjust path
+  // consultantImage = {RajeStroke}
 }) => {
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
@@ -50,7 +85,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
-  const [serviceType, setServiceType] = useState(defaultServiceType);
+
+  // Service selection (same semantics as contact form)
+  const [serviceValue, setServiceValue] = useState<string>("");
+  const [serviceType, setServiceType] = useState<string>(defaultServiceType); 
+  const [serviceLocked, setServiceLocked] = useState(false); 
 
   const monthLabel = useMemo(() => {
     return currentMonth.toLocaleDateString("en-GB", {
@@ -59,10 +98,54 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     });
   }, [currentMonth]);
 
+  // ✅ Use local date key (no UTC shift)
   const selectedDateKey = useMemo(() => {
     if (!selectedDate) return "";
-    return selectedDate.toISOString().slice(0, 10); // YYYY-MM-DD
+    return toLocalDateKey(selectedDate); 
   }, [selectedDate]);
+
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
+
+  const todayKey = toLocalDateKey(today);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const serviceFromUrl = params.get("service");
+
+    if (serviceFromUrl) {
+      const match = services.find((s) => s.value === serviceFromUrl);
+      if (match) {
+        setServiceValue(match.value);
+        setServiceType(match.label);
+        setServiceLocked(true); 
+        return;
+      }
+    }
+
+    // If no URL param, try to map defaultServiceType to a known label
+    if (defaultServiceType) {
+      const match = services.find((s) => s.label === defaultServiceType);
+      if (match) {
+        setServiceValue(match.value);
+        setServiceType(match.label);
+      }
+    }
+  }, [defaultServiceType]);
+
+  // Keep serviceType label in sync when manual selection changes
+  useEffect(() => {
+    if (!serviceValue) return;
+    const match = services.find((s) => s.value === serviceValue);
+    if (match) {
+      setServiceType(match.label);
+    }
+  }, [serviceValue]);
 
   // Days grid for current month
   const daysInMonth = useMemo(() => {
@@ -90,7 +173,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   // Load slots when selectedDate changes
   useEffect(() => {
     const loadSlots = async () => {
-      if (!selectedDate) return;
+      if (!selectedDateKey) return;
       try {
         setLoadingSlots(true);
         setError(null);
@@ -102,10 +185,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         setLoadingSlots(false);
       }
     };
-    if (selectedDateKey) {
-      void loadSlots();
-    }
-  }, [selectedDateKey, selectedDate]);
+
+    void loadSlots();
+  }, [selectedDateKey]);
 
   const goPrevMonth = () => {
     setCurrentMonth(
@@ -128,6 +210,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       setError("Name and email are required");
       return;
     }
+    if (!serviceType) {
+      setError("Please select what you want to discuss");
+      return;
+    }
 
     try {
       setBookingLoading(true);
@@ -139,7 +225,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         email,
         phone,
         notes,
-        serviceType,
+        serviceType, // label, e.g. "Website Development"
         date: selectedDateKey,
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
@@ -163,18 +249,16 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     d1.getMonth() === d2.getMonth() &&
     d1.getDate() === d2.getDate();
 
-  const today = new Date();
-
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.2fr)]">
       {/* Left: Calendar + slots */}
-      <Card className="bg-slate-950/70 border-slate-800 shadow-xl">
+      <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
           <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-brand-coral">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-brand-coral/90">
               Book a strategy call
             </p>
-            <CardTitle className="text-lg md:text-xl text-white mt-1">
+            <CardTitle className="text-lg md:text-xl text-slate-50 mt-1">
               Pick a date & time that works for you
             </CardTitle>
           </div>
@@ -182,7 +266,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             <Button
               variant="outline"
               size="icon"
-              className="border-slate-700 bg-slate-900 hover:bg-slate-800"
+              className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
               onClick={goPrevMonth}
             >
               <ChevronLeft className="w-4 h-4" />
@@ -193,7 +277,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             <Button
               variant="outline"
               size="icon"
-              className="border-slate-700 bg-slate-900 hover:bg-slate-800"
+              className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
               onClick={goNextMonth}
             >
               <ChevronRight className="w-4 h-4" />
@@ -204,7 +288,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         <CardContent className="p-4 md:p-6 space-y-6">
           {/* Calendar grid */}
           <div>
-            <div className="grid grid-cols-7 text-xs md:text-[13px] text-center text-slate-400 mb-1">
+            <div className="grid grid-cols-7 text-[11px] md:text-[13px] text-center text-slate-400 mb-1">
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
                 <div key={d} className="py-1">
                   {d}
@@ -217,7 +301,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   return <div key={idx} className="h-9 md:h-10" />;
                 }
 
-                const isPast = date < new Date(today.toDateString());
+                const day = new Date(date);
+                day.setHours(0, 0, 0, 0);
+                const isPastDay = day < today;
                 const isSelected =
                   selectedDate && isSameDay(date, selectedDate);
 
@@ -225,14 +311,14 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   <button
                     key={idx}
                     type="button"
-                    disabled={isPast}
+                    disabled={isPastDay}
                     onClick={() => setSelectedDate(date)}
                     className={[
-                      "h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all",
+                      "h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all text-slate-100",
                       isSelected
-                        ? "bg-brand-coral text-white border-brand-coral shadow-sm"
-                        : "border-slate-700 bg-slate-900/60 text-slate-100 hover:border-brand-coral/70 hover:bg-slate-900",
-                      isPast ? "opacity-40 cursor-not-allowed" : "",
+                        ? "bg-brand-coral text-slate-950 border-brand-coral shadow-sm"
+                        : "border-slate-700 bg-slate-900/70 hover:border-brand-coral/70 hover:bg-slate-900",
+                      isPastDay ? "opacity-40 cursor-not-allowed" : "",
                     ].join(" ")}
                   >
                     {date.getDate()}
@@ -259,12 +345,12 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               </div>
               <div className="flex gap-2 text-[11px] text-slate-400">
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm border border-emerald-500/70 bg-emerald-500/20" />
+                  <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
                   Available
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-3 h-3 rounded-sm border border-amber-500/70 bg-amber-500/20" />
-                  Booked
+                  <span className="w-3 h-3 rounded-sm border border-amber-500/80 bg-amber-500/30" />
+                  Booked / Unavailable
                 </span>
               </div>
             </div>
@@ -278,11 +364,42 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                 {slots.map((slot) => {
-                  const disabled = slot.status !== "available";
+                  const now = new Date();
+                  const currentMinutes =
+                    now.getHours() * 60 + now.getMinutes();
+
+                  let isPastSlot = false;
+
+                  if (selectedDate) {
+                    const selectedKey = toLocalDateKey(selectedDate);
+
+                    if (selectedKey < todayKey) {
+                      // any slot on a past day
+                      isPastSlot = true;
+                    } else if (selectedKey === todayKey) {
+                      // same day → compare end time with NOW
+                      const slotEndMinutes = parseTimeToMinutes(
+                        slot.endTime,
+                      );
+                      if (slotEndMinutes <= currentMinutes) {
+                        isPastSlot = true;
+                      }
+                    }
+                  }
+
+                  // disable if not available OR already past
+                  const disabled = slot.status !== "available" || isPastSlot;
+
                   const isSelected =
+                    !disabled &&
                     selectedSlot &&
                     selectedSlot.startTime === slot.startTime &&
                     selectedSlot.endTime === slot.endTime;
+
+                  const extraPastClasses = isPastSlot
+                    ? "opacity-40 cursor-not-allowed !border-slate-700 !bg-slate-900/60"
+                    : "";
+
                   return (
                     <button
                       key={slot.startTime}
@@ -294,6 +411,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       className={[
                         "px-2 py-1.5 rounded-lg text-[11px] md:text-xs flex flex-col border transition-all",
                         statusClasses[slot.status],
+                        extraPastClasses,
                         isSelected
                           ? "ring-2 ring-brand-coral/80 ring-offset-2 ring-offset-slate-950"
                           : "",
@@ -302,8 +420,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       <span className="font-medium">
                         {slot.startTime}–{slot.endTime}
                       </span>
-                      <span className="text-[10px] opacity-80 capitalize">
-                        {slot.status}
+                      <span className="text-[10px] opacity-85 capitalize">
+                        {isPastSlot && slot.status === "available"
+                          ? "unavailable"
+                          : slot.status}
                       </span>
                     </button>
                   );
@@ -327,15 +447,15 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       </Card>
 
       {/* Right: Consultant card + form */}
-      <Card className="bg-gradient-to-b from-slate-950 via-slate-950/90 to-slate-950 border-slate-800 shadow-xl">
+      <Card className="bg-gradient-to-b from-slate-950 via-slate-950/95 to-slate-950 border-slate-800 shadow-xl">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-3">
             <div className="relative">
               <div className="w-12 h-12 rounded-full bg-brand-coral/20 border border-brand-coral/60 overflow-hidden flex items-center justify-center">
-                {consultantImage ? (
+                {RajeStroke ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={consultantImage}
+                    src={RajeStroke}
                     alt={consultantName}
                     className="w-full h-full object-cover"
                   />
@@ -346,10 +466,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-950" />
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-brand-coral">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-brand-coral/90">
                 30–45 min discovery call
               </p>
-              <h3 className="text-sm md:text-base font-semibold text-white">
+              <h3 className="text-sm md:text-base font-semibold text-slate-50">
                 {consultantName}
               </h3>
               <p className="text-[11px] text-slate-400">{consultantTitle}</p>
@@ -358,61 +478,89 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         </CardHeader>
 
         <CardContent className="space-y-4">
-          <div className="rounded-xl border border-slate-800 bg-slate-950/60 px-3 py-2.5 text-xs text-slate-300">
+          <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2.5 text-xs text-slate-300">
             On this call, we’ll review your goals, current website/ads setup,
             and map a simple 30–60 day plan. No pressure, no fluff.
           </div>
 
           <div className="space-y-3 text-xs">
             <div className="space-y-1.5">
-              <label className="block text-slate-200">Full name</label>
+              <label className="block text-slate-100 text-[12px]">
+                Full name
+              </label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name"
-                className="bg-slate-950 border-slate-700 text-sm"
+                className={inputBase}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-slate-200">Email</label>
+              <label className="block text-slate-100 text-[12px]">
+                Email
+              </label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@company.com"
-                className="bg-slate-950 border-slate-700 text-sm"
+                className={inputBase}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-slate-200">
+              <label className="block text-slate-100 text-[12px]">
                 WhatsApp / phone (optional)
               </label>
               <Input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91…"
-                className="bg-slate-950 border-slate-700 text-sm"
+                className={inputBase}
               />
             </div>
+
+            {/* 🔹 Service Needed – same options as main contact form */}
             <div className="space-y-1.5">
-              <label className="block text-slate-200">
+              <label className="block text-slate-100 text-[12px]">
                 What do you want to discuss?
               </label>
-              <Input
-                value={serviceType}
-                onChange={(e) => setServiceType(e.target.value)}
-                className="bg-slate-950 border-slate-700 text-sm"
-              />
+              <Select
+                disabled={serviceLocked}
+                value={serviceValue || undefined}
+                onValueChange={(value) => {
+                  setServiceLocked(false);
+                  setServiceValue(value);
+                }}
+              >
+                <SelectTrigger
+                  className={`${inputBase} ${serviceLocked ? "cursor-not-allowed opacity-90" : ""}`}
+                >
+                  <SelectValue placeholder="Select a service" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-900 border-slate-700 text-slate-100">
+                  {services.map((service) => (
+                    <SelectItem key={service.value} value={service.value}>
+                      {service.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {serviceLocked && (
+                <p className="text-[10px] text-slate-400 mt-1">
+                  This was selected from the service page ({serviceType}).
+                </p>
+              )}
             </div>
+
             <div className="space-y-1.5">
-              <label className="block text-slate-200">
+              <label className="block text-slate-100 text-[12px]">
                 Anything specific we should know?
               </label>
               <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Share your website, current challenges or goals…"
-                className="bg-slate-950 border-slate-700 text-sm min-h-[80px]"
+                className={`${inputBase} min-h-[90px] text-xs`}
               />
             </div>
           </div>
@@ -421,7 +569,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
             type="button"
             disabled={bookingLoading}
             onClick={handleBook}
-            className="w-full bg-brand-coral hover:bg-brand-coral/90 text-slate-950 font-semibold text-sm mt-2"
+            className="w-full bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-sm mt-2"
           >
             {bookingLoading
               ? "Booking your slot..."
