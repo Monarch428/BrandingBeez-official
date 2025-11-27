@@ -171,7 +171,6 @@ export function TeamCollageBanner() {
             <div className="text-white/75 text-sm">Client Satisfaction</div>
           </Card>
         </div>
-
       </div>
     </div>
   );
