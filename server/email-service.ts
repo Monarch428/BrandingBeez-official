@@ -900,7 +900,7 @@ export async function sendAppointmentNotification(
 
   const { host, port, user, pass } = getSmtpConfig();
 
-  const adminEmail = "pradeep.brandingbeez@gmail.com";
+  const adminEmail = "raje@brandingbeez.co.uk";
 
   if (!user || !pass) {
     console.log("SMTP not configured. Appointment notification:");
