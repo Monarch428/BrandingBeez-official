@@ -2375,13 +2375,13 @@ export default function Home() {
           </section>
 
           {/* Newsletter CTA Section (inline newsletter page design) */}
-          <section
+         <section
             id="newsletter"
             className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
           >
             <div className="max-w-4xl mx-auto">
               {/* HEADER */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-5">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
                   Subscribe to Our Newsletter!
                 </h2>
@@ -2391,24 +2391,26 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* CONTENT: LEFT / RIGHT TEXT, CENTERED */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 
-                items-center justify-items-center md:justify-items-start 
-                max-w-3xl mx-auto mb-8">
-
+              {/* CONTENT: LEFT / RIGHT TEXT, CENTERED UNDER HEADING */}
+              <div
+                className="max-w-3xl mx-auto mb-8
+                    grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10
+                    items-start justify-items-center
+                  "
+              >
                 {/* LEFT: Main copy */}
-                <div className="space-y-3 text-center md:text-left">
+                <div className="space-y-3 text-center md:text-left md:pr-4">
                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-100 leading-relaxed max-w-sm">
+                  <p className="text-xs sm:text-sm text-gray-100 leading-relaxed max-w-sm mx-auto md:mx-0">
                     Get actionable tips, pricing tricks, and automation tactics that help
                     agencies grow faster — all in simple 1-minute reads.
                   </p>
                 </div>
 
                 {/* RIGHT: Checklist */}
-                <div className="space-y-3 text-center md:text-left">
+                <div className="space-y-3 text-center md:text-left md:pl-4">
                   <h4 className="text-base sm:text-lg font-semibold">What’s Inside</h4>
                   <ul className="space-y-2 text-gray-100 text-xs sm:text-sm max-w-sm mx-auto md:mx-0">
                     {[
@@ -2417,16 +2419,17 @@ export default function Home() {
                       "AI & automation workflows",
                       "Real stories from growing agencies",
                     ].map((item) => (
-                      <li key={item} className="flex items-center gap-2 justify-center md:justify-start">
+                      <li
+                        key={item}
+                        className="flex items-center gap-2 justify-center md:justify-start"
+                      >
                         <span className="text-green-300 text-lg leading-none">✔</span>
                         <span>{item}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-
               </div>
-
 
               {/* FORM: CENTERED CARD BELOW CONTENT */}
               <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
