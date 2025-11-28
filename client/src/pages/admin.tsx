@@ -17,6 +17,7 @@ import { BlogPostsManager } from "@/components/admin/blog-posts-manager";
 import { PortfolioItemsManager } from "@/components/admin/portfolio-items-manager";
 import { useQuery } from "@tanstack/react-query";
 import {
+  CalendarClock,
   Settings,
   Users,
   FileText,
@@ -34,6 +35,7 @@ import {
   PenTool,
   ImageIcon
 } from "lucide-react";
+import { AppointmentsManager } from "@/components/admin/appointments-manager";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -381,6 +383,13 @@ export default function Admin() {
       icon: ImageIcon,
       color: "text-orange-600",
       bgColor: "bg-orange-50"
+    },
+    {
+      title: "Appointments",
+      value: 0, 
+      icon: CalendarClock,
+      color: "text-teal-600",
+      bgColor: "bg-teal-50"
     }
   ];
 
@@ -418,7 +427,7 @@ export default function Admin() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9">
+            <TabsList className="grid w-full grid-cols-10">
               <TabsTrigger
                 value="overview"
                 className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
@@ -480,6 +489,11 @@ export default function Admin() {
                 className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
               >
                 Portfolio
+              </TabsTrigger>
+              <TabsTrigger value="appointments"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                Appointments
               </TabsTrigger>
             </TabsList>
 
@@ -640,6 +654,10 @@ export default function Admin() {
 
             <TabsContent value="portfolio-items">
               <PortfolioItemsManager />
+            </TabsContent>
+
+            <TabsContent value="appointments">
+              <AppointmentsManager />
             </TabsContent>
           </Tabs>
         </div>
