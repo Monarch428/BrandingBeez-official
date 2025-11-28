@@ -6,6 +6,7 @@ import fs from "fs";
 import multer from "multer";
 import newsletterRoutes from "./routes/newsletter";
 import appointmentsRouter from "./appointments";
+import googleAuthRoutes from "./google-auth-router";
 
 
 // Extend Express Request type to include user
@@ -132,6 +133,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.use("/api/newsletter", newsletterRoutes);
   app.use("/api", appointmentsRouter);
+  app.use("/api/google", googleAuthRoutes);
+
+
 
   // Database health check endpoint
   app.get("/api/health/database", async (req, res) => {
