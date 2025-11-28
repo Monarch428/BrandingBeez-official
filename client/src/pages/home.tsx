@@ -2346,147 +2346,13 @@ export default function Home() {
             />
           </section>
 
-          {/* Newsletter CTA Section (inline newsletter page design) */}
+          {/* Book Appointment Section */}
           <section
-            id="newsletter"
-            className="py-14 sm:py-16 px-4 sm:px-6 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
-          >
-            <div className="text-center mb-8 sm:mb-10">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
-                Subscribe to Our Newsletter!
-              </h2>
-              <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto">
-                Join 1000+ marketers & agencies getting exclusive tips on SEO, AI,
-                and growth strategies delivered straight to their inbox.
-              </p>
-            </div>
-
-            <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-12 items-center">
-              {/* Left: Newsletter content */}
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold leading-tight mb-4">
-                  Your Weekly 1-Minute Agency Growth Insights
-                </h2>
-
-                <p className="text-sm sm:text-base text-gray-200 mb-7 sm:mb-8 leading-relaxed text-left md:text-justify">
-                  Get actionable tips, pricing tricks, and automation tactics that
-                  help modern agencies grow faster — delivered in clean 1-minute
-                  reads.
-                </p>
-
-                <h3 className="text-lg sm:text-xl font-semibold mb-3">
-                  What’s Inside
-                </h3>
-
-                <ul className="space-y-3 text-gray-100 text-sm sm:text-base">
-                  {[
-                    "Fast client-winning strategies",
-                    "Pricing & proposal hacks",
-                    "AI & automation workflows",
-                    "Real stories from growing agencies",
-                  ].map((item) => (
-                    <li className="flex items-center gap-2" key={item}>
-                      <span className="text-green-300 text-lg">✔</span>
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Right: Newsletter Form */}
-              <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-md mx-auto w-full">
-                <h3 className="text-xl sm:text-2xl font-bold text-center mb-2 text-white">
-                  Subscribe Free
-                </h3>
-                <p className="text-gray-200 text-center text-xs sm:text-sm md:text-base mb-6">
-                  Join 3,000+ agency owners — no spam.
-                </p>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleNewsletterSubscribe();
-                  }}
-                  className="flex flex-col h-full space-y-4"
-                >
-                  <div className="space-y-4 max-h-[45vh] overflow-y-auto p-1 sm:p-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                    {/* Name */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-2">
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        value={newsletterName}
-                        onChange={(e) => setNewsletterName(e.target.value)}
-                        placeholder="Enter your full name"
-                        required
-                        className="w-full px-3 py-3 rounded-lg bg-white/25 text-white placeholder-gray-300
-                      border border-white/30 shadow-inner
-                      focus:border-white/60 focus:ring-1 focus:ring-white/40 
-                      focus:shadow-lg focus:scale-[1.01] transition-all duration-200 text-sm sm:text-base"
-                      />
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-200 mb-2">
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        value={newsletterEmail}
-                        onChange={(e) => setNewsletterEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        required
-                        className="w-full px-3 py-3 rounded-lg bg-white/25 text-white placeholder-gray-300
-                      border border-white/30 shadow-inner
-                      focus:border-white/60 focus:ring-1 focus:ring-white/40 
-                      focus:shadow-lg focus:scale-[1.01] transition-all duration-200 text-sm sm:text-base"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={newsletterLoading}
-                    className={`
-                  w-full bg-white text-brand-purple font-bold py-3 rounded-lg
-                  shadow-lg transition-colors duration-200 text-sm sm:text-base
-                  hover:bg-brand-coral hover:text-white
-                  ${newsletterLoading
-                        ? "opacity-60 cursor-not-allowed hover:bg-white hover:text-brand-purple"
-                        : ""
-                      }
-                `}
-                  >
-                    {newsletterLoading ? "Subscribing..." : "Subscribe Now"}
-                  </button>
-
-                  {newsletterStatus && (
-                    <p className="text-xs sm:text-sm text-gray-200 text-center mt-2">
-                      {newsletterStatus}
-                    </p>
-                  )}
-                </form>
-              </div>
-            </div>
-
-            <ThankYouPopup
-              isOpen={showNewsletterThankYou}
-              onClose={() => setShowNewsletterThankYou(false)}
-              title="Thanks for Subscribing!"
-              message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
-              formType="newsletter"
-            />
-          </section>
-
-          {/* <section
             id="book-appointment"
-            className="py-16 md:py-24 px-4 md:px-6 bg-slate-950 border-t border-slate-900"
+            className="py-14 md:py-16 px-4 md:px-4 bg-slate-950 border-t border-slate-900"
           >
             <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
-              <div className="text-center max-w-2xl mx-auto">
+              <div className="text-center max-w-3xl mx-auto">
                 <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[18px] uppercase tracking-[0.2em] mb-3 font-bold">
                   Book a free strategy call
                 </p>
@@ -2506,7 +2372,128 @@ export default function Home() {
                 consultantImage={RajeStroke}
               />
             </div>
-          </section> */}
+          </section>
+
+          {/* Newsletter CTA Section (inline newsletter page design) */}
+          <section
+            id="newsletter"
+            className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
+          >
+            <div className="max-w-4xl mx-auto">
+              {/* HEADER */}
+              <div className="text-center mb-6">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
+                  Subscribe to Our Newsletter!
+                </h2>
+                <p className="text-xs sm:text-sm md:text-base text-white/90 max-w-2xl mx-auto">
+                  Join 1000+ marketers & agencies getting exclusive tips on SEO, AI,
+                  and growth strategies.
+                </p>
+              </div>
+
+              {/* CONTENT: LEFT / RIGHT TEXT, CENTERED */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 
+                items-center justify-items-center md:justify-items-start 
+                max-w-3xl mx-auto mb-8">
+
+                {/* LEFT: Main copy */}
+                <div className="space-y-3 text-center md:text-left">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
+                    Weekly 1-Minute Agency Growth Insights
+                  </h3>
+                  <p className="text-xs sm:text-sm text-gray-100 leading-relaxed max-w-sm">
+                    Get actionable tips, pricing tricks, and automation tactics that help
+                    agencies grow faster — all in simple 1-minute reads.
+                  </p>
+                </div>
+
+                {/* RIGHT: Checklist */}
+                <div className="space-y-3 text-center md:text-left">
+                  <h4 className="text-base sm:text-lg font-semibold">What’s Inside</h4>
+                  <ul className="space-y-2 text-gray-100 text-xs sm:text-sm max-w-sm mx-auto md:mx-0">
+                    {[
+                      "Fast client-winning strategies",
+                      "Pricing & proposal hacks",
+                      "AI & automation workflows",
+                      "Real stories from growing agencies",
+                    ].map((item) => (
+                      <li key={item} className="flex items-center gap-2 justify-center md:justify-start">
+                        <span className="text-green-300 text-lg leading-none">✔</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+              </div>
+
+
+              {/* FORM: CENTERED CARD BELOW CONTENT */}
+              <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
+                <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
+                  Subscribe Free
+                </h3>
+                <p className="text-gray-200 text-center text-xs sm:text-sm mb-4">
+                  Join 3,000+ agency owners — no spam.
+                </p>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleNewsletterSubscribe();
+                  }}
+                  className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+                >
+                  {/* Full Name */}
+                  <input
+                    type="text"
+                    value={newsletterName}
+                    onChange={(e) => setNewsletterName(e.target.value)}
+                    placeholder="Full Name"
+                    required
+                    className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
+          focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
+                  />
+
+                  {/* Email */}
+                  <input
+                    type="email"
+                    value={newsletterEmail}
+                    onChange={(e) => setNewsletterEmail(e.target.value)}
+                    placeholder="Email Address"
+                    required
+                    className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
+          focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
+                  />
+
+                  {/* Button */}
+                  <button
+                    type="submit"
+                    disabled={newsletterLoading}
+                    className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm 
+            hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap
+            ${newsletterLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+                  >
+                    {newsletterLoading ? "Subscribing..." : "Subscribe"}
+                  </button>
+                </form>
+
+                {newsletterStatus && (
+                  <p className="text-xs text-gray-200 text-center mt-3">
+                    {newsletterStatus}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <ThankYouPopup
+              isOpen={showNewsletterThankYou}
+              onClose={() => setShowNewsletterThankYou(false)}
+              title="Thanks for Subscribing!"
+              message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
+              formType="newsletter"
+            />
+          </section>
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
           <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:block">
