@@ -1003,7 +1003,7 @@ import { Footer } from "@/components/footer";
 import { HomeTeamBanner } from "@/components/home-team-banner";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
-import { ThankYouPopup } from "@/components/thank-you-popup";
+import { ThankYouPopup } from "@/components/thank-you-popup";   
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1148,7 +1148,6 @@ export default function Home() {
 
     setTimeout(handleScrollToNewsletter, 50);
   }, []);
-
 
   const { regionConfig } = useRegion();
   const { toast } = useToast();

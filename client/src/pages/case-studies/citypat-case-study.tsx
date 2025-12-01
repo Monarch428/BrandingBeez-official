@@ -34,6 +34,8 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { CitypatSchema } from "@/utils/all-schemas";
+import teamMem_1 from "../../../public/images/yuva-team-member.png";
+import teamMem_2 from "../../../public/images/vishnu-team-member.png";
 
 export default function CitypatCaseStudy() {
   return (
@@ -61,9 +63,11 @@ export default function CitypatCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white mb-6 text-md px-4 py-2">
-                    White-Label UK SEO Success Story
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 font-medium">
+                      White-Label UK SEO Success Story
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-6xl font-bold mb-6">Citypat: From Zero to Daily Organic Traffic</h1>
                   <p className="text-lg md:text-xl mb-8 opacity-90">
                     How we transformed a UK electrical testing company from zero
@@ -78,23 +82,25 @@ export default function CitypatCaseStudy() {
                     <div className="flex items-center gap-2">
                       <Eye className="w-5 h-5" />
                       <span>34.6K Impressions</span>
+                      {/* <span>34.6K Impressions</span> */}
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5" />
-                      <span>88.37% Engagement</span>
+                      <span>88% Engagement</span>
+                      {/* <span>88.37% Engagement</span> */}
                     </div>
                   </div>
 
                   <div className="mt-8">
                     <Button
-                      size="lg"
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
                       }
-                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple mr-4"
-                    >
-                      Start Your SEO Project
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"                    >
+                      Start Your SEO Growth Today
                       <ArrowRight className="w-5 h-5 ml-2" />
                     </Button>
                   </div>
@@ -191,19 +197,19 @@ export default function CitypatCaseStudy() {
                   </div>
                   <ul className="space-y-3 text-gray-700">
                     <li className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0"/>
+                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0" />
                       <span>Virtually no trackable organic sessions</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0"/>
+                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0" />
                       <span>No significant keyword rankings</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0"/>
+                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0" />
                       <span>No measurable organic conversions</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0"/>
+                      <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0" />
                       <span>Minimal local search visibility</span>
                     </li>
                   </ul>
@@ -225,79 +231,71 @@ export default function CitypatCaseStudy() {
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <Card className="p-6  transition-shadow">
-                  <div className="w-12 h-12 bg-brand-purple/10 rounded-lg flex items-center justify-center mb-4">
-                    <Search className="w-6 h-6 text-brand-purple" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Keyword Research</h3>
-                  <p className="text-gray-600">
-                    Identified target phrases for "PAT testing", city/region
-                    modifiers, and service-specific queries relevant to UK
-                    business compliance.
-                  </p>
-                </Card>
-
-                <Card className="p-6  transition-shadow">
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <FileText className="w-6 h-6 text-brand-coral" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Content Strategy</h3>
-                  <p className="text-gray-600">
-                    Created/optimized high-intent landing pages (PAT testing
-                    services, about, contact, FAQs) to match user search demand.
-                  </p>
-                </Card>
-
-                <Card className="p-6  transition-shadow">
-                  <div className="w-12 h-12 bg-brand-purple/10 rounded-lg flex items-center justify-center mb-4">
-                    <Settings className="w-6 h-6 text-brand-purple" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Technical SEO</h3>
-                  <p className="text-gray-600">
-                    Improved URL structures, optimized metadata, implemented
-                    schema, addressed crawl/indexation issues, and ensured mobile
-                    usability.
-                  </p>
-                </Card>
-
-                <Card className="p-6  transition-shadow">
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Globe className="w-6 h-6 text-brand-coral" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Link Building</h3>
-                  <p className="text-gray-600">
-                    Local business citations, directory listings, and outreach for
-                    trade/industry mentions to build domain authority.
-                  </p>
-                </Card>
-
-                <Card className="p-6  transition-shadow">
-                  <div className="w-12 h-12 bg-brand-purple/10 rounded-lg flex items-center justify-center mb-4">
-                    <MapPin className="w-6 h-6 text-brand-purple" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Local SEO</h3>
-                  <p className="text-gray-600">
-                    Enhanced Google Business Profile, optimized service location
-                    keywords, added NAP schema for local visibility.
-                  </p>
-                </Card>
-
-                <Card className="p-6  transition-shadow">
-                  <div className="w-12 h-12 bg-brand-coral/10 rounded-lg flex items-center justify-center mb-4">
-                    <Users className="w-6 h-6 text-brand-coral" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">
-                    White-Label Partnership
-                  </h3>
-                  <p className="text-gray-600">
-                    Seamless collaboration with Gemma's agency, providing
-                    client-ready reports and maintaining agency branding
-                    throughout.
-                  </p>
-                </Card>
+                {[
+                  {
+                    icon: <Search className="w-6 h-6 text-brand-purple" />,
+                    color: "bg-brand-purple/10",
+                    title: "Keyword Research",
+                    desc: `Identified target phrases for "PAT testing", city/region
+            modifiers, and service-specific queries relevant to UK
+            business compliance.`,
+                  },
+                  {
+                    icon: <FileText className="w-6 h-6 text-brand-coral" />,
+                    color: "bg-brand-coral/10",
+                    title: "Content Strategy",
+                    desc: `Created/optimized high-intent landing pages (PAT testing
+            services, about, contact, FAQs) to match user search demand.`,
+                  },
+                  {
+                    icon: <Settings className="w-6 h-6 text-brand-purple" />,
+                    color: "bg-brand-purple/10",
+                    title: "Technical SEO",
+                    desc: `Improved URL structures, optimized metadata, implemented
+            schema, addressed crawl/indexation issues, and ensured mobile
+            usability.`,
+                  },
+                  {
+                    icon: <Globe className="w-6 h-6 text-brand-coral" />,
+                    color: "bg-brand-coral/10",
+                    title: "Link Building",
+                    desc: `Local business citations, directory listings, and outreach for
+            trade/industry mentions to build domain authority.`,
+                  },
+                  {
+                    icon: <MapPin className="w-6 h-6 text-brand-purple" />,
+                    color: "bg-brand-purple/10",
+                    title: "Local SEO",
+                    desc: `Enhanced Google Business Profile, optimized service location
+            keywords, added NAP schema for local visibility.`,
+                  },
+                  {
+                    icon: <Users className="w-6 h-6 text-brand-coral" />,
+                    color: "bg-brand-coral/10",
+                    title: "White-Label Partnership",
+                    desc: `Seamless collaboration with Gemma's agency, providing
+            client-ready reports and maintaining agency branding
+            throughout.`,
+                  },
+                ].map((item, i) => (
+                  <Card key={i} className="p-6 transition-shadow hover:shadow-lg">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className={`w-12 h-12 ${item.color} rounded-lg flex items-center justify-center`}
+                      >
+                        {item.icon}
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        {item.title}
+                      </h3>
+                    </div>
+                    <p className="text-gray-600">{item.desc}</p>
+                  </Card>
+                ))}
               </div>
             </div>
           </section>
+
 
           {/* Results Section */}
           <section className="py-16 bg-white">
@@ -354,7 +352,7 @@ export default function CitypatCaseStudy() {
                     <Users className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-3xl font-bold text-brand-coral mb-2">
-                    88.37%
+                    88%
                   </div>
                   <div className="text-gray-600 font-medium">Engagement Rate</div>
                   <div className="text-sm text-gray-500 mt-1">
@@ -432,42 +430,52 @@ export default function CitypatCaseStudy() {
               </div>
 
               <div className="grid md:grid-cols-3 gap-8">
+                {/* Yuva - bg-gradient-to-br from-brand-purple to-brand-coral */}
                 <Card className="text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-brand-purple to-brand-coral rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-white font-bold text-xl">Y</span>
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden p-[3px]">
+                    <img
+                      src={teamMem_1}
+                      alt="Yuva-Team-member"
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   </div>
                   <h3 className="text-xl font-bold mb-2">Yuva</h3>
                   <h4 className="text-gray-600 mb-4">SEO Strategist</h4>
                   <p className="text-sm text-gray-500">
-                    Led campaign development, technical audit, and ongoing
-                    optimization strategy
+                    Led campaign development, technical audit, and ongoing optimization
+                    strategy
                   </p>
                 </Card>
 
+                {/* Vishnu -  bg-gradient-to-br from-brand-coral to-brand-purple*/}
                 <Card className="text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-brand-coral to-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-white font-bold text-xl">V</span>
+                  <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden p-[3px]">
+                    <img
+                      src={teamMem_2}
+                      alt="Vishnu-Team-Member"
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   </div>
                   <h3 className="text-xl font-bold mb-2">Vishnu</h3>
                   <h4 className="text-gray-600 mb-4">Developer</h4>
                   <p className="text-sm text-gray-500">
-                    Delivered site upgrades, bug fixes, and tracked technical
-                    deliverables
+                    Delivered site upgrades, bug fixes, and tracked technical deliverables
                   </p>
                 </Card>
 
+                {/* Gemma */}
                 <Card className="text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-brand-purple to-brand-coral rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-20 h-20 bg-gradient-to-br from-brand-purple to-brand-coral rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden p-[3px]">
                     <span className="text-white font-bold text-xl">G</span>
                   </div>
                   <h3 className="text-xl font-bold mb-2">Gemma</h3>
                   <h4 className="text-gray-600 mb-4">Agency Partner</h4>
                   <p className="text-sm text-gray-500">
-                    White-label agency lead, managed delivery and client
-                    communication
+                    White-label agency lead, managed delivery and client communication
                   </p>
                 </Card>
               </div>
+
             </div>
           </section>
 
@@ -552,12 +560,11 @@ export default function CitypatCaseStudy() {
                   size="lg"
                   onClick={() =>
                     // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
+                    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
                   }
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
-                >
-                  Start Your SEO Project
-                  <ArrowRight className="w-5 h-5 ml-2" />
+                > <Calendar className="w-5 h-5 mr-2" />
+                  Book Your Free SEO Consultation
                 </Button>
                 <Link href="/services/seo">
                   <Button
@@ -565,7 +572,7 @@ export default function CitypatCaseStudy() {
                     variant="outline"
                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
                   >
-                    View SEO Services
+                    View Other SEO Services <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>
               </div>

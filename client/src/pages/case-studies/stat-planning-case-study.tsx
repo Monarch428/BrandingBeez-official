@@ -31,6 +31,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { STATPlanningSchema } from "@/utils/all-schemas";
+import { Arrow } from "@radix-ui/react-tooltip";
 
 export default function StatPlanningCaseStudy() {
   return (
@@ -58,9 +59,11 @@ export default function StatPlanningCaseStudy() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white mb-6 text-lg px-4 py-2">
-                    B2B Local SEO Success Story
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 font-medium">
+                      B2B Local SEO Success Story
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-6xl font-bold mb-6">
                     STAT Planning
                   </h1>
@@ -82,6 +85,19 @@ export default function StatPlanningCaseStudy() {
                       <Search className="w-5 h-5" />
                       <span>5 Top Rankings</span>
                     </div>
+                  </div>
+                  <div className="mt-5 ">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      onClick={() =>
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                      }
+                    >
+                      Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                    </Button>
                   </div>
                 </div>
 
@@ -179,7 +195,7 @@ export default function StatPlanningCaseStudy() {
               <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-12">
                   <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                    Dramatic Results in 30 Days
+                    {/* Dramatic Results in 30 Days */} Strategic Improvements in 30 Days
                   </h2>
                   <p className="text-gray-600 text-lg">
                     Comparing baseline May metrics to June results
@@ -276,7 +292,7 @@ export default function StatPlanningCaseStudy() {
                     Keyword Ranking Improvements
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    Significant position improvements for high-value local search
+                    Significant position improvements for high value local search
                     terms
                   </p>
                 </div>
@@ -303,7 +319,7 @@ export default function StatPlanningCaseStudy() {
                       <tbody>
                         <tr className="border-b">
                           <td className="py-4 px-4 font-medium">
-                            land development consultants nottingham
+                            Land development consultants nottingham
                           </td>
                           <td className="py-4 px-4 text-center text-red-600 font-bold">
                             91
@@ -317,7 +333,7 @@ export default function StatPlanningCaseStudy() {
                         </tr>
                         <tr className="border-b">
                           <td className="py-4 px-4 font-medium">
-                            detailed planning
+                            Detailed planning
                           </td>
                           <td className="py-4 px-4 text-center text-red-600 font-bold">
                             54
@@ -330,7 +346,7 @@ export default function StatPlanningCaseStudy() {
                           </td>
                         </tr>
                         <tr className="border-b">
-                          <td className="py-4 px-4 font-medium">stat's</td>
+                          <td className="py-4 px-4 font-medium">Stat's</td>
                           <td className="py-4 px-4 text-center text-red-600 font-bold">
                             87
                           </td>
@@ -343,7 +359,7 @@ export default function StatPlanningCaseStudy() {
                         </tr>
                         <tr className="border-b">
                           <td className="py-4 px-4 font-medium">
-                            town planning consultants nottingham
+                            Town planning consultants nottingham
                           </td>
                           <td className="py-4 px-4 text-center text-red-600 font-bold">
                             63
@@ -357,7 +373,7 @@ export default function StatPlanningCaseStudy() {
                         </tr>
                         <tr>
                           <td className="py-4 px-4 font-medium">
-                            local planning consultants nottingham
+                            Local planning consultants nottingham
                           </td>
                           <td className="py-4 px-4 text-center text-red-600 font-bold">
                             53
@@ -399,7 +415,7 @@ export default function StatPlanningCaseStudy() {
                     <div className="space-y-6">
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
                             <Search className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -407,7 +423,7 @@ export default function StatPlanningCaseStudy() {
                               Keyword Research & Targeting
                             </h4>
                             <p className="text-gray-600">
-                              Focused on high-intent, geo-targeted terms like
+                              Focused on high intent, geo targeted terms like
                               "land development consultants Nottingham" and "local
                               planning consultants Nottingham".
                             </p>
@@ -417,7 +433,7 @@ export default function StatPlanningCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-purple rounded-lg flex items-center justify-center">
                             <Settings className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -435,7 +451,7 @@ export default function StatPlanningCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
                             <Target className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -444,7 +460,7 @@ export default function StatPlanningCaseStudy() {
                             </h4>
                             <p className="text-gray-600">
                               Updated meta titles & descriptions for 15 key pages,
-                              improved H1/H2 structure, and added keyword-rich
+                              improved H1/H2 structure, and added keyword rich
                               content aligned to user intent.
                             </p>
                           </div>
@@ -453,7 +469,7 @@ export default function StatPlanningCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-purple rounded-lg flex items-center justify-center">
                             <MapPin className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -462,7 +478,7 @@ export default function StatPlanningCaseStudy() {
                             </h4>
                             <p className="text-gray-600">
                               Set up Google Business Profile, embedded
-                              geo-keywords, implemented schema markup including
+                              geo keywords, implemented schema markup including
                               LocalBusiness and team Person schemas.
                             </p>
                           </div>
@@ -737,17 +753,20 @@ export default function StatPlanningCaseStudy() {
                     )
                   }
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-                >
+                > <Calendar className="w-5 h-5 mr-2" />
                   Book Your Free SEO Consultation
                 </Button>
-                {/* <Button
-                size="lg"
-                variant="outline"
-                className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
-                asChild
-              >
-                <Link href="/case-studies">View More Case Studies</Link>
-              </Button> */}
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+                >
+                  <Link href="/services/seo">
+                    View Other SEO Services
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

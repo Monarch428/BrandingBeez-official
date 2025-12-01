@@ -226,7 +226,7 @@ export default function PricingCalculator() {
     'Google Ads Expert',
     'Web Developer',
     'Full Stack Developer',
-    'Social Media Manager',
+    // 'Social Media Manager',
     'AI Developer',
     // 'Virtual Assistant'
   ];
@@ -1285,13 +1285,12 @@ export default function PricingCalculator() {
                     <p className="text-sm text-blue-700">Choose any combination of professionals you need. Add multiple skill levels and quantities for each type.</p>
                   </div>
 
-                  {/* Quick Examples */}
+                  {/* Quick Examples + 1 Social Media Manager*/}
                   <div className="p-3 bg-gray-50 rounded-lg text-center">
                     <p className="text-sm text-gray-600">
-                      <strong>Examples:</strong> 1 Graphic Designer + 2 Full Stack Developers | 1 SEO Specialist + 1 Social Media Manager | Any combination you need!
+                      <strong>Examples:</strong> 1 Graphic Designer + 2 Full Stack Developers | 1 SEO Specialist  | Any combination you need!
                     </p>
                   </div>
-                  {/* + 1 Virtual Assistant */}
 
                   {/* Professional Selection Grid */}
                   <div className="space-y-4">

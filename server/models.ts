@@ -482,6 +482,29 @@ export const AppointmentModel =
   (models.Appointment as Model<AppointmentDocument>) ||
   model<AppointmentDocument>("Appointment", appointmentSchema);
 
+interface GoogleAuthDocument extends mongoose.Document {
+  id: number;
+  accessToken: string;
+  refreshToken: string;
+  expiryDate: number;
+  createdAt: Date;
+}
+
+const googleAuthSchema = new Schema<GoogleAuthDocument>(
+  {
+    id: numericIdField,
+    accessToken: { type: String, required: true },
+    refreshToken: { type: String, required: true },
+    expiryDate: { type: Number, required: true }, 
+    createdAt: { type: Date, default: Date.now },
+  },
+  { collection: "google_auth_tokens", versionKey: false }
+);
+
+export const GoogleAuthModel =
+  (models.GoogleAuth as Model<GoogleAuthDocument>) ||
+  model<GoogleAuthDocument>("GoogleAuth", googleAuthSchema);
+
 export type {
   BlogPostDocument,
   CaseStudyDocument,

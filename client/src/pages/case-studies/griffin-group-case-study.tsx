@@ -59,30 +59,48 @@ export default function GriffinGroupCaseStudy() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white mb-6 text-lg px-4 py-2">
-                    Featured SEO Success Story via Social Land Partnership
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 font-medium">
+                      Featured SEO Success Story via Social Land Partnership
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-6xl font-bold mb-6">
                     Griffin Group Property Development
                   </h1>
                   <p className="text-xl md:text-2xl mb-8 opacity-90">
-                    How we achieved 16.24% session growth and 7-position SERP
+                    How we achieved 16% session growth and 7-position SERP
                     improvements for a UK property development firm in just 3
                     months through strategic local SEO
                   </p>
+                  {/* 16.24% */}
                   <div className="flex flex-wrap gap-6 text-lg">
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5" />
-                      <span>+16.24% Sessions</span>
+                      <span>+16% Sessions</span>
+                      {/* <span>+16.24% Sessions</span> */}
                     </div>
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5" />
-                      <span>+12.02% Users</span>
+                      <span>+12% Users</span>
+                      {/* <span>+12.02% Users</span> */}
                     </div>
                     <div className="flex items-center gap-2">
                       <Target className="w-5 h-5" />
                       <span>7 Position Improvements</span>
                     </div>
+                  </div>
+                  <div className="mt-8">
+                    <Button
+                      onClick={() =>
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                      }
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"                    >
+                      Start Your SEO Growth Today
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button>
                   </div>
                 </div>
 
@@ -132,7 +150,7 @@ export default function GriffinGroupCaseStudy() {
                       <h3 className="text-2xl font-bold text-gray-900">
                         Griffin Group
                       </h3>
-                      <p className="text-gray-600">griffingroup.co.uk</p>
+                      <a href="https://www.griffingroup.co.uk/" target="_blank" className="text-brand-coral underline hover:text-brand-coral-dark hover:font-bold">griffingroup.co.uk</a>
                     </div>
                   </div>
 
@@ -181,8 +199,8 @@ export default function GriffinGroupCaseStudy() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-brand-coral/5 to-brand-purple/5 rounded-2xl p-8">
-                  <div className="text-center mb-6">
+                <div className="bg-gradient-to-br from-brand-coral/5 to-brand-purple/5 rounded-2xl p-8 shadow-lg">
+                  <div className="text-center mb-6 ">
                     <div className="w-20 h-20 bg-brand-coral/10 rounded-full flex items-center justify-center mx-auto mb-4">
                       <Target className="w-10 h-10 text-brand-coral" />
                     </div>
@@ -218,7 +236,7 @@ export default function GriffinGroupCaseStudy() {
           <section className="py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-12">
-                <Badge className="bg-brand-coral text-white mb-4">
+                <Badge className="bg-brand-coral text-white mb-4 text-sm">
                   Performance Transformation
                 </Badge>
                 <h3 className="text-3xl font-bold text-gray-900 mb-6">
@@ -236,7 +254,8 @@ export default function GriffinGroupCaseStudy() {
                     <Users className="w-7 h-7 text-brand-coral" />
                   </div>
                   <div className="text-2xl font-bold text-brand-coral mb-1">
-                    +12.02%
+                    +12%
+                    {/* +12.02% */}
                   </div>
                   <div className="text-gray-600 font-medium text-sm">
                     User Growth
@@ -251,7 +270,8 @@ export default function GriffinGroupCaseStudy() {
                     <TrendingUp className="w-7 h-7 text-brand-coral" />
                   </div>
                   <div className="text-2xl font-bold text-brand-coral mb-1">
-                    +16.24%
+                    +16%
+                    {/* +16.24% */}
                   </div>
                   <div className="text-gray-600 font-medium text-sm">
                     Session Growth
@@ -294,23 +314,23 @@ export default function GriffinGroupCaseStudy() {
 
               {/* Keyword Rankings Table */}
               <div className="bg-white rounded-2xl p-8 shadow-lg">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                <h3 className="text-2xl font-bold text-brand-coral mb-6 text-center">
                   Keyword Position Improvements
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b border-gray-200">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-900">
+                        <th className="text-left py-3 px-4  font-bold text-gray-900">
                           Keyword
                         </th>
-                        <th className="text-center py-3 px-4 font-semibold text-gray-900">
+                        <th className="text-center py-3 px-4  font-bold text-gray-900">
                           Jan Position
                         </th>
-                        <th className="text-center py-3 px-4 font-semibold text-gray-900">
+                        <th className="text-center py-3 px-4  font-bold text-gray-900">
                           Jun Position
                         </th>
-                        <th className="text-center py-3 px-4 font-semibold text-gray-900">
+                        <th className="text-center py-3 px-4  font-bold text-gray-900">
                           Change
                         </th>
                       </tr>
@@ -318,55 +338,55 @@ export default function GriffinGroupCaseStudy() {
                     <tbody>
                       <tr className="border-b border-gray-100">
                         <td className="py-4 px-4 font-medium">
-                          estate agents grays thurrock
+                          Estate agents grays thurrock
                         </td>
-                        <td className="py-4 px-4 text-center text-gray-600">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           12
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           7
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           +5 positions
                         </td>
                       </tr>
                       <tr className="border-b border-gray-100">
                         <td className="py-4 px-4 font-medium">
-                          estate agents hornchurch
+                          Estate agents hornchurch
                         </td>
-                        <td className="py-4 px-4 text-center text-gray-600">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           29
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           22
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           +7 positions
                         </td>
                       </tr>
                       <tr className="border-b border-gray-100">
                         <td className="py-4 px-4 font-medium">
-                          house sale grays
+                          House sale grays
                         </td>
-                        <td className="py-4 px-4 text-center text-gray-600">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           21
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           19
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           +2 positions
                         </td>
                       </tr>
                       <tr>
-                        <td className="py-4 px-4 font-medium">rosebery road</td>
-                        <td className="py-4 px-4 text-center text-gray-500">
+                        <td className="py-4 px-4 font-medium">Rosebery road</td>
+                        <td className="py-4 px-4 text-center text-green-400">
                           New
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           22
                         </td>
-                        <td className="py-4 px-4 text-center text-brand-coral font-bold">
+                        <td className="py-4 px-4 text-center text-green-400 font-bold">
                           New ranking
                         </td>
                       </tr>
@@ -381,7 +401,7 @@ export default function GriffinGroupCaseStudy() {
           <section className="py-16 bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
             <div className="max-w-6xl mx-auto px-4">
               <div className="text-center mb-12">
-                <Badge className="bg-brand-coral text-white mb-4">
+                <Badge className="bg-brand-coral text-white mb-4 text-sm">
                   SEO Strategy
                 </Badge>
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">
@@ -753,7 +773,7 @@ export default function GriffinGroupCaseStudy() {
           <section className="py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-12">
-                <Badge className="bg-brand-coral text-white mb-4">
+                <Badge className="bg-brand-coral text-white mb-4 text-sm">
                   Project Timeline
                 </Badge>
                 <h3 className="text-3xl font-bold text-gray-900 mb-6">
@@ -1342,23 +1362,20 @@ export default function GriffinGroupCaseStudy() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2"
-                  >
+                  > <Calendar className="w-5 h-5" />
                     Book Your SEO Strategy Call
                   </a>
                 </Button>
 
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
-                >
-                  <Link
-                    href="/services/seo"
-                    className="flex items-center justify-center gap-2"
-                  > <ArrowRight className="h-4 w-4" />
-                    <span>Explore SEO Services</span>
-                  </Link>
-                </Button>
+                <Link href="/services/seo">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
+                  >
+                    View Other SEO Services <ArrowRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </Link>
               </div>
 
             </div>

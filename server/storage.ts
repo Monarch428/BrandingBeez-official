@@ -5,6 +5,7 @@ import type {
   Client,
   Contact,
   Coupon,
+  CouponUsage,
   DedicatedResourcesLead,
   FeaturedClient,
   InsertBlogPost,
@@ -13,6 +14,7 @@ import type {
   InsertClient,
   InsertContact,
   InsertCoupon,
+  InsertCouponUsage,
   InsertDedicatedResourcesLead,
   InsertFeaturedClient,
   InsertPricingPackage,
@@ -20,11 +22,11 @@ import type {
   InsertServicePage,
   InsertUser,
   InsertNewsletterSubscriber,
-  InsertPortfolioItem,
-  InsertPortfolioContent,
   NewsletterSubscriber,
   PortfolioItem,
+  InsertPortfolioItem,
   PortfolioContent,
+  InsertPortfolioContent,
   PricingPackage,
   SeoAudit,
   ServicePage,
@@ -32,6 +34,7 @@ import type {
   Appointment,
   InsertAppointment,
 } from "@shared/schema";
+
 import { DatabaseStorage } from "./db-storage";
 
 export interface IStorage {
@@ -159,6 +162,15 @@ export interface IStorage {
     status: "booked" | "cancelled" | "completed",
   ): Promise<Appointment>;
   getAppointment(id: number): Promise<Appointment | undefined>;
+
+  // ✅ NEW: Google OAuth token storage
+  saveGoogleAuthTokens(tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiryDate: number;
+  }): Promise<any>;
+
+  getGoogleAuthTokens(): Promise<any | null>;
 }
 
 export const storage: IStorage = new DatabaseStorage();

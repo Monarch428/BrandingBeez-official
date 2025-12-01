@@ -43,8 +43,10 @@ const featuredClient = {
   website: "https://griffingroup.co.uk",
   description: "A premier UK property development company specializing in residential and commercial development projects across Essex, delivering exceptional SEO results through our white-label partnership with Social Land.",
   achievements: [
-    "16.24% increase in organic sessions in Q2 2025",
-    "12.02% increase in organic users",
+    "16% increase in organic sessions in Q2 2025",
+    // "16.24% increase in organic sessions in Q2 2025",
+    "12% increase in organic users",
+    // "12.02% increase in organic users",
     "7 position improvements on average for key keywords",
     "Enhanced visibility for Essex property searches",
     "Strong white-label partnership collaboration with Social Land"
@@ -252,10 +254,12 @@ export default function SEOServices() {
             <div className="max-w-7xl mx-auto p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    🏆 Featured White-Label Success via Social Land
-                  </Badge>
-                  <h1 className="text-4xl font-bold mb-6">
+                  <div className="flex items-center justify-center rounded-full font-medium">
+                    <Badge className="w-fit bg-brand-coral text-white text-md mb-6 px-4 py-1">
+                      Featured White-Label Success via Social Land
+                    </Badge>
+                  </div>
+                  <h1 className="text-2xl sm:text-xl md:text-3xl lg:text-5xl font-bold mb-6">
                     Griffin Group Property Development
                   </h1>
                   <p className="text-xl text-gray-100 mb-8">
@@ -315,11 +319,13 @@ export default function SEOServices() {
 
                         const sessionDiv = document.createElement('div');
                         sessionDiv.className = 'text-sm opacity-90';
-                        sessionDiv.textContent = '16.24% session growth';
+                        // sessionDiv.textContent = '16.24% session growth';
+                        sessionDiv.textContent = '16% session growth';
 
                         const userDiv = document.createElement('div');
                         userDiv.className = 'text-sm opacity-90';
-                        userDiv.textContent = '12.02% user growth';
+                        userDiv.textContent = '12% user growth';
+                        // userDiv.textContent = '12.02% user growth';
 
                         textCenter.appendChild(iconDiv);
                         textCenter.appendChild(titleDiv);
@@ -682,7 +688,7 @@ export default function SEOServices() {
                   <Button
                     className="bg-brand-coral text-white font-bold px-8 py-4 hover:bg-brand-purple hover:text-white"
                   >
-                    Explore Full AIO Service 
+                    Explore Full AIO Service
                   </Button>
                 </Link>
               </div>
@@ -794,7 +800,7 @@ export default function SEOServices() {
               </div>
 
               {/* Footer CTA */}
-              <div className="text-center mt-12">
+              {/* <div className="text-center mt-12">
                 <p className="text-gray-900/80 mb-4">
                   Need a custom solution? We offer tailored SEO strategies for enterprise clients.
                 </p>
@@ -806,7 +812,7 @@ export default function SEOServices() {
                     Contact Us for Custom Pricing
                   </Button>
                 </Link>
-              </div>
+              </div> */}
             </div>
           </section>
 

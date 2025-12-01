@@ -57,13 +57,15 @@ export default function UBUDesignCaseStudy() {
 
         <main className="pt-0">
           {/* Hero Section */}
-          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white "> 
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white ">
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white mb-6 text-lg px-4 py-2">
-                    White-Label B2B Architecture SEO
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 font-medium">
+                      White-Label B2B Architecture SEO
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-6xl font-bold mb-6">
                     UBU Design
                   </h1>
@@ -85,6 +87,19 @@ export default function UBUDesignCaseStudy() {
                       <Eye className="w-5 h-5" />
                       <span>50,900 Impressions</span>
                     </div>
+                  </div>
+                  <div className="mt-5 ">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      onClick={() =>
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                      }
+                    >
+                      Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                    </Button>
                   </div>
                 </div>
 
@@ -346,7 +361,7 @@ export default function UBUDesignCaseStudy() {
                       <BarChart3 className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold text-brand-purple mb-2">
-                      32.2
+                      {/* 32.2 */} 32
                     </h3>
                     <p className="text-gray-600">Average Position</p>
                   </Card>
@@ -410,7 +425,7 @@ export default function UBUDesignCaseStudy() {
                     <div className="space-y-6">
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-purple rounded-lg flex items-center justify-center">
                             <Search className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -428,7 +443,7 @@ export default function UBUDesignCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-8 bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
                             <PenTool className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -445,7 +460,7 @@ export default function UBUDesignCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-purple rounded-lg flex items-center justify-center">
                             <Settings className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -463,7 +478,7 @@ export default function UBUDesignCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-14 h-8 bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
                             <Globe className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -719,7 +734,7 @@ export default function UBUDesignCaseStudy() {
 
                     <div className="space-y-5">
                       <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-brand-coral mt-1 shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-brand-coral mt-1 shrink-0" />
                         <p className="text-gray-700 leading-relaxed">
                           Start technical fixes ASAP; allocate more time for unexpected
                           web platform issues.
@@ -727,15 +742,15 @@ export default function UBUDesignCaseStudy() {
                       </div>
 
                       <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-brand-coral mt-1 shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-brand-coral mt-1 shrink-0" />
                         <p className="text-gray-700 leading-relaxed">
-                          Agile reporting is vital in white-label projects — ready-to-send,
+                          Agile reporting is vital in white-label projects   ready-to-send,
                           branded dashboards prevent bottlenecks.
                         </p>
                       </div>
 
                       <div className="flex items-start gap-3">
-                        <CheckCircle className="w-5 h-5 text-brand-coral mt-1 shrink-0" />
+                        <CheckCircle className="w-4 h-4 text-brand-coral mt-1 shrink-0" />
                         <p className="text-gray-700 leading-relaxed">
                           Proactive partner support strengthens relationships while boosting
                           overall SEO impact and client retention.
@@ -763,7 +778,7 @@ export default function UBUDesignCaseStudy() {
                   </div>
                   <blockquote className="text-xl text-gray-700 mb-6 italic">
                     "The team anticipated everything I needed to keep UBU
-                    happy—reports were on time, delivered in our style, and the
+                    happy reports were on time, delivered in our style, and the
                     SEO results speak for themselves."
                   </blockquote>
                   <div className="flex items-center justify-center gap-4">
@@ -804,17 +819,20 @@ export default function UBUDesignCaseStudy() {
                     )
                   }
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
-                >
+                > <Calendar className="w-4 h-4 mr-2" />
                   Book Your Free SEO Consultation
                 </Button>
-                {/* <Button
-                size="lg"
-                variant="outline"
-                className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
-                asChild
-              >
-                <Link href="/case-studies">View More Case Studies</Link>
-              </Button> */}
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+                >
+                  <Link href="/services/seo">
+                    View Other SEO Services
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

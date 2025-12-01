@@ -4,7 +4,11 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./db-init";
 import dotenv from "dotenv";
-dotenv.config({ path: ".env" }); 
+// import https from "https";
+// import fs from "fs";
+
+
+dotenv.config({ path: ".env" });
 const app = express();
 
 // Set environment from NODE_ENV
@@ -52,7 +56,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   if (req.headers['accept'] && req.headers['accept'].includes('text/html')) {
     res.setHeader('Link', '</src/main.tsx>; rel=modulepreload, </src/index.css>; rel=preload; as=style');
   }
-  
+
   next();
 });
 
@@ -404,15 +408,15 @@ app.use('/attached_assets', express.static('attached_assets', {
 
 // Serve static files from public directory with optimized caching
 app.use(express.static('public', {
-  maxAge: '30d', 
+  maxAge: '30d',
   etag: true,
   lastModified: true,
   setHeaders: (res, path) => {
     // Set specific cache headers for different file types
     if (path.match(/\.(jpg|jpeg|png|gif|ico|svg|webp)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=2592000'); 
+      res.setHeader('Cache-Control', 'public, max-age=2592000');
     } else if (path.match(/\.(css|js)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400'); 
+      res.setHeader('Cache-Control', 'public, max-age=86400');
     }
   }
 }));
@@ -486,13 +490,20 @@ app.use((req, res, next) => {
     }
   }
 
+  // const httpsOptions = {
+  //   key: fs.readFileSync("cert/localhost-key.pem"),
+  //   cert: fs.readFileSync("cert/localhost.pem")
+  // };
   // Use the port assigned by Replit or fallback to 5000 for local development
   // this serves both the API and the client.
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
-      port,
-      host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
+    port,
+    host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
   }, () => {
-      log(`serving on port ${port}`);
+    log(`serving on port ${port}`);
   });
+  // https.createServer(httpsOptions, app).listen(port, () => {
+  //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
+  // });
 })();

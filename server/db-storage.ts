@@ -52,7 +52,8 @@ import {
   NewsletterSubscriberModel,
   PortfolioItemModel,
   PortfolioContentModel,
-  AppointmentModel
+  AppointmentModel,
+  GoogleAuthModel,
 } from "./models";
 import { connectToDatabase, getNextSequence } from "./db";
 
@@ -791,6 +792,36 @@ export class DatabaseStorage implements IStorage {
 
     return updated;
   }
+
+
+
+  async saveGoogleAuthTokens(tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiryDate: number;
+  }) {
+    await this.ensureConnection();
+    const existing = await GoogleAuthModel.findOne();
+
+    if (existing) {
+      existing.accessToken = tokens.accessToken;
+      existing.refreshToken = tokens.refreshToken;
+      existing.expiryDate = tokens.expiryDate;
+      await existing.save();
+      return toPlain(existing);
+    }
+
+    const id = await getNextSequence("google_auth_tokens");
+    const created = await GoogleAuthModel.create({ id, ...tokens });
+    return toPlain(created);
+  }
+
+  async getGoogleAuthTokens() {
+    await this.ensureConnection();
+    const row = await GoogleAuthModel.findOne().lean();
+    return row ?? null;
+  }
+
 }
 
 export const storage = new DatabaseStorage();

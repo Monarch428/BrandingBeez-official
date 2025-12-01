@@ -36,7 +36,7 @@ export default function SEOCaseStudy() {
     <>
       <Helmet>
         <title>From Invisible to #1 Rankings | Atlantic SEO Success</title>
-        <meta name="description" content="Branding Beez turned Atlantic Foundation’s SEO around — 49% traffic growth, 121% more leads, and #1 ranking for 122 foundation repair keywords." />
+        <meta name="description" content="Branding Beez turned Atlantic Foundation’s SEO around   49% traffic growth, 121% more leads, and #1 ranking for 122 foundation repair keywords." />
         <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/seo-case-study" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
@@ -56,9 +56,12 @@ export default function SEOCaseStudy() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white mb-6 text-lg px-4 py-2">
-                    Featured SEO Success Story
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md font-medium px-4 py-1">
+                      Featured SEO Success Story
+                    </Badge>
+                  </div>
+
                   <h1 className="text-4xl md:text-6xl font-bold mb-6">
                     Atlantic Foundation & Crawl Space Repair
                   </h1>
@@ -77,6 +80,21 @@ export default function SEOCaseStudy() {
                       <span>1,409 Keywords Ranking</span>
                     </div>
                   </div>
+                  <div className="mt-5 ">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      onClick={() =>
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                      }
+                    >
+
+                      Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                    </Button>
+                  </div>
+
                 </div>
 
                 <div className="relative">
@@ -98,8 +116,6 @@ export default function SEOCaseStudy() {
               </div>
             </div>
           </section>
-
-
 
           {/* Section 1: Highlights (Infographic Style) */}
           <section className="py-16 bg-gray-50">
@@ -259,7 +275,7 @@ export default function SEOCaseStudy() {
                     <h4 className="font-bold text-lg mb-4 text-gray-900">
                       Business & Background
                     </h4>
-                    <p className="text-gray-700 mb-4">Atlantic Foundation & Crawl Space Repair (atlantic-foundation.com) is a specialized contractor providing foundation stabilization, crawl space encapsulation, basement waterproofing, and structural repair services for homeowners across North Carolina. Based in Wendell, NC, they offer solutions like "The Stabilizor" system, moisture management, drainage fixes, and chimney stabilization—prioritizing fiberglass-free encapsulation and free homeowner evaluations</p>
+                    <p className="text-gray-700 mb-4">Atlantic Foundation & Crawl Space Repair (atlantic-foundation.com) is a specialized contractor providing foundation stabilization, crawl space encapsulation, basement waterproofing, and structural repair services for homeowners across North Carolina. Based in Wendell, NC, they offer solutions like "The Stabilizor" system, moisture management, drainage fixes, and chimney stabilization prioritizing fiberglass-free encapsulation and free homeowner evaluations</p>
                     <p className="text-gray-700 mb-4">Despite their technical expertise, Atlantic Foundation struggled with digital visibility. Key challenges included weak rankings for critical repair terms (e.g., "crawl space encapsulation," "foundation crack repair"), minimal localized content for NC homeowners, underdeveloped directory presence, and ineffective outreach to realtors/property managers.</p>
                     <p className="text-gray-700">Their primary audience is homeowners facing structural issues (foundation cracks, moisture damage, unstable chimneys). Secondary audiences include realtors (requiring paid evaluations) and property managers. The SEO campaign targeted foundation/crawl space repair keywords, NC-specific service areas, and homeowner/realtor-centric content.</p>
                   </Card>
@@ -420,7 +436,7 @@ export default function SEOCaseStudy() {
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                       <tr className="ray-50">
-                        <td className="px-6 py-4 font-medium text-gray-900">crawl space storage</td>
+                        <td className="px-6 py-4 font-medium text-gray-900">Crawl space storage</td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">0</span>
                         </td>
@@ -437,7 +453,7 @@ export default function SEOCaseStudy() {
                       </tr>
                       <tr className="ray-50">
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          crawl space air conditioner
+                          Crawl space air conditioner
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
@@ -457,7 +473,7 @@ export default function SEOCaseStudy() {
                       </tr>
                       <tr className="ray-50">
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          foundation repair raleigh nc
+                          Foundation repair raleigh nc
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
@@ -477,7 +493,7 @@ export default function SEOCaseStudy() {
                       </tr>
                       <tr className="ray-50">
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          crawl space repair raleigh nc
+                          Crawl space repair raleigh nc
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
@@ -497,7 +513,7 @@ export default function SEOCaseStudy() {
                       </tr>
                       <tr className="ray-50">
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          crawl space encapsulation raleigh nc
+                          Crawl space encapsulation raleigh nc
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
@@ -517,7 +533,7 @@ export default function SEOCaseStudy() {
                       </tr>
                       <tr className="ray-50">
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          raleigh crawl space repair
+                          Raleigh crawl space repair
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
@@ -537,7 +553,7 @@ export default function SEOCaseStudy() {
                       </tr>
                       <tr className="ray-50">
                         <td className="px-6 py-4 font-medium text-gray-900">
-                          crawl space drainage system
+                          Crawl space drainage system
                         </td>
                         <td className="px-6 py-4 text-center">
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-sm bg-red-100 text-red-800">
@@ -814,7 +830,7 @@ export default function SEOCaseStudy() {
                       <div className="flex items-start gap-3 mb-6">
                         <Quote className="w-8 h-8 text-brand-coral/40 mt-1 flex-shrink-0" />
                         <div>
-                          <p className="text-lg text-gray-700 leading-relaxed mb-6">The BrandingBeez team delivered transformative results for Atlantic Foundation through direct, hands-on SEO partnership. Their technical expertise and hyper-localized strategy achieved 49.16% organic user growth and 121.88% more contact submissions in just 6 months. The leap from 3 to 122 top #1 keyword rankings—especially for critical terms like 'foundation repair Raleigh NC'—fundamentally changed our lead generation pipeline.</p>
+                          <p className="text-lg text-gray-700 leading-relaxed mb-6">The BrandingBeez team delivered transformative results for Atlantic Foundation through direct, hands-on SEO partnership. Their technical expertise and hyper-localized strategy achieved 49.16% organic user growth and 121.88% more contact submissions in just 6 months. The leap from 3 to 122 top #1 keyword rankings especially for critical terms like 'foundation repair Raleigh NC' fundamentally changed our lead generation pipeline.</p>
                           <p className="text-lg text-gray-700 mb-6 leading-relaxed">What set them apart was the surgical approach to technical fixes and transparent communication. Yuva's strategic oversight combined with Gopal's rapid execution created a risk-managed rollout that eliminated downtime while boosting visibility. Their custom SEO trackers and visual progress reports made complex results instantly understandable for our team.</p>
                         </div>
                       </div>
@@ -898,7 +914,7 @@ export default function SEOCaseStudy() {
                       clients through our proven white-label methodology.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                      <Link href="/contact">
+                      {/* <Link href="/contact?service=seo#contact-form">
                         <Button
                           size="lg"
                           className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
@@ -906,18 +922,28 @@ export default function SEOCaseStudy() {
                           Start Your SEO Campaign
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
-                      </Link>
+                      </Link> */}
                       <Button
                         size="lg"
-                        variant="outline"
-                        className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                        className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                         onClick={() =>
                           // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                          window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
+                          window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
                         }
                       >
                         <Calendar className="w-4 h-4 mr-2" />
                         Book Strategy Call
+                      </Button>
+                      <Button
+                        asChild
+                        size="lg"
+                        variant="outline"
+                        className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+                      >
+                        <Link href="/services/seo">
+                          View Other SEO Services
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </Link>
                       </Button>
                     </div>
                   </Card>
