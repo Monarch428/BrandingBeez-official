@@ -767,6 +767,7 @@ export const corsOptions = {
       "http://localhost:3000",
       "http://localhost:5173",
       "http://localhost:8000",
+      "https://localhost:8000",
 
       // Your production domains
       "https://brandingbeez.com",

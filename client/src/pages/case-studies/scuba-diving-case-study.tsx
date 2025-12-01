@@ -37,14 +37,14 @@ export default function ScubaDivingCaseStudy() {
     <>
       <Helmet>
         <title>SCUBA SEO Case Study | 31% More Users & 360% More Calls</title>
-        <meta name="description" content="See how Branding Beez helped By The Shore SCUBA grow users by 31%, boost phone leads by 360%, and achieve 61 top rankings in just 6 months." />
+        <meta name="description" content="See how Branding Beez helped By The Shore SCUBA grow users by 31%, boost phone leads by 360%, and achieve 61 top rankings in just  3 months." />
         <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         <SEOHead
           title="By The Shore SCUBA Training"
-          description="Branding Beez boosted a Raleigh SCUBA training business with 31% more users and 360% more phone inquiries in 6 months."
+          description="Branding Beez boosted a Raleigh SCUBA training business with 31% more users and 360% more phone inquiries in  3 months."
           keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
           canonicalUrl="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study"
           ogType="website"
@@ -58,15 +58,17 @@ export default function ScubaDivingCaseStudy() {
             <div className="max-w-7xl mx-auto px-4">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white mb-6 text-lg px-4 py-2">
-                    Featured SEO Success Story
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1">
+                      Featured SEO Success Story
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-6xl font-bold mb-6">
                     By The Shore SCUBA Training
                   </h1>
                   <p className="text-xl md:text-2xl mb-8 opacity-90">
                     How we increased organic users by 31% and generated 360% more
-                    phone inquiries for a local scuba training business in 6 months
+                    phone inquiries for a local scuba training business in  3 months
                   </p>
                   <div className="flex flex-wrap gap-6 text-lg">
                     <div className="flex items-center gap-2">
@@ -81,6 +83,20 @@ export default function ScubaDivingCaseStudy() {
                       <Search className="w-5 h-5" />
                       <span>61 Top Rankings</span>
                     </div>
+                  </div>
+                  <div className="mt-5 ">
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      onClick={() =>
+                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                      }
+                    >
+
+                      Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                    </Button>
                   </div>
                 </div>
 
@@ -107,8 +123,6 @@ export default function ScubaDivingCaseStudy() {
             </div>
           </section>
 
-
-
           {/* Key Results */}
           <section className="py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
@@ -118,7 +132,7 @@ export default function ScubaDivingCaseStudy() {
                     Measurable Results
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    Key metrics and achievements from this transformation
+                    Key metrics and achievements from this transformation over  3 months duration period
                   </p>
                 </div>
 
@@ -173,7 +187,7 @@ export default function ScubaDivingCaseStudy() {
                       <Eye className="w-6 h-6 text-white" />
                     </div>
                     <h4 className="font-bold text-2xl text-brand-coral">
-                      6 months
+                      3 months
                     </h4>
                     <p className="text-gray-600">Project Duration</p>
                   </div>
@@ -231,7 +245,7 @@ export default function ScubaDivingCaseStudy() {
                           By The Shore SCUBA Instruction
                         </h3>
                         <h4 className="text-gray-600">
-                          SCUBA Training & Certification
+                          scuba Training & Certification
                         </h4>
                       </div>
                     </div>
@@ -308,7 +322,7 @@ export default function ScubaDivingCaseStudy() {
                     <div className="space-y-6">
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
                             <CheckCircle className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -326,7 +340,7 @@ export default function ScubaDivingCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-purple rounded-lg flex items-center justify-center">
                             <Target className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -344,7 +358,7 @@ export default function ScubaDivingCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
                             <TrendingUp className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -369,7 +383,7 @@ export default function ScubaDivingCaseStudy() {
 
                     <div className="bg-white rounded-xl p-6 border-2 border-brand-coral/20">
                       <h3 className="font-bold text-lg mb-4 text-green-700">
-                        6-Month Performance Summary
+                        3-Month Performance Summary
                       </h3>
 
                       <div className="space-y-4">
@@ -486,7 +500,7 @@ export default function ScubaDivingCaseStudy() {
                     className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
                   >
                     <Link href="/services/seo">
-                      View SEO Services
+                      View Other SEO Services
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
