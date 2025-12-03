@@ -492,18 +492,19 @@ interface GoogleAuthDocument extends mongoose.Document {
 
 const googleAuthSchema = new Schema<GoogleAuthDocument>(
   {
-    id: numericIdField,
+    id: numericIdField, // <- numeric autoincrement ID via counters
     accessToken: { type: String, required: true },
     refreshToken: { type: String, required: true },
-    expiryDate: { type: Number, required: true }, 
+    expiryDate: { type: Number, required: true },
     createdAt: { type: Date, default: Date.now },
   },
-  { collection: "google_auth_tokens", versionKey: false }
+  { collection: "google_auth_tokens", versionKey: false } // 👈 collection name
 );
 
 export const GoogleAuthModel =
   (models.GoogleAuth as Model<GoogleAuthDocument>) ||
   model<GoogleAuthDocument>("GoogleAuth", googleAuthSchema);
+
 
 export type {
   BlogPostDocument,

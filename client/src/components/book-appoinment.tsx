@@ -1,3 +1,792 @@
+// // src/components/booking/AppointmentCalendar.tsx
+// import React, { useEffect, useMemo, useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Input } from "@/components/ui/input";
+// import { Textarea } from "@/components/ui/textarea";
+// import {
+//   fetchSlots,
+//   createAppointment,
+//   type DaySlot,
+//   type SlotStatus,
+// } from "@/lib/appointmentService";
+// import { ChevronLeft, ChevronRight, Clock, User, X } from "lucide-react";
+// import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+
+// interface AppointmentCalendarProps {
+//   defaultServiceType?: string;
+//   consultantName?: string;
+//   consultantTitle?: string;
+//   consultantImage?: string;
+// }
+
+// // 🔹 SAME services as ContactFormOptimized
+// const services = [
+//   { value: "website-development", label: "Website Development" },
+//   { value: "seo", label: "SEO / AIO Services" },
+//   { value: "google-ads", label: "Google Ads" },
+//   { value: "dedicated-resources", label: "Dedicated Resources" },
+//   {
+//     value: "custom-app-development",
+//     label: "Custom Web & Mobile App Development",
+//   },
+//   { value: "ai-development", label: "AI Web Agents/AI Development" },
+//   { value: "other", label: "Other" },
+// ];
+
+// const statusClasses: Record<SlotStatus, string> = {
+//   available:
+//     "border border-emerald-400/70 text-emerald-100 bg-emerald-500/10 hover:bg-emerald-500/20 hover:border-emerald-300",
+//   booked:
+//     "border border-amber-500/60 bg-amber-500/10 text-amber-100 cursor-not-allowed opacity-70",
+//   cancelled:
+//     "border border-slate-600/70 bg-slate-900/60 text-slate-300 line-through cursor-not-allowed opacity-70",
+//   completed:
+//     "border border-blue-500/60 bg-blue-500/10 text-blue-100 cursor-not-allowed opacity-80",
+// };
+
+// const inputBase =
+//   "bg-slate-900/70 border-slate-700 text-slate-100 placeholder:text-slate-500 text-sm focus-visible:ring-1 focus-visible:ring-brand-coral focus-visible:border-brand-coral/80 focus-visible:outline-none";
+
+// // 🔹 Helpers
+// const toLocalDateKey = (date: Date) => {
+//   const y = date.getFullYear();
+//   const m = String(date.getMonth() + 1).padStart(2, "0");
+//   const d = String(date.getDate()).padStart(2, "0");
+//   return `${y}-${m}-${d}`; 
+// };
+
+// const parseTimeToMinutes = (time: string) => {
+//   const [hh, mm] = time.split(":").map(Number);
+//   return hh * 60 + mm;
+// };
+
+// type BookingStage = "date" | "time" | "form";
+
+// export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
+//   defaultServiceType = "Website Development",
+//   consultantName = "Raja Rajeshwari",
+//   consultantTitle = "Digital Strategy & AI Consultant",
+//   // consultantImage = {RajeStroke}
+// }) => {
+//   const [currentMonth, setCurrentMonth] = useState(() => new Date());
+
+//   // ✅ Start with NO date selected
+//   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+//   const [slots, setSlots] = useState<DaySlot[]>([]);
+//   const [loadingSlots, setLoadingSlots] = useState(false);
+//   const [bookingLoading, setBookingLoading] = useState(false);
+//   const [selectedSlot, setSelectedSlot] = useState<DaySlot | null>(null);
+//   const [error, setError] = useState<string | null>(null);
+//   const [success, setSuccess] = useState<string | null>(null);
+
+//   // Stage flow: date → time → form
+//   const [bookingStage, setBookingStage] = useState<BookingStage>("date");
+
+//   // Form state
+//   const [name, setName] = useState("");
+//   const [email, setEmail] = useState("");
+//   const [phone, setPhone] = useState("");
+//   const [notes, setNotes] = useState("");
+
+//   // Form step inside right card (2 questions at a time)
+//   const [formStep, setFormStep] = useState<0 | 1 | 2>(0);
+
+//   // Service selection (same semantics as contact form)
+//   const [serviceValue, setServiceValue] = useState<string>("");
+//   const [serviceType, setServiceType] = useState<string>(defaultServiceType);
+//   const [serviceLocked, setServiceLocked] = useState(false);
+
+//   const monthLabel = useMemo(() => {
+//     return currentMonth.toLocaleDateString("en-GB", {
+//       month: "long",
+//       year: "numeric",
+//     });
+//   }, [currentMonth]);
+
+//   // ✅ Use local date key
+//   const selectedDateKey = useMemo(() => {
+//     if (!selectedDate) return "";
+//     return toLocalDateKey(selectedDate);
+//   }, [selectedDate]);
+
+//   const today = useMemo(() => {
+//     const d = new Date();
+//     d.setHours(0, 0, 0, 0);
+//     return d;
+//   }, []);
+
+//   const todayKey = toLocalDateKey(today);
+
+//   useEffect(() => {
+//     if (typeof window === "undefined") return;
+
+//     const params = new URLSearchParams(window.location.search);
+//     const serviceFromUrl = params.get("service");
+
+//     if (serviceFromUrl) {
+//       const match = services.find((s) => s.value === serviceFromUrl);
+//       if (match) {
+//         setServiceValue(match.value);
+//         setServiceType(match.label);
+//         setServiceLocked(true);
+//         return;
+//       }
+//     }
+
+//     if (defaultServiceType) {
+//       const match = services.find((s) => s.label === defaultServiceType);
+//       if (match) {
+//         setServiceValue(match.value);
+//         setServiceType(match.label);
+//       }
+//     }
+//   }, [defaultServiceType]);
+
+//   // Keep serviceType label in sync when manual selection changes
+//   useEffect(() => {
+//     if (!serviceValue) return;
+//     const match = services.find((s) => s.value === serviceValue);
+//     if (match) {
+//       setServiceType(match.label);
+//     }
+//   }, [serviceValue]);
+
+//   // Days grid for current month
+//   const daysInMonth = useMemo(() => {
+//     const year = currentMonth.getFullYear();
+//     const month = currentMonth.getMonth();
+
+//     const firstDay = new Date(year, month, 1);
+//     const lastDay = new Date(year, month + 1, 0);
+//     const firstWeekday = firstDay.getDay(); // 0 = Sunday
+//     const totalDays = lastDay.getDate();
+
+//     const days: (Date | null)[] = [];
+//     const offset = (firstWeekday + 6) % 7; // shift to Monday = 0
+
+//     for (let i = 0; i < offset; i++) {
+//       days.push(null);
+//     }
+//     for (let d = 1; d <= totalDays; d++) {
+//       days.push(new Date(year, month, d));
+//     }
+
+//     return days;
+//   }, [currentMonth]);
+
+//   // Load slots when selectedDate changes
+//   useEffect(() => {
+//     const loadSlots = async () => {
+//       if (!selectedDateKey) return;
+
+//       try {
+//         setLoadingSlots(true);
+//         setError(null);
+//         const res = await fetchSlots(selectedDateKey);
+//         setSlots(res.slots);
+//       } catch (err: any) {
+//         setError(err.message || "Failed to load slots");
+//       } finally {
+//         setLoadingSlots(false);
+//       }
+//     };
+
+//     void loadSlots();
+//   }, [selectedDateKey]);
+
+//   const goPrevMonth = () => {
+//     setCurrentMonth(
+//       (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+//     );
+//   };
+
+//   const goNextMonth = () => {
+//     setCurrentMonth(
+//       (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+//     );
+//   };
+
+//   const handleBook = async () => {
+//     if (!selectedDate || !selectedSlot) {
+//       setError("Please select a date and time slot");
+
+//       // auto hide error
+//       setTimeout(() => setError(null), 4000);
+//       return;
+//     }
+//     if (!name || !email) {
+//       setError("Name and email are required");
+//       setTimeout(() => setError(null), 4000);
+//       return;
+//     }
+//     if (!serviceType) {
+//       setError("Please select what you want to discuss");
+//       setTimeout(() => setError(null), 4000);
+//       return;
+//     }
+
+//     try {
+//       setBookingLoading(true);
+//       setError(null);
+//       setSuccess(null);
+
+//       const result = await createAppointment({
+//         name,
+//         email,
+//         phone,
+//         notes,
+//         serviceType,
+//         date: selectedDateKey,
+//         startTime: selectedSlot.startTime,
+//         endTime: selectedSlot.endTime,
+//       });
+
+//       const meetText = result?.meetingLink
+//         ? ` Your Google Meet link: ${result.meetingLink}`
+//         : "";
+
+//       setSuccess(`Appointment booked successfully! 🎉${meetText}`);
+
+//       // Auto hide success after 6 sec
+//       setTimeout(() => setSuccess(null), 6000);
+
+//       setSelectedSlot(null);
+
+//       // reload slots to mark booked
+//       const res = await fetchSlots(selectedDateKey);
+//       setSlots(res.slots);
+
+//     } catch (err: any) {
+//       setError(err.message || "Failed to book appointment");
+
+//       // Auto hide error
+//       setTimeout(() => setError(null), 4000);
+
+//     } finally {
+//       setBookingLoading(false);
+//     }
+//   };
+
+//   const isSameDay = (d1: Date, d2: Date) =>
+//     d1.getFullYear() === d2.getFullYear() &&
+//     d1.getMonth() === d2.getMonth() &&
+//     d1.getDate() === d2.getDate();
+
+//   const canGoNextFromStep0 = name.trim() !== "" && email.trim() !== "";
+//   const canGoNextFromStep1 = true;
+
+//   // Format selected date for chips / labels
+//   const formattedSelectedDate =
+//     selectedDate &&
+//     selectedDate.toLocaleDateString("en-GB", {
+//       weekday: "short",
+//       day: "numeric",
+//       month: "short",
+//       year: "numeric",
+//     });
+
+//   return (
+//     <div className="grid gap-12 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.2fr)]">
+//       {/* Left: Date → Time (stepwise) */}
+//       <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
+//         <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
+//           <div>
+//             <p className="text-[11px] uppercase tracking-[0.2em] text-brand-coral/90">
+//               Book a strategy call
+//             </p>
+//             <CardTitle className="text-lg md:text-xl text-slate-50 mt-1">
+//               {bookingStage === "date"
+//                 ? "Pick a date that works for you"
+//                 : "Pick a time slot"}
+//             </CardTitle>
+//           </div>
+
+//           {/* Month navigation only relevant while picking date */}
+//           {bookingStage === "date" && (
+//             <div className="flex items-center gap-2">
+//               <Button
+//                 variant="outline"
+//                 size="icon"
+//                 className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
+//                 onClick={goPrevMonth}
+//               >
+//                 <ChevronLeft className="w-4 h-4" />
+//               </Button>
+//               <div className="text-sm font-semibold text-slate-100 min-w-[120px] text-center">
+//                 {monthLabel}
+//               </div>
+//               <Button
+//                 variant="outline"
+//                 size="icon"
+//                 className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
+//                 onClick={goNextMonth}
+//               >
+//                 <ChevronRight className="w-4 h-4" />
+//               </Button>
+//             </div>
+//           )}
+
+//           {/* When date is picked, show chip + change button */}
+//           {bookingStage !== "date" && selectedDate && (
+//             <div className="flex flex-col items-end gap-1">
+//               <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[11px] text-slate-200">
+//                 Selected date: {formattedSelectedDate}
+//               </span>
+//               <button
+//                 type="button"
+//                 onClick={() => {
+//                   setBookingStage("date");
+//                   setSelectedSlot(null);
+//                 }}
+//                 className="text-[11px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
+//               >
+//                 <X className="w-3 h-3" />
+//                 Change date
+//               </button>
+//             </div>
+//           )}
+//         </CardHeader>
+
+//         <CardContent className="p-2 md:p-2 space-y-6">
+//           {/* STEP 1: Calendar (stage = date) */}
+//           {bookingStage === "date" && (
+//             <div>
+//               <div className="grid grid-cols-7 text-[11px] md:text-[13px] text-center text-slate-400 mb-1">
+//                 {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+//                   <div key={d} className="py-1">
+//                     {d}
+//                   </div>
+//                 ))}
+//               </div>
+//               <div className="grid grid-cols-7 gap-1 md:gap-2">
+//                 {daysInMonth.map((date, idx) => {
+//                   if (!date) {
+//                     return <div key={idx} className="h-9 md:h-10" />;
+//                   }
+
+//                   const day = new Date(date);
+//                   day.setHours(0, 0, 0, 0);
+//                   const isPastDay = day < today;
+//                   const isSelected =
+//                     selectedDate && isSameDay(date, selectedDate);
+
+//                   return (
+//                     <button
+//                       key={idx}
+//                       type="button"
+//                       disabled={isPastDay}
+//                       onClick={() => {
+//                         setSelectedDate(date);
+//                         setSelectedSlot(null);
+//                         setBookingStage("time");
+//                       }}
+//                       className={["h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all text-slate-100",
+//                         isSelected
+//                           ? "bg-brand-coral text-slate-950 border-brand-coral shadow-sm font-bold"
+//                           : "border-slate-700 bg-slate-900/70 hover:border-brand-coral/70 hover:bg-slate-900",
+//                         isPastDay ? "opacity-20 cursor-not-allowed" : "",
+//                       ].join(" ")}
+//                     >
+//                       {date.getDate()}
+//                     </button>
+//                   );
+//                 })}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* STEP 2: Time slots (stage = time or form) */}
+//           {bookingStage !== "date" && (
+//             <div className="border-t border-slate-800 pt-4">
+//               <div className="flex items-center justify-between mb-3">
+//                 <div className="flex items-center gap-2 text-xs text-slate-300">
+//                   <Clock className="w-4 h-4" />
+//                   <span>
+//                     {selectedDate
+//                       ? selectedDate.toLocaleDateString("en-GB", {
+//                         weekday: "short",
+//                         day: "numeric",
+//                         month: "short",
+//                       })
+//                       : "Select a date to see available times"}
+//                   </span>
+//                 </div>
+//                 <div className="flex gap-2 text-[11px] text-slate-400">
+//                   <span className="flex items-center gap-1">
+//                     <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
+//                     Available
+//                   </span>
+//                   <span className="flex items-center gap-1">
+//                     <span className="w-3 h-3 rounded-sm border border-amber-500/80 bg-amber-500/30" />
+//                     Booked / Unavailable
+//                   </span>
+//                 </div>
+//               </div>
+
+//               {!selectedDate ? (
+//                 <p className="text-xs text-slate-400">
+//                   Choose a date on the calendar to view time slots.
+//                 </p>
+//               ) : loadingSlots ? (
+//                 <p className="text-xs text-slate-400">Loading slots…</p>
+//               ) : slots.length === 0 ? (
+//                 <p className="text-xs text-slate-400">
+//                   No slots defined for this day.
+//                 </p>
+//               ) : (
+//                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+//                   {slots.map((slot) => {
+//                     const now = new Date();
+//                     const currentMinutes =
+//                       now.getHours() * 60 + now.getMinutes();
+
+//                     let isPastSlot = false;
+
+//                     if (selectedDate) {
+//                       const selectedKey = toLocalDateKey(selectedDate);
+
+//                       if (selectedKey < todayKey) {
+//                         isPastSlot = true;
+//                       } else if (selectedKey === todayKey) {
+//                         const slotEndMinutes = parseTimeToMinutes(
+//                           slot.endTime,
+//                         );
+//                         if (slotEndMinutes <= currentMinutes) {
+//                           isPastSlot = true;
+//                         }
+//                       }
+//                     }
+
+//                     const disabled = slot.status !== "available" || isPastSlot;
+
+//                     const isSelected =
+//                       !disabled &&
+//                       selectedSlot &&
+//                       selectedSlot.startTime === slot.startTime &&
+//                       selectedSlot.endTime === slot.endTime;
+
+//                     const extraPastClasses = isPastSlot
+//                       ? "opacity-40 cursor-not-allowed !border-slate-700 !bg-slate-900/60"
+//                       : "";
+
+//                     return (
+//                       <button
+//                         key={slot.startTime}
+//                         type="button"
+//                         disabled={disabled}
+//                         onClick={() => {
+//                           if (disabled) return;
+//                           setSelectedSlot(slot);
+//                           setBookingStage("form");
+//                         }}
+//                         className={[
+//                           "px-2 py-1.5 rounded-lg text-[11px] md:text-xs flex flex-col border transition-all",
+//                           statusClasses[slot.status],
+//                           extraPastClasses,
+//                           isSelected
+//                             ? "ring-2 ring-brand-coral/80 ring-offset-2 ring-offset-slate-950"
+//                             : "",
+//                         ].join(" ")}
+//                       >
+//                         <span className="font-medium">
+//                           {slot.startTime}–{slot.endTime}
+//                         </span>
+//                         <span className="text-[10px] opacity-85 capitalize">
+//                           {isPastSlot && slot.status === "available"
+//                             ? "unavailable"
+//                             : slot.status}
+//                         </span>
+//                       </button>
+//                     );
+//                   })}
+//                 </div>
+//               )}
+//             </div>
+//           )}
+
+//           {/* Error / success */}
+//           {error && (
+//             <p className="text-xs text-red-400 bg-red-950/40 border border-red-800/60 rounded-md px-3 py-2">
+//               {error}
+//             </p>
+//           )}
+//           {success && (
+//             <p className="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-md px-3 py-2">
+//               {success}
+//             </p>
+//           )}
+//         </CardContent>
+//       </Card>
+
+//       {/* Right: Consultant card + multi-step form
+//           👉 Only show AFTER time slot is selected (stage = "form") */}
+//       {bookingStage === "form" && selectedSlot && (
+//         <Card className="bg-gradient-to-b from-slate-950 via-slate-950/95 to-slate-950 border-slate-800 shadow-xl">
+//           <CardHeader className="pb-3">
+//             <div className="flex items-center gap-3">
+//               <div className="relative">
+//                 <div className="w-12 h-12 rounded-full bg-brand-coral/20 border border-brand-coral/60 overflow-hidden flex items-center justify-center">
+//                   {RajeStroke ? (
+//                     // eslint-disable-next-line @next/next/no-img-element
+//                     <img
+//                       src={RajeStroke}
+//                       alt={consultantName}
+//                       className="w-full h-full object-cover"
+//                     />
+//                   ) : (
+//                     <User className="w-6 h-6 text-brand-coral" />
+//                   )}
+//                 </div>
+//                 <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-950" />
+//               </div>
+//               <div>
+//                 <p className="text-[11px] uppercase tracking-[0.2em] text-brand-coral">
+//                   30–45 min discovery call
+//                 </p>
+//                 <h3 className="text-sm md:text-base font-semibold text-slate-50">
+//                   {consultantName}
+//                 </h3>
+//                 <p className="text-[11px] text-slate-400">{consultantTitle}</p>
+//               </div>
+//             </div>
+
+//             {/* Small summary of chosen slot */}
+//             <div className="mt-3 text-[11px] text-slate-300">
+//               <p>
+//                 <b>Date:</b> {formattedSelectedDate}
+//               </p>
+//               <p>
+//                 <b>Time:</b> {selectedSlot.startTime}–{selectedSlot.endTime}
+//               </p>
+//             </div>
+//           </CardHeader>
+
+//           <CardContent className="space-y-4">
+//             <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2.5 text-xs text-slate-300">
+//               On this call, we’ll review your goals, current website/ads setup,
+//               and map a simple 30–60 day plan. No pressure, no fluff.
+//             </div>
+
+//             {/* Step indicator */}
+//             <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+//               <div className="flex gap-1">
+//                 {[0, 1, 2].map((step) => (
+//                   <div
+//                     key={step}
+//                     className={[
+//                       "h-1.5 rounded-full transition-all",
+//                       step === formStep
+//                         ? "w-6 bg-brand-coral"
+//                         : "w-3 bg-slate-700",
+//                     ].join(" ")}
+//                   />
+//                 ))}
+//               </div>
+//               <span>Step {formStep + 1} of 3</span>
+//             </div>
+
+//             <div className="space-y-3 text-xs">
+//               {/* STEP 0: Name + Email */}
+//               {formStep === 0 && (
+//                 <>
+//                   <div className="space-y-1.5">
+//                     <label className="block text-slate-100 text-[12px]">
+//                       Full name
+//                     </label>
+//                     <Input
+//                       value={name}
+//                       onChange={(e) => setName(e.target.value)}
+//                       placeholder="Your name"
+//                       className={inputBase}
+//                     />
+//                   </div>
+//                   <div className="space-y-1.5">
+//                     <label className="block text-slate-100 text-[12px]">
+//                       Email
+//                     </label>
+//                     <Input
+//                       type="email"
+//                       value={email}
+//                       onChange={(e) => setEmail(e.target.value)}
+//                       placeholder="you@company.com"
+//                       className={inputBase}
+//                     />
+//                   </div>
+//                 </>
+//               )}
+
+//               {/* STEP 1: Phone + Service */}
+//               {formStep === 1 && (
+//                 <>
+//                   <div className="space-y-1.5">
+//                     <label className="block text-slate-100 text-[12px]">
+//                       WhatsApp / phone (optional)
+//                     </label>
+//                     <Input
+//                       value={phone}
+//                       onChange={(e) => setPhone(e.target.value)}
+//                       placeholder="+91…"
+//                       className={inputBase}
+//                     />
+//                   </div>
+
+//                   <div className="space-y-1.5">
+//                     <label className="block text-slate-100 text-[12px]">
+//                       What do you want to discuss?
+//                     </label>
+//                     <Select
+//                       disabled={serviceLocked}
+//                       value={serviceValue || undefined}
+//                       onValueChange={(value) => {
+//                         setServiceLocked(false);
+//                         setServiceValue(value);
+//                       }}
+//                     >
+//                       <SelectTrigger
+//                         className={`${inputBase} ${serviceLocked ? "cursor-not-allowed opacity-90" : ""
+//                           }`}
+//                       >
+//                         <SelectValue placeholder="Select a service" />
+//                       </SelectTrigger>
+//                       <SelectContent className="bg-slate-900 border-slate-700 text-slate-100">
+//                         {services.map((service) => (
+//                           <SelectItem key={service.value} value={service.value}>
+//                             {service.label}
+//                           </SelectItem>
+//                         ))}
+//                       </SelectContent>
+//                     </Select>
+//                     {serviceLocked && (
+//                       <p className="text-[10px] text-slate-400 mt-1">
+//                         This was selected from the service page ({serviceType}).
+//                       </p>
+//                     )}
+//                   </div>
+//                 </>
+//               )}
+
+//               {/* STEP 2: Notes + Summary */}
+//               {formStep === 2 && (
+//                 <>
+//                   <div className="space-y-1.5">
+//                     <label className="block text-slate-100 text-[12px]">
+//                       Anything specific we should know?
+//                     </label>
+//                     <Textarea
+//                       value={notes}
+//                       onChange={(e) => setNotes(e.target.value)}
+//                       placeholder="Share your website, current challenges or goals…"
+//                       className={`${inputBase} min-h-[90px] text-xs`}
+//                     />
+//                   </div>
+
+//                   <div className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-[11px] text-slate-300">
+//                     <p className="font-semibold mb-1 text-slate-100">
+//                       Quick summary
+//                     </p>
+//                     <p>
+//                       <b>Name:</b> {name || "—"}
+//                     </p>
+//                     <p>
+//                       <b>Email:</b> {email || "—"}
+//                     </p>
+//                     <p>
+//                       <b>Service:</b> {serviceType || "—"}
+//                     </p>
+//                     <p>
+//                       <b>Date:</b> {formattedSelectedDate || "Not selected"}
+//                     </p>
+//                     <p>
+//                       <b>Time:</b>{" "}
+//                       {selectedSlot
+//                         ? `${selectedSlot.startTime}–${selectedSlot.endTime}`
+//                         : "Not selected"}
+//                     </p>
+//                   </div>
+//                 </>
+//               )}
+//             </div>
+
+//             {/* Step navigation buttons */}
+//             <div className="flex items-center justify-between pt-1">
+//               <Button
+//                 type="button"
+//                 variant="ghost"
+//                 size="sm"
+//                 disabled={formStep === 0}
+//                 onClick={() =>
+//                   setFormStep((prev) =>
+//                     prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
+//                   )
+//                 }
+//                 className="text-slate-300 hover:text-slate-50"
+//               >
+//                 Back
+//               </Button>
+
+//               {formStep < 2 ? (
+//                 <Button
+//                   type="button"
+//                   size="sm"
+//                   disabled={
+//                     (formStep === 0 && !canGoNextFromStep0) ||
+//                     (formStep === 1 && !canGoNextFromStep1)
+//                   }
+//                   onClick={() =>
+//                     setFormStep((prev) =>
+//                       prev < 2 ? ((prev + 1) as 0 | 1 | 2) : prev,
+//                     )
+//                   }
+//                   className="bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-xs px-4"
+//                 >
+//                   Next
+//                 </Button>
+//               ) : (
+//                 <Button
+//                   type="button"
+//                   size="sm"
+//                   disabled={bookingLoading}
+//                   onClick={handleBook}
+//                   className="bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-xs px-4"
+//                 >
+//                   {bookingLoading
+//                     ? "Booking your slot..."
+//                     : "Confirm appointment & send details"}
+//                 </Button>
+//               )}
+//             </div>
+
+//             <p className="text-[11px] text-slate-500 text-center mt-1">
+//               You’ll receive a confirmation email with the meeting link & details
+//               after booking.
+//             </p>
+//           </CardContent>
+//         </Card>
+//       )}
+//     </div>
+//   );
+// };
+
+
+
+
+
+
+
+
+
+
+
+
 // src/components/booking/AppointmentCalendar.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -60,12 +849,26 @@ const toLocalDateKey = (date: Date) => {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`; 
+  return `${y}-${m}-${d}`;
 };
 
 const parseTimeToMinutes = (time: string) => {
   const [hh, mm] = time.split(":").map(Number);
   return hh * 60 + mm;
+};
+
+const formatMinutesToLabel = (minutes: number) => {
+  const h24 = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  const ampm = h24 >= 12 ? "PM" : "AM";
+  const h12 = h24 % 12 || 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
+};
+
+const formatSlotLabel = (startTime: string, endTime: string) => {
+  const start = parseTimeToMinutes(startTime);
+  const end = parseTimeToMinutes(endTime);
+  return `${formatMinutesToLabel(start)}–${formatMinutesToLabel(end)}`;
 };
 
 type BookingStage = "date" | "time" | "form";
@@ -246,6 +1049,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         notes,
         serviceType,
         date: selectedDateKey,
+        // 🔹 Keep sending original times as stored (interpreted as local)
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
       });
@@ -264,13 +1068,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       // reload slots to mark booked
       const res = await fetchSlots(selectedDateKey);
       setSlots(res.slots);
-
     } catch (err: any) {
       setError(err.message || "Failed to book appointment");
 
       // Auto hide error
       setTimeout(() => setError(null), 4000);
-
     } finally {
       setBookingLoading(false);
     }
@@ -295,7 +1097,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     });
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1.2fr)]">
+    <div className="grid gap-12 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]">
       {/* Left: Date → Time (stepwise) */}
       <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
@@ -389,7 +1191,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                         setSelectedSlot(null);
                         setBookingStage("time");
                       }}
-                      className={["h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all text-slate-100",
+                      className={[
+                        "h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all text-slate-100",
                         isSelected
                           ? "bg-brand-coral text-slate-950 border-brand-coral shadow-sm font-bold"
                           : "border-slate-700 bg-slate-900/70 hover:border-brand-coral/70 hover:bg-slate-900",
@@ -408,27 +1211,35 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           {bookingStage !== "date" && (
             <div className="border-t border-slate-800 pt-4">
               <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2 text-xs text-slate-300">
-                  <Clock className="w-4 h-4" />
-                  <span>
-                    {selectedDate
-                      ? selectedDate.toLocaleDateString("en-GB", {
-                        weekday: "short",
-                        day: "numeric",
-                        month: "short",
-                      })
-                      : "Select a date to see available times"}
+                <div className="flex flex-col gap-0.5 text-xs text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {selectedDate
+                        ? selectedDate.toLocaleDateString("en-GB", {
+                          weekday: "short",
+                          day: "numeric",
+                          month: "short",
+                        })
+                        : "Select a date to see available times"}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-500">
+                    Times are shown in <b>your local time</b>. We usually open
+                    slots between <b>1:00 PM and 10:00 PM</b>.
                   </span>
                 </div>
-                <div className="flex gap-2 text-[11px] text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
-                    Available
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <span className="w-3 h-3 rounded-sm border border-amber-500/80 bg-amber-500/30" />
-                    Booked / Unavailable
-                  </span>
+                <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
+                  <div className="flex gap-2">
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
+                      Available
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <span className="w-3 h-3 rounded-sm border border-amber-500/80 bg-amber-500/30" />
+                      Booked / Unavailable
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -446,23 +1257,17 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
                   {slots.map((slot) => {
                     const now = new Date();
-                    const currentMinutes =
+                    const nowMinutesLocal =
                       now.getHours() * 60 + now.getMinutes();
 
                     let isPastSlot = false;
 
-                    if (selectedDate) {
-                      const selectedKey = toLocalDateKey(selectedDate);
-
-                      if (selectedKey < todayKey) {
+                    if (selectedDateKey < todayKey) {
+                      isPastSlot = true;
+                    } else if (selectedDateKey === todayKey) {
+                      const endMinutes = parseTimeToMinutes(slot.endTime);
+                      if (endMinutes <= nowMinutesLocal) {
                         isPastSlot = true;
-                      } else if (selectedKey === todayKey) {
-                        const slotEndMinutes = parseTimeToMinutes(
-                          slot.endTime,
-                        );
-                        if (slotEndMinutes <= currentMinutes) {
-                          isPastSlot = true;
-                        }
                       }
                     }
 
@@ -498,7 +1303,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                         ].join(" ")}
                       >
                         <span className="font-medium">
-                          {slot.startTime}–{slot.endTime}
+                          {formatSlotLabel(slot.startTime, slot.endTime)}
                         </span>
                         <span className="text-[10px] opacity-85 capitalize">
                           {isPastSlot && slot.status === "available"
@@ -511,18 +1316,6 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 </div>
               )}
             </div>
-          )}
-
-          {/* Error / success */}
-          {error && (
-            <p className="text-xs text-red-400 bg-red-950/40 border border-red-800/60 rounded-md px-3 py-2">
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-md px-3 py-2">
-              {success}
-            </p>
           )}
         </CardContent>
       </Card>
@@ -565,7 +1358,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 <b>Date:</b> {formattedSelectedDate}
               </p>
               <p>
-                <b>Time:</b> {selectedSlot.startTime}–{selectedSlot.endTime}
+                <b>Time:</b>{" "}
+                {formatSlotLabel(selectedSlot.startTime, selectedSlot.endTime)}
               </p>
             </div>
           </CardHeader>
@@ -652,14 +1446,19 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                       }}
                     >
                       <SelectTrigger
-                        className={`${inputBase} ${serviceLocked ? "cursor-not-allowed opacity-90" : ""
+                        className={`${inputBase} ${serviceLocked
+                            ? "cursor-not-allowed opacity-90"
+                            : ""
                           }`}
                       >
                         <SelectValue placeholder="Select a service" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-900 border-slate-700 text-slate-100">
                         {services.map((service) => (
-                          <SelectItem key={service.value} value={service.value}>
+                          <SelectItem
+                            key={service.value}
+                            value={service.value}
+                          >
                             {service.label}
                           </SelectItem>
                         ))}
@@ -707,9 +1506,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                     </p>
                     <p>
                       <b>Time:</b>{" "}
-                      {selectedSlot
-                        ? `${selectedSlot.startTime}–${selectedSlot.endTime}`
-                        : "Not selected"}
+                      {formatSlotLabel(
+                        selectedSlot.startTime,
+                        selectedSlot.endTime,
+                      )}
                     </p>
                   </div>
                 </>
@@ -770,6 +1570,18 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               after booking.
             </p>
           </CardContent>
+          
+          {/* Error / success */}
+          {error && (
+            <p className="text-xs text-red-400 bg-red-950/40 border border-red-800/60 rounded-md px-3 py-2">
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-md px-3 py-2">
+              {success}
+            </p>
+          )}
         </Card>
       )}
     </div>

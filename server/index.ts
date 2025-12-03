@@ -494,8 +494,6 @@ app.use((req, res, next) => {
   //   key: fs.readFileSync("cert/localhost-key.pem"),
   //   cert: fs.readFileSync("cert/localhost.pem")
   // };
-  // Use the port assigned by Replit or fallback to 5000 for local development
-  // this serves both the API and the client.
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
     port,

@@ -1,3 +1,532 @@
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+// import { Button } from "@/components/ui/button";
+// import { Card } from "@/components/ui/card";
+// import { Badge } from "@/components/ui/badge";
+// import { useRegion } from "@/hooks/use-region";
+// import { Link } from "wouter";
+// import scubaCardImage from "@assets/targeted_element_1754118942775.png";
+// import scubaPerformanceImage from "@assets/by-the-shore-scuba-seo-success_1754118940974.png";
+// import {
+//   Search,
+//   TrendingUp,
+//   Target,
+//   BarChart3,
+//   Users,
+//   CheckCircle,
+//   ArrowRight,
+//   Star,
+//   Award,
+//   Globe,
+//   ExternalLink,
+//   LineChart,
+//   Zap,
+//   Shield,
+//   Eye,
+//   MousePointer,
+//   Quote,
+//   Calendar,
+//   Settings,
+// } from "lucide-react";
+// import { Helmet } from "react-helmet";
+// import { SchemaMarkup } from "@/components/schema-markup";
+// import { SEOHead } from "@/components/seo-head";
+
+// export default function ScubaDivingCaseStudy() {
+//   return (
+//     <>
+//       <Helmet>
+//         <title>SCUBA SEO Case Study | 31% More Users & 360% More Calls</title>
+//         <meta name="description" content="See how Branding Beez helped By The Shore SCUBA grow users by 31%, boost phone leads by 360%, and achieve 61 top rankings in just  3 months." />
+//         <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study" />
+//         <meta name="robots" content="INDEX, FOLLOW" />
+//       </Helmet>
+//       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
+//         <SEOHead
+//           title="By The Shore SCUBA Training"
+//           description="Branding Beez boosted a Raleigh SCUBA training business with 31% more users and 360% more phone inquiries in  3 months."
+//           keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
+//           canonicalUrl="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study"
+//           ogType="website"
+//         />
+//         <SchemaMarkup type="localBusiness" />
+//         <Header />
+
+//         <main>
+//           {/* Hero Section */}
+//           <section className="pt-24 py-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+//             <div className="max-w-7xl mx-auto px-4">
+//               <div className="grid lg:grid-cols-2 gap-12 items-center">
+//                 <div>
+//                   <div className="flex items-center justify-center">
+//                     <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1">
+//                       Featured SEO Success Story
+//                     </Badge>
+//                   </div>
+//                   <h1 className="text-4xl md:text-6xl font-bold mb-6">
+//                     By The Shore SCUBA Training
+//                   </h1>
+//                   <p className="text-xl md:text-2xl mb-8 opacity-90">
+//                     How we increased organic users by 31% and generated 360% more
+//                     phone inquiries for a local scuba training business in  3 months
+//                   </p>
+//                   <div className="flex flex-wrap gap-6 text-lg">
+//                     <div className="flex items-center gap-2">
+//                       <TrendingUp className="w-5 h-5" />
+//                       <span>+31% Users</span>
+//                     </div>
+//                     <div className="flex items-center gap-2">
+//                       <Target className="w-5 h-5" />
+//                       <span>+360% Phone Clicks</span>
+//                     </div>
+//                     <div className="flex items-center gap-2">
+//                       <Search className="w-5 h-5" />
+//                       <span>61 Top Rankings</span>
+//                     </div>
+//                   </div>
+//                   <div className="mt-5 ">
+//                     <Button
+//                       size="lg"
+//                       variant="outline"
+//                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+//                       onClick={() =>
+//                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+//                         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                       }
+//                     >
+
+//                       Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+//                     </Button>
+//                   </div>
+//                 </div>
+
+//                 <div className="relative group">
+//                   <div className="relative overflow-hidden rounded-2xl border-2 border-gray-200/50 shadow-2xl bg-gradient-to-br from-white to-gray-50 p-4">
+//                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
+//                     <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white shadow-lg">
+//                       <img
+//                         src={scubaPerformanceImage}
+//                         alt="By The Shore SCUBA Search Console Performance - 411 clicks, 103K impressions"
+//                         className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+//                         loading="lazy"
+//                       />
+//                     </div>
+//                     <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
+//                       <p className="text-sm font-semibold text-gray-800">Google Search Console</p>
+//                     </div>
+//                     <div className="absolute bottom-6 right-6 bg-brand-coral/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
+//                       <p className="text-sm font-bold text-white">411 Clicks • 103K Impressions</p>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </section>
+
+//           {/* Key Results */}
+//           <section className="py-16 bg-gray-50">
+//             <div className="max-w-7xl mx-auto px-4">
+//               <div className="max-w-6xl mx-auto">
+//                 <div className="text-center mb-12">
+//                   <h2 className="text-3xl font-bold text-gray-900 mb-4">
+//                     Measurable Results
+//                   </h2>
+//                   <p className="text-gray-600 text-lg">
+//                     Key metrics and achievements from this transformation over  3 months duration period
+//                   </p>
+//                 </div>
+
+//                 <div className="grid md:grid-cols-3 gap-8 mb-12">
+//                   <Card className="text-center p-8 border-2 border-brand-coral/20 bg-brand-coral/5">
+//                     <div className="w-16 h-16 bg-brand-coral rounded-full flex items-center justify-center mx-auto mb-4">
+//                       <TrendingUp className="w-8 h-8 text-white" />
+//                     </div>
+//                     <h3 className="text-3xl font-bold text-brand-coral mb-2">
+//                       31%
+//                     </h3>
+//                     <p className="text-gray-700 font-medium">
+//                       Organic User Growth
+//                     </p>
+//                     <p className="text-sm text-gray-600 mt-2">
+//                       From 1,361 to 1,781 users - achieved in
+//                       <span className="font-semibold text-brand-coral"> 28 days</span>
+//                     </p>
+//                   </Card>
+
+//                   <Card className="text-center p-8 border-2 border-brand-purple/20 bg-brand-purple/5">
+//                     <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
+//                       <Target className="w-8 h-8 text-white" />
+//                     </div>
+//                     <h3 className="text-3xl font-bold text-brand-purple mb-2">
+//                       360%
+//                     </h3>
+//                     <p className="text-gray-700 font-medium">
+//                       Phone Click Increase
+//                     </p>
+//                     <p className="text-sm text-gray-600 mt-2">
+//                       Lead generation boost
+//                     </p>
+//                   </Card>
+
+//                   <Card className="text-center p-8 border-2 border-brand-purple/20 bg-brand-purple/5">
+//                     <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
+//                       <Search className="w-8 h-8 text-white" />
+//                     </div>
+//                     <h3 className="text-3xl font-bold text-brand-purple mb-2">
+//                       61
+//                     </h3>
+//                     <p className="text-gray-700 font-medium">Top 1 Rankings</p>
+//                     <p className="text-sm text-gray-600 mt-2">
+//                       From 5 to 61 #1 positions
+//                     </p>
+//                   </Card>
+//                 </div>
+
+//                 <div className="grid md:grid-cols-4 gap-6">
+//                   <div className="text-center">
+//                     <div className="w-12 h-12 bg-brand-coral rounded-lg flex items-center justify-center mx-auto mb-3">
+//                       <Eye className="w-6 h-6 text-white" />
+//                     </div>
+//                     <h4 className="font-bold text-2xl text-brand-coral">
+//                       3 months
+//                     </h4>
+//                     <p className="text-gray-600">Project Duration</p>
+//                   </div>
+
+//                   <div className="text-center">
+//                     <div className="w-12 h-12 bg-brand-coral rounded-lg flex items-center justify-center mx-auto mb-3">
+//                       <MousePointer className="w-6 h-6 text-white" />
+//                     </div>
+//                     <h4 className="font-bold text-2xl text-brand-coral">43%</h4>
+//                     <p className="text-gray-600">Page View Growth</p>
+//                   </div>
+
+//                   <div className="text-center">
+//                     <div className="w-12 h-12 bg-brand-coral rounded-lg flex items-center justify-center mx-auto mb-3">
+//                       <BarChart3 className="w-6 h-6 text-white" />
+//                     </div>
+//                     <h4 className="font-bold text-2xl text-brand-coral">260%</h4>
+//                     <p className="text-gray-600">Form Click Increase</p>
+//                   </div>
+
+//                   <div className="text-center">
+//                     <div className="w-12 h-12 bg-brand-purple rounded-lg flex items-center justify-center mx-auto mb-3">
+//                       <Zap className="w-6 h-6 text-white" />
+//                     </div>
+//                     <h4 className="font-bold text-2xl text-brand-purple">95</h4>
+//                     <p className="text-gray-600">Mobile Page Speed</p>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </section>
+
+//           {/* About Client */}
+//           <section className="py-16 bg-gray-50">
+//             <div className="max-w-7xl mx-auto px-4">
+//               <div className="max-w-4xl mx-auto">
+//                 <div className="text-center mb-12">
+//                   <h2 className="text-3xl font-bold text-gray-900 mb-4">
+//                     About By The Shore SCUBA Instruction
+//                   </h2>
+//                   <p className="text-gray-600 text-lg">
+//                     Understanding our client's business and local SEO
+//                     transformation needs
+//                   </p>
+//                 </div>
+
+//                 <div className="grid md:grid-cols-2 gap-12 items-center">
+//                   <div>
+//                     <div className="flex items-center gap-4 mb-6">
+//                       <div className="w-16 h-16 bg-gradient-to-br from-brand-coral to-blue-500 rounded-lg flex items-center justify-center">
+//                         <Globe className="w-8 h-8 text-white" />
+//                       </div>
+//                       <div>
+//                         <h3 className="text-xl font-bold text-gray-900">
+//                           By The Shore scuba Instruction
+//                         </h3>
+//                         <h4 className="text-gray-600">
+//                           scuba Training & Certification
+//                         </h4>
+//                       </div>
+//                     </div>
+
+//                     <div className="space-y-4">
+//                       <div className="flex items-center gap-3">
+//                         <Users className="w-5 h-5 text-brand-coral" />
+//                         <span className="text-gray-700">
+//                           Small Business (B2C)
+//                         </span>
+//                       </div>
+//                       <div className="flex items-center gap-3">
+//                         <Calendar className="w-5 h-5 text-brand-coral" />
+//                         <span className="text-gray-700">
+//                           Established diving instructor
+//                         </span>
+//                       </div>
+//                       <div className="flex items-center gap-3">
+//                         <Target className="w-5 h-5 text-brand-coral" />
+//                         <span className="text-gray-700">
+//                           SCUBA lessons & certification
+//                         </span>
+//                       </div>
+//                       <div className="flex items-center gap-3">
+//                         <Globe className="w-5 h-5 text-brand-coral" />
+//                         <span className="text-gray-700">
+//                           Raleigh, NC & nearby areas
+//                         </span>
+//                       </div>
+//                     </div>
+//                   </div>
+
+//                   <Card className="p-6">
+//                     <h4 className="font-bold text-lg mb-4 text-gray-900">
+//                       Business & Background
+//                     </h4>
+//                     <p className="text-gray-700 mb-4">
+//                       By The Shore SCUBA Instruction is a specialized diving
+//                       school offering SCUBA lessons, certification courses, and
+//                       dive training for adults aged 18-60 in Raleigh, NC and
+//                       surrounding areas. They serve adventure seekers, hobbyists,
+//                       and travelers interested in professional dive training.
+//                     </p>
+//                     <p className="text-gray-700 mb-4">
+//                       Despite their quality instruction, the business struggled
+//                       with online visibility. Their website had broken links, weak
+//                       backlink profile, missing keyword targeting across landing
+//                       pages, and no structured form tracking to measure
+//                       conversions.
+//                     </p>
+//                     <p className="text-gray-700">
+//                       Their target audience includes adventure enthusiasts,
+//                       vacation divers, and locals seeking professional SCUBA
+//                       certification. They needed a comprehensive local SEO
+//                       strategy to capture high-intent search traffic for diving
+//                       lessons and certification courses in their market.
+//                     </p>
+//                   </Card>
+//                 </div>
+//               </div>
+//             </div>
+//           </section>
+
+//           {/* Results & Strategy */}
+//           <section className="py-16 bg-white">
+//             <div className="max-w-7xl mx-auto px-4">
+//               <div className="max-w-6xl mx-auto">
+//                 <div className="grid lg:grid-cols-2 gap-12">
+//                   <div>
+//                     <h2 className="text-2xl font-bold text-gray-900 mb-6">
+//                       Strategy Implementation
+//                     </h2>
+
+//                     <div className="space-y-6">
+//                       <Card className="p-6">
+//                         <div className="flex items-start gap-4">
+//                           <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
+//                             <CheckCircle className="w-6 h-6 text-white" />
+//                           </div>
+//                           <div>
+//                             <h3 className="font-bold text-lg mb-2">
+//                               Technical SEO Fixes
+//                             </h3>
+//                             <p className="text-gray-600">
+//                               Fixed broken links, enhanced page speed (Mobile:
+//                               90→95, Desktop: 90→97), and setup structured data
+//                               tracking.
+//                             </p>
+//                           </div>
+//                         </div>
+//                       </Card>
+
+//                       <Card className="p-6">
+//                         <div className="flex items-start gap-4">
+//                           <div className="w-10 h-10 p-2 bg-brand-purple rounded-lg flex items-center justify-center">
+//                             <Target className="w-6 h-6 text-white" />
+//                           </div>
+//                           <div>
+//                             <h3 className="font-bold text-lg mb-2">
+//                               Local Keyword Strategy
+//                             </h3>
+//                             <p className="text-gray-600">
+//                               Focused on location-specific keywords: "scuba
+//                               lessons raleigh nc", "scuba certification raleigh",
+//                               and "dive training".
+//                             </p>
+//                           </div>
+//                         </div>
+//                       </Card>
+
+//                       <Card className="p-6">
+//                         <div className="flex items-start gap-4">
+//                           <div className="w-10 h-10 p-2 bg-brand-coral rounded-lg flex items-center justify-center">
+//                             <TrendingUp className="w-6 h-6 text-white" />
+//                           </div>
+//                           <div>
+//                             <h3 className="font-bold text-lg mb-2">
+//                               Content Optimization
+//                             </h3>
+//                             <p className="text-gray-600">
+//                               Optimized headings and on-page content, aligned each
+//                               page with target keywords, and introduced FAQ
+//                               sections.
+//                             </p>
+//                           </div>
+//                         </div>
+//                       </Card>
+//                     </div>
+//                   </div>
+
+//                   <div>
+//                     <h2 className="text-2xl font-bold text-gray-900 mb-6">
+//                       Measurable Results
+//                     </h2>
+
+//                     <div className="bg-white rounded-xl p-6 border-2 border-brand-coral/20">
+//                       <h3 className="font-bold text-lg mb-4 text-green-700">
+//                         3-Month Performance Summary
+//                       </h3>
+
+//                       <div className="space-y-4">
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-gray-700">Organic Users</span>
+//                           <div className="text-right">
+//                             <span className="font-bold text-brand-coral">
+//                               +31%
+//                             </span>
+//                             <p className="text-sm text-gray-500">
+//                               1,361 → 1,781 users
+//                             </p>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-gray-700">Top 1 Rankings</span>
+//                           <div className="text-right">
+//                             <span className="font-bold text-brand-purple">
+//                               5 → 61
+//                             </span>
+//                             <p className="text-sm text-gray-500">
+//                               1,220% increase
+//                             </p>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-gray-700">Phone Clicks</span>
+//                           <div className="text-right">
+//                             <span className="font-bold text-brand-purple">
+//                               +360%
+//                             </span>
+//                             <p className="text-sm text-gray-500">
+//                               Direct inquiry boost
+//                             </p>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-gray-700">Form Clicks</span>
+//                           <div className="text-right">
+//                             <span className="font-bold text-brand-coral">
+//                               +260%
+//                             </span>
+//                             <p className="text-sm text-gray-500">
+//                               Booking inquiries
+//                             </p>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-gray-700">
+//                             Total Keywords Ranked
+//                           </span>
+//                           <div className="text-right">
+//                             <span className="font-bold text-brand-coral">
+//                               10 → 271
+//                             </span>
+//                             <p className="text-sm text-gray-500">2,710% growth</p>
+//                           </div>
+//                         </div>
+
+//                         <div className="flex justify-between items-center">
+//                           <span className="text-gray-700">Page Views</span>
+//                           <div className="text-right">
+//                             <span className="font-bold text-brand-coral">
+//                               +43%
+//                             </span>
+//                             <p className="text-sm text-gray-500">
+//                               10,042 → 14,370 views
+//                             </p>
+//                           </div>
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 </div>
+//               </div>
+//             </div>
+//           </section>
+
+//           {/* CTA Section */}
+//           <section className="py-16 bg-gradient-to-r from-brand-coral to-pink-500 text-white">
+//             <div className="max-w-7xl mx-auto px-4">
+//               <div className="max-w-4xl mx-auto text-center">
+//                 <h2 className="text-3xl font-bold mb-6">
+//                   Ready to Transform Your SEO Performance?
+//                 </h2>
+//                 <p className="text-xl mb-8 opacity-90">
+//                   Get the same results for your business. Let's discuss your SEO
+//                   goals and create a strategy that delivers measurable growth.
+//                 </p>
+//                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
+//                   <Button
+//                     asChild
+//                     size="lg"
+//                     className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+//                   >
+//                     <a
+//                       // href="https://calendly.com/vignesh-velusamy/30min"
+//                       href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+//                       target="_blank"
+//                       rel="noopener noreferrer"
+//                     > <Calendar className="mr-2 h-5 w-5" />
+//                       Book Your Free SEO Consultation
+//                     </a>
+//                   </Button>
+//                   <Button
+//                     asChild
+//                     size="lg"
+//                     variant="outline"
+//                     className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+//                   >
+//                     <Link href="/services/seo">
+//                       View Other SEO Services
+//                       <ArrowRight className="ml-2 h-5 w-5" />
+//                     </Link>
+//                   </Button>
+//                 </div>
+//               </div>
+//             </div>
+//           </section>
+//         </main>
+
+//         <Footer />
+//       </div>
+//     </>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
@@ -37,14 +566,20 @@ export default function ScubaDivingCaseStudy() {
     <>
       <Helmet>
         <title>SCUBA SEO Case Study | 31% More Users & 360% More Calls</title>
-        <meta name="description" content="See how Branding Beez helped By The Shore SCUBA grow users by 31%, boost phone leads by 360%, and achieve 61 top rankings in just  3 months." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study" />
+        <meta
+          name="description"
+          content="See how Branding Beez helped By The Shore SCUBA grow users by 31%, boost phone leads by 360%, and achieve 61 top rankings in just 3 months."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         <SEOHead
           title="By The Shore SCUBA Training"
-          description="Branding Beez boosted a Raleigh SCUBA training business with 31% more users and 360% more phone inquiries in  3 months."
+          description="Branding Beez boosted a Raleigh SCUBA training business with 31% more users and 360% more phone inquiries in 3 months."
           keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
           canonicalUrl="https://brandingbeez.co.uk/case-studies/scuba-diving-case-study"
           ogType="website"
@@ -68,34 +603,57 @@ export default function ScubaDivingCaseStudy() {
                   </h1>
                   <p className="text-xl md:text-2xl mb-8 opacity-90">
                     How we increased organic users by 31% and generated 360% more
-                    phone inquiries for a local scuba training business in  3 months
+                    phone inquiries for a local scuba training business in 3
+                    months
                   </p>
+
+                  {/* Hero KPI Row with counts */}
                   <div className="flex flex-wrap gap-6 text-lg">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
-                      <span>+31% Users</span>
+                    <div className="flex items-start gap-3">
+                      <TrendingUp className="w-5 h-5 mt-1" />
+                      <div>
+                        <p className="font-semibold">+31% Organic Users</p>
+                        <p className="text-sm opacity-80">
+                          1,361 → 1,781 users
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Target className="w-5 h-5" />
-                      <span>+360% Phone Clicks</span>
+
+                    <div className="flex items-start gap-3">
+                      <Target className="w-5 h-5 mt-1" />
+                      <div>
+                        <p className="font-semibold">+360% Phone Clicks</p>
+                        <p className="text-sm opacity-80">
+                          50 → 230 calls
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Search className="w-5 h-5" />
-                      <span>61 Top Rankings</span>
+
+                    <div className="flex items-start gap-3">
+                      <Search className="w-5 h-5 mt-1" />
+                      <div>
+                        <p className="font-semibold">#1 Rankings Growth</p>
+                        <p className="text-sm opacity-80">
+                          5 → 61 top positions
+                        </p>
+                      </div>
                     </div>
                   </div>
+
                   <div className="mt-5 ">
                     <Button
                       size="lg"
                       variant="outline"
                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                       onClick={() =>
-                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank",
+                        )
                       }
                     >
-
-                      Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                      Start Your SEO Growth Today{" "}
+                      <ArrowRight className="w-4 h-4 mr-2" />
                     </Button>
                   </div>
                 </div>
@@ -112,10 +670,14 @@ export default function ScubaDivingCaseStudy() {
                       />
                     </div>
                     <div className="absolute top-6 left-6 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md">
-                      <p className="text-sm font-semibold text-gray-800">Google Search Console</p>
+                      <p className="text-sm font-semibold text-gray-800">
+                        Google Search Console
+                      </p>
                     </div>
                     <div className="absolute bottom-6 right-6 bg-brand-coral/90 backdrop-blur-sm rounded-lg px-4 py-2 shadow-md">
-                      <p className="text-sm font-bold text-white">411 Clicks • 103K Impressions</p>
+                      <p className="text-sm font-bold text-white">
+                        411 Clicks • 103K Impressions
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -123,7 +685,7 @@ export default function ScubaDivingCaseStudy() {
             </div>
           </section>
 
-          {/* Key Results */}
+          {/* Key Results / Measurable Results */}
           <section className="py-16 bg-gray-50">
             <div className="max-w-7xl mx-auto px-4">
               <div className="max-w-6xl mx-auto">
@@ -132,41 +694,64 @@ export default function ScubaDivingCaseStudy() {
                     Measurable Results
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    Key metrics and achievements from this transformation over  3 months duration period
+                    Key metrics and achievements from this transformation over 3
+                    months
                   </p>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-8 mb-12">
+                  {/* Organic Users */}
                   <Card className="text-center p-8 border-2 border-brand-coral/20 bg-brand-coral/5">
                     <div className="w-16 h-16 bg-brand-coral rounded-full flex items-center justify-center mx-auto mb-4">
                       <TrendingUp className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold text-brand-coral mb-2">
-                      31%
+                      +31%
                     </h3>
                     <p className="text-gray-700 font-medium">
                       Organic User Growth
                     </p>
                     <p className="text-sm text-gray-600 mt-2">
-                      From 1,361 to 1,781 users
+                      From{" "}
+                      <span className="font-semibold text-brand-coral">
+                        1,361
+                      </span>{" "}
+                      to{" "}
+                      <span className="font-semibold text-brand-coral">
+                        1,781
+                      </span>{" "}
+                      organic users over{" "}
+                      <span className="font-semibold text-brand-coral">
+                        3 months
+                      </span>
                     </p>
                   </Card>
 
+                  {/* Phone Clicks */}
                   <Card className="text-center p-8 border-2 border-brand-purple/20 bg-brand-purple/5">
                     <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
                       <Target className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-3xl font-bold text-brand-purple mb-2">
-                      360%
+                      +360%
                     </h3>
                     <p className="text-gray-700 font-medium">
                       Phone Click Increase
                     </p>
                     <p className="text-sm text-gray-600 mt-2">
-                      Lead generation boost
+                      From{" "}
+                      <span className="font-semibold text-brand-purple">
+                        50
+                      </span>{" "}
+                      to{" "}
+                      <span className="font-semibold text-brand-purple">
+                        230
+                      </span>{" "}
+                      phone clicks
                     </p>
                   </Card>
 
+                  {/* Top 1 Rankings */}
                   <Card className="text-center p-8 border-2 border-brand-purple/20 bg-brand-purple/5">
                     <div className="w-16 h-16 bg-brand-purple rounded-full flex items-center justify-center mx-auto mb-4">
                       <Search className="w-8 h-8 text-white" />
@@ -174,7 +759,7 @@ export default function ScubaDivingCaseStudy() {
                     <h3 className="text-3xl font-bold text-brand-purple mb-2">
                       61
                     </h3>
-                    <p className="text-gray-700 font-medium">Top 1 Rankings</p>
+                    <p className="text-gray-700 font-medium">Top #1 Rankings</p>
                     <p className="text-sm text-gray-600 mt-2">
                       From 5 to 61 #1 positions
                     </p>
@@ -198,14 +783,22 @@ export default function ScubaDivingCaseStudy() {
                     </div>
                     <h4 className="font-bold text-2xl text-brand-coral">43%</h4>
                     <p className="text-gray-600">Page View Growth</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      10,042 → 14,370 views
+                    </p>
                   </div>
 
                   <div className="text-center">
                     <div className="w-12 h-12 bg-brand-coral rounded-lg flex items-center justify-center mx-auto mb-3">
                       <BarChart3 className="w-6 h-6 text-white" />
                     </div>
-                    <h4 className="font-bold text-2xl text-brand-coral">260%</h4>
+                    <h4 className="font-bold text-2xl text-brand-coral">
+                      260%
+                    </h4>
                     <p className="text-gray-600">Form Click Increase</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      45 → 162 form clicks
+                    </p>
                   </div>
 
                   <div className="text-center">
@@ -216,6 +809,36 @@ export default function ScubaDivingCaseStudy() {
                     <p className="text-gray-600">Mobile Page Speed</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Mid-page CTA: Quick SEO Audit */}
+          <section className="py-8 bg-brand-wings/40">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
+                    Not sure where to start?
+                  </p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                    Get a quick SEO audit and see what 30 days of focused work
+                    can do.
+                  </h3>
+                </div>
+                <Button
+                  size="lg"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Request Free SEO Audit
+                </Button>
               </div>
             </div>
           </section>
@@ -242,7 +865,7 @@ export default function ScubaDivingCaseStudy() {
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">
-                          By The Shore SCUBA Instruction
+                          By The Shore scuba Instruction
                         </h3>
                         <h4 className="text-gray-600">
                           scuba Training & Certification
@@ -305,6 +928,37 @@ export default function ScubaDivingCaseStudy() {
                     </p>
                   </Card>
                 </div>
+              </div>
+
+              {/* Results & Strategy CTA */}
+              <div className="mt-12 max-w-3xl mx-auto">
+                <Card className="p-6 md:p-8 bg-gray-50 border-dashed border-2 border-brand-coral/30">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        Want similar results for your local business?
+                      </h3>
+                      <p className="text-gray-700 text-sm md:text-base">
+                        Share your website and location, and we’ll tell you if
+                        this SCUBA playbook can be adapted to your niche and
+                        service area.
+                      </p>
+                    </div>
+                    <Button
+                      size="lg"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      onClick={() =>
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank",
+                        )
+                      }
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Talk to the SEO Team
+                    </Button>
+                  </div>
+                </Card>
               </div>
             </div>
           </section>
@@ -418,7 +1072,7 @@ export default function ScubaDivingCaseStudy() {
                               +360%
                             </span>
                             <p className="text-sm text-gray-500">
-                              Direct inquiry boost
+                              50 → 230 calls
                             </p>
                           </div>
                         </div>
@@ -430,7 +1084,7 @@ export default function ScubaDivingCaseStudy() {
                               +260%
                             </span>
                             <p className="text-sm text-gray-500">
-                              Booking inquiries
+                              45 → 162 form clicks
                             </p>
                           </div>
                         </div>
@@ -443,7 +1097,9 @@ export default function ScubaDivingCaseStudy() {
                             <span className="font-bold text-brand-coral">
                               10 → 271
                             </span>
-                            <p className="text-sm text-gray-500">2,710% growth</p>
+                            <p className="text-sm text-gray-500">
+                              2,710% growth
+                            </p>
                           </div>
                         </div>
 
@@ -459,6 +1115,30 @@ export default function ScubaDivingCaseStudy() {
                           </div>
                         </div>
                       </div>
+
+                      {/* Inline CTA for Agencies */}
+                      {/* <div className="mt-6 p-4 rounded-xl bg-brand-purple/5 border border-brand-purple/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-brand-purple uppercase tracking-wide">
+                            For Web & Marketing Agencies
+                          </p>
+                          <p className="text-sm text-gray-700">
+                            Want similar SEO wins for your clients under your
+                            brand? We offer white-label SEO delivery.
+                          </p>
+                        </div>
+                        <Button
+                          asChild
+                          size="sm"
+                          variant="outline"
+                          className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
+                        >
+                          <Link href="/dedicated-resources">
+                            Explore White-label SEO
+                            <ArrowRight className="w-4 h-4 ml-1" />
+                          </Link>
+                        </Button>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -484,13 +1164,13 @@ export default function ScubaDivingCaseStudy() {
                     className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   >
                     <a
-                      // href="https://calendly.com/vignesh-velusamy/30min"
                       href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Book Strategy Call
-                      <Calendar className="ml-2 h-5 w-5" />
+                      {" "}
+                      <Calendar className="mr-2 h-5 w-5" />
+                      Book Your Free SEO Consultation
                     </a>
                   </Button>
                   <Button
@@ -515,3 +1195,4 @@ export default function ScubaDivingCaseStudy() {
     </>
   );
 }
+

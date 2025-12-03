@@ -1,6 +1,6 @@
 import { Switch, Route, useLocation } from "wouter";
 import { useEffect, Suspense, lazy } from "react";
-import { queryClient } from "./lib/queryClient";
+import { apiRequest, queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,7 +26,7 @@ const Services = lazy(() => import("@/pages/services"));
 const About = lazy(() => import("@/pages/about"));
 const Contact = lazy(() => import("@/pages/contact-optimized"));
 const Blog = lazy(() => import("@/pages/blog"));
-const Portfolio = lazy(() => import ("@/pages/portfolio"));
+const Portfolio = lazy(() => import("@/pages/portfolio"));
 
 // Service pages - lazy loaded
 const SEOServices = lazy(() => import("@/pages/services/seo"));
@@ -38,7 +38,7 @@ const DedicatedResources = lazy(
 const AIDevelopment = lazy(() => import("@/pages/services/ai-development"));
 const N8NAutomations = lazy(() => import("@/pages/services/n8n-automations"));
 const AIO = lazy(() => import("@/pages/services/ai-search-optimization"));
-const custApp = lazy(() => import ("@/pages/services/custom-app-development"));
+const custApp = lazy(() => import("@/pages/services/custom-app-development"));
 
 // Tools and utilities - lazy loaded
 const SEOAudit = lazy(() => import("@/pages/seo-audit"));
@@ -155,6 +155,21 @@ function Router() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
+
+  useEffect(() => {
+    const OAuthToken = async () => {
+      try {
+        const tokens = await apiRequest<any>("/api/google/oauth/token", "GET");
+        localStorage.setItem("OA_AT", tokens.accessToken)
+        localStorage.setItem("OA_RT", tokens.refreshToken)
+        console.log("OAuth Token JSON:", tokens);
+      } catch (error) {
+        console.error("OAuth Token Error:", error);
+      }
+    };
+
+    OAuthToken();
+  }, []);
 
   return (
     <Switch>
@@ -309,18 +324,18 @@ function Router() {
         path="/case-studies/website-architect"
         component={() => <LazyRoute component={WebsiteArchitectCaseStudy} />}
       />
-        <Route
-          path="/case-studies/payflow-systems"
-          component={() => (
-            <LazyRoute component={DedicatedResourcesFintechCaseStudy} />
-          )}
-        />
-        <Route
-          path="/case-studies/fse-digital"
-          component={() => (
-            <LazyRoute component={FSEDigital} />
-          )}
-        />
+      <Route
+        path="/case-studies/payflow-systems"
+        component={() => (
+          <LazyRoute component={DedicatedResourcesFintechCaseStudy} />
+        )}
+      />
+      <Route
+        path="/case-studies/fse-digital"
+        component={() => (
+          <LazyRoute component={FSEDigital} />
+        )}
+      />
 
       {/* Tools and utilities */}
       <Route

@@ -32,6 +32,7 @@ import {
   Mail,
   Loader2,
   AlertTriangle,
+  Calendar,
 } from "lucide-react";
 import { useState } from "react";
 // Import the Vellu Laser screenshot
@@ -40,6 +41,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { VelluLaserSchema } from "@/utils/all-schemas";
+import V_logo from "../../../public/images/Vellu_Logo.png";
 
 // Smart Image Component with advanced features
 function SmartImage({
@@ -125,8 +127,14 @@ export default function VelluLaserLandingPageCaseStudy() {
     <>
       <Helmet>
         <title>Vellu Laser Landing Page Case Study | Branding Beez Results</title>
-        <meta name="description" content="Branding Beez delivered a high-converting landing page for Vellu Laser in just 48 hours — boosting conversions and strengthening white-label partnerships." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/vellu-laser-landing-page" />
+        <meta
+          name="description"
+          content="Branding Beez delivered a high-converting landing page for Vellu Laser in just 48 hours — boosting conversions and strengthening white-label partnerships."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/vellu-laser-landing-page"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -146,9 +154,11 @@ export default function VelluLaserLandingPageCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    ⚡ High-Converting Landing Page Success
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md font-medium mb-6 px-4 py-1">
+                      High-Converting Landing Page Success
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
                     Vellu Laser: 48-Hour Landing Page Delivery
                   </h1>
@@ -187,10 +197,15 @@ export default function VelluLaserLandingPageCaseStudy() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-2">
-                      <div className="w-full h-full bg-pink-600 rounded-lg flex items-center justify-center">
-                        <Sparkles className="w-8 h-8 text-white" />
-                      </div>
+                    <div className="bg-white p-1 rounded-lg flex items-center justify-center">
+                      {/* <div className="w-full h-full bg-white rounded-lg flex items-center justify-center"> */}
+                      {/* <Sparkles className="w-8 h-8 text.white" /> */}
+                      <img
+                        src={V_logo}
+                        alt="Vellu Laser Beauty Logo"
+                        className="w-44 h-17"
+                      />
+                      {/* </div> */}
                     </div>
                     <Badge className="bg-pink-100 text-pink-800 border-pink-200">
                       Beauty & Wellness
@@ -224,7 +239,8 @@ export default function VelluLaserLandingPageCaseStudy() {
                   High-Converting Landing Page
                 </h2>
                 <p className="text-gray-600 text-lg">
-                  Conversion-focused design that captures leads and drives bookings for premium beauty services
+                  Conversion-focused design that captures leads and drives
+                  bookings for premium beauty services
                 </p>
               </div>
 
@@ -237,15 +253,67 @@ export default function VelluLaserLandingPageCaseStudy() {
                       className="w-full h-full object-cover object-top"
                     />
                     <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-white font-semibold text-sm">Vellu Laser Beauty</p>
-                      <p className="text-white/90 text-xs">High-Converting Landing Page</p>
+                      <p className="text-white font-semibold text-sm">
+                        Vellu Laser Beauty
+                      </p>
+                      <p className="text-white/90 text-xs">
+                        High-Converting Landing Page
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <div className="w-2 h-2 bg-pink-400 rounded-full"></div>
-                        <p className="text-pink-300 text-xs font-medium">Live Landing Page</p>
+                        <div className="w-2 h-2 bg-pink-400 rounded-full" />
+                        <p className="text-pink-300 text-xs font-medium">
+                          Live Landing Page
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-center mt-5">
+              <a
+                href="https://lp.vellulaser.com/"
+                rel="noopener noreferrer"
+                target="_blank"
+                className="w-fit"
+              >
+                <Button
+                  variant="outline"
+                  className="w-fit h-11 px-4 py-2 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                >
+                  <ExternalLink className="w-5 h-5 mr-2" />
+                  Visit Live Website
+                </Button>
+              </a>
+            </div>
+          </section>
+
+          {/* Mid-page CTA: Quick Landing Page Review */}
+          <section className="py-8 bg-brand-wings/40">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
+                    Not sure where to start?
+                  </p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                    Get a quick landing page review and see what a 48-hour,
+                    conversion-focused build can do for your campaigns.
+                  </h3>
+                </div>
+                <Button
+                  size="lg"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Request Free Landing Page Review
+                </Button>
               </div>
             </div>
           </section>
@@ -259,12 +327,16 @@ export default function VelluLaserLandingPageCaseStudy() {
                     The Challenge
                   </h3>
                   <p className="text-gray-600 text-lg mb-6">
-                    AC Graphics Digital needed a high-converting landing page for their client Vellu Laser with extremely tight deadlines and specific conversion requirements.
+                    AC Graphics Digital needed a high-converting landing page
+                    for their client Vellu Laser with extremely tight deadlines
+                    and specific conversion requirements.
                   </p>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-red-600 text-sm font-bold">!</span>
+                        <span className="text-red-600 text-sm font-bold">
+                          !
+                        </span>
                       </div>
                       <span className="text-gray-600">
                         Extremely tight 48-hour deadline requirement
@@ -272,7 +344,9 @@ export default function VelluLaserLandingPageCaseStudy() {
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-red-600 text-sm font-bold">!</span>
+                        <span className="text-red-600 text-sm font-bold">
+                          !
+                        </span>
                       </div>
                       <span className="text-gray-600">
                         Need for high-converting design for premium services
@@ -280,7 +354,9 @@ export default function VelluLaserLandingPageCaseStudy() {
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-red-600 text-sm font-bold">!</span>
+                        <span className="text-red-600 text-sm font-bold">
+                          !
+                        </span>
                       </div>
                       <span className="text-gray-600">
                         Maintaining long-term partnership trust and quality
@@ -298,19 +374,27 @@ export default function VelluLaserLandingPageCaseStudy() {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Timeline</span>
-                        <span className="text-red-600 font-semibold">48 Hours</span>
+                        <span className="text-red-600 font-semibold">
+                          48 Hours
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Conversion Focus</span>
-                        <span className="text-red-600 font-semibold">High Priority</span>
+                        <span className="text-red-600 font-semibold">
+                          High Priority
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Design Quality</span>
-                        <span className="text-red-600 font-semibold">Premium</span>
+                        <span className="text-red-600 font-semibold">
+                          Premium
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Partnership Stakes</span>
-                        <span className="text-red-600 font-semibold">Long-term</span>
+                        <span className="text-red-600 font-semibold">
+                          Long-term
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -327,7 +411,8 @@ export default function VelluLaserLandingPageCaseStudy() {
                   Landing Page Development Strategy
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Fast-track development process focused on conversions and quality
+                  Fast-track development process focused on conversions and
+                  quality
                 </p>
               </div>
 
@@ -340,7 +425,9 @@ export default function VelluLaserLandingPageCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Rapid Design Process</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Rapid Design Process
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -374,22 +461,30 @@ export default function VelluLaserLandingPageCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Conversion Optimization</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Conversion Optimization
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-center gap-2">
                         <Target className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm">Strategic CTA placement</span>
+                        <span className="text-sm">
+                          Strategic CTA placement
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Heart className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm">Trust signals integration</span>
+                        <span className="text-sm">
+                          Trust signals integration
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Star className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm">Social proof elements</span>
+                        <span className="text-sm">
+                          Social proof elements
+                        </span>
                       </li>
                     </ul>
                     <div className="mt-4 text-center">
@@ -408,14 +503,18 @@ export default function VelluLaserLandingPageCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Partnership Excellence</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Partnership Excellence
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-center gap-2">
                         <MessageSquare className="w-4 h-4 text-pink-500" />
-                        <span className="text-sm">Real-time communication</span>
+                        <span className="text-sm">
+                          Real-time communication
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Award className="w-4 h-4 text-pink-500" />
@@ -434,6 +533,37 @@ export default function VelluLaserLandingPageCaseStudy() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Key Learnings-style CTA */}
+              <div className="mt-12 max-w-3xl mx-auto">
+                <Card className="p-6 md:p-8 bg-gray-50 border-dashed border-2 border-brand-coral/30">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        Want similar 48-hour landing page results?
+                      </h3>
+                      <p className="text-gray-700 text-sm md:text-base">
+                        Share your niche, offer, and ad platform, and we&apos;ll
+                        tell you if this launch playbook fits your goals and
+                        timeline.
+                      </p>
+                    </div>
+                    <Button
+                      size="lg"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      onClick={() =>
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank",
+                        )
+                      }
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Talk to the Landing Page Team
+                    </Button>
+                  </div>
+                </Card>
+              </div>
             </div>
           </section>
 
@@ -445,7 +575,8 @@ export default function VelluLaserLandingPageCaseStudy() {
                   Project Results
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Exceptional delivery that strengthened partnership and delivered results
+                  Exceptional delivery that strengthened partnership and
+                  delivered results
                 </p>
               </div>
 
@@ -517,15 +648,23 @@ export default function VelluLaserLandingPageCaseStudy() {
                     <div>
                       <Quote className="w-12 h-12 text-pink-500 mb-4" />
                       <blockquote className="text-lg text-gray-700 mb-4">
-                        "BrandingBeez once again proved why they're our go-to white-label partner. The Vellu Laser landing page was delivered exactly on time with exceptional quality. The conversion-focused design exceeded our client's expectations and strengthened our long-term friendship."
+                        "BrandingBeez once again proved why they're our go-to
+                        white-label partner. The Vellu Laser landing page was
+                        delivered exactly on time with exceptional quality. The
+                        conversion-focused design exceeded our client's
+                        expectations and strengthened our long-term friendship."
                       </blockquote>
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-bold">AC</span>
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900">AC Graphics Digital</div>
-                          <div className="text-gray-600">Long-term White-Label Partner</div>
+                          <div className="font-semibold text-gray-900">
+                            AC Graphics Digital
+                          </div>
+                          <div className="text-gray-600">
+                            Long-term White-Label Partner
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -537,18 +676,26 @@ export default function VelluLaserLandingPageCaseStudy() {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Timeline</span>
-                            <span className="text-pink-600 font-semibold">Perfect</span>
+                            <span className="text-pink-600 font-semibold">
+                              Perfect
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Quality</span>
-                            <span className="text-pink-600 font-semibold">Premium</span>
+                            <span className="text-pink-600 font-semibold">
+                              Premium
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Conversion Focus</span>
-                            <span className="text-pink-600 font-semibold">High</span>
+                            <span className="text-gray-600">
+                              Conversion Focus
+                            </span>
+                            <span className="text-pink-600 font-semibold">
+                              High
+                            </span>
                           </div>
                         </div>
-                        <Link href="/contact">
+                        <Link href="/contact?service=website-development&/#contact-form">
                           <Button className="mt-6 bg-pink-600 hover:bg-pink-700 text-white">
                             Start Your Landing Page
                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -569,18 +716,35 @@ export default function VelluLaserLandingPageCaseStudy() {
                 Need a High-Converting Landing Page Fast?
               </h2>
               <p className="text-xl mb-8 text-white/90">
-                Join agencies like AC Graphics Digital who trust BrandingBeez for rapid, high-quality landing page development.
+                Join agencies like AC Graphics Digital who trust BrandingBeez
+                for rapid, high-quality landing page development.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral">
-                  Start Your Landing Page
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      // "https://calendly.com/vignesh-velusamy/30min",
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Free Website Consultation
                 </Button>
-                {/* <Link href="/case-studies">
-                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-brand-coral">
-                  View More Case Studies
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+                >
+                  <Link href="/services/web-development">
+                    View Other Website Services
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
                 </Button>
-              </Link> */}
               </div>
             </div>
           </section>

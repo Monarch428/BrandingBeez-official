@@ -59,9 +59,11 @@ export default function FSEDigitalPpcCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    Dedicated PPC Specialist Case Study
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md font-medium px-4 py-1 mb-6">
+                      Dedicated PPC Specialist Case Study
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
                     FSE Digital: Dedicated PPC Specialist Under Full White-Label
                   </h1>
@@ -87,16 +89,33 @@ export default function FSEDigitalPpcCaseStudy() {
                     </div>
                   </div>
 
+                  {/* Hero CTAs (updated) */}
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Link href="/pricing-calculator">
-                      <Button
-                        size="lg"
-                        className="bg-white text-brand-purple hover:bg-gray-100"
-                      >
-                        Book a Dedicated PPC Specialist
+                    {/* <Button
+                      size="lg"
+                      className="bg-white text-brand-purple hover:bg-gray-100"
+                      onClick={() =>
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank"
+                        )
+                      }
+                    >
+                      <Calendar className="w-5 h-5 mr-1" />
+                      Book Your Strategy Call
+                    </Button> */}
+
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
+                      asChild
+                    >
+                      <Link href="/pricing-calculator?service=dedicated-ppc-specialist">
+                        Start Your Team
                         <ArrowRight className="w-5 h-5 ml-2" />
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </div>
 
@@ -117,12 +136,12 @@ export default function FSEDigitalPpcCaseStudy() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-white/80" />
-                      <span>Performance & PPC-focused digital agency</span>
+                      <span>Performance &amp; PPC-focused digital agency</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Target className="w-5 h-5 text-white/80" />
                       <span>
-                        Google Ads, Search, Display, Shopping & Remarketing
+                        Google Ads, Search, Display, Shopping &amp; Remarketing
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -338,7 +357,7 @@ export default function FSEDigitalPpcCaseStudy() {
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Cost per Lead</span>
                         <span className="text-red-600 font-semibold">
-                          Higher & Fluctuating
+                          Higher &amp; Fluctuating
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -383,7 +402,12 @@ export default function FSEDigitalPpcCaseStudy() {
                       1
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-purple-100 text-purple-800">
+                      Foundation Done Right
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center">
                       <h3 className="text-xl font-bold text-gray-900">
                         Campaign Management
@@ -395,13 +419,14 @@ export default function FSEDigitalPpcCaseStudy() {
                       <li className="flex items-center gap-2">
                         <Target className="w-4 h-4 text-green-500" />
                         <span className="text-sm">
-                          Setup of Search, Display, Remarketing & Performance Max
+                          Setup of Search, Display, Remarketing &amp; Performance
+                          Max
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <MessageSquare className="w-4 h-4 text-green-500" />
                         <span className="text-sm">
-                          Structured ad groups, keywords & ad extensions
+                          Structured ad groups, keywords &amp; ad extensions
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
@@ -411,11 +436,6 @@ export default function FSEDigitalPpcCaseStudy() {
                         </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-purple-100 text-purple-800">
-                        Foundation Done Right
-                      </Badge>
-                    </div>
                   </CardContent>
                 </Card>
 
@@ -425,7 +445,12 @@ export default function FSEDigitalPpcCaseStudy() {
                       2
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-blue-100 text-blue-800">
+                      Always-On Improvement
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center">
                       <h3 className="text-xl font-bold text-gray-900">
                         Daily Optimisation
@@ -437,13 +462,13 @@ export default function FSEDigitalPpcCaseStudy() {
                       <li className="flex items-center gap-2">
                         <Clock className="w-4 h-4 text-green-500" />
                         <span className="text-sm">
-                          Bid adjustments & budget pacing
+                          Bid adjustments &amp; budget pacing
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <TrendingUp className="w-4 h-4 text-green-500" />
                         <span className="text-sm">
-                          Adding/removing keywords & negative lists
+                          Adding/removing keywords &amp; negative lists
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
@@ -453,11 +478,6 @@ export default function FSEDigitalPpcCaseStudy() {
                         </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-blue-100 text-blue-800">
-                        Always-On Improvement
-                      </Badge>
-                    </div>
                   </CardContent>
                 </Card>
 
@@ -467,10 +487,15 @@ export default function FSEDigitalPpcCaseStudy() {
                       3
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-green-100 text-green-800">
+                      Seamless White-Label Fit
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center">
                       <h3 className="text-xl font-bold text-gray-900">
-                        Reporting & White-Label Integration
+                        Reporting &amp; White-Label Integration
                       </h3>
                     </CardTitle>
                   </CardHeader>
@@ -479,13 +504,13 @@ export default function FSEDigitalPpcCaseStudy() {
                       <li className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500" />
                         <span className="text-sm">
-                          Weekly optimisation summaries & monthly dashboards
+                          Weekly optimisation summaries &amp; monthly dashboards
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Users className="w-4 h-4 text-green-500" />
                         <span className="text-sm">
-                          Joined FSE internal stand-ups & workflows
+                          Joined FSE internal stand-ups &amp; workflows
                         </span>
                       </li>
                       <li className="flex items-center gap-2">
@@ -495,13 +520,47 @@ export default function FSEDigitalPpcCaseStudy() {
                         </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-green-100 text-green-800">
-                        Seamless White-Label Fit
-                      </Badge>
-                    </div>
                   </CardContent>
                 </Card>
+              </div>
+            </div>
+          </section>
+
+          {/* Mid-funnel CTA Section (earlier CTA pattern added) */}
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-4">
+                Want a Dedicated PPC Specialist Under Your Brand?
+              </h2>
+              <p className="text-xl text-white/90 mb-8">
+                Plug a full-time, white-label PPC specialist into your agency so
+                your team can focus on client relationships, strategy, and upsells.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank"
+                    )
+                  }
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Strategy Call
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
+                  asChild
+                >
+                  <Link href="/pricing-calculator?service=dedicated-resources">
+                    Get Pricing
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>
@@ -537,7 +596,8 @@ export default function FSEDigitalPpcCaseStudy() {
                       Internal Time Saved / Week
                     </div>
                     <div className="text-sm text-gray-500 mt-1">
-                      FSE team able to focus on strategy & client relationships
+                      FSE team able to focus on strategy &amp; client
+                      relationships
                     </div>
                   </CardContent>
                 </Card>
@@ -552,7 +612,7 @@ export default function FSEDigitalPpcCaseStudy() {
                     </div>
                     <div className="text-gray-600">Quality Score Range</div>
                     <div className="text-sm text-gray-500 mt-1">
-                      Better ad relevance & CTR across key campaigns
+                      Better ad relevance &amp; CTR across key campaigns
                     </div>
                   </CardContent>
                 </Card>
@@ -683,7 +743,7 @@ export default function FSEDigitalPpcCaseStudy() {
             </div>
           </section>
 
-          {/* CTA Section */}
+          {/* Final CTA Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-4">
@@ -694,24 +754,30 @@ export default function FSEDigitalPpcCaseStudy() {
                 white-label specialist who works as part of your team.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/pricing-calculator">
-                  <Button
-                    size="lg"
-                    className="bg-white text-brand-purple hover:bg-white/90 hover:text-brand-purple"
-                  >
-                    Explore Dedicated PPC Options
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-                <Link href="/services">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
-                  >
-                    View All White-Label Services
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-purple hover:bg-white/90 hover:text-brand-purple"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank"
+                    )
+                  }
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Strategy Call
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
+                  asChild
+                >
+                  <Link href="/services/dedicated-resources">
+                    View Other Dedicated Resources
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

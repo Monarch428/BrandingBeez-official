@@ -31,8 +31,14 @@ export default function WebsiteArchitectCaseStudy() {
     <>
       <Helmet>
         <title>Website Architect Case Study | White Label SEO Growth</title>
-        <meta name="description" content="Explore how Branding Beez transformed Website Architect's online presence with custom web solutions and strategic white label services." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/website-architect" />
+        <meta
+          name="description"
+          content="Explore how Branding Beez transformed Website Architect's online presence with custom web solutions and strategic white label services."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/website-architect"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -51,9 +57,11 @@ export default function WebsiteArchitectCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    Solo Founder Success Story
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md font-medium px-4 py-1 mb-6">
+                      Solo Founder Success Story
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
                     Website Architect
                   </h1>
@@ -80,9 +88,8 @@ export default function WebsiteArchitectCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          // "https://calendly.com/vignesh-velusamy/30min",
                           "https://calendar.app.google/Y8XZq71qtvPRhktH9",
-                          "_blank",
+                          "_blank"
                         )
                       }
                     >
@@ -113,7 +120,7 @@ export default function WebsiteArchitectCaseStudy() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-white/80" />
-                      <span>Gemma (Founder & Solo Entrepreneur)</span>
+                      <span>Gemma (Founder &amp; Solo Entrepreneur)</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Globe className="w-5 h-5 text-white/80" />
@@ -210,14 +217,14 @@ export default function WebsiteArchitectCaseStudy() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">
-                          Time for Sales & Strategy
+                          Time for Sales &amp; Strategy
                         </span>
                         <span className="text-red-600 font-semibold">
                           Very Limited
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Speed & Quality</span>
+                        <span className="text-gray-600">Speed &amp; Quality</span>
                         <span className="text-red-600 font-semibold">
                           Inconsistent (Solo)
                         </span>
@@ -240,7 +247,10 @@ export default function WebsiteArchitectCaseStudy() {
                 <h2 className="text-3xl font-bold text-brand-purple mb-4">
                   Dedicated Growth Team
                 </h2>
-                <p className="text-xl text-gray-600">2-person specialist team working as Gemma's extended delivery and marketing arm</p>
+                <p className="text-xl text-gray-600">
+                  2-person specialist team working as Gemma&apos;s extended
+                  delivery and marketing arm
+                </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -248,7 +258,10 @@ export default function WebsiteArchitectCaseStudy() {
                   <CardContent className="p-8">
                     <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-3 border-brand-coral/20">
                       <picture>
-                        <source srcSet="/images/vishnu-team-member.webp" type="image/webp" />
+                        <source
+                          srcSet="/images/vishnu-team-member.webp"
+                          type="image/webp"
+                        />
                         <img
                           src="/images/vishnu-team-member.png"
                           alt="Vishnu - WordPress Developer"
@@ -276,7 +289,10 @@ export default function WebsiteArchitectCaseStudy() {
                   <CardContent className="p-8">
                     <div className="w-20 h-20 mx-auto mb-4 rounded-full overflow-hidden border-3 border-brand-coral/20">
                       <picture>
-                        <source srcSet="/images/yuva-team-member.webp" type="image/webp" />
+                        <source
+                          srcSet="/images/yuva-team-member.webp"
+                          type="image/webp"
+                        />
                         <img
                           src="/images/yuva-team-member.png"
                           alt="Yuva - SEO Specialist"
@@ -323,7 +339,12 @@ export default function WebsiteArchitectCaseStudy() {
                       1
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-blue-100 text-blue-800">
+                      Instant Access
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center flex items-center justify-center gap-2">
                       <MessageSquare className="w-5 h-5" />
                       Daily Communication
@@ -356,11 +377,6 @@ export default function WebsiteArchitectCaseStudy() {
                         </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-blue-100 text-blue-800">
-                        Instant Access
-                      </Badge>
-                    </div>
                   </CardContent>
                 </Card>
 
@@ -370,10 +386,15 @@ export default function WebsiteArchitectCaseStudy() {
                       2
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-green-100 text-green-800">
+                      Organized Workflow
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center flex items-center justify-center gap-2">
                       <Calendar className="w-5 h-5" />
-                      Task & Project Management
+                      Task &amp; Project Management
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -403,18 +424,13 @@ export default function WebsiteArchitectCaseStudy() {
                         </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-green-100 text-green-800">
-                        Organized Workflow
-                      </Badge>
-                    </div>
                   </CardContent>
                 </Card>
               </div>
 
               <Card className="mt-8 bg-gradient-to-r from-orange-50 to-red-50 border-orange-200">
                 <CardContent className="p-8">
-                  <h3 className="text-xl font-bold text-gray-900 mb-6">
+                  <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">
                     Partnership Evolution
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -429,7 +445,7 @@ export default function WebsiteArchitectCaseStudy() {
                       <Zap className="w-8 h-8 text-orange-600 mx-auto mb-2" />
                       <h4 className="font-semibold mb-1">Team-as-a-Service</h4>
                       <p className="text-sm text-gray-600">
-                        Dedicated delivery plus marketing & BD support
+                        Dedicated delivery plus marketing &amp; BD support
                       </p>
                     </div>
                     <div className="text-center">
@@ -442,6 +458,45 @@ export default function WebsiteArchitectCaseStudy() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </section>
+
+          {/* Mid-funnel CTA Section */}
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-4">
+                Want a Dedicated Team Behind Your Web Studio?
+              </h2>
+              <p className="text-xl text-white/90 mb-8">
+                Just like Gemma, you can plug in a focused delivery &amp; SEO team
+                so you spend your time on sales, strategy, and growth.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank"
+                    )
+                  }
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Strategy Call
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                  asChild
+                >
+                  <Link href="/pricing-calculator?service=dedicated-resources">
+                    Get Team Pricing
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </section>
 
@@ -562,7 +617,7 @@ export default function WebsiteArchitectCaseStudy() {
                         </tr>
                         <tr className="border-b">
                           <td className="py-3 px-4 font-medium">
-                            Time for Sales & Strategy
+                            Time for Sales &amp; Strategy
                           </td>
                           <td className="py-3 px-4 text-center text-red-600">
                             Very limited
@@ -573,7 +628,7 @@ export default function WebsiteArchitectCaseStudy() {
                         </tr>
                         <tr className="border-b">
                           <td className="py-3 px-4 font-medium">
-                            Speed & Quality
+                            Speed &amp; Quality
                           </td>
                           <td className="py-3 px-4 text-center text-red-600">
                             Inconsistent (solo)
@@ -687,21 +742,30 @@ export default function WebsiteArchitectCaseStudy() {
                 own dedicated team that scales with you.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/pricing-calculator">
-                  <Button size="lg" className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple">
-                    Build Your Dedicated Team
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-                <Link href="/services">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
-                  >
-                    View Our Services
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9/",
+                      "_blank"
+                    )
+                  }
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Strategy Call
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                  asChild
+                >
+                  <Link href="/services/dedicated-resources">
+                    View Other Dedicated Resources{" "}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

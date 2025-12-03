@@ -28,6 +28,7 @@ import {
   Settings,
   PoundSterling,
   Scale,
+  CalendarHeart,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -61,30 +62,46 @@ export default function ArlingsworthSolicitorsCaseStudy() {
           <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
-                <Badge className="bg-brand-coral text-white mb-6 text-lg px-4 py-2">
-                  Featured Google Ads Success Story
-                </Badge>
+                <div className="flex items-center justify-center">
+                  <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 rounded-full font-medium">
+                    Featured Google Ads Success Story
+                  </Badge>
+                </div>
                 <h1 className="text-4xl md:text-6xl font-bold mb-6">
                   Arlingsworth Solicitors
                 </h1>
                 <p className="text-xl md:text-2xl mb-8 text-white-600">
-                  How we achieved £6.51 CPA and 18.95% conversion rate for a UK
+                  How we achieved £6.5 CPA and 19% conversion rate for a UK
                   law firm, generating 100+ conversions and 77+ phone calls
                   monthly
                 </p>
                 <div className="flex flex-wrap justify-center gap-6 text-lg">
                   <div className="flex items-center gap-2">
-                    <PoundSterling className="w-5 h-5" />
-                    <span>£6.51 Lowest CPA</span>
+                    {/* <PoundSterling className="w-5 h-5" /> */}
+                    <strong>£6.5 Lowest CPA</strong>
                   </div>
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
-                    <span>18.95% Conversion Rate</span>
+                    <strong>19% Conversion Rate</strong>
+                    {/* <span>18.95% Conversion Rate</span> */}
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-5 h-5" />
-                    <span>77+ Phone Calls</span>
+                    <strong>77+ Phone Calls</strong>
                   </div>
+                </div>
+                <div className="mt-5 ">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                    onClick={() =>
+                      // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                      window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                    }
+                  >
+                    Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -258,7 +275,8 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                   </div>
                   <ul className="space-y-2 text-gray-600">
                     <li>• Maximize Conversions bidding strategy</li>
-                    <li>• Daily budget optimization (£117.22 average)</li>
+                    <li>• Daily budget optimization <span className="font-medium"> (£117 average) </span></li>
+                    {/* (£117.22 average) */}
                     <li>• Performance-based budget allocation</li>
                     <li>• CPA-focused optimization</li>
                   </ul>
@@ -281,7 +299,8 @@ export default function ArlingsworthSolicitorsCaseStudy() {
               <div className="max-w-4xl mx-auto">
                 <OptimizedImage
                   src="/images/img_g1.png"
-                  alt="Arlingsworth Solicitors Google Ads campaign performance showing £6.51 CPA and 18.95% conversion rate"
+                  alt="Arlingsworth Solicitors Google Ads campaign performance showing £6.51 CPA and 18% conversion rate"
+                  // 18.95%
                   className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
                   fallbackSrc="/images/img_g1.png"
                   loading="lazy"
@@ -307,7 +326,8 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 <Card className="p-6 text-center bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <PoundSterling className="w-12 h-12 mx-auto mb-3 text-green-600" />
                   <div className="text-3xl font-bold text-green-700 mb-2">
-                    £6.51
+                    £6.5
+                    {/* £6.51 */}
                   </div>
                   <div className="text-gray-600">Lowest CPA (PMax)</div>
                 </Card>
@@ -315,7 +335,8 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 <Card className="p-6 text-center bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                   <Target className="w-12 h-12 mx-auto mb-3 text-blue-600" />
                   <div className="text-3xl font-bold text-blue-700 mb-2">
-                    18.95%
+                    19%
+                    {/* 18.95% */}
                   </div>
                   <div className="text-gray-600">Best Conversion Rate</div>
                 </Card>
@@ -323,7 +344,8 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 <Card className="p-6 text-center bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                   <MousePointer className="w-12 h-12 mx-auto mb-3 text-purple-600" />
                   <div className="text-3xl font-bold text-purple-700 mb-2">
-                    8.76%
+                    8%
+                    {/* 8.76% */}
                   </div>
                   <div className="text-gray-600">Top CTR</div>
                 </Card>
@@ -341,10 +363,11 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 <Card className="p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <Phone className="w-6 h-6 text-brand-coral" />
-                    <h3 className="text-xl font-semibold">Phone Conversions</h3>
+                    <h3 className="text-xl font-bold">Phone Conversions</h3>
                   </div>
                   <div className="text-2xl font-bold text-brand-coral mb-2">
-                    77.5 Calls
+                    78 Calls
+                    {/* 77.5 Calls */}
                   </div>
                   <p className="text-gray-600">
                     Direct phone inquiries from Search campaigns
@@ -354,12 +377,12 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 <Card className="p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <BarChart3 className="w-6 h-6 text-brand-coral" />
-                    <h3 className="text-xl font-semibold">
+                    <h3 className="text-xl font-bold">
                       Campaign Performance
                     </h3>
                   </div>
                   <div className="text-2xl font-bold text-brand-coral mb-2">
-                    1,139+
+                    1,139+ Clicks
                   </div>
                   <p className="text-gray-600">
                     Total clicks generated across all campaigns
@@ -369,7 +392,7 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 <Card className="p-8">
                   <div className="flex items-center gap-3 mb-4">
                     <Eye className="w-6 h-6 text-brand-coral" />
-                    <h3 className="text-xl font-semibold">Visibility</h3>
+                    <h3 className="text-xl font-bold">Impressions</h3>
                   </div>
                   <div className="text-2xl font-bold text-brand-coral mb-2">
                     56,116+
@@ -454,17 +477,18 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 Ready to Achieve Similar Results?
               </h2>
               <p className="text-xl mb-8 opacity-90">
-                Get the same expert Google Ads management that delivered £6.51 CPA
-                and 18.95% conversion rates for Arlingsworth Solicitors
+                Get the same expert Google Ads management that delivered £6.5 CPA
+                and 19% conversion rates for Arlingsworth Solicitors
+                {/* Get the same expert Google Ads management that delivered £6.51 CPA
+                and 18.95% conversion rates for Arlingsworth Solicitors */}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() => window.open(getCalendlyUrl(), "_blank")}
-                >
+                > <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button
                   size="lg"
@@ -473,7 +497,7 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                   asChild
                 >
                   <Link href="/services/google-ads">
-                    View Google Ads Services
+                    View Google Ads Services <ArrowRight className="ml-1 w-5 h-5" />
                   </Link>
                 </Button>
               </div>

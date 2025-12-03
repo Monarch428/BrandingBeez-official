@@ -30,8 +30,14 @@ export default function KoalaDigitalCaseStudy() {
     <>
       <Helmet>
         <title>Koala Digital Case Study | 150% Output & 55% Cost Savings</title>
-        <meta name="description" content="See how Branding Beez helped Koala Digital scale faster with a 2-person dedicated team — 150% more output and 55% lower costs in just weeks." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/koala-digital" />
+        <meta
+          name="description"
+          content="See how Branding Beez helped Koala Digital scale faster with a 2-person dedicated team — 150% more output and 55% lower costs in just weeks."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/koala-digital"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -51,22 +57,26 @@ export default function KoalaDigitalCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    UK Digital Agency Success
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md font-medium px-4 py-1 mb-6">
+                      UK Digital Agency Success
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
                     Koala Digital
                   </h1>
                   <p className="text-xl text-white/90 mb-8">
                     How a 2-person dedicated team scaled delivery, cut costs by
-                    55%, and transformed a UK digital marketing agency's
+                    55%, and transformed a UK digital marketing agency&apos;s
                     operational efficiency.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-white/10 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold">+150%</div>
-                      <div className="text-sm text-white/80">Campaign Output</div>
+                      <div className="text-sm text-white/80">
+                        Campaign Output
+                      </div>
                     </div>
                     <div className="bg-white/10 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold">55%</div>
@@ -79,8 +89,10 @@ export default function KoalaDigitalCaseStudy() {
                       size="lg"
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
-                        // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank"
+                        )
                       }
                     >
                       Start Your Team
@@ -110,7 +122,7 @@ export default function KoalaDigitalCaseStudy() {
                     </div>
                     <div className="flex items-center gap-3">
                       <Users className="w-5 h-5 text-white/80" />
-                      <span>Carla (Founder & CEO)</span>
+                      <span>Carla (Founder &amp; CEO)</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Target className="w-5 h-5 text-white/80" />
@@ -130,7 +142,8 @@ export default function KoalaDigitalCaseStudy() {
                   Team Performance Metrics
                 </h2>
                 <p className="text-gray-600 text-lg">
-                  Dashboard showing 150% campaign output increase and 55% cost savings with 2-person team
+                  Dashboard showing 150% campaign output increase and 55% cost
+                  savings with 2-person team
                 </p>
               </div>
 
@@ -140,12 +153,18 @@ export default function KoalaDigitalCaseStudy() {
                   <div className="bg-gradient-to-r from-green-500 to-teal-600 text-white p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-xl font-bold">Koala Digital Dedicated Team</h3>
-                        <p className="text-white/90 text-sm">2-Person Specialist Partnership</p>
+                        <h3 className="text-xl font-bold">
+                          Koala Digital Dedicated Team
+                        </h3>
+                        <p className="text-white/90 text-sm">
+                          2-Person Specialist Partnership
+                        </p>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <span className="text-green-300 text-sm font-medium">Active Partnership</span>
+                        <span className="text-green-300 text-sm font-medium">
+                          Active Partnership
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -157,7 +176,10 @@ export default function KoalaDigitalCaseStudy() {
                       <div className="text-center">
                         <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-3 border-green-500/20">
                           <picture>
-                            <source srcSet="/images/gopal-team-member.webp" type="image/webp" />
+                            <source
+                              srcSet="/images/gopal-team-member.webp"
+                              type="image/webp"
+                            />
                             <img
                               src="/images/gopal-team-member.png"
                               alt="Gopal - Google Ads Expert"
@@ -166,8 +188,12 @@ export default function KoalaDigitalCaseStudy() {
                             />
                           </picture>
                         </div>
-                        <h4 className="font-bold text-gray-900 text-lg mb-1">Gopal</h4>
-                        <p className="text-sm text-green-600 font-semibold mb-3">Google Ads Expert</p>
+                        <h4 className="font-bold text-gray-900 text-lg mb-1">
+                          Gopal
+                        </h4>
+                        <p className="text-sm text-green-600 font-semibold mb-3">
+                          Google Ads Expert
+                        </p>
 
                         <ul className="text-xs text-gray-700 space-y-1 text-left inline-block">
                           <li className="flex items-center gap-2">
@@ -193,7 +219,10 @@ export default function KoalaDigitalCaseStudy() {
                       <div className="text-center">
                         <div className="w-24 h-24 mx-auto mb-4 rounded-full overflow-hidden border-3 border-green-500/20">
                           <picture>
-                            <source srcSet="/images/niju-team-member.webp" type="image/webp" />
+                            <source
+                              srcSet="/images/niju-team-member.webp"
+                              type="image/webp"
+                            />
                             <img
                               src={Niji}
                               alt="Nijathan - Web Developer"
@@ -202,8 +231,12 @@ export default function KoalaDigitalCaseStudy() {
                             />
                           </picture>
                         </div>
-                        <h4 className="font-bold text-gray-900 text-lg mb-1">Nijathan</h4>
-                        <p className="text-sm text-green-600 font-semibold mb-3">Web Developer</p>
+                        <h4 className="font-bold text-gray-900 text-lg mb-1">
+                          Nijathan
+                        </h4>
+                        <p className="text-sm text-green-600 font-semibold mb-3">
+                          Web Developer
+                        </p>
 
                         <ul className="text-xs text-gray-700 space-y-1 text-left inline-block">
                           <li className="flex items-center gap-2">
@@ -230,20 +263,36 @@ export default function KoalaDigitalCaseStudy() {
                     <div className="mt-8 pt-6 border-t border-gray-200">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                         <div>
-                          <div className="text-2xl font-bold text-green-600">150%</div>
-                          <div className="text-xs text-gray-600">Campaign Output</div>
+                          <div className="text-2xl font-bold text-green-600">
+                            150%
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Campaign Output
+                          </div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-blue-600">2-3</div>
-                          <div className="text-xs text-gray-600">Days Turnaround</div>
+                          <div className="text-2xl font-bold text-blue-600">
+                            2-3
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Days Turnaround
+                          </div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-purple-600">55%</div>
-                          <div className="text-xs text-gray-600">Cost Reduction</div>
+                          <div className="text-2xl font-bold text-purple-600">
+                            55%
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Cost Reduction
+                          </div>
                         </div>
                         <div>
-                          <div className="text-2xl font-bold text-orange-600">15-20</div>
-                          <div className="text-xs text-gray-600">Monthly Campaigns</div>
+                          <div className="text-2xl font-bold text-orange-600">
+                            15-20
+                          </div>
+                          <div className="text-xs text-gray-600">
+                            Monthly Campaigns
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -262,21 +311,21 @@ export default function KoalaDigitalCaseStudy() {
                     The Challenge
                   </h2>
                   <p className="text-lg text-gray-600 mb-6">
-                    As Koala Digital's client base grew, Carla faced mounting
-                    pressure to scale creative output and delivery speed without
-                    sacrificing quality. Managing multiple freelancers brought
-                    unpredictable delays, inconsistent work, and high operational
-                    overhead.
+                    As Koala Digital&apos;s client base grew, Carla faced
+                    mounting pressure to scale creative output and delivery speed
+                    without sacrificing quality. Managing multiple freelancers
+                    brought unpredictable delays, inconsistent work, and high
+                    operational overhead.
                   </p>
 
                   <div className="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg p-6 mb-6">
                     <Quote className="w-8 h-8 text-red-500 mb-4" />
                     <blockquote className="text-gray-700 italic">
-                      "We had strong client demand but lacked the stability and
-                      speed we needed to grow with confidence."
+                      &quot;We had strong client demand but lacked the stability
+                      and speed we needed to grow with confidence.&quot;
                     </blockquote>
                     <cite className="text-sm text-gray-600 mt-2 block">
-                      — Carla, Founder & CEO, Koala Digital
+                      — Carla, Founder &amp; CEO, Koala Digital
                     </cite>
                   </div>
 
@@ -377,10 +426,24 @@ export default function KoalaDigitalCaseStudy() {
                 <Card className="text-center transition-shadow hover:shadow-lg">
                   <CardContent className="p-8">
                     <div className="w-16 h-16 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-6">
-                      <Zap className="w-8 h-8 text-brand-coral" />
+                      {/* <Zap className="w-8 h-8 text-brand-coral" /> */}
+                      <picture>
+                        <source
+                          srcSet="/images/gopal-team-member.webp"
+                          type="image/webp"
+                        />
+                        <img
+                          src="/images/gopal-team-member.png"
+                          alt="Gopal - Google Ads Expert"
+                          className="w-15 h-15 object-cover"
+                          loading="lazy"
+                        />
+                      </picture>
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Gopal</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Gopal
+                    </h3>
                     <p className="text-brand-coral font-semibold mb-4">
                       Google Ads Expert
                     </p>
@@ -410,11 +473,27 @@ export default function KoalaDigitalCaseStudy() {
                 <Card className="text-center transition-shadow hover:shadow-lg">
                   <CardContent className="p-8">
                     <div className="w-16 h-16 bg-brand-coral/10 rounded-lg flex items-center justify-center mx-auto mb-6">
-                      <Monitor className="w-8 h-8 text-brand-coral" />
+                      {/* <Monitor className="w-8 h-8 text-brand-coral" /> */}
+                      <picture>
+                        <source
+                          srcSet="/images/niju-team-member.webp"
+                          type="image/webp"
+                        />
+                        <img
+                          src={Niji}
+                          alt="Nijathan - Web Developer"
+                          className="w-15 h-15 object-cover"
+                          loading="lazy"
+                        />
+                      </picture>
                     </div>
 
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Nijathan</h3>
-                    <p className="text-brand-coral font-semibold mb-4">Web Developer</p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Nijathan
+                    </h3>
+                    <p className="text-brand-coral font-semibold mb-4">
+                      Web Developer
+                    </p>
 
                     <ul className="text-sm text-gray-700 space-y-2 text-left inline-block">
                       <li className="flex items-center gap-2">
@@ -459,7 +538,12 @@ export default function KoalaDigitalCaseStudy() {
                       1
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-blue-100 text-blue-800">
+                      Direct Access
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center flex items-center justify-center gap-2">
                       <MessageSquare className="w-5 h-5" />
                       Slack: Real-Time Communication
@@ -487,14 +571,12 @@ export default function KoalaDigitalCaseStudy() {
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-sm">Fast, flexible execution</span>
+                        <span className="text-sm">
+                          Fast, flexible execution
+                        </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-blue-100 text-blue-800">
-                        Direct Access
-                      </Badge>
-                    </div>
+
                   </CardContent>
                 </Card>
 
@@ -504,7 +586,12 @@ export default function KoalaDigitalCaseStudy() {
                       2
                     </div>
                   </div>
-                  <CardHeader className="pt-8">
+                  <div className="mt-4 text-center">
+                    <Badge className="bg-green-100 text-green-800">
+                      Transparent Workflow
+                    </Badge>
+                  </div>
+                  <CardHeader className="pt-4">
                     <CardTitle className="text-center flex items-center justify-center gap-2">
                       <Calendar className="w-5 h-5" />
                       Trello: Central Task Management
@@ -537,11 +624,6 @@ export default function KoalaDigitalCaseStudy() {
                         </span>
                       </li>
                     </ul>
-                    <div className="mt-4 text-center">
-                      <Badge className="bg-green-100 text-green-800">
-                        Transparent Workflow
-                      </Badge>
-                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -597,6 +679,45 @@ export default function KoalaDigitalCaseStudy() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          </section>
+
+          {/* Mid-funnel CTA Section (same pattern) */}
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-4">
+                Need a Dedicated Team Like Koala Digital?
+              </h2>
+              <p className="text-xl text-white/90 mb-8">
+                Book a free strategy call and see how a focused 2-person
+                specialist team could plug into your agency workflow in days.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank"
+                    )
+                  }
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Strategy Call
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                  asChild
+                >
+                  <Link href="/pricing-calculator?service=dedicated-resources">
+                    Get Team Pricing
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </section>
 
@@ -747,7 +868,7 @@ export default function KoalaDigitalCaseStudy() {
                             Delayed, fragmented
                           </td>
                           <td className="py-3 px-4 text-center text-green-600 font-semibold">
-                            Instant & real-time
+                            Instant &amp; real-time
                           </td>
                         </tr>
                         <tr>
@@ -777,10 +898,10 @@ export default function KoalaDigitalCaseStudy() {
                   <CardContent className="p-8">
                     <Quote className="w-8 h-8 mb-4 opacity-80" />
                     <blockquote className="text-lg font-light mb-6 leading-relaxed">
-                      "Working directly with Gopal and Nijathan on Slack means we're
-                      never out of sync. They understand the brief, the brand, and
-                      the urgency. We're launching faster and serving clients
-                      better."
+                      &quot;Working directly with Gopal and Nijathan on Slack
+                      means we&apos;re never out of sync. They understand the
+                      brief, the brand, and the urgency. We&apos;re launching
+                      faster and serving clients better.&quot;
                     </blockquote>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -800,8 +921,9 @@ export default function KoalaDigitalCaseStudy() {
                   <CardContent className="p-8">
                     <Quote className="w-8 h-8 mb-4 opacity-80" />
                     <blockquote className="text-lg font-light mb-6 leading-relaxed">
-                      "I used to worry about consistency and capacity. Now I focus
-                      on growth, knowing my delivery team is solid and reliable."
+                      &quot;I used to worry about consistency and capacity. Now I
+                      focus on growth, knowing my delivery team is solid and
+                      reliable.&quot;
                     </blockquote>
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
@@ -810,7 +932,7 @@ export default function KoalaDigitalCaseStudy() {
                       <div>
                         <div className="font-semibold">Carla</div>
                         <div className="text-white/80 text-sm">
-                          Founder & CEO, Koala Digital
+                          Founder &amp; CEO, Koala Digital
                         </div>
                       </div>
                     </div>
@@ -831,21 +953,30 @@ export default function KoalaDigitalCaseStudy() {
                 an extension of your agency.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/pricing-calculator">
-                  <Button size="lg" className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple">
-                    Build Your Dedicated Team
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </Link>
-                <Link href="/services">
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
-                  >
-                    View Our Services
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9/",
+                      "_blank"
+                    )
+                  }
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Strategy Call
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                  asChild
+                >
+                  <Link href="/services/dedicated-resources">
+                    View Other Dedicated Resources{" "}
+                    <ArrowRight className="ml-2 w-5 h-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

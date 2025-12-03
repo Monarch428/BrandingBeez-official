@@ -28,6 +28,7 @@ import {
   DollarSign,
   Trash2,
   Building,
+  Building2,
 } from "lucide-react";
 import { useRegion } from "@/hooks/use-region";
 import { Helmet } from "react-helmet";
@@ -62,15 +63,17 @@ export default function JunksAwayCaseStudy() {
           <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
-                <Badge className="bg-brand-coral text-white mb-6 text-lg px-4 py-2">
-                  Featured Google Ads Success Story
-                </Badge>
+                <div className="flex items-center justify-center">
+                  <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 rounded-full font-medium">
+                    Featured Google Ads Success Story
+                  </Badge>
+                </div>
                 <h1 className="text-4xl md:text-6xl font-bold mb-6">JunksAway</h1>
-                <p className="text-xl md:text-2xl mb-8 text-white-600">How we reduced CPA by 82% from $34.37 to $6.09 and generated 706 conversions in one month for a UK waste management company</p>
+                <p className="text-xl md:text-2xl mb-8 text-white-600">How we reduced CPA by 82% from $34 to $6.09 and generated 706 conversions in one month for a UK waste management company</p>
                 <div className="flex flex-wrap justify-center gap-6 text-lg">
                   <div className="flex items-center gap-2">
-                    <DollarSign className="w-5 h-5" />
-                    <span>$6.09 CPA (82% Reduction)</span>
+                    {/* <DollarSign className="w-5 h-5" /> */}
+                    <span>$ 6.09 CPA (82% Reduction)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
@@ -80,6 +83,19 @@ export default function JunksAwayCaseStudy() {
                     <MousePointer className="w-5 h-5" />
                     <span>10,573+ Clicks</span>
                   </div>
+                </div>
+                <div className="mt-5 ">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                    onClick={() =>
+                      // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
+                      window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                    }
+                  >
+                    Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -100,7 +116,7 @@ export default function JunksAwayCaseStudy() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                 <Card className="p-6 text-center">
-                  <Trash2 className="w-8 h-8 mx-auto mb-3 text-green-600" />
+                  <Building2 className="w-8 h-8 mx-auto mb-3 text-green-600" />
                   <h3 className="font-semibold mb-2">Industry</h3>
                   <p className="text-gray-600">Waste Management / Junk Removal</p>
                 </Card>
@@ -152,7 +168,8 @@ export default function JunksAwayCaseStudy() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center py-2 border-b border-red-200">
                       <span className="text-gray-700">Search Campaign CPA</span>
-                      <span className="font-bold text-red-600">$34.37</span>
+                      <span className="font-bold text-red-600">$34</span>
+                      {/* <span className="font-bold text-red-600">$34.37</span> */}
                     </div>
                     <div className="flex justify-between items-center py-2 border-b border-red-200">
                       <span className="text-gray-700">Campaign Structure</span>
@@ -359,7 +376,8 @@ export default function JunksAwayCaseStudy() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Conversion Rate:</span>
-                      <span className="font-bold">5.59%</span>
+                      <span className="font-bold">6%</span>
+                      {/* <span className="font-bold">5.59%</span> */}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Spend:</span>
@@ -546,9 +564,9 @@ export default function JunksAwayCaseStudy() {
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() => window.open(getCalendlyUrl(), "_blank")}
-                >
+                > <Calendar className="mr-2 w-5 h-5" />
                   Book Your Strategy Call
-                  <ArrowRight className="ml-2 w-5 h-5" />
+
                 </Button>
                 <Button
                   size="lg"
@@ -557,7 +575,7 @@ export default function JunksAwayCaseStudy() {
                   asChild
                 >
                   <Link href="/services/google-ads">
-                    View Google Ads Services
+                    View Google Ads Services  <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
               </div>

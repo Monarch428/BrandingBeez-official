@@ -27,11 +27,13 @@ import {
   MessageSquare,
   Video,
   Zap,
+  Calendar,
 } from "lucide-react";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { TSLandscapingSchema } from "@/utils/all-schemas";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
+import tsl_Logo from "../../../public/images/TSL_Logo.png";
 // Image imported directly in the component
 
 export default function TSLandscapingCaseStudy() {
@@ -39,8 +41,14 @@ export default function TSLandscapingCaseStudy() {
     <>
       <Helmet>
         <title>How Branding Beez Helped TS Landscaping Go Digital</title>
-        <meta name="description" content="A 48-hour website revamp by Branding Beez gave TS Landscaping NC a powerful local online presence and a system that drives new client leads." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/ts-landscaping-website" />
+        <meta
+          name="description"
+          content="A 48-hour website revamp by Branding Beez gave TS Landscaping NC a powerful local online presence and a system that drives new client leads."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/ts-landscaping-website"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -59,9 +67,11 @@ export default function TSLandscapingCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    🌿 Website Development Case Study
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md font-medium mb-6 px-4 py-1">
+                      Website Development Case Study
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
                     TS Landscaping NC: From Offline to Online Success
                   </h1>
@@ -72,11 +82,15 @@ export default function TSLandscapingCaseStudy() {
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-white/10 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold">100%</div>
-                      <div className="text-sm text-white/80">Professional Presence</div>
+                      <div className="text-sm text-white/80">
+                        Professional Presence
+                      </div>
                     </div>
                     <div className="bg-white/10 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold">48hrs</div>
-                      <div className="text-sm text-white/80">Delivery Time</div>
+                      <div className="text-sm text-white/80">
+                        Delivery Time
+                      </div>
                     </div>
                   </div>
 
@@ -86,7 +100,6 @@ export default function TSLandscapingCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-white/90"
                       onClick={() =>
                         window.open(
-                          // "https://calendly.com/vignesh-velusamy/30min",
                           "https://calendar.app.google/Y8XZq71qtvPRhktH9",
                           "_blank",
                         )
@@ -100,10 +113,12 @@ export default function TSLandscapingCaseStudy() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-2">
-                      <div className="w-full h-full bg-green-600 rounded-lg flex items-center justify-center">
-                        <Leaf className="w-8 h-8 text-white" />
-                      </div>
+                    <div className="bg-white p-2 rounded-xl flex items-center justify-center">
+                      <img
+                        src={tsl_Logo}
+                        alt="Twin Landscaping Logo"
+                        className="w-35 h-16"
+                      />
                     </div>
                     <Badge className="bg-green-100 text-green-800 border-green-200">
                       Landscaping Services
@@ -137,7 +152,8 @@ export default function TSLandscapingCaseStudy() {
                   Professional Website Development - Raleigh, NC
                 </h2>
                 <p className="text-gray-600 text-lg">
-                  Clean, professional design that showcases landscaping services and captures leads
+                  Clean, professional design that showcases landscaping services
+                  and captures leads
                 </p>
               </div>
 
@@ -146,7 +162,10 @@ export default function TSLandscapingCaseStudy() {
                   <div className="aspect-video bg-gray-100 rounded-2xl border-2 border-gray-200 shadow-xl overflow-hidden relative">
                     {/* Actual TS Landscaping Website Screenshot */}
                     <picture>
-                      <source srcSet="/images/ts-landscaping-full-website.webp" type="image/webp" />
+                      <source
+                        srcSet="/images/ts-landscaping-full-website.webp"
+                        type="image/webp"
+                      />
                       <img
                         src="/images/ts-landscaping-full-website.png"
                         alt="Twins Solutions Landscaping website featuring modern home with professional landscaping design, large scale landscaping services in Raleigh NC"
@@ -154,31 +173,89 @@ export default function TSLandscapingCaseStudy() {
                         loading="lazy"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
+                          target.style.display = "none";
+                          const fallback =
+                            target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     </picture>
                     {/* Fallback placeholder */}
-                    <div className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center" style={{ display: 'none' }}>
+                    <div
+                      className="w-full h-full bg-gradient-to-br from-green-100 to-blue-100 flex items-center justify-center"
+                      style={{ display: "none" }}
+                    >
                       <div className="text-center">
                         <Monitor className="w-16 h-16 text-green-600 mx-auto mb-2" />
-                        <p className="text-sm font-medium text-gray-600">Twins Solutions Landscaping</p>
+                        <p className="text-sm font-medium text-gray-600">
+                          Twins Solutions Landscaping
+                        </p>
                       </div>
                     </div>
 
                     {/* Overlay info */}
                     <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-white font-semibold text-sm">Twins Solutions Landscaping</p>
-                      <p className="text-white/90 text-xs">Professional Website Development - Raleigh, NC</p>
+                      <p className="text-white font-semibold text-sm">
+                        Twins Solutions Landscaping
+                      </p>
+                      <p className="text-white/90 text-xs">
+                        Professional Website Development - Raleigh, NC
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <p className="text-green-300 text-xs font-medium">Live Website</p>
+                        <div className="w-2 h-2 bg-green-400 rounded-full" />
+                        <p className="text-green-300 text-xs font-medium">
+                          Live Website
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className="flex items-center justify-center mt-5">
+                <a
+                  href="https://tslandscapingnc.com/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="w-fit"
+                >
+                  <Button
+                    variant="outline"
+                    className="w-fit h-11 px-4 py-2 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                  >
+                    <ExternalLink className="w-5 h-5 mr-2" />
+                    Visit Live Website
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </section>
+
+          {/* Mid-page CTA: Quick Website Review (same pattern as other case studies) */}
+          <section className="py-8 bg-brand-wings/40">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
+                    Not sure where to start?
+                  </p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                    Get a quick website review and see what a 48-hour focused
+                    build can do for your local service business.
+                  </h3>
+                </div>
+                <Button
+                  size="lg"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Request Free Website Review
+                </Button>
               </div>
             </div>
           </section>
@@ -192,8 +269,9 @@ export default function TSLandscapingCaseStudy() {
                     The Challenge
                   </h3>
                   <p className="text-gray-600 text-lg mb-6">
-                    TS Landscaping NC was a thriving local business with no digital presence.
-                    They needed a professional website to showcase their services and capture leads online.
+                    TS Landscaping NC was a thriving local business with no
+                    digital presence. They needed a professional website to
+                    showcase their services and capture leads online.
                   </p>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
@@ -236,15 +314,21 @@ export default function TSLandscapingCaseStudy() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Lead Generation</span>
-                        <span className="text-red-600 font-semibold">Word of Mouth Only</span>
+                        <span className="text-red-600 font-semibold">
+                          Word of Mouth Only
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Professional Image</span>
-                        <span className="text-red-600 font-semibold">Limited</span>
+                        <span className="text-red-600 font-semibold">
+                          Limited
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Service Showcase</span>
-                        <span className="text-red-600 font-semibold">Not Available</span>
+                        <span className="text-red-600 font-semibold">
+                          Not Available
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -261,7 +345,8 @@ export default function TSLandscapingCaseStudy() {
                   Website Development Strategy
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Professional website solution delivered through white-label partnership
+                  Professional website solution delivered through white-label
+                  partnership
                 </p>
               </div>
 
@@ -274,7 +359,9 @@ export default function TSLandscapingCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Professional Design</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Professional Design
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -285,7 +372,9 @@ export default function TSLandscapingCaseStudy() {
                       </li>
                       <li className="flex items-center gap-2">
                         <Monitor className="w-4 h-4 text-green-500" />
-                        <span className="text-sm">Mobile responsive design</span>
+                        <span className="text-sm">
+                          Mobile responsive design
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Code className="w-4 h-4 text-green-500" />
@@ -308,7 +397,9 @@ export default function TSLandscapingCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Service Showcase</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Service Showcase
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -342,7 +433,9 @@ export default function TSLandscapingCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Lead Capture System</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Lead Capture System
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -368,6 +461,38 @@ export default function TSLandscapingCaseStudy() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Key Learnings-style CTA (same pattern as other case studies) */}
+              <div className="mt-12 max-w-3xl mx-auto">
+                <Card className="p-6 md:p-8 bg-gray-50 border-dashed border-2 border-brand-coral/30">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        Want similar 48-hour results for your local service
+                        business?
+                      </h3>
+                      <p className="text-gray-700 text-sm md:text-base">
+                        Share your business type, location, and current website
+                        status, and we&apos;ll tell you if this launch
+                        playbook fits your goals and timeline.
+                      </p>
+                    </div>
+                    <Button
+                      size="lg"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      onClick={() =>
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank",
+                        )
+                      }
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Talk to the Web Team
+                    </Button>
+                  </div>
+                </Card>
+              </div>
             </div>
           </section>
 
@@ -379,7 +504,8 @@ export default function TSLandscapingCaseStudy() {
                   Project Results
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Professional website delivered on time with all requirements met
+                  Professional website delivered on time with all requirements
+                  met
                 </p>
               </div>
 
@@ -451,17 +577,23 @@ export default function TSLandscapingCaseStudy() {
                     <div>
                       <Quote className="w-12 h-12 text-green-500 mb-4" />
                       <blockquote className="text-lg text-gray-700 mb-4">
-                        "BrandingBeez delivered exactly what we needed for our client. The website was professional,
-                        fast to load, and perfectly captured the landscaping business's services. The 48-hour delivery
-                        was impressive and helped us maintain our client relationship."
+                        &quot;BrandingBeez delivered exactly what we needed for our
+                        client. The website was professional, fast to load, and
+                        perfectly captured the landscaping business&apos;s
+                        services. The 48-hour delivery was impressive and helped us
+                        maintain our client relationship.&quot;
                       </blockquote>
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-bold">WH</span>
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900">Whitney Hill</div>
-                          <div className="text-gray-600">White-Label Partner</div>
+                          <div className="font-semibold text-gray-900">
+                            Whitney Hill
+                          </div>
+                          <div className="text-gray-600">
+                            White-Label Partner
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -473,18 +605,24 @@ export default function TSLandscapingCaseStudy() {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Delivery</span>
-                            <span className="text-green-600 font-semibold">On Time</span>
+                            <span className="text-green-600 font-semibold">
+                              On Time
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Quality</span>
-                            <span className="text-green-600 font-semibold">Professional</span>
+                            <span className="text-green-600 font-semibold">
+                              Professional
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Communication</span>
-                            <span className="text-green-600 font-semibold">Excellent</span>
+                            <span className="text-green-600 font-semibold">
+                              Excellent
+                            </span>
                           </div>
                         </div>
-                        <Link href="/contact">
+                        <Link href="/contact?service=website-development&/#contact-form">
                           <Button className="mt-6 bg-green-600 hover:bg-green-700 text-white">
                             Start Your Website Project
                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -505,20 +643,34 @@ export default function TSLandscapingCaseStudy() {
                 Ready to Launch Your Professional Website?
               </h2>
               <p className="text-xl mb-8 text-white/90">
-                Join hundreds of agencies and businesses that trust BrandingBeez for their website development needs.
+                Join hundreds of agencies and businesses that trust BrandingBeez
+                for their website development needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/contact">
-                  <Button size="lg" className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral">
-                    Start Your Website Project
-                  </Button>
-                </Link>
-                {/* <Link href="/case-studies">
-                <Button size="lg" variant="outline" className="bg-white/10 backdrop-blur-sm border-white text-white hover:bg-white hover:text-brand-coral">
-                  View More Case Studies
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                >
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Free Website Consultation
                 </Button>
-              </Link> */}
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white bg-transparent text-white hover:bg.white hover:text-brand-coral transition-colors duration-200"
+                >
+                  <Link href="/services/web-development">
+                    View Other Website Services
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

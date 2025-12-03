@@ -1,6 +1,6 @@
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,8 +39,14 @@ export default function SocialLandWebsiteCaseStudy() {
     <>
       <Helmet>
         <title>How SocialLand & Branding Beez Built UK Agency Success</title>
-        <meta name="description" content="From one project to many — see how our first UK white-label website for SocialLand turned into a long-term agency partnership built on trust." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/socialland-website-case-study" />
+        <meta
+          name="description"
+          content="From one project to many — see how our first UK white-label website for SocialLand turned into a long-term agency partnership built on trust."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/socialland-website-case-study"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -58,15 +64,17 @@ export default function SocialLandWebsiteCaseStudy() {
           {/* Hero Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-4xl mx-auto text-center">
-              <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                Website Development Success Story
-              </Badge>
+              <div className="flex items-center justify-center">
+                <Badge className="bg-brand-coral text-md font-medium text-white mb-6 px-4 py-1">
+                  Website Development Success Story
+                </Badge>
+              </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 SocialLand Digital: First UK Partnership Success
               </h1>
               <p className="text-xl text-white/90 mb-8">
                 Our first UK white-label project that sparked a 2-year partnership
-                - delivering a professional, scalable WordPress website for a
+                – delivering a professional, scalable WordPress website for a
                 leading digital marketing agency
               </p>
 
@@ -90,10 +98,12 @@ export default function SocialLandWebsiteCaseStudy() {
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  className="bg-white text-brand-purple ray-100"
+                  className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
-                    // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
                   }
                 >
                   Start Your Website
@@ -101,7 +111,7 @@ export default function SocialLandWebsiteCaseStudy() {
                 </Button>
                 <Button
                   variant="outline"
-                  className="border-white text-brand-purple hite lue-600"
+                  className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral"
                   onClick={() =>
                     window.open("https://socialland.co.uk/", "_blank")
                   }
@@ -147,7 +157,6 @@ export default function SocialLandWebsiteCaseStudy() {
                     />
                   </div>
                 </Card>
-
               </div>
 
               {/* Live Website Button */}
@@ -157,10 +166,40 @@ export default function SocialLandWebsiteCaseStudy() {
                   onClick={() =>
                     window.open("https://socialland.co.uk/", "_blank")
                   }
-                  className="bg-brand-coral hover:bg-brand-coral-dark"
+                  className="bg-brand-coral hover:bg-brand-coral/90"
                 >
                   <ExternalLink className="w-5 h-5 mr-2" />
                   View Live Website at SocialLand.co.uk
+                </Button>
+              </div>
+            </div>
+          </section>
+
+          {/* Mid-page CTA: Quick Website Review (like UBU SEO audit bar) */}
+          <section className="py-8 bg-brand-wings/40">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
+                    Not sure where to start?
+                  </p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                    Get a quick website review and see how a refreshed build can
+                    improve conversions, speed, and credibility.
+                  </h3>
+                </div>
+                <Button
+                  size="lg"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Request Free Website Review
                 </Button>
               </div>
             </div>
@@ -175,7 +214,7 @@ export default function SocialLandWebsiteCaseStudy() {
                     Project Overview
                   </h2>
                   <p className="text-gray-600 text-lg">
-                    Understanding SocialLand's digital marketing agency needs
+                    Understanding SocialLand&apos;s digital marketing agency needs
                   </p>
                 </div>
 
@@ -183,7 +222,9 @@ export default function SocialLandWebsiteCaseStudy() {
                   <Card className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <Building className="w-8 h-8 text-brand-coral" />
-                      <h3 className="text-xl font-bold text-gray-900">Client Profile</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Client Profile
+                      </h3>
                     </div>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-center gap-2">
@@ -208,7 +249,9 @@ export default function SocialLandWebsiteCaseStudy() {
                   <Card className="p-6">
                     <div className="flex items-center gap-3 mb-4">
                       <Target className="w-8 h-8 text-brand-purple" />
-                      <h3 className="text-xl font-bold text-gray-900">Project Goals</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Project Goals
+                      </h3>
                     </div>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-center gap-2">
@@ -231,9 +274,11 @@ export default function SocialLandWebsiteCaseStudy() {
                   </Card>
 
                   <Card className="p-6">
-                    <div className="flex items-center gap-3 mb-4">
+                    <div className="flex.items-center gap-3 mb-4">
                       <Award className="w-8 h-8 text-brand-coral" />
-                      <h3 className="text-xl font-bold text-gray-900">Partnership Impact</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Partnership Impact
+                      </h3>
                     </div>
                     <ul className="space-y-2 text-gray-700">
                       <li className="flex items-center gap-2">
@@ -289,7 +334,7 @@ export default function SocialLandWebsiteCaseStudy() {
                               Service-Focused Layouts
                             </h4>
                             <p className="text-gray-600">
-                              Dedicated sections highlighting SocialLand's digital
+                              Dedicated sections highlighting SocialLand&apos;s digital
                               marketing services with clear value propositions and
                               service descriptions.
                             </p>
@@ -307,8 +352,9 @@ export default function SocialLandWebsiteCaseStudy() {
                               Portfolio/Work Section
                             </h4>
                             <p className="text-gray-600">
-                              Comprehensive showcase of past work and client success stories to
-                              demonstrate agency capabilities and build trust.
+                              Comprehensive showcase of past work and client success
+                              stories to demonstrate agency capabilities and build
+                              trust.
                             </p>
                             <br className="hidden lg:block" />
                           </div>
@@ -317,7 +363,7 @@ export default function SocialLandWebsiteCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-16 h-8  bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-16 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
                             <MousePointer className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -343,7 +389,7 @@ export default function SocialLandWebsiteCaseStudy() {
                     <div className="space-y-6">
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-16 h-8  bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-16 h-8 bg-brand-coral rounded-lg flex items-center justify-center">
                             <Zap className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -361,7 +407,7 @@ export default function SocialLandWebsiteCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-16 h-8  bg-brand-purple rounded-lg flex items-center justify-center">
+                          <div className="w-16 h-8 bg-brand-purple rounded-lg flex items-center justify-center">
                             <Search className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -379,7 +425,7 @@ export default function SocialLandWebsiteCaseStudy() {
 
                       <Card className="p-6">
                         <div className="flex items-start gap-4">
-                          <div className="w-16 h-8  bg-brand-coral rounded-lg flex items-center justify-center">
+                          <div className="w-16 h-8 bg-brand-coral rounded-lg flex items-center justify-center">
                             <Smartphone className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -397,94 +443,42 @@ export default function SocialLandWebsiteCaseStudy() {
                     </div>
                   </div>
                 </div>
+
+                {/* Key Learnings-style CTA (like UBU Design) */}
+                <div className="mt-12 max-w-3xl mx-auto">
+                  <Card className="p-6 md:p-8 bg-gray-50 border-dashed border-2 border-brand-coral/30">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900 mb-1">
+                          Want similar results for your agency or business website?
+                        </h3>
+                        <p className="text-gray-700 text-sm md:text-base">
+                          Share your current website and goals, and we&apos;ll tell you
+                          if this white-label build model fits your niche, timeline,
+                          and tech stack.
+                        </p>
+                      </div>
+                      <Button
+                        size="lg"
+                        className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                        onClick={() =>
+                          window.open(
+                            "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                            "_blank",
+                          )
+                        }
+                      >
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Talk to the Web Team
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Partnership Evolution */}
-          {/* <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="max-w-6xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                  Partnership Evolution
-                </h2>
-                <p className="text-gray-600 text-lg">
-                  From first project to 2-year strategic partnership
-                </p>
-              </div>
-
-              <div className="space-y-8">
-                <Card className="p-8 border-l-4 border-brand-coral">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-brand-coral rounded-full flex items-center justify-center">
-                      <Globe className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        Initial Project Success
-                      </h3>
-                      <p className="text-gray-600">
-                        First UK white-label website project for SocialLand
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 ml-13">
-                    Delivered a professional, scalable WordPress website that
-                    exceeded expectations. The clean, modern design focused on
-                    speed, clarity, and agency credibility, establishing
-                    BrandingBeez as a trusted development partner.
-                  </p>
-                </Card>
-
-                <Card className="p-8 border-l-4 border-brand-purple">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-full flex items-center justify-center">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        Partnership Expansion
-                      </h3>
-                      <p className="text-gray-600">
-                        Multiple client websites built for SocialLand's clients
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 ml-13">
-                    The initial success led to SocialLand partnering with us for
-                    their client website projects, expanding our collaboration
-                    beyond their own brand to include multiple client deliveries
-                    under their agency umbrella.
-                  </p>
-                </Card>
-
-                <Card className="p-8 border-l-4 border-brand-coral">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-brand-coral rounded-full flex items-center justify-center">
-                      <Award className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">
-                        Dedicated Resource Team
-                      </h3>
-                      <p className="text-gray-600">
-                        Long-term strategic partnership with dedicated support
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-gray-700 ml-13">
-                    Based on consistent results and trust, we established a
-                    dedicated resource team specifically for SocialLand's UK
-                    projects, ensuring streamlined communication and consistent
-                    quality across all deliverables.
-                  </p>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
           <section className="py-16 bg-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="max-w-6xl mx-auto text-center mb-12">
@@ -514,10 +508,10 @@ export default function SocialLandWebsiteCaseStudy() {
                     </div>
                   </div>
                   <p className="text-gray-700 leading-relaxed tracking-normal text-left flex-grow">
-                    Delivered a professional, scalable WordPress website that exceeded
-                    expectations. The clean, modern design focused on speed, clarity, and
-                    agency credibility — establishing BrandingBeez as a trusted development
-                    partner.
+                    Delivered a professional, scalable WordPress website that
+                    exceeded expectations. The clean, modern design focused on
+                    speed, clarity, and agency credibility — establishing
+                    BrandingBeez as a trusted development partner.
                   </p>
                 </Card>
 
@@ -532,14 +526,15 @@ export default function SocialLandWebsiteCaseStudy() {
                         Partnership Expansion
                       </h3>
                       <p className="text-gray-600 text-sm">
-                        Multiple client websites built for SocialLand's clients
+                        Multiple client websites built for SocialLand&apos;s clients
                       </p>
                     </div>
                   </div>
                   <p className="text-gray-700 leading-relaxed tracking-normal text-left flex-grow">
-                    The initial success led to SocialLand partnering with us for their client
-                    website projects — expanding collaboration beyond their own brand to
-                    include multiple client deliveries under their agency umbrella.
+                    The initial success led to SocialLand partnering with us for
+                    their client website projects — expanding collaboration beyond
+                    their own brand to include multiple client deliveries under
+                    their agency umbrella.
                   </p>
                 </Card>
 
@@ -559,15 +554,13 @@ export default function SocialLandWebsiteCaseStudy() {
                     </div>
                   </div>
                   <p className="text-gray-700 leading-relaxed tracking-normal text-left flex-grow">
-                    Based on consistent results and trust, we established a dedicated resource
-                    team specifically for SocialLand's UK projects — ensuring streamlined
-                    communication and consistent quality across all deliverables.
+                    Based on consistent results and trust, we established a
+                    dedicated resource team specifically for SocialLand&apos;s UK
+                    projects — ensuring streamlined communication and consistent
+                    quality across all deliverables.
                   </p>
                 </Card>
               </div>
-
-
-
             </div>
           </section>
 
@@ -584,9 +577,9 @@ export default function SocialLandWebsiteCaseStudy() {
                     <Quote className="w-12 h-12 text-brand-coral" />
                   </div>
                   <blockquote className="text-xl text-gray-700 mb-6 italic">
-                    "BrandingBeez delivered exactly what we needed - a
+                    &quot;BrandingBeez delivered exactly what we needed — a
                     professional website that represents our agency perfectly. The
-                    partnership that followed has been invaluable to our growth."
+                    partnership that followed has been invaluable to our growth.&quot;
                   </blockquote>
                   <div className="flex items-center justify-center gap-4">
                     <div className="w-12 h-12 bg-brand-purple rounded-full flex items-center justify-center">
@@ -602,7 +595,7 @@ export default function SocialLandWebsiteCaseStudy() {
             </div>
           </section>
 
-          {/* CTA Section */}
+          {/* CTA Section (final, like UBU bottom CTA) */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-4">
@@ -618,20 +611,30 @@ export default function SocialLandWebsiteCaseStudy() {
                   size="lg"
                   onClick={() =>
                     window.open(
-                      // "https://calendly.com/vignesh-velusamy/30min",
                       "https://calendar.app.google/Y8XZq71qtvPRhktH9",
                       "_blank",
                     )
                   }
-                  className="bg-white text-brand-coral hover:bg-gray-100"
+                  className="bg-white text-brand-coral hover:bg-gray-50"
                 >
+                  <Calendar className="w-5 h-5 mr-1" />
                   Book Your Free Website Consultation
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+                >
+                  <Link href="/services/web-development">
+                    View Other Website Services
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
                 </Button>
               </div>
             </div>
           </section>
         </main>
-
         <Footer />
       </div>
     </>
