@@ -872,6 +872,13 @@ const formatSlotLabel = (startTime: string, endTime: string) => {
 };
 
 type BookingStage = "date" | "time" | "form";
+type StatusType = "success" | "error" | null;
+
+const validateEmail = (value: string) =>
+  /^\S+@\S+\.\S+$/.test(value.trim());
+
+const validatePhone = (value: string) =>
+  value.trim().length >= 7;
 
 export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   defaultServiceType = "Website Development",
@@ -888,8 +895,13 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<DaySlot | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+
+  // Slot-loading specific error
+  const [slotsError, setSlotsError] = useState<string | null>(null);
+
+  // Right-side status (success / error) that must show even after form is closed
+  const [statusType, setStatusType] = useState<StatusType>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   // Stage flow: date → time → form
   const [bookingStage, setBookingStage] = useState<BookingStage>("date");
@@ -899,6 +911,13 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Field-level validation errors
+  const [fieldErrors, setFieldErrors] = useState<{
+    name?: string;
+    email?: string;
+    phone?: string;
+  }>({});
 
   // Form step inside right card (2 questions at a time)
   const [formStep, setFormStep] = useState<0 | 1 | 2>(0);
@@ -993,11 +1012,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
       try {
         setLoadingSlots(true);
-        setError(null);
+        setSlotsError(null);
         const res = await fetchSlots(selectedDateKey);
         setSlots(res.slots);
       } catch (err: any) {
-        setError(err.message || "Failed to load slots");
+        setSlotsError(err.message || "Failed to load slots");
       } finally {
         setLoadingSlots(false);
       }
@@ -1018,29 +1037,54 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     );
   };
 
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setNotes("");
+    setFormStep(0);
+    setFieldErrors({});
+  };
+
   const handleBook = async () => {
     if (!selectedDate || !selectedSlot) {
-      setError("Please select a date and time slot");
-
-      // auto hide error
-      setTimeout(() => setError(null), 4000);
-      return;
-    }
-    if (!name || !email) {
-      setError("Name and email are required");
-      setTimeout(() => setError(null), 4000);
+      setStatusType("error");
+      setStatusMessage("Please select a date and time slot.");
       return;
     }
     if (!serviceType) {
-      setError("Please select what you want to discuss");
-      setTimeout(() => setError(null), 4000);
+      setStatusType("error");
+      setStatusMessage("Please select what you want to discuss.");
+      return;
+    }
+
+    // Full validation for name, email, phone
+    const errors: { name?: string; email?: string; phone?: string } = {};
+    if (!name.trim()) {
+      errors.name = "Name is required.";
+    }
+    if (!email.trim()) {
+      errors.email = "Email is required.";
+    } else if (!validateEmail(email)) {
+      errors.email = "Please enter a valid email address.";
+    }
+    if (!phone.trim()) {
+      errors.phone = "Phone number is required.";
+    } else if (!validatePhone(phone)) {
+      errors.phone = "Please enter a valid phone number.";
+    }
+
+    if (errors.name || errors.email || errors.phone) {
+      setFieldErrors(errors);
+      setStatusType("error");
+      setStatusMessage("Please fix the highlighted fields before booking.");
       return;
     }
 
     try {
       setBookingLoading(true);
-      setError(null);
-      setSuccess(null);
+      setStatusType(null);
+      setStatusMessage(null);
 
       const result = await createAppointment({
         name,
@@ -1058,21 +1102,25 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         ? ` Your Google Meet link: ${result.meetingLink}`
         : "";
 
-      setSuccess(`Appointment booked successfully! 🎉${meetText}`);
+      // ✅ Success message shown on right side even after form closes
+      setStatusType("success");
+      setStatusMessage(`Appointment booked successfully! 🎉${meetText}`);
+      setTimeout(() => setStatusMessage(null), 6000);
 
-      // Auto hide success after 6 sec
-      setTimeout(() => setSuccess(null), 6000);
-
+      // Clear selection & form and go back to time view (form "closed")
       setSelectedSlot(null);
+      setBookingStage("time");
+      resetForm();
 
       // reload slots to mark booked
       const res = await fetchSlots(selectedDateKey);
       setSlots(res.slots);
     } catch (err: any) {
-      setError(err.message || "Failed to book appointment");
-
-      // Auto hide error
-      setTimeout(() => setError(null), 4000);
+      setStatusType("error");
+      setStatusMessage(
+        err.message || "Failed to book appointment. Please try again.",
+      );
+      setTimeout(() => setStatusMessage(null), 4000);
     } finally {
       setBookingLoading(false);
     }
@@ -1083,8 +1131,15 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     d1.getMonth() === d2.getMonth() &&
     d1.getDate() === d2.getDate();
 
-  const canGoNextFromStep0 = name.trim() !== "" && email.trim() !== "";
-  const canGoNextFromStep1 = true;
+  const canGoNextFromStep0 =
+    name.trim().length > 0 &&
+    email.trim().length > 0 &&
+    validateEmail(email);
+
+  const canGoNextFromStep1 =
+    phone.trim().length > 0 &&
+    validatePhone(phone) &&
+    !!serviceType;
 
   // Format selected date for chips / labels
   const formattedSelectedDate =
@@ -1096,8 +1151,17 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       year: "numeric",
     });
 
+  // ✅ Only show right panel after slot selected OR after a status exists
+  const showRightPanel = bookingStage === "form" || !!statusType;
+
   return (
-    <div className="grid gap-12 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]">
+    <div
+      className={
+        showRightPanel
+          ? "grid gap-12 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]"
+          : "grid gap-12"
+      }
+    >
       {/* Left: Date → Time (stepwise) */}
       <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
@@ -1249,6 +1313,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 </p>
               ) : loadingSlots ? (
                 <p className="text-xs text-slate-400">Loading slots…</p>
+              ) : slotsError ? (
+                <p className="text-xs text-red-400">{slotsError}</p>
               ) : slots.length === 0 ? (
                 <p className="text-xs text-slate-400">
                   No slots defined for this day.
@@ -1320,11 +1386,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
         </CardContent>
       </Card>
 
-      {/* Right: Consultant card + multi-step form
-          👉 Only show AFTER time slot is selected (stage = "form") */}
-      {bookingStage === "form" && selectedSlot && (
+      {/* Right: Consultant card + multi-step form + status
+          👉 Only show AFTER slot selected / booking attempted */}
+      {showRightPanel && (
         <Card className="bg-gradient-to-b from-slate-950 via-slate-950/95 to-slate-950 border-slate-800 shadow-xl">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-3 flex flex-row items-start justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="relative">
                 <div className="w-12 h-12 rounded-full bg-brand-coral/20 border border-brand-coral/60 overflow-hidden flex items-center justify-center">
@@ -1352,236 +1418,379 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
               </div>
             </div>
 
-            {/* Small summary of chosen slot */}
-            <div className="mt-3 text-[11px] text-slate-300">
-              <p>
-                <b>Date:</b> {formattedSelectedDate}
-              </p>
-              <p>
-                <b>Time:</b>{" "}
-                {formatSlotLabel(selectedSlot.startTime, selectedSlot.endTime)}
-              </p>
-            </div>
+            {/* Close form/back to time view */}
+            {bookingStage === "form" && (
+              <button
+                type="button"
+                onClick={() => {
+                  setBookingStage("time");
+                  setSelectedSlot(null);
+                }}
+                className="text-slate-500 hover:text-slate-200 transition-colors"
+                aria-label="Close form"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </CardHeader>
 
           <CardContent className="space-y-4">
+            <div className="mt-1 text-[11px] text-slate-300">
+              <p>
+                <b>Date:</b>{" "}
+                {selectedSlot && formattedSelectedDate
+                  ? formattedSelectedDate
+                  : "Not selected yet"}
+              </p>
+              <p>
+                <b>Time:</b>{" "}
+                {selectedSlot
+                  ? formatSlotLabel(
+                    selectedSlot.startTime,
+                    selectedSlot.endTime,
+                  )
+                  : "Pick a slot on the left"}
+              </p>
+            </div>
+
             <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-3 py-2.5 text-xs text-slate-300">
               On this call, we’ll review your goals, current website/ads setup,
               and map a simple 30–60 day plan. No pressure, no fluff.
             </div>
 
-            {/* Step indicator */}
-            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-              <div className="flex gap-1">
-                {[0, 1, 2].map((step) => (
-                  <div
-                    key={step}
-                    className={[
-                      "h-1.5 rounded-full transition-all",
-                      step === formStep
-                        ? "w-6 bg-brand-coral"
-                        : "w-3 bg-slate-700",
-                    ].join(" ")}
-                  />
-                ))}
-              </div>
-              <span>Step {formStep + 1} of 3</span>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              {/* STEP 0: Name + Email */}
-              {formStep === 0 && (
-                <>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-100 text-[12px]">
-                      Full name
-                    </label>
-                    <Input
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Your name"
-                      className={inputBase}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-100 text-[12px]">
-                      Email
-                    </label>
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@company.com"
-                      className={inputBase}
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* STEP 1: Phone + Service */}
-              {formStep === 1 && (
-                <>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-100 text-[12px]">
-                      WhatsApp / phone (optional)
-                    </label>
-                    <Input
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+91…"
-                      className={inputBase}
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-100 text-[12px]">
-                      What do you want to discuss?
-                    </label>
-                    <Select
-                      disabled={serviceLocked}
-                      value={serviceValue || undefined}
-                      onValueChange={(value) => {
-                        setServiceLocked(false);
-                        setServiceValue(value);
-                      }}
-                    >
-                      <SelectTrigger
-                        className={`${inputBase} ${serviceLocked
-                            ? "cursor-not-allowed opacity-90"
-                            : ""
-                          }`}
-                      >
-                        <SelectValue placeholder="Select a service" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-slate-100">
-                        {services.map((service) => (
-                          <SelectItem
-                            key={service.value}
-                            value={service.value}
-                          >
-                            {service.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {serviceLocked && (
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        This was selected from the service page ({serviceType}).
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-
-              {/* STEP 2: Notes + Summary */}
-              {formStep === 2 && (
-                <>
-                  <div className="space-y-1.5">
-                    <label className="block text-slate-100 text-[12px]">
-                      Anything specific we should know?
-                    </label>
-                    <Textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Share your website, current challenges or goals…"
-                      className={`${inputBase} min-h-[90px] text-xs`}
-                    />
-                  </div>
-
-                  <div className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-[11px] text-slate-300">
-                    <p className="font-semibold mb-1 text-slate-100">
-                      Quick summary
-                    </p>
-                    <p>
-                      <b>Name:</b> {name || "—"}
-                    </p>
-                    <p>
-                      <b>Email:</b> {email || "—"}
-                    </p>
-                    <p>
-                      <b>Service:</b> {serviceType || "—"}
-                    </p>
-                    <p>
-                      <b>Date:</b> {formattedSelectedDate || "Not selected"}
-                    </p>
-                    <p>
-                      <b>Time:</b>{" "}
-                      {formatSlotLabel(
-                        selectedSlot.startTime,
-                        selectedSlot.endTime,
-                      )}
-                    </p>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Step navigation buttons */}
-            <div className="flex items-center justify-between pt-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={formStep === 0}
-                onClick={() =>
-                  setFormStep((prev) =>
-                    prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
-                  )
-                }
-                className="text-slate-300 hover:text-slate-50"
+            {/* ✅ Status message block (stays visible even when form is closed) */}
+            {statusType && statusMessage && (
+              <div
+                className={[
+                  "text-xs rounded-md border px-3 py-2",
+                  statusType === "success"
+                    ? "text-emerald-400 bg-emerald-950/40 border-emerald-800/60"
+                    : "text-red-400 bg-red-950/40 border-red-800/60",
+                ].join(" ")}
               >
-                Back
-              </Button>
+                {statusMessage}
+              </div>
+            )}
 
-              {formStep < 2 ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={
-                    (formStep === 0 && !canGoNextFromStep0) ||
-                    (formStep === 1 && !canGoNextFromStep1)
-                  }
-                  onClick={() =>
-                    setFormStep((prev) =>
-                      prev < 2 ? ((prev + 1) as 0 | 1 | 2) : prev,
-                    )
-                  }
-                  className="bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-xs px-4"
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button
-                  type="button"
-                  size="sm"
-                  disabled={bookingLoading}
-                  onClick={handleBook}
-                  className="bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-xs px-4"
-                >
-                  {bookingLoading
-                    ? "Booking your slot..."
-                    : "Confirm appointment & send details"}
-                </Button>
-              )}
-            </div>
+            {bookingStage === "form" && selectedSlot ? (
+              <>
+                {/* Step indicator */}
+                <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map((step) => (
+                      <div
+                        key={step}
+                        className={[
+                          "h-1.5 rounded-full transition-all",
+                          step === formStep
+                            ? "w-6 bg-brand-coral"
+                            : "w-3 bg-slate-700",
+                        ].join(" ")}
+                      />
+                    ))}
+                  </div>
+                  <span>Step {formStep + 1} of 3</span>
+                </div>
 
-            <p className="text-[11px] text-slate-500 text-center mt-1">
-              You’ll receive a confirmation email with the meeting link & details
-              after booking.
-            </p>
+                <div className="space-y-3 text-xs">
+                  {/* STEP 0: Name + Email */}
+                  {formStep === 0 && (
+                    <>
+                      <div className="space-y-1.5">
+                        <label className="block text-slate-100 text-[12px]">
+                          Full name
+                        </label>
+                        <Input
+                          value={name}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setName(value);
+                            setFieldErrors((prev) => ({
+                              ...prev,
+                              name: value.trim() ? "" : prev.name,
+                            }));
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value;
+                            setFieldErrors((prev) => ({
+                              ...prev,
+                              name: value.trim()
+                                ? ""
+                                : "Name is required.",
+                            }));
+                          }}
+                          placeholder="Your name"
+                          className={inputBase}
+                        />
+                        {fieldErrors.name && (
+                          <p className="text-[11px] text-red-400 mt-0.5">
+                            {fieldErrors.name}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="block text-slate-100 text-[12px]">
+                          Email
+                        </label>
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setEmail(value);
+                            setFieldErrors((prev) => {
+                              if (!value.trim()) {
+                                return {
+                                  ...prev,
+                                  email: "Email is required.",
+                                };
+                              }
+                              if (!validateEmail(value)) {
+                                return {
+                                  ...prev,
+                                  email:
+                                    "Please enter a valid email address.",
+                                };
+                              }
+                              return { ...prev, email: "" };
+                            });
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value;
+                            setFieldErrors((prev) => {
+                              if (!value.trim()) {
+                                return {
+                                  ...prev,
+                                  email: "Email is required.",
+                                };
+                              }
+                              if (!validateEmail(value)) {
+                                return {
+                                  ...prev,
+                                  email:
+                                    "Please enter a valid email address.",
+                                };
+                              }
+                              return { ...prev, email: "" };
+                            });
+                          }}
+                          placeholder="you@company.com"
+                          className={inputBase}
+                        />
+                        {fieldErrors.email && (
+                          <p className="text-[11px] text-red-400 mt-0.5">
+                            {fieldErrors.email}
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* STEP 1: Phone + Service */}
+                  {formStep === 1 && (
+                    <>
+                      <div className="space-y-1.5">
+                        <label className="block text-slate-100 text-[12px]">
+                          WhatsApp / phone
+                        </label>
+                        <Input
+                          value={phone}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setPhone(value);
+                            setFieldErrors((prev) => {
+                              if (!value.trim()) {
+                                return {
+                                  ...prev,
+                                  phone: "Phone number is required.",
+                                };
+                              }
+                              if (!validatePhone(value)) {
+                                return {
+                                  ...prev,
+                                  phone:
+                                    "Please enter a valid phone number.",
+                                };
+                              }
+                              return { ...prev, phone: "" };
+                            });
+                          }}
+                          onBlur={(e) => {
+                            const value = e.target.value;
+                            setFieldErrors((prev) => {
+                              if (!value.trim()) {
+                                return {
+                                  ...prev,
+                                  phone: "Phone number is required.",
+                                };
+                              }
+                              if (!validatePhone(value)) {
+                                return {
+                                  ...prev,
+                                  phone:
+                                    "Please enter a valid phone number.",
+                                };
+                              }
+                              return { ...prev, phone: "" };
+                            });
+                          }}
+                          placeholder="+91…"
+                          className={inputBase}
+                        />
+                        {fieldErrors.phone && (
+                          <p className="text-[11px] text-red-400 mt-0.5">
+                            {fieldErrors.phone}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="block text-slate-100 text-[12px]">
+                          What do you want to discuss?
+                        </label>
+                        <Select
+                          disabled={serviceLocked}
+                          value={serviceValue || undefined}
+                          onValueChange={(value) => {
+                            setServiceLocked(false);
+                            setServiceValue(value);
+                          }}
+                        >
+                          <SelectTrigger
+                            className={`${inputBase} ${serviceLocked
+                              ? "cursor-not-allowed opacity-90"
+                              : ""
+                              }`}
+                          >
+                            <SelectValue placeholder="Select a service" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-900 border-slate-700 text-slate-100">
+                            {services.map((service) => (
+                              <SelectItem
+                                key={service.value}
+                                value={service.value}
+                              >
+                                {service.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {serviceLocked && (
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            This was selected from the service page (
+                            {serviceType}).
+                          </p>
+                        )}
+                      </div>
+                    </>
+                  )}
+
+                  {/* STEP 2: Notes + Summary */}
+                  {formStep === 2 && (
+                    <>
+                      <div className="space-y-1.5">
+                        <label className="block text-slate-100 text-[12px]">
+                          Anything specific we should know?
+                        </label>
+                        <Textarea
+                          value={notes}
+                          onChange={(e) => setNotes(e.target.value)}
+                          placeholder="Share your website, current challenges or goals…"
+                          className={`${inputBase} min-h-[90px] text-xs`}
+                        />
+                      </div>
+
+                      <div className="rounded-lg border border-slate-800 bg-slate-950/70 px-3 py-2 text-[11px] text-slate-300">
+                        <p className="font-semibold mb-1 text-slate-100">
+                          Quick summary
+                        </p>
+                        <p>
+                          <b>Name:</b> {name || "—"}
+                        </p>
+                        <p>
+                          <b>Email:</b> {email || "—"}
+                        </p>
+                        <p>
+                          <b>Service:</b> {serviceType || "—"}
+                        </p>
+                        <p>
+                          <b>Date:</b> {formattedSelectedDate || "Not selected"}
+                        </p>
+                        <p>
+                          <b>Time:</b>{" "}
+                          {formatSlotLabel(
+                            selectedSlot.startTime,
+                            selectedSlot.endTime,
+                          )}
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Step navigation buttons */}
+                <div className="flex items-center justify-between pt-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={formStep === 0}
+                    onClick={() =>
+                      setFormStep((prev) =>
+                        prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
+                      )
+                    }
+                    className="text-slate-300 hover:text-slate-50"
+                  >
+                    Back
+                  </Button>
+
+                  {formStep < 2 ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={
+                        (formStep === 0 && !canGoNextFromStep0) ||
+                        (formStep === 1 && !canGoNextFromStep1)
+                      }
+                      onClick={() =>
+                        setFormStep((prev) =>
+                          prev < 2 ? ((prev + 1) as 0 | 1 | 2) : prev,
+                        )
+                      }
+                      className="bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-xs px-4"
+                    >
+                      Next
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={bookingLoading}
+                      onClick={handleBook}
+                      className="bg-brand-coral hover:bg-brand-coral-dark text-white font-semibold text-xs px-4"
+                    >
+                      {bookingLoading
+                        ? "Booking your slot..."
+                        : "Confirm appointment & send details"}
+                    </Button>
+                  )}
+                </div>
+
+                <p className="text-[11px] text-slate-500 text-center mt-1">
+                  You’ll receive a confirmation email with the meeting link &
+                  details after booking.
+                </p>
+              </>
+            ) : (
+              // When form is "closed" but panel is visible due to status
+              <div className="text-[11px] text-slate-400 mt-2">
+                {selectedSlot
+                  ? "Fill the form to confirm your slot."
+                  : "Select a date and time on the left to open the booking form."}
+              </div>
+            )}
           </CardContent>
-          
-          {/* Error / success */}
-          {error && (
-            <p className="text-xs text-red-400 bg-red-950/40 border border-red-800/60 rounded-md px-3 py-2">
-              {error}
-            </p>
-          )}
-          {success && (
-            <p className="text-xs text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 rounded-md px-3 py-2">
-              {success}
-            </p>
-          )}
         </Card>
       )}
     </div>
