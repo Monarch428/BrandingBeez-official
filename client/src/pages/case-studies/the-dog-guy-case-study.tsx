@@ -43,14 +43,14 @@ export default function TheDogGuyCaseStudy() {
     <>
       <Helmet>
         <title>The Dog Guy Case Study | Branding Beez Success Story</title>
-        <meta name="description" content="From underperforming campaigns to 12.06% conversion rate — discover how we helped a UK dog trainer cut costs and drive 192 conversions efficiently." />
+        <meta name="description" content="From underperforming campaigns to 12% conversion rate — discover how we helped a UK dog trainer cut costs and drive 192 conversions efficiently." />
         <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/the-dog-guy-case-study" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         <SEOHead
           title="Google Ads Case Study — The Dog Guy"
-          description="12.06% conversion rate, 192 conversions, £20.35 CPA. A UK dog training PPC success powered by Branding Beez"
+          description="12% conversion rate, 192 conversions, £20.35 CPA. A UK dog training PPC success powered by Branding Beez"
           keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
           canonicalUrl="https://brandingbeez.co.uk/case-studies/the-dog-guy-case-study"
           ogType="website"
@@ -63,21 +63,25 @@ export default function TheDogGuyCaseStudy() {
           <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-7xl mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
-                <Badge className="bg-brand-coral text-white mb-6 text-lg px-4 py-2">
-                  Featured Google Ads Success Story
-                </Badge>
+                <div className="flex items-center justify-center">
+                  <Badge className="bg-brand-coral text-white mb-6 text-lg px-4 py-1">
+                    Featured Google Ads Success Story
+                  </Badge>
+                </div>
                 <h1 className="text-4xl md:text-6xl font-bold mb-6">
                   The Dog Guy
                 </h1>
                 <p className="text-xl md:text-2xl mb-8 text-white-600">
-                  How we achieved 12.06% conversion rate and generated 192
+                  How we achieved 12% conversion rate and generated 192
                   conversions with £20.35 CPA for a UK dog training business
                 </p>
+                {/* 12.06%  */}
                 <div className="flex flex-wrap justify-center gap-6 text-lg">
                   <div className="flex items-center gap-2">
                     <Target className="w-5 h-5" />
-                    <span>12.06% Conversion Rate</span>
+                    <span>12% Conversion Rate</span>
                   </div>
+                  {/* 12.06% */}
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
                     <span>192 Total Conversions</span>
@@ -272,13 +276,14 @@ export default function TheDogGuyCaseStudy() {
                   Google Ads Dashboard Results
                 </h2>
                 <p className="text-xl text-gray-600 mb-8">
-                  Real campaign data showing 12.06% conversion rate achievement
+                  Real campaign data showing 12% conversion rate achievement
                 </p>
+                {/* 12.06% */}
               </div>
               <div className="max-w-4xl mx-auto">
                 <OptimizedImage
                   src="/images/img_g3.png"
-                  alt="The Dog Guy Google Ads campaign performance showing 12.06% conversion rate and 192 total conversions"
+                  alt="The Dog Guy Google Ads campaign performance showing 12% conversion rate and 192 total conversions"
                   className="w-full h-auto rounded-lg shadow-xl border border-gray-200"
                   fallbackSrc="/images/img_g3.png"
                   loading="lazy"
@@ -304,7 +309,7 @@ export default function TheDogGuyCaseStudy() {
                 <Card className="p-6 text-center bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                   <Target className="w-12 h-12 mx-auto mb-3 text-green-600" />
                   <div className="text-3xl font-bold text-green-700 mb-2">
-                    12.06%
+                    {/* 12.06% */} 12%
                   </div>
                   <div className="text-gray-600">Best Conversion Rate</div>
                 </Card>
@@ -364,11 +369,13 @@ export default function TheDogGuyCaseStudy() {
                   <div className="space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-600">Best Campaign:</span>
-                      <span className="font-bold">36.36%</span>
+                      <span className="font-bold">36%</span>
+                      {/* <span className="font-bold">36.36%</span> */}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Lost IS (Budget):</span>
-                      <span className="font-bold">16.67%</span>
+                      <span className="font-bold">16%</span>
+                      {/* <span className="font-bold">16.67%</span> */}
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Daily Budget:</span>
@@ -531,8 +538,9 @@ export default function TheDogGuyCaseStudy() {
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Proven Results</h3>
                   <p className="text-gray-600">
-                    12.06% conversion rate and 192 conversions demonstrated value
+                    12% conversion rate and 192 conversions demonstrated value
                   </p>
+                  {/* 12.06%  */}
                 </Card>
 
                 <Card className="p-8 text-center">
@@ -556,17 +564,17 @@ export default function TheDogGuyCaseStudy() {
                 Ready to Transform Your Pet Service Business?
               </h2>
               <p className="text-xl mb-8 opacity-90">
-                Get the same expert Google Ads optimization that achieved 12.06%
+                Get the same expert Google Ads optimization that achieved 12%
                 conversion rates and 192 conversions for The Dog Guy
               </p>
+              {/* 12.06% */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() => window.open(getCalendlyUrl(), "_blank")}
-                >
+                > <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
                 <Button
                   size="lg"
@@ -575,7 +583,7 @@ export default function TheDogGuyCaseStudy() {
                   asChild
                 >
                   <Link href="/services/google-ads">
-                    View Google Ads Services
+                    View Google Ads Services <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
               </div>

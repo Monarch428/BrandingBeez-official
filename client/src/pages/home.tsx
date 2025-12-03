@@ -1762,7 +1762,7 @@ export default function Home() {
                         },
                         {
                           logo: fsbLogo,
-                          name: "FSB Digital",
+                          name: "FSE Digital",
                         },
                         {
                           logo: museLogo,
@@ -1793,7 +1793,7 @@ export default function Home() {
           {/* Dedicated Resources Section */}
           <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-5xl mx-auto text-center">
-              <Badge className="bg-white/20 text-white border-white/30 mb-6 sm:mb-8 mx-auto">
+              <Badge className="bg-white/20 text-white text-md font-medium border-white/30 mb-6 sm:mb-8 mx-auto">
                 🔥 Most Sought-After Service
               </Badge>
 

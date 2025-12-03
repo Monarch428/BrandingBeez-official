@@ -33,19 +33,27 @@ import {
   Shield,
   Camera,
   Sparkles,
+  Calendar,
 } from "lucide-react";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { GreenParadiseSchema } from "@/utils/all-schemas";
+import gp_Logo from "../../../public/images/GP_Logo.png";
 
 export default function GreenParadiseBrandingWebsiteCaseStudy() {
   return (
     <>
       <Helmet>
         <title>Green Paradise Case Study | 360° Brand & Website Launch</title>
-        <meta name="description" content="Branding Beez delivered a complete identity and website for Green Paradise — logo design, visuals, and SEO-optimized WordPress site under one roof." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/case-studies/green-paradise-branding-website" />
+        <meta
+          name="description"
+          content="Branding Beez delivered a complete identity and website for Green Paradise — logo design, visuals, and SEO-optimized WordPress site under one roof."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/case-studies/green-paradise-branding-website"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -65,24 +73,33 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    🌿 Complete Brand + Website Development Success
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md font-medium mb-6 px-4 py-1">
+                      Complete Brand + Website Development Success
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
                     Green Paradise: Full 360° Digital Launch
                   </h1>
                   <p className="text-xl text-white/90 mb-8">
-                    How we delivered complete branding and website development through white-label partnership with Mark, transforming a landscaping business with professional identity and digital presence.
+                    How we delivered complete branding and website development
+                    through white-label partnership with Mark, transforming a
+                    landscaping business with professional identity and digital
+                    presence.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-white/10 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold">360°</div>
-                      <div className="text-sm text-white/80">Complete Solution</div>
+                      <div className="text-sm text-white/80">
+                        Complete Solution
+                      </div>
                     </div>
                     <div className="bg-white/10 rounded-lg p-4 text-center">
                       <div className="text-2xl font-bold">100%</div>
-                      <div className="text-sm text-white/80">Brand + Website</div>
+                      <div className="text-sm text-white/80">
+                        Brand + Website
+                      </div>
                     </div>
                   </div>
 
@@ -92,7 +109,10 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-white/90"
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank",
+                        )
                       }
                     >
                       Start Your Brand Project
@@ -103,10 +123,15 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-2">
-                      <div className="w-full h-full bg-green-600 rounded-lg flex items-center justify-center">
-                        <Leaf className="w-8 h-8 text-white" />
-                      </div>
+                    <div className="bg-white p-1 rounded-lg flex items-center justify-center">
+                      {/* <div className="w-full h-full bg-green-600 rounded-lg flex items-center justify-center"> */}
+                      {/* <Leaf className="w-8 h-8 text-white" /> */}
+                      <img
+                        src={gp_Logo}
+                        alt="Green Paradise Logo"
+                        className="w-44 h-17"
+                      />
+                      {/* </div> */}
                     </div>
                     <Badge className="bg-green-100 text-green-800 border-green-200">
                       Landscaping & Gardening
@@ -140,7 +165,8 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   Complete Brand Identity + WordPress Website
                 </h2>
                 <p className="text-gray-600 text-lg">
-                  Professional branding with logo design, color palette, and custom WordPress website
+                  Professional branding with logo design, color palette, and
+                  custom WordPress website
                 </p>
               </div>
 
@@ -153,15 +179,67 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute bottom-6 left-6 right-6 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-white font-semibold text-sm">Green Paradise Landscaping</p>
-                      <p className="text-white/90 text-xs">Complete Brand Identity + WordPress Website</p>
+                      <p className="text-white font-semibold text-sm">
+                        Green Paradise Landscaping
+                      </p>
+                      <p className="text-white/90 text-xs">
+                        Complete Brand Identity + WordPress Website
+                      </p>
                       <div className="flex items-center gap-2 mt-1">
                         <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <p className="text-green-300 text-xs font-medium">Live Brand & Website</p>
+                        <p className="text-green-300 text-xs font-medium">
+                          Live Brand & Website
+                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
+              </div>
+              <div className="flex items-center justify-center mt-5">
+                <a
+                  href="https://www.greenparadisetx.com/"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="w-fit"
+                >
+                  <Button
+                    variant="outline"
+                    className="w-fit h-11 px-4 py-2 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                  >
+                    <ExternalLink className="w-5 h-5 mr-2" />
+                    Visit Live Website
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </section>
+
+          {/* Mid-page CTA: Brand & Website Review */}
+          <section className="py-8 bg-brand-wings/40">
+            <div className="max-w-4xl mx-auto px-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
+                    Not sure if your brand & website are working together?
+                  </p>
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-900">
+                    Get a quick brand + website review and see what a 360°
+                    launch can do for your clients.
+                  </h3>
+                </div>
+                <Button
+                  size="lg"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  onClick={() =>
+                    window.open(
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                >
+                  <Search className="w-4 h-4 mr-2" />
+                  Request Free Brand + Site Review
+                </Button>
               </div>
             </div>
           </section>
@@ -175,12 +253,17 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                     The Challenge
                   </h3>
                   <p className="text-gray-600 text-lg mb-6">
-                    Green Paradise needed a complete digital transformation - from no brand identity to a professional online presence that would attract customers and build trust in their landscaping services.
+                    Green Paradise needed a complete digital transformation -
+                    from no brand identity to a professional online presence
+                    that would attract customers and build trust in their
+                    landscaping services.
                   </p>
                   <ul className="space-y-4">
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-red-600 text-sm font-bold">!</span>
+                        <span className="text-red-600 text-sm font-bold">
+                          !
+                        </span>
                       </div>
                       <span className="text-gray-600">
                         No brand identity or professional logo design
@@ -188,7 +271,9 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-red-600 text-sm font-bold">!</span>
+                        <span className="text-red-600 text-sm font-bold">
+                          !
+                        </span>
                       </div>
                       <span className="text-gray-600">
                         Complete absence of digital presence and website
@@ -196,7 +281,9 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                     </li>
                     <li className="flex items-start gap-3">
                       <div className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <span className="text-red-600 text-sm font-bold">!</span>
+                        <span className="text-red-600 text-sm font-bold">
+                          !
+                        </span>
                       </div>
                       <span className="text-gray-600">
                         Need for cohesive brand strategy and visual identity
@@ -218,15 +305,23 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Logo Design</span>
-                        <span className="text-red-600 font-semibold">Missing</span>
+                        <span className="text-red-600 font-semibold">
+                          Missing
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Website</span>
-                        <span className="text-red-600 font-semibold">No Online Presence</span>
+                        <span className="text-red-600 font-semibold">
+                          No Online Presence
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Professional Image</span>
-                        <span className="text-red-600 font-semibold">Undeveloped</span>
+                        <span className="text-gray-600">
+                          Professional Image
+                        </span>
+                        <span className="text-red-600 font-semibold">
+                          Undeveloped
+                        </span>
                       </div>
                     </div>
                   </CardContent>
@@ -243,7 +338,8 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   Complete Brand + Website Development Strategy
                 </h2>
                 <p className="text-xl text-gray-600">
-                  360° solution covering brand identity, visual design, and professional website development
+                  360° solution covering brand identity, visual design, and
+                  professional website development
                 </p>
               </div>
 
@@ -256,14 +352,18 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">Brand Identity Design</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        Brand Identity Design
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
                       <li className="flex items-center gap-2">
                         <Palette className="w-4 h-4 text-green-500" />
-                        <span className="text-sm">Professional logo design</span>
+                        <span className="text-sm">
+                          Professional logo design
+                        </span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Eye className="w-4 h-4 text-green-500" />
@@ -271,7 +371,9 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                       </li>
                       <li className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-green-500" />
-                        <span className="text-sm">Visual brand guidelines</span>
+                        <span className="text-sm">
+                          Visual brand guidelines
+                        </span>
                       </li>
                     </ul>
                     <div className="mt-4 text-center">
@@ -290,7 +392,9 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">WordPress Development</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        WordPress Development
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -324,7 +428,9 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   </div>
                   <CardHeader className="pt-8">
                     <CardTitle className="text-center">
-                      <h3 className="text-xl font-bold text-gray-900">White-Label Partnership</h3>
+                      <h3 className="text-xl font-bold text-gray-900">
+                        White-Label Partnership
+                      </h3>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -350,6 +456,37 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Key Learnings-style CTA */}
+              <div className="mt-12 max-w-3xl mx-auto">
+                <Card className="p-6 md:p-8 bg-gray-50 border-dashed border-2 border-brand-coral/30">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900 mb-1">
+                        Want similar 360° brand + website results?
+                      </h3>
+                      <p className="text-gray-700 text-sm md:text-base">
+                        Share your niche, current brand assets, and website
+                        status, and we&apos;ll tell you if this end-to-end
+                        launch playbook fits your goals.
+                      </p>
+                    </div>
+                    <Button
+                      size="lg"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      onClick={() =>
+                        window.open(
+                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "_blank",
+                        )
+                      }
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Talk to the Brand Launch Team
+                    </Button>
+                  </div>
+                </Card>
+              </div>
             </div>
           </section>
 
@@ -361,7 +498,8 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   Project Results
                 </h2>
                 <p className="text-xl text-gray-600">
-                  Complete digital transformation with professional brand identity and website
+                  Complete digital transformation with professional brand
+                  identity and website
                 </p>
               </div>
 
@@ -433,15 +571,24 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                     <div>
                       <Quote className="w-12 h-12 text-green-500 mb-4" />
                       <blockquote className="text-lg text-gray-700 mb-4">
-                        "BrandingBeez delivered everything we needed for Green Paradise - from the logo design to the complete WordPress website. The brand identity is professional, the website is beautiful, and our client was thrilled with the results. This is exactly why we continue to work with them."
+                        "BrandingBeez delivered everything we needed for Green
+                        Paradise - from the logo design to the complete
+                        WordPress website. The brand identity is professional,
+                        the website is beautiful, and our client was thrilled
+                        with the results. This is exactly why we continue to
+                        work with them."
                       </blockquote>
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-bold">M</span>
                         </div>
                         <div>
-                          <div className="font-semibold text-gray-900">Mark</div>
-                          <div className="text-gray-600">White-Label Partner</div>
+                          <div className="font-semibold text-gray-900">
+                            Mark
+                          </div>
+                          <div className="text-gray-600">
+                            White-Label Partner
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -453,18 +600,28 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                         <div className="space-y-3">
                           <div className="flex items-center justify-between">
                             <span className="text-gray-600">Brand Design</span>
-                            <span className="text-green-600 font-semibold">Professional</span>
+                            <span className="text-green-600 font-semibold">
+                              Professional
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Website Development</span>
-                            <span className="text-green-600 font-semibold">Custom WordPress</span>
+                            <span className="text-gray-600">
+                              Website Development
+                            </span>
+                            <span className="text-green-600 font-semibold">
+                              Custom WordPress
+                            </span>
                           </div>
                           <div className="flex items-center justify-between">
-                            <span className="text-gray-600">Client Satisfaction</span>
-                            <span className="text-green-600 font-semibold">Excellent</span>
+                            <span className="text-gray-600">
+                              Client Satisfaction
+                            </span>
+                            <span className="text-green-600 font-semibold">
+                              Excellent
+                            </span>
                           </div>
                         </div>
-                        <Link href="/contact">
+                        <Link href="/contact?service=website-development&/#contact-form">
                           <Button className="mt-6 bg-green-600 hover:bg-green-700 text-white">
                             Start Your Brand Project
                             <ArrowRight className="w-4 h-4 ml-2" />
@@ -485,14 +642,36 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                 Ready for Complete Brand + Website Development?
               </h2>
               <p className="text-xl mb-8 text-white/90">
-                Join agencies like Mark who trust BrandingBeez for complete digital transformation solutions.
+                Join agencies like Mark who trust BrandingBeez for complete
+                digital transformation solutions.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href="/contact">
-                  <Button size="lg" className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral">
-                    Start Your Brand Project
-                  </Button>
-                </Link>
+                <Button
+                  size="lg"
+                  onClick={() =>
+                    window.open(
+                      // "https://calendly.com/vignesh-velusamy/30min",
+                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "_blank",
+                    )
+                  }
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                >
+                  {" "}
+                  <Calendar className="w-5 h-5 mr-1" />
+                  Book Your Free Website Consultation
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
+                >
+                  <Link href="/services/web-development">
+                    View Other Website Services
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
               </div>
             </div>
           </section>

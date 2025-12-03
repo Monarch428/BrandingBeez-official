@@ -584,7 +584,7 @@ interface AppointmentNotificationPayload {
   startTime: string;
   endTime: string;
   createdAt?: Date;
-  meetingLink?: string; 
+  meetingLink?: string;
 }
 
 interface ContactSubmission {
@@ -901,6 +901,7 @@ export async function sendAppointmentNotification(
   const { host, port, user, pass } = getSmtpConfig();
 
   const adminEmail = "raje@brandingbeez.co.uk";
+  // const adminEmail = "pradeep.brandingbeez@gmail.com";
 
   if (!user || !pass) {
     console.log("SMTP not configured. Appointment notification:");
@@ -922,6 +923,8 @@ export async function sendAppointmentNotification(
     const prettyDate = appt.date;
     const prettyTime = `${appt.startTime} – ${appt.endTime}`;
 
+    // (No Google Meet link generated / Google API not configured)
+
     const mailOptions = {
       from: user,
       to: adminEmail,
@@ -940,9 +943,8 @@ export async function sendAppointmentNotification(
             <li><b>Time:</b> ${prettyTime}</li>
           </ul>
 
-          ${
-            appt.meetingLink
-              ? `
+          ${appt.meetingLink
+          ? `
           <h3 style="margin-bottom:8px;color:#ffffff;">Google Meet</h3>
           <p style="font-size:14px;">
             <a href="${appt.meetingLink}" style="color:#60a5fa;text-decoration:none;font-weight:bold;">
@@ -951,13 +953,12 @@ export async function sendAppointmentNotification(
             <span style="font-size:12px;color:#9ca3af;">${appt.meetingLink}</span>
           </p>
           `
-              : `
+          : `
           <p style="font-size:13px;color:#9ca3af;">
-            (No Google Meet link generated / Google API not configured)
           </p>
           `
-          }
-
+        }
+         
           <h3 style="margin-bottom:8px;color:#ffffff;">Contact Details</h3>
           <ul style="list-style:none;padding-left:0;font-size:14px;">
             <li><b>Name:</b> ${appt.name}</li>
@@ -966,12 +967,11 @@ export async function sendAppointmentNotification(
             <li><b>Service / Topic:</b> ${appt.serviceType || "(not specified)"}</li>
           </ul>
 
-          ${
-            appt.notes
-              ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
+          ${appt.notes
+          ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
                  <p style="font-size:14px;white-space:pre-wrap;">${appt.notes}</p>`
-              : ""
-          }
+          : ""
+        }
 
           <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
             Appointment ID: ${appt.id}<br/>

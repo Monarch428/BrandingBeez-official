@@ -58,19 +58,6 @@ const serviceCategories = [
     discountDescription: "your first service",
   },
   {
-    id: "web-development",
-    title: "Website Design & Development",
-    description: "Custom websites that turn visitors into lifelong customers",
-    icon: Globe,
-    href: "/services/web-development",
-    pricing: "Starting at $900",
-    features: ["WordPress", "Shopify", "BigCommerce", "Custom Coded"],
-    metrics: "Average build time: 3 weeks",
-    couponCode: "WEB20",
-    discount: "20% OFF",
-    discountDescription: "your first website project",
-  },
-  {
     id: "dedicated-resources",
     title: "Dedicated Resources",
     description:
@@ -94,6 +81,19 @@ const serviceCategories = [
     // discountDescription: undefined,
   },
   {
+    id: "web-development",
+    title: "Website Design & Development",
+    description: "Custom websites that turn visitors into lifelong customers",
+    icon: Globe,
+    href: "/services/web-development",
+    pricing: "Starting at $900",
+    features: ["WordPress", "Shopify", "BigCommerce", "Custom Coded"],
+    metrics: "Average build time: 3 weeks",
+    couponCode: "WEB20",
+    discount: "20% OFF",
+    discountDescription: "your first website project",
+  },
+  {
     id: "google-ads",
     title: "Google Ads",
     description: "Maximize ROI with expert PPC campaign management",
@@ -111,45 +111,68 @@ const serviceCategories = [
     discount: "15% OFF",
     discountDescription: "your first project",
   },
+  // {
+  //   id: "ai-development",
+  //   title: "AI Web Agents/AI Development",
+  //   description:
+  //     "Intelligent AI solutions to automate and enhance your business",
+  //   icon: Bot,
+  //   href: "/services/ai-development",
+  //   pricing: "Starting at $4,000/project",
+  //   features: [
+  //     "AI Powered web app/Mobile app development",
+  //     "AI Agentic Platform development",
+  //     "AI Integration into existing platforms",
+  //   ],
+  //   metrics: "Average 40% efficiency increase",
+  //   couponCode: "AI25",
+  //   discount: "25% OFF",
+  //   discountDescription: "your first AI project",
+  // },
+  // {
+  //   id: "custom-app-development",
+  //   title: "Custom Web & Mobile App Development",
+  //   description:
+  //     "High-performance custom apps built for scalability and seamless user experience",
+  //   icon: Code,
+  //   href: "/services/custom-app-development",
+  //   pricing: "Starting at $3,500/project",
+  //   features: [
+  //     "Custom Web Application Development",
+  //     "iOS & Android Mobile App Development",
+  //     "Full-Stack Web Applications",
+  //     "UI/UX Design & Prototyping",
+  //     "API Development & Integrations",
+  //     "Maintenance & Support",
+  //   ],
+  //   metrics: "Average delivery time: 4–8 weeks",
+  //   couponCode: "APP20",
+  //   discount: "20% OFF",
+  //   discountDescription: "your first app project",
+  // },
   {
-    id: "ai-development",
-    title: "AI Web Agents/AI Development",
+    id: "custom-ai-app-development",
+    title: "Custom Web & Mobile Application Development (AI-Powered)",
     description:
-      "Intelligent AI solutions to automate and enhance your business",
-    icon: Bot,
-    href: "/services/ai-development",
-    pricing: "Starting at $4,000/project",
-    features: [
-      "AI Powered web app/Mobile app development",
-      "AI Agentic Platform development",
-      "AI Integration into existing platforms",
-    ],
-    metrics: "Average 40% efficiency increase",
-    couponCode: "AI25",
-    discount: "25% OFF",
-    discountDescription: "your first AI project",
-  },
-  {
-    id: "custom-app-development",
-    title: "Custom Web & Mobile App Development",
-    description:
-      "High-performance custom apps built for scalability and seamless user experience",
+      "High-performance applications built for scalability, automation, and seamless user experience.",
     icon: Code,
     href: "/services/custom-app-development",
     pricing: "Starting at $3,500/project",
     features: [
-      "Custom Web Application Development",
-      "iOS & Android Mobile App Development",
-      "Full-Stack Web Applications",
-      "UI/UX Design & Prototyping",
-      "API Development & Integrations",
-      "Maintenance & Support",
+      "Custom web application development",
+      "iOS & Android mobile app development",
+      "AI-powered enhancements & integrations",
+      "AI agentic platform development",
+      "Full-stack development",
+      "UI/UX design & prototyping",
+      "API development & system integrations",
+      "Maintenance & support",
     ],
     metrics: "Average delivery time: 4–8 weeks",
     couponCode: "APP20",
     discount: "20% OFF",
-    discountDescription: "your first app project",
-  },
+    discountDescription: "your AI-powered app project",
+  }
 ];
 
 
@@ -318,6 +341,33 @@ export default function Services() {
     }
   };
 
+  // Extract numeric base price from strings like "Starting at $1,200/month"
+  const parseBasePrice = (pricing: string): number | null => {
+    const match = pricing.match(/(\d[\d,]*)/);
+    if (!match) return null;
+    const numeric = match[1].replace(/,/g, "");
+    const value = Number(numeric);
+    return Number.isFinite(value) ? value : null;
+  };
+
+  // Extract percentage from strings like "50% OFF"
+  const parseDiscountPercent = (discount?: string): number | null => {
+    if (!discount) return null;
+    const match = discount.match(/(\d+)\s*%/);
+    if (!match) return null;
+    const value = Number(match[1]);
+    return Number.isFinite(value) ? value : null;
+  };
+
+  // Format discounted price & keep suffix (/month, /project, etc.)
+  const formatDiscountedLabel = (pricing: string, discountedPrice: number): string => {
+    const suffix = pricing.replace(/^[^\d]*\d[\d,]*/, "").trim(); // part after the number
+    const formatted = discountedPrice.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    });
+    return `$${formatted}${suffix ? `${suffix}` : ""}`;
+  };
+
   return (
     <>
       <Helmet>
@@ -368,12 +418,15 @@ export default function Services() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
                 {/* Left Side - Dedicated Resources Form */}
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-4 sm:mb-6 text-xs sm:text-sm">
-                    🔥 Most Sought-After Service
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-4 sm:mb-6 text-md font-medium px-4 py-1">
+                      Most Sought-After Service
+                    </Badge>
+                  </div>
                   <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold mb-4 sm:mb-6 leading-tight">
-                    Dedicated Resources for US & UK Marketing & IT Companies
+                    Dedicated Resources for US Marketing IT Companies
                   </h1>
+                  {/* US & UK Marketing & */}
                   <h2 className="text-lg sm:text-lg lg:text-xl font-semibold text-gray-100 mb-6 sm:mb-8 leading-relaxed">
                     Boost your capacity effortlessly with expert professionals who
                     seamlessly extend your team.
@@ -439,7 +492,7 @@ export default function Services() {
                   <h3 className="text-2xl font-bold mb-6 text-white">
                     {/* Subscribe Free */} Book Your Dedicated Resource
                   </h3>
-                  <form onSubmit={handleSubmitLead} className="space-y-4 flex flex-col h-full">
+                  {/* <form onSubmit={handleSubmitLead} className="space-y-4 flex flex-col h-full">
                     <div className="space-y-4 max-h-[55vh] overflow-y-auto p-2 scrollbar-thin">
                       <div>
                         <label className="block text-sm font-medium text-gray-200 mb-2">
@@ -514,14 +567,11 @@ export default function Services() {
                           >
                             Full Stack Developer
                           </option>
-                          <option value="others" className="text-gray-900">
-                            Others (Data Entry/Virtual Assistants/Social Media
-                            Managers)
-                          </option>
+
                         </select>
                       </div>
 
-                      {/* Conditional Hiring Level Options */}
+  
                       {selectedService === "graphic-designer" && (
                         <div className="bg-white/10 p-4 rounded-lg border border-white/30">
                           <label className="block text-sm font-medium text-gray-200 mb-2">
@@ -1281,7 +1331,6 @@ export default function Services() {
                         </div>
                       )}
 
-                      {/* Additional Notes Field */}
                       <div>
                         <label className="block text-sm font-medium text-gray-200 mb-2">
                           Additional Requirements (Optional)
@@ -1311,7 +1360,904 @@ export default function Services() {
                     <p className="text-sm text-gray-300 text-center">
                       We'll confirm your appointment within 24 hours
                     </p>
+                  </form> */}
+                  <form onSubmit={handleSubmitLead} className="space-y-4 flex flex-col h-full">
+                    <div className="space-y-4 max-h-[55vh] overflow-y-auto p-2 scrollbar-thin">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-200 mb-2">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.fullName}
+                          onChange={(e) => handleInputChange("fullName", e.target.value)}
+                          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+                          placeholder="Enter your full name"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-200 mb-2">
+                          Email Address
+                        </label>
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+                          placeholder="Enter your email"
+                          required
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-200 mb-2">
+                          What type of dedicated resource do you need?
+                        </label>
+                        <select
+                          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                          onChange={(e) => {
+                            setSelectedService(e.target.value);
+                            setSelectedLevel("");
+                          }}
+                        >
+                          <option value="" className="text-gray-900">
+                            Select resource type...
+                          </option>
+                          <option value="graphic-designer" className="text-gray-900">
+                            Graphic Designer
+                          </option>
+                          <option value="video-editor" className="text-gray-900">
+                            Video Editor
+                          </option>
+                          <option value="seo-specialist" className="text-gray-900">
+                            SEO Specialist
+                          </option>
+                          <option value="google-ads-expert" className="text-gray-900">
+                            Google Ads Expert
+                          </option>
+                          <option value="web-developer" className="text-gray-900">
+                            Web Developer
+                          </option>
+                          <option value="fullstack-developer" className="text-gray-900">
+                            Full Stack Developer
+                          </option>
+                          <option value="ai-developer" className="text-gray-900">
+                            AI Developer
+                          </option>
+                          {/* <option value="others" className="text-gray-900">
+          Others (Data Entry/Virtual Assistants/Social Media
+          Managers)
+        </option> */}
+                        </select>
+                      </div>
+
+                      {/* Conditional Hiring Level Options */}
+                      {selectedService === "graphic-designer" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for Graphic Designer
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-graphic"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="graphic-level"
+                                  value="junior-graphic"
+                                  checked={selectedLevel === "junior-graphic"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior Graphic Designer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    1+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-graphic"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="graphic-level"
+                                  value="mid-graphic"
+                                  checked={selectedLevel === "mid-graphic"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior Graphic Designer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    3+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,200/month</div>
+                            </label>
+
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "director-graphic"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="graphic-level"
+                                  value="director-graphic"
+                                  checked={selectedLevel === "director-graphic"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Creative Director
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    8+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$2,000/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "video-editor" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for Video Editor
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-video"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="video-level"
+                                  value="junior-video"
+                                  checked={selectedLevel === "junior-video"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior Video Editor
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-video"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="video-level"
+                                  value="senior-video"
+                                  checked={selectedLevel === "senior-video"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior Video Editor
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    4+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,400/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "lead-video"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="video-level"
+                                  value="lead-video"
+                                  checked={selectedLevel === "lead-video"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Video Production Lead
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    6+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$2,200/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "seo-specialist" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for SEO Specialist
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-seo"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="seo-level"
+                                  value="junior-seo"
+                                  checked={selectedLevel === "junior-seo"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior SEO candidate
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-seo"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="seo-level"
+                                  value="senior-seo"
+                                  checked={selectedLevel === "senior-seo"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    SEO Specialist
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    3+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,800/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "specialist-seo"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="seo-level"
+                                  value="specialist-seo"
+                                  checked={selectedLevel === "specialist-seo"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior SEO Specialist
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    5+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$2,800/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "google-ads-expert" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for Google Ads Expert
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-ads"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="ads-level"
+                                  value="senior-ads"
+                                  checked={selectedLevel === "senior-ads"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior Google Ads Candidate
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,200/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-ads"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="ads-level"
+                                  value="mid-ads"
+                                  checked={selectedLevel === "mid-ads"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Google Ads Specialist
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    3+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$2,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "specialist-ads"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="ads-level"
+                                  value="specialist-ads"
+                                  checked={selectedLevel === "specialist-ads"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior Google Ads Expert
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    5+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$3,000/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "web-developer" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for Web Developer
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-web"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="web-level"
+                                  value="junior-web"
+                                  checked={selectedLevel === "junior-web"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior Web Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-web"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="web-level"
+                                  value="senior-web"
+                                  checked={selectedLevel === "senior-web"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior Web Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    3+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,800/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "ecomm-web"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="web-level"
+                                  value="ecomm-web"
+                                  checked={selectedLevel === "ecomm-web"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Web development Manager
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    5+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$2,800/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "fullstack-developer" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for Full Stack Developer
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-fullstack"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="fullstack-level"
+                                  value="junior-fullstack"
+                                  checked={selectedLevel === "junior-fullstack"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior Full Stack Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1,200/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-fullstack"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="fullstack-level"
+                                  value="senior-fullstack"
+                                  checked={selectedLevel === "senior-fullstack"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior Full Stack Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    3+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$2,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "lead-fullstack"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="fullstack-level"
+                                  value="lead-fullstack"
+                                  checked={selectedLevel === "lead-fullstack"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Production lead
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    5+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$3,500/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "ai-developer" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select hiring level for AI Developer
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "junior-ai"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="ai-level"
+                                  value="junior-ai"
+                                  checked={selectedLevel === "junior-ai"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Junior AI Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              {/* junior.AI Developer = 800 */}
+                              <div className="text-white font-bold">$800/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-ai"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="ai-level"
+                                  value="mid-ai"
+                                  checked={selectedLevel === "mid-ai"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Mid-level AI Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    3+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              {/* mid.AI Developer = 1000 */}
+                              <div className="text-white font-bold">$1,000/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-ai"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="ai-level"
+                                  value="senior-ai"
+                                  checked={selectedLevel === "senior-ai"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Senior AI Developer
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    5+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              {/* senior.AI Developer = 1400 */}
+                              <div className="text-white font-bold">$1,400/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "others" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Select type for Data Entry/Virtual Assistants/Social
+                            Media Managers
+                          </label>
+                          <div className="space-y-3">
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "data-entry"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="others-level"
+                                  value="data-entry"
+                                  checked={selectedLevel === "data-entry"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Data Entry/Virtual Assistant
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$400/month</div>
+                            </label>
+                            <label
+                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "social-media"
+                                ? "bg-white/20 border-white/50"
+                                : "bg-white/10 border-white/20 hover:bg-white/15"
+                                }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <input
+                                  type="radio"
+                                  name="others-level"
+                                  value="social-media"
+                                  checked={selectedLevel === "social-media"}
+                                  onChange={(e) => setSelectedLevel(e.target.value)}
+                                  className="text-white bg-white/20 border-white/30"
+                                />
+                                <div>
+                                  <div className="text-white font-semibold">
+                                    Social Media Manager
+                                  </div>
+                                  <div className="text-gray-300 text-sm">
+                                    2+ Years experience
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-white font-bold">$1200/month</div>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedService === "multiple" && (
+                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
+                          <label className="block text-sm font-medium text-gray-200 mb-2">
+                            Which resources do you need? (Check all that apply)
+                          </label>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">Graphic Designer</span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $1,000/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">Video Editor</span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $1,000/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">SEO Specialist</span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $1,000/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">Google Ads Expert</span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $1,200/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">Web Developer</span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $1,000/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">Full Stack Developer</span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $1,200/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">AI Developer</span>
+                              </div>
+                              {/* junior.AI Developer = 800 */}
+                              <span className="text-white text-sm font-semibold">
+                                From $800/mo
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  className="rounded bg-white/20 border-white/30"
+                                />
+                                <span className="text-white text-sm">
+                                  Data Entry/Virtual Assistants/Social Media
+                                  Managers
+                                </span>
+                              </div>
+                              <span className="text-white text-sm font-semibold">
+                                From $700/mo
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Additional Notes Field */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-200 mb-2">
+                          Additional Requirements (Optional)
+                        </label>
+                        <textarea
+                          rows={3}
+                          value={formData.additionalNotes}
+                          onChange={(e) =>
+                            handleInputChange("additionalNotes", e.target.value)
+                          }
+                          className="w-full px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"
+                          placeholder="Tell us about your project requirements, timeline, or specific needs..."
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={submitLeadMutation.isPending}
+                      className="w-full bg-white text-brand-purple text-md font-bold ray-100 py-3 disabled:opacity-50 ml-[0px] mr-[0px] mt-[13px] mb-[13px]"
+                    >
+                      {submitLeadMutation.isPending ? "Processing..." : "Book Now"}
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+
+                    <p className="text-sm text-gray-300 text-center">
+                      We'll confirm your appointment within 24 hours
+                    </p>
                   </form>
+
                 </div>
               </div>
             </div>
@@ -1336,6 +2282,19 @@ export default function Services() {
                 {serviceCategories.slice(0, 6).map((service) => {
                   const Icon = service.icon;
                   const hasCoupon = !!service.couponCode && service.id !== "dedicated-resources";
+
+                  // 🔢 Calculate discounted price if coupon exists
+                  const basePrice = hasCoupon ? parseBasePrice(service.pricing) : null;
+                  const discountPercent = hasCoupon ? parseDiscountPercent(service.discount) : null;
+                  const discountedPrice =
+                    basePrice != null && discountPercent != null
+                      ? Math.round(basePrice * (1 - discountPercent / 100))
+                      : null;
+
+                  const discountedLabel =
+                    discountedPrice != null
+                      ? formatDiscountedLabel(service.pricing, discountedPrice)
+                      : null;
 
                   return (
                     <Card
@@ -1375,15 +2334,27 @@ export default function Services() {
                       {/* Content */}
                       <div className="flex-1 flex flex-col mt-3">
                         {/* Pricing & Inline Discount */}
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="text-lg font-bold text-brand-purple">
-                            {service.pricing}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="text-lg font-bold text-brand-purple">
+                              {service.pricing}
+                            </div>
+
+                            {service.discount && service.id !== "dedicated-resources" && (
+                              <span className="text-[10px] sm:text-xs inline-flex items-center rounded-full bg-brand-coral text-white font-bold px-2.5 py-0.5 animate-shimmer">
+                                {service.discount}
+                              </span>
+                            )}
                           </div>
 
-                          {service.discount && service.id !== "dedicated-resources" && (
-                            <span className="text-[10px] sm:text-xs inline-flex items-center rounded-full bg-brand-coral text-white font-bold px-2.5 py-0.5 animate-shimmer">
-                              {service.discount}
-                            </span>
+                          {/* 💰 Show calculated after-discount pricing */}
+                          {hasCoupon && discountedLabel && (
+                            <div className="font-bold text-[11px] sm:text-xs text-gray-600">
+                              After {service.discount}:{" "}
+                              <span className="font-bold text-brand-purple">
+                                {discountedLabel}
+                              </span>
+                            </div>
                           )}
                         </div>
 

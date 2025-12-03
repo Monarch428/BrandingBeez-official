@@ -142,6 +142,66 @@ const caseStudies = [
   }
 ];
 
+// const pricingPackages = [
+//   {
+//     id: 1,
+//     name: "Starter SEO",
+//     price: "$500",
+//     period: "/month",
+//     description: "Perfect for local businesses and startups",
+//     features: [
+//       "Basic audit + quick fixes",
+//       "10 primary keywords",
+//       "5 pages optimized",
+//       "Speed, mobile, meta fixes",
+//       "1 location GMB setup",
+//       "1 blog/month (1000 words)",
+//       "2 links/month (DA 30+)",
+//       "Basic competitor scan",
+//       "Monthly summary report"
+//     ],
+//     popular: false
+//   },
+//   {
+//     id: 2,
+//     name: "Growth SEO",
+//     price: "$650",
+//     period: "/month",
+//     description: "Ideal for growing companies",
+//     features: [
+//       "Full technical + on-page audit",
+//       "25 keywords + search intent grouping",
+//       "10 pages optimized",
+//       "Schema, redirects, crawl fixes",
+//       "3 locations + citation submission",
+//       "2 blogs/month (1000-1200 words)",
+//       "5 links/month (DA 40+)",
+//       "Deep 5-competitor analysis",
+//       "Monthly report + call"
+//     ],
+//     popular: true
+//   },
+//   {
+//     id: 3,
+//     name: "Pro SEO",
+//     price: "$1,200",
+//     period: "/month",
+//     description: "For e-commerce and enterprise websites",
+//     features: [
+//       "Deep crawl + custom technical plan",
+//       "50+ keywords + intent segmentation",
+//       "20 pages + conversion tracking",
+//       "Core Web Vitals, JavaScript SEO",
+//       "5+ locations, review strategy",
+//       "4 blogs/month (1500+ words)",
+//       "10 links/month (DA 50+)",
+//       "Full landscape + quarterly reports",
+//       "Dashboard + bi-weekly strategy calls"
+//     ],
+//     popular: false
+//   }
+// ];
+
 const pricingPackages = [
   {
     id: 1,
@@ -150,13 +210,13 @@ const pricingPackages = [
     period: "/month",
     description: "Perfect for local businesses and startups",
     features: [
-      "Basic audit + quick fixes",
+      "Basic SEO audit + quick fixes",
       "10 primary keywords",
       "5 pages optimized",
-      "Speed, mobile, meta fixes",
-      "1 location GMB setup",
-      "1 blog/month (1000 words)",
-      "2 links/month (DA 30+)",
+      "Speed, mobile & meta fixes",
+      "1 location Google Business setup",
+      "2 blogs/month (1000 words)",
+      "25 backlinks/month (DA 30+)",
       "Basic competitor scan",
       "Monthly summary report"
     ],
@@ -164,39 +224,41 @@ const pricingPackages = [
   },
   {
     id: 2,
-    name: "Growth SEO",
+    name: "Growth SEO (Everything in Starter + More)",
     price: "$650",
     period: "/month",
     description: "Ideal for growing companies",
     features: [
+      "Everything in Starter SEO, PLUS:",
       "Full technical + on-page audit",
-      "25 keywords + search intent grouping",
-      "10 pages optimized",
-      "Schema, redirects, crawl fixes",
-      "3 locations + citation submission",
-      "2 blogs/month (1000-1200 words)",
-      "5 links/month (DA 40+)",
+      "25 keywords + intent-based keyword grouping",
+      "10 pages optimized (vs 5)",
+      "Schema, redirections & crawl error fixes",
+      "3 locations + citation submissions",
+      "4 blogs/month (1000–1200 words)",
+      "40 backlinks/month (DA 40+)",
       "Deep 5-competitor analysis",
-      "Monthly report + call"
+      "Monthly report + strategy call"
     ],
     popular: true
   },
   {
     id: 3,
-    name: "Pro SEO",
+    name: "Pro SEO (Everything in Growth + High-Level SEO)",
     price: "$1,200",
     period: "/month",
-    description: "For e-commerce and enterprise websites",
+    description: "For e-commerce brands & enterprise websites",
     features: [
+      "Everything in Growth SEO, PLUS:",
       "Deep crawl + custom technical plan",
-      "50+ keywords + intent segmentation",
-      "20 pages + conversion tracking",
-      "Core Web Vitals, JavaScript SEO",
-      "5+ locations, review strategy",
-      "4 blogs/month (1500+ words)",
-      "10 links/month (DA 50+)",
-      "Full landscape + quarterly reports",
-      "Dashboard + bi-weekly strategy calls"
+      "50+ keywords with intent segmentation",
+      "20 pages optimized + conversion-focused tracking",
+      "Core Web Vitals optimization + JavaScript SEO",
+      "5+ locations review management & advanced citation strategy",
+      "8 blogs/month (1500+ words)",
+      "60 backlinks/month (DA 50+)",
+      "Full landscape analysis + quarterly strategy reports",
+      "Bi-weekly strategy calls"
     ],
     popular: false
   }
@@ -783,7 +845,12 @@ export default function SEOServices() {
                             </Button>
                           </Link>
 
-                          <Link href="/onboarding-wizard">
+                          <a
+                            href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full"
+                          >
                             <Button
                               variant="outline"
                               className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
@@ -791,7 +858,7 @@ export default function SEOServices() {
                               Schedule Consultation
                               <Calendar className="w-4 h-4 ml-2" />
                             </Button>
-                          </Link>
+                          </a>
                         </div>
                       </div>
                     </CardContent>

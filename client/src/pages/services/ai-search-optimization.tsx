@@ -14,6 +14,8 @@ import {
     Target,
     Calculator,
     Star,
+    CalendarRange,
+    Calendar,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { useState } from "react";
@@ -154,11 +156,13 @@ export default function AiSearchOptimization() {
                         <div className="max-w-7xl mx-auto">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                                 <div>
-                                    <Badge className="bg-white/20 text-white border-white/30 mb-6 flex items-center gap-2 w-fit font-bold">
-                                        <Zap className="w-4 h-4" />
-                                        AI Search Optimization (AIO)
-                                    </Badge>
+                                    <div className="flex items-center justify-center">
+                                        <Badge className="bg-brand-coral text-white text-md px-4 py-1 mb-6 flex items-center gap-2 w-fit font-medium">
+                                            <Zap className="w-4 h-4" />
+                                            AI Search Optimization (AIO)
+                                        </Badge>
 
+                                    </div>
                                     <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
                                         Get Ranked Inside <span className="underline">AI Answers</span>,
                                         Not Just Blue Links
@@ -191,7 +195,7 @@ export default function AiSearchOptimization() {
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <Link href="/pricing-calculator">
+                                        {/* <Link href="/pricing-calculator">
                                             <Button
                                                 className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                                                 size="lg"
@@ -199,7 +203,7 @@ export default function AiSearchOptimization() {
                                                 Get AIO Pricing
                                                 <ArrowRight className="w-5 h-5 ml-2" />
                                             </Button>
-                                        </Link>
+                                        </Link> */}
                                         <Button
                                             size="lg"
                                             className="border-white text-white hover:border-white px-8"
@@ -264,7 +268,7 @@ export default function AiSearchOptimization() {
                                                     Conversational Keywords
                                                 </p>
                                                 <p className="text-sm md:text-base text-white/80 leading-relaxed">
-                                                    Real questions people ask AI tools—and your brand
+                                                    Real questions people ask AI tools and your brand
                                                     appearing in the responses.
                                                 </p>
                                             </div>
@@ -306,9 +310,12 @@ export default function AiSearchOptimization() {
                                     Who Is AI Search Optimization For?
                                 </h2>
                                 <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                                    Whether you’re a local brand, scaling company, or enterprise,
+                                    {/* Whether you’re a local brand, scaling company, or enterprise,
                                     each AIO package is designed around how AI answer engines
-                                    actually read, understand, and surface your website.
+                                    actually read, understand, and surface your website. */}
+                                    Whether you’re a local brand, a scaling company, or an enterprise,
+                                    each AIO package is designed around how AI answer engines read,
+                                    understand, and surface your website.
                                 </p>
                             </div>
 
@@ -418,7 +425,7 @@ export default function AiSearchOptimization() {
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                                 {/* Starter AIO */}
-                                <Card className="relative flex flex-col h-full border border-brand-purple/10 hover:border-brand-purple/40 transition-all">
+                                <Card className="relative flex flex-col h-[640px] border border-brand-purple/10 hover:border-brand-purple/40 transition-all">
                                     <CardHeader className="text-center pb-4 flex-shrink-0">
                                         <Badge className="mb-3 bg-purple-50 text-brand-purple border-purple-100 w-fit mx-auto font-bold">
                                             Starter AIO
@@ -431,7 +438,9 @@ export default function AiSearchOptimization() {
                                             AI search visibility.
                                         </p>
                                     </CardHeader>
-                                    <CardContent className="flex flex-col flex-grow px-6 pb-6">
+
+                                    {/* Scrollable content */}
+                                    <CardContent className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-thin">
                                         <ul className="space-y-2 mb-6 text-sm md:text-base text-gray-800 leading-relaxed">
                                             <li className="flex gap-2">
                                                 <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
@@ -507,17 +516,21 @@ export default function AiSearchOptimization() {
                                                     <span>Conversational keyword ranking</span>
                                                 </li>
                                             </ul>
-                                            <Link href="/contact?service=seo#contact-form">
-                                                <Button className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90">
-                                                    Choose Starter AIO
-                                                </Button>
-                                            </Link>
                                         </div>
                                     </CardContent>
+
+                                    {/* Fixed CTA footer */}
+                                    <div className="px-6 pb-6 pt-2 border-t border-gray-200">
+                                        <Link href="/contact?service=seo#contact-form">
+                                            <Button className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90">
+                                                Choose Starter AIO
+                                            </Button>
+                                        </Link>
+                                    </div>
                                 </Card>
 
                                 {/* Growth AIO */}
-                                <Card className="relative flex flex-col h-full border-2 border-brand-coral shadow-sm scale-[1.02]">
+                                <Card className="relative flex flex-col h-[640px] border-2 border-brand-coral shadow-sm scale-[1.02]">
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
                                         <Badge className="bg-brand-coral text-white px-4 py-1 rounded-full flex items-center gap-1">
                                             <Star className="w-4 h-4" />
@@ -536,7 +549,9 @@ export default function AiSearchOptimization() {
                                             answer engines.
                                         </p>
                                     </CardHeader>
-                                    <CardContent className="flex flex-col flex-grow px-6 pb-6">
+
+                                    {/* Scrollable content */}
+                                    <CardContent className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-thin">
                                         <ul className="space-y-2 mb-6 text-sm md:text-base text-gray-800 leading-relaxed">
                                             <li className="flex gap-2">
                                                 <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
@@ -620,17 +635,21 @@ export default function AiSearchOptimization() {
                                                     <span>Entity relationship graph growth</span>
                                                 </li>
                                             </ul>
-                                            <Link href="/contact?service=seo#contact-form">
-                                                <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
-                                                    Choose Growth AIO
-                                                </Button>
-                                            </Link>
                                         </div>
                                     </CardContent>
+
+                                    {/* Fixed CTA footer */}
+                                    <div className="px-6 pb-6 pt-2 border-t border-gray-200">
+                                        <Link href="/contact?service=seo#contact-form">
+                                            <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                                                Choose Growth AIO
+                                            </Button>
+                                        </Link>
+                                    </div>
                                 </Card>
 
                                 {/* Pro AIO */}
-                                <Card className="relative flex flex-col h-full border border-brand-purple/10 hover:border-brand-purple/40 transition-all">
+                                <Card className="relative flex flex-col h-[640px] border border-brand-purple/10 hover:border-brand-purple/40 transition-all">
                                     <CardHeader className="text-center pb-4 flex-shrink-0">
                                         <Badge className="mb-3 bg-slate-900 text-white w-fit mx-auto font-bold">
                                             Pro AIO
@@ -643,7 +662,9 @@ export default function AiSearchOptimization() {
                                             AI-driven search ecosystems.
                                         </p>
                                     </CardHeader>
-                                    <CardContent className="flex flex-col flex-grow px-6 pb-6">
+
+                                    {/* Scrollable content */}
+                                    <CardContent className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-thin">
                                         <ul className="space-y-2 mb-6 text-sm md:text-base text-gray-800 leading-relaxed">
                                             <li className="flex gap-2">
                                                 <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
@@ -733,13 +754,17 @@ export default function AiSearchOptimization() {
                                                     <span>E-E-A-T & brand authority growth</span>
                                                 </li>
                                             </ul>
-                                            <Link href="/contact?service=seo#contact-form">
-                                                <Button className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90">
-                                                    Choose Pro AIO
-                                                </Button>
-                                            </Link>
                                         </div>
                                     </CardContent>
+
+                                    {/* Fixed CTA footer */}
+                                    <div className="px-6 pb-6 pt-2 border-t border-gray-200">
+                                        <Link href="/contact?service=seo#contact-form">
+                                            <Button className="w-full h-11 bg-brand-purple hover:bg-brand-purple/90">
+                                                Choose Pro AIO
+                                            </Button>
+                                        </Link>
+                                    </div>
                                 </Card>
                             </div>
                         </div>
@@ -762,7 +787,7 @@ export default function AiSearchOptimization() {
                                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-7 md:p-8">
                                     <div className="flex items-center gap-3 mb-4">
                                         <Target className="w-7 h-7 text-brand-purple" />
-                                        <h3 className="text-xl font-semibold text-gray-900">
+                                        <h3 className="text-xl font-bold text-gray-900">
                                             Entity & Schema
                                         </h3>
                                     </div>
@@ -789,12 +814,12 @@ export default function AiSearchOptimization() {
                                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-7 md:p-8">
                                     <div className="flex items-center gap-3 mb-4">
                                         <TrendingUp className="w-7 h-7 text-brand-purple" />
-                                        <h3 className="text-xl font-semibold text-gray-900">
+                                        <h3 className="text-xl font-bold text-gray-900">
                                             AI Visibility
                                         </h3>
                                     </div>
                                     <p className="text-sm md:text-base text-gray-600 mb-4 leading-relaxed">
-                                        We don’t just track traditional SEO—we monitor AI-first
+                                        We don’t just track traditional SEO we monitor AI-first
                                         surfaces directly where users actually see answers.
                                     </p>
                                     <ul className="text-sm text-gray-700 space-y-2 leading-relaxed">
@@ -816,7 +841,7 @@ export default function AiSearchOptimization() {
                                 <div className="bg-white rounded-2xl shadow-md border border-gray-100 p-7 md:p-8">
                                     <div className="flex items-center gap-3 mb-4">
                                         <Calculator className="w-7 h-7 text-brand-purple" />
-                                        <h3 className="text-xl font-semibold text-gray-900">
+                                        <h3 className="text-xl font-bold text-gray-900">
                                             Content & Clusters
                                         </h3>
                                     </div>
@@ -963,19 +988,18 @@ export default function AiSearchOptimization() {
                                         href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                    >
+                                    > <Calendar className="w-5 h-5 mr-1" />
                                         Book AIO Strategy Call
-                                        <ArrowRight className="ml-2 h-4 w-4" />
                                     </a>
                                 </Button>
 
-                                <Link href="/pricing-calculator">
+                                <Link href="/pricing-calculator?service=seo">
                                     <Button
                                         size="lg"
                                         variant="outline"
-                                        className="bg-white/10 text-white hover:border-white"
+                                        className="bg-white/10 text-white hover:bg-white hover:text-brand-coral"
                                     >
-                                        Explore AIO Pricing
+                                        Explore AIO Pricing <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </Link>
                             </div>

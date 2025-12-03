@@ -1178,9 +1178,11 @@ export default function About() {
           {/* Hero Section */}
           <section className="py-16 px-4">
             <div className="max-w-7xl mx-auto text-center">
-              <Badge className="mb-4 bg-brand-coral text-white">
-                About BrandingBeez
-              </Badge>
+              <div className="flex items-center justify-center">
+                <Badge className="mb-4 bg-brand-coral text-md font-medium px-4 py-1 text-white">
+                  About BrandingBeez
+                </Badge>
+              </div>
               <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
                 Your Trusted White-labelling Digital Partner
               </h1>

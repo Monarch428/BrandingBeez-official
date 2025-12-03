@@ -30,6 +30,7 @@ import {
   TrendingUp,
   LineChart,
   Gift,
+  Calendar,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -118,63 +119,123 @@ const caseStudies = [
   },
 ];
 
+// const pricingPackages = [
+//   {
+//     id: 1,
+//     name: "WordPress Starter",
+//     price: "$600",
+//     period: "one-time",
+//     description: "Perfect for small businesses and startups",
+//     features: [
+//       "Up to 5 pages",
+//       "Custom WordPress (Elementor)",
+//       "Mobile-friendly responsive",
+//       "Basic SEO (Meta, Alt Tags)",
+//       "Contact form + social media links",
+//       "Google Analytics setup",
+//       "1 round of revisions",
+//       "7 days delivery",
+//     ],
+//     popular: false,
+//   },
+//   {
+//     id: 2,
+//     name: "WordPress Business",
+//     price: "$1,200",
+//     period: "one-time",
+//     description: "Ideal for growing businesses",
+//     features: [
+//       "Up to 10 pages",
+//       "Custom design (Elementor Pro)",
+//       "Mobile + speed optimized",
+//       "On-page SEO (titles, tags, alt)",
+//       "Contact + lead forms + chat",
+//       "Blog setup included",
+//       "Google Analytics & Search Console",
+//       "2 rounds of revisions",
+//       "10-12 days delivery",
+//     ],
+//     popular: true,
+//   },
+//   {
+//     id: 3,
+//     name: "E-commerce Store",
+//     price: "$1,500",
+//     period: "one-time",
+//     description: "For online stores and e-commerce",
+//     features: [
+//       "Up to 10 pages + 10 products",
+//       "WooCommerce storefront design",
+//       "Mobile + checkout optimized",
+//       "Basic SEO for products + pages",
+//       "Payment gateway + shipping setup",
+//       "Coupons, upsells, shipping rules",
+//       "Contact + chat + cart forms",
+//       "2 rounds of revisions",
+//       "12-15 days delivery",
+//     ],
+//     popular: false,
+//   },
+// ];
+
 const pricingPackages = [
   {
     id: 1,
     name: "WordPress Starter",
     price: "$600",
-    period: "one-time",
+    period: "— one-time",
     description: "Perfect for small businesses and startups",
     features: [
       "Up to 5 pages",
-      "Custom WordPress (Elementor)",
-      "Mobile-friendly responsive",
-      "Basic SEO (Meta, Alt Tags)",
+      "Custom WordPress build (Elementor)",
+      "Mobile-friendly responsive layout",
+      "Basic SEO (meta, titles, alt tags)",
       "Contact form + social media links",
       "Google Analytics setup",
       "1 round of revisions",
-      "7 days delivery",
+      "7-day delivery"
     ],
-    popular: false,
+    popular: false
   },
   {
     id: 2,
     name: "WordPress Business",
     price: "$1,200",
-    period: "one-time",
+    period: "— one-time",
     description: "Ideal for growing businesses",
     features: [
       "Up to 10 pages",
-      "Custom design (Elementor Pro)",
+      "Custom design with Elementor Pro",
       "Mobile + speed optimized",
-      "On-page SEO (titles, tags, alt)",
-      "Contact + lead forms + chat",
+      "On-page SEO (titles, tags, structured content)",
+      "Lead forms + chat integration",
       "Blog setup included",
-      "Google Analytics & Search Console",
-      "2 rounds of revisions",
-      "10-12 days delivery",
+      "Google Analytics + Search Console",
+      "2 revision rounds",
+      "10–12 days delivery"
     ],
-    popular: true,
+    popular: true
   },
   {
     id: 3,
-    name: "E-commerce Store",
+    name: "E-commerce Store (WooCommerce)",
     price: "$1,500",
-    period: "one-time",
-    description: "For online stores and e-commerce",
+    period: "— one-time",
+    description: "For online stores and e-commerce brands",
     features: [
-      "Up to 10 pages + 10 products",
-      "WooCommerce storefront design",
-      "Mobile + checkout optimized",
+      "Up to 10 pages + 10 products added",
+      "Custom WooCommerce storefront design",
+      "Mobile + checkout flow optimized",
       "Basic SEO for products + pages",
-      "Payment gateway + shipping setup",
-      "Coupons, upsells, shipping rules",
+      "Payment gateway setup",
+      "Shipping zones + rules",
+      "Coupons, upsells & cart rules",
       "Contact + chat + cart forms",
       "2 rounds of revisions",
-      "12-15 days delivery",
+      "12–15 days delivery"
     ],
-    popular: false,
-  },
+    popular: false
+  }
 ];
 
 export default function WebDevelopment() {
@@ -202,11 +263,14 @@ export default function WebDevelopment() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    🏆 Featured UK White-Label Partnership
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral font-medium text-md text-white mb-6 px-4 py-1">
+                      Featured UK White-Label Partnership
+                    </Badge>
+                  </div>
                   <h1 className="text-4xl font-bold mb-6">
-                    SocialLand Digital
+                    {/* SocialLand Digital */}
+                    End-to-End Web Development for Growing Brands
                   </h1>
                   <p className="text-xl text-gray-100 mb-8">
                     {featuredClient.description}
@@ -214,7 +278,7 @@ export default function WebDevelopment() {
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
                     <h2 className="text-xl font-bold mb-4">
-                      Development Achievements in Initial project + 2-year partnership
+                      Development Achievements in Initial project +2 year partnership
                     </h2>
                     <ul className="space-y-2 text-gray-100">
                       {featuredClient.achievements.map((achievement, index) => (
@@ -230,7 +294,7 @@ export default function WebDevelopment() {
                     <Button
                       className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                       // onClick={() => window.open("https://calendly.com/vignesh-velusamy/30min?month=2025-09","_blank",)}
-                      onClick={() => window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9","_blank",)}
+                      onClick={() => window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)}
                     >
                       Schedule a Consultation
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -399,10 +463,10 @@ export default function WebDevelopment() {
                         ))}
                       </ul>
 
-                      <div className="mt-auto pt-8 border-t border-gray-100">
-                        <Link href="/contact" className="w-full">
+                      <div className="flex flex-col gap-2 mt-auto pt-8 border-t border-gray-100">
+                        <Link href="/contact?service=website-development&/#contact-form" className="w-full">
                           <Button
-                            className={`w-full py-6 px-8 font-bold text-lg transition-all duration-300 ${pkg.popular
+                            className={`w-full py-4 px-8 font-medium text-md transition-all duration-300 ${pkg.popular
                               ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
                               : "bg-brand-purple hover:bg-brand-purple/90 text-white"
                               }`}
@@ -415,13 +479,27 @@ export default function WebDevelopment() {
                             <Gift className="w-5 h-5 ml-3" />
                           </Button>
                         </Link>
+                        <a
+                          href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full"
+                        >
+                          <Button
+                            variant="outline"
+                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                          >
+                            Schedule Consultation
+                            <Calendar className="w-4 h-4 ml-2" />
+                          </Button>
+                        </a>
                       </div>
                     </CardContent>
                   </Card>
                 ))}
               </div>
 
-              <div className="text-center mt-12">
+              {/* <div className="text-center mt-12">
                 <h3 className="text-gray-600 mb-4">
                   Need a custom solution? We offer tailored web development for enterprise clients.
                 </h3>
@@ -433,7 +511,7 @@ export default function WebDevelopment() {
                     Contact Us for Custom Pricing
                   </Button>
                 </Link>
-              </div>
+              </div> */}
             </div>
           </section>
 

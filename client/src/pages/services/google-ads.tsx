@@ -6,7 +6,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
+import as_Logo from "../../../public/images/AS.png";
 import { Link, useLocation } from "wouter";
 import {
   TrendingUp,
@@ -23,7 +23,8 @@ import {
   Shield,
   Search,
   DollarSign,
-  Gift
+  Gift,
+  Calendar
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { navigate } from "wouter/use-browser-location";
@@ -35,11 +36,13 @@ const featuredClient = {
   website: "https://www.arlingsworth.com",
   description: "A UK-based law firm specializing in family law, probate, and divorce matters.",
   achievements: [
-    "£6.51 cost per acquisition (lowest)",
-    "18.95% best conversion rate",
-    "8.76% top CTR",
+    "£6.5 cost per acquisition (lowest)",
+    "19% best conversion rate",
+    // "18.95% best conversion rate",
+    "9% top CTR",
+    // "8.76% top CTR",
     "1,139+ total clicks",
-    "100+ conversions, 77.5 phone calls"
+    "100+ conversions, 78 phone calls"
   ],
   industry: "Legal Services",
   timeframe: "30 days"
@@ -52,9 +55,11 @@ const caseStudies = [
     client: "Arlingsworth Solicitors",
     industry: "Legal Services",
     results: {
-      cpa: "£6.51 lowest CPA",
-      conversionRate: "18.95% conversion rate",
-      clicks: "1,139+ total clicks"
+      cpa: "£6.5 Lowest CPA",
+      // cpa: "£6.51 lowest CPA",
+      conversionRate: "19% Conversion Rate",
+      // conversionRate: "18.95% conversion rate",
+      clicks: "1,139+ Total Clicks"
     },
     description: "Achieved exceptional results for UK family law firm with Performance Max and Search campaigns optimization.",
     link: "/case-studies/arlingsworth-solicitors-case-study"
@@ -66,10 +71,11 @@ const caseStudies = [
     industry: "Waste Management",
     results: {
       cpaReduction: "82% CPA reduction",
-      conversions: "706 total conversions",
+      conversions: "706 Total Conversions",
       roas: "1.28x ROAS achieved"
     },
-    description: "Dramatically reduced CPA from $34.37 to $6.09 for US junk removal company through strategic campaign restructure.",
+    description: "Dramatically reduced CPA from $34 to $6 for US junk removal company through strategic campaign restructure.",
+    // description: "Dramatically reduced CPA from $34.37 to $6.09 for US junk removal company through strategic campaign restructure.",
     link: "/case-studies/junksaway-case-study"
   },
   {
@@ -78,29 +84,95 @@ const caseStudies = [
     client: "The Dog Guy",
     industry: "Dog Training",
     results: {
-      conversionRate: "12.06% conversion rate",
-      conversions: "192 total conversions",
-      cpa: "£20.35 average CPA"
+      conversionRate: "12% Conversion Rate",
+      // conversionRate: "12.06% Conversion Rate",
+      conversions: "192 Total Leads",
+      cpa: "£20 Average CPA"
+      // cpa: "£20.35 Average CPA"
     },
     description: "Optimized underperforming campaigns for UK dog training business, transitioning from audit to monthly retainer.",
     link: "/case-studies/the-dog-guy-case-study"
   }
 ];
 
+// const pricingPackages = [
+//   {
+//     id: 1,
+//     name: "Starter",
+//     price: "$800",
+//     period: "/month",
+//     period1: "+ ad spend",
+//     description: "Perfect for small businesses starting with Google Ads",
+//     features: [
+//       "Ad spend range: $2,500 - $5,000",
+//       "Search Ads & Performance Max",
+//       "Remarketing campaigns",
+//       "Up to 2 target locations",
+//       "3 search ad sets",
+//       "Conversion tracking setup",
+//       "Monthly summary report",
+//       "Email support"
+//     ],
+//     popular: false
+//   },
+//   {
+//     id: 2,
+//     name: "Growth",
+//     price: "$1200",
+//     period: "/month",
+//     period1: "+ ad spend",
+//     description: "Ideal for growing businesses",
+//     features: [
+//       "Ad spend range: $6,000 - $8,500",
+//       "Search, PMax, Display & Brand campaigns",
+//       "Up to 5 target locations",
+//       "5 search + 1 display creative",
+//       "Landing page optimization recommendations",
+//       "Audience segmentation",
+//       "Monthly competitor monitoring",
+//       "Detailed PDF reports",
+//       "2 monthly strategy calls"
+//     ],
+//     popular: true
+//   },
+//   {
+//     id: 3,
+//     name: "Scale",
+//     price: "$1,500",
+//     period: "/month",
+//     period1: "+ ad spend",
+//     description: "For large businesses and complex campaigns",
+//     features: [
+//       "Ad spend range: $8,500 - $15,000",
+//       "Full funnel ads: Search, Display, YouTube",
+//       "Shopping ads (if e-commerce)",
+//       "Nationwide or up to 10 locations",
+//       "Advanced audience segmentation",
+//       "A/B testing recommendations",
+//       "Bi-weekly competitor monitoring",
+//       "Advanced dashboard access",
+//       "3 strategy calls + priority support"
+//     ],
+//     popular: false
+//   }
+// ];
+
 const pricingPackages = [
   {
     id: 1,
     name: "Starter",
     price: "$800",
-    period: "/month + ad spend",
+    period: "/month",
+    period1: "+ ad spend",
     description: "Perfect for small businesses starting with Google Ads",
     features: [
-      "Ad spend range: $2,500 - $5,000",
+      "Ad spend range: $2,500 – $5,000",
       "Search Ads & Performance Max",
       "Remarketing campaigns",
       "Up to 2 target locations",
       "3 search ad sets",
       "Conversion tracking setup",
+      "Landing page recommendations",
       "Monthly summary report",
       "Email support"
     ],
@@ -108,15 +180,16 @@ const pricingPackages = [
   },
   {
     id: 2,
-    name: "Growth",
-    price: "$1200",
-    period: "/month + ad spend",
-    description: "Ideal for growing businesses",
+    name: "Growth (Most Popular)",
+    price: "$1,200",
+    period: "/month",
+    period1: "+ ad spend",
+    description: "Ideal for growing businesses improving ROI",
     features: [
-      "Ad spend range: $6,000 - $8,500",
-      "Search, PMax, Display & Brand campaigns",
+      "Ad spend range: $5,000 – $10,000",
+      "Search, Performance Max, Display & Brand campaigns",
       "Up to 5 target locations",
-      "5 search + 1 display creative",
+      "5 search ads + 1 display creative",
       "Landing page optimization recommendations",
       "Audience segmentation",
       "Monthly competitor monitoring",
@@ -127,20 +200,21 @@ const pricingPackages = [
   },
   {
     id: 3,
-    name: "Scale",
-    price: "$1,500",
-    period: "/month + ad spend",
-    description: "For large businesses and complex campaigns",
+    name: "Scale (Premium Management)",
+    price: "$2,500",
+    period: "/month",
+    period1: "+ ad spend",
+    description: "For large businesses & complex, high-budget campaigns",
     features: [
-      "Ad spend range: $8,500 - $15,000",
-      "Full funnel ads: Search, Display, YouTube",
-      "Shopping ads (if e-commerce)",
-      "Nationwide or up to 10 locations",
+      "Ad spend range: $10,000 – $25,000+",
+      "Full-funnel ads: Search, Display, YouTube, Shopping (for e-commerce)",
+      "Nationwide targeting or up to 10 locations",
       "Advanced audience segmentation",
       "A/B testing recommendations",
       "Bi-weekly competitor monitoring",
       "Advanced dashboard access",
-      "3 strategy calls + priority support"
+      "3 strategy calls + priority support",
+      "CRO guidance for landing pages"
     ],
     popular: false
   }
@@ -198,10 +272,12 @@ export default function GoogleAds() {
             <div className="max-w-7xl mx-auto p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <Badge className="bg-white/20 text-white border-white/30 mb-6">
-                    🏆 Featured Google Ads Client of the Month
-                  </Badge>
-                  <h1 className="text-4xl font-bold mb-6">
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white text-md mb-6 font-medium px-4 py-1 rounded-full">
+                      Featured Google Ads Client of the Month
+                    </Badge>
+                  </div>
+                  <h1 className="text-2xl sm:text-xl md:text-3xl lg:text-5xl font-bold mb-6">
                     Arlingsworth Solicitors
                   </h1>
                   <p className="text-xl text-gray-100 mb-8">
@@ -244,8 +320,9 @@ export default function GoogleAds() {
                   <Card className="bg-white/95 backdrop-blur-sm border border-white/20 p-6">
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                          <span className="text-xl font-bold text-white">AS</span>
+                        <div className="w-16 h-16 rounded-lg flex items-center justify-center">
+                          {/* <span className="text-xl font-bold text-white">AS</span>  bg-gradient-to-br from-blue-500 to-purple-600*/}
+                          <img src={as_Logo} alt="AS Logo" />
                         </div>
                         <Badge className="bg-blue-100 text-blue-800 border-blue-200">
                           {featuredClient.industry}
@@ -491,7 +568,7 @@ export default function GoogleAds() {
 
                       <div className="mt-4 flex items-baseline justify-center gap-2">
                         <span className="text-4xl font-extrabold text-brand-coral">{pkg.price}</span>
-                        <span className="text-gray-900/70">{pkg.period}</span>
+                        <span className="text-gray-900/70">{pkg.period} <strong className="text-brand-coral font-medium">{pkg.period1}</strong></span>
                       </div>
 
                       <p className="text-gray-900/80 mt-2">{pkg.description}</p>
@@ -518,7 +595,7 @@ export default function GoogleAds() {
                               : "bg-brand-purple hover:bg-brand-purple/90 text-white"
                               }`}
                           >
-                            <Link href="/contact?service=Google Ads">
+                            <Link href="/contact?service=google-ads&/#contact-form">
                               {pkg.id === 1
                                 ? "Start Google Ads Campaign"
                                 : pkg.id === 2
@@ -528,7 +605,7 @@ export default function GoogleAds() {
                             </Link>
                           </Button>
 
-                          <Button
+                          {/* <Button
                             asChild
                             variant="outline"
                             className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
@@ -537,7 +614,21 @@ export default function GoogleAds() {
                               View Google Ads Details
                               <ArrowRight className="w-4 h-4 ml-2" />
                             </Link>
-                          </Button>
+                          </Button> */}
+                          <a
+                            href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full"
+                          >
+                            <Button
+                              variant="outline"
+                              className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                            >
+                              Schedule Consultation
+                              <Calendar className="w-4 h-4 ml-2" />
+                            </Button>
+                          </a>
                         </div>
                       </div>
                     </CardContent>
@@ -546,7 +637,7 @@ export default function GoogleAds() {
               </div>
 
               {/* Footer CTA */}
-              <div className="text-center mt-12">
+              {/* <div className="text-center mt-12">
                 <p className="text-gray-900/80 mb-4">
                   Managing large ad spends? Contact us for enterprise-level Google Ads management.
                 </p>
@@ -560,7 +651,7 @@ export default function GoogleAds() {
                 >
                   Contact Us for Enterprise Pricing
                 </Button>
-              </div>
+              </div> */}
             </div>
           </section>
 

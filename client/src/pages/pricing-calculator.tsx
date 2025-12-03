@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,11 +32,7 @@ interface PricingResult {
 export default function PricingCalculator() {
   const [selectedService, setSelectedService] = useState<string>('');
   const [currentStep, setCurrentStep] = useState<number>(1);
-
-  // NEW: modal for service configuration
   const [showServiceModal, setShowServiceModal] = useState(false);
-
-  // Contact form modal state
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
@@ -44,32 +40,57 @@ export default function PricingCalculator() {
     phone: '',
     website: ''
   });
-
   const { toast } = useToast();
 
-  // Helper function to extract domain from various URL formats
+  // AUTO SELECT SERVICE FROM URL + OPEN MODAL
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const serviceParam = params.get('service');
+
+    const serviceMap: Record<string, string> = {
+      seo: 'seo',
+      'google-ads': 'google-ads',
+      googleads: 'google-ads',
+      ads: 'google-ads',
+      'dedicated-resources': 'dedicated-resources',
+      team: 'dedicated-resources',
+      resources: 'dedicated-resources',
+      'web-development': 'web-development',
+      website: 'web-development',
+      web: 'web-development',
+      'ai-development': 'ai-development',
+      ai: 'ai-development',
+      'custom-ai': 'ai-development'
+    };
+
+    const matched = serviceParam ? serviceMap[serviceParam.toLowerCase()] : null;
+
+    if (matched && selectedService !== matched) {
+      setSelectedService(matched);
+
+      setTimeout(() => {
+        setShowServiceModal(true);
+      }, 150);
+
+      // Clean URL (optional but clean)
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('service');
+      window.history.replaceState({}, '', newUrl);
+    }
+  }, []);
+
   const extractDomain = (url: string): string => {
     if (!url) return '';
-
-    // Remove common prefixes and clean up the URL
     let cleanUrl = url.trim().toLowerCase();
-
-    // Remove protocol if present
     cleanUrl = cleanUrl.replace(/^https?:\/\//, '');
-
-    // Remove www. if present
     cleanUrl = cleanUrl.replace(/^www\./, '');
-
-    // Remove trailing slash and paths
     cleanUrl = cleanUrl.split('/')[0];
-
-    // Remove port numbers if present
     cleanUrl = cleanUrl.split(':')[0];
-
     return cleanUrl;
   };
 
-  // Contact form submission mutation
   const contactMutation = useMutation({
     mutationFn: async (data: any) => {
       return await apiRequest("/api/contacts", "POST", data);
@@ -80,27 +101,17 @@ export default function PricingCalculator() {
         description: "Thank you for your interest. We'll contact you within 24 hours with a detailed proposal.",
         duration: 5000,
       });
-
-      // Reset and close modal
       setContactForm({ name: '', email: '', phone: '', website: '' });
       setShowContactModal(false);
-
-      // Redirect to Calendly after a brief delay
       setTimeout(() => {
-        // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank");
       }, 1000);
     },
     onError: (error: any) => {
       console.error('Contact form error:', error);
-
       let errorMessage = "Please try again or contact us directly.";
-      if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-
+      if (error?.response?.data?.message) errorMessage = error.response.data.message;
+      else if (error?.message) errorMessage = error.message;
       toast({
         title: "Please check your information",
         description: errorMessage,
@@ -109,14 +120,11 @@ export default function PricingCalculator() {
     }
   });
 
-  // Normalize mutation loading state (some react-query versions/type setups use different flags)
-  const contactSubmitting = (contactMutation as any).isLoading || (contactMutation as any).isPending || (contactMutation as any).status === 'loading' || false;
+  const contactSubmitting = (contactMutation as any).isLoading || (contactMutation as any).isPending || false;
 
-  // Dedicated Resources State - Multi-team builder
   const [selectedTeam, setSelectedTeam] = useState<Record<string, Record<string, number>>>({});
   const [activeResourceType, setActiveResourceType] = useState<string>('');
 
-  // Google Ads State - Individual client management
   const [clients, setClients] = useState<Array<{
     id: string;
     name: string;
@@ -129,16 +137,9 @@ export default function PricingCalculator() {
   }>>([]);
   const [showAddClient, setShowAddClient] = useState(false);
   const [newClient, setNewClient] = useState({
-    name: '',
-    website: '',
-    monthlyAdSpend: 2000,
-    campaigns: 1,
-    campaignTypes: [] as string[],
-    industry: '',
-    customIndustry: ''
+    name: '', website: '', monthlyAdSpend: 2000, campaigns: 1, campaignTypes: [] as string[], industry: '', customIndustry: ''
   });
 
-  // SEO State - Individual client management
   const [seoClients, setSeoClients] = useState<Array<{
     id: string;
     name: string;
@@ -152,36 +153,24 @@ export default function PricingCalculator() {
   }>>([]);
   const [showAddSeoClient, setShowAddSeoClient] = useState(false);
   const [newSeoClient, setNewSeoClient] = useState({
-    name: '',
-    website: '',
-    targetKeywords: 10,
-    competitionLevel: 'medium',
-    industry: '',
-    customIndustry: '',
-    currentRanking: 'page-2-3',
-    competitors: ['', '', '']
+    name: '', website: '', targetKeywords: 10, competitionLevel: 'medium', industry: '', customIndustry: '', currentRanking: 'page-2-3', competitors: ['', '', '']
   });
 
-  // SEO State
   const [websiteCount, setWebsiteCount] = useState<number>(1);
   const [businessType, setBusinessType] = useState<string>('');
   const [currentRankings, setCurrentRankings] = useState<string>('');
   const [targetKeywords, setTargetKeywords] = useState<number>(20);
   const [contentNeeds, setContentNeeds] = useState<string[]>([]);
 
-  // Web Development State
   const [websiteType, setWebsiteType] = useState<string>('');
   const [websiteComplexity, setWebsiteComplexity] = useState<string>('');
   const [integrations, setIntegrations] = useState<string[]>([]);
   const [designRequirements, setDesignRequirements] = useState<string>('');
   const [maintenanceNeeds, setMaintenanceNeeds] = useState<string>('');
-
-  // E-commerce specific state
   const [ecommercePlatform, setEcommercePlatform] = useState<string>('');
   const [productCount, setProductCount] = useState<number>(50);
   const [productPageFeatures, setProductPageFeatures] = useState<string[]>([]);
 
-  // AI Development State
   const [aiProjectType, setAiProjectType] = useState<string>('');
   const [aiComplexity, setAiComplexity] = useState<string>('');
   const [aiIntegrations, setAiIntegrations] = useState<string[]>([]);
@@ -189,88 +178,28 @@ export default function PricingCalculator() {
   const [customModels, setCustomModels] = useState<boolean>(false);
   const [maintenanceSupport, setMaintenanceSupport] = useState<string>('');
 
-  // 🔹 NEW: Integration option lists
   const ecommerceIntegrationsList = [
-    'Google Analytics',
-    'Facebook Pixel',
-    'Klaviyo',
-    'Mailchimp',
-    'Zapier',
-    'Stripe',
-    'PayPal',
-    'Razorpay',
-    'ShipStation',
-    'Zoho Inventory',
-    'QuickBooks',
-    'HubSpot CRM'
+    'Google Analytics', 'Facebook Pixel', 'Klaviyo', 'Mailchimp', 'Zapier', 'Stripe',
+    'PayPal', 'Razorpay', 'ShipStation', 'Zoho Inventory', 'QuickBooks', 'HubSpot CRM'
   ];
 
   const webIntegrationsList = [
-    'Google Analytics',
-    'CRM Integration (HubSpot, Zoho)',
-    'Payment Gateway (Stripe, PayPal)',
-    'Newsletter (Mailchimp, Klaviyo)',
-    'Chat Widget (Tidio, Intercom)',
-    'Booking System',
-    'Zapier Automation',
-    'Map / Location Integration',
-    'Blog CMS',
-    'API Integrations'
+    'Google Analytics', 'CRM Integration (HubSpot, Zoho)', 'Payment Gateway (Stripe, PayPal)',
+    'Newsletter (Mailchimp, Klaviyo)', 'Chat Widget (Tidio, Intercom)', 'Booking System',
+    'Zapier Automation', 'Map / Location Integration', 'Blog CMS', 'API Integrations'
   ];
 
-  // Available resource types from Google Doc pricing structure
   const resourceTypes = [
-    'Graphic Designer',
-    'Video Editor',
-    'SEO Specialist',
-    'Google Ads Expert',
-    'Web Developer',
-    'Full Stack Developer',
-    // 'Social Media Manager',
-    'AI Developer',
-    // 'Virtual Assistant'
+    'Graphic Designer', 'Video Editor', 'SEO Specialist', 'Google Ads Expert',
+    'Web Developer', 'Full Stack Developer', 'AI Developer'
   ];
 
-  // Skill levels available for each resource type - all resources have all skill levels
-  const getSkillLevelsForResource = (resourceType: string) => {
-    return ['junior', 'mid', 'senior'];
-  };
+  const getSkillLevelsForResource = (resourceType: string) => ['junior', 'mid', 'senior'];
 
-  // Pricing data matching Google Docs pricing structure
   const dedicatedResourcesPricing = {
-    junior: {
-      'Graphic Designer': 1000,
-      'Video Editor': 1000,
-      'SEO Specialist': 1000,
-      'Google Ads Expert': 1200,
-      'Web Developer': 1000,
-      'Full Stack Developer': 1200,
-      'Social Media Manager': 1000,
-      'AI Developer': 800,
-      // 'Virtual Assistant': 800
-    },
-    mid: {
-      'Graphic Designer': 1200,
-      'Video Editor': 1400,
-      'SEO Specialist': 1800,
-      'Google Ads Expert': 2000,
-      'Web Developer': 1800,
-      'Full Stack Developer': 2000,
-      'Social Media Manager': 1400,
-      'AI Developer': 1000,
-      // 'Virtual Assistant': 1000
-    },
-    senior: {
-      'Graphic Designer': 2000,
-      'Video Editor': 2200,
-      'SEO Specialist': 2800,
-      'Google Ads Expert': 3000,
-      'Web Developer': 2800,
-      'Full Stack Developer': 3500,
-      'Social Media Manager': 2200,
-      'AI Developer': 1400,
-      // 'Virtual Assistant': 1500
-    }
+    junior: { 'Graphic Designer': 1000, 'Video Editor': 1000, 'SEO Specialist': 1000, 'Google Ads Expert': 1200, 'Web Developer': 1000, 'Full Stack Developer': 1200, 'AI Developer': 800 },
+    mid: { 'Graphic Designer': 1200, 'Video Editor': 1400, 'SEO Specialist': 1800, 'Google Ads Expert': 2000, 'Web Developer': 1800, 'Full Stack Developer': 2000, 'AI Developer': 1000 },
+    senior: { 'Graphic Designer': 2000, 'Video Editor': 2200, 'SEO Specialist': 2800, 'Google Ads Expert': 3000, 'Web Developer': 2800, 'Full Stack Developer': 3500, 'AI Developer': 1400 }
   };
 
   const googleAdsPricing = {
@@ -279,50 +208,25 @@ export default function PricingCalculator() {
     scale: { price: 1299, minSpend: 8000, maxSpend: 15000 }
   };
 
-  const seoPricing = {
-    starter: 400,
-    growth: 650,
-    pro: 1200
-  };
+  const seoPricing = { starter: 400, growth: 650, pro: 1200 };
 
   const webDevelopmentPricing = {
-    'wordpress-starter': 600,
-    'wordpress-business': 1200,
-    'wordpress-ecommerce': 1500,
-    'shopify-starter': 750,
-    'shopify-business': 1499,
-    'shopify-advanced': 2499,
-    'bigcommerce-starter': 850,
-    'bigcommerce-business': 1600,
-    'bigcommerce-advanced': 2799,
-    'full-stack-site': 999,
-    'custom-business': 2499,
-    'custom-advanced': 4999
+    'wordpress-starter': 600, 'wordpress-business': 1200, 'wordpress-ecommerce': 1500,
+    'shopify-starter': 750, 'shopify-business': 1499, 'shopify-advanced': 2499,
+    'bigcommerce-starter': 850, 'bigcommerce-business': 1600, 'bigcommerce-advanced': 2799,
+    'full-stack-site': 999, 'custom-business': 2499, 'custom-advanced': 4999
   };
 
-  // Team builder helper functions
   const addResourceToTeam = (resourceType: string, skillLevel: string, count: number) => {
     setSelectedTeam(prev => ({
       ...prev,
-      [resourceType]: {
-        ...prev[resourceType],
-        [skillLevel]: (prev[resourceType]?.[skillLevel] || 0) + count
-      }
+      [resourceType]: { ...prev[resourceType], [skillLevel]: (prev[resourceType]?.[skillLevel] || 0) + count }
     }));
   };
 
   const updateResourceCount = (resourceType: string, skillLevel: string, count: number) => {
-    if (count <= 0) {
-      removeResourceFromTeam(resourceType, skillLevel);
-      return;
-    }
-    setSelectedTeam(prev => ({
-      ...prev,
-      [resourceType]: {
-        ...prev[resourceType],
-        [skillLevel]: count
-      }
-    }));
+    if (count <= 0) { removeResourceFromTeam(resourceType, skillLevel); return; }
+    setSelectedTeam(prev => ({ ...prev, [resourceType]: { ...prev[resourceType], [skillLevel]: count } }));
   };
 
   const removeResourceFromTeam = (resourceType: string, skillLevel: string) => {
@@ -330,22 +234,17 @@ export default function PricingCalculator() {
       const newTeam = { ...prev };
       if (newTeam[resourceType]) {
         delete newTeam[resourceType][skillLevel];
-        if (Object.keys(newTeam[resourceType]).length === 0) {
-          delete newTeam[resourceType];
-        }
+        if (Object.keys(newTeam[resourceType]).length === 0) delete newTeam[resourceType];
       }
       return newTeam;
     });
   };
 
-  // Calculate total team size for discounts
   const getTotalTeamSize = (): number => {
-    return Object.values(selectedTeam).reduce((total, skillLevels) =>
-      total + Object.values(skillLevels).reduce((sum, count) => sum + count, 0), 0
-    );
+    return Object.values(selectedTeam).reduce((total, levels) =>
+      total + Object.values(levels).reduce((sum, count) => sum + count, 0), 0);
   };
 
-  // Team discount calculation
   const getTeamDiscount = (size: number): number => {
     if (size >= 8) return 20;
     if (size >= 5) return 15;
@@ -354,10 +253,8 @@ export default function PricingCalculator() {
     return 0;
   };
 
-  // Client management functions
   const addClient = () => {
     if (!newClient.name.trim()) return;
-
     const client = {
       id: Date.now().toString(),
       name: newClient.name,
@@ -368,59 +265,23 @@ export default function PricingCalculator() {
       industry: newClient.industry === 'other' ? newClient.customIndustry : newClient.industry,
       customIndustry: newClient.customIndustry
     };
-
     setClients(prev => [...prev, client]);
-    setNewClient({
-      name: '',
-      website: '',
-      monthlyAdSpend: 2000,
-      campaigns: 1,
-      campaignTypes: [],
-      industry: '',
-      customIndustry: ''
-    });
+    setNewClient({ name: '', website: '', monthlyAdSpend: 2000, campaigns: 1, campaignTypes: [], industry: '', customIndustry: '' });
     setShowAddClient(false);
   };
 
-  const removeClient = (clientId: string) => {
-    setClients(prev => prev.filter(c => c.id !== clientId));
-  };
+  const removeClient = (clientId: string) => setClients(prev => prev.filter(c => c.id !== clientId));
 
-  const updateClient = (clientId: string, updates: Partial<typeof newClient>) => {
-    setClients(prev => prev.map(c =>
-      c.id === clientId ? { ...c, ...updates } : c
-    ));
-  };
-
-  // Calculate price for individual client based on their specific needs
   const calculateClientPrice = (client: typeof clients[0]): number => {
-    let basePrice = 0;
-    if (client.monthlyAdSpend <= 3000) {
-      basePrice = googleAdsPricing.starter.price;
-    } else if (client.monthlyAdSpend <= 8000) {
-      basePrice = googleAdsPricing.growth.price;
-    } else {
-      basePrice = googleAdsPricing.scale.price;
-    }
-
-    // Campaign scaling: Each additional campaign adds 15% of base price
-    let scaledPrice = basePrice;
-    if (client.campaigns > 1) {
-      scaledPrice += (client.campaigns - 1) * (basePrice * 0.15);
-    }
-
-    // Complexity bonus for multiple campaign types
-    if (client.campaignTypes.length > 3) {
-      scaledPrice += scaledPrice * 0.1; // 10% bonus for high complexity
-    }
-
+    let basePrice = client.monthlyAdSpend <= 3000 ? googleAdsPricing.starter.price
+      : client.monthlyAdSpend <= 8000 ? googleAdsPricing.growth.price : googleAdsPricing.scale.price;
+    let scaledPrice = basePrice + (client.campaigns - 1) * (basePrice * 0.15);
+    if (client.campaignTypes.length > 3) scaledPrice += scaledPrice * 0.1;
     return Math.round(scaledPrice);
   };
 
-  // SEO Client management functions
   const addSeoClient = () => {
     if (!newSeoClient.name.trim()) return;
-
     const client = {
       id: Date.now().toString(),
       name: newSeoClient.name,
@@ -432,106 +293,63 @@ export default function PricingCalculator() {
       currentRanking: newSeoClient.currentRanking,
       competitors: newSeoClient.competitors.filter(c => c.trim() !== '')
     };
-
     setSeoClients(prev => [...prev, client]);
-    setNewSeoClient({
-      name: '',
-      website: '',
-      targetKeywords: 10,
-      competitionLevel: 'medium',
-      industry: '',
-      customIndustry: '',
-      currentRanking: 'page-2-3',
-      competitors: ['', '', '']
-    });
+    setNewSeoClient({ name: '', website: '', targetKeywords: 10, competitionLevel: 'medium', industry: '', customIndustry: '', currentRanking: 'page-2-3', competitors: ['', '', ''] });
     setShowAddSeoClient(false);
   };
 
-  const removeSeoClient = (clientId: string) => {
-    setSeoClients(prev => prev.filter(c => c.id !== clientId));
+  const removeSeoClient = (clientId: string) => setSeoClients(prev => prev.filter(c => c.id !== clientId));
+
+  const calculateSeoClientPrice = (client: typeof seoClients[0]): number => {
+    let basePrice = client.targetKeywords <= 15 ? seoPricing.starter : client.targetKeywords <= 30 ? seoPricing.growth : seoPricing.pro;
+    let competitionMultiplier = client.competitionLevel === 'high' ? 1.3 : client.competitionLevel === 'very-high' ? 1.5 : client.competitionLevel === 'low' ? 0.8 : 1;
+    let rankingMultiplier = client.currentRanking === 'not-ranking' ? 1.2 : client.currentRanking === 'page-1' ? 0.9 : 1;
+    return Math.round(basePrice * competitionMultiplier * rankingMultiplier);
   };
 
-  // Calculate price for individual SEO client based on their specific needs
-  const calculateSeoClientPrice = (client: typeof seoClients[0]): number => {
-    // Base pricing based on keyword count
-    let basePrice = 0;
-    if (client.targetKeywords <= 15) {
-      basePrice = seoPricing.starter;
-    } else if (client.targetKeywords <= 30) {
-      basePrice = seoPricing.growth;
-    } else {
-      basePrice = seoPricing.pro;
-    }
+  const handleServiceChange = (value: string) => {
+    setSelectedService(value);
+    setShowServiceModal(true);
 
-    // Competition level multiplier
-    let competitionMultiplier = 1;
-    if (client.competitionLevel === 'high') {
-      competitionMultiplier = 1.3;
-    } else if (client.competitionLevel === 'very-high') {
-      competitionMultiplier = 1.5;
-    } else if (client.competitionLevel === 'low') {
-      competitionMultiplier = 0.8;
+    if (value === 'web-development') {
+      setWebsiteType('wordpress-business');
+      setWebsiteComplexity('medium');
+      setEcommercePlatform('');
+      setProductCount(50);
+      setProductPageFeatures([]);
+      setIntegrations(['Google Analytics', 'Payment Gateway (Stripe, PayPal)', 'Chat Widget (Tidio, Intercom)', 'Zapier Automation']);
+      setDesignRequirements('');
+      setMaintenanceNeeds('');
     }
-
-    // Current ranking adjustment (easier to improve from page 1 = lower cost)
-    let rankingMultiplier = 1;
-    if (client.currentRanking === 'not-ranking') {
-      rankingMultiplier = 1.2; // More work needed
-    } else if (client.currentRanking === 'page-1') {
-      rankingMultiplier = 0.9; // Already ranking well
-    }
-
-    return Math.round(basePrice * competitionMultiplier * rankingMultiplier);
   };
 
   const calculatePricing = (): PricingResult | null => {
     if (!selectedService) return null;
-
-    let result: PricingResult = {
-      service: selectedService,
-      monthlyPrice: 0,
-      setupFee: 0,
-      features: [],
-      teamDiscount: 0,
-      savings: 0
-    };
+    let result: PricingResult = { service: selectedService, monthlyPrice: 0, setupFee: 0, features: [], teamDiscount: 0, savings: 0 };
 
     switch (selectedService) {
       case 'dedicated-resources':
         if (Object.keys(selectedTeam).length === 0) return null;
-
         let totalPrice = 0;
         const features: string[] = [];
         const totalTeamSize = getTotalTeamSize();
         const discount = getTeamDiscount(totalTeamSize);
 
-        // Calculate price for each resource type and skill level
         Object.entries(selectedTeam).forEach(([resourceType, skillLevels]) => {
           Object.entries(skillLevels).forEach(([skillLevel, count]) => {
             const price = dedicatedResourcesPricing[skillLevel as keyof typeof dedicatedResourcesPricing][resourceType as keyof typeof dedicatedResourcesPricing.junior] || 1500;
             const discountedPrice = price * (1 - discount / 100);
             totalPrice += discountedPrice * count;
-
             features.push(`${count} ${skillLevel} ${resourceType}${count > 1 ? 's' : ''}`);
           });
         });
 
-        // Check if dedicated manager is needed
         const needsDedicatedManager = totalPrice > 5000 || totalTeamSize > 6;
-        const managerFeatures = needsDedicatedManager ? ['Dedicated account manager included'] : [];
-
         result = {
           service: 'Dedicated Resources Team',
           monthlyPrice: Math.round(totalPrice),
           setupFee: 0,
-          features: [
-            ...features,
-            'Full-time dedicated resources',
-            'Your agency branding',
-            'Direct communication access',
-            'Monthly performance reports',
-            ...managerFeatures
-          ],
+          features: [...features, 'Full-time dedicated resources', 'Your agency branding', 'Direct communication access', 'Monthly performance reports', ...(needsDedicatedManager ? ['Dedicated account manager included'] : [])],
           teamDiscount: discount,
           savings: discount > 0 ? Math.round(totalPrice * discount / (100 - discount)) : 0
         };
@@ -539,12 +357,7 @@ export default function PricingCalculator() {
 
       case 'google-ads':
         if (clients.length === 0) return null;
-
-        // Calculate total price across all clients
-        const totalMonthlyPrice = clients.reduce((total, client) => {
-          return total + calculateClientPrice(client);
-        }, 0);
-
+        const totalMonthlyPrice = clients.reduce((total, client) => total + calculateClientPrice(client), 0);
         const totalCampaigns = clients.reduce((total, client) => total + client.campaigns, 0);
         const totalAdSpend = clients.reduce((total, client) => total + client.monthlyAdSpend, 0);
         const allCampaignTypes = Array.from(new Set(clients.flatMap(c => c.campaignTypes)));
@@ -559,25 +372,15 @@ export default function PricingCalculator() {
             `Total ad spend: $${totalAdSpend.toLocaleString()}/month across all clients`,
             `Campaign types: ${allCampaignTypes.join(', ') || 'Not specified'}`,
             `Industries: ${allIndustries.join(', ') || 'Not specified'}`,
-            'Individual client optimization strategies',
-            'Conversion tracking setup for each client',
-            'Monthly performance reports per client',
-            'Dedicated ads specialist',
-            'Ongoing optimization & A/B testing'
-          ],
-          teamDiscount: 0,
-          savings: 0
+            'Individual client optimization strategies', 'Conversion tracking setup for each client',
+            'Monthly performance reports per client', 'Dedicated ads specialist', 'Ongoing optimization & A/B testing'
+          ]
         };
         break;
 
       case 'seo':
         if (seoClients.length === 0) return null;
-
-        // Calculate total price across all SEO clients
-        const totalSeoPrice = seoClients.reduce((total, client) => {
-          return total + calculateSeoClientPrice(client);
-        }, 0);
-
+        const totalSeoPrice = seoClients.reduce((total, client) => total + calculateSeoClientPrice(client), 0);
         const totalKeywords = seoClients.reduce((total, client) => total + client.targetKeywords, 0);
         const allSeoIndustries = Array.from(new Set(seoClients.map(c => c.industry).filter(Boolean)));
         const competitionLevels = Array.from(new Set(seoClients.map(c => c.competitionLevel)));
@@ -590,159 +393,75 @@ export default function PricingCalculator() {
             `Managing ${seoClients.length} website${seoClients.length > 1 ? 's' : ''} with ${totalKeywords} total keywords`,
             `Industries: ${allSeoIndustries.join(', ') || 'Not specified'}`,
             `Competition levels: ${competitionLevels.join(', ')}`,
-            'Individual website audit and optimization',
-            'Custom keyword research per client',
-            'Technical SEO fixes for each site',
-            'Content strategy per client',
-            'Monthly ranking reports per website',
-            'Dedicated SEO specialist',
-            'Link building campaigns'
-          ],
-          teamDiscount: 0,
-          savings: 0
+            'Individual website audit and optimization', 'Custom keyword research per client',
+            'Technical SEO fixes for each site', 'Content strategy per client', 'Monthly ranking reports per website',
+            'Dedicated SEO specialist', 'Link building campaigns'
+          ]
         };
         break;
 
       case 'web-development':
         if (!websiteType) return null;
-
         let webPrice = webDevelopmentPricing[websiteType as keyof typeof webDevelopmentPricing] || 600;
         let webFeatures: string[] = [];
 
-        // E-commerce pricing and features
         if (websiteType === 'ecommerce-store' && ecommercePlatform) {
-          // Base pricing by platform
-          const platformPricing = {
-            shopify: 1500,
-            woocommerce: 1200,
-            bigcommerce: 1800
-          };
+          const platformPricing = { shopify: 1500, woocommerce: 1200, bigcommerce: 1800 };
           webPrice = platformPricing[ecommercePlatform as keyof typeof platformPricing] || 1500;
-
-          // Product setup cost (additional fee based on product count)
-          const productSetupFee = Math.floor(productCount / 50) * 200; // $200 per 50 products
-          webPrice += productSetupFee;
-
-          // Feature complexity bonus
-          const featureBonus = productPageFeatures.length * 100; // $100 per feature
-          webPrice += featureBonus;
-
-          // Integration complexity bonus
-          const integrationBonus = integrations.length * 150; // $150 per integration
-          webPrice += integrationBonus;
+          const productSetupFee = Math.floor(productCount / 50) * 200;
+          webPrice += productSetupFee + productPageFeatures.length * 100 + integrations.length * 150;
 
           webFeatures = [
             `${ecommercePlatform.charAt(0).toUpperCase() + ecommercePlatform.slice(1)} store setup`,
-            `${productCount} products added and configured`,
-            'Mobile-optimized checkout process',
-            'Payment gateway integration',
-            'Inventory management system',
-            'Order management dashboard'
+            `${productCount} products added and configured`, 'Mobile-optimized checkout process',
+            'Payment gateway integration', 'Inventory management system', 'Order management dashboard'
           ];
+          if (productPageFeatures.length > 0) webFeatures.push(`Product features: ${productPageFeatures.join(', ')}`);
+          if (integrations.length > 0) webFeatures.push(`Integrations: ${integrations.join(', ')}`);
 
-          // Add selected product page features
-          if (productPageFeatures.length > 0) {
-            webFeatures.push(`Product features: ${productPageFeatures.join(', ')}`);
-          }
-
-          // Add selected integrations
-          if (integrations.length > 0) {
-            webFeatures.push(`Integrations: ${integrations.join(', ')}`);
-          }
-
-          // Add design requirements pricing for e-commerce
           if (designRequirements) {
-            const designMultiplier = {
-              custom: 1.25,
-              premium: 1.5,
-              luxury: 2.0
-            };
-            const multiplier = designMultiplier[designRequirements as keyof typeof designMultiplier] || 1;
+            const multiplier = { custom: 1.25, premium: 1.5, luxury: 2.0 }[designRequirements] || 1;
             if (multiplier > 1) {
               webPrice *= multiplier;
               webFeatures.push(`${designRequirements.charAt(0).toUpperCase() + designRequirements.slice(1)} design (+${Math.round((multiplier - 1) * 100)}%)`);
             }
           }
 
-          // Add maintenance needs pricing for e-commerce
           if (maintenanceNeeds) {
-            const maintenanceAddons = {
-              none: { cost: 0, label: '' },
-              basic: { cost: 300, label: 'Basic e-commerce maintenance - 6 months (+$300)' },
-              standard: { cost: 600, label: 'Standard e-commerce maintenance - 6 months (+$600)' },
-              premium: { cost: 1000, label: 'Premium e-commerce support - 6 months (+$1,000)' }
-            };
-            const addon = maintenanceAddons[maintenanceNeeds as keyof typeof maintenanceAddons];
-            if (addon && addon.cost > 0) {
-              webPrice += addon.cost;
-              webFeatures.push(addon.label);
+            const addons = { basic: 300, standard: 600, premium: 1000 };
+            const cost = addons[maintenanceNeeds as keyof typeof addons] || 0;
+            if (cost > 0) {
+              webPrice += cost;
+              webFeatures.push(`Maintenance - 6 months (+$${cost})`);
             }
           }
-
-          webFeatures.push('Training and documentation');
-          webFeatures.push('6 months support included');
-
+          webFeatures.push('Training and documentation', '6 months support included');
         } else {
-          // Non-e-commerce websites
-          webFeatures = websiteType.includes('wordpress') ? [
-            'Custom WordPress design',
-            'Mobile-friendly responsive',
-            'Basic SEO optimization',
-            'Contact forms + social links',
-            'Google Analytics setup',
-            'Training included'
-          ] : [
-            'Custom development',
-            'Modern tech stack',
-            'Database integration',
-            'API development',
-            'Performance optimization',
-            '6 months support'
-          ];
+          webFeatures = websiteType.includes('wordpress')
+            ? ['Custom WordPress design', 'Mobile-friendly responsive', 'Basic SEO optimization', 'Contact forms + social links', 'Google Analytics setup', 'Training included']
+            : ['Custom development', 'Modern tech stack', 'Database integration', 'API development', 'Performance optimization', '6 months support'];
 
-          // Add complexity bonuses for non-ecommerce
           if (websiteComplexity) {
-            const complexityMultiplier = {
-              simple: 1,
-              medium: 1.3,
-              complex: 1.6
-            };
-            webPrice *= complexityMultiplier[websiteComplexity as keyof typeof complexityMultiplier] || 1;
+            const multiplier = { simple: 1, medium: 1.3, complex: 1.6 }[websiteComplexity] || 1;
+            webPrice *= multiplier;
           }
-
-          // Add integration bonuses
           webPrice += integrations.length * 100;
+          if (integrations.length > 0) webFeatures.push(`Integrations: ${integrations.join(', ')}`);
 
-          if (integrations.length > 0) {
-            webFeatures.push(`Integrations: ${integrations.join(', ')}`);
-          }
-
-          // Add design requirements pricing
           if (designRequirements) {
-            const designMultiplier = {
-              custom: 1.25,
-              premium: 1.5,
-              luxury: 2.0
-            };
-            const multiplier = designMultiplier[designRequirements as keyof typeof designMultiplier] || 1;
+            const multiplier = { custom: 1.25, premium: 1.5, luxury: 2.0 }[designRequirements] || 1;
             if (multiplier > 1) {
               webPrice *= multiplier;
               webFeatures.push(`${designRequirements.charAt(0).toUpperCase() + designRequirements.slice(1)} design (+${Math.round((multiplier - 1) * 100)}%)`);
             }
           }
 
-          // Add maintenance needs pricing
           if (maintenanceNeeds) {
-            const maintenanceAddons = {
-              none: { cost: 0, label: '' },
-              basic: { cost: 200, label: 'Basic maintenance - 6 months (+$200)' },
-              standard: { cost: 500, label: 'Standard maintenance - 6 months (+$500)' },
-              premium: { cost: 800, label: 'Premium maintenance - 6 months (+$800)' }
-            };
-            const addon = maintenanceAddons[maintenanceNeeds as keyof typeof maintenanceAddons];
-            if (addon && addon.cost > 0) {
-              webPrice += addon.cost;
-              webFeatures.push(addon.label);
+            const addons = { basic: 200, standard: 500, premium: 800 };
+            const cost = addons[maintenanceNeeds as keyof typeof addons] || 0;
+            if (cost > 0) {
+              webPrice += cost;
+              webFeatures.push(`Maintenance - 6 months (+$${cost})`);
             }
           }
         }
@@ -752,190 +471,82 @@ export default function PricingCalculator() {
           monthlyPrice: Math.round(webPrice),
           setupFee: 0,
           features: webFeatures,
-          teamDiscount: 0,
-          savings: 0
+          isProjectBased: true
         };
         break;
 
       case 'ai-development':
         if (!aiProjectType || !aiComplexity) return null;
-
         let aiPrice = 0;
         let aiFeatures: string[] = [];
 
-        // Base pricing by project type
         const aiProjectPricing = {
-          'ai-web-app': 7000,
-          'ai-mobile-app': 9000,
-          'chatbot': 3000,
-          'ai-agent': 5000,
-          'automation-workflow': 4000,
-          'custom-ai-model': 8000,
-          'data-analysis': 3500,
-          'ai-integration': 2500
+          'ai-web-app': 7000, 'ai-mobile-app': 9000, 'chatbot': 3000, 'ai-agent': 5000,
+          'automation-workflow': 4000, 'custom-ai-model': 8000, 'data-analysis': 3500, 'ai-integration': 2500
         };
-
         aiPrice = aiProjectPricing[aiProjectType as keyof typeof aiProjectPricing] || 3000;
 
-        // Complexity multipliers
-        const aiComplexityMultiplier = {
-          simple: 1,
-          medium: 1.5,
-          complex: 2.2,
-          enterprise: 3.0
-        };
+        const complexityMultiplier = { simple: 1, medium: 1.5, complex: 2.2, enterprise: 3.0 }[aiComplexity] || 1;
+        aiPrice *= complexityMultiplier;
 
-        aiPrice *= aiComplexityMultiplier[aiComplexity as keyof typeof aiComplexityMultiplier] || 1;
-
-        // Add integration costs based on complexity
         if (aiIntegrations.length > 0) {
-          const integrationMultiplier = {
-            simple: 300,
-            medium: 500,
-            complex: 750,
-            enterprise: 1000
-          };
-
-          const integrationCost = aiIntegrations.length * (integrationMultiplier[aiComplexity as keyof typeof integrationMultiplier] || 500);
-          aiPrice += integrationCost;
-          aiFeatures.push(`${aiIntegrations.length} Integrations: ${aiIntegrations.join(', ')} (+$${integrationCost.toLocaleString()})`);
+          const cost = aiIntegrations.length * ({ simple: 300, medium: 500, complex: 750, enterprise: 1000 }[aiComplexity] || 500);
+          aiPrice += cost;
+          aiFeatures.push(`${aiIntegrations.length} Integrations (+$${cost.toLocaleString()})`);
         }
 
-        // Data volume adjustments with complexity-aware multipliers
-        if (dataVolume) {
-          const dataVolumeMultipliers = {
-            small: { multiplier: 1, cost: 0, label: 'Standard data processing' },
-            medium: { multiplier: 1.15, cost: 500, label: 'Medium-scale data processing (+15% + $500)' },
-            large: { multiplier: 1.3, cost: 1200, label: 'Large dataset optimization (+30% + $1,200)' },
-            enterprise: { multiplier: 1.6, cost: 2500, label: 'Enterprise-scale infrastructure (+60% + $2,500)' }
-          };
-
-          const volumeConfig = dataVolumeMultipliers[dataVolume as keyof typeof dataVolumeMultipliers];
-          if (volumeConfig && dataVolume !== 'small') {
-            aiPrice *= volumeConfig.multiplier;
-            aiPrice += volumeConfig.cost;
-            aiFeatures.push(volumeConfig.label);
-          }
+        if (dataVolume && dataVolume !== 'small') {
+          const volumeCost = { medium: 500, large: 1200, enterprise: 2500 }[dataVolume] || 0;
+          aiPrice += volumeCost;
+          aiPrice *= { medium: 1.15, large: 1.3, enterprise: 1.6 }[dataVolume] || 1;
         }
 
-        // Custom models premium with project-type specific adjustments
-        if (customModels) {
-          const customModelMultiplier = {
-            'ai-web-app': 1.3,
-            'ai-mobile-app': 1.4,
-            'chatbot': 1.5,
-            'ai-agent': 1.4,
-            'automation-workflow': 1.2,
-            'custom-ai-model': 1.0, // Already includes custom model in base price
-            'data-analysis': 1.6,
-            'ai-integration': 1.3
-          };
-
-          const multiplier = customModelMultiplier[aiProjectType as keyof typeof customModelMultiplier] || 1.4;
-          if (aiProjectType !== 'custom-ai-model') {
-            aiPrice *= multiplier;
-            aiFeatures.push(`Custom AI model training (+${Math.round((multiplier - 1) * 100)}%)`);
-          }
+        if (customModels && aiProjectType !== 'custom-ai-model') {
+          aiPrice *= 1.4;
+          aiFeatures.push('Custom AI model training (+40%)');
         }
 
-        // Base features
         aiFeatures.unshift(
           `${aiProjectType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())} development`,
           `${aiComplexity.charAt(0).toUpperCase() + aiComplexity.slice(1)} complexity implementation`,
-          'AI testing and optimization',
-          'Documentation and training',
-          'Initial deployment support'
+          'AI testing and optimization', 'Documentation and training', 'Initial deployment support'
         );
 
-        // Maintenance support pricing adjustments
         if (maintenanceSupport === 'ongoing') {
-          aiPrice += Math.round(aiPrice * 0.15); // 15% for standard 6-month support
+          aiPrice += Math.round(aiPrice * 0.15);
           aiFeatures.push('6 months ongoing support included (+15%)');
         } else if (maintenanceSupport === 'premium') {
-          aiPrice += Math.round(aiPrice * 0.25) + 1000; // 25% + $1000 for premium 12-month support
-          aiFeatures.push('12 months premium support + priority access (+25% + $1,000)');
+          aiPrice += Math.round(aiPrice * 0.25) + 1000;
+          aiFeatures.push('12 months premium support (+25% + $1,000)');
         }
 
-        result = {
-          service: 'AI Development',
-          monthlyPrice: Math.round(aiPrice),
-          setupFee: 0,
-          features: aiFeatures,
-          teamDiscount: 0,
-          savings: 0,
-          isProjectBased: true
-        };
+        result = { service: 'AI Development', monthlyPrice: Math.round(aiPrice), setupFee: 0, features: aiFeatures, isProjectBased: true };
         break;
     }
-
     return result;
   };
 
   const pricing = calculatePricing();
 
-  // Handle contact form submission
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!contactForm.name || !contactForm.email) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in your name and email address.",
-        variant: "destructive",
-      });
+      toast({ title: "Missing Information", description: "Please fill in your name and email address.", variant: "destructive" });
       return;
     }
 
-    // Build comprehensive message with all pricing calculator details
     let comprehensiveMessage = `Pricing Calculator Quote Request for ${selectedService}`;
-
     if (pricing) {
-      comprehensiveMessage += `\n\n📋 SERVICE DETAILS:`;
-      comprehensiveMessage += `\n• Service: ${pricing.service}`;
-      comprehensiveMessage += `\n• Monthly Price: $${pricing.monthlyPrice.toLocaleString()}`;
-      if (pricing.setupFee > 0) {
-        comprehensiveMessage += `\n• Setup Fee: $${pricing.setupFee.toLocaleString()}`;
-      }
-      if (pricing.teamDiscount) {
-        comprehensiveMessage += `\n• Team Discount: ${pricing.teamDiscount}%`;
-      }
-      if (pricing.savings) {
-        comprehensiveMessage += `\n• Annual Savings: $${pricing.savings.toLocaleString()}`;
-      }
-
-      if (pricing.features && pricing.features.length > 0) {
-        comprehensiveMessage += `\n\n✨ INCLUDED FEATURES:`;
-        pricing.features.forEach(feature => {
-          comprehensiveMessage += `\n• ${feature}`;
-        });
+      comprehensiveMessage += `\n\nSERVICE DETAILS:\n• Service: ${pricing.service}\n• Monthly Price: $${pricing.monthlyPrice.toLocaleString()}`;
+      if (pricing.setupFee > 0) comprehensiveMessage += `\n• Setup Fee: $${pricing.setupFee.toLocaleString()}`;
+      if (pricing.teamDiscount) comprehensiveMessage += `\n• Team Discount: ${pricing.teamDiscount}%`;
+      if (pricing.savings) comprehensiveMessage += `\n• Annual Savings: $${pricing.savings.toLocaleString()}`;
+      if (pricing.features?.length) {
+        comprehensiveMessage += `\n\nINCLUDED FEATURES:`;
+        pricing.features.forEach(f => comprehensiveMessage += `\n• ${f}`);
       }
     }
 
-    // Add dedicated team selections if any
-    if (Object.keys(selectedTeam).length > 0) {
-      comprehensiveMessage += `\n\n👥 DEDICATED TEAM SELECTED:`;
-      Object.entries(selectedTeam).forEach(([resource, levels]) => {
-        Object.entries(levels).forEach(([level, count]) => {
-          if (count > 0) {
-            comprehensiveMessage += `\n• ${count}x ${resource.replace(/-/g, ' ')} (${level} level)`;
-          }
-        });
-      });
-    }
-
-    // Add Google Ads client count if specified
-    if (selectedService === 'google-ads' && clients.length > 0) {
-      comprehensiveMessage += `\n\n🎯 GOOGLE ADS DETAILS:`;
-      comprehensiveMessage += `\n• Number of client accounts: ${clients.length}`;
-    }
-
-    // Add SEO client count if specified
-    if (selectedService === 'seo' && seoClients.length > 0) {
-      comprehensiveMessage += `\n\n🔍 SEO DETAILS:`;
-      comprehensiveMessage += `\n• Number of client websites: ${seoClients.length}`;
-    }
-
-    // Prepare detailed submission data with pricing calculator selections
     const submissionData = {
       name: contactForm.name,
       email: contactForm.email,
@@ -948,20 +559,7 @@ export default function PricingCalculator() {
       topPriority: selectedService,
       couponCode: null,
       service: selectedService,
-      serviceDetails: {
-        service: selectedService,
-        pricing: pricing,
-        dedicatedTeam: selectedTeam,
-        googleAdsClients: clients,
-        seoClients: seoClients,
-        calculatorData: {
-          totalMonthlyPrice: pricing?.monthlyPrice || 0,
-          setupFee: pricing?.setupFee || 0,
-          teamDiscount: pricing?.teamDiscount || 0,
-          savings: pricing?.savings || 0,
-          features: pricing?.features || []
-        }
-      }
+      serviceDetails: { service: selectedService, pricing, dedicatedTeam: selectedTeam, googleAdsClients: clients, seoClients, calculatorData: { totalMonthlyPrice: pricing?.monthlyPrice || 0 } }
     };
 
     contactMutation.mutate(submissionData);
@@ -975,61 +573,28 @@ export default function PricingCalculator() {
         <link rel="canonical" href="https://brandingbeez.co.uk/pricing-calculator" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
+
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Pricing Calculator | White-Label Services Cost Estimator | BrandingBeez"
-          description="Calculate costs for white-label digital marketing services. Get instant pricing for SEO, Google Ads, web development, dedicated resources, and AI solutions. Free estimates with team discounts."
-          keywords="white label pricing calculator, digital marketing cost estimator, SEO pricing, Google Ads cost, web development pricing, dedicated team cost calculator"
-          canonicalUrl="https://brandingbeez.com/pricing-calculator"
-          ogType="webapp"
-        />
-        <SchemaMarkup type="service" data={{
-          name: "White-Label Services Pricing Calculator",
-          description: "Interactive pricing calculator for white-label digital marketing services including SEO, Google Ads, web development, and dedicated resources.",
-          serviceType: "Pricing Calculator Tool",
-          hasOfferCatalog: {
-            name: "Service Pricing Options",
-            itemListElement: [
-              {
-                name: "SEO Services Pricing",
-                description: "Custom SEO pricing based on keywords, competition, and scope"
-              },
-              {
-                name: "Google Ads Management Pricing",
-                description: "Performance-based Google Ads pricing with campaign complexity factors"
-              },
-              {
-                name: "Dedicated Resources Pricing",
-                description: "Professional team member pricing with skill level and team size discounts"
-              }
-            ]
-          }
-        }} />
+        <SEOHead title="Pricing Calculator | White-Label Services Cost Estimator | BrandingBeez" description="Calculate costs for white-label digital marketing services..." keywords="white label pricing calculator..." canonicalUrl="https://brandingbeez.com/pricing-calculator" ogType="webapp" />
+        <SchemaMarkup type="service" data={{ name: "White-Label Services Pricing Calculator", description: "Interactive pricing calculator...", serviceType: "Pricing Calculator Tool", hasOfferCatalog: { name: "Service Pricing Options", itemListElement: [{ name: "SEO Services Pricing" }, { name: "Google Ads Management Pricing" }, { name: "Dedicated Resources Pricing" }] } }} />
         <Header />
 
-        {/* Hero Section */}
         <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-4xl mx-auto text-center p-6">
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 mb-4 sm:mb-6">
               <Calculator className="w-10 h-10 sm:w-12 sm:h-12" />
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-                Pricing Calculator
-              </h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">Pricing Calculator</h1>
             </div>
             <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
               Get instant pricing for all our services. No hidden fees, transparent pricing based on your specific needs.
             </p>
-            <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">
-              💰 Up to 20% team discounts available
-            </Badge>
+            <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">Up to 20% team discounts available</Badge>
           </div>
         </section>
 
-        {/* Calculator */}
         <section className="py-12 sm:py-16 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-              {/* Configuration Panel */}
               <Card className="border-2 border-brand-coral/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -1038,37 +603,9 @@ export default function PricingCalculator() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {/* Service Selection */}
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Select Service</label>
-                    <Select
-                      value={selectedService}
-                      onValueChange={(value) => {
-                        setSelectedService(value);
-
-                        // 💡 Default presets so that after Apply & Continue,
-                        // the right panel shows a ready-made quote.
-                        if (value === 'web-development') {
-                          // This combination gives exactly:
-                          // Web Development / $1,960 project
-                          setWebsiteType('wordpress-business');
-                          setWebsiteComplexity('medium');
-                          setEcommercePlatform('');
-                          setProductCount(50);
-                          setProductPageFeatures([]);
-                          setIntegrations([
-                            'Google Analytics',
-                            'Payment Gateway (Stripe, PayPal)',
-                            'Chat Widget (Tidio, Intercom)',
-                            'Zapier Automation'
-                          ]);
-                          setDesignRequirements('');
-                          setMaintenanceNeeds('');
-                        }
-
-                        if (value) setShowServiceModal(true);
-                      }}
-                    >
+                    <Select value={selectedService} onValueChange={handleServiceChange}>
                       <SelectTrigger>
                         <SelectValue placeholder="Choose a service..." />
                       </SelectTrigger>
@@ -1087,7 +624,6 @@ export default function PricingCalculator() {
                     )}
                   </div>
 
-                  {/* Pricing Disclaimer */}
                   {selectedService && (
                     <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                       <div className="flex items-start gap-2">
@@ -1103,23 +639,15 @@ export default function PricingCalculator() {
                     </div>
                   )}
                 </CardContent>
-
                 <div className='flex items-center justify-end p-4'>
-                  {/* 🔁 Go back to configuration popup */}
                   {selectedService && (
-                    <Button
-                      className="bg-brand-coral text-white border border-brand-coral hover:bg-white hover:text-brand-coral transition-colors"
-                      type="button"
-                      size="sm"
-                      onClick={() => setShowServiceModal(true)}
-                    >
+                    <Button className="bg-brand-coral text-white border border-brand-coral hover:bg-white hover:text-brand-coral transition-colors" type="button" size="sm" onClick={() => setShowServiceModal(true)}>
                       Edit configuration
                     </Button>
                   )}
                 </div>
               </Card>
 
-              {/* Results Panel */}
               {pricing && (
                 <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-50 to-emerald-50">
                   <CardHeader className="flex flex-row items-center justify-between gap-2">
@@ -1127,7 +655,6 @@ export default function PricingCalculator() {
                       <Calculator className="w-5 h-5 text-green-600" />
                       Your Custom Quote
                     </CardTitle>
-
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="text-center">
@@ -1135,11 +662,7 @@ export default function PricingCalculator() {
                         ${pricing.monthlyPrice.toLocaleString()}
                         {(selectedService === 'web-development' || selectedService === 'ai-development') ? ' project' : (pricing.monthlyPrice > 0 ? '/month' : '')}
                       </div>
-                      {pricing.setupFee > 0 && (
-                        <div className="text-lg text-gray-600">
-                          + ${pricing.setupFee.toLocaleString()} setup fee
-                        </div>
-                      )}
+                      {pricing.setupFee > 0 && <div className="text-lg text-gray-600">+ ${pricing.setupFee.toLocaleString()} setup fee</div>}
                       <div className="text-sm text-gray-500 mt-1">{pricing.service}</div>
                     </div>
 
@@ -1147,17 +670,12 @@ export default function PricingCalculator() {
                       <div className="bg-green-100 p-3 rounded-lg">
                         <div className="flex items-center gap-2">
                           <Trophy className="w-4 h-4 text-green-600" />
-                          <span className="font-medium text-green-800">
-                            Team Discount: {pricing.teamDiscount || 0}% off
-                          </span>
+                          <span className="font-medium text-green-800">Team Discount: {pricing.teamDiscount}% off</span>
                         </div>
-                        <div className="text-sm text-green-700">
-                          You save ${pricing.savings?.toLocaleString()} per month!
-                        </div>
+                        <div className="text-sm text-green-700">You save ${pricing.savings?.toLocaleString()} per month!</div>
                       </div>
                     )}
 
-                    {/* Google Ads Individual Client Pricing Breakdown */}
                     {selectedService === 'google-ads' && clients.length > 0 && (
                       <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                         <h4 className="font-semibold text-blue-900 mb-3">Individual Client Pricing:</h4>
@@ -1175,10 +693,6 @@ export default function PricingCalculator() {
                                   ${calculateClientPrice(client).toLocaleString()}/month
                                 </div>
                               </div>
-                              <div className="text-xs text-gray-500">
-                                {client.campaignTypes.length > 0 && `Types: ${client.campaignTypes.join(', ')}`}
-                                {client.campaignTypes.length > 3 && ' (+10% complexity bonus)'}
-                              </div>
                             </div>
                           ))}
                           <div className="border-t border-blue-300 pt-3 flex justify-between font-semibold text-blue-900">
@@ -1189,7 +703,6 @@ export default function PricingCalculator() {
                       </div>
                     )}
 
-                    {/* SEO Individual Client Pricing Breakdown */}
                     {selectedService === 'seo' && seoClients.length > 0 && (
                       <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                         <h4 className="font-semibold text-green-900 mb-3">Individual Website Pricing:</h4>
@@ -1213,13 +726,7 @@ export default function PricingCalculator() {
                                       ${calculateSeoClientPrice(client).toLocaleString()}/month
                                     </div>
                                   </div>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => removeSeoClient(client.id)}
-                                    className="text-red-600 ed-800"
-                                  >
+                                  <Button type="button" variant="ghost" size="sm" onClick={() => removeSeoClient(client.id)} className="text-red-600">
                                     Remove
                                   </Button>
                                 </div>
@@ -1246,11 +753,7 @@ export default function PricingCalculator() {
                       </ul>
                     </div>
 
-                    <Button
-                      onClick={() => setShowContactModal(true)}
-                      className="w-full bg-gradient-to-r from-brand-coral to-pink-500 rand-coral/90 ink-500/90 text-white"
-                      size="lg"
-                    >
+                    <Button onClick={() => setShowContactModal(true)} className="w-full bg-gradient-to-r from-brand-coral to-pink-500 text-white" size="lg">
                       Get Started
                     </Button>
                   </CardContent>
@@ -1260,7 +763,6 @@ export default function PricingCalculator() {
           </div>
         </section>
 
-        {/* Service Configuration Modal (full / tall popup) */}
         <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
           <DialogContent className="max-w-5xl w-full h-[90vh] overflow-y-auto z-50">
             <DialogHeader>
@@ -1271,9 +773,7 @@ export default function PricingCalculator() {
                 {selectedService === 'web-development' && 'Configure Web Development'}
                 {selectedService === 'ai-development' && 'Configure AI Development'}
               </DialogTitle>
-              <DialogDescription>
-                Adjust the options below. The quote on the right side of the page updates automatically.
-              </DialogDescription>
+              <DialogDescription>Adjust the options below. The quote on the right side of the page updates automatically.</DialogDescription>
             </DialogHeader>
 
             <div className="mt-4 space-y-6">
@@ -2359,7 +1859,6 @@ export default function PricingCalculator() {
             </form>
           </DialogContent>
         </Dialog>
-
         <Footer />
       </div>
     </>
