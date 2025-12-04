@@ -215,7 +215,6 @@
 
 
 
-
 import express, { Request, Response } from "express";
 import { storage } from "./storage";
 import { sendAppointmentNotification } from "./email-service";
@@ -244,16 +243,16 @@ interface CreateAppointmentBody {
   endTime: string;    // "HH:mm"
 }
 
-// Generates 30-minute slots between 13:00 (1 PM) and 22:00 (10 PM)
+// Generates 30-minute slots between 16:00 (4 PM) and 23:00 (11 PM)
 function generateDailySlots(): Array<Pick<AppointmentSlot, "startTime" | "endTime">> {
   const slots: { startTime: string; endTime: string }[] = [];
 
-  // Start at 13:00 (1 PM)
-  let hour = 13;
+  // Start at 16:00 (4 PM)
+  let hour = 16;
   let minute = 0;
 
-  // End at 22:00 – last slot will be 21:30–22:00
-  while (hour < 22) {
+  // End at 23:00 – last slot will be 22:30–23:00
+  while (hour < 23) {
     const start = `${hour.toString().padStart(2, "0")}:${minute
       .toString()
       .padStart(2, "0")}`;
@@ -310,7 +309,7 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
 
       return {
         ...slot,
-        status: found.status as AppointmentStatus, // booked | cancelled | completed
+        status: found.status as AppointmentStatus, 
         appointmentId: found.id,
       };
     });
