@@ -7,8 +7,8 @@ const router = express.Router();
 // === CONFIG ===
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-const GOOGLE_REDIRECT_URI = "https://localhost:8000/api/google/oauth/callback";
-// const GOOGLE_REDIRECT_URI = "https://brandingbeez.co.uk/api/google/oauth/callback";
+// const GOOGLE_REDIRECT_URI = "https://localhost:8000/api/google/oauth/callback";
+const GOOGLE_REDIRECT_URI = "https://brandingbeez.co.uk/api/google/oauth/callback";
 
 // === Step 1: Login URL ===
 router.get("/oauth/login", (req, res) => {

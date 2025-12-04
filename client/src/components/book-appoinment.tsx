@@ -2332,10 +2332,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                     <span>
                       {selectedDate
                         ? selectedDate.toLocaleDateString("en-GB", {
-                          weekday: "short",
-                          day: "numeric",
-                          month: "short",
-                        })
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })
                         : "Select a date to see available times"}
                     </span>
                   </div>
