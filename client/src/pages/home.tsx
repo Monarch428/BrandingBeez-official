@@ -2374,7 +2374,7 @@ export default function Home() {
           </section>
 
           {/* Newsletter CTA Section (inline newsletter page design) */}
-          <section
+         <section
             id="newsletter"
             className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
           >
