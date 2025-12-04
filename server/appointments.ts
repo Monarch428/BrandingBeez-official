@@ -214,10 +214,10 @@
 // --------------------------------------------------------------------------------- //
 
 
-
 import express, { Request, Response } from "express";
 import { storage } from "./storage";
 import { sendAppointmentNotification } from "./email-service";
+import { createGoogleMeetEvent } from "./google-calendar";
 
 const router = express.Router();
 
@@ -238,13 +238,15 @@ interface CreateAppointmentBody {
   phone?: string;
   serviceType?: string;
   notes?: string;
-  date: string;       // "YYYY-MM-DD"
-  startTime: string;  // "HH:mm"
-  endTime: string;    // "HH:mm"
+  date: string; // "YYYY-MM-DD"
+  startTime: string; // "HH:mm"
+  endTime: string; // "HH:mm"
 }
 
 // Generates 30-minute slots between 16:00 (4 PM) and 23:00 (11 PM)
-function generateDailySlots(): Array<Pick<AppointmentSlot, "startTime" | "endTime">> {
+function generateDailySlots(): Array<
+  Pick<AppointmentSlot, "startTime" | "endTime">
+> {
   const slots: { startTime: string; endTime: string }[] = [];
 
   // Start at 16:00 (4 PM)
@@ -309,7 +311,7 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
 
       return {
         ...slot,
-        status: found.status as AppointmentStatus, 
+        status: found.status as AppointmentStatus,
         appointmentId: found.id,
       };
     });
@@ -355,6 +357,41 @@ router.post("/appointments", async (req: Request, res: Response) => {
         .json({ message: "This time slot is already booked" });
     }
 
+    // ✅ Try to create Google Meet event
+    let meetingLink: string | undefined;
+
+    try {
+      const summary = serviceType
+        ? `BrandingBeez – ${serviceType} with ${name}`
+        : `BrandingBeez – Consultation with ${name}`;
+
+      const descriptionLines: string[] = [];
+      descriptionLines.push(`Name: ${name}`);
+      descriptionLines.push(`Email: ${email}`);
+      if (phone) descriptionLines.push(`Phone: ${phone}`);
+      if (serviceType) descriptionLines.push(`Service: ${serviceType}`);
+      if (notes) descriptionLines.push(`Notes: ${notes}`);
+      const description = descriptionLines.join("\n");
+
+      const { meetingLink: createdLink } = await createGoogleMeetEvent({
+        summary,
+        description,
+        date,
+        startTime,
+        endTime,
+        attendeeEmail: email,
+        attendeeName: name,
+      });
+
+      meetingLink = createdLink;
+    } catch (gErr) {
+      console.error(
+        "[Appointments] Failed to create Google Meet event (booking continues):",
+        gErr,
+      );
+      // do NOT throw; booking should still succeed
+    }
+
     const created = await storage.createAppointment({
       name,
       email,
@@ -364,6 +401,7 @@ router.post("/appointments", async (req: Request, res: Response) => {
       date,
       startTime,
       endTime,
+      meetingLink,
     });
 
     // 📧 Fire-and-forget email to Pradeep (admin)
@@ -378,6 +416,7 @@ router.post("/appointments", async (req: Request, res: Response) => {
         date: created.date,
         startTime: created.startTime,
         endTime: created.endTime,
+        meetingLink: (created as any).meetingLink,
         createdAt: (created as any).createdAt || new Date(),
       });
     } catch (mailErr) {

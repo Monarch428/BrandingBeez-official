@@ -793,8 +793,6 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-
-
   async saveGoogleAuthTokens(tokens: {
     accessToken: string;
     refreshToken: string;
@@ -821,7 +819,6 @@ export class DatabaseStorage implements IStorage {
     const row = await GoogleAuthModel.findOne().lean();
     return row ?? null;
   }
-
 
 }
 

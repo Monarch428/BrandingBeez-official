@@ -344,9 +344,11 @@ export interface Appointment {
   serviceType?: string;
   notes?: string;
 
-  date: string;    
-  startTime: string; 
-  endTime: string;   
+  date: string;       // YYYY-MM-DD
+  startTime: string;  // HH:mm
+  endTime: string;    // HH:mm
+
+  meetingLink?: string;
 
   status: AppointmentStatus;
 
