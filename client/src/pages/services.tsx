@@ -151,7 +151,7 @@ const serviceCategories = [
   //   discountDescription: "your first app project",
   // },
   {
-    id: "custom-ai-app-development",
+    id: "custom-app-development",
     title: "Custom Web & Mobile Application Development (AI-Powered)",
     description:
       "High-performance applications built for scalability, automation, and seamless user experience.",
@@ -159,14 +159,14 @@ const serviceCategories = [
     href: "/services/custom-app-development",
     pricing: "Starting at $3,500/project",
     features: [
-      "Custom web application development",
+      // "Custom web application development",
+      "Full-stack development",
       "iOS & Android mobile app development",
       "AI-powered enhancements & integrations",
       "AI agentic platform development",
-      "Full-stack development",
-      "UI/UX design & prototyping",
-      "API development & system integrations",
-      "Maintenance & support",
+      // "UI/UX design & prototyping",
+      // "API development & system integrations",
+      // "Maintenance & support",
     ],
     metrics: "Average delivery time: 4–8 weeks",
     couponCode: "APP20",

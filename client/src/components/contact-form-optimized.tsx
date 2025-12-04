@@ -1,3 +1,1152 @@
+// import React, { useEffect, useState } from "react";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
+// import { Textarea } from "@/components/ui/textarea";
+// import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { Card, CardContent } from "@/components/ui/card";
+// import { Badge } from "@/components/ui/badge";
+// import { Checkbox } from "@/components/ui/checkbox";
+// import { useToast } from "@/hooks/use-toast";
+// import { useMutation } from "@tanstack/react-query";
+// import { apiRequest } from "@/lib/queryClient";
+// import { Shield, Lock, CheckCircle, Clock, Star, Award, Plus, Minus, Gift, Copy } from "lucide-react";
+// import PhoneInput from "react-phone-input-2";
+
+// interface ContactFormData {
+//   name: string;
+//   email: string;
+//   company: string;
+//   phone: string;
+//   service: string;
+//   websiteDetails: {
+//     platform: string;
+//     tier: string;
+//   };
+//   dedicatedResourceDetails: {
+//     roles: Array<{
+//       type: string;
+//       skillLevel: string;
+//       quantity: number;
+//     }>;
+//   };
+//   seoDetails: string[];
+//   googleAdsDetails: string[];
+//   n8nDetails: string[];
+//   aiDetails: string[];
+//   message: string;
+//   region: string;
+//   budget: string;
+//   timeline: string;
+//   referral: string;
+//   couponCode: string;
+// }
+
+// const services = [
+//   { value: "website-development", label: "Website Development" },
+//   { value: "seo", label: "SEO / AIO Services" },
+//   { value: "google-ads", label: "Google Ads" },
+//   { value: "dedicated-resources", label: "Dedicated Resources" },
+//   { value: "custom-app-development", label: "Custom Web & Mobile App Development" },
+//   { value: "ai-development", label: "AI Web Agents/AI Development" },
+//   { value: "other", label: "Other" }
+// ];
+
+// const websitePlatforms = [
+//   { value: "wordpress", label: "WordPress" },
+//   { value: "shopify", label: "Shopify" },
+//   { value: "bigcommerce", label: "BigCommerce" },
+//   { value: "custom-coded", label: "Custom Coded" }
+// ];
+
+// const websiteTiers = [
+//   { value: "starter", label: "Starter" },
+//   { value: "business", label: "Business" },
+//   { value: "woocommerce", label: "WooCommerce", platform: "wordpress" },
+//   { value: "advanced", label: "Advanced", platforms: ["shopify", "bigcommerce"] },
+//   { value: "advanced-platform", label: "Advanced Platform", platform: "custom-coded" }
+// ];
+
+// const dedicatedResourceTypes = [
+//   { value: "graphic-designer", label: "Graphic Designer", skillLevels: ["junior", "senior", "specialist"] },
+//   { value: "video-editor", label: "Video Editor", skillLevels: ["junior", "senior", "specialist"] },
+//   { value: "seo-specialist", label: "SEO Specialist", skillLevels: ["junior", "senior", "specialist"] },
+//   { value: "google-ads-expert", label: "Google Ads Expert", skillLevels: ["senior", "specialist"] },
+//   { value: "web-developer", label: "Web Developer", skillLevels: ["junior", "senior", "specialist"] },
+//   { value: "full-stack-developer", label: "Full-Stack Developer", skillLevels: ["junior", "senior", "specialist"] },
+//   { value: "others", label: "Others (Data Entry/Virtual Assistants/Social Media Managers)", skillLevels: ["junior", "senior"] }
+// ];
+
+// const seoTypes = [
+//   { value: "link-building", label: "Link Building" },
+//   { value: "local-seo", label: "Local SEO" },
+//   { value: "technical-audit", label: "Technical SEO Audit & Fixes" },
+//   { value: "content-marketing", label: "Content Marketing & SEO Blogging" },
+//   { value: "ecommerce-seo", label: "E-Commerce SEO" }
+// ];
+
+// const googleAdsTiers = [
+//   { value: "starter", label: "Starter Package" },
+//   { value: "growth", label: "Growth Package" },
+//   { value: "scale", label: "Scale Package" }
+// ];
+
+// const n8nTypes = [
+//   { value: "crm-automation", label: "CRM automation workflows" },
+//   { value: "email-marketing", label: "Email marketing automation" },
+//   { value: "social-media", label: "Social media posting automation" },
+//   { value: "lead-nurturing", label: "Lead nurturing sequences" },
+//   { value: "data-sync", label: "Data synchronization between tools" },
+//   { value: "business-process", label: "Custom business process automation" }
+// ];
+
+// const aiTypes = [
+//   { value: "chatbots", label: "AI Chatbots" },
+//   { value: "content-generation", label: "AI Content Generation" },
+//   { value: "customer-support", label: "AI Customer Support" },
+//   { value: "data-analysis", label: "AI Data Analysis" },
+//   { value: "personalization", label: "AI Personalization" },
+//   { value: "automation", label: "AI-Powered Automation" }
+// ];
+
+// const budgets = [
+//   { value: "under-5k", label: "Under $5,000" },
+//   { value: "5k-15k", label: "$5,000 - $15,000" },
+//   { value: "15k-50k", label: "$15,000 - $50,000" },
+//   { value: "50k-100k", label: "$50,000 - $100,000" },
+//   { value: "over-100k", label: "Over $100,000" }
+// ];
+
+// const timelines = [
+//   { value: "asap", label: "ASAP" },
+//   { value: "1-month", label: "Within 1 Month" },
+//   { value: "3-months", label: "Within 3 Months" },
+//   { value: "6-months", label: "Within 6 Months" },
+//   { value: "planning", label: "Still Planning" }
+// ];
+
+// const regions = [
+//   { value: "us", label: "United States" },
+//   { value: "uk", label: "United Kingdom" },
+//   { value: "germany", label: "Germany" },
+//   { value: "other", label: "Other" }
+// ];
+
+// export function ContactFormOptimized() {
+//   useEffect(() => {
+//     if (typeof window === "undefined") return;
+
+//     const { hash, search } = window.location;
+//     const params = new URLSearchParams(search);
+//     const couponFromUrl = params.get("coupon");
+
+//     // Autofill coupon code if present in URL
+//     if (couponFromUrl) {
+//       setFormData(prev => ({
+//         ...prev,
+//         couponCode: couponFromUrl.toUpperCase(),
+//       }));
+//     }
+
+//     // Smooth scroll to #contact-form with header offset
+//     if (hash === "#contact-form") {
+//       setTimeout(() => {
+//         const formEl = document.getElementById("contact-form");
+//         if (formEl) {
+//           const headerOffset = 100; // adjust to match your fixed header height
+//           const elementPosition = formEl.getBoundingClientRect().top + window.scrollY;
+//           const offsetPosition = elementPosition - headerOffset;
+
+//           window.scrollTo({
+//             top: offsetPosition,
+//             behavior: "smooth",
+//           });
+//         }
+//       }, 150);
+//     }
+//   }, []);
+
+//   const { toast } = useToast();
+//   const [formData, setFormData] = useState<ContactFormData>({
+//     name: '',
+//     email: '',
+//     company: '',
+//     phone: '',
+//     service: '',
+//     websiteDetails: {
+//       platform: '',
+//       tier: ''
+//     },
+//     dedicatedResourceDetails: {
+//       roles: []
+//     },
+//     seoDetails: [],
+//     googleAdsDetails: [],
+//     n8nDetails: [],
+//     aiDetails: [],
+//     message: '',
+//     region: '',
+//     budget: '',
+//     timeline: '',
+//     referral: '',
+//     couponCode: ''
+//   });
+
+//   // Auto-fill coupon code from URL parameters
+//   React.useEffect(() => {
+//     const urlParams = new URLSearchParams(window.location.search);
+//     const couponFromUrl = urlParams.get('coupon');
+//     const serviceFromUrl = urlParams.get('service');
+
+//     if (couponFromUrl) {
+//       setFormData(prev => ({ ...prev, couponCode: couponFromUrl }));
+//     }
+//     if (serviceFromUrl) {
+//       setFormData(prev => ({ ...prev, service: serviceFromUrl }));
+//     }
+//   }, []);
+
+//   const [errors, setErrors] = useState<Record<string, string>>({});
+
+//   const contactMutation = useMutation({
+//     mutationFn: async (data: ContactFormData) => {
+//       // Build structured message with service details
+//       let structuredMessage = data.message || 'Contact form submission';
+
+//       // Add service selections
+//       if (data.service) {
+//         structuredMessage += `\n\n📋 PRIMARY SERVICE: ${services.find(s => s.value === data.service)?.label || data.service}`;
+//       }
+
+//       // Add website details
+//       if (data.service === 'website-development' && data.websiteDetails.platform) {
+//         structuredMessage += `\n\n🌐 WEBSITE DETAILS:`;
+//         structuredMessage += `\n• Platform: ${websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label}`;
+//         if (data.websiteDetails.tier) {
+//           structuredMessage += `\n• Tier: ${websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label}`;
+//         }
+//       }
+
+//       // Add dedicated resources details
+//       if (data.service === 'dedicated-resources' && data.dedicatedResourceDetails.roles.length > 0) {
+//         structuredMessage += `\n\n👥 DEDICATED RESOURCES:`;
+//         data.dedicatedResourceDetails.roles.forEach(role => {
+//           if (role.type && role.skillLevel) {
+//             const roleLabel = dedicatedResourceTypes.find(t => t.value === role.type)?.label;
+//             structuredMessage += `\n• ${role.quantity}x ${roleLabel} (${role.skillLevel} level)`;
+//           }
+//         });
+//       }
+
+//       // Add SEO details
+//       if (data.service === 'seo' && data.seoDetails.length > 0) {
+//         structuredMessage += `\n\n🔍 SEO SERVICES:`;
+//         data.seoDetails.forEach(detail => {
+//           const seoLabel = seoTypes.find(t => t.value === detail)?.label;
+//           structuredMessage += `\n• ${seoLabel}`;
+//         });
+//       }
+
+//       // Add Google Ads details
+//       if (data.service === 'google-ads' && data.googleAdsDetails.length > 0) {
+//         structuredMessage += `\n\n🎯 GOOGLE ADS:`;
+//         data.googleAdsDetails.forEach((detail: string) => {
+//           const adsLabel = googleAdsTiers.find((t: any) => t.value === detail)?.label;
+//           structuredMessage += `\n• ${adsLabel}`;
+//         });
+//       }
+
+//       // Add Custom Web & Mobile App Development details
+//       if (data.service === 'custom-app-development' && data.n8nDetails.length > 0) {
+//         structuredMessage += `\n\n⚙️ Custom Web & Mobile App Development:`;
+//         data.n8nDetails.forEach(detail => {
+//           const n8nLabel = n8nTypes.find(t => t.value === detail)?.label;
+//           structuredMessage += `\n• ${n8nLabel}`;
+//         });
+//       }
+
+//       // Add AI details
+//       if (data.service === 'ai-development' && data.aiDetails.length > 0) {
+//         structuredMessage += `\n\n🤖 AI DEVELOPMENT:`;
+//         data.aiDetails.forEach(detail => {
+//           const aiLabel = aiTypes.find(t => t.value === detail)?.label;
+//           structuredMessage += `\n• ${aiLabel}`;
+//         });
+//       }
+
+//       // Add budget and timeline
+//       if (data.budget) {
+//         structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
+//       }
+
+//       if (data.timeline) {
+//         structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline}`;
+//       }
+
+//       if (data.referral) {
+//         structuredMessage += `\n\n📢 REFERRAL: ${data.referral}`;
+//       }
+
+//       // Transform the form data to match the API expected format
+//       const submissionData = {
+//         name: data.name,
+//         email: data.email,
+//         phone: data.phone,
+//         company: data.company,
+//         inquiry_type: data.service,
+//         message: structuredMessage,
+//         preferred_contact: 'email',
+//         country: data.region,
+//         topPriority: data.service,
+//         couponCode: data.couponCode || null,
+//         servicesSelected: [data.service],
+//         budget: data.budget,
+//         timeline: data.timeline,
+//         referralSource: data.referral,
+//         serviceDetails: {
+//           websiteDetails: data.websiteDetails,
+//           dedicatedResourceDetails: data.dedicatedResourceDetails,
+//           seoDetails: data.seoDetails,
+//           googleAdsDetails: data.googleAdsDetails,
+//           n8nDetails: data.n8nDetails,
+//           aiDetails: data.aiDetails
+//         }
+//       };
+
+//       return await apiRequest('/api/contacts', 'POST', submissionData);
+//     },
+//     onSuccess: () => {
+//       toast({
+//         title: "Message sent successfully!",
+//         description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
+//         duration: 5000,
+//       });
+
+//       // Reset form
+//       setFormData({
+//         name: '',
+//         email: '',
+//         company: '',
+//         phone: '',
+//         service: '',
+//         websiteDetails: {
+//           platform: '',
+//           tier: ''
+//         },
+//         dedicatedResourceDetails: {
+//           roles: []
+//         },
+//         seoDetails: [],
+//         googleAdsDetails: [],
+//         n8nDetails: [],
+//         aiDetails: [],
+//         message: '',
+//         region: '',
+//         budget: '',
+//         timeline: '',
+//         referral: '',
+//         couponCode: ''
+//       });
+
+//       setErrors({});
+//     },
+//     onError: (error: any) => {
+//       console.error('Contact form error:', error);
+
+//       // Extract user-friendly message from server response
+//       let errorMessage = "Please try again or contact us directly.";
+//       if (error?.response?.data?.message) {
+//         errorMessage = error.response.data.message;
+//       } else if (error?.message) {
+//         errorMessage = error.message;
+//       }
+
+//       toast({
+//         title: "Please check your information",
+//         description: errorMessage,
+//         variant: "destructive",
+//       });
+//     }
+//   });
+
+//   const validateForm = (): boolean => {
+//     const newErrors: Record<string, string> = {};
+
+//     if (!formData.name.trim()) {
+//       newErrors.name = "Name is required";
+//     }
+
+//     if (!formData.email.trim()) {
+//       newErrors.email = "Email is required";
+//     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+//       newErrors.email = "Please enter a valid email address";
+//     }
+
+//     if (!formData.company.trim()) {
+//       newErrors.company = "Company name is required";
+//     }
+
+//     if (!formData.service) {
+//       newErrors.service = "Please select a service";
+//     }
+
+//     // Message field is optional - no validation needed
+
+//     if (!formData.region) {
+//       newErrors.region = "Please select your region";
+//     }
+
+//     setErrors(newErrors);
+//     return Object.keys(newErrors).length === 0;
+//   };
+
+//   const handleSubmit = (e: React.FormEvent) => {
+//     e.preventDefault();
+
+//     if (validateForm()) {
+//       contactMutation.mutate(formData);
+//     }
+//   };
+
+//   const handleInputChange = (field: keyof ContactFormData, value: string) => {
+//     setFormData(prev => ({ ...prev, [field]: value }));
+
+//     // Clear error when user starts typing
+//     if (errors[field]) {
+//       setErrors(prev => ({ ...prev, [field]: '' }));
+//     }
+//   };
+
+//   const handleWebsiteDetailsChange = (field: keyof ContactFormData['websiteDetails'], value: string) => {
+//     setFormData(prev => ({
+//       ...prev,
+//       websiteDetails: { ...prev.websiteDetails, [field]: value }
+//     }));
+//   };
+
+//   const handleResourceRoleAdd = () => {
+//     setFormData(prev => ({
+//       ...prev,
+//       dedicatedResourceDetails: {
+//         ...prev.dedicatedResourceDetails,
+//         roles: [...prev.dedicatedResourceDetails.roles, { type: '', skillLevel: '', quantity: 1 }]
+//       }
+//     }));
+//   };
+
+//   const handleResourceRoleUpdate = (index: number, field: string, value: string | number) => {
+//     setFormData(prev => ({
+//       ...prev,
+//       dedicatedResourceDetails: {
+//         ...prev.dedicatedResourceDetails,
+//         roles: prev.dedicatedResourceDetails.roles.map((role, i) =>
+//           i === index ? { ...role, [field]: value } : role
+//         )
+//       }
+//     }));
+//   };
+
+//   const handleResourceRoleRemove = (index: number) => {
+//     setFormData(prev => ({
+//       ...prev,
+//       dedicatedResourceDetails: {
+//         ...prev.dedicatedResourceDetails,
+//         roles: prev.dedicatedResourceDetails.roles.filter((_, i) => i !== index)
+//       }
+//     }));
+//   };
+
+//   const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
+//     setFormData(prev => ({
+//       ...prev,
+//       [field]: checked
+//         ? [...(prev[field as keyof ContactFormData] as string[]), value]
+//         : (prev[field as keyof ContactFormData] as string[]).filter(item => item !== value)
+//     }));
+//   };
+
+//   const getAvailableTiers = () => {
+//     if (!formData.websiteDetails.platform) return [];
+
+//     return websiteTiers.filter(tier => {
+//       if (tier.platform) return tier.platform === formData.websiteDetails.platform;
+//       if (tier.platforms) return tier.platforms.includes(formData.websiteDetails.platform);
+//       return true;
+//     });
+//   };
+
+//   {/* <div>
+//               <Label htmlFor="phone">Phone Number</Label>
+//               <Input
+//                 id="phone"
+//                 type="tel"
+//                 value={formData.phone}
+//                 onChange={(e) => handleInputChange('phone', e.target.value)}
+//                 placeholder="Enter your phone number"
+//                 autoComplete="tel"
+//               />
+//   </div> */}
+
+//   return (
+//     <Card className="max-w-2xl mx-auto">
+//       <CardContent className="p-8 relative" id="contact-form">
+//         {formData.couponCode && (
+//           <>
+//             <div className="hidden md:flex absolute top-3 right-4 items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1 shadow-sm">
+//               <Gift className="w-4 h-4 text-emerald-600" />
+//               <span className="text-xs font-bold text-emerald-800">
+//                 Coupon <span className="font-bold">{formData.couponCode}</span> applied
+//               </span>
+//             </div>
+
+//             <div className="md:hidden mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-2">
+//               <Gift className="w-4 h-4 text-emerald-600" />
+//               <div className="text-xs text-emerald-800">
+//                 <span className="font-bold">Coupon {formData.couponCode}</span> will be applied to your project.
+//               </div>
+//             </div>
+//           </>
+//         )}
+
+//         <form onSubmit={handleSubmit} className="space-y-6 p-2">
+//           {/* Personal Information */}
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <div>
+//               <Label htmlFor="name">Full Name *</Label>
+//               <Input
+//                 id="name"
+//                 type="text"
+//                 value={formData.name}
+//                 onChange={(e) => handleInputChange("name", e.target.value)}
+//                 placeholder="Enter your full name"
+//                 className={errors.name ? "border-red-500" : ""}
+//                 autoComplete="name"
+//               />
+//               {errors.name && (
+//                 <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+//               )}
+//             </div>
+
+//             <div>
+//               <Label htmlFor="email">Email Address *</Label>
+//               <Input
+//                 id="email"
+//                 type="email"
+//                 value={formData.email}
+//                 onChange={(e) => handleInputChange("email", e.target.value)}
+//                 placeholder="Enter your email address"
+//                 className={errors.email ? "border-red-500" : ""}
+//                 autoComplete="email"
+//               />
+//               {errors.email && (
+//                 <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+//               )}
+//             </div>
+//           </div>
+
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <div>
+//               <Label htmlFor="company">Company Name *</Label>
+//               <Input
+//                 id="company"
+//                 type="text"
+//                 value={formData.company}
+//                 onChange={(e) => handleInputChange("company", e.target.value)}
+//                 placeholder="Enter your company name"
+//                 className={errors.company ? "border-red-500" : ""}
+//                 autoComplete="organization"
+//               />
+//               {errors.company && (
+//                 <p className="text-red-500 text-sm mt-1">{errors.company}</p>
+//               )}
+//             </div>
+
+//             <div>
+//               <Label
+//                 htmlFor="phone"
+//                 className="text-sm font-medium text-gray-700"
+//               >
+//                 Phone Number
+//               </Label>
+
+//               <PhoneInput
+//                 country={"us"}
+//                 value={formData.phone}
+//                 onChange={(value) => handleInputChange("phone", value)}
+//                 inputProps={{
+//                   name: "phone",
+//                   id: "phone",
+//                   className:
+//                     "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+//                   required: false,
+//                 }}
+//                 containerClass="w-full"
+//               />
+//             </div>
+//           </div>
+
+//           {/* Project Details */}
+//           <div>
+//             <Label htmlFor="service">Service Needed *</Label>
+//             <Select
+//               value={formData.service}
+//               onValueChange={(value) => handleInputChange("service", value)}
+//             >
+//               <SelectTrigger
+//                 className={errors.service ? "border-red-500" : ""}
+//               >
+//                 <SelectValue placeholder="Select a service" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 {services.map((service) => (
+//                   <SelectItem key={service.value} value={service.value}>
+//                     {service.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectContent>
+//             </Select>
+//             {errors.service && (
+//               <p className="text-red-500 text-sm mt-1">{errors.service}</p>
+//             )}
+//           </div>
+
+//           {/* Website Development Details */}
+//           {formData.service === "website-development" && (
+//             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+//               <h3 className="text-lg font-semibold text-gray-900">
+//                 What are you specifically looking for in Website Development? *
+//               </h3>
+
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                 <div>
+//                   <Label>Platform</Label>
+//                   <Select
+//                     value={formData.websiteDetails.platform}
+//                     onValueChange={(value) =>
+//                       handleWebsiteDetailsChange("platform", value)
+//                     }
+//                   >
+//                     <SelectTrigger>
+//                       <SelectValue placeholder="Choose platform..." />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       {websitePlatforms.map((platform) => (
+//                         <SelectItem key={platform.value} value={platform.value}>
+//                           {platform.label}
+//                         </SelectItem>
+//                       ))}
+//                     </SelectContent>
+//                   </Select>
+//                 </div>
+
+//                 {formData.websiteDetails.platform && (
+//                   <div>
+//                     <Label>Tier</Label>
+//                     <Select
+//                       value={formData.websiteDetails.tier}
+//                       onValueChange={(value) =>
+//                         handleWebsiteDetailsChange("tier", value)
+//                       }
+//                     >
+//                       <SelectTrigger>
+//                         <SelectValue placeholder="Choose tier..." />
+//                       </SelectTrigger>
+//                       <SelectContent>
+//                         {getAvailableTiers().map((tier) => (
+//                           <SelectItem key={tier.value} value={tier.value}>
+//                             {tier.label}
+//                           </SelectItem>
+//                         ))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
+//                 )}
+//               </div>
+
+//               <div className="space-y-2">
+//                 <h4 className="font-medium text-gray-700">Selected:</h4>
+//                 {formData.websiteDetails.platform && (
+//                   <Badge variant="outline" className="mr-2">
+//                     {
+//                       websitePlatforms.find(
+//                         (p) => p.value === formData.websiteDetails.platform
+//                       )?.label
+//                     }
+//                     {formData.websiteDetails.tier &&
+//                       ` - ${getAvailableTiers().find(
+//                         (t) => t.value === formData.websiteDetails.tier
+//                       )?.label
+//                       }`}
+//                   </Badge>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* Dedicated Resources Details */}
+//           {formData.service === "dedicated-resources" && (
+//             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+//               <h3 className="text-lg font-semibold text-gray-900">
+//                 What are you specifically looking for in Dedicated Resource? *
+//               </h3>
+
+//               <div className="space-y-4">
+//                 {formData.dedicatedResourceDetails.roles.map((role, index) => (
+//                   <div
+//                     key={index}
+//                     className="border border-gray-200 rounded-lg p-4 space-y-3"
+//                   >
+//                     <div className="flex justify-between items-center">
+//                       <h4 className="font-medium text-gray-700">
+//                         Resource #{index + 1}
+//                       </h4>
+//                       <Button
+//                         type="button"
+//                         variant="outline"
+//                         size="sm"
+//                         onClick={() => handleResourceRoleRemove(index)}
+//                         className="text-red-600"
+//                       >
+//                         <Minus className="w-4 h-4" />
+//                       </Button>
+//                     </div>
+
+//                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+//                       <div>
+//                         <Label>Role Type</Label>
+//                         <Select
+//                           value={role.type}
+//                           onValueChange={(value) =>
+//                             handleResourceRoleUpdate(index, "type", value)
+//                           }
+//                         >
+//                           <SelectTrigger>
+//                             <SelectValue placeholder="Choose role..." />
+//                           </SelectTrigger>
+//                           <SelectContent>
+//                             {dedicatedResourceTypes.map((type) => (
+//                               <SelectItem key={type.value} value={type.value}>
+//                                 {type.label}
+//                               </SelectItem>
+//                             ))}
+//                           </SelectContent>
+//                         </Select>
+//                       </div>
+
+//                       {role.type && (
+//                         <div>
+//                           <Label>Skill Level</Label>
+//                           <Select
+//                             value={role.skillLevel}
+//                             onValueChange={(value) =>
+//                               handleResourceRoleUpdate(
+//                                 index,
+//                                 "skillLevel",
+//                                 value
+//                               )
+//                             }
+//                           >
+//                             <SelectTrigger>
+//                               <SelectValue placeholder="Choose level..." />
+//                             </SelectTrigger>
+//                             <SelectContent>
+//                               {dedicatedResourceTypes
+//                                 .find((t) => t.value === role.type)
+//                                 ?.skillLevels.map((level) => (
+//                                   <SelectItem key={level} value={level}>
+//                                     {level.charAt(0).toUpperCase() +
+//                                       level.slice(1)}
+//                                   </SelectItem>
+//                                 ))}
+//                             </SelectContent>
+//                           </Select>
+//                         </div>
+//                       )}
+
+//                       <div>
+//                         <Label>Quantity</Label>
+//                         <div className="flex items-center gap-2">
+//                           <Button
+//                             type="button"
+//                             variant="outline"
+//                             size="sm"
+//                             onClick={() =>
+//                               handleResourceRoleUpdate(
+//                                 index,
+//                                 "quantity",
+//                                 Math.max(1, role.quantity - 1)
+//                               )
+//                             }
+//                           >
+//                             <Minus className="w-4 h-4" />
+//                           </Button>
+//                           <Input
+//                             type="number"
+//                             min="1"
+//                             value={role.quantity}
+//                             onChange={(e) =>
+//                               handleResourceRoleUpdate(
+//                                 index,
+//                                 "quantity",
+//                                 parseInt(e.target.value) || 1
+//                               )
+//                             }
+//                             className="text-center w-16"
+//                           />
+//                           <Button
+//                             type="button"
+//                             variant="outline"
+//                             size="sm"
+//                             onClick={() =>
+//                               handleResourceRoleUpdate(
+//                                 index,
+//                                 "quantity",
+//                                 role.quantity + 1
+//                               )
+//                             }
+//                           >
+//                             <Plus className="w-4 h-4" />
+//                           </Button>
+//                         </div>
+//                       </div>
+//                     </div>
+//                   </div>
+//                 ))}
+
+//                 <Button
+//                   type="button"
+//                   onClick={handleResourceRoleAdd}
+//                   className="w-full bg-brand-coral text-white hover:bg-brand-coral-dark"
+//                 >
+//                   <Plus className="w-4 h-4 mr-2" />
+//                   Add Another Resource
+//                 </Button>
+
+//                 {formData.dedicatedResourceDetails.roles.length > 0 && (
+//                   <div className="space-y-2">
+//                     <h4 className="font-medium text-gray-700">
+//                       Selected Resources:
+//                     </h4>
+//                     <div className="flex flex-wrap gap-2">
+//                       {formData.dedicatedResourceDetails.roles.map(
+//                         (role, index) =>
+//                           role.type &&
+//                           role.skillLevel && (
+//                             <Badge key={index} variant="outline">
+//                               {role.quantity}x{" "}
+//                               {
+//                                 dedicatedResourceTypes.find(
+//                                   (t) => t.value === role.type
+//                                 )?.label
+//                               }{" "}
+//                               ({role.skillLevel})
+//                             </Badge>
+//                           )
+//                       )}
+//                     </div>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* SEO Services Details */}
+//           {formData.service === "seo" && (
+//             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+//               <h3 className="text-lg font-semibold text-gray-900">
+//                 What are you specifically looking for in SEO Services? *
+//               </h3>
+//               <div className="grid grid-cols-1 gap-3">
+//                 {seoTypes.map((type) => (
+//                   <div
+//                     key={type.value}
+//                     className="flex items-center space-x-2"
+//                   >
+//                     <Checkbox
+//                       id={type.value}
+//                       checked={formData.seoDetails.includes(type.value)}
+//                       onCheckedChange={(checked) =>
+//                         handleCheckboxChange(
+//                           "seoDetails",
+//                           type.value,
+//                           checked as boolean
+//                         )
+//                       }
+//                     />
+//                     <Label
+//                       htmlFor={type.value}
+//                       className="text-sm font-normal cursor-pointer"
+//                     >
+//                       {type.label}
+//                     </Label>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* Google Ads Details */}
+//           {formData.service === "google-ads" && (
+//             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+//               <h3 className="text-lg font-semibold text-gray-900">
+//                 What are you specifically looking for in Google Ads? *
+//               </h3>
+//               <div className="grid grid-cols-1 gap-3">
+//                 {googleAdsTiers.map((tier) => (
+//                   <div
+//                     key={tier.value}
+//                     className="flex items-center space-x-2"
+//                   >
+//                     <Checkbox
+//                       id={tier.value}
+//                       checked={formData.googleAdsDetails.includes(
+//                         tier.value
+//                       )}
+//                       onCheckedChange={(checked) =>
+//                         handleCheckboxChange(
+//                           "googleAdsDetails",
+//                           tier.value,
+//                           checked as boolean
+//                         )
+//                       }
+//                     />
+//                     <Label
+//                       htmlFor={tier.value}
+//                       className="text-sm font-normal cursor-pointer"
+//                     >
+//                       {tier.label}
+//                     </Label>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* Custom Web & Mobile App Development Details */}
+//           {formData.service === "custom-app-development" && (
+//             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+//               <h3 className="text-lg font-semibold text-gray-900">
+//                 What are you specifically looking for in Custom Web & Mobile
+//                 App Development? *
+//               </h3>
+//               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+//                 <p className="text-yellow-800 text-sm">
+//                   Custom Web & Mobile App Development services will be
+//                   available shortly. Select your areas of interest below.
+//                 </p>
+//               </div>
+//               <div className="grid grid-cols-1 gap-3">
+//                 {n8nTypes.map((type) => (
+//                   <div
+//                     key={type.value}
+//                     className="flex items-center space-x-2"
+//                   >
+//                     <Checkbox
+//                       id={type.value}
+//                       checked={formData.n8nDetails.includes(type.value)}
+//                       onCheckedChange={(checked) =>
+//                         handleCheckboxChange(
+//                           "n8nDetails",
+//                           type.value,
+//                           checked as boolean
+//                         )
+//                       }
+//                     />
+//                     <Label
+//                       htmlFor={type.value}
+//                       className="text-sm font-normal cursor-pointer"
+//                     >
+//                       {type.label}
+//                     </Label>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* AI Development Details */}
+//           {formData.service === "ai-development" && (
+//             <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+//               <h3 className="text-lg font-semibold text-gray-900">
+//                 What are you specifically looking for in AI Web Agents/AI
+//                 Development? *
+//               </h3>
+//               <div className="grid grid-cols-1 gap-3">
+//                 {aiTypes.map((type) => (
+//                   <div
+//                     key={type.value}
+//                     className="flex items-center space-x-2"
+//                   >
+//                     <Checkbox
+//                       id={type.value}
+//                       checked={formData.aiDetails.includes(type.value)}
+//                       onCheckedChange={(checked) =>
+//                         handleCheckboxChange(
+//                           "aiDetails",
+//                           type.value,
+//                           checked as boolean
+//                         )
+//                       }
+//                     />
+//                     <Label
+//                       htmlFor={type.value}
+//                       className="text-sm font-normal cursor-pointer"
+//                     >
+//                       {type.label}
+//                     </Label>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//             <div>
+//               <Label htmlFor="region">Your Region *</Label>
+//               <Select
+//                 value={formData.region}
+//                 onValueChange={(value) => handleInputChange("region", value)}
+//               >
+//                 <SelectTrigger
+//                   className={errors.region ? "border-red-500" : ""}
+//                 >
+//                   <SelectValue placeholder="Select your region" />
+//                 </SelectTrigger>
+//                 <SelectContent>
+//                   {regions.map((region) => (
+//                     <SelectItem key={region.value} value={region.value}>
+//                       {region.label}
+//                     </SelectItem>
+//                   ))}
+//                 </SelectContent>
+//               </Select>
+//               {errors.region && (
+//                 <p className="text-red-500 text-sm mt-1">{errors.region}</p>
+//               )}
+//             </div>
+
+//             <div>
+//               <Label htmlFor="budget">Project Budget</Label>
+//               <Select
+//                 value={formData.budget}
+//                 onValueChange={(value) => handleInputChange("budget", value)}
+//               >
+//                 <SelectTrigger>
+//                   <SelectValue placeholder="Select budget range" />
+//                 </SelectTrigger>
+//                 <SelectContent>
+//                   {budgets.map((budget) => (
+//                     <SelectItem key={budget.value} value={budget.value}>
+//                       {budget.label}
+//                     </SelectItem>
+//                   ))}
+//                 </SelectContent>
+//               </Select>
+//             </div>
+//           </div>
+
+//           <div>
+//             <Label htmlFor="timeline">Timeline</Label>
+//             <Select
+//               value={formData.timeline}
+//               onValueChange={(value) => handleInputChange("timeline", value)}
+//             >
+//               <SelectTrigger>
+//                 <SelectValue placeholder="Select timeline" />
+//               </SelectTrigger>
+//               <SelectContent>
+//                 {timelines.map((timeline) => (
+//                   <SelectItem key={timeline.value} value={timeline.value}>
+//                     {timeline.label}
+//                   </SelectItem>
+//                 ))}
+//               </SelectContent>
+//             </Select>
+//           </div>
+
+//           <div>
+//             <Label htmlFor="message">Message (Optional)</Label>
+//             <Textarea
+//               id="message"
+//               value={formData.message}
+//               onChange={(e) =>
+//                 handleInputChange("message", e.target.value)
+//               }
+//               placeholder="Tell us about your agency and goals... (Optional)"
+//               className="min-h-[120px]"
+//               rows={5}
+//             />
+//           </div>
+
+//           <div>
+//             <Label htmlFor="referral">How did you hear about us?</Label>
+//             <Input
+//               id="referral"
+//               type="text"
+//               value={formData.referral}
+//               onChange={(e) =>
+//                 handleInputChange("referral", e.target.value)
+//               }
+//               placeholder="Google, referral, social media, etc."
+//             />
+//           </div>
+
+//           {/* Coupon Code Section */}
+//           <div className="border-t pt-6">
+//             <h3 className="text-lg font-semibold text-purple-600 mb-4 flex items-center gap-2">
+//               <Gift className="w-5 h-5 text-pink-600" />
+//               Special Offer
+//             </h3>
+//             <div>
+//               <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
+//               <div className="flex gap-2">
+//                 <Input
+//                   id="couponCode"
+//                   type="text"
+//                   placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
+//                   value={formData.couponCode}
+//                   onChange={(e) =>
+//                     handleInputChange("couponCode", e.target.value)
+//                   }
+//                   className="flex-1"
+//                 />
+//                 {formData.couponCode && (
+//                   <Button
+//                     type="button"
+//                     variant="outline"
+//                     size="sm"
+//                     onClick={() => handleInputChange("couponCode", "")}
+//                   >
+//                     Clear
+//                   </Button>
+//                 )}
+//               </div>
+//               {formData.couponCode && (
+//                 <p className="text-xs text-gray-500 mt-1">
+//                   You can update or clear the code here. The applied coupon is
+//                   shown at the top-right of this form.
+//                 </p>
+//               )}
+//             </div>
+//           </div>
+
+//           <Button
+//             type="submit"
+//             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 lg:text-lg md:text-md sm:text-md"
+//             disabled={contactMutation.isPending}
+//           >
+//             {contactMutation.isPending
+//               ? "Sending..."
+//               : "Schedule Free Consultation"}
+//           </Button>
+//         </form>
+//       </CardContent>
+//     </Card>
+//   );
+// }
+
+
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,8 +1181,8 @@ interface ContactFormData {
   };
   seoDetails: string[];
   googleAdsDetails: string[];
-  n8nDetails: string[];
-  aiDetails: string[];
+  n8nDetails: string[]; // used for app-scope details
+  aiDetails: string[];  // used for AI-related details
   message: string;
   region: string;
   budget: string;
@@ -47,16 +1196,18 @@ const services = [
   { value: "seo", label: "SEO / AIO Services" },
   { value: "google-ads", label: "Google Ads" },
   { value: "dedicated-resources", label: "Dedicated Resources" },
-  { value: "custom-app-development", label: "Custom Web & Mobile App Development" },
-  { value: "ai-development", label: "AI Web Agents/AI Development" },
-  { value: "other", label: "Other" }
+  {
+    value: "custom-app-ai-development",
+    label: "Custom Web & Mobile Application Development (AI-Powered)",
+  },
+  // { value: "other", label: "Other" },
 ];
 
 const websitePlatforms = [
   { value: "wordpress", label: "WordPress" },
   { value: "shopify", label: "Shopify" },
   { value: "bigcommerce", label: "BigCommerce" },
-  { value: "custom-coded", label: "Custom Coded" }
+  { value: "custom-coded", label: "Custom Coded" },
 ];
 
 const websiteTiers = [
@@ -64,7 +1215,7 @@ const websiteTiers = [
   { value: "business", label: "Business" },
   { value: "woocommerce", label: "WooCommerce", platform: "wordpress" },
   { value: "advanced", label: "Advanced", platforms: ["shopify", "bigcommerce"] },
-  { value: "advanced-platform", label: "Advanced Platform", platform: "custom-coded" }
+  { value: "advanced-platform", label: "Advanced Platform", platform: "custom-coded" },
 ];
 
 const dedicatedResourceTypes = [
@@ -74,7 +1225,7 @@ const dedicatedResourceTypes = [
   { value: "google-ads-expert", label: "Google Ads Expert", skillLevels: ["senior", "specialist"] },
   { value: "web-developer", label: "Web Developer", skillLevels: ["junior", "senior", "specialist"] },
   { value: "full-stack-developer", label: "Full-Stack Developer", skillLevels: ["junior", "senior", "specialist"] },
-  { value: "others", label: "Others (Data Entry/Virtual Assistants/Social Media Managers)", skillLevels: ["junior", "senior"] }
+  { value: "others", label: "Others (Data Entry/Virtual Assistants/Social Media Managers)", skillLevels: ["junior", "senior"] },
 ];
 
 const seoTypes = [
@@ -82,31 +1233,30 @@ const seoTypes = [
   { value: "local-seo", label: "Local SEO" },
   { value: "technical-audit", label: "Technical SEO Audit & Fixes" },
   { value: "content-marketing", label: "Content Marketing & SEO Blogging" },
-  { value: "ecommerce-seo", label: "E-Commerce SEO" }
+  { value: "ecommerce-seo", label: "E-Commerce SEO" },
 ];
 
 const googleAdsTiers = [
   { value: "starter", label: "Starter Package" },
   { value: "growth", label: "Growth Package" },
-  { value: "scale", label: "Scale Package" }
+  { value: "scale", label: "Scale Package" },
 ];
 
-const n8nTypes = [
-  { value: "crm-automation", label: "CRM automation workflows" },
-  { value: "email-marketing", label: "Email marketing automation" },
-  { value: "social-media", label: "Social media posting automation" },
-  { value: "lead-nurturing", label: "Lead nurturing sequences" },
-  { value: "data-sync", label: "Data synchronization between tools" },
-  { value: "business-process", label: "Custom business process automation" }
+// We'll re-use n8nDetails for APP SCOPE and aiDetails for AI FEATURES,
+// but keep the naming to avoid backend changes.
+const appScopeTypes = [
+  { value: "mvp-mobile-app", label: "Prototype / MVP Mobile App" },
+  { value: "full-scale-app", label: "Full-Scale Production App" },
+  { value: "ios-android-native-hybrid", label: "iOS & Android App (Native/Hybrid)" },
+  { value: "web-mobile-bundle", label: "Web + Mobile App Bundle" },
+  { value: "redesign-rebuild-app", label: "Redesign / Rebuild Existing App" },
+  { value: "maintenance-feature-updates", label: "Ongoing Maintenance & Feature Updates" },
 ];
 
 const aiTypes = [
-  { value: "chatbots", label: "AI Chatbots" },
-  { value: "content-generation", label: "AI Content Generation" },
-  { value: "customer-support", label: "AI Customer Support" },
-  { value: "data-analysis", label: "AI Data Analysis" },
-  { value: "personalization", label: "AI Personalization" },
-  { value: "automation", label: "AI-Powered Automation" }
+  { value: "ai-web-mobile-app", label: "AI Powered web app/Mobile app development" },
+  { value: "ai-agentic-platform", label: "AI Agentic Platform development" },
+  { value: "ai-integration-existing", label: "AI Integration into existing platforms" },
 ];
 
 const budgets = [
@@ -114,7 +1264,7 @@ const budgets = [
   { value: "5k-15k", label: "$5,000 - $15,000" },
   { value: "15k-50k", label: "$15,000 - $50,000" },
   { value: "50k-100k", label: "$50,000 - $100,000" },
-  { value: "over-100k", label: "Over $100,000" }
+  { value: "over-100k", label: "Over $100,000" },
 ];
 
 const timelines = [
@@ -122,14 +1272,14 @@ const timelines = [
   { value: "1-month", label: "Within 1 Month" },
   { value: "3-months", label: "Within 3 Months" },
   { value: "6-months", label: "Within 6 Months" },
-  { value: "planning", label: "Still Planning" }
+  { value: "planning", label: "Still Planning" },
 ];
 
 const regions = [
   { value: "us", label: "United States" },
   { value: "uk", label: "United Kingdom" },
   { value: "germany", label: "Germany" },
-  { value: "other", label: "Other" }
+  { value: "other", label: "Other" },
 ];
 
 export function ContactFormOptimized() {
@@ -168,42 +1318,57 @@ export function ContactFormOptimized() {
 
   const { toast } = useToast();
   const [formData, setFormData] = useState<ContactFormData>({
-    name: '',
-    email: '',
-    company: '',
-    phone: '',
-    service: '',
+    name: "",
+    email: "",
+    company: "",
+    phone: "",
+    service: "",
     websiteDetails: {
-      platform: '',
-      tier: ''
+      platform: "",
+      tier: "",
     },
     dedicatedResourceDetails: {
-      roles: []
+      roles: [],
     },
     seoDetails: [],
     googleAdsDetails: [],
     n8nDetails: [],
     aiDetails: [],
-    message: '',
-    region: '',
-    budget: '',
-    timeline: '',
-    referral: '',
-    couponCode: ''
+    message: "",
+    region: "",
+    budget: "",
+    timeline: "",
+    referral: "",
+    couponCode: "",
   });
 
-  // Auto-fill coupon code from URL parameters
+  // Auto-fill coupon code & service from URL parameters (with backwards compatibility)
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const couponFromUrl = urlParams.get('coupon');
-    const serviceFromUrl = urlParams.get('service');
+    const couponFromUrl = urlParams.get("coupon");
+    const serviceFromUrl = urlParams.get("service");
 
-    if (couponFromUrl) {
-      setFormData(prev => ({ ...prev, couponCode: couponFromUrl }));
-    }
-    if (serviceFromUrl) {
-      setFormData(prev => ({ ...prev, service: serviceFromUrl }));
-    }
+    setFormData(prev => {
+      let service = prev.service;
+
+      if (serviceFromUrl) {
+        // Map old values to new combined service
+        if (
+          serviceFromUrl === "custom-app-development" ||
+          serviceFromUrl === "ai-development"
+        ) {
+          service = "custom-app-ai-development";
+        } else {
+          service = serviceFromUrl;
+        }
+      }
+
+      return {
+        ...prev,
+        couponCode: couponFromUrl || prev.couponCode,
+        service,
+      };
+    });
   }, []);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -211,24 +1376,33 @@ export function ContactFormOptimized() {
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
       // Build structured message with service details
-      let structuredMessage = data.message || 'Contact form submission';
+      let structuredMessage = data.message || "Contact form submission";
 
       // Add service selections
       if (data.service) {
-        structuredMessage += `\n\n📋 PRIMARY SERVICE: ${services.find(s => s.value === data.service)?.label || data.service}`;
+        structuredMessage += `\n\n📋 PRIMARY SERVICE: ${
+          services.find(s => s.value === data.service)?.label || data.service
+        }`;
       }
 
       // Add website details
-      if (data.service === 'website-development' && data.websiteDetails.platform) {
+      if (data.service === "website-development" && data.websiteDetails.platform) {
         structuredMessage += `\n\n🌐 WEBSITE DETAILS:`;
-        structuredMessage += `\n• Platform: ${websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label}`;
+        structuredMessage += `\n• Platform: ${
+          websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label
+        }`;
         if (data.websiteDetails.tier) {
-          structuredMessage += `\n• Tier: ${websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label}`;
+          structuredMessage += `\n• Tier: ${
+            websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label
+          }`;
         }
       }
 
       // Add dedicated resources details
-      if (data.service === 'dedicated-resources' && data.dedicatedResourceDetails.roles.length > 0) {
+      if (
+        data.service === "dedicated-resources" &&
+        data.dedicatedResourceDetails.roles.length > 0
+      ) {
         structuredMessage += `\n\n👥 DEDICATED RESOURCES:`;
         data.dedicatedResourceDetails.roles.forEach(role => {
           if (role.type && role.skillLevel) {
@@ -239,7 +1413,7 @@ export function ContactFormOptimized() {
       }
 
       // Add SEO details
-      if (data.service === 'seo' && data.seoDetails.length > 0) {
+      if (data.service === "seo" && data.seoDetails.length > 0) {
         structuredMessage += `\n\n🔍 SEO SERVICES:`;
         data.seoDetails.forEach(detail => {
           const seoLabel = seoTypes.find(t => t.value === detail)?.label;
@@ -248,39 +1422,49 @@ export function ContactFormOptimized() {
       }
 
       // Add Google Ads details
-      if (data.service === 'google-ads' && data.googleAdsDetails.length > 0) {
+      if (data.service === "google-ads" && data.googleAdsDetails.length > 0) {
         structuredMessage += `\n\n🎯 GOOGLE ADS:`;
-        data.googleAdsDetails.forEach((detail: string) => {
-          const adsLabel = googleAdsTiers.find((t: any) => t.value === detail)?.label;
+        data.googleAdsDetails.forEach(detail => {
+          const adsLabel = googleAdsTiers.find(t => t.value === detail)?.label;
           structuredMessage += `\n• ${adsLabel}`;
         });
       }
 
-      // Add Custom Web & Mobile App Development details
-      if (data.service === 'custom-app-development' && data.n8nDetails.length > 0) {
-        structuredMessage += `\n\n⚙️ Custom Web & Mobile App Development:`;
-        data.n8nDetails.forEach(detail => {
-          const n8nLabel = n8nTypes.find(t => t.value === detail)?.label;
-          structuredMessage += `\n• ${n8nLabel}`;
-        });
-      }
+      // Add Custom Web & Mobile App Development (AI-Powered) details
+      if (
+        data.service === "custom-app-ai-development" &&
+        (data.n8nDetails.length > 0 || data.aiDetails.length > 0)
+      ) {
+        structuredMessage += `\n\n⚙️ CUSTOM WEB & MOBILE APPLICATION DEVELOPMENT (AI-POWERED):`;
 
-      // Add AI details
-      if (data.service === 'ai-development' && data.aiDetails.length > 0) {
-        structuredMessage += `\n\n🤖 AI DEVELOPMENT:`;
-        data.aiDetails.forEach(detail => {
-          const aiLabel = aiTypes.find(t => t.value === detail)?.label;
-          structuredMessage += `\n• ${aiLabel}`;
-        });
+        if (data.n8nDetails.length > 0) {
+          structuredMessage += `\n\n📱 App Scope:`;
+          data.n8nDetails.forEach(detail => {
+            const label = appScopeTypes.find(t => t.value === detail)?.label;
+            structuredMessage += `\n• ${label}`;
+          });
+        }
+
+        if (data.aiDetails.length > 0) {
+          structuredMessage += `\n\n🤖 AI Features / Platform Requirements:`;
+          data.aiDetails.forEach(detail => {
+            const label = aiTypes.find(t => t.value === detail)?.label;
+            structuredMessage += `\n• ${label}`;
+          });
+        }
       }
 
       // Add budget and timeline
       if (data.budget) {
-        structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
+        structuredMessage += `\n\n💰 BUDGET: ${
+          budgets.find(b => b.value === data.budget)?.label || data.budget
+        }`;
       }
 
       if (data.timeline) {
-        structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline}`;
+        structuredMessage += `\n\n⏰ TIMELINE: ${
+          timelines.find(t => t.value === data.timeline)?.label || data.timeline
+        }`;
       }
 
       if (data.referral) {
@@ -295,7 +1479,7 @@ export function ContactFormOptimized() {
         company: data.company,
         inquiry_type: data.service,
         message: structuredMessage,
-        preferred_contact: 'email',
+        preferred_contact: "email",
         country: data.region,
         topPriority: data.service,
         couponCode: data.couponCode || null,
@@ -309,11 +1493,11 @@ export function ContactFormOptimized() {
           seoDetails: data.seoDetails,
           googleAdsDetails: data.googleAdsDetails,
           n8nDetails: data.n8nDetails,
-          aiDetails: data.aiDetails
-        }
+          aiDetails: data.aiDetails,
+        },
       };
 
-      return await apiRequest('/api/contacts', 'POST', submissionData);
+      return await apiRequest("/api/contacts", "POST", submissionData);
     },
     onSuccess: () => {
       toast({
@@ -324,34 +1508,34 @@ export function ContactFormOptimized() {
 
       // Reset form
       setFormData({
-        name: '',
-        email: '',
-        company: '',
-        phone: '',
-        service: '',
+        name: "",
+        email: "",
+        company: "",
+        phone: "",
+        service: "",
         websiteDetails: {
-          platform: '',
-          tier: ''
+          platform: "",
+          tier: "",
         },
         dedicatedResourceDetails: {
-          roles: []
+          roles: [],
         },
         seoDetails: [],
         googleAdsDetails: [],
         n8nDetails: [],
         aiDetails: [],
-        message: '',
-        region: '',
-        budget: '',
-        timeline: '',
-        referral: '',
-        couponCode: ''
+        message: "",
+        region: "",
+        budget: "",
+        timeline: "",
+        referral: "",
+        couponCode: "",
       });
 
       setErrors({});
     },
     onError: (error: any) => {
-      console.error('Contact form error:', error);
+      console.error("Contact form error:", error);
 
       // Extract user-friendly message from server response
       let errorMessage = "Please try again or contact us directly.";
@@ -366,7 +1550,7 @@ export function ContactFormOptimized() {
         description: errorMessage,
         variant: "destructive",
       });
-    }
+    },
   });
 
   const validateForm = (): boolean => {
@@ -390,8 +1574,6 @@ export function ContactFormOptimized() {
       newErrors.service = "Please select a service";
     }
 
-    // Message field is optional - no validation needed
-
     if (!formData.region) {
       newErrors.region = "Please select your region";
     }
@@ -413,14 +1595,14 @@ export function ContactFormOptimized() {
 
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+      setErrors(prev => ({ ...prev, [field]: "" }));
     }
   };
 
-  const handleWebsiteDetailsChange = (field: keyof ContactFormData['websiteDetails'], value: string) => {
+  const handleWebsiteDetailsChange = (field: keyof ContactFormData["websiteDetails"], value: string) => {
     setFormData(prev => ({
       ...prev,
-      websiteDetails: { ...prev.websiteDetails, [field]: value }
+      websiteDetails: { ...prev.websiteDetails, [field]: value },
     }));
   };
 
@@ -429,8 +1611,11 @@ export function ContactFormOptimized() {
       ...prev,
       dedicatedResourceDetails: {
         ...prev.dedicatedResourceDetails,
-        roles: [...prev.dedicatedResourceDetails.roles, { type: '', skillLevel: '', quantity: 1 }]
-      }
+        roles: [
+          ...prev.dedicatedResourceDetails.roles,
+          { type: "", skillLevel: "", quantity: 1 },
+        ],
+      },
     }));
   };
 
@@ -441,8 +1626,8 @@ export function ContactFormOptimized() {
         ...prev.dedicatedResourceDetails,
         roles: prev.dedicatedResourceDetails.roles.map((role, i) =>
           i === index ? { ...role, [field]: value } : role
-        )
-      }
+        ),
+      },
     }));
   };
 
@@ -451,8 +1636,8 @@ export function ContactFormOptimized() {
       ...prev,
       dedicatedResourceDetails: {
         ...prev.dedicatedResourceDetails,
-        roles: prev.dedicatedResourceDetails.roles.filter((_, i) => i !== index)
-      }
+        roles: prev.dedicatedResourceDetails.roles.filter((_, i) => i !== index),
+      },
     }));
   };
 
@@ -461,7 +1646,7 @@ export function ContactFormOptimized() {
       ...prev,
       [field]: checked
         ? [...(prev[field as keyof ContactFormData] as string[]), value]
-        : (prev[field as keyof ContactFormData] as string[]).filter(item => item !== value)
+        : (prev[field as keyof ContactFormData] as string[]).filter(item => item !== value),
     }));
   };
 
@@ -470,22 +1655,10 @@ export function ContactFormOptimized() {
 
     return websiteTiers.filter(tier => {
       if (tier.platform) return tier.platform === formData.websiteDetails.platform;
-      if (tier.platforms) return tier.platforms.includes(formData.websiteDetails.platform);
+      if ((tier as any).platforms) return (tier as any).platforms.includes(formData.websiteDetails.platform);
       return true;
     });
   };
-
-  {/* <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="Enter your phone number"
-                autoComplete="tel"
-              />
-  </div> */}
 
   return (
     <Card className="max-w-2xl mx-auto">
@@ -517,7 +1690,7 @@ export function ContactFormOptimized() {
                 id="name"
                 type="text"
                 value={formData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
+                onChange={e => handleInputChange("name", e.target.value)}
                 placeholder="Enter your full name"
                 className={errors.name ? "border-red-500" : ""}
                 autoComplete="name"
@@ -533,7 +1706,7 @@ export function ContactFormOptimized() {
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
+                onChange={e => handleInputChange("email", e.target.value)}
                 placeholder="Enter your email address"
                 className={errors.email ? "border-red-500" : ""}
                 autoComplete="email"
@@ -551,7 +1724,7 @@ export function ContactFormOptimized() {
                 id="company"
                 type="text"
                 value={formData.company}
-                onChange={(e) => handleInputChange("company", e.target.value)}
+                onChange={e => handleInputChange("company", e.target.value)}
                 placeholder="Enter your company name"
                 className={errors.company ? "border-red-500" : ""}
                 autoComplete="organization"
@@ -572,7 +1745,7 @@ export function ContactFormOptimized() {
               <PhoneInput
                 country={"us"}
                 value={formData.phone}
-                onChange={(value) => handleInputChange("phone", value)}
+                onChange={(value: string) => handleInputChange("phone", value)}
                 inputProps={{
                   name: "phone",
                   id: "phone",
@@ -590,15 +1763,13 @@ export function ContactFormOptimized() {
             <Label htmlFor="service">Service Needed *</Label>
             <Select
               value={formData.service}
-              onValueChange={(value) => handleInputChange("service", value)}
+              onValueChange={value => handleInputChange("service", value)}
             >
-              <SelectTrigger
-                className={errors.service ? "border-red-500" : ""}
-              >
+              <SelectTrigger className={errors.service ? "border-red-500" : ""}>
                 <SelectValue placeholder="Select a service" />
               </SelectTrigger>
               <SelectContent>
-                {services.map((service) => (
+                {services.map(service => (
                   <SelectItem key={service.value} value={service.value}>
                     {service.label}
                   </SelectItem>
@@ -622,7 +1793,7 @@ export function ContactFormOptimized() {
                   <Label>Platform</Label>
                   <Select
                     value={formData.websiteDetails.platform}
-                    onValueChange={(value) =>
+                    onValueChange={value =>
                       handleWebsiteDetailsChange("platform", value)
                     }
                   >
@@ -630,7 +1801,7 @@ export function ContactFormOptimized() {
                       <SelectValue placeholder="Choose platform..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {websitePlatforms.map((platform) => (
+                      {websitePlatforms.map(platform => (
                         <SelectItem key={platform.value} value={platform.value}>
                           {platform.label}
                         </SelectItem>
@@ -644,7 +1815,7 @@ export function ContactFormOptimized() {
                     <Label>Tier</Label>
                     <Select
                       value={formData.websiteDetails.tier}
-                      onValueChange={(value) =>
+                      onValueChange={value =>
                         handleWebsiteDetailsChange("tier", value)
                       }
                     >
@@ -652,7 +1823,7 @@ export function ContactFormOptimized() {
                         <SelectValue placeholder="Choose tier..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {getAvailableTiers().map((tier) => (
+                        {getAvailableTiers().map(tier => (
                           <SelectItem key={tier.value} value={tier.value}>
                             {tier.label}
                           </SelectItem>
@@ -669,13 +1840,14 @@ export function ContactFormOptimized() {
                   <Badge variant="outline" className="mr-2">
                     {
                       websitePlatforms.find(
-                        (p) => p.value === formData.websiteDetails.platform
+                        p => p.value === formData.websiteDetails.platform
                       )?.label
                     }
                     {formData.websiteDetails.tier &&
-                      ` - ${getAvailableTiers().find(
-                        (t) => t.value === formData.websiteDetails.tier
-                      )?.label
+                      ` - ${
+                        getAvailableTiers().find(
+                          t => t.value === formData.websiteDetails.tier
+                        )?.label
                       }`}
                   </Badge>
                 )}
@@ -716,7 +1888,7 @@ export function ContactFormOptimized() {
                         <Label>Role Type</Label>
                         <Select
                           value={role.type}
-                          onValueChange={(value) =>
+                          onValueChange={value =>
                             handleResourceRoleUpdate(index, "type", value)
                           }
                         >
@@ -724,7 +1896,7 @@ export function ContactFormOptimized() {
                             <SelectValue placeholder="Choose role..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {dedicatedResourceTypes.map((type) => (
+                            {dedicatedResourceTypes.map(type => (
                               <SelectItem key={type.value} value={type.value}>
                                 {type.label}
                               </SelectItem>
@@ -738,12 +1910,8 @@ export function ContactFormOptimized() {
                           <Label>Skill Level</Label>
                           <Select
                             value={role.skillLevel}
-                            onValueChange={(value) =>
-                              handleResourceRoleUpdate(
-                                index,
-                                "skillLevel",
-                                value
-                              )
+                            onValueChange={value =>
+                              handleResourceRoleUpdate(index, "skillLevel", value)
                             }
                           >
                             <SelectTrigger>
@@ -751,11 +1919,10 @@ export function ContactFormOptimized() {
                             </SelectTrigger>
                             <SelectContent>
                               {dedicatedResourceTypes
-                                .find((t) => t.value === role.type)
-                                ?.skillLevels.map((level) => (
+                                .find(t => t.value === role.type)
+                                ?.skillLevels.map(level => (
                                   <SelectItem key={level} value={level}>
-                                    {level.charAt(0).toUpperCase() +
-                                      level.slice(1)}
+                                    {level.charAt(0).toUpperCase() + level.slice(1)}
                                   </SelectItem>
                                 ))}
                             </SelectContent>
@@ -784,7 +1951,7 @@ export function ContactFormOptimized() {
                             type="number"
                             min="1"
                             value={role.quantity}
-                            onChange={(e) =>
+                            onChange={e =>
                               handleResourceRoleUpdate(
                                 index,
                                 "quantity",
@@ -836,7 +2003,7 @@ export function ContactFormOptimized() {
                               {role.quantity}x{" "}
                               {
                                 dedicatedResourceTypes.find(
-                                  (t) => t.value === role.type
+                                  t => t.value === role.type
                                 )?.label
                               }{" "}
                               ({role.skillLevel})
@@ -857,7 +2024,7 @@ export function ContactFormOptimized() {
                 What are you specifically looking for in SEO Services? *
               </h3>
               <div className="grid grid-cols-1 gap-3">
-                {seoTypes.map((type) => (
+                {seoTypes.map(type => (
                   <div
                     key={type.value}
                     className="flex items-center space-x-2"
@@ -865,7 +2032,7 @@ export function ContactFormOptimized() {
                     <Checkbox
                       id={type.value}
                       checked={formData.seoDetails.includes(type.value)}
-                      onCheckedChange={(checked) =>
+                      onCheckedChange={checked =>
                         handleCheckboxChange(
                           "seoDetails",
                           type.value,
@@ -892,17 +2059,15 @@ export function ContactFormOptimized() {
                 What are you specifically looking for in Google Ads? *
               </h3>
               <div className="grid grid-cols-1 gap-3">
-                {googleAdsTiers.map((tier) => (
+                {googleAdsTiers.map(tier => (
                   <div
                     key={tier.value}
                     className="flex items-center space-x-2"
                   >
                     <Checkbox
                       id={tier.value}
-                      checked={formData.googleAdsDetails.includes(
-                        tier.value
-                      )}
-                      onCheckedChange={(checked) =>
+                      checked={formData.googleAdsDetails.includes(tier.value)}
+                      onCheckedChange={checked =>
                         handleCheckboxChange(
                           "googleAdsDetails",
                           tier.value,
@@ -922,80 +2087,84 @@ export function ContactFormOptimized() {
             </div>
           )}
 
-          {/* Custom Web & Mobile App Development Details */}
-          {formData.service === "custom-app-development" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+          {/* Custom Web & Mobile Application Development (AI-Powered) Details */}
+          {formData.service === "custom-app-ai-development" && (
+            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in Custom Web & Mobile
-                App Development? *
+                What are you specifically looking for in Custom Web & Mobile Application Development (AI-Powered)? *
               </h3>
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
                 <p className="text-yellow-800 text-sm">
-                  Custom Web & Mobile App Development services will be
-                  available shortly. Select your areas of interest below.
+                  Tell us both the <span className="font-semibold">app scope</span> and the{" "}
+                  <span className="font-semibold">AI capabilities</span> you have in mind. This helps us scope the right architecture and team.
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-3">
-                {n8nTypes.map((type) => (
-                  <div
-                    key={type.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={type.value}
-                      checked={formData.n8nDetails.includes(type.value)}
-                      onCheckedChange={(checked) =>
-                        handleCheckboxChange(
-                          "n8nDetails",
-                          type.value,
-                          checked as boolean
-                        )
-                      }
-                    />
-                    <Label
-                      htmlFor={type.value}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {type.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* AI Development Details */}
-          {formData.service === "ai-development" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in AI Web Agents/AI
-                Development? *
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {aiTypes.map((type) => (
-                  <div
-                    key={type.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={type.value}
-                      checked={formData.aiDetails.includes(type.value)}
-                      onCheckedChange={(checked) =>
-                        handleCheckboxChange(
-                          "aiDetails",
-                          type.value,
-                          checked as boolean
-                        )
-                      }
-                    />
-                    <Label
-                      htmlFor={type.value}
-                      className="text-sm font-normal cursor-pointer"
+              {/* App Scope */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-800">
+                  App Scope (Web & Mobile)
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {appScopeTypes.map(type => (
+                    <div
+                      key={type.value}
+                      className="flex items-center space-x-2"
                     >
-                      {type.label}
-                    </Label>
-                  </div>
-                ))}
+                      <Checkbox
+                        id={type.value}
+                        checked={formData.n8nDetails.includes(type.value)}
+                        onCheckedChange={checked =>
+                          handleCheckboxChange(
+                            "n8nDetails",
+                            type.value,
+                            checked as boolean
+                          )
+                        }
+                      />
+                      <Label
+                        htmlFor={type.value}
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        {type.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* AI Features */}
+              <div className="space-y-3">
+                <h4 className="font-medium text-gray-800">
+                  AI Features / Platform Requirements
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {aiTypes.map(type => (
+                    <div
+                      key={type.value}
+                      className="flex items-center space-x-2"
+                    >
+                      <Checkbox
+                        id={type.value}
+                        checked={formData.aiDetails.includes(type.value)}
+                        onCheckedChange={checked =>
+                          handleCheckboxChange(
+                            "aiDetails",
+                            type.value,
+                            checked as boolean
+                          )
+                        }
+                      />
+                      <Label
+                        htmlFor={type.value}
+                        className="text-sm font-normal cursor-pointer"
+                      >
+                        {type.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -1005,15 +2174,13 @@ export function ContactFormOptimized() {
               <Label htmlFor="region">Your Region *</Label>
               <Select
                 value={formData.region}
-                onValueChange={(value) => handleInputChange("region", value)}
+                onValueChange={value => handleInputChange("region", value)}
               >
-                <SelectTrigger
-                  className={errors.region ? "border-red-500" : ""}
-                >
+                <SelectTrigger className={errors.region ? "border-red-500" : ""}>
                   <SelectValue placeholder="Select your region" />
                 </SelectTrigger>
                 <SelectContent>
-                  {regions.map((region) => (
+                  {regions.map(region => (
                     <SelectItem key={region.value} value={region.value}>
                       {region.label}
                     </SelectItem>
@@ -1029,13 +2196,13 @@ export function ContactFormOptimized() {
               <Label htmlFor="budget">Project Budget</Label>
               <Select
                 value={formData.budget}
-                onValueChange={(value) => handleInputChange("budget", value)}
+                onValueChange={value => handleInputChange("budget", value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select budget range" />
                 </SelectTrigger>
                 <SelectContent>
-                  {budgets.map((budget) => (
+                  {budgets.map(budget => (
                     <SelectItem key={budget.value} value={budget.value}>
                       {budget.label}
                     </SelectItem>
@@ -1049,13 +2216,13 @@ export function ContactFormOptimized() {
             <Label htmlFor="timeline">Timeline</Label>
             <Select
               value={formData.timeline}
-              onValueChange={(value) => handleInputChange("timeline", value)}
+              onValueChange={value => handleInputChange("timeline", value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select timeline" />
               </SelectTrigger>
               <SelectContent>
-                {timelines.map((timeline) => (
+                {timelines.map(timeline => (
                   <SelectItem key={timeline.value} value={timeline.value}>
                     {timeline.label}
                   </SelectItem>
@@ -1069,9 +2236,7 @@ export function ContactFormOptimized() {
             <Textarea
               id="message"
               value={formData.message}
-              onChange={(e) =>
-                handleInputChange("message", e.target.value)
-              }
+              onChange={e => handleInputChange("message", e.target.value)}
               placeholder="Tell us about your agency and goals... (Optional)"
               className="min-h-[120px]"
               rows={5}
@@ -1084,9 +2249,7 @@ export function ContactFormOptimized() {
               id="referral"
               type="text"
               value={formData.referral}
-              onChange={(e) =>
-                handleInputChange("referral", e.target.value)
-              }
+              onChange={e => handleInputChange("referral", e.target.value)}
               placeholder="Google, referral, social media, etc."
             />
           </div>
@@ -1105,9 +2268,7 @@ export function ContactFormOptimized() {
                   type="text"
                   placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
                   value={formData.couponCode}
-                  onChange={(e) =>
-                    handleInputChange("couponCode", e.target.value)
-                  }
+                  onChange={e => handleInputChange("couponCode", e.target.value)}
                   className="flex-1"
                 />
                 {formData.couponCode && (
@@ -1123,8 +2284,8 @@ export function ContactFormOptimized() {
               </div>
               {formData.couponCode && (
                 <p className="text-xs text-gray-500 mt-1">
-                  You can update or clear the code here. The applied coupon is
-                  shown at the top-right of this form.
+                  You can update or clear the code here. The applied coupon is shown at the
+                  top-right of this form.
                 </p>
               )}
             </div>

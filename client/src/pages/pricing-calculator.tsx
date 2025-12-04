@@ -588,7 +588,7 @@ export default function PricingCalculator() {
             <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
               Get instant pricing for all our services. No hidden fees, transparent pricing based on your specific needs.
             </p>
-            <Badge className="bg-white/20 text-white border-white/30 text-xs sm:text-sm">Up to 20% team discounts available</Badge>
+            <Badge className="bg-brand-coral text-white text-md font-medium px-4 py-1">Up to 20% team discounts available</Badge>
           </div>
         </section>
 
@@ -614,7 +614,7 @@ export default function PricingCalculator() {
                         <SelectItem value="google-ads">Google Ads Management</SelectItem>
                         <SelectItem value="seo">SEO / AIO Services</SelectItem>
                         <SelectItem value="web-development">Web Development</SelectItem>
-                        <SelectItem value="ai-development">AI powered Apps</SelectItem>
+                        <SelectItem value="ai-development">Custom Web & Mobile Application Development (AI-Powered)</SelectItem>
                       </SelectContent>
                     </Select>
                     {selectedService && (

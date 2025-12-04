@@ -1003,7 +1003,7 @@ import { Footer } from "@/components/footer";
 import { HomeTeamBanner } from "@/components/home-team-banner";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
-import { ThankYouPopup } from "@/components/thank-you-popup";   
+import { ThankYouPopup } from "@/components/thank-you-popup";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -1117,7 +1117,7 @@ const regionalPartners: RegionalPartnersMember[] = [
       "EU-wide business development",
       "Multi-language project coordination",
     ],
-    contact: "Contact Philip for European projects and consultations",
+    contact: "Contact Philip for European projects & consultations",
     image: phillip,
   },
 ];
@@ -1502,7 +1502,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
                 {services.map((service) => {
                   const Icon = service.icon;
 
@@ -1516,15 +1516,16 @@ export default function Home() {
                         {/* ICON + TITLE ROW */}
                         <div className="flex items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
                           <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0" />
-                          <CardTitle className="text-base sm:text-lg font-bold text-brand-purple">
+                          <CardTitle className="text-base sm:text-lg font-bold text-brand-purple min-h-[56px] flex items-center">
                             {service.title}
                           </CardTitle>
                         </div>
 
-                        {/* DESCRIPTION */}
-                        <p className="text-sm sm:text-base text-gray-700 min-h-[3rem] leading-relaxed text-left line-clamp-4">
+                        {/* DESCRIPTION - fixed min height for alignment */}
+                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed line-clamp-4 min-h-[80px]">
                           {service.description}
                         </p>
+
                       </CardHeader>
 
                       {/* BODY */}
@@ -1553,9 +1554,9 @@ export default function Home() {
                             <Link href={service.href}>
                               <Button
                                 className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark
-                             hover:from-brand-coral-dark hover:to-brand-coral-darker text-white
-                             font-bold text-sm sm:text-base flex items-center justify-center gap-2
-                             shadow-lg whitespace-nowrap"
+                        hover:from-brand-coral-dark hover:to-brand-coral-darker text-white
+                        font-bold text-sm sm:text-base flex items-center justify-center gap-2
+                        shadow-lg whitespace-nowrap"
                               >
                                 <span className="leading-tight text-white text-sm sm:text-base">
                                   Learn More
@@ -1591,61 +1592,68 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-14">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-14 items-stretch">
                 {regionalPartners.map((partner, index) => (
                   <Card
                     key={index}
-                    className="h-full border border-brand-purple/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+                    className="h-full flex border border-brand-purple/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                   >
-                    <CardContent className="p-5 sm:p-6 flex flex-col h-full">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                          <img
-                            src={
-                              partner.image
-                                ? partner.image
-                                : `/professional-business-partner-headshot-.jpg?height=400&width=400&query=professional business partner headshot ${partner.name}`
-                            }
-                            alt={partner.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div className="flex flex-col">
-                          <h3 className="font-semibold text-sm sm:text-base md:text-lg text-brand-purple">
-                            {partner.name}
-                          </h3>
-                          <p className="text-xs md:text-sm text-brand-coral font-medium">
-                            {partner.title}
-                          </p>
-                          <div className="flex items-center gap-1 text-[11px] md:text-xs text-gray-500 mt-1">
-                            <MapPin size={12} />
-                            <span>{partner.location}</span>
+                    <CardContent className="p-5 sm:p-6 flex flex-col h-full w-full">
+                      {/* content that grows */}
+                      <div className="flex flex-col flex-grow">
+                        <div className="flex items-center gap-4 mb-4">
+                          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                            <img
+                              src={
+                                partner.image
+                                  ? partner.image
+                                  : `/professional-business-partner-headshot-.jpg?height=400&width=400&query=professional business partner headshot ${partner.name}`
+                              }
+                              alt={partner.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          <div className="flex flex-col leading-tight">
+                            <h3 className="font-semibold text-sm sm:text-base md:text-lg text-brand-purple">
+                              {partner.name}
+                            </h3>
+                            <p className="text-xs md:text-sm text-brand-coral font-medium">
+                              {partner.title}
+                            </p>
+                            <div className="flex items-center gap-1 text-[11px] md:text-xs text-gray-500 mt-1">
+                              <MapPin size={12} />
+                              <span>{partner.location}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      <p className="text-xs sm:text-sm text-gray-600 mb-4">
-                        {partner.role}
-                      </p>
-
-                      <div className="mb-4">
-                        <p className="text-xs font-semibold text-gray-700 mb-2">
-                          Key expertise
+                        {/* Fixed height for role text so "Key expertise" aligns across cards */}
+                        <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed md:min-h-[72px]">
+                          {partner.role}
                         </p>
-                        <ul className="space-y-1">
-                          {partner.expertise.map((item, i) => (
-                            <li
-                              key={i}
-                              className="flex items-start gap-2 text-xs md:text-sm text-gray-600"
-                            >
-                              <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
+
+                        {/* Key expertise section */}
+                        <div>
+                          <p className="text-xs font-bold text-gray-700 mb-2">
+                            Key expertise
+                          </p>
+                          <ul className="space-y-1">
+                            {partner.expertise.map((item, i) => (
+                              <li
+                                key={i}
+                                className="flex items-start gap-2 text-xs md:text-sm text-gray-600"
+                              >
+                                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-coral" />
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
 
-                      <div className="mt-auto pt-3 border-t border-gray-100">
+                      {/* footer fixed at bottom */}
+                      <div className="pt-3 mt-4 border-t border-gray-100">
                         <p className="text-xs md:text-sm text-brand-coral font-medium">
                           {partner.contact}
                         </p>
@@ -2071,14 +2079,11 @@ export default function Home() {
                               <SelectItem value="Website Development">
                                 Website Development
                               </SelectItem>
-                              <SelectItem value="AI Web Agents/AI Development">
-                                AI Web Agents/AI Development
+                              <SelectItem value="Custom Web & Mobile Application Development (AI-Powered)">
+                                Custom Web & Mobile Application Development (AI-Powered)
                               </SelectItem>
                               <SelectItem value="Dedicated Resource">
                                 Dedicated Resource
-                              </SelectItem>
-                              <SelectItem value="Custom Mobile App Development">
-                                Custom Mobile App Development
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -2109,9 +2114,7 @@ export default function Home() {
                                     >
                                       <Checkbox
                                         id={option}
-                                        checked={formData.subServices.includes(
-                                          option
-                                        )}
+                                        checked={formData.subServices.includes(option)}
                                         onCheckedChange={(checked) =>
                                           handleSubServiceChange(option, !!checked)
                                         }
@@ -2141,9 +2144,7 @@ export default function Home() {
                                     >
                                       <Checkbox
                                         id={option}
-                                        checked={formData.subServices.includes(
-                                          option
-                                        )}
+                                        checked={formData.subServices.includes(option)}
                                         onCheckedChange={(checked) =>
                                           handleSubServiceChange(option, !!checked)
                                         }
@@ -2160,114 +2161,80 @@ export default function Home() {
                               )}
 
                               {/* Website Development Options */}
-                              {formData.servicesInterested ===
-                                "Website Development" && (
-                                  <>
-                                    {[
-                                      "WordPress",
-                                      "Shopify",
-                                      "BigCommerce",
-                                      "Custom Coded",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
+                              {formData.servicesInterested === "Website Development" && (
+                                <>
+                                  {[
+                                    "WordPress",
+                                    "Shopify",
+                                    "BigCommerce",
+                                    "Custom Coded",
+                                  ].map((option) => (
+                                    <div
+                                      key={option}
+                                      className="flex items-center space-x-2"
+                                    >
+                                      <Checkbox
+                                        id={option}
+                                        checked={formData.subServices.includes(option)}
+                                        onCheckedChange={(checked) =>
+                                          handleSubServiceChange(option, !!checked)
+                                        }
+                                      />
+                                      <Label
+                                        htmlFor={option}
+                                        className="text-sm font-medium text-gray-700 cursor-pointer"
                                       >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(option, !!checked)
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
+                                        {option}
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </>
+                              )}
 
                               {/* Dedicated Resource Options */}
-                              {formData.servicesInterested ===
-                                "Dedicated Resource" && (
-                                  <>
-                                    {[
-                                      "Graphic Designer",
-                                      "Video Editor",
-                                      "SEO Specialist",
-                                      "Google Ads Expert",
-                                      "Web Developer",
-                                      "Full-Stack Developer",
-                                      "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
+                              {formData.servicesInterested === "Dedicated Resource" && (
+                                <>
+                                  {[
+                                    "Graphic Designer",
+                                    "Video Editor",
+                                    "SEO Specialist",
+                                    "Google Ads Expert",
+                                    "Web Developer",
+                                    "Full-Stack Developer",
+                                    "Others (Data Entry/Virtual Assistants/Social Media Managers)",
+                                  ].map((option) => (
+                                    <div
+                                      key={option}
+                                      className="flex items-center space-x-2"
+                                    >
+                                      <Checkbox
+                                        id={option}
+                                        checked={formData.subServices.includes(option)}
+                                        onCheckedChange={(checked) =>
+                                          handleSubServiceChange(option, !!checked)
+                                        }
+                                      />
+                                      <Label
+                                        htmlFor={option}
+                                        className="text-sm font-medium text-gray-700 cursor-pointer"
                                       >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(option, !!checked)
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
+                                        {option}
+                                      </Label>
+                                    </div>
+                                  ))}
+                                </>
+                              )}
 
-                              {/* AI Web Agents/AI Development Options */}
+                              {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
                               {formData.servicesInterested ===
-                                "AI Web Agents/AI Development" && (
+                                "Custom Web & Mobile Application Development (AI-Powered)" && (
                                   <>
                                     {[
+                                      // AI-focused
                                       "AI Powered web app/Mobile app development",
                                       "AI Agentic Platform development",
                                       "AI Integration into existing platforms",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(option, !!checked)
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
-
-                              {/* Custom Mobile App Development Options */}
-                              {formData.servicesInterested ===
-                                "Custom Mobile App Development" && (
-                                  <>
-                                    {[
+                                      // Mobile app focused
                                       "Prototype / MVP Mobile App",
                                       "Full-Scale Production App",
                                       "iOS & Android App (Native/Hybrid)",
@@ -2281,9 +2248,7 @@ export default function Home() {
                                       >
                                         <Checkbox
                                           id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
+                                          checked={formData.subServices.includes(option)}
                                           onCheckedChange={(checked) =>
                                             handleSubServiceChange(option, !!checked)
                                           }
@@ -2330,6 +2295,7 @@ export default function Home() {
                             : "Submit Form"}
                         </Button>
                       </form>
+
                     </CardContent>
                   </Card>
                 </div>
@@ -2374,7 +2340,7 @@ export default function Home() {
           </section>
 
           {/* Newsletter CTA Section (inline newsletter page design) */}
-         <section
+          <section
             id="newsletter"
             className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
           >

@@ -708,7 +708,7 @@ import {
   EyeOff,
   PenTool,
   ImageIcon,
-  KeyRound,             
+  KeyRound,
 } from "lucide-react";
 import { AppointmentsManager } from "@/components/admin/appointments-manager";
 
@@ -884,7 +884,7 @@ export default function Admin() {
         return null;
       }
 
-      return response.json(); 
+      return response.json();
     },
     enabled: isAuthenticated,
     retry: false,
