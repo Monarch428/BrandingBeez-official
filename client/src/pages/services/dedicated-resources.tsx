@@ -724,7 +724,7 @@ export default function DedicatedResources() {
                     </h3>
                     <p className="text-gray-700 text-sm md:text-base">
                       Share your current workload, target services, and
-                      internal team size — we&apos;ll recommend the right
+                      internal team size we&apos;ll recommend the right
                       dedicated team structure in a short call.
                     </p>
                   </div>

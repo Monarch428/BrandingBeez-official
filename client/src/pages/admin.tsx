@@ -708,7 +708,7 @@ import {
   EyeOff,
   PenTool,
   ImageIcon,
-  KeyRound,             
+  KeyRound,
 } from "lucide-react";
 import { AppointmentsManager } from "@/components/admin/appointments-manager";
 
@@ -884,7 +884,7 @@ export default function Admin() {
         return null;
       }
 
-      return response.json(); 
+      return response.json();
     },
     enabled: isAuthenticated,
     retry: false,
@@ -928,8 +928,7 @@ export default function Admin() {
 
   // ✅ NEW: Trigger OAuth login
   const handleConnectGoogle = () => {
-    // This will redirect admin to Google OAuth consent screen
-    window.location.href = "/api/google/oauth/login";
+    window.open("/api/google/oauth/login", "_blank", "noopener,noreferrer");
   };
 
   // Show loading state

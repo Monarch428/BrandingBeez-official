@@ -1096,6 +1096,7 @@
 
 
 
+
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SchemaMarkup } from "@/components/schema-markup";
@@ -1460,156 +1461,92 @@ export default function CustomAppDevelopment() {
                   What We Build
                 </h2>
                 <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                  End-to-end product development across web, mobile, and AI —
+                  End-to-end product development across web, mobile, and AI
                   matched to your workflow, users, and growth goals.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-                {/* Custom Web Apps */}
-                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
-                  <CardHeader className="flex flex-col items-start space-y-4 pb-0">
-                    <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
-                      <Code className="w-7 h-7 text-brand-coral" />
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-purple.leading-snug">
-                      Custom Web Apps
-                    </h3>
-                  </CardHeader>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                {/* CARD TEMPLATE */}
+                {[
+                  {
+                    icon: <Code className="w-7 h-7 text-brand-coral" />,
+                    title: "Custom Web Apps",
+                    desc: "High-performance web applications, portals, and dashboards built with modern frameworks.",
+                    points: [
+                      "Responsive, mobile-friendly UIs",
+                      "Role-based dashboards & admin panels",
+                    ],
+                  },
+                  {
+                    icon: <Smartphone className="w-7 h-7 text-brand-coral" />,
+                    title: "Mobile Apps",
+                    desc: "Native-feel mobile experiences built with modern cross-platform frameworks.",
+                    points: [
+                      "iOS & Android from a single codebase",
+                      "App store deployment support",
+                    ],
+                  },
+                  {
+                    icon: <LayoutTemplate className="w-7 h-7 text-brand-coral" />,
+                    title: "Full-Stack Platforms",
+                    desc: "Business-critical platforms with secure backends, APIs, and integrations.",
+                    points: [
+                      "REST/GraphQL APIs & microservices",
+                      "Integrations with CRM, ERP & 3rd-party tools",
+                    ],
+                  },
+                  {
+                    icon: <Brain className="w-7 h-7 text-brand-coral" />,
+                    title: "AI Web Agents & Automation",
+                    desc: "AI layers that automate repetitive work and enhance customer experiences.",
+                    points: [
+                      "AI chatbots & assistants for web and in-app",
+                      "Multi-step agent workflows & automations",
+                    ],
+                  },
+                  {
+                    icon: <Shield className="w-7 h-7 text-brand-coral" />,
+                    title: "Maintenance & Support",
+                    desc: "Ongoing application care with monitoring, updates, and enhancements.",
+                    points: [
+                      "Bug fixes & performance tuning",
+                      "New feature iterations & UX upgrades",
+                    ],
+                  },
+                ].map(({ icon, title, desc, points }, index) => (
+                  <Card
+                    key={index}
+                    className="flex flex-col h-full max-w-[350px] text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100"
+                  >
+                    {/* ICON + TITLE same row */}
+                    <CardHeader className="pb-0">
+                      <div className="flex items-center gap-4">
+                        <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
+                          {icon}
+                        </div>
 
-                  <CardContent className="mt-4 flex flex-col justify-between flex-1">
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                      High-performance web applications, portals, and dashboards
-                      built with modern frameworks.
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>Responsive, mobile-friendly UIs</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>Role-based dashboards & admin panels</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+                        <h3 className="text-lg font-bold text-brand-purple leading-snug">
+                          {title}
+                        </h3>
+                      </div>
+                    </CardHeader>
 
-                {/* Mobile Apps */}
-                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
-                  <CardHeader className="flex flex-col items-start space-y-4 pb-0">
-                    <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
-                      <Smartphone className="w-7 h-7 text-brand-coral" />
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-purple.leading-snug">
-                      Mobile Apps
-                    </h3>
-                  </CardHeader>
+                    {/* BODY */}
+                    <CardContent className="mt-4 flex flex-col justify-between flex-1">
+                      <p className="text-gray-600 text-sm mb-4 leading-relaxed">{desc}</p>
 
-                  <CardContent className="mt-4 flex flex-col justify-between flex-1">
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                      Native-feel mobile experiences built with modern
-                      cross-platform frameworks.
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>iOS & Android from a single codebase</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>App store deployment support</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Full-Stack Platforms */}
-                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
-                  <CardHeader className="flex flex-col items-start space-y-4 pb-0">
-                    <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
-                      <LayoutTemplate className="w-7 h-7 text-brand-coral" />
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-purple.leading-snug">
-                      Full-Stack Platforms
-                    </h3>
-                  </CardHeader>
-
-                  <CardContent className="mt-4 flex flex-col justify-between flex-1">
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                      Business-critical platforms with secure backends, APIs,
-                      and integrations.
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>REST/GraphQL APIs & microservices</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>Integrations with CRM, ERP & third-party tools</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* AI & Automation */}
-                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
-                  <CardHeader className="flex flex-col items-start space-y-4 pb-0">
-                    <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
-                      <Brain className="w-7 h-7 text-brand-coral" />
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-purple.leading-snug">
-                      AI Web Agents & Automation
-                    </h3>
-                  </CardHeader>
-
-                  <CardContent className="mt-4 flex flex-col justify-between flex-1">
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                      AI layers that sit on top of your apps to automate
-                      repetitive work and improve customer experiences.
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>AI chatbots & assistants for web and in-app</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>Multi-step agent workflows & automations</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
-
-                {/* Maintenance & Support */}
-                <Card className="flex flex-col justify-between h-full text-left hover:shadow-lg transition-shadow rounded-xl border border-gray-100">
-                  <CardHeader className="flex flex-col items-start space-y-4 pb-0">
-                    <div className="w-14 h-14 bg-brand-coral/10 rounded-xl flex items-center justify-center">
-                      <Shield className="w-7 h-7 text-brand-coral" />
-                    </div>
-                    <h3 className="text-xl font-bold text-brand-purple.leading-snug">
-                      Maintenance & Support
-                    </h3>
-                  </CardHeader>
-
-                  <CardContent className="mt-4 flex flex-col justify-between flex-1">
-                    <p className="text-gray-600 text-sm mb-4 leading-relaxed">
-                      Ongoing care for your applications with monitoring, updates,
-                      and enhancements.
-                    </p>
-                    <ul className="space-y-2 text-sm text-gray-600">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>Bug fixes & performance tuning</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
-                        <span>New feature iterations & UX upgrades</span>
-                      </li>
-                    </ul>
-                  </CardContent>
-                </Card>
+                      <ul className="space-y-2 text-sm text-gray-600 mt-auto">
+                        {points.map((p, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-500 mt-[2px]" />
+                            <span className="text-sm">{p}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           </section>
@@ -1730,7 +1667,7 @@ export default function CustomAppDevelopment() {
           </section>
 
           {/* AI Development Case Study - PatentScanner */}
-          <section className="py-20 px-4 bg-white">
+          {/* <section className="py-20 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
               <Card className="border-2 border-brand-coral shadow-lg">
                 <CardHeader className="bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1874,7 +1811,7 @@ export default function CustomAppDevelopment() {
                 </CardContent>
               </Card>
             </div>
-          </section>
+          </section> */}
 
           {/* Platform Portfolio - Octupus AI */}
           <section className="py-20 px-4 bg-gray-50">
@@ -1888,140 +1825,284 @@ export default function CustomAppDevelopment() {
                   and specialized automation.
                 </p>
               </div>
-
-              <Card className="border-2 border-brand-coral shadow-2xl">
-                <CardHeader className="bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
-                      <img
-                        src="/images/octupus-logo.jpg"
-                        alt="Octupus AI Logo"
-                        className="w-10 h-10 rounded-lg object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="bg-brand-coral text-white font-semibold mb-2 inline-block px-4 py-2 rounded-full text-sm">
-                        🚀 Featured Platform
-                      </h3>
-                      <h3 className="text-3xl font-bold text-white">
-                        Octupus AI – UK Telecoms AI Platform
-                      </h3>
-                      <p className="text-white/90 mt-2">
-                        Industry-specific AI platform for automated social media
-                        content creation
-                      </p>
-                    </div>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="p-8">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
-                          <Target className="w-5 h-5" />
-                          Challenge
-                        </h4>
-                        <p className="text-gray-600">
-                          UK telecoms companies struggled with generic social
-                          media tools that didn&apos;t understand industry
-                          terminology, regulations, or customer concerns.
-                        </p>
+              <div className="flex flex-col items-center justify-center gap-8">
+                <Card className="border-2 border-brand-coral shadow-2xl">
+                  <CardHeader className="bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+                        <img
+                          src="/images/octupus-logo.jpg"
+                          alt="Octupus AI Logo"
+                          className="w-10 h-10 rounded-lg object-cover"
+                        />
                       </div>
-
                       <div>
-                        <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
-                          <Sparkles className="w-5 h-5" />
-                          Solution
-                        </h4>
-                        <p className="text-gray-600">
-                          Built industry-specific AI platform for automated social
-                          media content creation across Instagram, Facebook, and
-                          LinkedIn with telecoms expertise.
-                        </p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
-                          <Users className="w-5 h-5" />
-                          Partnership
-                        </h4>
-                        <p className="text-gray-600">
-                          Developed with UK partners for local market expertise
-                          and industry connections.
+                        <h3 className="bg-brand-coral text-white font-semibold mb-2 inline-block px-4 py-2 rounded-full text-sm">
+                          🚀 Featured Platform
+                        </h3>
+                        <h3 className="text-3xl font-bold text-white">
+                          Octupus AI – UK Telecoms AI Platform
+                        </h3>
+                        <p className="text-white/90 mt-2">
+                          Industry-specific AI platform for automated social media
+                          content creation
                         </p>
                       </div>
                     </div>
+                  </CardHeader>
 
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
-                          <BarChart3 className="w-5 h-5" />
-                          Results & Status
-                        </h4>
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-3">
-                            <Badge className="bg-green-100 text-green-800">
-                              Beta Testing
-                            </Badge>
-                            <span className="text-gray-700">
-                              Telecoms-specific content generation in beta
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge className="bg-blue-100 text-blue-800">
-                              Smart Scheduling
-                            </Badge>
-                            <span className="text-gray-700">
-                              Automated posting with regulatory awareness
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <Badge className="bg-purple-100 text-purple-800">
-                              Active Onboarding
-                            </Badge>
-                            <span className="text-gray-700">
-                              UK telecoms companies joining beta program
-                            </span>
-                          </div>
+                  <CardContent className="p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <Target className="w-5 h-5" />
+                            Challenge
+                          </h4>
+                          <p className="text-gray-600">
+                            UK telecoms companies struggled with generic social
+                            media tools that didn&apos;t understand industry
+                            terminology, regulations, or customer concerns.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5" />
+                            Solution
+                          </h4>
+                          <p className="text-gray-600">
+                            Built industry-specific AI platform for automated social
+                            media content creation across Instagram, Facebook, and
+                            LinkedIn with telecoms expertise.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <Users className="w-5 h-5" />
+                            Partnership
+                          </h4>
+                          <p className="text-gray-600">
+                            Developed with UK partners for local market expertise
+                            and industry connections.
+                          </p>
                         </div>
                       </div>
 
-                      <div className="bg-brand-wings/20 p-6 rounded-xl">
-                        <h4 className="font-semibold text-brand-purple mb-3">
-                          Key Features:
-                        </h4>
-                        <ul className="space-y-2 text-sm">
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-gray-700">
-                              Telecoms-specific content generation
-                            </span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-gray-700">
-                              Regulatory compliance awareness
-                            </span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-gray-700">
-                              Multi-platform automation
-                            </span>
-                          </li>
-                          <li className="flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-500" />
-                            <span className="text-gray-700">
-                              Industry terminology understanding
-                            </span>
-                          </li>
-                        </ul>
+                      <div className="space-y-6">
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <BarChart3 className="w-5 h-5" />
+                            Results & Status
+                          </h4>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-green-100 text-green-800">
+                                Beta Testing
+                              </Badge>
+                              <span className="text-gray-700">
+                                Telecoms-specific content generation in beta
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-blue-100 text-blue-800">
+                                Smart Scheduling
+                              </Badge>
+                              <span className="text-gray-700">
+                                Automated posting with regulatory awareness
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-purple-100 text-purple-800">
+                                Active Onboarding
+                              </Badge>
+                              <span className="text-gray-700">
+                                UK telecoms companies joining beta program
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-brand-wings/20 p-6 rounded-xl">
+                          <h4 className="font-semibold text-brand-purple mb-3">
+                            Key Features:
+                          </h4>
+                          <ul className="space-y-2 text-sm">
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                Telecoms-specific content generation
+                              </span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                Regulatory compliance awareness
+                              </span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                Multi-platform automation
+                              </span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                Industry terminology understanding
+                              </span>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+
+                <Card className="border-2 border-brand-coral shadow-lg">
+                  <CardHeader className="bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <div className="w-16 h-16 bg-white/20 rounded-xl flex items-center justify-center">
+                        <FileText className="w-8 h-8 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="bg-brand-coral text-white font-bold mb-2 inline-block px-4 py-2 rounded-full text-sm">
+                          🎯 AI Development Case Study
+                        </h3>
+                        <h3 className="text-3xl font-bold text-white">
+                          PatentScanner.co.uk
+                        </h3>
+                        <p className="text-white/90 mt-2">
+                          UK Patent Screening Platform with AI-Powered Analysis
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="p-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      <div className="space-y-6">
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <Target className="w-5 h-5" />
+                            Challenge
+                          </h4>
+                          <p className="text-gray-600">
+                            UK innovators needed a comprehensive platform to search
+                            patent databases, manage applications, and analyze
+                            patent text for novelty and potential conflicts.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5" />
+                            AI Solution
+                          </h4>
+                          <p className="text-gray-600">
+                            Built intelligent patent analysis system with
+                            multi-database search, automated filing management, and
+                            AI-powered text analysis for patent novelty detection.
+                          </p>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <Code className="w-5 h-5" />
+                            Technical Implementation
+                          </h4>
+                          <p className="text-gray-600">
+                            Full-stack AI platform with natural language processing
+                            for patent text analysis and automated conflict
+                            detection across UK patent databases.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div>
+                          <h4 className="font-semibold text-brand-purple mb-3 flex items-center gap-2">
+                            <BarChart3 className="w-5 h-5" />
+                            Platform Features
+                          </h4>
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-blue-100 text-blue-800">
+                                Patent Search
+                              </Badge>
+                              <span className="text-gray-700">
+                                Multi-database UK patent search
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-green-100 text-green-800">
+                                Application Filing
+                              </Badge>
+                              <span className="text-gray-700">
+                                Document management & status tracking
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Badge className="bg-purple-100 text-purple-800">
+                                AI Analysis
+                              </Badge>
+                              <span className="text-gray-700">
+                                Automated novelty & conflict detection
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="bg-brand-wings/20 p-6 rounded-xl">
+                          <h4 className="font-semibold text-brand-purple mb-3">
+                            Key Capabilities:
+                          </h4>
+                          <ul className="space-y-2 text-sm">
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                AI-powered patent text analysis
+                              </span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                Prior art identification system
+                              </span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                Automated conflict detection
+                              </span>
+                            </li>
+                            <li className="flex items-center gap-2">
+                              <CheckCircle className="w-4 h-4 text-green-500" />
+                              <span className="text-gray-700">
+                                End-to-end patent workflow
+                              </span>
+                            </li>
+                          </ul>
+
+                          <div className="mt-4 pt-4 border-t border-gray-300">
+                            <a
+                              href="https://patentscanner.co.uk"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-brand-coral font-semibold flex items-center gap-2 justify-center transition-colors"
+                            >
+                              🌐 Visit PatentScanner.co.uk
+                              <ArrowRight className="w-4 h-4" />
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
             </div>
           </section>
 
@@ -2038,8 +2119,8 @@ export default function CustomAppDevelopment() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <Card className="text-center">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* <Card className="text-center">
                   <CardHeader>
                     <Clock className="w-12 h-12 text-brand-coral mx-auto mb-4" />
                     <h3 className="text-xl font-bold text-brand-purple">
@@ -2050,7 +2131,7 @@ export default function CustomAppDevelopment() {
                     <p className="text-gray-600 mb-2">3–6 months average</p>
                     <p className="text-sm text-gray-500">project duration</p>
                   </CardContent>
-                </Card>
+                </Card> */}
 
                 <Card className="text-center">
                   <CardHeader>
@@ -2214,11 +2295,10 @@ export default function CustomAppDevelopment() {
                                 onClick={() =>
                                   toggleArrayValue("applicationTypes", type)
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.applicationTypes.includes(type)
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.applicationTypes.includes(type)
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 <span className="mr-2">
                                   {formData.applicationTypes.includes(type)
@@ -2271,11 +2351,10 @@ export default function CustomAppDevelopment() {
                                 onClick={() =>
                                   toggleArrayValue("userTypes", u)
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.userTypes.includes(u)
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.userTypes.includes(u)
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 <span className="mr-2">
                                   {formData.userTypes.includes(u)
@@ -2302,11 +2381,10 @@ export default function CustomAppDevelopment() {
                                 onClick={() =>
                                   toggleArrayValue("mustHaveFeatures", f)
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.mustHaveFeatures.includes(f)
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.mustHaveFeatures.includes(f)
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 <span className="mr-2">
                                   {formData.mustHaveFeatures.includes(f)
@@ -2320,27 +2398,27 @@ export default function CustomAppDevelopment() {
                           {formData.mustHaveFeatures.includes(
                             "Something custom (explain)",
                           ) && (
-                            <div className="mt-2">
-                              <Label
-                                htmlFor="customFeatureDetails"
-                                className="text-sm text-gray-700"
-                              >
-                                Describe any custom or unique features
-                              </Label>
-                              <Textarea
-                                id="customFeatureDetails"
-                                value={formData.customFeatureDetails}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    customFeatureDetails: e.target.value,
-                                  }))
-                                }
-                                placeholder="For example: offline mode, multi-tenant access, AI agents to automate tasks, complex pricing rules, multi-role approval workflow..."
-                                className="mt-1"
-                              />
-                            </div>
-                          )}
+                              <div className="mt-2">
+                                <Label
+                                  htmlFor="customFeatureDetails"
+                                  className="text-sm text-gray-700"
+                                >
+                                  Describe any custom or unique features
+                                </Label>
+                                <Textarea
+                                  id="customFeatureDetails"
+                                  value={formData.customFeatureDetails}
+                                  onChange={(e) =>
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      customFeatureDetails: e.target.value,
+                                    }))
+                                  }
+                                  placeholder="For example: offline mode, multi-tenant access, AI agents to automate tasks, complex pricing rules, multi-role approval workflow..."
+                                  className="mt-1"
+                                />
+                              </div>
+                            )}
                         </div>
                       )}
 
@@ -2389,11 +2467,10 @@ export default function CustomAppDevelopment() {
                                     buildType: b,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.buildType === b
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.buildType === b
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 {b}
                               </button>
@@ -2418,11 +2495,10 @@ export default function CustomAppDevelopment() {
                                     projectTimeline: t,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.projectTimeline === t
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.projectTimeline === t
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 {t}
                               </button>
@@ -2447,11 +2523,10 @@ export default function CustomAppDevelopment() {
                                     budgetRange: b,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.budgetRange === b
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.budgetRange === b
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 {b}
                               </button>
@@ -2473,11 +2548,10 @@ export default function CustomAppDevelopment() {
                                 onClick={() =>
                                   toggleArrayValue("techPreferences", tech)
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.techPreferences.includes(tech)
-                                    ? "border-brand-coral bg-brand-coral/5 shadow-sm"
-                                    : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.techPreferences.includes(tech)
+                                  ? "border-brand-coral bg-brand-coral/5 shadow-sm"
+                                  : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                  }`}
                               >
                                 <span className="mr-2">
                                   {formData.techPreferences.includes(tech)
@@ -2632,7 +2706,7 @@ export default function CustomAppDevelopment() {
                   Modern App & AI Tech Stack
                 </h2>
                 <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                  We use proven, modern technologies for web, mobile, and AI —
+                  We use proven, modern technologies for web, mobile, and AI
                   selected based on your product and team.
                 </p>
               </div>
@@ -2703,7 +2777,7 @@ export default function CustomAppDevelopment() {
                   className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral"
                   onClick={() => navigate("/#newsletter")}
                 >
-                  Subscribe for Product & AI Updates
+                  Subscribe Now
                 </Button>
               </div>
             </div>

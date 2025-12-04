@@ -1885,10 +1885,10 @@ const services = [
   { value: "dedicated-resources", label: "Dedicated Resources" },
   {
     value: "custom-app-development",
-    label: "Custom Web & Mobile App Development",
+    label: "Custom Web & Mobile Application Development (AI-Powered)",
   },
-  { value: "ai-development", label: "AI Web Agents/AI Development" },
-  { value: "other", label: "Other" },
+  // { value: "ai-development", label: "AI Web Agents/AI Development" },
+  // { value: "other", label: "Other" },
 ];
 
 const statusClasses: Record<SlotStatus, string> = {
@@ -2153,7 +2153,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
       // ✅ Success message shown on right side even after form closes
       setStatusType("success");
-      setStatusMessage(`Appointment booked successfully! 🎉${meetText}`);
+      // setStatusMessage(`Appointment booked successfully! 🎉${meetText}`);
+      setStatusMessage(`🎉 Appointment confirmed...! Please check your email for the Google Meet link.`);
       setTimeout(() => setStatusMessage(null), 6000);
 
       // Clear selection & form and go back to time view (form "closed")
@@ -2216,7 +2217,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
         <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-brand-coral/90">
+            <p className="text-[14px] uppercase tracking-[0.2em] text-brand-coral font-bold">
               Book a strategy call
             </p>
             <CardTitle className="text-lg md:text-xl text-slate-50 mt-1">
@@ -2254,7 +2255,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
           {/* When date is picked, show chip + change button */}
           {bookingStage !== "date" && selectedDate && (
             <div className="flex flex-col items-end gap-1">
-              <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[11px] text-slate-200">
+              <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[14px] text-slate-200">
                 Selected date: {formattedSelectedDate}
               </span>
               <button
@@ -2263,7 +2264,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   setBookingStage("date");
                   setSelectedSlot(null);
                 }}
-                className="text-[11px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
+                className="text-[12px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
               >
                 <X className="w-3 h-3" />
                 Change date
@@ -2331,14 +2332,14 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                     <span>
                       {selectedDate
                         ? selectedDate.toLocaleDateString("en-GB", {
-                            weekday: "short",
-                            day: "numeric",
-                            month: "short",
-                          })
+                          weekday: "short",
+                          day: "numeric",
+                          month: "short",
+                        })
                         : "Select a date to see available times"}
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-500">
+                  <span className="text-[11px] text-orange-600">
                     Base availability: <b>4:00 PM – 11:00 PM India time (IST)</b>.{" "}
                     Times below are shown in your selected timezone.
                   </span>
@@ -2346,7 +2347,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 
                 <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px]">Showing times in:</span>
+                    <span className="text-[10px] text-white">Showing times in:</span>
                     <Select
                       value={timeZone}
                       onValueChange={(value) =>
@@ -2524,11 +2525,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 <b>Time:</b>{" "}
                 {selectedSlot
                   ? formatSlotLabelForTimeZone(
-                      selectedSlot.startTime,
-                      selectedSlot.endTime,
-                      effectiveSelectedDate,
-                      timeZone,
-                    )
+                    selectedSlot.startTime,
+                    selectedSlot.endTime,
+                    effectiveSelectedDate,
+                    timeZone,
+                  )
                   : "Pick a slot on the left"}
               </p>
             </div>
@@ -2737,11 +2738,10 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           }}
                         >
                           <SelectTrigger
-                            className={`${inputBase} ${
-                              serviceLocked
+                            className={`${inputBase} ${serviceLocked
                                 ? "cursor-not-allowed opacity-90"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <SelectValue placeholder="Select a service" />
                           </SelectTrigger>
@@ -2801,11 +2801,11 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                           <b>Time:</b>{" "}
                           {selectedSlot
                             ? formatSlotLabelForTimeZone(
-                                selectedSlot.startTime,
-                                selectedSlot.endTime,
-                                effectiveSelectedDate,
-                                timeZone,
-                              )
+                              selectedSlot.startTime,
+                              selectedSlot.endTime,
+                              effectiveSelectedDate,
+                              timeZone,
+                            )
                             : "Not selected"}
                         </p>
                       </div>
@@ -2825,7 +2825,7 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                         prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
                       )
                     }
-                    className="text-slate-300 hover:text-slate-50"
+                    className="text-white bg-red-700 hover:text-slate-50"
                   >
                     Back
                   </Button>
@@ -2881,3 +2881,4 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     </div>
   );
 };
+export default AppointmentCalendar;
