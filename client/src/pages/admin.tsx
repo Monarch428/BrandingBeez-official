@@ -928,8 +928,7 @@ export default function Admin() {
 
   // ✅ NEW: Trigger OAuth login
   const handleConnectGoogle = () => {
-    // This will redirect admin to Google OAuth consent screen
-    window.location.href = "/api/google/oauth/login";
+    window.open("/api/google/oauth/login", "_blank", "noopener,noreferrer");
   };
 
   // Show loading state
