@@ -568,7 +568,6 @@
 
 
 //---------------------------------------------------------------------------------------- //
-
 import path from "path";
 import nodemailer from "nodemailer";
 import { notificationService } from "./notification-service";
@@ -891,7 +890,7 @@ export async function sendAppointmentNotification(
       date: appt.date,
       startTime: appt.startTime,
       endTime: appt.endTime,
-      meetingLink: appt.meetingLink, // store for admin UI
+      meetingLink: appt.meetingLink, 
       createdAt: appt.createdAt || new Date(),
     });
   } catch (err) {
@@ -922,8 +921,6 @@ export async function sendAppointmentNotification(
 
     const prettyDate = appt.date;
     const prettyTime = `${appt.startTime} – ${appt.endTime}`;
-
-    // (No Google Meet link generated / Google API not configured)
 
     const mailOptions = {
       from: user,

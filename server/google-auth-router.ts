@@ -14,7 +14,7 @@ const GOOGLE_REDIRECT_URI = "https://localhost:8000/api/google/oauth/callback";
 router.get("/oauth/login", (req, res) => {
   const scope = [
     "https://www.googleapis.com/auth/calendar",
-    "https://www.googleapis.com/auth/calendar.events"
+    "https://www.googleapis.com/auth/calendar.events",
   ].join(" ");
 
   const authUrl =
@@ -23,7 +23,7 @@ router.get("/oauth/login", (req, res) => {
       client_id: GOOGLE_CLIENT_ID,
       redirect_uri: GOOGLE_REDIRECT_URI,
       response_type: "code",
-      access_type: "offline", 
+      access_type: "offline",
       prompt: "consent",
       scope,
     });
@@ -45,7 +45,7 @@ router.get("/oauth/callback", async (req, res) => {
         redirect_uri: GOOGLE_REDIRECT_URI,
         grant_type: "authorization_code",
       }),
-      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } },
     );
 
     const { access_token, refresh_token, expires_in } = response.data;

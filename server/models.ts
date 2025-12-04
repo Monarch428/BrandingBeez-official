@@ -449,7 +449,7 @@ export const PortfolioContentModel =
   model<PortfolioContentDocument>("PortfolioContent", portfolioContentSchema);
 
 
-interface AppointmentDocument extends mongoose.Document, Appointment { }
+interface AppointmentDocument extends mongoose.Document, Appointment {}
 
 const appointmentSchema = new Schema<AppointmentDocument>(
   {
@@ -461,9 +461,12 @@ const appointmentSchema = new Schema<AppointmentDocument>(
     serviceType: String,
     notes: String,
 
-    date: { type: String, required: true },      // YYYY-MM-DD
+    date: { type: String, required: true }, // YYYY-MM-DD
     startTime: { type: String, required: true }, // "HH:mm"
-    endTime: { type: String, required: true },   // "HH:mm"
+    endTime: { type: String, required: true }, // "HH:mm"
+
+    // ✅ NEW: store meeting link
+    meetingLink: { type: String },
 
     status: {
       type: String,
@@ -498,7 +501,7 @@ const googleAuthSchema = new Schema<GoogleAuthDocument>(
     expiryDate: { type: Number, required: true },
     createdAt: { type: Date, default: Date.now },
   },
-  { collection: "google_auth_tokens", versionKey: false } // 👈 collection name
+  { collection: "google_auth_tokens", versionKey: false }, // 👈 collection name
 );
 
 export const GoogleAuthModel =
