@@ -2211,6 +2211,30 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   : "Pick a time slot"}
               </CardTitle>
             </div>
+          )}
+
+          {/* STEP 2: Time slots (stage = time or form) */}
+          {bookingStage !== "date" && (
+            <div className="border-t border-slate-800 pt-4">
+              <div className="flex items-center justify-between mb-3 gap-3">
+                <div className="flex flex-col gap-0.5 text-xs text-slate-300">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>
+                      {selectedDate
+                        ? selectedDate.toLocaleDateString("en-GB", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })
+                        : "Select a date to see available times"}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-orange-600">
+                    Base availability: <b>4:00 PM – 11:00 PM India time (IST)</b>.{" "}
+                    Times below are shown in your selected timezone.
+                  </span>
+                </div>
 
             {/* Month navigation only relevant while picking date */}
             {bookingStage === "date" && (
