@@ -294,7 +294,7 @@ export default function WebDevelopment() {
                     <Button
                       className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                       // onClick={() => window.open("https://calendly.com/vignesh-velusamy/30min?month=2025-09","_blank",)}
-                      onClick={() => window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)}
+                      onClick={() => window.open("/book-appiontment", "_blank",)}
                     >
                       Schedule a Consultation
                       <ArrowRight className="w-4 h-4 ml-2" />
@@ -480,7 +480,7 @@ export default function WebDevelopment() {
                           </Button>
                         </Link>
                         <a
-                          href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                          href="/book-appiontment/"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-full"

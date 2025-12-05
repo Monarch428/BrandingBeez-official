@@ -781,9 +781,6 @@
 
 // ------------------------------------------------------------------------------------------------------------------- //
 
-
-
-
 // // src/components/booking/AppointmentCalendar.tsx
 // import React, { useEffect, useMemo, useState } from "react";
 // import { Button } from "@/components/ui/button";
@@ -805,6 +802,12 @@
 //   SelectTrigger,
 //   SelectValue,
 // } from "@/components/ui/select";
+// import {
+//   timeZoneOptions,
+//   type TimeZoneOptionId,
+//   formatSlotLabelForTimeZone,
+//   getLocalMinutesFromISTSlot,
+// } from "@/utils/timezone-utils";
 
 // interface AppointmentCalendarProps {
 //   defaultServiceType?: string;
@@ -821,10 +824,10 @@
 //   { value: "dedicated-resources", label: "Dedicated Resources" },
 //   {
 //     value: "custom-app-development",
-//     label: "Custom Web & Mobile App Development",
+//     label: "Custom Web & Mobile Application Development (AI-Powered)",
 //   },
-//   { value: "ai-development", label: "AI Web Agents/AI Development" },
-//   { value: "other", label: "Other" },
+//   // { value: "ai-development", label: "AI Web Agents/AI Development" },
+//   // { value: "other", label: "Other" },
 // ];
 
 // const statusClasses: Record<SlotStatus, string> = {
@@ -854,54 +857,13 @@
 //   return hh * 60 + mm;
 // };
 
-// // ⭐ TIMEZONE AWARE HELPERS (IST → user local)
-
-// // Convert "HH:mm" (IST time) into user's local Date object for a given calendar date
-// const convertISTTimeToLocalDate = (time: string, date: Date) => {
-//   const [h, m] = time.split(":").map(Number);
-
-//   // IST is UTC+5:30, so UTC hour = IST hour - 5:30
-//   const utcMillis = Date.UTC(
-//     date.getFullYear(),
-//     date.getMonth(),
-//     date.getDate(),
-//     h - 5,
-//     m - 30,
-//   );
-
-//   return new Date(utcMillis); // this will be interpreted in user's local timezone
-// };
-
-// // Format a local Date as "4:00 PM"
-// const formatLocalTimeLabel = (dateObj: Date) => {
-//   return dateObj.toLocaleTimeString([], {
-//     hour: "2-digit",
-//     minute: "2-digit",
-//     hour12: true,
-//   });
-// };
-
-// // For displaying "4:00 PM – 4:30 PM" in user's local time
-// const formatSlotLabelLocal = (startTime: string, endTime: string, date: Date) => {
-//   const localStart = convertISTTimeToLocalDate(startTime, date);
-//   const localEnd = convertISTTimeToLocalDate(endTime, date);
-//   return `${formatLocalTimeLabel(localStart)} – ${formatLocalTimeLabel(localEnd)}`;
-// };
-
-// // Get minutes from midnight for local Date (used to detect past slots)
-// const getLocalMinutesFromISTSlot = (time: string, date: Date) => {
-//   const local = convertISTTimeToLocalDate(time, date);
-//   return local.getHours() * 60 + local.getMinutes();
-// };
-
 // type BookingStage = "date" | "time" | "form";
 // type StatusType = "success" | "error" | null;
 
 // const validateEmail = (value: string) =>
 //   /^\S+@\S+\.\S+$/.test(value.trim());
 
-// const validatePhone = (value: string) =>
-//   value.trim().length >= 7;
+// const validatePhone = (value: string) => value.trim().length >= 7;
 
 // export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
 //   defaultServiceType = "Website Development",
@@ -949,6 +911,9 @@
 //   const [serviceValue, setServiceValue] = useState<string>("");
 //   const [serviceType, setServiceType] = useState<string>(defaultServiceType);
 //   const [serviceLocked, setServiceLocked] = useState(false);
+
+//   // Timezone selection for display
+//   const [timeZone, setTimeZone] = useState<TimeZoneOptionId>("browser");
 
 //   const monthLabel = useMemo(() => {
 //     return currentMonth.toLocaleDateString("en-GB", {
@@ -1116,7 +1081,7 @@
 //         notes,
 //         serviceType,
 //         date: selectedDateKey,
-//         // 🔹 Keep sending original times as stored (IST-based)
+//         // 🔹 Times stay as IST strings on the backend
 //         startTime: selectedSlot.startTime,
 //         endTime: selectedSlot.endTime,
 //       });
@@ -1127,7 +1092,8 @@
 
 //       // ✅ Success message shown on right side even after form closes
 //       setStatusType("success");
-//       setStatusMessage(`Appointment booked successfully! 🎉${meetText}`);
+//       // setStatusMessage(`Appointment booked successfully! 🎉${meetText}`);
+//       setStatusMessage(`🎉 Appointment confirmed...! Please check your email for the Google Meet link.`);
 //       setTimeout(() => setStatusMessage(null), 6000);
 
 //       // Clear selection & form and go back to time view (form "closed")
@@ -1160,9 +1126,7 @@
 //     validateEmail(email);
 
 //   const canGoNextFromStep1 =
-//     phone.trim().length > 0 &&
-//     validatePhone(phone) &&
-//     !!serviceType;
+//     phone.trim().length > 0 && validatePhone(phone) && !!serviceType;
 
 //   // Format selected date for chips / labels
 //   const formattedSelectedDate =
@@ -1177,7 +1141,7 @@
 //   // ✅ Only show right panel after slot selected OR after a status exists
 //   const showRightPanel = bookingStage === "form" || !!statusType;
 
-//   // effectiveDate is the date we use to interpret IST times (fallback to today if somehow null)
+//   // effective date when converting IST → target timezone
 //   const effectiveSelectedDate = selectedDate || today;
 
 //   return (
@@ -1192,7 +1156,7 @@
 //       <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
 //         <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
 //           <div>
-//             <p className="text-[11px] uppercase tracking-[0.2em] text-brand-coral/90">
+//             <p className="text-[14px] uppercase tracking-[0.2em] text-brand-coral font-bold">
 //               Book a strategy call
 //             </p>
 //             <CardTitle className="text-lg md:text-xl text-slate-50 mt-1">
@@ -1230,7 +1194,7 @@
 //           {/* When date is picked, show chip + change button */}
 //           {bookingStage !== "date" && selectedDate && (
 //             <div className="flex flex-col items-end gap-1">
-//               <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[11px] text-slate-200">
+//               <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[14px] text-slate-200">
 //                 Selected date: {formattedSelectedDate}
 //               </span>
 //               <button
@@ -1239,7 +1203,7 @@
 //                   setBookingStage("date");
 //                   setSelectedSlot(null);
 //                 }}
-//                 className="text-[11px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
+//                 className="text-[12px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
 //               >
 //                 <X className="w-3 h-3" />
 //                 Change date
@@ -1300,27 +1264,47 @@
 //           {/* STEP 2: Time slots (stage = time or form) */}
 //           {bookingStage !== "date" && (
 //             <div className="border-t border-slate-800 pt-4">
-//               <div className="flex items-center justify-between mb-3">
+//               <div className="flex items-center justify-between mb-3 gap-3">
 //                 <div className="flex flex-col gap-0.5 text-xs text-slate-300">
 //                   <div className="flex items-center gap-2">
 //                     <Clock className="w-4 h-4" />
 //                     <span>
 //                       {selectedDate
 //                         ? selectedDate.toLocaleDateString("en-GB", {
-//                             weekday: "short",
-//                             day: "numeric",
-//                             month: "short",
-//                           })
+//                           weekday: "short",
+//                           day: "numeric",
+//                           month: "short",
+//                         })
 //                         : "Select a date to see available times"}
 //                     </span>
 //                   </div>
-//                   <span className="text-[10px] text-slate-500">
-//                     Slots are based on{" "}
-//                     <b>India time (4:00 PM – 11:00 PM IST)</b> and are{" "}
-//                     <b>automatically converted to your local time</b> below.
+//                   <span className="text-[11px] text-orange-600">
+//                     Base availability: <b>4:00 PM – 11:00 PM India time (IST)</b>.{" "}
+//                     Times below are shown in your selected timezone.
 //                   </span>
 //                 </div>
+
 //                 <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
+//                   <div className="flex items-center gap-2 mb-1">
+//                     <span className="text-[10px] text-white">Showing times in:</span>
+//                     <Select
+//                       value={timeZone}
+//                       onValueChange={(value) =>
+//                         setTimeZone(value as TimeZoneOptionId)
+//                       }
+//                     >
+//                       <SelectTrigger className="h-7 px-2 py-1 text-[10px] bg-slate-900 border-slate-700 text-slate-100">
+//                         <SelectValue />
+//                       </SelectTrigger>
+//                       <SelectContent className="bg-slate-900 border-slate-700 text-slate-100 text-[11px] max-h-72">
+//                         {timeZoneOptions.map((tz) => (
+//                           <SelectItem key={tz.id} value={tz.id}>
+//                             {tz.label}
+//                           </SelectItem>
+//                         ))}
+//                       </SelectContent>
+//                     </Select>
+//                   </div>
 //                   <div className="flex gap-2">
 //                     <span className="flex items-center gap-1">
 //                       <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
@@ -1358,7 +1342,7 @@
 //                     if (selectedDateKey < todayKey) {
 //                       isPastSlot = true;
 //                     } else if (selectedDateKey === todayKey) {
-//                       // Compare using local time version of IST endTime
+//                       // Compare using LOCAL browser time version of IST endTime
 //                       const endMinutesLocal = getLocalMinutesFromISTSlot(
 //                         slot.endTime,
 //                         effectiveSelectedDate,
@@ -1400,10 +1384,11 @@
 //                         ].join(" ")}
 //                       >
 //                         <span className="font-medium">
-//                           {formatSlotLabelLocal(
+//                           {formatSlotLabelForTimeZone(
 //                             slot.startTime,
 //                             slot.endTime,
 //                             effectiveSelectedDate,
+//                             timeZone,
 //                           )}
 //                         </span>
 //                         <span className="text-[10px] opacity-85 capitalize">
@@ -1478,11 +1463,12 @@
 //               <p>
 //                 <b>Time:</b>{" "}
 //                 {selectedSlot
-//                   ? formatSlotLabelLocal(
-//                       selectedSlot.startTime,
-//                       selectedSlot.endTime,
-//                       effectiveSelectedDate,
-//                     )
+//                   ? formatSlotLabelForTimeZone(
+//                     selectedSlot.startTime,
+//                     selectedSlot.endTime,
+//                     effectiveSelectedDate,
+//                     timeZone,
+//                   )
 //                   : "Pick a slot on the left"}
 //               </p>
 //             </div>
@@ -1691,11 +1677,10 @@
 //                           }}
 //                         >
 //                           <SelectTrigger
-//                             className={`${inputBase} ${
-//                               serviceLocked
+//                             className={`${inputBase} ${serviceLocked
 //                                 ? "cursor-not-allowed opacity-90"
 //                                 : ""
-//                             }`}
+//                               }`}
 //                           >
 //                             <SelectValue placeholder="Select a service" />
 //                           </SelectTrigger>
@@ -1754,11 +1739,12 @@
 //                         <p>
 //                           <b>Time:</b>{" "}
 //                           {selectedSlot
-//                             ? formatSlotLabelLocal(
-//                                 selectedSlot.startTime,
-//                                 selectedSlot.endTime,
-//                                 effectiveSelectedDate,
-//                               )
+//                             ? formatSlotLabelForTimeZone(
+//                               selectedSlot.startTime,
+//                               selectedSlot.endTime,
+//                               effectiveSelectedDate,
+//                               timeZone,
+//                             )
 //                             : "Not selected"}
 //                         </p>
 //                       </div>
@@ -1778,7 +1764,7 @@
 //                         prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
 //                       )
 //                     }
-//                     className="text-slate-300 hover:text-slate-50"
+//                     className="text-white bg-red-700 hover:text-slate-50"
 //                   >
 //                     Back
 //                   </Button>
@@ -1834,13 +1820,13 @@
 //     </div>
 //   );
 // };
+// export default AppointmentCalendar;
 
 
 
 
 
-
-// ------------------------------------------------------------------------------------------ //
+//-----------------------------------------------------------------------------------------------------  //
 
 // src/components/booking/AppointmentCalendar.tsx
 import React, { useEffect, useMemo, useState } from "react";
@@ -1887,8 +1873,6 @@ const services = [
     value: "custom-app-development",
     label: "Custom Web & Mobile Application Development (AI-Powered)",
   },
-  // { value: "ai-development", label: "AI Web Agents/AI Development" },
-  // { value: "other", label: "Other" },
 ];
 
 const statusClasses: Record<SlotStatus, string> = {
@@ -1921,8 +1905,7 @@ const parseTimeToMinutes = (time: string) => {
 type BookingStage = "date" | "time" | "form";
 type StatusType = "success" | "error" | null;
 
-const validateEmail = (value: string) =>
-  /^\S+@\S+\.\S+$/.test(value.trim());
+const validateEmail = (value: string) => /^\S+@\S+\.\S+$/.test(value.trim());
 
 const validatePhone = (value: string) => value.trim().length >= 7;
 
@@ -2154,7 +2137,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       // ✅ Success message shown on right side even after form closes
       setStatusType("success");
       // setStatusMessage(`Appointment booked successfully! 🎉${meetText}`);
-      setStatusMessage(`🎉 Appointment confirmed...! Please check your email for the Google Meet link.`);
+      setStatusMessage(
+        `🎉 Appointment confirmed...! Please check your email for the Google Meet link.`,
+      );
       setTimeout(() => setStatusMessage(null), 6000);
 
       // Clear selection & form and go back to time view (form "closed")
@@ -2199,126 +2184,32 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
       year: "numeric",
     });
 
-  // ✅ Only show right panel after slot selected OR after a status exists
+  // ✅ Only show right panel after slot selected (form) OR after a status exists
   const showRightPanel = bookingStage === "form" || !!statusType;
 
   // effective date when converting IST → target timezone
   const effectiveSelectedDate = selectedDate || today;
 
+  // 🔹 Layout classes: center card when there is no right panel
+  const layoutClass = showRightPanel
+    ? "grid gap-12 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]"
+    : "flex justify-center";
+
   return (
-    <div
-      className={
-        showRightPanel
-          ? "grid gap-12 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]"
-          : "grid gap-12"
-      }
-    >
-      {/* Left: Date → Time (stepwise) */}
-      <Card className="bg-slate-950/80 border-slate-800 shadow-xl">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
-          <div>
-            <p className="text-[14px] uppercase tracking-[0.2em] text-brand-coral font-bold">
-              Book a strategy call
-            </p>
-            <CardTitle className="text-lg md:text-xl text-slate-50 mt-1">
-              {bookingStage === "date"
-                ? "Pick a date that works for you"
-                : "Pick a time slot"}
-            </CardTitle>
-          </div>
-
-          {/* Month navigation only relevant while picking date */}
-          {bookingStage === "date" && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
-                onClick={goPrevMonth}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <div className="text-sm font-semibold text-slate-100 min-w-[120px] text-center">
-                {monthLabel}
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
-                onClick={goNextMonth}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-
-          {/* When date is picked, show chip + change button */}
-          {bookingStage !== "date" && selectedDate && (
-            <div className="flex flex-col items-end gap-1">
-              <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[14px] text-slate-200">
-                Selected date: {formattedSelectedDate}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setBookingStage("date");
-                  setSelectedSlot(null);
-                }}
-                className="text-[12px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
-              >
-                <X className="w-3 h-3" />
-                Change date
-              </button>
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent className="p-2 md:p-2 space-y-6">
-          {/* STEP 1: Calendar (stage = date) */}
-          {bookingStage === "date" && (
+    <div className={layoutClass}>
+      {/* LEFT SECTION: Calendar or Time Slots */}
+      <div className={showRightPanel ? "" : "w-full max-w-2xl"}>
+        <Card className="bg-slate-950/80 border-slate-800 shadow-xl w-full">
+          <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-800">
             <div>
-              <div className="grid grid-cols-7 text-[11px] md:text-[13px] text-center text-slate-400 mb-1">
-                {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
-                  <div key={d} className="py-1">
-                    {d}
-                  </div>
-                ))}
-              </div>
-              <div className="grid grid-cols-7 gap-1 md:gap-2">
-                {daysInMonth.map((date, idx) => {
-                  if (!date) {
-                    return <div key={idx} className="h-9 md:h-10" />;
-                  }
-
-                  const day = new Date(date);
-                  day.setHours(0, 0, 0, 0);
-                  const isPastDay = day < today;
-                  const isSelected =
-                    selectedDate && isSameDay(date, selectedDate);
-
-                  return (
-                    <button
-                      key={idx}
-                      type="button"
-                      disabled={isPastDay}
-                      onClick={() => {
-                        setSelectedDate(date);
-                        setSelectedSlot(null);
-                        setBookingStage("time");
-                      }}
-                      className={[
-                        "h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all text-slate-100",
-                        isSelected
-                          ? "bg-brand-coral text-slate-950 border-brand-coral shadow-sm font-bold"
-                          : "border-slate-700 bg-slate-900/70 hover:border-brand-coral/70 hover:bg-slate-900",
-                        isPastDay ? "opacity-20 cursor-not-allowed" : "",
-                      ].join(" ")}
-                    >
-                      {date.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
+              <p className="text-[14px] uppercase tracking-[0.2em] text-brand-coral font-bold">
+                Book a strategy call
+              </p>
+              <CardTitle className="text-lg md:text-xl text-slate-50 mt-1">
+                {bookingStage === "date"
+                  ? "Pick a date that works for you"
+                  : "Pick a time slot"}
+              </CardTitle>
             </div>
           )}
 
@@ -2345,127 +2236,252 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                   </span>
                 </div>
 
-                <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] text-white">Showing times in:</span>
-                    <Select
-                      value={timeZone}
-                      onValueChange={(value) =>
-                        setTimeZone(value as TimeZoneOptionId)
-                      }
-                    >
-                      <SelectTrigger className="h-7 px-2 py-1 text-[10px] bg-slate-900 border-slate-700 text-slate-100">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-900 border-slate-700 text-slate-100 text-[11px] max-h-72">
-                        {timeZoneOptions.map((tz) => (
-                          <SelectItem key={tz.id} value={tz.id}>
-                            {tz.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex gap-2">
-                    <span className="flex items-center gap-1">
-                      <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
-                      Available
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <span className="w-3 h-3 rounded-sm border border-amber-500/80 bg-amber-500/30" />
-                      Booked / Unavailable
-                    </span>
-                  </div>
+            {/* Month navigation only relevant while picking date */}
+            {bookingStage === "date" && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
+                  onClick={goPrevMonth}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <div className="text-sm font-semibold text-slate-100 min-w-[120px] text-center">
+                  {monthLabel}
                 </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="border-slate-700 bg-slate-900 hover:bg-slate-800 text-slate-100"
+                  onClick={goNextMonth}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
+            )}
 
-              {!selectedDate ? (
-                <p className="text-xs text-slate-400">
-                  Choose a date on the calendar to view time slots.
-                </p>
-              ) : loadingSlots ? (
-                <p className="text-xs text-slate-400">Loading slots…</p>
-              ) : slotsError ? (
-                <p className="text-xs text-red-400">{slotsError}</p>
-              ) : slots.length === 0 ? (
-                <p className="text-xs text-slate-400">
-                  No slots defined for this day.
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-                  {slots.map((slot) => {
-                    const now = new Date();
-                    const nowMinutesLocal =
-                      now.getHours() * 60 + now.getMinutes();
+            {/* When date is picked, show chip + change button */}
+            {bookingStage !== "date" && selectedDate && (
+              <div className="flex flex-col items-end gap-1">
+                <span className="px-3 py-1 rounded-full bg-slate-900/70 border border-slate-700 text-[14px] text-slate-200">
+                  Selected date: {formattedSelectedDate}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBookingStage("date");
+                    setSelectedSlot(null);
+                  }}
+                  className="text-[12px] text-slate-400 hover:text-slate-100 flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Change date
+                </button>
+              </div>
+            )}
+          </CardHeader>
 
-                    let isPastSlot = false;
-
-                    if (selectedDateKey < todayKey) {
-                      isPastSlot = true;
-                    } else if (selectedDateKey === todayKey) {
-                      // Compare using LOCAL browser time version of IST endTime
-                      const endMinutesLocal = getLocalMinutesFromISTSlot(
-                        slot.endTime,
-                        effectiveSelectedDate,
-                      );
-                      if (endMinutesLocal <= nowMinutesLocal) {
-                        isPastSlot = true;
-                      }
+          <CardContent className="p-2 md:p-2 space-y-6">
+            {/* STEP 1: Calendar (stage = date) */}
+            {bookingStage === "date" && (
+              <div>
+                <div className="grid grid-cols-7 text-[11px] md:text-[13px] text-center text-slate-400 mb-1">
+                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                    (d) => (
+                      <div key={d} className="py-1">
+                        {d}
+                      </div>
+                    ),
+                  )}
+                </div>
+                <div className="grid grid-cols-7 gap-1 md:gap-2">
+                  {daysInMonth.map((date, idx) => {
+                    if (!date) {
+                      return <div key={idx} className="h-9 md:h-10" />;
                     }
 
-                    const disabled = slot.status !== "available" || isPastSlot;
-
+                    const day = new Date(date);
+                    day.setHours(0, 0, 0, 0);
+                    const isPastDay = day < today;
                     const isSelected =
-                      !disabled &&
-                      selectedSlot &&
-                      selectedSlot.startTime === slot.startTime &&
-                      selectedSlot.endTime === slot.endTime;
-
-                    const extraPastClasses = isPastSlot
-                      ? "opacity-40 cursor-not-allowed !border-slate-700 !bg-slate-900/60"
-                      : "";
+                      selectedDate && isSameDay(date, selectedDate);
 
                     return (
                       <button
-                        key={slot.startTime}
+                        key={idx}
                         type="button"
-                        disabled={disabled}
+                        disabled={isPastDay}
                         onClick={() => {
-                          if (disabled) return;
-                          setSelectedSlot(slot);
-                          setBookingStage("form");
+                          setSelectedDate(date);
+                          setSelectedSlot(null);
+                          setBookingStage("time");
                         }}
                         className={[
-                          "px-2 py-1.5 rounded-lg text-[11px] md:text-xs flex flex-col border transition-all",
-                          statusClasses[slot.status],
-                          extraPastClasses,
+                          "h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all text-slate-100",
                           isSelected
-                            ? "ring-2 ring-brand-coral/80 ring-offset-2 ring-offset-slate-950"
-                            : "",
+                            ? "bg-brand-coral text-slate-950 border-brand-coral shadow-sm font-bold"
+                            : "border-slate-700 bg-slate-900/70 hover:border-brand-coral/70 hover:bg-slate-900",
+                          isPastDay ? "opacity-20 cursor-not-allowed" : "",
                         ].join(" ")}
                       >
-                        <span className="font-medium">
-                          {formatSlotLabelForTimeZone(
-                            slot.startTime,
-                            slot.endTime,
-                            effectiveSelectedDate,
-                            timeZone,
-                          )}
-                        </span>
-                        <span className="text-[10px] opacity-85 capitalize">
-                          {isPastSlot && slot.status === "available"
-                            ? "unavailable"
-                            : slot.status}
-                        </span>
+                        {date.getDate()}
                       </button>
                     );
                   })}
                 </div>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            )}
+
+            {/* STEP 2: Time slots (stage = time or form) */}
+            {bookingStage !== "date" && (
+              <div className="border-t border-slate-800 pt-4">
+                <div className="flex items-center justify-between mb-3 gap-3">
+                  <div className="flex flex-col gap-0.5 text-xs text-slate-300">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4" />
+                      <span>
+                        {selectedDate
+                          ? selectedDate.toLocaleDateString("en-GB", {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })
+                          : "Select a date to see available times"}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-orange-600">
+                      Base availability:{" "}
+                      <b>4:00 PM – 11:00 PM India time (IST)</b>. Times below
+                      are shown in your selected timezone.
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-end gap-1 text-[11px] text-slate-400">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] text-white">
+                        Showing times in:
+                      </span>
+                      <Select
+                        value={timeZone}
+                        onValueChange={(value) =>
+                          setTimeZone(value as TimeZoneOptionId)
+                        }
+                      >
+                        <SelectTrigger className="h-7 px-2 py-1 text-[10px] bg-slate-900 border-slate-700 text-slate-100">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-slate-900 border-slate-700 text-slate-100 text-[11px] max-h-72">
+                          {timeZoneOptions.map((tz) => (
+                            <SelectItem key={tz.id} value={tz.id}>
+                              {tz.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex gap-2">
+                      <span className="flex items-center gap-1">
+                        <span className="w-3 h-3 rounded-sm border border-emerald-400/80 bg-emerald-500/30" />
+                        Available
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="w-3 h-3 rounded-sm border border-amber-500/80 bg-amber-500/30" />
+                        Booked / Unavailable
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {!selectedDate ? (
+                  <p className="text-xs text-slate-400">
+                    Choose a date on the calendar to view time slots.
+                  </p>
+                ) : loadingSlots ? (
+                  <p className="text-xs text-slate-400">Loading slots…</p>
+                ) : slotsError ? (
+                  <p className="text-xs text-red-400">{slotsError}</p>
+                ) : slots.length === 0 ? (
+                  <p className="text-xs text-slate-400">
+                    No slots defined for this day.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+                    {slots.map((slot) => {
+                      const now = new Date();
+                      const nowMinutesLocal =
+                        now.getHours() * 60 + now.getMinutes();
+
+                      let isPastSlot = false;
+
+                      if (selectedDateKey < todayKey) {
+                        isPastSlot = true;
+                      } else if (selectedDateKey === todayKey) {
+                        // Compare using LOCAL browser time version of IST endTime
+                        const endMinutesLocal = getLocalMinutesFromISTSlot(
+                          slot.endTime,
+                          effectiveSelectedDate,
+                        );
+                        if (endMinutesLocal <= nowMinutesLocal) {
+                          isPastSlot = true;
+                        }
+                      }
+
+                      const disabled =
+                        slot.status !== "available" || isPastSlot;
+
+                      const isSelected =
+                        !disabled &&
+                        selectedSlot &&
+                        selectedSlot.startTime === slot.startTime &&
+                        selectedSlot.endTime === slot.endTime;
+
+                      const extraPastClasses = isPastSlot
+                        ? "opacity-40 cursor-not-allowed !border-slate-700 !bg-slate-900/60"
+                        : "";
+
+                      return (
+                        <button
+                          key={slot.startTime}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => {
+                            if (disabled) return;
+                            setSelectedSlot(slot);
+                            setBookingStage("form");
+                          }}
+                          className={[
+                            "px-2 py-1.5 rounded-lg text-[11px] md:text-xs flex flex-col border transition-all",
+                            statusClasses[slot.status],
+                            extraPastClasses,
+                            isSelected
+                              ? "ring-2 ring-brand-coral/80 ring-offset-2 ring-offset-slate-950"
+                              : "",
+                          ].join(" ")}
+                        >
+                          <span className="font-medium">
+                            {formatSlotLabelForTimeZone(
+                              slot.startTime,
+                              slot.endTime,
+                              effectiveSelectedDate,
+                              timeZone,
+                            )}
+                          </span>
+                          <span className="text-[10px] opacity-85 capitalize">
+                            {isPastSlot && slot.status === "available"
+                              ? "unavailable"
+                              : slot.status}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Right: Consultant card + multi-step form + status*/}
       {showRightPanel && (
@@ -2493,7 +2509,9 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 <h3 className="text-sm md:text-base font-semibold text-slate-50">
                   {consultantName}
                 </h3>
-                <p className="text-[11px] text-slate-400">{consultantTitle}</p>
+                <p className="text-[11px] text-slate-400">
+                  {consultantTitle}
+                </p>
               </div>
             </div>
 
@@ -2739,8 +2757,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                         >
                           <SelectTrigger
                             className={`${inputBase} ${serviceLocked
-                                ? "cursor-not-allowed opacity-90"
-                                : ""
+                              ? "cursor-not-allowed opacity-90"
+                              : ""
                               }`}
                           >
                             <SelectValue placeholder="Select a service" />
@@ -2814,21 +2832,26 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 </div>
 
                 {/* Step navigation buttons */}
-                <div className="flex items-center justify-between pt-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    disabled={formStep === 0}
-                    onClick={() =>
-                      setFormStep((prev) =>
-                        prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
-                      )
-                    }
-                    className="text-white bg-red-700 hover:text-slate-50"
-                  >
-                    Back
-                  </Button>
+                <div
+                  className={`flex items-center pt-1 ${formStep === 0 ? "justify-end" : "justify-between"
+                    }`}
+                >
+                  {/* Show Back button only after moving past the first step */}
+                  {formStep > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() =>
+                        setFormStep((prev) =>
+                          prev > 0 ? ((prev - 1) as 0 | 1 | 2) : prev,
+                        )
+                      }
+                      className="text-white bg-red-700 hover:text-slate-50"
+                    >
+                      Back
+                    </Button>
+                  )}
 
                   {formStep < 2 ? (
                     <Button
@@ -2863,8 +2886,8 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
                 </div>
 
                 <p className="text-[11px] text-slate-500 text-center mt-1">
-                  You’ll receive a confirmation email with the meeting link &amp;
-                  details after booking.
+                  You’ll receive a confirmation email with the meeting link
+                  &amp; details after booking.
                 </p>
               </>
             ) : (
@@ -2881,4 +2904,6 @@ export const AppointmentCalendar: React.FC<AppointmentCalendarProps> = ({
     </div>
   );
 };
+
 export default AppointmentCalendar;
+

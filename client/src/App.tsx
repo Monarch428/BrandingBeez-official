@@ -157,20 +157,20 @@ function Router() {
     window.scrollTo(0, 0);
   }, [location]);
 
-  useEffect(() => {
-    const OAuthToken = async () => {
-      try {
-        const tokens = await apiRequest<any>("/api/google/oauth/token", "GET");
-        localStorage.setItem("OA_AT", tokens.accessToken)
-        localStorage.setItem("OA_RT", tokens.refreshToken)
-        console.log("OAuth Token JSON:", tokens);
-      } catch (error) {
-        console.error("OAuth Token Error:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const OAuthToken = async () => {
+  //     try {
+  //       const tokens = await apiRequest<any>("/api/google/oauth/token", "GET");
+  //       localStorage.setItem("OA_AT", tokens.accessToken)
+  //       localStorage.setItem("OA_RT", tokens.refreshToken)
+  //       console.log("OAuth Token JSON:", tokens);
+  //     } catch (error) {
+  //       console.error("OAuth Token Error:", error);
+  //     }
+  //   };
 
-    OAuthToken();
-  }, []);
+  //   OAuthToken();
+  // }, []);
 
   return (
     <Switch>

@@ -8,7 +8,7 @@ interface ThankYouPopupProps {
   onClose: () => void;
   title?: string;
   message?: string;
-  formType?: "strategy" | "contact" | "inquiry";
+  formType?: "strategy" | "contact" | "inquiry" | "newsletter";
 }
 
 export function ThankYouPopup({

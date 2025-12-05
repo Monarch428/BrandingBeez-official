@@ -95,7 +95,7 @@
 //                     <Button
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                         window.open("/book-appiontment", "_blank",)
 //                       }
 //                       size="lg"
 //                       variant="outline"
@@ -560,7 +560,7 @@
 //                   size="lg"
 //                   onClick={() =>
 //                     // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                     window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                     window.open("/book-appiontment", "_blank",)
 //                   }
 //                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
 //                 > <Calendar className="w-5 h-5 mr-2" />
@@ -635,6 +635,7 @@ import { SchemaMarkup } from "@/components/schema-markup";
 import { CitypatSchema } from "@/utils/all-schemas";
 import teamMem_1 from "../../../public/images/yuva-team-member.png";
 import teamMem_2 from "../../../public/images/vishnu-team-member.png";
+import Gemma_Image from "../../../public/images/Gemma.png";
 
 export default function CitypatCaseStudy() {
   return (
@@ -705,7 +706,7 @@ export default function CitypatCaseStudy() {
                     <Button
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -922,7 +923,7 @@ export default function CitypatCaseStudy() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -1098,8 +1099,12 @@ export default function CitypatCaseStudy() {
 
                 {/* Gemma */}
                 <Card className="text-center p-8">
-                  <div className="w-20 h-20 bg-gradient-to-br from-brand-purple to-brand-coral rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden p-[3px]">
-                    <span className="text-white font-bold text-xl">G</span>
+                  <div className="w-20 h-20 rounded-full mx-auto mb-4 overflow-hidden p-[3px]">
+                    <img
+                      src={Gemma_Image}
+                      alt="Gemma Murphy"
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   </div>
                   <h3 className="text-xl font-bold mb-2">Gemma</h3>
                   <h4 className="text-gray-600 mb-4">Agency Partner</h4>
@@ -1194,7 +1199,7 @@ export default function CitypatCaseStudy() {
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }

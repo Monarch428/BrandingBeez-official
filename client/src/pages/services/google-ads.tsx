@@ -616,7 +616,7 @@ export default function GoogleAds() {
                             </Link>
                           </Button> */}
                           <a
-                            href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                            href="/book-appiontment/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full"
@@ -646,7 +646,7 @@ export default function GoogleAds() {
                   className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
                   onClick={() =>
                     // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")
-                    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank")
+                    window.open("/book-appiontment", "_blank")
                   }
                 >
                   Contact Us for Enterprise Pricing
