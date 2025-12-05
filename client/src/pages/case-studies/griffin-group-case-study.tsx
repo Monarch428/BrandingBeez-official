@@ -95,7 +95,7 @@
 //                     <Button
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                         window.open("/book-appiontment", "_blank",)
 //                       }
 //                       size="lg"
 //                       variant="outline"
@@ -1511,7 +1511,7 @@ export default function GriffinGroupCaseStudy() {
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -1990,7 +1990,7 @@ export default function GriffinGroupCaseStudy() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }

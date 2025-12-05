@@ -96,7 +96,7 @@ export default function FSEDigitalPpcCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank"
                         )
                       }
@@ -542,7 +542,7 @@ export default function FSEDigitalPpcCaseStudy() {
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank"
                     )
                   }
@@ -686,7 +686,7 @@ export default function FSEDigitalPpcCaseStudy() {
                   Client Feedback
                 </h2>
                 <p className="text-xl text-gray-600">
-                  A specialist that feels in-house — with the flexibility of an
+                  A specialist that feels in-house with the flexibility of an
                   offshore model.
                 </p>
               </div>
@@ -750,7 +750,7 @@ export default function FSEDigitalPpcCaseStudy() {
                 Ready to Add a Dedicated PPC Specialist to Your Agency?
               </h2>
               <p className="text-xl text-white/90 mb-8">
-                Scale your PPC delivery like FSE Digital — with a full-time,
+                Scale your PPC delivery like FSE Digital with a full-time,
                 white-label specialist who works as part of your team.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -759,7 +759,7 @@ export default function FSEDigitalPpcCaseStudy() {
                   className="bg-white text-brand-purple hover:bg-white/90 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank"
                     )
                   }

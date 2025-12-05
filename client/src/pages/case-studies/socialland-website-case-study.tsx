@@ -101,7 +101,7 @@ export default function SocialLandWebsiteCaseStudy() {
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -193,7 +193,7 @@ export default function SocialLandWebsiteCaseStudy() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -463,7 +463,7 @@ export default function SocialLandWebsiteCaseStudy() {
                         className="bg-brand-coral text-white hover:bg-brand-coral/90"
                         onClick={() =>
                           window.open(
-                            "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                            "/book-appiontment",
                             "_blank",
                           )
                         }
@@ -611,7 +611,7 @@ export default function SocialLandWebsiteCaseStudy() {
                   size="lg"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }

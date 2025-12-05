@@ -249,7 +249,7 @@ export default function Services() {
       // Redirect to Calendly
       setTimeout(() => {
         // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
-        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank");
+        window.open("/book-appiontment", "_blank");
       }, 1000);
     },
     onError: () => {

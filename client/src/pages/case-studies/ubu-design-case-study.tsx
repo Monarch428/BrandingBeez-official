@@ -95,7 +95,7 @@
 //                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                         window.open("/book-appiontment", "_blank",)
 //                       }
 //                     >
 //                       Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
@@ -814,7 +814,7 @@
 //                   onClick={() =>
 //                     window.open(
 //                       // "https://calendly.com/vignesh-velusamy/30min",
-//                       "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+//                       "/book-appiontment",
 //                       "_blank",
 //                     )
 //                   }
@@ -960,7 +960,7 @@ export default function UBUDesignCaseStudy() {
                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -1205,7 +1205,7 @@ export default function UBUDesignCaseStudy() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -1469,7 +1469,7 @@ export default function UBUDesignCaseStudy() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -1739,7 +1739,7 @@ export default function UBUDesignCaseStudy() {
                   size="lg"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }

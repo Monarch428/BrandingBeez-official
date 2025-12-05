@@ -165,13 +165,13 @@ export default function OnboardingWizard() {
           icon: <Globe className="w-6 h-6" />,
           value: 'web-development'
         },
-        {
-          id: 'design-services',
-          label: 'Design Services',
-          description: 'Graphics, branding, and visual content',
-          icon: <Target className="w-6 h-6" />,
-          value: 'design-services'
-        },
+        // {
+        //   id: 'design-services',
+        //   label: 'Design Services',
+        //   description: 'Graphics, branding, and visual content',
+        //   icon: <Target className="w-6 h-6" />,
+        //   value: 'design-services'
+        // },
         {
           id: 'marketing-services',
           label: 'Digital Marketing',

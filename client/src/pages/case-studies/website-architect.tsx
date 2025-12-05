@@ -25,6 +25,8 @@ import {
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
+import Gemma_Image from "../../../public/images/Gemma.png";
+
 
 export default function WebsiteArchitectCaseStudy() {
   return (
@@ -88,7 +90,7 @@ export default function WebsiteArchitectCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank"
                         )
                       }
@@ -477,7 +479,7 @@ export default function WebsiteArchitectCaseStudy() {
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank"
                     )
                   }
@@ -700,29 +702,30 @@ export default function WebsiteArchitectCaseStudy() {
           {/* Testimonial Section */}
           <section className="py-16 px-4">
             <div className="max-w-4xl mx-auto">
-              <Card className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+<Card className="bg-gradient-to-r from-brand-coral to-brand-coral-dark text-white">
                 <CardContent className="p-12 text-center">
                   <Quote className="w-12 h-12 mx-auto mb-6 opacity-80" />
                   <blockquote className="text-xl font-light mb-8 leading-relaxed">
-                    "Branding Beez have been a great help to my business. Before
-                    meeting Raje and her team, I was doing the sales, building the
-                    websites and handling all the tech and aftercare. Now I have
-                    the time to grow the business, working 'ON' it, instead of
-                    constantly 'IN' it. So they've been a gamechanger for me and
-                    my business. Even taking my first holiday this year WITHOUT my
-                    laptop! Thanks so much!"
+                    " Branding Beez have been a great help to my business. Before meeting Raie and her team,
+                    I was doing the sales, building the websites and handling all the tech and aftercare.
+                    Now I have the time to grow the business, working 'ON' it, instead of constantly 'IN' it.
+                    So they've been a gamechanger for me and my business. Even taking my first holiday this
+                    year WITHOUT my laptop! Thanks so much!"
                   </blockquote>
                   <div className="flex items-center justify-center gap-4">
-                    <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                      <span className="text-2xl font-bold">G</span>
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                      <img
+                        src={Gemma_Image}
+                        alt="Gemma Murphy"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="text-left">
-                      <div className="text-xl font-semibold">Gemma</div>
-                      <div className="text-white/80">
-                        Founder, Website Architect
-                      </div>
+                      <p className="font-bold text-white">Gemma Murphy</p>
+                      <p className="text-gray-50 text-xs sm:text-sm">Founder, Website Architect</p>
                       <div className="text-white/60 text-sm">
-                        https://website-architect.co.uk/
+                      <a className="hover:text-white" href="https://website-architect.co.uk/" target="_blank">https://website-architect.co.uk/</a>
+                        
                       </div>
                     </div>
                   </div>
@@ -747,7 +750,7 @@ export default function WebsiteArchitectCaseStudy() {
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9/",
+                      "/book-appiontment/",
                       "_blank"
                     )
                   }

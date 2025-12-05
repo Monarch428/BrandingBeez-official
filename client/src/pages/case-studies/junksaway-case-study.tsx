@@ -91,7 +91,7 @@ export default function JunksAwayCaseStudy() {
                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                     onClick={() =>
                       // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                      window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+                      window.open("/book-appiontment", "_blank",)
                     }
                   >
                     Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />

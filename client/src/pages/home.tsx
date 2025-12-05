@@ -66,7 +66,7 @@
 
 //   const openCalendly = () => {
 //     // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank');
-//     window.open('https://calendar.app.google/Y8XZq71qtvPRhktH9', '_blank');
+//     window.open('/book-appiontment', '_blank');
 //   };
 
 //   const [formData, setFormData] = useState({
@@ -996,7 +996,6 @@
 
 
 
-
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -1015,7 +1014,7 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRegion } from "@/hooks/use-region";
@@ -1059,12 +1058,16 @@ import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
 import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
-import PhoneInput from "react-phone-input-2";
+import PhoneInput, { CountryData } from "react-phone-input-2";
+import { parsePhoneNumberFromString } from "libphonenumber-js";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
-import phillip from "../../public/images/Phillip.png"
+import phillip from "../../public/images/Phillip.png";
 import { AppointmentCalendar } from "@/components/book-appoinment";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
+import Mark_Image from "../../public/images/Mark.png";
+import Dani_Image from "../../public/images/Dani.png";
+import Gemma_Image from "../../public/images/Gemma.png";
 
 // ✅ Regional Partners type + data
 type RegionalPartnersMember = {
@@ -1122,31 +1125,82 @@ const regionalPartners: RegionalPartnersMember[] = [
   },
 ];
 
-export default function Home() {
+// ✅ Phone placeholders per country (extend as needed)
+const phonePlaceholders: Record<string, string> = {
+  us: "(201) 555-0123",
+  gb: "07123 456789",
+  in: "98765 43210",
+  au: "0400 000 000",
+};
 
+// ✅ Form types for validation
+interface FormState {
+  name: string;
+  email: string;
+  phone: string;
+  countryCode: string;
+  agencyName: string;
+  servicesInterested: string;
+  subServices: string[];
+  message: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  servicesInterested?: string;
+  subServices?: string;
+}
+
+export default function Home() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const handleScrollToNewsletter = () => {
+    const handleScrollToSection = () => {
       const { hash } = window.location;
-      if (hash === "#newsletter") {
-        requestAnimationFrame(() => {
-          const targetEl = document.getElementById("newsletter");
-          if (targetEl) {
-            const headerOffset = 100;
-            const elementPosition = targetEl.getBoundingClientRect().top + window.scrollY;
-            const offsetPosition = elementPosition - headerOffset;
 
-            window.scrollTo({
-              top: offsetPosition,
-              behavior: "smooth",
-            });
-          }
-        });
-      }
+      const targetId =
+        hash === "#newsletter"
+          ? "newsletter"
+          : hash === "#book-appointment"
+            ? "book-appointment"
+            : null;
+
+      if (!targetId) return;
+
+      requestAnimationFrame(() => {
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          const headerOffset = 100;
+          const elementPosition =
+            targetEl.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = elementPosition - headerOffset;
+
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: "smooth",
+          });
+        }
+      });
     };
 
-    setTimeout(handleScrollToNewsletter, 50);
+    setTimeout(handleScrollToSection, 50);
+  }, []);
+
+  // 🌍 Auto-detect country for phone input
+  const [countryCode, setCountryCode] = useState<string>("");
+
+  useEffect(() => {
+    try {
+      const locale = Intl.DateTimeFormat().resolvedOptions().locale; 
+      const region = locale.split("-")[1]?.toLowerCase();
+      if (region) {
+        setCountryCode(region);
+      }
+    } catch {
+      // keep default "us"
+    }
   }, []);
 
   const { regionConfig } = useRegion();
@@ -1194,22 +1248,25 @@ export default function Home() {
   };
 
   const openCalendly = () => {
-    // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank');
-    window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank");
+    // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank'); Raje Calendar - https://calendar.app.google/Y8XZq71qtvPRhktH9
+    window.open("/book-appiontment", "_blank");
   };
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormState>({
     name: "",
     email: "",
     phone: "",
     countryCode: "",
     agencyName: "",
     servicesInterested: "",
-    subServices: [] as string[],
+    subServices: [],
     message: "",
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  // 🔥 errors for validation
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const handleInputChange = (field: keyof FormState, value: string) => {
     setFormData((prev) => {
       // Reset sub-services when main service changes
       if (field === "servicesInterested") {
@@ -1217,6 +1274,9 @@ export default function Home() {
       }
       return { ...prev, [field]: value };
     });
+
+    // clear field error on change
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const handleSubServiceChange = (subService: string, checked: boolean) => {
@@ -1226,6 +1286,52 @@ export default function Home() {
         ? [...prev.subServices, subService]
         : prev.subServices.filter((s) => s !== subService),
     }));
+
+    // clear subServices error when user selects something
+    setErrors((prev) => ({ ...prev, subServices: undefined }));
+  };
+
+  // ✅ validate form before submit
+  const validateForm = () => {
+    const newErrors: FormErrors = {};
+
+    // Name
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required.";
+    } else if (formData.name.trim().length < 2) {
+      newErrors.name = "Name must be at least 2 characters.";
+    }
+
+    // Email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required.";
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = "Enter a valid email address.";
+    }
+
+    // Phone — REQUIRED + proper format via libphonenumber-js
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required.";
+    } else {
+      const phoneNumber = parsePhoneNumberFromString(`+${formData.phone}`);
+      if (!phoneNumber || !phoneNumber.isValid()) {
+        newErrors.phone = "Enter a valid phone number.";
+      }
+    }
+
+    // Service
+    if (!formData.servicesInterested) {
+      newErrors.servicesInterested = "Select a service.";
+    }
+
+    // Sub-services when service chosen
+    if (formData.servicesInterested && formData.subServices.length === 0) {
+      newErrors.subServices = "Select at least one option.";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const contactMutation = useMutation({
@@ -1238,11 +1344,13 @@ export default function Home() {
         name: "",
         email: "",
         phone: "",
+        countryCode: "",
         agencyName: "",
         servicesInterested: "",
         subServices: [],
         message: "",
       });
+      setErrors({});
     },
     onError: (error: any) => {
       toast({
@@ -1257,16 +1365,10 @@ export default function Home() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if sub-services are selected when main service is chosen
-    if (
-      formData.servicesInterested &&
-      formData.servicesInterested !== "" &&
-      formData.subServices.length === 0
-    ) {
+    if (!validateForm()) {
       toast({
-        title: "Please complete all fields",
-        description:
-          "Please select at least one sub-service for your chosen service category.",
+        title: "Please fix the highlighted errors",
+        description: "Some required fields are missing or invalid.",
         variant: "destructive",
       });
       return;
@@ -1276,8 +1378,7 @@ export default function Home() {
     let comprehensiveMessage = `Home Page Contact Form Submission`;
 
     if (formData.servicesInterested) {
-      comprehensiveMessage += `\n\n📋 SERVICES REQUESTED:`;
-      comprehensiveMessage += `\n• Primary Service: ${formData.servicesInterested}`;
+      comprehensiveMessage += `\n\n📋 SERVICES REQUESTED:\n• Primary Service: ${formData.servicesInterested}`;
 
       if (formData.subServices.length > 0) {
         comprehensiveMessage += `\n• Sub-services: ${formData.subServices.join(
@@ -1308,6 +1409,7 @@ export default function Home() {
       servicesSelected:
         formData.subServices.length > 0 ? formData.subServices : undefined,
       contactFormType: "home-contact-form",
+      phoneCountry: formData.countryCode || countryCode,
     };
 
     contactMutation.mutate(submissionData);
@@ -1664,48 +1766,50 @@ export default function Home() {
               </div>
 
               <div className="bg-white/90 backdrop-blur-sm border border-brand-purple/10 rounded-2xl p-6 sm:p-8 shadow-sm">
-                <h3 className="font-bold text-lg sm:text-xl text-brand-purple mb-2 text-center">
+                <h3 className="font-bold text-xl sm:text-xl lg:text-2xl text-brand-purple mb-2 text-center">
                   Global Partnership Benefits
                 </h3>
-                <p className="text-xs sm:text-sm text-gray-600 mb-6 sm:mb-8 text-center max-w-2xl mx-auto">
-                  One core delivery team, amplified by regional partners who
-                  understand local markets, regulations, and business cultures.
+
+                <p className="text-md lg:text-md text-gray-600 mb-6 sm:mb-8 text-center max-w-2xl mx-auto">
+                  One strong delivery team supported by local partners who understand their
+                  markets and customers.
                 </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-1">
                   {[
                     {
                       icon: Globe,
-                      text: "24/7 Coverage: Time zone coverage across US, Europe, and Asia",
+                      text: "24/7 support across all major time zones",
                     },
                     {
                       icon: MapPin,
-                      text: "Local Expertise: Regional partners understand local business practices",
+                      text: "Local partners who understand regional needs",
                     },
                     {
                       icon: Award,
-                      text: "Global Standards: Consistent technical quality from our core team",
+                      text: "Consistent quality from our global team",
                     },
                     {
                       icon: Users,
-                      text: "Cultural Fit: Solutions adapted to regional business cultures",
+                      text: "Solutions tailored to local cultures",
                     },
                     {
                       icon: TrendingUp,
-                      text: "Compliance: Guidance for GDPR, HIPAA, and regional regulations",
+                      text: "Help with regulations like GDPR and HIPAA",
                     },
                     {
                       icon: Heart,
-                      text: "Warmer Relationships: Local networking and community access",
+                      text: "Stronger relationships through local presence",
                     },
                   ].map((benefit, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-3 p-3 rounded-xl hover:bg-brand-wings/60 transition-colors"
+                      className="flex items-center gap-2 p-3 rounded-xl hover:bg-brand-wings/60 transition-colors"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-brand-coral/10 flex items-center justify-center flex-shrink-0">
-                        <benefit.icon size={20} className="text-brand-coral" />
+                      <div className="w-12 h-12 rounded-xl bg-brand-coral/10 flex items-center justify-center flex-shrink-0">
+                        <benefit.icon size={30} className="text-brand-coral" />
                       </div>
-                      <p className="text-sm text-gray-700">{benefit.text}</p>
+                      <p className="text-md text-gray-700">{benefit.text}</p>
                     </div>
                   ))}
                 </div>
@@ -1814,18 +1918,8 @@ export default function Home() {
                 your workflows and client delivery.
               </p>
 
-              <div
-                className="
-              bg-[rgba(40,20,50,0.6)]
-              backdrop-blur-xl
-              rounded-2xl
-              p-6 sm:p-8 lg:p-10
-              mb-8 sm:mb-10 lg:mb-12
-              border border-white/10
-              shadow-[0px_8px_32px_rgba(0,0,0,0.3)]
-              max-w-3xl mx-auto
-            "
-              >
+              <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12
+              border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
@@ -1841,39 +1935,40 @@ export default function Home() {
                   Average 60% cost savings vs. in-house team
                 </div>
 
-                <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-                  <li className="flex items-center gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                    <span className="text-sm sm:text-base">Graphic Designers</span>
-                  </li>
+                <div className="flex items-center justify-center">
+                  <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">Graphic Designers</span>
+                    </li>
 
-                  <li className="flex items-center gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                    <span className="text-sm sm:text-base">Video Editors</span>
-                  </li>
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">Video Editors</span>
+                    </li>
 
-                  <li className="flex items-center gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                    <span className="text-sm sm:text-base">SEO Specialists</span>
-                  </li>
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">SEO Specialists</span>
+                    </li>
 
-                  <li className="flex items-center gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                    <span className="text-sm sm:text-base">Google Ads Experts</span>
-                  </li>
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">Google Ads Experts</span>
+                    </li>
 
-                  <li className="flex items-center gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                    <span className="text-sm sm:text-base">Web Developers</span>
-                  </li>
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">Web Developers</span>
+                    </li>
 
-                  <li className="flex items-center gap-2 sm:gap-3">
-                    <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                    <span className="text-sm sm:text-base">Full-Stack Developers</span>
-                  </li>
-                </ul>
-
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">Full-Stack Developers</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
                   <Button
                     className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation group"
                     asChild
@@ -1986,12 +2081,16 @@ export default function Home() {
                             <Input
                               id="name"
                               type="text"
-                              required
                               value={formData.name}
                               onChange={(e) =>
                                 handleInputChange("name", e.target.value)
                               }
                             />
+                            {errors.name && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {errors.name}
+                              </p>
+                            )}
                           </div>
                           <div>
                             <Label
@@ -2003,12 +2102,16 @@ export default function Home() {
                             <Input
                               id="email"
                               type="email"
-                              required
                               value={formData.email}
                               onChange={(e) =>
                                 handleInputChange("email", e.target.value)
                               }
                             />
+                            {errors.email && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {errors.email}
+                              </p>
+                            )}
                           </div>
                         </div>
 
@@ -2018,22 +2121,44 @@ export default function Home() {
                               htmlFor="phone"
                               className="text-sm font-medium text-gray-700"
                             >
-                              Phone
+                              Phone *
                             </Label>
 
                             <PhoneInput
-                              country="us"
+                              country={countryCode as any}
                               value={formData.phone}
-                              onChange={(value) =>
-                                handleInputChange("phone", value)
-                              }
+                              onChange={(value, data: CountryData) => {
+                                if (data?.countryCode) {
+                                  const cc = data.countryCode.toLowerCase();
+                                  setCountryCode(cc);
+                                  handleInputChange("countryCode", cc);
+                                }
+                                handleInputChange("phone", value);
+                              }}
                               inputProps={{
                                 name: "phone",
                                 className:
                                   "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+                                placeholder:
+                                  phonePlaceholders[countryCode] ||
+                                  "Enter your phone number",
                               }}
                               containerClass="w-full"
+                              isValid={(value: string) => {
+                                if (!value) return true; 
+                                const phoneNumber =
+                                  parsePhoneNumberFromString(`+${value}`);
+                                return phoneNumber
+                                  ? phoneNumber.isValid()
+                                  : ""
+                                  // "Invalid phone number";
+                              }}
                             />
+                            {errors.phone && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {errors.phone}
+                              </p>
+                            )}
                           </div>
                           <div>
                             <Label
@@ -2058,7 +2183,7 @@ export default function Home() {
                             htmlFor="servicesInterested"
                             className="text-sm font-medium text-gray-700"
                           >
-                            Services Interested In
+                            Services Interested In *
                           </Label>
                           <Select
                             value={formData.servicesInterested}
@@ -2087,6 +2212,11 @@ export default function Home() {
                               </SelectItem>
                             </SelectContent>
                           </Select>
+                          {errors.servicesInterested && (
+                            <p className="text-xs text-red-500 mt-1">
+                              {errors.servicesInterested}
+                            </p>
+                          )}
                         </div>
 
                         {/* Sub-Service Selection */}
@@ -2114,7 +2244,9 @@ export default function Home() {
                                     >
                                       <Checkbox
                                         id={option}
-                                        checked={formData.subServices.includes(option)}
+                                        checked={formData.subServices.includes(
+                                          option
+                                        )}
                                         onCheckedChange={(checked) =>
                                           handleSubServiceChange(option, !!checked)
                                         }
@@ -2144,7 +2276,9 @@ export default function Home() {
                                     >
                                       <Checkbox
                                         id={option}
-                                        checked={formData.subServices.includes(option)}
+                                        checked={formData.subServices.includes(
+                                          option
+                                        )}
                                         onCheckedChange={(checked) =>
                                           handleSubServiceChange(option, !!checked)
                                         }
@@ -2161,69 +2295,75 @@ export default function Home() {
                               )}
 
                               {/* Website Development Options */}
-                              {formData.servicesInterested === "Website Development" && (
-                                <>
-                                  {[
-                                    "WordPress",
-                                    "Shopify",
-                                    "BigCommerce",
-                                    "Custom Coded",
-                                  ].map((option) => (
-                                    <div
-                                      key={option}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Checkbox
-                                        id={option}
-                                        checked={formData.subServices.includes(option)}
-                                        onCheckedChange={(checked) =>
-                                          handleSubServiceChange(option, !!checked)
-                                        }
-                                      />
-                                      <Label
-                                        htmlFor={option}
-                                        className="text-sm font-medium text-gray-700 cursor-pointer"
+                              {formData.servicesInterested ===
+                                "Website Development" && (
+                                  <>
+                                    {[
+                                      "WordPress",
+                                      "Shopify",
+                                      "BigCommerce",
+                                      "Custom Coded",
+                                    ].map((option) => (
+                                      <div
+                                        key={option}
+                                        className="flex items-center space-x-2"
                                       >
-                                        {option}
-                                      </Label>
-                                    </div>
-                                  ))}
-                                </>
-                              )}
+                                        <Checkbox
+                                          id={option}
+                                          checked={formData.subServices.includes(
+                                            option
+                                          )}
+                                          onCheckedChange={(checked) =>
+                                            handleSubServiceChange(option, !!checked)
+                                          }
+                                        />
+                                        <Label
+                                          htmlFor={option}
+                                          className="text-sm font-medium text-gray-700 cursor-pointer"
+                                        >
+                                          {option}
+                                        </Label>
+                                      </div>
+                                    ))}
+                                  </>
+                                )}
 
                               {/* Dedicated Resource Options */}
-                              {formData.servicesInterested === "Dedicated Resource" && (
-                                <>
-                                  {[
-                                    "Graphic Designer",
-                                    "Video Editor",
-                                    "SEO Specialist",
-                                    "Google Ads Expert",
-                                    "Web Developer",
-                                    "Full-Stack Developer",
-                                    "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                                  ].map((option) => (
-                                    <div
-                                      key={option}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Checkbox
-                                        id={option}
-                                        checked={formData.subServices.includes(option)}
-                                        onCheckedChange={(checked) =>
-                                          handleSubServiceChange(option, !!checked)
-                                        }
-                                      />
-                                      <Label
-                                        htmlFor={option}
-                                        className="text-sm font-medium text-gray-700 cursor-pointer"
+                              {formData.servicesInterested ===
+                                "Dedicated Resource" && (
+                                  <>
+                                    {[
+                                      "Graphic Designer",
+                                      "Video Editor",
+                                      "SEO Specialist",
+                                      "Google Ads Expert",
+                                      "Web Developer",
+                                      "Full-Stack Developer",
+                                      "Others (Data Entry/Virtual Assistants/Social Media Managers)",
+                                    ].map((option) => (
+                                      <div
+                                        key={option}
+                                        className="flex items-center space-x-2"
                                       >
-                                        {option}
-                                      </Label>
-                                    </div>
-                                  ))}
-                                </>
-                              )}
+                                        <Checkbox
+                                          id={option}
+                                          checked={formData.subServices.includes(
+                                            option
+                                          )}
+                                          onCheckedChange={(checked) =>
+                                            handleSubServiceChange(option, !!checked)
+                                          }
+                                        />
+                                        <Label
+                                          htmlFor={option}
+                                          className="text-sm font-medium text-gray-700 cursor-pointer"
+                                        >
+                                          {option}
+                                        </Label>
+                                      </div>
+                                    ))}
+                                  </>
+                                )}
 
                               {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
                               {formData.servicesInterested ===
@@ -2248,7 +2388,9 @@ export default function Home() {
                                       >
                                         <Checkbox
                                           id={option}
-                                          checked={formData.subServices.includes(option)}
+                                          checked={formData.subServices.includes(
+                                            option
+                                          )}
                                           onCheckedChange={(checked) =>
                                             handleSubServiceChange(option, !!checked)
                                           }
@@ -2264,6 +2406,11 @@ export default function Home() {
                                   </>
                                 )}
                             </div>
+                            {errors.subServices && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {errors.subServices}
+                              </p>
+                            )}
                           </div>
                         )}
 
@@ -2295,21 +2442,21 @@ export default function Home() {
                             : "Submit Form"}
                         </Button>
                       </form>
-
                     </CardContent>
                   </Card>
                 </div>
               </div>
-            </div>
 
-            <ThankYouPopup
-              isOpen={showThankYouPopup}
-              onClose={() => setShowThankYouPopup(false)}
-              title="Thank You for Submitting!"
-              message="We've received your strategy request and will get back to you within 24 hours to discuss how we can help scale your agency."
-              formType="strategy"
-            />
+              <ThankYouPopup
+                isOpen={showThankYouPopup}
+                onClose={() => setShowThankYouPopup(false)}
+                title="Thank You for Submitting!"
+                message="We've received your strategy request and will get back to you within 24 hours to discuss how we can help scale your agency."
+                formType="strategy"
+              />
+            </div>
           </section>
+
 
           {/* Book Appointment Section */}
           <section
@@ -2339,12 +2486,112 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Newsletter CTA Section (inline newsletter page design) */}
+          {/* Testimonials – Card + Screenshot Style */}
           <section
-            id="newsletter"
-            className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
+            id="testimonials"
+            className="py-12 sm:py-16 px-4 bg-white"
           >
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-6xl mx-auto text-center">
+              {/* Header */}
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                What Our Clients Say
+              </h2>
+              <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-2xl mx-auto mb-10">
+                Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
+              </p>
+
+              {/* Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+
+                {/* Mark Muse */}
+                <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+
+                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
+                      Brandingbeez understood not only the technical challenges but was also completely
+                      responsive throughout..
+                      <br /><br />
+                      They the provided framework, assets, and vision into a beautiful website tailored
+                      to a high-ticket offering, helping the end client stay competitive. The team stayed
+                      responsive and aware of the technical challenges, even with multiple change requests
+                      from the end client.
+                    </p>
+
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                      <img
+                        src={Mark_Image}
+                        alt="Mark Muse"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <p className="font-bold text-gray-900">Mark Muse</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">Partner</p>
+                  </CardContent>
+                </Card>
+
+                {/* Daniel Fechete */}
+                <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+
+                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+
+                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
+                      Their attention to detail and interest in understanding our requirements perfectly
+                      stood out.. Brandingbeez successfully designed the requested brochures, demonstrating
+                      a thorough understanding of the client's products and expectations. The detail-oriented
+                      team delivered the project on time and maintained constant communication through email,
+                      messaging apps, and virtual meetings.
+                    </p>
+
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                      <img
+                        src={Dani_Image}
+                        alt="Daniel Fechete"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <p className="font-bold text-gray-900">Daniel Fechete</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">Creative Partner</p>
+                  </CardContent>
+                </Card>
+
+                {/* Gemma Murphy */}
+                <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+
+                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+
+                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
+                      Branding Beez have been a great help to my business. Before meeting Raie and her team,
+                      I was doing the sales, building the websites and handling all the tech and aftercare.
+                      Now I have the time to grow the business, working 'ON' it, instead of constantly 'IN' it.
+                      So they've been a gamechanger for me and my business. Even taking my first holiday this
+                      year WITHOUT my laptop! Thanks so much!
+                    </p>
+
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                      <img
+                        src={Gemma_Image}
+                        alt="Gemma Murphy"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+
+                    <p className="font-bold text-gray-900">Gemma Murphy</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">Founder, Website Architect</p>
+                  </CardContent>
+                </Card>
+
+              </div>
+            </div>
+          </section>
+
+          {/* Newsletter CTA Section (inline newsletter page design) */}
+          <section id="newsletter" className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">
+            <div className="max-w-6xl mx-auto">
               {/* HEADER */}
               <div className="text-center mb-5">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
@@ -2356,102 +2603,75 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* CONTENT: LEFT / RIGHT TEXT, CENTERED UNDER HEADING */}
-              <div
-                className="max-w-3xl mx-auto mb-8
-                    grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10
-                    items-start justify-items-center
-                  "
-              >
-                {/* LEFT: Main copy */}
-                <div className="space-y-3 text-center md:text-left md:pr-4">
+              <div className="flex items-center gap-3">
+                {/* CONTENT: MERGED */}
+                <div className="max-w-3xl mx-auto mb-8 text-left space-y-3">
                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-100 leading-relaxed max-w-sm mx-auto md:mx-0">
-                    Get actionable tips, pricing tricks, and automation tactics that help
-                    agencies grow faster — all in simple 1-minute reads.
+
+                  <p className="text-xs sm:text-sm text-gray-100 leading-relaxed">
+                    Get actionable tips, pricing tricks, automation tactics, fast client-winning
+                    strategies, proposal hacks, AI workflows, and real stories from growing
+                    agencies all delivered in simple 1-minute reads to help you scale
+                    smarter every week.
                   </p>
                 </div>
+                {/* FORM */}
+                <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
+                  <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
+                    Subscribe Free
+                  </h3>
+                  <p className="text-gray-200 text-center text-xs sm:text-sm mb-4">
+                    Join 3,000+ agency owners — no spam.
+                  </p>
 
-                {/* RIGHT: Checklist */}
-                <div className="space-y-3 text-center md:text-left md:pl-4">
-                  <h4 className="text-base sm:text-lg font-semibold">What’s Inside</h4>
-                  <ul className="space-y-2 text-gray-100 text-xs sm:text-sm max-w-sm mx-auto md:mx-0">
-                    {[
-                      "Fast client-winning strategies",
-                      "Pricing & proposal hacks",
-                      "AI & automation workflows",
-                      "Real stories from growing agencies",
-                    ].map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-center gap-2 justify-center md:justify-start"
-                      >
-                        <span className="text-green-300 text-lg leading-none">✔</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* FORM: CENTERED CARD BELOW CONTENT */}
-              <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
-                <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
-                  Subscribe Free
-                </h3>
-                <p className="text-gray-200 text-center text-xs sm:text-sm mb-4">
-                  Join 3,000+ agency owners — no spam.
-                </p>
-
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleNewsletterSubscribe();
-                  }}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
-                >
-                  {/* Full Name */}
-                  <input
-                    type="text"
-                    value={newsletterName}
-                    onChange={(e) => setNewsletterName(e.target.value)}
-                    placeholder="Full Name"
-                    required
-                    className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleNewsletterSubscribe();
+                    }}
+                    className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3"
+                  >
+                    <input
+                      type="text"
+                      value={newsletterName}
+                      onChange={(e) => setNewsletterName(e.target.value)}
+                      placeholder="Full Name"
+                      required
+                      className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
           focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
-                  />
+                    />
 
-                  {/* Email */}
-                  <input
-                    type="email"
-                    value={newsletterEmail}
-                    onChange={(e) => setNewsletterEmail(e.target.value)}
-                    placeholder="Email Address"
-                    required
-                    className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
+                    <input
+                      type="email"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      placeholder="Email Address"
+                      required
+                      className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
           focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
-                  />
+                    />
 
-                  {/* Button */}
-                  <button
-                    type="submit"
-                    disabled={newsletterLoading}
-                    className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm 
+                    <button
+                      type="submit"
+                      disabled={newsletterLoading}
+                      className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm 
             hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap
             ${newsletterLoading ? "opacity-60 cursor-not-allowed" : ""}`}
-                  >
-                    {newsletterLoading ? "Subscribing..." : "Subscribe"}
-                  </button>
-                </form>
+                    >
+                      {newsletterLoading ? "Subscribing..." : "Subscribe"}
+                    </button>
+                  </form>
 
-                {newsletterStatus && (
-                  <p className="text-xs text-gray-200 text-center mt-3">
-                    {newsletterStatus}
-                  </p>
-                )}
+                  {newsletterStatus && (
+                    <p className="text-xs text-gray-200 text-center mt-3">
+                      {newsletterStatus}
+                    </p>
+                  )}
+                </div>
               </div>
+
             </div>
 
             <ThankYouPopup

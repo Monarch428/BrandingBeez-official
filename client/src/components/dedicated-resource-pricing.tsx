@@ -398,7 +398,7 @@ export function DedicatedResourcePricing() {
               <Button 
                 size="lg" 
                 className="bg-brand-coral hover:bg-brand-coral/90 text-white px-6 sm:px-8 py-2.5 sm:py-3 w-full sm:w-auto text-sm sm:text-base"
-                onClick={() => window.open('https://calendar.app.google/Y8XZq71qtvPRhktH9', '_blank')}
+                onClick={() => window.open('/book-appiontment', '_blank')}
               > {/* https://calendly.com/vignesh-velusamy/30min */}
                 Schedule Consultation
               </Button>

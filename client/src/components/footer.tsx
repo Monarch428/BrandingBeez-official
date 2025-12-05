@@ -8,6 +8,8 @@ import sortlistLogo from "@assets/123_1754042746428.png";
 import bniLogo from "@assets/bni_1752907520728.jpg";
 import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
 import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
+import superbLogo from "../../public/images/superb.png";
+import semrushLogo from "../../public/images/Semrush.svg";
 
 export default function Footer() {
   const { regionConfig } = useRegion();
@@ -168,7 +170,7 @@ export default function Footer() {
               <li className="text-sm">
                 <a
                   // href="https://calendly.com/vignesh-velusamy/30min" 
-                  href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+                  href="/book-appiontment"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-coral rand-coral-light transition-colors touch-manipulation">
@@ -239,6 +241,34 @@ export default function Footer() {
                 <img
                   src={sortlistLogo}
                   alt="Sortlist"
+                  className="h-12 w-auto object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <a
+                href="https://agencies.semrush.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center hover:bg-white/20 transition-all duration-300 border border-white/20"
+              >
+                <img
+                  src={semrushLogo}
+                  alt="Semrush"
+                  className="h-12 w-auto object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </a>
+              <a
+                href="https://share.google/rMkz85Jo0L5oLl1zO"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center hover:bg-white/20 transition-all duration-300 border border-white/20"
+              >
+                <img
+                  src={superbLogo}
+                  alt="Superb Companies"
                   className="h-12 w-auto object-contain"
                   loading="lazy"
                   decoding="async"

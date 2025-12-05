@@ -87,7 +87,7 @@
 //                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                         window.open("/book-appiontment", "_blank",)
 //                       }
 //                     >
 //                       Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
@@ -926,7 +926,7 @@
 //                         className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
 //                         onClick={() =>
 //                           // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                           window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                           window.open("/book-appiontment", "_blank",)
 //                         }
 //                       >
 //                         <Calendar className="w-4 h-4 mr-2" />
@@ -1066,7 +1066,7 @@ export default function SEOCaseStudy() {
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -1233,7 +1233,7 @@ export default function SEOCaseStudy() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -1910,7 +1910,7 @@ export default function SEOCaseStudy() {
                         className="bg-brand-coral text-white hover:bg-brand-coral/90"
                         onClick={() =>
                           window.open(
-                            "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                            "/book-appiontment",
                             "_blank",
                           )
                         }
@@ -2136,7 +2136,7 @@ export default function SEOCaseStudy() {
                         onClick={() =>
                           // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
                           window.open(
-                            "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                            "/book-appiontment",
                             "_blank",
                           )
                         }
