@@ -29,6 +29,7 @@ import {
 import { Helmet } from "react-helmet";
 import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 // Featured Google Ads client data
 const featuredClient = {
@@ -662,6 +663,16 @@ export default function GoogleAds() {
               </div> */}
             </div>
           </section>
+
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-g-ads-contact-form"
+            contactFormType="service-g-ads-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
 
           {/* CTA Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">

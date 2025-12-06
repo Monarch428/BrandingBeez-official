@@ -37,6 +37,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 const aiServices = [
   {
@@ -1700,6 +1701,16 @@ export default function AIDevelopment() {
               </div>
             </div>
           </section>
+
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-aid-contact-form"
+            contactFormType="service-aid-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
 
           {/* CTA Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">

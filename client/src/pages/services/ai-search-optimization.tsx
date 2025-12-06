@@ -25,6 +25,7 @@ import { Label } from "@/components/ui/label";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 const AiSearchOptimizationSchema = {
     "@context": "https://schema.org",
@@ -974,6 +975,16 @@ export default function AiSearchOptimization() {
                             </div>
                         </div>
                     </section> */}
+
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-aiso-contact-form"
+            contactFormType="service-aiso-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
 
                     {/* CTA Section */}
                     <section className="py-16 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">
