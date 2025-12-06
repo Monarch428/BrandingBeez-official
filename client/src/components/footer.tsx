@@ -158,13 +158,14 @@ export default function Footer() {
                   info@brandingbeez.co.uk
                 </a>
               </li>
-              <li className="flex items-start gap-2">
+<li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-brand-coral mt-0.5 flex-shrink-0" />
                 <a
-                  href="tel:+919952462833"
+                  href="tel:+917200626556"
                   className="hite transition-colors text-sm touch-manipulation"
                 >
-                  +91 99524 62833
+                  {/* +91 99524 62833 */}
+                  +91 72006 26556
                 </a>
               </li>
               <li className="text-sm">
