@@ -846,7 +846,7 @@ export default function SEOServices() {
                           </Link>
 
                           <a
-                            href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                            href="/book-appiontment/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full"
@@ -887,7 +887,7 @@ export default function SEOServices() {
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-4">Stay on Top of SEO Trends</h2>
-              <p className="text-xl mb-8 text-white/90">Join marketers & agencies getting expert tips, ranking strategies, and SEO case studies from BrandingBeez—straight to your inbox.</p>
+              <p className="text-xl mb-8 text-white/90">Join marketers & agencies getting expert tips, ranking strategies, and SEO case studies from BrandingBeez straight to your inbox.</p>
               <div className="flex flex-row gap-4 justify-center">
                 <Button
                   size="lg"
@@ -2057,7 +2057,7 @@ export default function SEOServices() {
 //                         asChild
 //                       >
 //                         <a
-//                           href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+//                           href="/book-appiontment"
 //                           target="_blank"
 //                           rel="noopener noreferrer"
 //                         >
@@ -2576,7 +2576,7 @@ export default function SEOServices() {
 //                     asChild
 //                   >
 //                     <a
-//                       href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+//                       href="/book-appiontment"
 //                       target="_blank"
 //                       rel="noopener noreferrer"
 //                     >

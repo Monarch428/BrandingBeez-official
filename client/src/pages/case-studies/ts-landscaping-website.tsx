@@ -100,7 +100,7 @@ export default function TSLandscapingCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-white/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -248,7 +248,7 @@ export default function TSLandscapingCaseStudy() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -482,7 +482,7 @@ export default function TSLandscapingCaseStudy() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -651,7 +651,7 @@ export default function TSLandscapingCaseStudy() {
                   size="lg"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }

@@ -1365,7 +1365,7 @@ export default function CustomAppDevelopment() {
 
                   <div className="flex flex-col sm:flex-row gap-4">
                     <a
-                      href="https://calendar.app.google/Y8XZq71qtvPRhktH9/"
+                      href="/book-appiontment/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full"
@@ -1569,7 +1569,7 @@ export default function CustomAppDevelopment() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -2198,7 +2198,7 @@ export default function CustomAppDevelopment() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -2763,7 +2763,7 @@ export default function CustomAppDevelopment() {
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }

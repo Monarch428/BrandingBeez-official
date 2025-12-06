@@ -91,7 +91,7 @@
 //                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank",)
+//                         window.open("/book-appiontment", "_blank",)
 //                       }
 //                     >
 
@@ -486,7 +486,7 @@
 //                   >
 //                     <a
 //                       // href="https://calendly.com/vignesh-velusamy/30min"
-//                       href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+//                       href="/book-appiontment"
 //                       target="_blank"
 //                       rel="noopener noreferrer"
 //                     > <Calendar className="mr-2 h-5 w-5" />
@@ -647,7 +647,7 @@ export default function ScubaDivingCaseStudy() {
                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -831,7 +831,7 @@ export default function ScubaDivingCaseStudy() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -949,7 +949,7 @@ export default function ScubaDivingCaseStudy() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -1164,7 +1164,7 @@ export default function ScubaDivingCaseStudy() {
                     className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   >
                     <a
-                      href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+                      href="/book-appiontment"
                       target="_blank"
                       rel="noopener noreferrer"
                     >

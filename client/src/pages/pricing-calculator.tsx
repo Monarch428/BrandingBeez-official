@@ -104,7 +104,7 @@ export default function PricingCalculator() {
       setContactForm({ name: '', email: '', phone: '', website: '' });
       setShowContactModal(false);
       setTimeout(() => {
-        window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9", "_blank");
+        window.open("/book-appiontment", "_blank");
       }, 1000);
     },
     onError: (error: any) => {

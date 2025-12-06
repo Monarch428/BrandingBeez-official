@@ -210,7 +210,7 @@ export default function AiSearchOptimization() {
                                             asChild
                                         >
                                             <a
-                                                href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+                                                href="/book-appiontment"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
@@ -218,7 +218,7 @@ export default function AiSearchOptimization() {
                                                 <ArrowRight className="ml-2 h-4 w-4" />
                                             </a>
                                         </Button>
-                                        {/* <Link href="https://calendar.app.google/Y8XZq71qtvPRhktH9">
+                                        {/* <Link href="/book-appiontment">
                                             <Button
                                                 variant="outline"
                                                 size="lg"
@@ -985,7 +985,7 @@ export default function AiSearchOptimization() {
                                     asChild
                                 >
                                     <a
-                                        href="https://calendar.app.google/Y8XZq71qtvPRhktH9"
+                                        href="/book-appiontment"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     > <Calendar className="w-5 h-5 mr-1" />

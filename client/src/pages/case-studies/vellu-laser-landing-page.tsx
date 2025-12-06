@@ -184,7 +184,7 @@ export default function VelluLaserLandingPageCaseStudy() {
                       onClick={() =>
                         window.open(
                           // "https://calendly.com/vignesh-velusamy/30min",
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -306,7 +306,7 @@ export default function VelluLaserLandingPageCaseStudy() {
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -553,7 +553,7 @@ export default function VelluLaserLandingPageCaseStudy() {
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank",
                         )
                       }
@@ -725,7 +725,7 @@ export default function VelluLaserLandingPageCaseStudy() {
                   onClick={() =>
                     window.open(
                       // "https://calendly.com/vignesh-velusamy/30min",
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }

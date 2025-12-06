@@ -5,6 +5,9 @@ import { ArrowRight, CheckCircle, Users, Search, Globe, Users2, TrendingUp, Bot,
 import { Link } from "wouter";
 import { useEffect, useMemo, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Mark_Image from "../../public/images/Mark.png";
+import Dani_Image from "../../public/images/Dani.png";
+import Gemma_Image from "../../public/images/Gemma.png";
 
 // Custom scrollbar styles
 const scrollbarStyles = `
@@ -645,17 +648,17 @@ export default function PortfolioPage() {
                                                                             <div className="text-gray-500 text-xs mt-0.5">Value</div>
                                                                         </div>
                                                                         {item.serviceCategory === "google-ads" &&
-                                                                        <div className="text-center">
-                                                                            <div className="font-bold text-brand-coral text-sm">{item.roi || "-"}</div>
-                                                                            <div className="text-gray-500 text-xs mt-0.5">ROI</div>
-                                                                        </div> 
+                                                                            <div className="text-center">
+                                                                                <div className="font-bold text-brand-coral text-sm">{item.roi || "-"}</div>
+                                                                                <div className="text-gray-500 text-xs mt-0.5">ROI</div>
+                                                                            </div>
                                                                         }
                                                                     </div>
 
                                                                     {/* Expandable Details Section */}
                                                                     {isExpanded && (
                                                                         <div className="space-y-4 mb-4 pb-4 border-b border-gray-200">
-                                                                    
+
                                                                             {/* Tech Stack */}
                                                                             {item.techStack && item.techStack.length > 0 && (
                                                                                 <div>
@@ -813,7 +816,7 @@ export default function PortfolioPage() {
                 </section>
 
                 {/* TESTIMONIALS */}
-                <section className="border-y border-gray-100 bg-white">
+                {/* <section className="border-y border-gray-100 bg-white">
                     <div className="max-w-7xl mx-auto px-4 py-16">
                         <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
                             {testimonialsTitle}
@@ -833,6 +836,109 @@ export default function PortfolioPage() {
                             ))}
                         </div>
                     </div>
+                </section> */}
+
+                {/* Testimonials – Card + Screenshot Style */}
+                <section
+                    id="testimonials"
+                    className="py-12 sm:py-16 px-4 bg-white"
+                >
+                    <div className="max-w-6xl mx-auto text-center">
+                        {/* Header */}
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                            What Our Clients Say
+                        </h2>
+                        <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-2xl mx-auto mb-10">
+                            Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
+                        </p>
+
+                        {/* Cards */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+
+                            {/* Mark Muse */}
+                            <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                                <CardContent className="p-6 flex flex-col items-center text-center">
+                                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+
+                                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
+                                        Brandingbeez understood not only the technical challenges but was also completely
+                                        responsive throughout..
+                                        <br /><br />
+                                        They the provided framework, assets, and vision into a beautiful website tailored
+                                        to a high-ticket offering, helping the end client stay competitive. The team stayed
+                                        responsive and aware of the technical challenges, even with multiple change requests
+                                        from the end client.
+                                    </p>
+
+                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                                        <img
+                                            src={Mark_Image}
+                                            alt="Mark Muse"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+
+                                    <p className="font-bold text-gray-900">Mark Muse</p>
+                                    <p className="text-gray-500 text-xs sm:text-sm">Partner</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* Daniel Fechete */}
+                            <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                                <CardContent className="p-6 flex flex-col items-center text-center">
+
+                                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+
+                                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
+                                        Their attention to detail and interest in understanding our requirements perfectly
+                                        stood out.. Brandingbeez successfully designed the requested brochures, demonstrating
+                                        a thorough understanding of the client's products and expectations. The detail-oriented
+                                        team delivered the project on time and maintained constant communication through email,
+                                        messaging apps, and virtual meetings.
+                                    </p>
+
+                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                                        <img
+                                            src={Dani_Image}
+                                            alt="Daniel Fechete"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+
+                                    <p className="font-bold text-gray-900">Daniel Fechete</p>
+                                    <p className="text-gray-500 text-xs sm:text-sm">Creative Partner</p>
+                                </CardContent>
+                            </Card>
+
+                            {/* Gemma Murphy */}
+                            <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
+                                <CardContent className="p-6 flex flex-col items-center text-center">
+
+                                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+
+                                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
+                                        Branding Beez have been a great help to my business. Before meeting Raie and her team,
+                                        I was doing the sales, building the websites and handling all the tech and aftercare.
+                                        Now I have the time to grow the business, working 'ON' it, instead of constantly 'IN' it.
+                                        So they've been a gamechanger for me and my business. Even taking my first holiday this
+                                        year WITHOUT my laptop! Thanks so much!
+                                    </p>
+
+                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
+                                        <img
+                                            src={Gemma_Image}
+                                            alt="Gemma Murphy"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+
+                                    <p className="font-bold text-gray-900">Gemma Murphy</p>
+                                    <p className="text-gray-500 text-xs sm:text-sm">Founder, Website Architect</p>
+                                </CardContent>
+                            </Card>
+
+                        </div>
+                    </div>
                 </section>
 
                 {/* BOTTOM CTA (same style as your CTA section) */}
@@ -842,7 +948,7 @@ export default function PortfolioPage() {
                             Ready to Transform Your Business?
                         </h2>
                         <p className="text-xl mb-8 text-white/90">
-                            Get transparent timelines, costs, and ROI projections — no surprises, no fluff.
+                            Get transparent timelines, costs, and ROI projections no surprises, no fluff.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">

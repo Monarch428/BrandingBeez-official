@@ -806,7 +806,7 @@
 //                 <Button
 //                   size="lg"
 //                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-//                   onClick={() => window.open("https://calendar.app.google/Y8XZq71qtvPRhktH9/", "_blank")}
+//                   onClick={() => window.open("/book-appiontment/", "_blank")}
 //                 > <Calendar className="w-5 h-5 mr-1" />
 //                   Book Your Strategy Call
 //                 </Button>
@@ -1414,7 +1414,7 @@ export default function SocialLandCaseStudy() {
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9/",
+                      "/book-appiontment/",
                       "_blank"
                     )
                   }
@@ -1623,7 +1623,7 @@ export default function SocialLandCaseStudy() {
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9/",
+                      "/book-appiontment/",
                       "_blank"
                     )
                   }

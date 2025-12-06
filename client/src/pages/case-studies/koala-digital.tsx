@@ -90,7 +90,7 @@ export default function KoalaDigitalCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                          "/book-appiontment",
                           "_blank"
                         )
                       }
@@ -698,7 +698,7 @@ export default function KoalaDigitalCaseStudy() {
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank"
                     )
                   }
@@ -958,7 +958,7 @@ export default function KoalaDigitalCaseStudy() {
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9/",
+                      "/book-appiontment/",
                       "_blank"
                     )
                   }
