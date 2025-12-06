@@ -272,26 +272,26 @@ export default function DedicatedResources() {
             </div>
           </section>
 
-           {/* NEW – How the Dedicated Team Setup Works (Phase Slider) */}
-<section className="py-16 px-4 bg-gray-50">
-  <div className="max-w-5xl mx-auto">
-    <div className="text-center mb-8">
-      <h2 className="text-3xl font-bold text-brand-purple mb-3">
-        How the Dedicated Team Setup Works
-      </h2>
-      <p className="text-lg text-gray-600">
-        A simple, transparent process built for agencies.
-      </p>
-    </div>
+          {/* NEW – How the Dedicated Team Setup Works (Phase Slider) */}
+          <section className="py-16 px-4 bg-gray-50">
+            <div className="max-w-5xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-brand-purple mb-3">
+                  How the Dedicated Team Setup Works
+                </h2>
+                <p className="text-lg text-gray-600">
+                  A simple, transparent process built for agencies.
+                </p>
+              </div>
 
-    {/* Phase slider card + side arrows */}
-    <div
-      className="relative"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-<Card
-  className="
+              {/* Phase slider card + side arrows */}
+              <div
+                className="relative"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
+                <Card
+                  className="
     bg-gradient-to-r from-brand-purple to-brand-coral 
     text-white border-none shadow-lg 
     mx-auto px-10 sm:px-14 py-8 
@@ -299,40 +299,40 @@ export default function DedicatedResources() {
     h-[360px] sm:h-[400px]  /* 🔹 Fixed height */
     
   "
->
-  {/* header – phase + title, left aligned */}
-  <CardHeader className="pb-4 px-10">
-    <div className="flex flex-col items-start gap-1 pl-16 sm:pl-24">
-      <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] text-white/90">
-        {activePhase.label} of {totalPhases}
-      </p>
-      <h3 className="text-xl md:text-3xl font-bold text-white">
-        {activePhase.title}
-      </h3>
-    </div>
-  </CardHeader>
+                >
+                  {/* header – phase + title, left aligned */}
+                  <CardHeader className="pb-4 px-10">
+                    <div className="flex flex-col items-start gap-1 pl-16 sm:pl-24">
+                      <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] text-white/90">
+                        {activePhase.label} of {totalPhases}
+                      </p>
+                      <h3 className="text-xl md:text-3xl font-bold text-white">
+                        {activePhase.title}
+                      </h3>
+                    </div>
+                  </CardHeader>
 
-  <CardContent className="space-y-5 px-6 sm:px-10">
-    {/* main points – aligned under title */}
-    <div className="pl-16 sm:pl-24">
-      <p className="text-base font-medium text-white mb-2">
-        {activePhase.intro}
-      </p>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-1 text-m text-white/90">
-        {activePhase.points.map((point) => (
-          <li
-            key={point}
-            className="flex items-start gap-2 leading-relaxed"
-          >
-            <CheckCircle className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
-            <span>{point}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+                  <CardContent className="space-y-5 px-6 sm:px-10">
+                    {/* main points – aligned under title */}
+                    <div className="pl-16 sm:pl-24">
+                      <p className="text-base font-medium text-white mb-2">
+                        {activePhase.intro}
+                      </p>
+                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-1 text-m text-white/90">
+                        {activePhase.points.map((point) => (
+                          <li
+                            key={point}
+                            className="flex items-start gap-2 leading-relaxed"
+                          >
+                            <CheckCircle className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
+                            <span>{point}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
 
-    {/* extra block (Phase 4 etc.) */}
-    {/* {activePhase.extraIntro && activePhase.extraPoints && (
+                    {/* extra block (Phase 4 etc.) */}
+                    {/* {activePhase.extraIntro && activePhase.extraPoints && (
       <div className="pt-3 border-t border-white/15 pl-16 sm:pl-24">
         <p className="text-base font-medium text-white mb-2">
           {activePhase.extraIntro}
@@ -351,42 +351,42 @@ export default function DedicatedResources() {
       </div>
     )} */}
 
-    {/* bottom: outcome + dots */}
-    <div className="pt-4 border-t border-white/15">
-      <p className="text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-4 text-center">
-        <span>{activePhase.outcome}</span>
-      </p>
+                    {/* bottom: outcome + dots */}
+                    <div className="pt-4 border-t border-white/15">
+                      <p className="text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-4 text-center">
+                        <span>{activePhase.outcome}</span>
+                      </p>
 
-      {/* dots */}
-      <div className="flex items-center justify-center gap-2">
-        {phases.map((phase, idx) => (
-          <button
-            key={phase.id}
-            type="button"
-            onClick={() => setCurrentPhase(idx)}
-            className={[
-              "h-2.5 w-2.5 rounded-full transition-all duration-200",
-              idx === currentPhase
-                ? "bg-white scale-125 shadow-sm"
-                : "bg-white/40 hover:bg-white/70",
-            ].join(" ")}
-            aria-label={phase.title}
-          />
-        ))}
-      </div>
-    </div>
-  </CardContent>
-</Card>
-
-
+                      {/* dots */}
+                      <div className="flex items-center justify-center gap-2">
+                        {phases.map((phase, idx) => (
+                          <button
+                            key={phase.id}
+                            type="button"
+                            onClick={() => setCurrentPhase(idx)}
+                            className={[
+                              "h-2.5 w-2.5 rounded-full transition-all duration-200",
+                              idx === currentPhase
+                                ? "bg-white scale-125 shadow-sm"
+                                : "bg-white/40 hover:bg-white/70",
+                            ].join(" ")}
+                            aria-label={phase.title}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
 
-      {/* SIDE ARROWS – more visible, fixed-ish position with extra gap */}
-      <button
-        type="button"
-        onClick={goToPrevPhase}
-        disabled={currentPhase === 0}
-        className="
+
+
+                {/* SIDE ARROWS – more visible, fixed-ish position with extra gap */}
+                <button
+                  type="button"
+                  onClick={goToPrevPhase}
+                  disabled={currentPhase === 0}
+                  className="
     group absolute
     -left-16
     top-40 -translate-y-1/2
@@ -399,18 +399,18 @@ export default function DedicatedResources() {
     focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-coral/40
     transition-all duration-200
   "
-        aria-label="Previous phase"
-      >
-        <span className="text-2xl font-bold tracking-tight transition-transform duration-200 group-hover:-translate-x-0.5">
-          {"<"}
-        </span>
-      </button>
+                  aria-label="Previous phase"
+                >
+                  <span className="text-2xl font-bold tracking-tight transition-transform duration-200 group-hover:-translate-x-0.5">
+                    {"<"}
+                  </span>
+                </button>
 
-      <button
-        type="button"
-        onClick={goToNextPhase}
-        disabled={currentPhase === totalPhases - 1}
-         className="
+                <button
+                  type="button"
+                  onClick={goToNextPhase}
+                  disabled={currentPhase === totalPhases - 1}
+                  className="
     group absolute
     -right-16  /* ⬅ Pushes arrow fully outside the card */
     top-40 -translate-y-1/2
@@ -423,94 +423,94 @@ export default function DedicatedResources() {
     focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-coral/40
     transition-all duration-200
   "
-        aria-label="Next phase"
-      >
-        <span className="text-2xl font-bold tracking-tight transition-transform duration-200 group-hover:translate-x-0.5">
-          {">"}
-        </span>
-      </button>
-    </div>
+                  aria-label="Next phase"
+                >
+                  <span className="text-2xl font-bold tracking-tight transition-transform duration-200 group-hover:translate-x-0.5">
+                    {">"}
+                  </span>
+                </button>
+              </div>
 
-    {/* What's Included – static block under phases */}
-<div className="mt-10 flex flex-col md:flex-row items-stretch justify-center gap-6">
-  {/* Card 1 — What's Included */}
-  <Card className="bg-gray-50 border-dashed border-2 border-brand-purple/20 flex-1 min-w-[300px]">
-    <CardHeader className="pb-3">
-      <h3 className="text-xl font-bold text-brand-purple">
-        What’s Included in Every Dedicated Team
-      </h3>
-    </CardHeader>
-    <CardContent>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Daily standups</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Weekly reports</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>End-to-end task ownership</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Internal Slack/Teams integration</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Strict QA processes</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Dedicated account manager</span>
-        </li>
-      </ul>
-    </CardContent>
-  </Card>
+              {/* What's Included – static block under phases */}
+              <div className="mt-10 flex flex-col md:flex-row items-stretch justify-center gap-6">
+                {/* Card 1 — What's Included */}
+                <Card className="bg-gray-50 border-dashed border-2 border-brand-purple/20 flex-1 min-w-[300px]">
+                  <CardHeader className="pb-3">
+                    <h3 className="text-xl font-bold text-brand-purple">
+                      What’s Included in Every Dedicated Team
+                    </h3>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Daily standups</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Weekly reports</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>End-to-end task ownership</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Internal Slack/Teams integration</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Strict QA processes</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Dedicated account manager</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
 
-  {/* Card 2 — Benefits You Get */}
-  <Card className="bg-gray-50 border-dashed border-2 border-brand-purple/20 flex-1 min-w-[300px]">
-    <CardHeader className="pb-3">
-      <h3 className="text-xl font-bold text-brand-purple">
-        Benefits You Get
-      </h3>
-    </CardHeader>
-    <CardContent>
-      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Direct communication</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Daily/weekly reports</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Priority delivery</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>End-to-end accountability</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Workflow optimization</span>
-        </li>
-        <li className="flex items-start gap-2">
-          <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
-          <span>Confidentiality & data-security compliance</span>
-        </li>
-      </ul>
-    </CardContent>
-  </Card>
-</div>
+                {/* Card 2 — Benefits You Get */}
+                <Card className="bg-gray-50 border-dashed border-2 border-brand-purple/20 flex-1 min-w-[300px]">
+                  <CardHeader className="pb-3">
+                    <h3 className="text-xl font-bold text-brand-purple">
+                      Benefits You Get
+                    </h3>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-gray-800">
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Direct communication</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Daily/weekly reports</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Priority delivery</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>End-to-end accountability</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Workflow optimization</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-purple flex-shrink-0" />
+                        <span>Confidentiality & data-security compliance</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
 
 
-  </div>
-</section>
+            </div>
+          </section>
 
 
           {/* Available Resources Section */}
@@ -741,36 +741,36 @@ export default function DedicatedResources() {
                     We’ll analyse your:
                   </h3>
                   <div className="mt-3">
-  {/* 2x2 bullet grid */}
-  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm md:text-base text-gray-700">
-    <li className="flex items-start gap-2">
-      <span className="text-brand-coral font-bold">•</span>
-      <span>Current workload</span>
-    </li>
-    <li className="flex items-start gap-2">
-      <span className="text-brand-coral font-bold">•</span>
-      <span>Service bottlenecks</span>
-    </li>
-    <li className="flex items-start gap-2">
-      <span className="text-brand-coral font-bold">•</span>
-      <span>Monthly delivery targets</span>
-    </li>
-    <li className="flex items-start gap-2">
-      <span className="text-brand-coral font-bold">•</span>
-      <span>Internal capacity</span>
-    </li>
-  </ul>
-  
-</div>
+                    {/* 2x2 bullet grid */}
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm md:text-base text-gray-700">
+                      <li className="flex items-start gap-2">
+                        <span className="text-brand-coral font-bold">•</span>
+                        <span>Current workload</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-brand-coral font-bold">•</span>
+                        <span>Service bottlenecks</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-brand-coral font-bold">•</span>
+                        <span>Monthly delivery targets</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-brand-coral font-bold">•</span>
+                        <span>Internal capacity</span>
+                      </li>
+                    </ul>
+
+                  </div>
 
                 </div>
-                
+
                 <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                      "/book-appiontment",
                       "_blank",
                     )
                   }
@@ -780,8 +780,8 @@ export default function DedicatedResources() {
                 </Button>
               </div>
               <p className="text-sm md:text-base text-gray-800 mt-4 font-medium text-left">
-    And recommend a lean, efficient team structure that gets results from Month 1.
-  </p>
+                And recommend a lean, efficient team structure that gets results from Month 1.
+              </p>
             </div>
           </section>
 
@@ -1113,7 +1113,7 @@ export default function DedicatedResources() {
                     className="bg-brand-coral text-white hover:bg-brand-coral/90"
                     onClick={() =>
                       window.open(
-                        "https://calendar.app.google/Y8XZq71qtvPRhktH9",
+                        "/book-appiontment",
                         "_blank",
                       )
                     }
