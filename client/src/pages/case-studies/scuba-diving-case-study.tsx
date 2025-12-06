@@ -500,7 +500,7 @@
 //                     className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
 //                   >
 //                     <Link href="/services/seo">
-//                       View Other SEO Services
+//                       View Other SEO Case Study
 //                       <ArrowRight className="ml-2 h-5 w-5" />
 //                     </Link>
 //                   </Button>
@@ -1180,7 +1180,7 @@ export default function ScubaDivingCaseStudy() {
                     className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral transition-colors duration-200"
                   >
                     <Link href="/services/seo">
-                      View Other SEO Services
+                      View Other SEO Case Study
                       <ArrowRight className="ml-2 h-5 w-5" />
                     </Link>
                   </Button>
