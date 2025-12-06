@@ -104,7 +104,7 @@ export default function PricingCalculator() {
       setContactForm({ name: '', email: '', phone: '', website: '' });
       setShowContactModal(false);
       setTimeout(() => {
-        window.open("/book-appiontment", "_blank");
+        window.open("/book-appointment", "_blank");
       }, 1000);
     },
     onError: (error: any) => {

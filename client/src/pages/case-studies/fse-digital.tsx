@@ -25,6 +25,7 @@ import { SchemaMarkup } from "@/components/schema-markup";
 // TODO: create this schema in your all-schemas file
 // import { FSEDigitalPpcSchema } from "@/utils/all-schemas";
 import FSELogo from "../../../public/images/FSE-Digital-Logo.jpg";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function FSEDigitalPpcCaseStudy() {
   return (
@@ -96,7 +97,7 @@ export default function FSEDigitalPpcCaseStudy() {
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank"
                         )
                       }
@@ -111,8 +112,8 @@ export default function FSEDigitalPpcCaseStudy() {
                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
                       asChild
                     >
-                      <Link href="/pricing-calculator?service=dedicated-ppc-specialist">
-                        Start Your Team
+                      <Link href="/pricing-calculator?service=dedicated-resources">
+                        Hire Your Team
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Link>
                     </Button>
@@ -537,19 +538,26 @@ export default function FSEDigitalPpcCaseStudy() {
                 your team can focus on client relationships, strategy, and upsells.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Strategy Call"
+                  className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"
@@ -754,12 +762,12 @@ export default function FSEDigitalPpcCaseStudy() {
                 white-label specialist who works as part of your team.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-purple hover:bg-white/90 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank"
                     )
                   }
@@ -767,6 +775,14 @@ export default function FSEDigitalPpcCaseStudy() {
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
                 </Button>
+                 */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Strategy Call"
+                  className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"

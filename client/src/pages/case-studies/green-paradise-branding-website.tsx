@@ -40,6 +40,7 @@ import { Helmet } from "react-helmet";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { GreenParadiseSchema } from "@/utils/all-schemas";
 import gp_Logo from "../../../public/images/GP_Logo.png";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function GreenParadiseBrandingWebsiteCaseStudy() {
   return (
@@ -104,20 +105,27 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-white text-brand-purple hover:bg-white/90"
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       Start Your Brand Project
                       <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Schedule a Free Consultation"
+                      className="bg-white text-brand-purple hover:bg-white/90"
+                      buttonSize="lg"
+                      buttonVariant="default"
+                      defaultServiceType="Website Development"
+                    />
                   </div>
                 </div>
 
@@ -227,19 +235,26 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                     launch can do for your clients.
                   </h3>
                 </div>
-                <Button
+                {/* <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <Search className="w-4 h-4 mr-2" />
                   Request Free Brand + Site Review
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Request a Strategy Consultation"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Website Development"
+                />
               </div>
             </div>
           </section>
@@ -471,19 +486,26 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                         launch playbook fits your goals.
                       </p>
                     </div>
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Talk to the Brand Launch Team
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to the Development Team"
+                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                      buttonSize="lg"
+                      buttonVariant="default"
+                      defaultServiceType="Website Development"
+                    />
                   </div>
                 </Card>
               </div>
@@ -646,12 +668,12 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                 digital transformation solutions.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   onClick={() =>
                     window.open(
                       // "https://calendly.com/vignesh-velusamy/30min",
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
@@ -660,7 +682,14 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                   {" "}
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Free Website Consultation
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Website Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Website Development"
+                />
                 <Button
                   asChild
                   size="lg"

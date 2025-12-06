@@ -58,7 +58,7 @@ export default function N8NAutomations() {
                 size="lg"
                 className="bg-white text-brand-purple hover:bg-gray-100"
                 // onClick={() => window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")}
-                onClick={() => window.open("/book-appiontment", "_blank")}
+                onClick={() => window.open("/book-appointment", "_blank")}
               >
                 Get Early Access
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -186,7 +186,7 @@ export default function N8NAutomations() {
                 size="lg"
                 className="bg-brand-coral hover:bg-brand-coral/90 text-white"
                 // onClick={() => window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")}
-                onClick={() => window.open("/book-appiontment", "_blank")}
+                onClick={() => window.open("/book-appointment", "_blank")}
               >
                 Join Early Access List
                 <ArrowRight className="w-5 h-5 ml-2" />

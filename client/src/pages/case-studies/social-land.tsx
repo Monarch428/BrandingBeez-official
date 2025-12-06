@@ -806,7 +806,7 @@
 //                 <Button
 //                   size="lg"
 //                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-//                   onClick={() => window.open("/book-appiontment/", "_blank")}
+//                   onClick={() => window.open("/book-appointment/", "_blank")}
 //                 > <Calendar className="w-5 h-5 mr-1" />
 //                   Book Your Strategy Call
 //                 </Button>
@@ -875,6 +875,7 @@ import { SocialLandSchema } from "@/utils/all-schemas";
 import loguImage from "../../../../attached_assets/Logu_Stroke.png";
 import rajaImage from "../../../public/images/Raja-team-member.png";
 import jithenImage from "../../../public/images/Jithen-team-member.png";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function SocialLandCaseStudy() {
   return (
@@ -938,7 +939,7 @@ export default function SocialLandCaseStudy() {
                         size="lg"
                         className="bg-white text-brand-purple hover:bg-gray-100"
                       >
-                        Start Your Team
+                        Hire Your Team
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </Link>
@@ -1409,19 +1410,26 @@ export default function SocialLandCaseStudy() {
                 could plug into your agency workflow within days.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment/",
+                      "/book-appointment/",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book a Consultation
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Strategy Call"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"
@@ -1618,19 +1626,26 @@ export default function SocialLandCaseStudy() {
                 dedicated team that feels like one office.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment/",
+                      "/book-appointment/",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Website Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"

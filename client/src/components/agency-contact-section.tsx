@@ -260,8 +260,8 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8 lg:gap-12 items-start">
-          {/* Left Column - Strategy Call Agenda
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          {/* Left Column - Strategy Call Agenda */}
           <div className="space-y-6">
             <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 sm:p-8 rounded-xl border border-purple-100">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
@@ -315,378 +315,385 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                 </p>
               </div>
             </div>
-          </div> */}
+          </div>
 
           {/* Right Column - Contact Form */}
           <div>
-           <Card className="shadow-xl">
-  <CardHeader>
-    <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl">
-      Schedule Strategy Call
-    </CardTitle>
-  </CardHeader>
-  <CardContent>
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Row 1 – Name, Email, Phone */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Name */}
-        <div>
-          <Label
-            htmlFor="name"
-            className="text-sm font-medium text-gray-700"
-          >
-            Name *
-          </Label>
-          <Input
-            id="name"
-            type="text"
-            value={formData.name}
-            onChange={(e) => handleInputChange("name", e.target.value)}
-          />
-          {errors.name && (
-            <p className="text-xs text-red-500 mt-1">{errors.name}</p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div>
-          <Label
-            htmlFor="email"
-            className="text-sm font-medium text-gray-700"
-          >
-            Email *
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => handleInputChange("email", e.target.value)}
-          />
-          {errors.email && (
-            <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-          )}
-        </div>
-
-        {/* Phone */}
-        <div>
-          <Label
-            htmlFor="phone"
-            className="text-sm font-medium text-gray-700"
-          >
-            Phone *
-          </Label>
-
-          <PhoneInput
-            country={countryCode as any}
-            value={formData.phone}
-            onChange={(value, data: CountryData) => {
-              if (data?.countryCode) {
-                const cc = data.countryCode.toLowerCase();
-                setCountryCode(cc);
-                handleInputChange("countryCode", cc);
-              }
-              handleInputChange("phone", value);
-            }}
-            inputProps={{
-              name: "phone",
-              className:
-                "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
-              placeholder:
-                phonePlaceholders[countryCode] ||
-                "Enter your phone number",
-            }}
-            containerClass="w-full"
-            isValid={(value: string) => {
-              if (!value) return true;
-              const phoneNumber =
-                parsePhoneNumberFromString(`+${value}`);
-              return phoneNumber ? phoneNumber.isValid() : "";
-            }}
-          />
-          {errors.phone && (
-            <p className="text-xs text-red-500 mt-1">{errors.phone}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Row 2 – Agency Name, Services Interested, Message */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Agency Name */}
-        <div>
-          <Label
-            htmlFor="agencyName"
-            className="text-sm font-medium text-gray-700"
-          >
-            Agency Name
-          </Label>
-          <Input
-            id="agencyName"
-            type="text"
-            value={formData.agencyName}
-            onChange={(e) =>
-              handleInputChange("agencyName", e.target.value)
-            }
-          />
-        </div>
-
-        {/* Services Interested In */}
-        <div>
-          <Label
-            htmlFor="servicesInterested"
-            className="text-sm font-medium text-gray-700"
-          >
-            Services Interested In *
-          </Label>
-          <Select
-            value={formData.servicesInterested}
-            onValueChange={(value) =>
-              handleInputChange("servicesInterested", value)
-            }
-          >
-            <SelectTrigger aria-label="Select services interested in">
-              <SelectValue placeholder="Select services" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="SEO Services">
-                SEO/AIO Services
-              </SelectItem>
-              <SelectItem value="PPC/Google Ads">
-                PPC/Google Ads
-              </SelectItem>
-              <SelectItem value="Website Development">
-                Website Development
-              </SelectItem>
-              <SelectItem value="Custom Web & Mobile Application Development (AI-Powered)">
-                Custom Web & Mobile Application Development (AI-Powered)
-              </SelectItem>
-              <SelectItem value="Dedicated Resource">
-                Dedicated Resource
-              </SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.servicesInterested && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.servicesInterested}
-            </p>
-          )}
-        </div>
-
-        {/* Message */}
-       <div>
-  <Label
-    htmlFor="message"
-    className="text-sm font-medium text-gray-700"
-  >
-    Message
-  </Label>
-  <Textarea
-    id="message"
-    rows={1}
-    value={formData.message}
-    onChange={(e) => handleInputChange("message", e.target.value)}
-    placeholder="Tell us about your agency and goals..."
-    className="h-10 w-full resize-none rounded-md border border-gray-300 text-gray-900 placeholder:text-gray-400 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral leading-[2.5rem]"
-
-  />
-</div>
-
-
-      </div>
-
-      {/* Sub-Service Selection – full width below rows */}
-      {formData.servicesInterested && (
-        <div className="space-y-4 ">
-          <Label className="text-sm font-medium text-gray-700">
-            What are you specifically looking for in{" "}
-            {formData.servicesInterested}
-            ? *
-          </Label>
-          <div className="grid grid-cols-4 gap-3">
-            {/* SEO Services Options */}
-            {formData.servicesInterested === "SEO Services" && (
-              <>
-                {[
-                  "Link building",
-                  "Local SEO",
-                  "Technical SEO audit & fixes",
-                  "Content marketing & SEO Blogging",
-                  "E-Commerce SEO",
-                ].map((option) => (
-                  <div
-                    key={option}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={option}
-                      checked={formData.subServices.includes(option)}
-                      onCheckedChange={(checked) =>
-                        handleSubServiceChange(option, !!checked)
-                      }
-                    />
-                    <Label
-                      htmlFor={option}
-                      className="text-sm font-medium text-gray-700 cursor-pointer"
-                    >
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-              </>
-            )}
-
-            {/* PPC/Google Ads Options */}
-            {formData.servicesInterested === "PPC/Google Ads" && (
-              <>
-                {["Starter Package", "Growth Package", "Scale Package"].map(
-                  (option) => (
-                    <div
-                      key={option}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={option}
-                        checked={formData.subServices.includes(option)}
-                        onCheckedChange={(checked) =>
-                          handleSubServiceChange(option, !!checked)
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl">
+                  Schedule Strategy Call
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label
+                        htmlFor="name"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Name *
+                      </Label>
+                      <Input
+                        id="name"
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) =>
+                          handleInputChange("name", e.target.value)
                         }
                       />
-                      <Label
-                        htmlFor={option}
-                        className="text-sm font-medium text-gray-700 cursor-pointer"
-                      >
-                        {option}
-                      </Label>
+                      {errors.name && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.name}
+                        </p>
+                      )}
                     </div>
-                  )
-                )}
-              </>
-            )}
-
-            {/* Website Development Options */}
-            {formData.servicesInterested === "Website Development" && (
-              <>
-                {["WordPress", "Shopify", "BigCommerce", "Custom Coded"].map(
-                  (option) => (
-                    <div
-                      key={option}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={option}
-                        checked={formData.subServices.includes(option)}
-                        onCheckedChange={(checked) =>
-                          handleSubServiceChange(option, !!checked)
+                    <div>
+                      <Label
+                        htmlFor="email"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Email *
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          handleInputChange("email", e.target.value)
                         }
                       />
-                      <Label
-                        htmlFor={option}
-                        className="text-sm font-medium text-gray-700 cursor-pointer"
-                      >
-                        {option}
-                      </Label>
+                      {errors.email && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.email}
+                        </p>
+                      )}
                     </div>
-                  )
-                )}
-              </>
-            )}
-
-            {/* Dedicated Resource Options */}
-            {formData.servicesInterested === "Dedicated Resource" && (
-              <>
-                {[
-                  "Graphic Designer",
-                  "Video Editor",
-                  "SEO Specialist",
-                  "Google Ads Expert",
-                  "Web Developer",
-                  "Full-Stack Developer",
-                  "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                ].map((option) => (
-                  <div
-                    key={option}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={option}
-                      checked={formData.subServices.includes(option)}
-                      onCheckedChange={(checked) =>
-                        handleSubServiceChange(option, !!checked)
-                      }
-                    />
-                    <Label
-                      htmlFor={option}
-                      className="text-sm font-medium text-gray-700 cursor-pointer"
-                    >
-                      {option}
-                    </Label>
                   </div>
-                ))}
-              </>
-            )}
 
-            {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
-            {formData.servicesInterested ===
-              "Custom Web & Mobile Application Development (AI-Powered)" && (
-              <>
-                {[
-                  "AI Powered web app/Mobile app development",
-                  "AI Agentic Platform development",
-                  "AI Integration into existing platforms",
-                  "Prototype / MVP Mobile App",
-                  "Full-Scale Production App",
-                  "iOS & Android App (Native/Hybrid)",
-                  "Web + Mobile App Bundle",
-                  "Redesign / Rebuild Existing App",
-                  "Ongoing Maintenance & Feature Updates",
-                ].map((option) => (
-                  <div
-                    key={option}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={option}
-                      checked={formData.subServices.includes(option)}
-                      onCheckedChange={(checked) =>
-                        handleSubServiceChange(option, !!checked)
-                      }
-                    />
-                    <Label
-                      htmlFor={option}
-                      className="text-sm font-medium text-gray-700 cursor-pointer"
-                    >
-                      {option}
-                    </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label
+                        htmlFor="phone"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Phone *
+                      </Label>
+
+                      <PhoneInput
+                        country={countryCode as any}
+                        value={formData.phone}
+                        onChange={(value, data: CountryData) => {
+                          if (data?.countryCode) {
+                            const cc = data.countryCode.toLowerCase();
+                            setCountryCode(cc);
+                            handleInputChange("countryCode", cc);
+                          }
+                          handleInputChange("phone", value);
+                        }}
+                        inputProps={{
+                          name: "phone",
+                          className:
+                            "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+                          placeholder:
+                            phonePlaceholders[countryCode] ||
+                            "Enter your phone number",
+                        }}
+                        containerClass="w-full"
+                        isValid={(value: string) => {
+                          if (!value) return true;
+                          const phoneNumber =
+                            parsePhoneNumberFromString(`+${value}`);
+                          return phoneNumber ? phoneNumber.isValid() : "";
+                        }}
+                      />
+                      {errors.phone && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.phone}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <Label
+                        htmlFor="agencyName"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Agency Name
+                      </Label>
+                      <Input
+                        id="agencyName"
+                        type="text"
+                        value={formData.agencyName}
+                        onChange={(e) =>
+                          handleInputChange("agencyName", e.target.value)
+                        }
+                      />
+                    </div>
                   </div>
-                ))}
-              </>
-            )}
-          </div>
-          {errors.subServices && (
-            <p className="text-xs text-red-500 mt-1">
-              {errors.subServices}
-            </p>
-          )}
-        </div>
-      )}
 
-      {/* Submit Button */}
-      <div className="flex justify-end">
-  <Button
-    type="submit"
-    disabled={contactMutation.isPending}
-    className="font-bold py-3 px-8 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker 
-               hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
-  >
-    {contactMutation.isPending ? "Submitting..." : "Submit Form"}
-  </Button>
-</div>
+                  <div>
+                    <Label
+                      htmlFor="servicesInterested"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Services Interested In *
+                    </Label>
+                    <Select
+                      value={formData.servicesInterested}
+                      onValueChange={(value) =>
+                        handleInputChange("servicesInterested", value)
+                      }
+                    >
+                      <SelectTrigger aria-label="Select services interested in">
+                        <SelectValue placeholder="Select services" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SEO Services">
+                          SEO/AIO Services
+                        </SelectItem>
+                        <SelectItem value="PPC/Google Ads">
+                          PPC/Google Ads
+                        </SelectItem>
+                        <SelectItem value="Website Development">
+                          Website Development
+                        </SelectItem>
+                        <SelectItem value="Custom Web & Mobile Application Development (AI-Powered)">
+                          Custom Web & Mobile Application Development (AI-Powered)
+                        </SelectItem>
+                        <SelectItem value="Dedicated Resource">
+                          Dedicated Resource
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.servicesInterested && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.servicesInterested}
+                      </p>
+                    )}
+                  </div>
 
+                  {/* Sub-Service Selection */}
+                  {formData.servicesInterested && (
+                    <div className="space-y-4">
+                      <Label className="text-sm font-medium text-gray-700">
+                        What are you specifically looking for in{" "}
+                        {formData.servicesInterested}
+                        ? *
+                      </Label>
+                      <div className="grid grid-cols-1 gap-3">
+                        {/* SEO Services Options */}
+                        {formData.servicesInterested === "SEO Services" && (
+                          <>
+                            {[
+                              "Link building",
+                              "Local SEO",
+                              "Technical SEO audit & fixes",
+                              "Content marketing & SEO Blogging",
+                              "E-Commerce SEO",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
 
-    </form>
-  </CardContent>
-</Card>
+                        {/* PPC/Google Ads Options */}
+                        {formData.servicesInterested === "PPC/Google Ads" && (
+                          <>
+                            {[
+                              "Starter Package",
+                              "Growth Package",
+                              "Scale Package",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
 
+                        {/* Website Development Options */}
+                        {formData.servicesInterested ===
+                          "Website Development" && (
+                          <>
+                            {[
+                              "WordPress",
+                              "Shopify",
+                              "BigCommerce",
+                              "Custom Coded",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
 
+                        {/* Dedicated Resource Options */}
+                        {formData.servicesInterested ===
+                          "Dedicated Resource" && (
+                          <>
+                            {[
+                              "Graphic Designer",
+                              "Video Editor",
+                              "SEO Specialist",
+                              "Google Ads Expert",
+                              "Web Developer",
+                              "Full-Stack Developer",
+                              "Others (Data Entry/Virtual Assistants/Social Media Managers)",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
+
+                        {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
+                        {formData.servicesInterested ===
+                          "Custom Web & Mobile Application Development (AI-Powered)" && (
+                          <>
+                            {[
+                              "AI Powered web app/Mobile app development",
+                              "AI Agentic Platform development",
+                              "AI Integration into existing platforms",
+                              "Prototype / MVP Mobile App",
+                              "Full-Scale Production App",
+                              "iOS & Android App (Native/Hybrid)",
+                              "Web + Mobile App Bundle",
+                              "Redesign / Rebuild Existing App",
+                              "Ongoing Maintenance & Feature Updates",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                                >
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
+                      </div>
+                      {errors.subServices && (
+                        <p className="text-xs text-red-500 mt-1">
+                          {errors.subServices}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div>
+                    <Label
+                      htmlFor="message"
+                      className="text-sm font-medium text-gray-700"
+                    >
+                      Message
+                    </Label>
+                    <Textarea
+                      id="message"
+                      rows={4}
+                      value={formData.message}
+                      onChange={(e) =>
+                        handleInputChange("message", e.target.value)
+                      }
+                      placeholder="Tell us about your agency and goals..."
+                    />
+                  </div>
+
+                  <Button
+                    type="submit"
+                    disabled={contactMutation.isPending}
+                    className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
+                  >
+                    {contactMutation.isPending ? "Submitting..." : "Submit Form"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </div>
 

@@ -175,7 +175,7 @@ function Router() {
   return (
     <Switch>
       {/* CRITICAL: Home page loads immediately */}
-      <Route path='/book-appiontment' component={() => <LazyRoute component={BookApiontment} />} />
+      <Route path='/book-appointment' component={() => <LazyRoute component={BookApiontment} />} />
       <Route path="/" component={Home} />
 
       {/* LAZY: All other routes load on demand */}

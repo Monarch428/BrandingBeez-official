@@ -93,7 +93,7 @@
 //                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("/book-appiontment", "_blank",)
+//                         window.open("/book-appointment", "_blank",)
 //                       }
 //                     >
 //                       Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
@@ -418,7 +418,7 @@
 //                       className="w-full bg-brand-coral hover:bg-brand-coral/90 text-white"
 //                       onClick={() =>
 //                         window.open(
-//                           "/book-appiontment",
+//                           "/book-appointment",
 //                           "_blank",
 //                         )
 //                       }
@@ -798,7 +798,7 @@
 //                   onClick={() =>
 //                     window.open(
 //                       // "https://calendly.com/vignesh-velusamy/30min",
-//                       "/book-appiontment",
+//                       "/book-appointment",
 //                       "_blank",
 //                     )
 //                   }
@@ -871,6 +871,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { STATPlanningSchema } from "@/utils/all-schemas";
 import { Arrow } from "@radix-ui/react-tooltip";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function StatPlanningCaseStudy() {
   return (
@@ -932,21 +933,28 @@ export default function StatPlanningCaseStudy() {
                     </div>
                   </div>
                   <div className="mt-5 ">
-                    <Button
+                    {/* <Button
                       size="lg"
                       variant="outline"
                       className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       Start Your SEO Growth Today{" "}
                       <ArrowRight className="w-4 h-4 mr-2" />
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Schedule a Free Consultation"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      buttonSize="lg"
+                      buttonVariant="outline"
+                      defaultServiceType="SEO / AIO Services"
+                    />
                   </div>
                 </div>
 
@@ -1149,19 +1157,26 @@ export default function StatPlanningCaseStudy() {
                     Get a quick SEO audit and see what 30 days of focused work can do.
                   </h3>
                 </div>
-                <Button
+                {/* <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <Search className="w-4 h-4 mr-2" />
                   Request Free SEO Audit
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Request a Strategy Consultation"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="SEO / AIO Services"
+                />
               </div>
             </div>
           </section>
@@ -1546,7 +1561,7 @@ export default function StatPlanningCaseStudy() {
                   </div>
                 </div>
               </div>
-              
+
               {/* Key Learnings CTA */}
               <div className="mt-12 max-w-3xl mx-auto">
                 <Card className="p-6 md:p-8 bg-gray-50 border-dashed border-2 border-brand-coral/30">
@@ -1560,19 +1575,26 @@ export default function StatPlanningCaseStudy() {
                         playbook can work for your niche and timeline.
                       </p>
                     </div>
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Talk to the SEO Team
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to the SEO Team"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      buttonSize="lg"
+                      buttonVariant="default"
+                      defaultServiceType="SEO / AIO Services"
+                    />
                   </div>
                 </Card>
               </div>
@@ -1681,12 +1703,12 @@ export default function StatPlanningCaseStudy() {
                 B2B consultancy.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   onClick={() =>
                     window.open(
                       // "https://calendly.com/vignesh-velusamy/30min",
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
@@ -1695,7 +1717,14 @@ export default function StatPlanningCaseStudy() {
                   {" "}
                   <Calendar className="w-5 h-5 mr-2" />
                   Book Your Free SEO Consultation
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free SEO Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="SEO / AIO Services"
+                />
                 <Button
                   asChild
                   size="lg"
