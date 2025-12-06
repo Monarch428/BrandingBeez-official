@@ -1118,7 +1118,7 @@ export default function Admin() {
       {/* <Header /> */}
 
       <main className="pt-16 pb-16">
-        <div className="max-w-7xl mx-auto px-4">
+        <div className="max-w-[90%] mx-auto px-4">
           {/* Admin Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
@@ -1243,7 +1243,7 @@ export default function Admin() {
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {stats.map((stat, index) => (
                   <Card key={index} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-6">

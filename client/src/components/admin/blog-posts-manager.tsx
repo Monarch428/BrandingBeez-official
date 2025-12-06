@@ -503,7 +503,7 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
           >
             Create Test Blog
           </Button> */}
-        
+
 
           {/* Manual Blog Creation Dialog */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -583,9 +583,9 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
 
                     {formData.imageUrl && (
                       <div className="relative">
-                        <img 
-                          src={formData.imageUrl} 
-                          alt="Featured image preview" 
+                        <img
+                          src={formData.imageUrl}
+                          alt="Featured image preview"
                           className="max-h-40 max-w-full object-contain rounded-lg border"
                           onError={(e) => {
                             console.error('Image failed to load:', formData.imageUrl);
@@ -608,7 +608,7 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
                     )}
 
                     <div className="border-2 border-dashed border-gray-300 rounded-lg">
-                      <ObjectUploader 
+                      <ObjectUploader
                         onUpload={(url) => {
                           console.log('Setting image URL:', url);
                           setFormData({ ...formData, imageUrl: url });
@@ -758,16 +758,40 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
         </div>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid grid-cols-2 gap-4">
         {(blogPosts as BlogPost[]).map((post: BlogPost) => (
           <Card key={post.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex justify-between items-center gap-2">
                     {post.title}
                     {post.isFeatured && <Badge variant="secondary">Featured</Badge>}
                     {!post.isPublished && <Badge variant="destructive">Draft</Badge>}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleView(post)}
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(post)}
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => deleteMutation.mutate(post.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardTitle>
                   <p className="text-sm text-muted-foreground mt-2">
                     /{post.slug} • {post.author} • {post.readTime} min read
@@ -775,30 +799,6 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
                   {post.subtitle && (
                     <p className="text-sm text-muted-foreground mt-1">{post.subtitle}</p>
                   )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleView(post)}
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEdit(post)}
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => deleteMutation.mutate(post.id)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
               </div>
             </CardHeader>
@@ -886,8 +886,8 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
                 )}
 
                 {viewingPostData.imageUrl && (
-                  <img 
-                    src={viewingPostData.imageUrl} 
+                  <img
+                    src={viewingPostData.imageUrl}
                     alt={viewingPostData.title}
                     className="w-full max-h-64 object-cover rounded-lg"
                   />
@@ -922,7 +922,7 @@ Ready to transform your digital marketing strategy? Contact BrandingBeez today t
 
                 <div className="border-t pt-4">
                   <h3 className="font-semibold mb-4">Content:</h3>
-                  <div 
+                  <div
                     className="prose prose-lg max-w-none"
                     style={{ whiteSpace: 'pre-wrap' }}
                   >

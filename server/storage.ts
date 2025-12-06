@@ -33,6 +33,7 @@ import type {
   User,
   Appointment,
   InsertAppointment,
+  AppointmentStatus,
 } from "@shared/schema";
 
 import { DatabaseStorage } from "./db-storage";
@@ -155,13 +156,27 @@ export interface IStorage {
   ): Promise<PortfolioContent>;
 
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+
   getAppointmentsByDate(date: string): Promise<Appointment[]>;
+
   getAllAppointments(): Promise<Appointment[]>;
+
   updateAppointmentStatus(
     id: number,
-    status: "booked" | "cancelled" | "completed",
+    status: AppointmentStatus, // "booked" | "cancelled" | "completed"
   ): Promise<Appointment>;
+
   getAppointment(id: number): Promise<Appointment | undefined>;
+
+  // ✅ NEW: for admin panel filters
+  getAppointmentsFiltered(params: {
+    date?: string;                 // exact date
+    fromDate?: string;             // >= fromDate (YYYY-MM-DD)
+    toDate?: string;               // <= toDate (YYYY-MM-DD)
+    status?: AppointmentStatus;    // booked | cancelled | completed
+    serviceType?: string;          // partial match (SEO, Google Ads, etc.)
+    search?: string;               // name/email/phone/notes contains
+  }): Promise<Appointment[]>;
 
   // ✅ NEW: Google OAuth token storage
   saveGoogleAuthTokens(tokens: {
