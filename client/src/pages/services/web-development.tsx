@@ -37,6 +37,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { WebDevelopmentSchema } from "@/utils/all-schemas";
 import { navigate } from "wouter/use-browser-location";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 // Featured client data
 const featuredClient = {
@@ -514,6 +515,16 @@ export default function WebDevelopment() {
               </div> */}
             </div>
           </section>
+
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-wd-contact-form"
+            contactFormType="service-wd-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
 
           {/* CTA Section */}
           <section className="py-12 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">

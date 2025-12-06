@@ -33,6 +33,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { DedicatedResourcesSchema } from "@/utils/all-schemas";
 import { navigate } from "wouter/use-browser-location";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 export default function DedicatedResources() {
   const [currentPhase, setCurrentPhase] = useState(0);
@@ -1340,6 +1341,16 @@ export default function DedicatedResources() {
               </div>
             </div>
           </section>
+
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-dr-contact-form"
+            contactFormType="service-dr-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
 
           {/* CTA Section */}
           <section className="py-16 px-4 bg-brand-purple text-white">
