@@ -66,7 +66,7 @@
 
 //   const openCalendly = () => {
 //     // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank');
-//     window.open('/book-appiontment', '_blank');
+//     window.open('/book-appointment', '_blank');
 //   };
 
 //   const [formData, setFormData] = useState({
@@ -1006,21 +1006,7 @@ import { ThankYouPopup } from "@/components/thank-you-popup";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useRegion } from "@/hooks/use-region";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import {
   CheckCircle,
@@ -1036,7 +1022,7 @@ import {
   TrendingUp,
   Heart,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+
 import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
 import bniLogo from "@assets/bni_1752907520728.jpg";
 import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
@@ -1058,16 +1044,15 @@ import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
 import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
-import PhoneInput, { CountryData } from "react-phone-input-2";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png";
-import { AppointmentCalendar } from "@/components/book-appoinment";
+import { AppointmentCalendar, BookCallButtonWithModal } from "@/components/book-appoinment";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import Mark_Image from "../../public/images/Mark.png";
 import Dani_Image from "../../public/images/Dani.png";
 import Gemma_Image from "../../public/images/Gemma.png";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 // ✅ Regional Partners type + data
 type RegionalPartnersMember = {
@@ -1125,34 +1110,6 @@ const regionalPartners: RegionalPartnersMember[] = [
   },
 ];
 
-// ✅ Phone placeholders per country (extend as needed)
-const phonePlaceholders: Record<string, string> = {
-  us: "(201) 555-0123",
-  gb: "07123 456789",
-  in: "98765 43210",
-  au: "0400 000 000",
-};
-
-// ✅ Form types for validation
-interface FormState {
-  name: string;
-  email: string;
-  phone: string;
-  countryCode: string;
-  agencyName: string;
-  servicesInterested: string;
-  subServices: string[];
-  message: string;
-}
-
-interface FormErrors {
-  name?: string;
-  email?: string;
-  phone?: string;
-  servicesInterested?: string;
-  subServices?: string;
-}
-
 export default function Home() {
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -1164,8 +1121,8 @@ export default function Home() {
         hash === "#newsletter"
           ? "newsletter"
           : hash === "#book-appointment"
-            ? "book-appointment"
-            : null;
+          ? "book-appointment"
+          : null;
 
       if (!targetId) return;
 
@@ -1187,25 +1144,6 @@ export default function Home() {
 
     setTimeout(handleScrollToSection, 50);
   }, []);
-
-  // 🌍 Auto-detect country for phone input
-  const [countryCode, setCountryCode] = useState<string>("");
-
-  useEffect(() => {
-    try {
-      const locale = Intl.DateTimeFormat().resolvedOptions().locale; 
-      const region = locale.split("-")[1]?.toLowerCase();
-      if (region) {
-        setCountryCode(region);
-      }
-    } catch {
-      // keep default "us"
-    }
-  }, []);
-
-  const { regionConfig } = useRegion();
-  const { toast } = useToast();
-  const [showThankYouPopup, setShowThankYouPopup] = useState(false);
 
   // Newsletter CTA state (for home page CTA section)
   const [newsletterName, setNewsletterName] = useState("");
@@ -1247,173 +1185,10 @@ export default function Home() {
     }
   };
 
-  const openCalendly = () => {
-    // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank'); Raje Calendar - https://calendar.app.google/Y8XZq71qtvPRhktH9
-    window.open("/book-appiontment", "_blank");
-  };
-
-  const [formData, setFormData] = useState<FormState>({
-    name: "",
-    email: "",
-    phone: "",
-    countryCode: "",
-    agencyName: "",
-    servicesInterested: "",
-    subServices: [],
-    message: "",
-  });
-
-  // 🔥 errors for validation
-  const [errors, setErrors] = useState<FormErrors>({});
-
-  const handleInputChange = (field: keyof FormState, value: string) => {
-    setFormData((prev) => {
-      // Reset sub-services when main service changes
-      if (field === "servicesInterested") {
-        return { ...prev, [field]: value, subServices: [] };
-      }
-      return { ...prev, [field]: value };
-    });
-
-    // clear field error on change
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
-  };
-
-  const handleSubServiceChange = (subService: string, checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      subServices: checked
-        ? [...prev.subServices, subService]
-        : prev.subServices.filter((s) => s !== subService),
-    }));
-
-    // clear subServices error when user selects something
-    setErrors((prev) => ({ ...prev, subServices: undefined }));
-  };
-
-  // ✅ validate form before submit
-  const validateForm = () => {
-    const newErrors: FormErrors = {};
-
-    // Name
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required.";
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters.";
-    }
-
-    // Email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!emailRegex.test(formData.email.trim())) {
-      newErrors.email = "Enter a valid email address.";
-    }
-
-    // Phone — REQUIRED + proper format via libphonenumber-js
-    if (!formData.phone) {
-      newErrors.phone = "Phone number is required.";
-    } else {
-      const phoneNumber = parsePhoneNumberFromString(`+${formData.phone}`);
-      if (!phoneNumber || !phoneNumber.isValid()) {
-        newErrors.phone = "Enter a valid phone number.";
-      }
-    }
-
-    // Service
-    if (!formData.servicesInterested) {
-      newErrors.servicesInterested = "Select a service.";
-    }
-
-    // Sub-services when service chosen
-    if (formData.servicesInterested && formData.subServices.length === 0) {
-      newErrors.subServices = "Select at least one option.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const contactMutation = useMutation({
-    mutationFn: async (data: any) => {
-      return await apiRequest("/api/contacts", "POST", data);
-    },
-    onSuccess: () => {
-      setShowThankYouPopup(true);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        countryCode: "",
-        agencyName: "",
-        servicesInterested: "",
-        subServices: [],
-        message: "",
-      });
-      setErrors({});
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description:
-          error.message || "Failed to send message. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      toast({
-        title: "Please fix the highlighted errors",
-        description: "Some required fields are missing or invalid.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Build comprehensive submission message
-    let comprehensiveMessage = `Home Page Contact Form Submission`;
-
-    if (formData.servicesInterested) {
-      comprehensiveMessage += `\n\n📋 SERVICES REQUESTED:\n• Primary Service: ${formData.servicesInterested}`;
-
-      if (formData.subServices.length > 0) {
-        comprehensiveMessage += `\n• Sub-services: ${formData.subServices.join(
-          ", "
-        )}`;
-      }
-    }
-
-    if (formData.message) {
-      comprehensiveMessage += `\n\n💬 CUSTOMER MESSAGE:\n${formData.message}`;
-    }
-
-    comprehensiveMessage += `\n\n📍 REGION: ${regionConfig.name}`;
-
-    // Build submission data with comprehensive details
-    const submissionData = {
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone || "",
-      company: formData.agencyName || "Not provided",
-      inquiry_type: "home-contact-form",
-      message: comprehensiveMessage,
-      preferred_contact: "email",
-      country: regionConfig.name,
-      topPriority: formData.servicesInterested || "general-inquiry",
-      agencyName: formData.agencyName,
-      service: formData.servicesInterested,
-      servicesSelected:
-        formData.subServices.length > 0 ? formData.subServices : undefined,
-      contactFormType: "home-contact-form",
-      phoneCountry: formData.countryCode || countryCode,
-    };
-
-    contactMutation.mutate(submissionData);
-  };
+  // const openCalendly = () => {
+  //   // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank'); Raje Calendar - https://calendar.app.google/Y8XZq71qtvPRhktH9
+  //   window.open("/book-appointment", "_blank");
+  // };
 
   const services = [
     {
@@ -1570,16 +1345,12 @@ export default function Home() {
                       </Link>
                     </Button>
 
-                    <Button
-                      size="lg"
+                    <BookCallButtonWithModal
+                      buttonLabel="Book a strategy call"
                       className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
-                      onClick={openCalendly}
-                    >
-                      <span className="hidden sm:inline">
-                        Book Free Strategy Call
-                      </span>
-                      <span className="sm:hidden">Book Call</span>
-                    </Button>
+                      buttonSize="lg"
+                      // defaultServiceType="Website Development"
+                    />
                   </div>
                 </div>
 
@@ -1627,7 +1398,6 @@ export default function Home() {
                         <p className="text-sm sm:text-base text-gray-700 leading-relaxed line-clamp-4 min-h-[80px]">
                           {service.description}
                         </p>
-
                       </CardHeader>
 
                       {/* BODY */}
@@ -1918,8 +1688,10 @@ export default function Home() {
                 your workflows and client delivery.
               </p>
 
-              <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12
-              border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
+              <div
+                className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12
+              border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto"
+              >
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
@@ -1991,472 +1763,15 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Contact Form Section */}
-          <section className="py-14 sm:py-16 px-4 sm:px-6 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-                  Ready to Scale Your Agency?
-                </h2>
-                <p className="text-sm sm:text-base md:text-lg text-gray-700 px-2 sm:px-0 max-w-2xl mx-auto">
-                  Get a free consultation and discover how we can help you grow.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-                {/* Left Column - Strategy Call Agenda */}
-                <div className="space-y-6">
-                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 sm:p-8 rounded-xl border border-purple-100">
-                    <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-                      What to Expect in Your 30-Minute Strategy Call
-                    </h3>
-                    <ul className="space-y-4">
-                      {[
-                        {
-                          title: "Business Discovery",
-                          desc: "Understanding your current agency setup, services, and target market",
-                        },
-                        {
-                          title: "Challenge Identification",
-                          desc: "Pinpointing specific pain points and growth bottlenecks you're facing",
-                        },
-                        {
-                          title: "Collaboration Opportunities",
-                          desc: "Exploring how our services can complement your existing offerings",
-                        },
-                        {
-                          title: "Resource Assessment",
-                          desc: "Determining what type of support would best accelerate your growth",
-                        },
-                        {
-                          title: "Partnership Benefits",
-                          desc: "Discussing mutual opportunities for long-term collaboration",
-                        },
-                        {
-                          title: "Next Steps",
-                          desc: "Outlining a clear action plan if there's a good fit between our businesses",
-                        },
-                      ].map((item, idx) => (
-                        <li key={idx} className="flex items-start space-x-3">
-                          <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                          <div>
-                            <span className="font-semibold text-gray-900 text-sm sm:text-base">
-                              {item.title}
-                            </span>
-                            <p className="text-gray-700 text-xs sm:text-sm mt-1">
-                              {item.desc}
-                            </p>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-6 pt-2 border-t border-purple-200">
-                      <p className="text-xs sm:text-sm text-gray-700 italic">
-                        This call is designed to be a genuine business-to-business
-                        conversation focused on mutual growth and partnership
-                        opportunities.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right Column - Contact Form */}
-                <div>
-                  <Card className="shadow-xl">
-                    <CardHeader>
-                      <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl">
-                        Schedule Strategy Call
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label
-                              htmlFor="name"
-                              className="text-sm font-medium text-gray-700"
-                            >
-                              Name *
-                            </Label>
-                            <Input
-                              id="name"
-                              type="text"
-                              value={formData.name}
-                              onChange={(e) =>
-                                handleInputChange("name", e.target.value)
-                              }
-                            />
-                            {errors.name && (
-                              <p className="text-xs text-red-500 mt-1">
-                                {errors.name}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <Label
-                              htmlFor="email"
-                              className="text-sm font-medium text-gray-700"
-                            >
-                              Email *
-                            </Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={formData.email}
-                              onChange={(e) =>
-                                handleInputChange("email", e.target.value)
-                              }
-                            />
-                            {errors.email && (
-                              <p className="text-xs text-red-500 mt-1">
-                                {errors.email}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label
-                              htmlFor="phone"
-                              className="text-sm font-medium text-gray-700"
-                            >
-                              Phone *
-                            </Label>
-
-                            <PhoneInput
-                              country={countryCode as any}
-                              value={formData.phone}
-                              onChange={(value, data: CountryData) => {
-                                if (data?.countryCode) {
-                                  const cc = data.countryCode.toLowerCase();
-                                  setCountryCode(cc);
-                                  handleInputChange("countryCode", cc);
-                                }
-                                handleInputChange("phone", value);
-                              }}
-                              inputProps={{
-                                name: "phone",
-                                className:
-                                  "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
-                                placeholder:
-                                  phonePlaceholders[countryCode] ||
-                                  "Enter your phone number",
-                              }}
-                              containerClass="w-full"
-                              isValid={(value: string) => {
-                                if (!value) return true; 
-                                const phoneNumber =
-                                  parsePhoneNumberFromString(`+${value}`);
-                                return phoneNumber
-                                  ? phoneNumber.isValid()
-                                  : ""
-                                  // "Invalid phone number";
-                              }}
-                            />
-                            {errors.phone && (
-                              <p className="text-xs text-red-500 mt-1">
-                                {errors.phone}
-                              </p>
-                            )}
-                          </div>
-                          <div>
-                            <Label
-                              htmlFor="agencyName"
-                              className="text-sm font-medium text-gray-700"
-                            >
-                              Agency Name
-                            </Label>
-                            <Input
-                              id="agencyName"
-                              type="text"
-                              value={formData.agencyName}
-                              onChange={(e) =>
-                                handleInputChange("agencyName", e.target.value)
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <Label
-                            htmlFor="servicesInterested"
-                            className="text-sm font-medium text-gray-700"
-                          >
-                            Services Interested In *
-                          </Label>
-                          <Select
-                            value={formData.servicesInterested}
-                            onValueChange={(value) =>
-                              handleInputChange("servicesInterested", value)
-                            }
-                          >
-                            <SelectTrigger aria-label="Select services interested in">
-                              <SelectValue placeholder="Select services" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="SEO Services">
-                                SEO/AIO Services
-                              </SelectItem>
-                              <SelectItem value="PPC/Google Ads">
-                                PPC/Google Ads
-                              </SelectItem>
-                              <SelectItem value="Website Development">
-                                Website Development
-                              </SelectItem>
-                              <SelectItem value="Custom Web & Mobile Application Development (AI-Powered)">
-                                Custom Web & Mobile Application Development (AI-Powered)
-                              </SelectItem>
-                              <SelectItem value="Dedicated Resource">
-                                Dedicated Resource
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          {errors.servicesInterested && (
-                            <p className="text-xs text-red-500 mt-1">
-                              {errors.servicesInterested}
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Sub-Service Selection */}
-                        {formData.servicesInterested && (
-                          <div className="space-y-4">
-                            <Label className="text-sm font-medium text-gray-700">
-                              What are you specifically looking for in{" "}
-                              {formData.servicesInterested}
-                              ? *
-                            </Label>
-                            <div className="grid grid-cols-1 gap-3">
-                              {/* SEO Services Options */}
-                              {formData.servicesInterested === "SEO Services" && (
-                                <>
-                                  {[
-                                    "Link building",
-                                    "Local SEO",
-                                    "Technical SEO audit & fixes",
-                                    "Content marketing & SEO Blogging",
-                                    "E-Commerce SEO",
-                                  ].map((option) => (
-                                    <div
-                                      key={option}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Checkbox
-                                        id={option}
-                                        checked={formData.subServices.includes(
-                                          option
-                                        )}
-                                        onCheckedChange={(checked) =>
-                                          handleSubServiceChange(option, !!checked)
-                                        }
-                                      />
-                                      <Label
-                                        htmlFor={option}
-                                        className="text-sm font-medium text-gray-700 cursor-pointer"
-                                      >
-                                        {option}
-                                      </Label>
-                                    </div>
-                                  ))}
-                                </>
-                              )}
-
-                              {/* PPC/Google Ads Options */}
-                              {formData.servicesInterested === "PPC/Google Ads" && (
-                                <>
-                                  {[
-                                    "Starter Package",
-                                    "Growth Package",
-                                    "Scale Package",
-                                  ].map((option) => (
-                                    <div
-                                      key={option}
-                                      className="flex items-center space-x-2"
-                                    >
-                                      <Checkbox
-                                        id={option}
-                                        checked={formData.subServices.includes(
-                                          option
-                                        )}
-                                        onCheckedChange={(checked) =>
-                                          handleSubServiceChange(option, !!checked)
-                                        }
-                                      />
-                                      <Label
-                                        htmlFor={option}
-                                        className="text-sm font-medium text-gray-700 cursor-pointer"
-                                      >
-                                        {option}
-                                      </Label>
-                                    </div>
-                                  ))}
-                                </>
-                              )}
-
-                              {/* Website Development Options */}
-                              {formData.servicesInterested ===
-                                "Website Development" && (
-                                  <>
-                                    {[
-                                      "WordPress",
-                                      "Shopify",
-                                      "BigCommerce",
-                                      "Custom Coded",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(option, !!checked)
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
-
-                              {/* Dedicated Resource Options */}
-                              {formData.servicesInterested ===
-                                "Dedicated Resource" && (
-                                  <>
-                                    {[
-                                      "Graphic Designer",
-                                      "Video Editor",
-                                      "SEO Specialist",
-                                      "Google Ads Expert",
-                                      "Web Developer",
-                                      "Full-Stack Developer",
-                                      "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(option, !!checked)
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
-
-                              {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
-                              {formData.servicesInterested ===
-                                "Custom Web & Mobile Application Development (AI-Powered)" && (
-                                  <>
-                                    {[
-                                      // AI-focused
-                                      "AI Powered web app/Mobile app development",
-                                      "AI Agentic Platform development",
-                                      "AI Integration into existing platforms",
-                                      // Mobile app focused
-                                      "Prototype / MVP Mobile App",
-                                      "Full-Scale Production App",
-                                      "iOS & Android App (Native/Hybrid)",
-                                      "Web + Mobile App Bundle",
-                                      "Redesign / Rebuild Existing App",
-                                      "Ongoing Maintenance & Feature Updates",
-                                    ].map((option) => (
-                                      <div
-                                        key={option}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <Checkbox
-                                          id={option}
-                                          checked={formData.subServices.includes(
-                                            option
-                                          )}
-                                          onCheckedChange={(checked) =>
-                                            handleSubServiceChange(option, !!checked)
-                                          }
-                                        />
-                                        <Label
-                                          htmlFor={option}
-                                          className="text-sm font-medium text-gray-700 cursor-pointer"
-                                        >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
-                                  </>
-                                )}
-                            </div>
-                            {errors.subServices && (
-                              <p className="text-xs text-red-500 mt-1">
-                                {errors.subServices}
-                              </p>
-                            )}
-                          </div>
-                        )}
-
-                        <div>
-                          <Label
-                            htmlFor="message"
-                            className="text-sm font-medium text-gray-700"
-                          >
-                            Message
-                          </Label>
-                          <Textarea
-                            id="message"
-                            rows={4}
-                            value={formData.message}
-                            onChange={(e) =>
-                              handleInputChange("message", e.target.value)
-                            }
-                            placeholder="Tell us about your agency and goals..."
-                          />
-                        </div>
-
-                        <Button
-                          type="submit"
-                          disabled={contactMutation.isPending}
-                          className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
-                        >
-                          {contactMutation.isPending
-                            ? "Submitting..."
-                            : "Submit Form"}
-                        </Button>
-                      </form>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-
-              <ThankYouPopup
-                isOpen={showThankYouPopup}
-                onClose={() => setShowThankYouPopup(false)}
-                title="Thank You for Submitting!"
-                message="We've received your strategy request and will get back to you within 24 hours to discuss how we can help scale your agency."
-                formType="strategy"
-              />
-            </div>
-          </section>
-
+          {/* Contact Form Section (now a reusable component) */}
+          <AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="home-contact-form"
+            contactFormType="home-contact-form"
+            submissionSourceLabel="Home Page Contact Form Submission"
+          />
 
           {/* Book Appointment Section */}
           <section
@@ -2487,10 +1802,7 @@ export default function Home() {
           </section>
 
           {/* Testimonials – Card + Screenshot Style */}
-          <section
-            id="testimonials"
-            className="py-12 sm:py-16 px-4 bg-white"
-          >
+          <section id="testimonials" className="py-12 sm:py-16 px-4 bg-white">
             <div className="max-w-6xl mx-auto text-center">
               {/* Header */}
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
@@ -2502,7 +1814,6 @@ export default function Home() {
 
               {/* Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-
                 {/* Mark Muse */}
                 <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-6 flex flex-col items-center text-center">
@@ -2511,7 +1822,8 @@ export default function Home() {
                     <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
                       Brandingbeez understood not only the technical challenges but was also completely
                       responsive throughout..
-                      <br /><br />
+                      <br />
+                      <br />
                       They the provided framework, assets, and vision into a beautiful website tailored
                       to a high-ticket offering, helping the end client stay competitive. The team stayed
                       responsive and aware of the technical challenges, even with multiple change requests
@@ -2534,7 +1846,6 @@ export default function Home() {
                 {/* Daniel Fechete */}
                 <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-6 flex flex-col items-center text-center">
-
                     <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
 
                     <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
@@ -2561,7 +1872,6 @@ export default function Home() {
                 {/* Gemma Murphy */}
                 <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-6 flex flex-col items-center text-center">
-
                     <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
 
                     <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
@@ -2584,13 +1894,15 @@ export default function Home() {
                     <p className="text-gray-500 text-xs sm:text-sm">Founder, Website Architect</p>
                   </CardContent>
                 </Card>
-
               </div>
             </div>
           </section>
 
           {/* Newsletter CTA Section (inline newsletter page design) */}
-          <section id="newsletter" className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">
+          <section
+            id="newsletter"
+            className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
+          >
             <div className="max-w-6xl mx-auto">
               {/* HEADER */}
               <div className="text-center mb-5">
@@ -2671,7 +1983,6 @@ export default function Home() {
                   )}
                 </div>
               </div>
-
             </div>
 
             <ThankYouPopup
@@ -2696,3 +2007,4 @@ export default function Home() {
     </>
   );
 }
+

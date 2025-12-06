@@ -10,6 +10,7 @@ import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
 import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 import superbLogo from "../../public/images/superb.png";
 import semrushLogo from "../../public/images/Semrush.svg";
+import { BookCallButtonWithModal } from "./book-appoinment";
 
 export default function Footer() {
   const { regionConfig } = useRegion();
@@ -169,14 +170,22 @@ export default function Footer() {
                 </a>
               </li>
               <li className="text-sm">
-                <a
+                {/* <a
                   // href="https://calendly.com/vignesh-velusamy/30min" 
-                  href="/book-appiontment"
+                  href="/book-appointment"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-brand-coral rand-coral-light transition-colors touch-manipulation">
                   Book Consultation
-                </a>
+                </a> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Consultation"
+                  // make it look like a text link (no bg, no padding)
+                  buttonVariant="ghost"
+                  className="p-0 h-auto bg-transparent hover:bg-transparent text-brand-coral hover:text-brand-coral-light transition-colors touch-manipulation"
+                // buttonSize="sm" 
+                // defaultServiceType="Website Development" 
+                />
               </li>
             </ul>
           </div>

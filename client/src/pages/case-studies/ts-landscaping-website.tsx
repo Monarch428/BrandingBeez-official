@@ -34,6 +34,7 @@ import { TSLandscapingSchema } from "@/utils/all-schemas";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
 import tsl_Logo from "../../../public/images/TSL_Logo.png";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 // Image imported directly in the component
 
 export default function TSLandscapingCaseStudy() {
@@ -95,19 +96,26 @@ export default function TSLandscapingCaseStudy() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-white text-brand-purple hover:bg-white/90"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       Start Your Website
                       <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Schedule a Free Consultation"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      buttonSize="lg"
+                      buttonVariant="outline"
+                      defaultServiceType="Website Development"
+                    />
                   </div>
                 </div>
 
@@ -243,19 +251,26 @@ export default function TSLandscapingCaseStudy() {
                     build can do for your local service business.
                   </h3>
                 </div>
-                <Button
+                {/* <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <Search className="w-4 h-4 mr-2" />
                   Request Free Website Review
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Request a Strategy Consultation"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Website Development"
+                />
               </div>
             </div>
           </section>
@@ -477,19 +492,26 @@ export default function TSLandscapingCaseStudy() {
                         playbook fits your goals and timeline.
                       </p>
                     </div>
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Talk to the Web Team
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to the DEvelopment Team"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      buttonSize="lg"
+                      buttonVariant="default"
+                      defaultServiceType="Website Development"
+                    />
                   </div>
                 </Card>
               </div>
@@ -647,11 +669,11 @@ export default function TSLandscapingCaseStudy() {
                 for their website development needs.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
@@ -659,7 +681,14 @@ export default function TSLandscapingCaseStudy() {
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Free Website Consultation
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Website Development"
+                />
                 <Button
                   asChild
                   size="lg"

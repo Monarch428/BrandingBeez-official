@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { navigate } from "wouter/use-browser-location";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 // Featured Google Ads client data
 const featuredClient = {
@@ -298,7 +299,7 @@ export default function GoogleAds() {
 
                   <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <Button className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple" asChild>
-                      <Link href="/contact">
+                      <Link href="/contact?service=google-ads&/#contact-form">
                         Start Your Campaign
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Link>
@@ -615,8 +616,8 @@ export default function GoogleAds() {
                               <ArrowRight className="w-4 h-4 ml-2" />
                             </Link>
                           </Button> */}
-                          <a
-                            href="/book-appiontment/"
+                          {/* <a
+                            href="/book-appointment/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full"
@@ -628,7 +629,14 @@ export default function GoogleAds() {
                               Schedule Consultation
                               <Calendar className="w-4 h-4 ml-2" />
                             </Button>
-                          </a>
+                          </a> */}
+                          <BookCallButtonWithModal
+                            buttonLabel="Schedule Consultation"
+                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                            buttonSize="lg"
+                            buttonVariant="outline"
+                            defaultServiceType="Google Ads"
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -646,7 +654,7 @@ export default function GoogleAds() {
                   className="border-2 border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white transition-colors"
                   onClick={() =>
                     // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank")
-                    window.open("/book-appiontment", "_blank")
+                    window.open("/book-appointment", "_blank")
                   }
                 >
                   Contact Us for Enterprise Pricing

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Calculator, Users, DollarSign } from "lucide-react";
+import { BookCallButtonWithModal } from "./book-appoinment";
 
 interface ResourceSelection {
   type: string;
@@ -139,7 +140,7 @@ export function DedicatedResourcePricing() {
     const resourceBreakdown = selectedResources.map(resource => {
       const config = resourceConfigs[resource];
       const basePrice = basePricing[resource][config.skillLevel];
-      
+
       // Apply team discount to base price
       const discountedPrice = basePrice * (1 - teamDiscountRate);
       const total = discountedPrice * config.candidates;
@@ -272,9 +273,9 @@ export function DedicatedResourcePricing() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor={`skill-${resource}`}>Skill Level</Label>
-                          <Select 
-                            value={resourceConfigs[resource]?.skillLevel || 'mid'} 
-                            onValueChange={(value: 'junior' | 'mid' | 'senior') => 
+                          <Select
+                            value={resourceConfigs[resource]?.skillLevel || 'mid'}
+                            onValueChange={(value: 'junior' | 'mid' | 'senior') =>
                               updateResourceConfig(resource, 'skillLevel', value)
                             }
                           >
@@ -290,9 +291,9 @@ export function DedicatedResourcePricing() {
                         </div>
                         <div>
                           <Label htmlFor={`candidates-${resource}`}>Number of Candidates</Label>
-                          <Select 
-                            value={resourceConfigs[resource]?.candidates?.toString() || '1'} 
-                            onValueChange={(value) => 
+                          <Select
+                            value={resourceConfigs[resource]?.candidates?.toString() || '1'}
+                            onValueChange={(value) =>
                               updateResourceConfig(resource, 'candidates', parseInt(value))
                             }
                           >
@@ -393,15 +394,21 @@ export function DedicatedResourcePricing() {
               </div>
             </div>
 
-            {/* Call to Action */}
+            {/* Call to Action */}{/* https://calendly.com/vignesh-velusamy/30min */}
             <div className="text-center">
-              <Button 
-                size="lg" 
+              {/* <Button
+                size="lg"
                 className="bg-brand-coral hover:bg-brand-coral/90 text-white px-6 sm:px-8 py-2.5 sm:py-3 w-full sm:w-auto text-sm sm:text-base"
-                onClick={() => window.open('/book-appiontment', '_blank')}
-              > {/* https://calendly.com/vignesh-velusamy/30min */}
+                onClick={() => window.open('/book-appointment', '_blank')}
+              > 
                 Schedule Consultation
-              </Button>
+              </Button> */}
+              <BookCallButtonWithModal
+                buttonLabel="Book a strategy call"
+                className="bg-brand-coral hover:bg-brand-coral/90 text-white px-6 sm:px-8 py-2.5 sm:py-3 w-full sm:w-auto text-sm sm:text-base"
+                buttonSize="lg"
+              // defaultServiceType="Website Development"
+              />
               <p className="text-xs sm:text-sm text-gray-600 mt-2 px-2 sm:px-0">
                 Book a free call to discuss your requirements and finalize the team setup
               </p>

@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 const AiSearchOptimizationSchema = {
     "@context": "https://schema.org",
@@ -204,21 +205,28 @@ export default function AiSearchOptimization() {
                                                 <ArrowRight className="w-5 h-5 ml-2" />
                                             </Button>
                                         </Link> */}
-                                        <Button
+                                        {/* <Button
                                             size="lg"
                                             className="border-white text-white hover:border-white px-8"
                                             asChild
                                         >
                                             <a
-                                                href="/book-appiontment"
+                                                href="/book-appointment"
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >
                                                 Book AIO Strategy Call
                                                 <ArrowRight className="ml-2 h-4 w-4" />
                                             </a>
-                                        </Button>
-                                        {/* <Link href="/book-appiontment">
+                                        </Button> */}
+                                        <BookCallButtonWithModal
+                                            buttonLabel="Book AIO Strategy Call"
+                                            className="border-white text-white hover:border-white px-8"
+                                            buttonSize="lg"
+                                            // buttonVariant="outline"
+                                            defaultServiceType="SEO / AIO Services"
+                                        />
+                                        {/* <Link href="/book-appointment">
                                             <Button
                                                 variant="outline"
                                                 size="lg"
@@ -979,19 +987,26 @@ export default function AiSearchOptimization() {
                                 “answer-worthy.”
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Button
+                                {/* <Button
                                     size="lg"
                                     className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple px-8"
                                     asChild
                                 >
                                     <a
-                                        href="/book-appiontment"
+                                        href="/book-appointment"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     > <Calendar className="w-5 h-5 mr-1" />
                                         Book AIO Strategy Call
                                     </a>
-                                </Button>
+                                </Button> */}
+                                <BookCallButtonWithModal
+                                    buttonLabel="Book AIO Strategy Call"
+                                    className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple px-8"
+                                    buttonSize="lg"
+                                    buttonVariant="outline"
+                                    defaultServiceType="SEO / AIO Services"
+                                />
 
                                 <Link href="/pricing-calculator?service=seo">
                                     <Button

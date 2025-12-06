@@ -1134,6 +1134,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { navigate } from "wouter/use-browser-location";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 const applicationTypes = [
   "Mobile App (iOS)",
@@ -1364,8 +1365,8 @@ export default function CustomAppDevelopment() {
                   </p>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <a
-                      href="/book-appiontment/"
+                    {/* <a
+                      href="/book-appointment/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full"
@@ -1377,7 +1378,14 @@ export default function CustomAppDevelopment() {
                         <Calendar className="w-4 h-4 mr-2" />
                         Book a Consultation
                       </Button>
-                    </a>
+                    </a> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Book a Strategy Call"
+                      className="w-full h-11 px-4 font-medium text-sm text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                      buttonSize="lg"
+                      buttonVariant="outline"
+                      defaultServiceType="Custom Web & Mobile Application Development (AI-Powered)"
+                    />
                     <Button
                       size="lg"
                       variant="outline"
@@ -1564,19 +1572,26 @@ export default function CustomAppDevelopment() {
                     the first 90 days.
                   </h3>
                 </div>
-                <Button
+                {/* <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <MonitorSmartphone className="w-4 h-4 mr-2" />
                   Request App Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Request App Strategy Call"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  buttonSize="lg"
+                  // buttonVariant="outline"
+                  defaultServiceType="Custom Web & Mobile Application Development (AI-Powered)"
+                />
               </div>
             </div>
           </section>
@@ -2193,19 +2208,26 @@ export default function CustomAppDevelopment() {
                         without AI in v1.
                       </p>
                     </div>
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Talk to the Product Team
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to the Product Team"
+                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                      buttonSize="lg"
+                      // buttonVariant="outline"
+                      defaultServiceType="Custom Web & Mobile Application Development (AI-Powered)"
+                    />
                   </div>
                 </Card>
               </div>
@@ -2758,19 +2780,26 @@ export default function CustomAppDevelopment() {
                 ship a reliable, scalable build with a polished user experience.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book Your Free Build Consultation
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Build Consultation"
+                  className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                  buttonSize="lg"
+                  // buttonVariant="outline"
+                  defaultServiceType="Custom Web & Mobile Application Development (AI-Powered)"
+                />
                 <Button
                   size="lg"
                   variant="outline"
