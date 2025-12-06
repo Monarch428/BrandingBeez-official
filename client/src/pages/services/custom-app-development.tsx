@@ -1134,6 +1134,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { navigate } from "wouter/use-browser-location";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 const applicationTypes = [
   "Mobile App (iOS)",
@@ -2745,6 +2746,16 @@ export default function CustomAppDevelopment() {
               </div>
             </div>
           </section>
+
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-cad-contact-form"
+            contactFormType="service-cad-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
 
           {/* CTA */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">

@@ -21,6 +21,7 @@ import {
   Settings,
   TrendingUp
 } from "lucide-react";
+import AgencyContactSection from "@/components/agency-contact-section";
 
 export default function N8NAutomations() {
   return (
@@ -194,6 +195,16 @@ export default function N8NAutomations() {
           </div>
         </section>
 
+{/* Contact Form Section (now a reusable component) */}
+<AgencyContactSection
+            sectionId="contact-form"
+            heading="Ready to Scale Your Agency?"
+            subheading="Get a free consultation and discover how we can help you grow."
+            inquiryType="service-contact-form"
+            contactFormType="service-contact-form"
+            submissionSourceLabel="Service Page Contact Form Submission"
+          />
+          
         {/* CTA Section */}
         <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
           <div className="max-w-4xl mx-auto text-center">
