@@ -214,21 +214,26 @@
 // --------------------------------------------------------------------------------- //
 
 
+// src/server/appointments-router.ts
 import express, { Request, Response } from "express";
 import { storage } from "./storage";
-import { sendAppointmentNotification } from "./email-service";
+import {
+  sendAppointmentNotification,
+  sendAppointmentConfirmationEmails,
+} from "./email-service";
 import { createGoogleMeetEvent } from "./google-calendar";
+import { AppointmentStatus } from "@shared/schema";
 
 const router = express.Router();
 
 // --- Types -------------------------------------------------------
 
-type AppointmentStatus = "booked" | "cancelled" | "completed";
+type SlotStatus = "available" | AppointmentStatus;
 
 interface AppointmentSlot {
-  startTime: string; // "HH:mm"
-  endTime: string;   // "HH:mm"
-  status: "available" | AppointmentStatus;
+  startTime: string; 
+  endTime: string;   
+  status: SlotStatus;
   appointmentId?: number;
 }
 
@@ -238,9 +243,12 @@ interface CreateAppointmentBody {
   phone?: string;
   serviceType?: string;
   notes?: string;
-  date: string; // "YYYY-MM-DD"
-  startTime: string; // "HH:mm"
-  endTime: string; // "HH:mm"
+  date: string;        // "YYYY-MM-DD"
+  startTime: string;   // "HH:mm"
+  endTime: string;     // "HH:mm"
+
+  // ✅ NEW
+  guestEmails?: string[];
 }
 
 // Generates 30-minute slots between 16:00 (4 PM) and 23:00 (11 PM)
@@ -248,12 +256,9 @@ function generateDailySlots(): Array<
   Pick<AppointmentSlot, "startTime" | "endTime">
 > {
   const slots: { startTime: string; endTime: string }[] = [];
-
-  // Start at 16:00 (4 PM)
   let hour = 16;
   let minute = 0;
 
-  // End at 23:00 – last slot will be 22:30–23:00
   while (hour < 23) {
     const start = `${hour.toString().padStart(2, "0")}:${minute
       .toString()
@@ -280,7 +285,6 @@ function generateDailySlots(): Array<
 }
 
 // --- GET /api/appointments/slots?date=YYYY-MM-DD ------------------
-// (assuming this router is mounted at /api)
 router.get("/appointments/slots", async (req: Request, res: Response) => {
   try {
     const date = (req.query.date as string) || "";
@@ -288,8 +292,6 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
     if (!date) {
       return res.status(400).json({ message: "date query param is required" });
     }
-
-    // You may add extra validation for date format here if you like
 
     const appointments = await storage.getAppointmentsByDate(date);
     const baseSlots = generateDailySlots();
@@ -335,12 +337,20 @@ router.post("/appointments", async (req: Request, res: Response) => {
       date,
       startTime,
       endTime,
+      guestEmails,
     } = (req.body || {}) as CreateAppointmentBody;
 
     // Basic validation
     if (!name || !email || !date || !startTime || !endTime) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+
+    // Normalise guest emails array
+    const cleanGuestEmails: string[] = Array.isArray(guestEmails)
+      ? guestEmails
+          .map((g) => (typeof g === "string" ? g.trim() : ""))
+          .filter((g) => !!g)
+      : [];
 
     // Check if slot already booked (booked or completed – ignore cancelled)
     const existing = await storage.getAppointmentsByDate(date);
@@ -357,7 +367,7 @@ router.post("/appointments", async (req: Request, res: Response) => {
         .json({ message: "This time slot is already booked" });
     }
 
-    // ✅ Try to create Google Meet event
+    // ✅ Try to create Google Meet event (with main attendee + guests)
     let meetingLink: string | undefined;
 
     try {
@@ -371,6 +381,9 @@ router.post("/appointments", async (req: Request, res: Response) => {
       if (phone) descriptionLines.push(`Phone: ${phone}`);
       if (serviceType) descriptionLines.push(`Service: ${serviceType}`);
       if (notes) descriptionLines.push(`Notes: ${notes}`);
+      if (cleanGuestEmails.length) {
+        descriptionLines.push(`Guests: ${cleanGuestEmails.join(", ")}`);
+      }
       const description = descriptionLines.join("\n");
 
       const { meetingLink: createdLink } = await createGoogleMeetEvent({
@@ -381,6 +394,7 @@ router.post("/appointments", async (req: Request, res: Response) => {
         endTime,
         attendeeEmail: email,
         attendeeName: name,
+        guestEmails: cleanGuestEmails,
       });
 
       meetingLink = createdLink;
@@ -402,26 +416,36 @@ router.post("/appointments", async (req: Request, res: Response) => {
       startTime,
       endTime,
       meetingLink,
+      guestEmails: cleanGuestEmails,
     });
 
-    // 📧 Fire-and-forget email to Pradeep (admin)
+    const payload = {
+      id: created.id,
+      name: created.name,
+      email: created.email,
+      phone: created.phone,
+      serviceType: (created as any).serviceType,
+      notes: (created as any).notes,
+      date: created.date,
+      startTime: created.startTime,
+      endTime: created.endTime,
+      meetingLink: (created as any).meetingLink,
+      createdAt: (created as any).createdAt || new Date(),
+      guestEmails: (created as any).guestEmails || cleanGuestEmails,
+    };
+
+    // 📧 Admin notification
     try {
-      await sendAppointmentNotification({
-        id: created.id,
-        name: created.name,
-        email: created.email,
-        phone: created.phone,
-        serviceType: (created as any).serviceType,
-        notes: (created as any).notes,
-        date: created.date,
-        startTime: created.startTime,
-        endTime: created.endTime,
-        meetingLink: (created as any).meetingLink,
-        createdAt: (created as any).createdAt || new Date(),
-      });
+      await sendAppointmentNotification(payload);
     } catch (mailErr) {
       console.error("Error sending appointment notification:", mailErr);
-      // Do NOT fail the booking if email fails
+    }
+
+    // 📧 Attendee + guest confirmation emails
+    try {
+      await sendAppointmentConfirmationEmails(payload);
+    } catch (mailErr) {
+      console.error("Error sending attendee/guest confirmations:", mailErr);
     }
 
     return res.status(201).json(created);
@@ -431,11 +455,36 @@ router.post("/appointments", async (req: Request, res: Response) => {
   }
 });
 
-// --- Admin: list all appointments ---------------------------------
-router.get("/admin/appointments", async (_req: Request, res: Response) => {
+// --- Admin: list appointments with filters ------------------------
+// GET /api/admin/appointments?date=...&fromDate=...&toDate=...&status=booked&serviceType=seo&search=john
+router.get("/admin/appointments", async (req: Request, res: Response) => {
   try {
-    const all = await storage.getAllAppointments();
-    return res.json(all);
+    const {
+      date,
+      fromDate,
+      toDate,
+      status,
+      serviceType,
+      search,
+    } = req.query as {
+      date?: string;
+      fromDate?: string;
+      toDate?: string;
+      status?: AppointmentStatus;
+      serviceType?: string;
+      search?: string;
+    };
+
+    const appts = await storage.getAppointmentsFiltered({
+      date,
+      fromDate,
+      toDate,
+      status,
+      serviceType,
+      search,
+    });
+
+    return res.json(appts);
   } catch (err) {
     console.error("Error fetching appointments", err);
     return res.status(500).json({ message: "Error fetching appointments" });

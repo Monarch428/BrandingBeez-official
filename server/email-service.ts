@@ -584,6 +584,7 @@ interface AppointmentNotificationPayload {
   endTime: string;
   createdAt?: Date;
   meetingLink?: string;
+  guestEmails?: string[];
 }
 
 interface ContactSubmission {
@@ -876,6 +877,122 @@ export async function sendEmailViaGmail(submission: {
   }
 }
 
+// export async function sendAppointmentNotification(
+//   appt: AppointmentNotificationPayload,
+// ) {
+//   try {
+//     notificationService.addNotification("appointment_booked", {
+//       id: appt.id,
+//       name: appt.name,
+//       email: appt.email,
+//       phone: appt.phone,
+//       serviceType: appt.serviceType,
+//       notes: appt.notes,
+//       date: appt.date,
+//       startTime: appt.startTime,
+//       endTime: appt.endTime,
+//       meetingLink: appt.meetingLink, 
+//       createdAt: appt.createdAt || new Date(),
+//     });
+//   } catch (err) {
+//     console.error("Failed to add in-memory appointment notification:", err);
+//   }
+
+//   const { host, port, user, pass } = getSmtpConfig();
+
+//   const adminEmail = "raje@brandingbeez.co.uk";
+//   // const adminEmail = "pradeep.brandingbeez@gmail.com";
+
+//   if (!user || !pass) {
+//     console.log("SMTP not configured. Appointment notification:");
+//     console.log(appt);
+//     return { success: true, method: "console_log" };
+//   }
+
+//   try {
+//     const transporter = nodemailer.createTransport({
+//       host,
+//       port,
+//       secure: true,
+//       auth: {
+//         user,
+//         pass,
+//       },
+//     });
+
+//     const prettyDate = appt.date;
+//     const prettyTime = `${appt.startTime} – ${appt.endTime}`;
+
+//     const mailOptions = {
+//       from: user,
+//       to: adminEmail,
+//       subject: `New appointment booked – ${prettyDate} @ ${prettyTime}`,
+//       html: `
+//       <!DOCTYPE html>
+//       <html lang="en">
+//       <body style="font-family: Arial, sans-serif; background:#0b1020; color:#f5f5f5; padding:24px;">
+//         <div style="max-width:600px;margin:0 auto;background:#141827;border-radius:12px;padding:20px;border:1px solid #272b3b;">
+//           <h2 style="margin-top:0;color:#ff6b81;">New Appointment Booked</h2>
+//           <p>You have a new appointment booked via the BrandingBeez website.</p>
+
+//           <h3 style="margin-bottom:8px;color:#ffffff;">Slot Details</h3>
+//           <ul style="list-style:none;padding-left:0;font-size:14px;">
+//             <li><b>Date:</b> ${prettyDate}</li>
+//             <li><b>Time:</b> ${prettyTime}</li>
+//           </ul>
+
+//           ${appt.meetingLink
+//           ? `
+//           <h3 style="margin-bottom:8px;color:#ffffff;">Google Meet</h3>
+//           <p style="font-size:14px;">
+//             <a href="${appt.meetingLink}" style="color:#60a5fa;text-decoration:none;font-weight:bold;">
+//               Join Meeting
+//             </a><br/>
+//             <span style="font-size:12px;color:#9ca3af;">${appt.meetingLink}</span>
+//           </p>
+//           `
+//           : `
+//           <p style="font-size:13px;color:#9ca3af;">
+//           </p>
+//           `
+//         }
+         
+//           <h3 style="margin-bottom:8px;color:#ffffff;">Contact Details</h3>
+//           <ul style="list-style:none;padding-left:0;font-size:14px;">
+//             <li><b>Name:</b> ${appt.name}</li>
+//             <li><b>Email:</b> ${appt.email}</li>
+//             <li><b>Phone:</b> ${appt.phone || "(not provided)"}</li>
+//             <li><b>Service / Topic:</b> ${appt.serviceType || "(not specified)"}</li>
+//           </ul>
+
+//           ${appt.notes
+//           ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
+//                  <p style="font-size:14px;white-space:pre-wrap;">${appt.notes}</p>`
+//           : ""
+//         }
+
+//           <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
+//             Appointment ID: ${appt.id}<br/>
+//             Created at: ${(appt.createdAt || new Date()).toLocaleString()}
+//           </p>
+//         </div>
+//       </body>
+//       </html>
+//     `,
+//     };
+
+//     await transporter.sendMail(mailOptions);
+//     console.log("✅ Appointment notification emailed to", adminEmail);
+//     return { success: true, method: "smtp" };
+//   } catch (error) {
+//     console.error("❌ Failed to send appointment email:", error);
+//     return { success: false, error };
+//   }
+// }
+
+
+
+
 export async function sendAppointmentNotification(
   appt: AppointmentNotificationPayload,
 ) {
@@ -890,7 +1007,8 @@ export async function sendAppointmentNotification(
       date: appt.date,
       startTime: appt.startTime,
       endTime: appt.endTime,
-      meetingLink: appt.meetingLink, 
+      meetingLink: appt.meetingLink,
+      guestEmails: appt.guestEmails,
       createdAt: appt.createdAt || new Date(),
     });
   } catch (err) {
@@ -899,8 +1017,8 @@ export async function sendAppointmentNotification(
 
   const { host, port, user, pass } = getSmtpConfig();
 
-  const adminEmail = "raje@brandingbeez.co.uk";
-  // const adminEmail = "pradeep.brandingbeez@gmail.com";
+  // const adminEmail = "raje@brandingbeez.co.uk";
+  const adminEmail = "pradeep.brandingbeez@gmail.com";
 
   if (!user || !pass) {
     console.log("SMTP not configured. Appointment notification:");
@@ -940,8 +1058,9 @@ export async function sendAppointmentNotification(
             <li><b>Time:</b> ${prettyTime}</li>
           </ul>
 
-          ${appt.meetingLink
-          ? `
+          ${
+            appt.meetingLink
+              ? `
           <h3 style="margin-bottom:8px;color:#ffffff;">Google Meet</h3>
           <p style="font-size:14px;">
             <a href="${appt.meetingLink}" style="color:#60a5fa;text-decoration:none;font-weight:bold;">
@@ -950,12 +1069,9 @@ export async function sendAppointmentNotification(
             <span style="font-size:12px;color:#9ca3af;">${appt.meetingLink}</span>
           </p>
           `
-          : `
-          <p style="font-size:13px;color:#9ca3af;">
-          </p>
-          `
-        }
-         
+              : ""
+          }
+
           <h3 style="margin-bottom:8px;color:#ffffff;">Contact Details</h3>
           <ul style="list-style:none;padding-left:0;font-size:14px;">
             <li><b>Name:</b> ${appt.name}</li>
@@ -964,11 +1080,19 @@ export async function sendAppointmentNotification(
             <li><b>Service / Topic:</b> ${appt.serviceType || "(not specified)"}</li>
           </ul>
 
-          ${appt.notes
-          ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
+          ${
+            appt.guestEmails && appt.guestEmails.length
+              ? `<h3 style="margin-bottom:8px;color:#ffffff;">Guests</h3>
+                 <p style="font-size:14px;">${appt.guestEmails.join(", ")}</p>`
+              : ""
+          }
+
+          ${
+            appt.notes
+              ? `<h3 style="margin-bottom:8px;color:#ffffff;">Notes</h3>
                  <p style="font-size:14px;white-space:pre-wrap;">${appt.notes}</p>`
-          : ""
-        }
+              : ""
+          }
 
           <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
             Appointment ID: ${appt.id}<br/>
@@ -977,7 +1101,7 @@ export async function sendAppointmentNotification(
         </div>
       </body>
       </html>
-    `,
+      `,
     };
 
     await transporter.sendMail(mailOptions);
@@ -987,4 +1111,197 @@ export async function sendAppointmentNotification(
     console.error("❌ Failed to send appointment email:", error);
     return { success: false, error };
   }
+}
+
+// ✅ Send confirmation to main attendee
+export async function sendAppointmentConfirmationToAttendee(
+  appt: AppointmentNotificationPayload,
+) {
+  const { host, port, user, pass } = getSmtpConfig();
+
+  if (!user || !pass) {
+    console.log(
+      "SMTP not configured. Attendee confirmation email payload:",
+      appt,
+    );
+    return { success: true, method: "console_log" };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: true,
+    auth: { user, pass },
+  });
+
+  const prettyDate = appt.date;
+  const prettyTime = `${appt.startTime} – ${appt.endTime}`;
+  const subject = `Your BrandingBeez call is confirmed – ${prettyDate} @ ${prettyTime}`;
+
+  const html = `
+  <!DOCTYPE html>
+  <html lang="en">
+  <body style="font-family: Arial, sans-serif; background:#f3f4f6; padding:24px;">
+    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;padding:20px;border:1px solid #e5e7eb;">
+      <h2 style="margin-top:0;color:#1f2933;">Your strategy call is confirmed 🎉</h2>
+      <p style="font-size:14px;color:#374151;">
+        Hi <b>${appt.name}</b>,
+      </p>
+      <p style="font-size:14px;color:#374151;">
+        Thanks for booking a call with <b>BrandingBeez</b>. Here are your appointment details:
+      </p>
+
+      <h3 style="margin-bottom:8px;color:#111827;">Call details</h3>
+      <ul style="list-style:none;padding-left:0;font-size:14px;color:#374151;">
+        <li><b>Date:</b> ${prettyDate}</li>
+        <li><b>Time:</b> ${prettyTime} (IST base, converted in your calendar)</li>
+        <li><b>Topic:</b> ${appt.serviceType || "Strategy / consultation call"}</li>
+      </ul>
+
+      ${
+        appt.meetingLink
+          ? `
+      <p style="margin-top:16px;font-size:14px;">
+        <b>Join via Google Meet:</b><br/>
+        <a href="${appt.meetingLink}" style="color:#2563eb;text-decoration:none;font-weight:bold;">
+          Join Meeting
+        </a><br/>
+        <span style="font-size:12px;color:#6b7280;">${appt.meetingLink}</span>
+      </p>
+      `
+          : ""
+      }
+
+      ${
+        appt.guestEmails && appt.guestEmails.length
+          ? `
+      <p style="margin-top:12px;font-size:13px;color:#4b5563;">
+        We've also invited your guests: ${appt.guestEmails.join(", ")}.
+      </p>`
+          : ""
+      }
+
+      ${
+        appt.notes
+          ? `
+      <h3 style="margin-bottom:8px;color:#111827;">Your notes</h3>
+      <p style="font-size:14px;color:#374151;white-space:pre-wrap;">
+        ${appt.notes}
+      </p>`
+          : ""
+      }
+
+      <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
+        Appointment ID: ${appt.id}<br/>
+        Created at: ${(appt.createdAt || new Date()).toLocaleString()}
+      </p>
+    </div>
+  </body>
+  </html>
+  `;
+
+  await transporter.sendMail({
+    from: user,
+    to: appt.email,
+    subject,
+    html,
+  });
+
+  console.log("✅ Attendee confirmation sent to", appt.email);
+  return { success: true, method: "smtp" };
+}
+
+// ✅ Send confirmation to each guest
+export async function sendAppointmentConfirmationToGuests(
+  appt: AppointmentNotificationPayload,
+) {
+  const guestEmails = (appt.guestEmails || []).filter(Boolean);
+  if (!guestEmails.length) {
+    return { success: true, method: "no_guests" };
+  }
+
+  const { host, port, user, pass } = getSmtpConfig();
+  if (!user || !pass) {
+    console.log(
+      "SMTP not configured. Guest confirmation payload:",
+      appt.guestEmails,
+    );
+    return { success: true, method: "console_log" };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: true,
+    auth: { user, pass },
+  });
+
+  const prettyDate = appt.date;
+  const prettyTime = `${appt.startTime} – ${appt.endTime}`;
+  const subject = `You've been added as a guest – ${prettyDate} @ ${prettyTime}`;
+
+  const html = (guestEmail: string) => `
+  <!DOCTYPE html>
+  <html lang="en">
+  <body style="font-family: Arial, sans-serif; background:#f3f4f6; padding:24px;">
+    <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:12px;padding:20px;border:1px solid #e5e7eb;">
+      <h2 style="margin-top:0;color:#1f2933;">You've been invited to a call</h2>
+      <p style="font-size:14px;color:#374151;">
+        Hi,
+      </p>
+      <p style="font-size:14px;color:#374151;">
+        <b>${appt.name}</b> has added you as a guest to a strategy call booked with <b>BrandingBeez</b>.
+      </p>
+
+      <h3 style="margin-bottom:8px;color:#111827;">Call details</h3>
+      <ul style="list-style:none;padding-left:0;font-size:14px;color:#374151;">
+        <li><b>Date:</b> ${prettyDate}</li>
+        <li><b>Time:</b> ${prettyTime} (IST base, converted in your calendar)</li>
+        <li><b>Main attendee:</b> ${appt.name} &lt;${appt.email}&gt;</li>
+        <li><b>Topic:</b> ${appt.serviceType || "Strategy / consultation call"}</li>
+      </ul>
+
+      ${
+        appt.meetingLink
+          ? `
+      <p style="margin-top:16px;font-size:14px;">
+        <b>Join via Google Meet:</b><br/>
+        <a href="${appt.meetingLink}" style="color:#2563eb;text-decoration:none;font-weight:bold;">
+          Join Meeting
+        </a><br/>
+        <span style="font-size:12px;color:#6b7280;">${appt.meetingLink}</span>
+      </p>
+      `
+          : ""
+      }
+
+      <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
+        Appointment ID: ${appt.id}<br/>
+        Invited email: ${guestEmail}
+      </p>
+    </div>
+  </body>
+  </html>
+  `;
+
+  // send to each guest (no need for await-all concurrency here)
+  for (const guestEmail of guestEmails) {
+    await transporter.sendMail({
+      from: user,
+      to: guestEmail,
+      subject,
+      html: html(guestEmail),
+    });
+    console.log("✅ Guest confirmation sent to", guestEmail);
+  }
+
+  return { success: true, method: "smtp" };
+}
+
+// ✅ Wrapper if you want one call from router
+export async function sendAppointmentConfirmationEmails(
+  appt: AppointmentNotificationPayload,
+) {
+  await sendAppointmentConfirmationToAttendee(appt);
+  await sendAppointmentConfirmationToGuests(appt);
 }

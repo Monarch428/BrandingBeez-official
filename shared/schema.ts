@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export type AppointmentStatus = "booked" | "cancelled" | "completed";
-
 const jsonValueSchema: z.ZodType<unknown> = z.union([
   z.string(),
   z.number(),
@@ -336,19 +334,25 @@ export interface NewsletterSubscriber extends InsertNewsletterSubscriber {
   subscribedAt: Date;
 }
 
+// types/appointments.ts (or wherever this lives)
+export type AppointmentStatus = "booked" | "cancelled" | "completed";
+
 export interface Appointment {
   id: number;
   name: string;
   email: string;
   phone?: string;
-  serviceType?: string;
+  serviceType?: string;      // now potentially comma-separated list
   notes?: string;
 
-  date: string;       // YYYY-MM-DD
-  startTime: string;  // HH:mm
-  endTime: string;    // HH:mm
+  date: string;              // YYYY-MM-DD
+  startTime: string;         // HH:mm
+  endTime: string;           // HH:mm
 
   meetingLink?: string;
+
+  // NEW: guests
+  guestEmails?: string[];    // extra attendees (if any)
 
   status: AppointmentStatus;
 
@@ -360,3 +364,4 @@ export type InsertAppointment = Omit<
   Appointment,
   "id" | "status" | "createdAt" | "updatedAt"
 >;
+

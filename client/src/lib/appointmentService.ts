@@ -1,4 +1,5 @@
 // src/services/appointmentService.ts
+
 export type SlotStatus = "available" | "booked" | "cancelled" | "completed";
 
 export interface DaySlot {
@@ -17,11 +18,22 @@ export interface CreateAppointmentPayload {
   name: string;
   email: string;
   phone?: string;
+  /**
+   * Main + additional services can be combined into a single string
+   * e.g. "Website Development; SEO / AIO Services"
+   */
   serviceType?: string;
   notes?: string;
-  date: string;
-  startTime: string;
-  endTime: string;
+
+  date: string;      // YYYY-MM-DD
+  startTime: string; // HH:mm
+  endTime: string;   // HH:mm
+
+  /**
+   * NEW: Guest emails for additional attendees
+   * Frontend can send this as an array of emails collected from the "Add guest" textarea.
+   */
+  guestEmails?: string[];
 }
 
 export async function fetchSlots(date: string): Promise<SlotsResponse> {

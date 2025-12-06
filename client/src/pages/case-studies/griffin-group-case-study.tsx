@@ -1383,7 +1383,7 @@
 //                     variant="outline"
 //                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
 //                   >
-//                     View Other SEO Services <ArrowRight className="w-5 h-5 ml-2" />
+//                     View Other SEO Case Study <ArrowRight className="w-5 h-5 ml-2" />
 //                   </Button>
 //                 </Link>
 //               </div>
@@ -2514,7 +2514,7 @@ export default function GriffinGroupCaseStudy() {
                     variant="outline"
                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
                   >
-                    View Other SEO Services{" "}
+                    View Other SEO Case Study{" "}
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </Link>

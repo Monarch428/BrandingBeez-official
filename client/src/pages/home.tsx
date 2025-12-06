@@ -2605,12 +2605,12 @@ export default function Home() {
 
               <div className="flex items-center gap-3">
                 {/* CONTENT: MERGED */}
-                <div className="max-w-3xl mx-auto mb-8 text-left space-y-3">
+                <div className="max-w-3xl mx-auto mb-8 text-justify space-y-3">
                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-gray-100 leading-relaxed">
+                  <p className="text-sm text-gray-100 leading-normal">
                     Get actionable tips, pricing tricks, automation tactics, fast client-winning
                     strategies, proposal hacks, AI workflows, and real stories from growing
                     agencies all delivered in simple 1-minute reads to help you scale

@@ -34,6 +34,7 @@ import type {
   User,
   Appointment,
   InsertAppointment,
+  AppointmentStatus, 
 } from "@shared/schema";
 import {
   BlogPostModel,
@@ -775,9 +776,55 @@ export class DatabaseStorage implements IStorage {
     return appts;
   }
 
+  async getAppointmentsFiltered(params: {
+    date?: string;
+    fromDate?: string;
+    toDate?: string;
+    status?: AppointmentStatus;
+    serviceType?: string;
+    search?: string; // name / email / phone contains
+  }): Promise<Appointment[]> {
+    await this.ensureConnection();
+
+    const { date, fromDate, toDate, status, serviceType, search } = params;
+    const query: any = {};
+
+    if (date) {
+      query.date = date;
+    } else if (fromDate || toDate) {
+      query.date = {};
+      if (fromDate) query.date.$gte = fromDate;
+      if (toDate) query.date.$lte = toDate;
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (serviceType) {
+      query.serviceType = { $regex: serviceType, $options: "i" };
+    }
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+      query.$or = [
+        { name: regex },
+        { email: regex },
+        { phone: regex },
+        { notes: regex },
+      ];
+    }
+
+    const appts = await AppointmentModel.find(query)
+      .sort({ date: 1, startTime: 1 })
+      .lean<Appointment[]>();
+
+    return appts;
+  }
+
   async updateAppointmentStatus(
     id: number,
-    status: "booked" | "cancelled" | "completed",
+    status: AppointmentStatus,
   ): Promise<Appointment> {
     await this.ensureConnection();
     const updated = await AppointmentModel.findOneAndUpdate(

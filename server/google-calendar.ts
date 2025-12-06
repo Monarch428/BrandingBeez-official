@@ -9,16 +9,13 @@ const {
   GOOGLE_CALENDAR_ID,
 } = process.env;
 
-// Use specific calendar if set, else primary calendar of the refresh-token user
 const CALENDAR_ID = GOOGLE_CALENDAR_ID || "primary";
 
-// OAuth2 client (we'll set credentials dynamically per call)
 const oauth2Client = new google.auth.OAuth2(
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
 );
 
-// Calendar API client
 const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
 export interface CreateMeetEventParams {
@@ -27,8 +24,13 @@ export interface CreateMeetEventParams {
   date: string; // "YYYY-MM-DD"
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
+
+  // main attendee
   attendeeEmail?: string;
   attendeeName?: string;
+
+  // ✅ NEW: guests
+  guestEmails?: string[];
 }
 
 export interface CreateMeetEventResult {
@@ -47,6 +49,7 @@ export async function createGoogleMeetEvent(
     endTime,
     attendeeEmail,
     attendeeName,
+    guestEmails = [],
   } = params;
 
   console.log("[Google Calendar] createGoogleMeetEvent params:", params);
@@ -58,7 +61,6 @@ export async function createGoogleMeetEvent(
     return { eventId: "", meetingLink: undefined };
   }
 
-  // ✅ Prefer env token if set (simple mode), else fallback to DB token
   let accessToken: string | undefined;
   let refreshToken: string | undefined;
   let expiryDate: number | undefined;
@@ -86,6 +88,25 @@ export async function createGoogleMeetEvent(
 
   const timeZone = "Asia/Kolkata";
 
+  // ✅ Build attendees list: main attendee + guests
+  const attendees: { email: string; displayName?: string }[] = [];
+
+  if (attendeeEmail) {
+    attendees.push({
+      email: attendeeEmail,
+      displayName: attendeeName,
+    });
+  }
+
+  guestEmails
+    .filter((g) => !!g)
+    .forEach((g) => {
+      // avoid duplicating main attendee
+      if (!attendeeEmail || g.toLowerCase() !== attendeeEmail.toLowerCase()) {
+        attendees.push({ email: g });
+      }
+    });
+
   const event = {
     summary,
     description,
@@ -97,14 +118,7 @@ export async function createGoogleMeetEvent(
       dateTime: `${date}T${endTime}:00`,
       timeZone,
     },
-    attendees: attendeeEmail
-      ? [
-          {
-            email: attendeeEmail,
-            displayName: attendeeName,
-          },
-        ]
-      : [],
+    attendees,
     conferenceData: {
       createRequest: {
         requestId: `meet-${Date.now()}-${Math.random()
@@ -117,7 +131,7 @@ export async function createGoogleMeetEvent(
 
   const response = await calendar.events.insert({
     calendarId: CALENDAR_ID,
-    requestBody: event,
+    requestBody: event as any,
     conferenceDataVersion: 1,
   });
 

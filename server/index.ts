@@ -490,10 +490,10 @@ app.use((req, res, next) => {
     }
   }
 
-  // const httpsOptions = {
-  //   key: fs.readFileSync("cert/localhost-key.pem"),
-  //   cert: fs.readFileSync("cert/localhost.pem")
-  // };
+//   const httpsOptions = {
+//     key: fs.readFileSync("cert/localhost-key.pem"),
+//     cert: fs.readFileSync("cert/localhost.pem")
+//   };
   const port = parseInt(process.env.PORT || '5000', 10);
   server.listen({
     port,
@@ -501,7 +501,7 @@ app.use((req, res, next) => {
   }, () => {
     log(`serving on port ${port}`);
   });
-  // https.createServer(httpsOptions, app).listen(port, () => {
-  //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
-  // });
+//   https.createServer(httpsOptions, app).listen(port, () => {
+//     log(`🚀 HTTPS Server running at https://localhost:${port}`);
+//   });
 })();
