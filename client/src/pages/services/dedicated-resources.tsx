@@ -228,7 +228,7 @@ export default function DedicatedResources() {
                   </div>
                 </div>
 
-                {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-sm">
                       <img
@@ -273,7 +273,7 @@ export default function DedicatedResources() {
                       </Button>
                     </Link>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
           </section>
