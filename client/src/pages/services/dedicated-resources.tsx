@@ -181,23 +181,28 @@ export default function DedicatedResources() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <div className="flex items-center justify-center">
+                  {/* <div className="flex items-center justify-center">
                     <Badge className="bg-brand-coral text-white text-md px-4 py-1 font-medium mb-6">
                       Featured Success: Social Land
                     </Badge>
-                  </div>
+                  </div> */}
                   <h1 className="text-4xl md:text-5xl font-bold mb-6">
-                    Dedicated Development Teams
+                    White-Label Dedicated Teams for Digital Agencies
                   </h1>
-                  <p className="text-xl text-white/90 mb-8">
+                  {/* <p className="text-xl text-white/90 mb-8">
                     Access top-tier developers, designers, and specialists
                     without the overhead. Our dedicated teams integrate
                     seamlessly with your workflow.
+                  </p> */}
+                  <p className="text-xl text-white/90 mb-8">
+                    Hire fully embedded developers, designers, 
+                    and marketers who work under your brand, inside your workflow, 
+                    with your clients staying yours.
                   </p>
 
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="bg-white/10 rounded-lg p-4 text-center">
-                      <div className="text-2xl font-bold">150%</div>
+                      <div className="text-2xl font-bold">Upto 150%</div>
                       <div className="text-sm text-white/80">
                         Output Increase
                       </div>
@@ -223,7 +228,7 @@ export default function DedicatedResources() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+                {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-sm">
                       <img
@@ -268,7 +273,7 @@ export default function DedicatedResources() {
                       </Button>
                     </Link>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </section>
@@ -302,7 +307,7 @@ export default function DedicatedResources() {
   "
                 >
                   {/* header – phase + title, left aligned */}
-                  <CardHeader className="pb-4 px-10">
+                  <CardHeader className="pb-4 px-0">
                     <div className="flex flex-col items-start gap-1 pl-16 sm:pl-24">
                       <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] text-white/90">
                         {activePhase.label} of {totalPhases}

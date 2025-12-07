@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SEOHead } from "@/components/seo-head";
@@ -24,11 +25,14 @@ import {
   Search,
   DollarSign,
   Gift,
-  Calendar
+  Calendar,
+  ChevronDown,
+  HelpCircle,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { navigate } from "wouter/use-browser-location";
 import AgencyContactSection from "@/components/agency-contact-section";
+import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-section";
 
 // Featured Google Ads client data
 const featuredClient = {
@@ -53,14 +57,16 @@ const caseStudies = [
   {
     id: 1,
     title: "UK Legal Services Excellence",
-    client: "Arlingsworth Solicitors",
+    client: 
+    // "Arlingsworth Solicitors",
+    "Arlingsworth Solicitors – UK Law Firm",
     industry: "Legal Services",
     results: {
       cpa: "£6.5 Lowest CPA",
       // cpa: "£6.51 lowest CPA",
       conversionRate: "19% Conversion Rate",
       // conversionRate: "18.95% conversion rate",
-      clicks: "1,139+ Total Clicks"
+      clicks: "1,139+ Total Clicks in 30 days"
     },
     description: "Achieved exceptional results for UK family law firm with Performance Max and Search campaigns optimization.",
     link: "/case-studies/arlingsworth-solicitors-case-study"
@@ -221,8 +227,97 @@ const pricingPackages = [
   }
 ];
 
+const googleAdsPhases: PhaseItem[] = [
+  {
+    id: 1,
+    label: "Phase 1",
+    title: "Account Audit & Opportunity Review",
+    intro: "We analyze existing performance and opportunities across:",
+    points: [
+      "Current Google Ads account structure",
+      "Client goals, budget, and target locations",
+      "Competitors & search landscape",
+      "Conversion paths and tracking setup",
+    ],
+    outcome:
+      "You get a clear, agency-ready view of what’s working, what’s wasted, and where to scale.",
+  },
+  {
+    id: 2,
+    label: "Phase 2",
+    title: "Campaign Build or Restructure",
+    intro: "We create or rebuild campaigns using:",
+    points: [
+      "Clean, logical account and campaign structure",
+      "High-intent keyword targeting & match types",
+      "Conversion-focused ad copy & extensions",
+      "Proper tracking for calls, forms, and sales",
+    ],
+    outcome:
+      "Your campaigns are built to convert from Day 1, not just generate clicks.",
+  },
+  {
+    id: 3,
+    label: "Phase 3",
+    title: "Ongoing Optimization & Scaling",
+    intro: "We continuously:",
+    points: [
+      "Optimize bids and budgets toward CPA/ROAS goals",
+      "Add negative keywords to cut wasted spend",
+      "Improve Quality Scores and ad relevance",
+      "Test ad variations, audiences, and funnels",
+    ],
+    outcome:
+      "Performance improves month after month with lower CPA and stronger ROI.",
+  },
+  {
+    id: 4,
+    label: "Phase 4",
+    title: "White-Label Reporting & Strategy",
+    intro: "You receive:",
+    points: [
+      "Clear monthly reports branded to your agency",
+      "Performance insights & next-step recommendations",
+      "Optional strategy calls you can attend — or stay behind the scenes",
+    ],
+    outcome:
+      "You look like the strategic PPC partner to your client, while we handle the heavy lifting.",
+  },
+];
+
+// 🔹 FAQ content
+const faqs = [
+  {
+    question: "Do you work directly with our clients?",
+    answer:
+      "No. We operate 100% behind the scenes. All communication, reporting, and strategy are delivered under your agency’s brand only.",
+  },
+  {
+    question: "Is reporting white-label?",
+    answer:
+      "Yes. Reports can be fully branded with your agency logo, name, and messaging. You can present them to clients as if they came from your internal team.",
+  },
+  {
+    question: "Do you manage Google Ads campaigns for US businesses?",
+    answer:
+      "Yes. We specialize in US-focused Google Ads campaigns across legal, home services, e-commerce, and local service industries.",
+  },
+  {
+    question: "Can we scale campaigns across multiple client accounts?",
+    answer:
+      "Absolutely. Our team is built to support agencies managing multiple Google Ads accounts simultaneously, without performance drops.",
+  },
+  {
+    question:
+      "Do you offer NDAs for agency partnerships?",
+    answer:
+      "Yes. We’re happy to sign NDAs and confidentiality agreements to protect your clients and your business relationships.",
+  },
+];
+
 export default function GoogleAds() {
   const [, setLocation] = useLocation();
+    const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const navigateToPricingCalculator = () => {
     setLocation('/pricing-calculator');
@@ -279,10 +374,18 @@ export default function GoogleAds() {
                     </Badge>
                   </div>
                   <h1 className="text-2xl sm:text-xl md:text-3xl lg:text-5xl font-bold mb-6">
-                    Arlingsworth Solicitors
+                    {/* Arlingsworth Solicitors */}
+                    White-Label Google Ads Management for Agencies
                   </h1>
                   <p className="text-xl text-gray-100 mb-8">
-                    {featuredClient.description}
+                    {/* {featuredClient.description} */}
+                    Scale your agency’s PPC services with a dedicated white-label Google Ads team.
+                    We manage strategy, setup, optimization, and reporting — fully under your brand.
+                  </p>
+                  <p className="text-xl text-gray-100 mb-8">
+                    {/* {featuredClient.description} */}
+                    Trusted by UK & US agencies to deliver profitable Google Ads campaigns for law firms, 
+                    local services, e-commerce brands, and high-intent leads.
                   </p>
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
@@ -300,20 +403,24 @@ export default function GoogleAds() {
                   <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <Button className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple" asChild>
                       <Link href="/contact">
-                        Start Your Campaign
+                        {/* Start Your Campaign */}
+                        Start White-Label Google Ads
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Link>
                     </Button>
                     <Button
-                      variant="outline"
-                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
-                      asChild
-                    >
-                      <a href={featuredClient.website} target="_blank" rel="noopener noreferrer">
-                        Visit Website
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                      </a>
-                    </Button>
+                                      size="lg"
+                                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                                      onClick={() =>
+                                        window.open(
+                                          "/book-appiontment",
+                                          "_blank",
+                                        )
+                                      }
+                                    >
+                                      <Calendar className="w-4 h-4 mr-2" />
+                                       Book a Free Strategy Call
+                                    </Button>
                   </div>
                 </div>
 
@@ -349,14 +456,93 @@ export default function GoogleAds() {
             </div>
           </section>
 
+<PhaseSliderSection
+  sectionId="google-ads-process"
+  heading="How the Google Ads Process Works"
+  subheading="A simple, transparent process built for agencies."
+  phases={googleAdsPhases}
+/>
 
+{/* WHY AGENCIES CHOOSE OUR WHITE-LABEL PPC */}
+<section className="py-16 px-4 bg-white">
+  <div className="max-w-5xl mx-auto">
+    {/* Heading */}
+    <div className="text-center mb-10">
+      <span className="inline-flex items-center rounded-full bg-brand-purple/5 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-wide text-brand-purple">
+        Why Agencies Choose Our White-Label PPC
+      </span>
+      <h2 className="mt-4 text-3xl font-bold text-brand-purple">
+        Why Agencies Partner With BrandingBeez for Google Ads
+      </h2>
+      <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+        We don’t act like vendors — we operate as your in-house paid media team,
+        fully behind the scenes under your brand.
+      </p>
+    </div>
+
+    {/* Content Card */}
+    <Card className="bg-gray-50 border border-brand-purple/10 shadow-sm">
+      <CardContent className="p-6 sm:p-8">
+        <div className="grid gap-6 md:grid-cols-[1.2fr,0.9fr] items-start">
+          {/* Left – bullets */}
+          <div>
+            <ul className="space-y-3 text-sm sm:text-base text-gray-800">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                <span>Google Ads managed under your agency name</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                <span>No client-facing branding or credit taken</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                <span>US-focused strategy, targeting &amp; messaging</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                <span>
+                  Proven performance across legal, home services &amp; local businesses
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                <span>
+                  Direct access to PPC specialists — not account managers only
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Right – emphasis block */}
+          <div className="rounded-2xl bg-gradient-to-r from-brand-purple to-brand-coral text-white p-5 sm:p-6 flex flex-col justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80 mb-2">
+                White-Label Advantage
+              </p>
+              <p className="text-base sm:text-lg font-semibold leading-relaxed">
+                You keep the client. <br className="hidden sm:block" />
+                We do the execution.
+              </p>
+            </div>
+            <p className="mt-4 text-sm text-white/90">
+              From audits to scaling, every campaign is built, optimized, and reported
+              under your agency brand — while our team handles the heavy lifting.
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</section>
 
           {/* Case Studies Section */}
           <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
-                  🎯 Success Stories
+                  {/* 🎯 Success Stories */}
+                  Featured White-Label Google Ads Success
                 </h2>
                 <h3 className="text-4xl font-bold text-brand-purple mb-6">
                   Google Ads Case Studies & Results
@@ -527,6 +713,137 @@ export default function GoogleAds() {
             </div>
           </section>
 
+                    {/* PROBLEMS WE SOLVE FOR AGENCIES */}
+          <section className="py-16 px-4 bg-white">
+            <div className="max-w-7xl mx-auto">
+              {/* Heading */}
+              <div className="text-center mb-10">
+                <span className="inline-flex items-center rounded-full bg-brand-purple/5 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-wide text-brand-purple">
+                  Problems We Solve for Agencies
+                </span>
+                <h2 className="mt-4 text-3xl font-bold text-brand-purple">
+                  Common Google Ads Challenges Agencies Face
+                </h2>
+                <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+                  Agencies come to us when Google Ads become hard to scale, hard to
+                  control, and risky to sell to end clients.
+                </p>
+              </div>
+
+              <div className="grid gap-8 md:grid-cols-2 items-start">
+                {/* Left – challenges */}
+                <Card className="border border-brand-purple/10 shadow-sm bg-gray-50">
+                  <CardHeader className="pb-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-purple/80">
+                      Challenges We Hear Every Week
+                    </p>
+                    <h3 className="mt-2 text-xl font-bold text-brand-purple">
+                      Agencies come to us when:
+                    </h3>
+                  </CardHeader>
+                  <CardContent className="pt-2 pb-6 px-6">
+                    <ul className="space-y-3 text-sm sm:text-base text-gray-800">
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral flex-shrink-0" />
+                        <span>Google Ads accounts burn spend without conversions</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral flex-shrink-0" />
+                        <span>CPA keeps rising month after month</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral flex-shrink-0" />
+                        <span>In-house teams are stretched too thin</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral flex-shrink-0" />
+                        <span>Freelancers are unreliable or inconsistent</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <span className="mt-1 h-1.5 w-1.5 rounded-full bg-brand-coral flex-shrink-0" />
+                        <span>Scaling PPC services becomes risky</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Right – how we fix it */}
+                <Card className="border-none shadow-lg bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+                  <CardHeader className="pb-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/80">
+                      How We Fix It
+                    </p>
+                    <h3 className="mt-2 text-xl font-bold">
+                      A performance-first, agency-first PPC approach.
+                    </h3>
+                  </CardHeader>
+                  <CardContent className="pt-2 pb-6 px-6">
+                    <ul className="space-y-3 text-sm sm:text-base text-white/90">
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0" />
+                        <span>Conversion-focused keyword &amp; intent mapping</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0" />
+                        <span>Clean account structure (Search, PMAX, Display)</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0" />
+                        <span>Landing-page-aligned ad copy that matches messaging</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0" />
+                        <span>Aggressive negative keyword control to cut waste</span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0" />
+                        <span>Constant bid &amp; audience optimization for CPA/ROAS</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+{/* FINAL CTA – before pricing */}
+<section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+  <div className="max-w-5xl mx-auto text-center">
+    <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1 text-xs sm:text-sm font-semibold uppercase tracking-[0.18em]">
+      Ready to Scale Your PPC Offering
+    </span>
+
+    <h2 className="mt-5 text-3xl sm:text-4xl font-bold leading-tight">
+      Ready to Scale Your Agency’s PPC Offering?
+    </h2>
+
+    <p className="mt-4 text-base sm:text-lg text-white/90 max-w-3xl mx-auto">
+      Stop hiring, training, and managing Google Ads internally.  
+      Let our white-label PPC team handle strategy, build, and optimization —
+      while you stay front-facing with your clients.
+    </p>
+
+    <p className="mt-3 text-sm sm:text-base text-white/80 max-w-2xl mx-auto">
+      We run the campaigns under your brand at scale, with clear reporting and
+      agency-first communication so you can confidently sell and grow.
+    </p>
+
+    <div className="mt-8 flex justify-center">
+      <Button
+        size="lg"
+        className="bg-brand-purple text-brand-white hover:bg-gray-100 hover:text-brand-purple flex items-center gap-2"
+        onClick={() =>
+          window.open("/book-appiontment", "_blank")
+        }
+      >
+        Book a Free White-Label PPC Strategy Call
+        <ArrowRight className="w-4 h-4" />
+      </Button>
+    </div>
+  </div>
+</section>
+
+
           {/* Google Ads Management Packages Section */}
           <section className="py-16 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
@@ -538,11 +855,15 @@ export default function GoogleAds() {
                 <h3 className="text-4xl font-bold text-brand-purple mb-4">
                   Choose Your Google Ads Package
                 </h3>
-                <p className="text-xl text-gray-900/80 max-w-3xl mx-auto">
-                  Professional Google Ads management designed to maximize your return on investment.
-                  All packages include setup, optimization, and detailed reporting.
-                </p>
-              </div>
+                  {/* <p className="text-xl text-gray-900/80 max-w-3xl mx-auto">
+                    Professional Google Ads management designed to maximize your return on investment.
+                    All packages include setup, optimization, and detailed reporting.
+                  </p> */}
+                  <p className="text-xl text-gray-900/80 max-w-5xl mx-auto">
+                    Professional Google Ads management designed to maximize ROI — with setup, ongoing optimization,
+                    detailed performance reporting, and fully white-label, agency-first communication.
+                  </p>
+                </div>
 
               {/* Pricing Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -637,6 +958,15 @@ export default function GoogleAds() {
                 ))}
               </div>
 
+                 {/* ✅ Trust micro-copy under pricing */}
+    <div className="mt-10 text-center text-sm text-gray-800">
+      <p className="max-w-3xl mx-auto leading-relaxed">
+        ✔️ No long-term contracts &nbsp;•&nbsp; 
+        ✔️ Scales with your client base &nbsp;•&nbsp; 
+        ✔️ NDA available for all agency partners
+      </p>
+    </div>
+
               {/* Footer CTA */}
               {/* <div className="text-center mt-12">
                 <p className="text-gray-900/80 mb-4">
@@ -656,6 +986,83 @@ export default function GoogleAds() {
             </div>
           </section>
 
+
+{/* WHAT AGENCIES GET – after pricing */}
+<section className="py-16 px-4 bg-grey-50">
+  <div className="max-w-7xl mx-auto">
+    {/* Heading */}
+    <div className="text-center mb-12">
+      <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-[0.18em] text-brand-purple">
+        What Agencies Get
+      </span>
+      <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
+        What’s Included in Our White-Label Google Ads Management
+      </h2>
+      <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+        Everything you need to offer fully managed Google Ads to your clients —
+        delivered by our team, under your brand, with clear accountability.
+      </p>
+    </div>
+
+    {/* Gradient Content Card */}
+    <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white shadow-lg border-none">
+      <CardContent className="p-8 sm:p-10">
+        <div className="grid gap-8 md:grid-cols-2 items-start">
+          {/* Left Column */}
+          <div>
+            <ul className="space-y-4 text-sm sm:text-base">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Account setup from scratch or full rebuild of existing accounts
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Conversion tracking configuration for calls, forms, and purchases
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Search, Performance Max &amp; Display campaigns tailored to your client’s goals
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Right Column */}
+          <div>
+            <ul className="space-y-4 text-sm sm:text-base">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Landing page optimization recommendations to improve conversion rates
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Monthly performance reporting, fully branded for your agency
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Strategy calls you can join with your client — or stay behind the scenes while we handle it
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</section>
+
+
+
 {/* Contact Form Section (now a reusable component) */}
 <AgencyContactSection
             sectionId="contact-form"
@@ -665,6 +1072,209 @@ export default function GoogleAds() {
             contactFormType="service-g-ads-contact-form"
             submissionSourceLabel="Service Page Contact Form Submission"
           />
+
+{/* 🔹 NEW FAQ SECTION – before final CTA */}
+          <section className="py-16 px-4 bg-gray-50">
+            <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
+              {/* Left – intro / highlight */}
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                  <HelpCircle className="w-4 h-4 text-brand-purple" />
+                  <span className="text-s font-bold tracking-wide uppercase text-brand-purple">
+                    White-Label Web Development – FAQs
+                  </span>
+                </div>
+                <h2 className="text-3xl font-bold text-brand-purple mb-4">
+                  Answers to the questions agencies ask us most.
+                </h2>
+                <p className="text-lg text-gray-600 mb-6">
+                  You keep client relationships and strategy. We handle the
+                  build, QA, and tech — completely under your brand.
+                </p>
+
+                <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white border-none shadow-lg">
+                  <CardHeader className="pb-2">
+                    <p className="text-sm font-semibold text-white/80 uppercase tracking-[0.16em]">
+                      Why agencies choose BrandingBeez
+                    </p>
+                    <h3 className="text-xl font-bold mt-1">
+                      Reliable delivery without freelancer risk.
+                    </h3>
+                  </CardHeader>
+                  <CardContent className="pt-2 space-y-2 text-sm text-white/90">
+                    <p>✔ Fully white-label communication and branding.</p>
+                    <p>✔ Built for agencies handling multiple client projects.</p>
+                    <p>
+                      ✔ Flexible engagement — one-off builds, retainers, or
+                      long-term dedicated support.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right – FAQ accordion */}
+              <div className="space-y-4">
+                {faqs.map((faq, index) => {
+                  const isOpen = openFaqIndex === index;
+                  return (
+                    <div
+                      key={faq.question}
+                      className="bg-white/90 border border-brand-purple/10 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenFaqIndex(isOpen ? null : index)
+                        }
+                        className="w-full text-left px-5 py-4 flex items-center justify-between gap-4"
+                      >
+                        <span className="font-semibold text-sm sm:text-base text-brand-purple">
+                          {faq.question}
+                        </span>
+                        <ChevronDown
+                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                      {isOpen && (
+                        <div className="px-4 pb-6 pt-4 text-sm text-gray-700 border-t border-gray-100">
+                          {faq.answer}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                <div className="pt-2 text-sm text-gray-600">
+                  Still have a question?{" "}
+                  {/* <a
+                    href="/book-appiontment"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-brand-coral text-white mb- inline-block px-4 py-2 rounded-full text-sm font-medium"
+                  >
+                    Book a quick call with our team
+                  </a> */}
+                   <Button
+                              variant="outline"
+                              className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                            >
+                              Book a quick call with our team
+                              <Calendar className="w-4 h-4 ml-2" />
+                            </Button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+{/* ✅ INDUSTRIES WE MANAGE GOOGLE ADS FOR */}
+<section className="py-16 px-4 bg-gray-50">
+  <div className="max-w-7xl mx-auto">
+    {/* Heading */}
+    <div className="text-center mb-12">
+      <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-[0.18em] text-brand-purple">
+        Industries We Manage Google Ads For
+      </span>
+
+      <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
+        Industries We Manage White-Label Google Ads For
+      </h2>
+
+      <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+        Our white-label PPC team has proven experience managing high-intent Google Ads
+        campaigns across competitive industries worldwide.
+      </p>
+    </div>
+
+    {/* Unified Gradient Card with Tick Points */}
+    <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white shadow-lg border-none rounded-2xl">
+      <CardContent className="p-8 sm:p-10">
+        <div className="grid gap-8 md:grid-cols-2 items-start">
+          {/* Left Column */}
+          <div>
+            <ul className="space-y-4 text-sm sm:text-base">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Law Firms &amp; Legal Services
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Home Services (HVAC, plumbing, roofing, construction, foundations)
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Local Businesses &amp; Multi-Location Brands
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Right Column */}
+          <div>
+            <ul className="space-y-4 text-sm sm:text-base">
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  E-commerce Stores (Search, Shopping &amp; Performance Max)
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  Healthcare &amp; Professional Services
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                <span className="text-white/95 font-medium">
+                  B2B Services &amp; Lead Generation Businesses
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        
+      </CardContent>
+    </Card>
+    <p className="mt-8 text-m sm:text-base text-black/85 max-w-3xl mx-auto text-center leading-relaxed">
+          We tailor ad strategy, keyword intent, bidding models, and landing-page alignment
+          based on industry behavior — not generic ad templates.
+        </p>
+  </div>
+</section>
+
+{/* ✅ QUICK TRUST STRIP – just before final CTA */}
+          <section className="py-10 px-4 bg-gray-50 border-t border-b border-brand-purple/10">
+            <div className="max-w-6xl mx-auto text-center">
+              <h3 className="text-sm sm:text-base font-semibold tracking-[0.18em] uppercase text-brand-purple mb-4">
+                Why Agencies Trust BrandingBeez
+              </h3>
+              <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                {[
+                  "100% White-Label Delivery",
+                  "US & UK Market Experience",
+                  "No Client Contact — Ever",
+                  "Proven Results Across Competitive Niches",
+                  "Scalable Team, No Freelancer Risk",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-50 border border-brand-purple/10 shadow-sm text-sm sm:text-base text-gray-800"
+                  >
+                    <CheckCircle className="w-4 h-4 text-brand-coral" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
 
           {/* CTA Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
