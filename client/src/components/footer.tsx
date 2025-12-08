@@ -258,7 +258,7 @@ export default function Footer() {
                 />
               </a>
               <a
-                href="https://agencies.semrush.com/"
+                href="https://agencies.semrush.com/brandingbeez/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center hover:bg-white/20 transition-all duration-300 border border-white/20"
@@ -272,7 +272,7 @@ export default function Footer() {
                 />
               </a>
               <a
-                href="https://share.google/rMkz85Jo0L5oLl1zO"
+                href="https://superbcompanies.com/organizations/brandingbeez/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-white/10 backdrop-blur-sm rounded-lg p-4 flex items-center justify-center hover:bg-white/20 transition-all duration-300 border border-white/20"

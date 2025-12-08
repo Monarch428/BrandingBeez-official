@@ -17,8 +17,8 @@ export default function AppointmentPage() {
         />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white flex flex-col">
-        {/* Optional Header */}
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 px-8 py-14 text-white flex flex-col">
+        {/* Optional Header */} 
         {/* <Header /> */}
 
         <main className="flex-1 container mx-auto px-4 sm:px-6 py-16">

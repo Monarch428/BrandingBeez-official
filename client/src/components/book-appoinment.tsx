@@ -241,11 +241,11 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
 
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    const firstWeekday = firstDay.getDay(); 
+    const firstWeekday = firstDay.getDay(); // 0 (Sun) → 6 (Sat)
     const totalDays = lastDay.getDate();
 
     const days: (Date | null)[] = [];
-    const offset = (firstWeekday + 6) % 7; 
+    const offset = (firstWeekday + 6) % 7; // Monday-first index
 
     for (let i = 0; i < offset; i++) {
       days.push(null);
@@ -511,16 +511,27 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
 
                     const day = new Date(date);
                     day.setHours(0, 0, 0, 0);
+
                     const isPastDay = day < today;
+
+                    // 🚫 Block Saturday (6) & Sunday (0)
+                    const isWeekend =
+                      day.getDay() === 6 || day.getDay() === 0;
+
+                    const isDisabled = isPastDay || isWeekend;
+
                     const isSelected =
-                      selectedDate && isSameDay(date, selectedDate);
+                      !isDisabled &&
+                      selectedDate &&
+                      isSameDay(date, selectedDate);
 
                     return (
                       <button
                         key={idx}
                         type="button"
-                        disabled={isPastDay}
+                        disabled={isDisabled}
                         onClick={() => {
+                          if (isDisabled) return;
                           setSelectedDate(date);
                           setSelectedSlot(null);
                           setBookingStage("time");
@@ -529,8 +540,9 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                           "h-9 md:h-10 rounded-lg text-xs md:text-sm flex items-center justify-center border transition-all",
                           isSelected
                             ? "bg-blue-600 text-white border-blue-600 shadow-sm font-bold"
+                            : isDisabled
+                            ? "opacity-30 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
                             : "border-slate-300 bg-white hover:border-blue-500 hover:bg-blue-50 text-slate-700",
-                          isPastDay ? "opacity-25 cursor-not-allowed" : "",
                         ].join(" ")}
                       >
                         {date.getDate()}
@@ -1310,6 +1322,7 @@ export const BookCallButtonWithModal: React.FC<
 // Keep old name for inline use
 export const AppointmentCalendar = AppointmentCalendarContent;
 export default AppointmentCalendarContent;
+
 
 
 
