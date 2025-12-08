@@ -991,8 +991,6 @@ export async function sendEmailViaGmail(submission: {
 // }
 
 
-
-
 export async function sendAppointmentNotification(
   appt: AppointmentNotificationPayload,
 ) {

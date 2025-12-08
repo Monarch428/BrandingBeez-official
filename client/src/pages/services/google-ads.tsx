@@ -366,75 +366,140 @@ export default function GoogleAds() {
         <main className="pt-0">
 
           {/* Featured Google Ads Client Section */}
-          <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-            <div className="max-w-7xl mx-auto p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div className="max-w-4xl w-full mx-auto lg:mx-0">
+          <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-brand-purple via-brand-purple/95 to-brand-coral text-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                {/* Left: Main Content */}
+                <div className="max-w-3xl">
                   {/* Badge */}
-                  <Badge className="bg-brand-coral text-white text-md mb-6 font-medium px-4 py-1 rounded-full">
-                    Featured Google Ads Client of the Month
-                  </Badge>
+                  <div className="flex items-center justify-center">
+                    <div className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1.5 mb-6 shadow-sm backdrop-blur-sm">
+                      <span className="text-xs sm:text-sm font-medium tracking-wide">
+                        Featured Google Ads Client of the Month
+                      </span>
+                    </div>
+                  </div>
 
                   {/* Heading */}
-                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-tight mb-6">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-5">
                     White-Label Google Ads Management for Agencies
                   </h1>
 
-                  {/* Paragraph 1 */}
-                  <p className="text-lg sm:text-xl text-gray-100 mb-6">
+                  {/* Paragraphs */}
+                  <p className="text-base sm:text-lg md:text-xl text-gray-100/90 mb-4">
                     Scale your agency’s PPC services with a dedicated white-label Google Ads team.
                     We manage strategy, setup, optimization, and reporting fully under your brand.
                   </p>
 
-                  {/* Paragraph 2 */}
-                  <p className="text-lg sm:text-xl text-gray-100 mb-8">
-                    Trusted by UK & US agencies to deliver profitable Google Ads campaigns for law firms,
+                  <p className="text-base sm:text-lg md:text-xl text-gray-100/85 mb-8">
+                    Trusted by UK &amp; US agencies to deliver profitable Google Ads campaigns for law firms,
                     local services, e-commerce brands, and high-intent leads.
                   </p>
 
-                  {/* Achievement Box */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
-                    <h2 className="text-xl font-bold mb-4">Google Ads Results in 30 days</h2>
-                    <ul className="space-y-2 text-gray-100">
-                      {featuredClient.achievements.map((achievement, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <CheckCircle className="w-5 h-5 text-white" />
-                          <span>{achievement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
                   {/* CTA Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                  <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                     <Button
-                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple font-semibold px-6 py-3 rounded-lg shadow-md flex items-center justify-center"
                       asChild
                     >
                       <Link href="/contact?service=google-ads&/#contact-form">
-                        Start Your Campaign
+                        <span>Start Your Campaign</span>
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Link>
                     </Button>
 
                     <Button
                       size="lg"
-                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90 font-semibold px-6 py-3 rounded-lg shadow-md flex items-center justify-center"
                       onClick={() => window.open("/book-appiontment", "_blank")}
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Book a Free Strategy Call
                     </Button>
                   </div>
+
+                  {/* Small Trust Strip */}
+                  {/* <div className="mt-6 flex flex-wrap gap-3 text-xs sm:text-sm text-gray-100/90">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      100% White-Label Delivery
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      US &amp; UK Market Experience
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      No Direct Client Contact
+                    </span>
+                  </div> */}
                 </div>
 
-
+                {/* Right: Results Card */}
                 <div className="relative">
-                  <Card className="bg-white/95 backdrop-blur-sm border border-white/20 p-6">
+                  {/* Glow / Accent */}
+                  <div className="pointer-events-none absolute inset-0 -right-10 -top-10 rounded-3xl bg-white/10 blur-3xl opacity-40" />
+
+                  <div className="relative bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 sm:p-7 shadow-xl">
+                    {/* Header */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-lg sm:text-xl font-bold">
+                          Google Ads Results in 30 Days
+                        </h2>
+                        <p className="text-xs sm:text-sm text-gray-100/80 mt-1">
+                          Real outcomes from a recent white-label campaign.
+                        </p>
+                      </div>
+
+                      {/* Mini Stat Badge */}
+                      {/* <div className="inline-flex flex-col items-end text-right">
+                        <span className="text-[10px] uppercase tracking-wide text-gray-200/80">
+                          Avg. ROAS
+                        </span>
+                        <span className="text-xl font-bold leading-tight">3.5x</span>
+                      </div> */}
+                    </div>
+
+                    {/* Achievements List */}
+                    <ul className="space-y-2.5 text-gray-100/95 mb-5">
+                      {featuredClient.achievements.map((achievement, index) => (
+                        <li key={index} className="flex items-start gap-2.5">
+                          <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm sm:text-base leading-relaxed">
+                            {achievement}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Bottom Stats Strip */}
+                    <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
+                        <div className="text-gray-200/90">Niche</div>
+                        <div className="font-semibold">
+                          {featuredClient.industry ?? "Lead Gen / Local Services"}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
+                        <div className="text-gray-200/90">Region</div>
+                        <div className="font-semibold">
+                          {"UK & US"}
+                          {/* featuredClient.region ?? */}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+          {/* <Card className="bg-white/95 backdrop-blur-sm border border-white/20 p-6">
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-4">
                         <div className="w-16 h-16 rounded-lg flex items-center justify-center">
-                          {/* <span className="text-xl font-bold text-white">AS</span>  bg-gradient-to-br from-blue-500 to-purple-600*/}
                           <img src={as_Logo} alt="AS Logo" />
                         </div>
                         <Badge className="bg-blue-100 text-blue-800 border-blue-200">
@@ -455,11 +520,7 @@ export default function GoogleAds() {
                     <p className="text-xs text-gray-600 text-center">
                       Live Google Ads dashboard showing 30-day performance metrics including 24.8K impressions, 839 clicks, 100 conversions, and £20.66 cost per conversion.
                     </p>
-                  </Card>
-                </div>
-              </div>
-            </div>
-          </section>
+                  </Card> */}
 
           <PhaseSliderSection
             sectionId="google-ads-process"
