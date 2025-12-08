@@ -134,11 +134,17 @@ export function PortfolioItemsManager() {
   const [savingContent, setSavingContent] = useState(false);
   const [contentForm, setContentForm] = useState<PortfolioContent>(emptyContent);
   const [contentDialogOpen, setContentDialogOpen] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false); // ✅ Cloudinary upload state
   const queryClient = useQueryClient();
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
 
-  const { data: items = [], isLoading, error } = useQuery<PortfolioItem[]>({
+  const {
+    data: items = [],
+    isLoading,
+    error,
+  } = useQuery<PortfolioItem[]>({
     queryKey: ["/api/admin/portfolio-items"],
     queryFn: async () => {
       const res = await fetch("/api/admin/portfolio-items", {
@@ -150,7 +156,11 @@ export function PortfolioItemsManager() {
     enabled: Boolean(token),
   });
 
-  const { data: contentData, isLoading: contentLoading, error: contentError } = useQuery<PortfolioContent>({
+  const {
+    data: contentData,
+    isLoading: contentLoading,
+    error: contentError,
+  } = useQuery<PortfolioContent>({
     queryKey: ["/api/admin/portfolio-content"],
     queryFn: async () => {
       const res = await fetch("/api/admin/portfolio-content", {
@@ -172,7 +182,7 @@ export function PortfolioItemsManager() {
         techStack: it.techStack || [],
       });
     }
-  }, [editingId]);
+  }, [editingId, items]);
 
   useEffect(() => {
     if (contentData) {
@@ -181,14 +191,18 @@ export function PortfolioItemsManager() {
         heroHighlight: contentData.heroHighlight || "",
         heroSubtitle: contentData.heroSubtitle || "",
         heroDescription: contentData.heroDescription || "",
-        heroStats: Array.isArray(contentData.heroStats) ? contentData.heroStats : [],
+        heroStats: Array.isArray(contentData.heroStats)
+          ? contentData.heroStats
+          : [],
         heroPrimaryCtaText: contentData.heroPrimaryCtaText || "",
         heroPrimaryCtaHref: contentData.heroPrimaryCtaHref || "",
         heroSecondaryCtaText: contentData.heroSecondaryCtaText || "",
         heroSecondaryCtaHref: contentData.heroSecondaryCtaHref || "",
         testimonialsTitle: contentData.testimonialsTitle || "",
         testimonialsSubtitle: contentData.testimonialsSubtitle || "",
-        testimonials: Array.isArray(contentData.testimonials) ? contentData.testimonials : [],
+        testimonials: Array.isArray(contentData.testimonials)
+          ? contentData.testimonials
+          : [],
       });
     } else if (!contentLoading && !contentError) {
       setContentForm(emptyContent);
@@ -203,7 +217,11 @@ export function PortfolioItemsManager() {
     setContentForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const updateHeroStat = (index: number, field: keyof PortfolioHeroStat, value: string) => {
+  const updateHeroStat = (
+    index: number,
+    field: keyof PortfolioHeroStat,
+    value: string,
+  ) => {
     setContentForm((prev) => {
       const stats = [...(prev.heroStats || [])];
       stats[index] = { ...stats[index], [field]: value };
@@ -240,7 +258,10 @@ export function PortfolioItemsManager() {
   const addTestimonial = () => {
     setContentForm((prev) => ({
       ...prev,
-      testimonials: [...(prev.testimonials || []), { quote: "", who: "", tag: "" }],
+      testimonials: [
+        ...(prev.testimonials || []),
+        { quote: "", who: "", tag: "" },
+      ],
     }));
   };
 
@@ -268,17 +289,18 @@ export function PortfolioItemsManager() {
         features: Array.isArray(form.features)
           ? form.features
           : String(form.features || "")
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean),
         techStack: Array.isArray(form.techStack)
           ? form.techStack
           : String(form.techStack || "")
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean),
         timeline: form.timeline,
         imageUrl: form.imageUrl,
+        // ✅ Store Cloudinary publicId in `image` if present, else fallback
         image: form.image || form.imageUrl,
         isFeatured: Boolean(form.isFeatured),
         orderIndex: Number(form.orderIndex || 0),
@@ -303,7 +325,9 @@ export function PortfolioItemsManager() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || "Failed to save portfolio item");
       }
-      await queryClient.invalidateQueries({ queryKey: ["/api/admin/portfolio-items"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["/api/admin/portfolio-items"],
+      });
       setForm(emptyForm);
       setEditingId(null);
     } catch (err) {
@@ -322,7 +346,9 @@ export function PortfolioItemsManager() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to delete portfolio item");
-      await queryClient.invalidateQueries({ queryKey: ["/api/admin/portfolio-items"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["/api/admin/portfolio-items"],
+      });
       if (editingId === id) {
         setEditingId(null);
         setForm(emptyForm);
@@ -369,9 +395,13 @@ export function PortfolioItemsManager() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.message || "Failed to update portfolio content");
+        throw new Error(
+          data?.message || "Failed to update portfolio content",
+        );
       }
-      await queryClient.invalidateQueries({ queryKey: ["/api/admin/portfolio-content"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["/api/admin/portfolio-content"],
+      });
       setContentForm({
         heroTitle: data.heroTitle || "",
         heroHighlight: data.heroHighlight || "",
@@ -384,7 +414,9 @@ export function PortfolioItemsManager() {
         heroSecondaryCtaHref: data.heroSecondaryCtaHref || "",
         testimonialsTitle: data.testimonialsTitle || "",
         testimonialsSubtitle: data.testimonialsSubtitle || "",
-        testimonials: Array.isArray(data.testimonials) ? data.testimonials : [],
+        testimonials: Array.isArray(data.testimonials)
+          ? data.testimonials
+          : [],
       });
       setContentDialogOpen(false);
     } catch (err) {
@@ -396,7 +428,7 @@ export function PortfolioItemsManager() {
   };
 
   const selectedCategory = serviceCategories.find(
-    (c) => c.id === form.serviceCategory
+    (c) => c.id === form.serviceCategory,
   );
 
   const showROI =
@@ -405,7 +437,9 @@ export function PortfolioItemsManager() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-2xl font-bold text-brand-purple">Portfolio Items</h2>
+        <h2 className="text-2xl font-bold text-brand-purple">
+          Portfolio Items
+        </h2>
         <Badge>{items.length} items</Badge>
       </div>
 
@@ -415,10 +449,13 @@ export function PortfolioItemsManager() {
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-gray-600">
-            Manage the hero copy, CTAs, stats, and testimonials that appear on the public portfolio page.
+            Manage the hero copy, CTAs, stats, and testimonials that appear on
+            the public portfolio page.
           </p>
           <Button onClick={() => setContentDialogOpen(true)}>
-            {contentData ? "Edit Portfolio Page Content" : "Add Portfolio Page Content"}
+            {contentData
+              ? "Edit Portfolio Page Content"
+              : "Add Portfolio Page Content"}
           </Button>
         </CardContent>
       </Card>
@@ -427,13 +464,19 @@ export function PortfolioItemsManager() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {contentData ? "Edit Portfolio Page Content" : "Add Portfolio Page Content"}
+              {contentData
+                ? "Edit Portfolio Page Content"
+                : "Add Portfolio Page Content"}
             </DialogTitle>
           </DialogHeader>
           {contentLoading ? (
-            <div className="py-6 text-center text-gray-600">Loading content...</div>
+            <div className="py-6 text-center text-gray-600">
+              Loading content...
+            </div>
           ) : contentError ? (
-            <div className="py-6 text-center text-red-600">Failed to load portfolio content.</div>
+            <div className="py-6 text-center text-red-600">
+              Failed to load portfolio content.
+            </div>
           ) : (
             <form className="space-y-4" onSubmit={handleSaveContent}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -441,7 +484,9 @@ export function PortfolioItemsManager() {
                   <Label>Hero Title</Label>
                   <Input
                     value={contentForm.heroTitle}
-                    onChange={(e) => handleContentChange("heroTitle", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange("heroTitle", e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -449,7 +494,9 @@ export function PortfolioItemsManager() {
                   <Label>Hero Highlight</Label>
                   <Input
                     value={contentForm.heroHighlight || ""}
-                    onChange={(e) => handleContentChange("heroHighlight", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange("heroHighlight", e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -459,7 +506,9 @@ export function PortfolioItemsManager() {
                   <Label>Hero Subtitle</Label>
                   <textarea
                     value={contentForm.heroSubtitle || ""}
-                    onChange={(e) => handleContentChange("heroSubtitle", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange("heroSubtitle", e.target.value)
+                    }
                     className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
                   />
                 </div>
@@ -467,7 +516,9 @@ export function PortfolioItemsManager() {
                   <Label>Hero Description</Label>
                   <textarea
                     value={contentForm.heroDescription || ""}
-                    onChange={(e) => handleContentChange("heroDescription", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange("heroDescription", e.target.value)
+                    }
                     className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
                   />
                 </div>
@@ -478,14 +529,24 @@ export function PortfolioItemsManager() {
                   <Label>Primary CTA Text</Label>
                   <Input
                     value={contentForm.heroPrimaryCtaText || ""}
-                    onChange={(e) => handleContentChange("heroPrimaryCtaText", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange(
+                        "heroPrimaryCtaText",
+                        e.target.value,
+                      )
+                    }
                   />
                 </div>
                 <div>
                   <Label>Primary CTA Link</Label>
                   <Input
                     value={contentForm.heroPrimaryCtaHref || ""}
-                    onChange={(e) => handleContentChange("heroPrimaryCtaHref", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange(
+                        "heroPrimaryCtaHref",
+                        e.target.value,
+                      )
+                    }
                     placeholder="/#case-studies"
                   />
                 </div>
@@ -493,14 +554,24 @@ export function PortfolioItemsManager() {
                   <Label>Secondary CTA Text</Label>
                   <Input
                     value={contentForm.heroSecondaryCtaText || ""}
-                    onChange={(e) => handleContentChange("heroSecondaryCtaText", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange(
+                        "heroSecondaryCtaText",
+                        e.target.value,
+                      )
+                    }
                   />
                 </div>
                 <div>
                   <Label>Secondary CTA Link</Label>
                   <Input
                     value={contentForm.heroSecondaryCtaHref || ""}
-                    onChange={(e) => handleContentChange("heroSecondaryCtaHref", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange(
+                        "heroSecondaryCtaHref",
+                        e.target.value,
+                      )
+                    }
                     placeholder="/pricing-calculator"
                   />
                 </div>
@@ -509,23 +580,35 @@ export function PortfolioItemsManager() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="font-semibold">Hero Stats</Label>
-                  <Button type="button" variant="outline" size="sm" onClick={addHeroStat}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={addHeroStat}
+                  >
                     Add Stat
                   </Button>
                 </div>
                 {(contentForm.heroStats || []).map((stat, index) => (
-                  <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                  <div
+                    key={index}
+                    className="grid grid-cols-1 md:grid-cols-12 gap-3"
+                  >
                     <Input
                       className="md:col-span-3"
                       placeholder="KPI (e.g. 15+)"
                       value={stat.kpi}
-                      onChange={(e) => updateHeroStat(index, "kpi", e.target.value)}
+                      onChange={(e) =>
+                        updateHeroStat(index, "kpi", e.target.value)
+                      }
                     />
                     <Input
                       className="md:col-span-8"
                       placeholder="Label"
                       value={stat.label}
-                      onChange={(e) => updateHeroStat(index, "label", e.target.value)}
+                      onChange={(e) =>
+                        updateHeroStat(index, "label", e.target.value)
+                      }
                     />
                     <Button
                       type="button"
@@ -538,43 +621,61 @@ export function PortfolioItemsManager() {
                   </div>
                 ))}
                 {(contentForm.heroStats || []).length === 0 && (
-                  <p className="text-sm text-gray-500">No stats yet. Add one to highlight key metrics.</p>
+                  <p className="text-sm text-gray-500">
+                    No stats yet. Add one to highlight key metrics.
+                  </p>
                 )}
               </div>
 
               <div className="space-y-3">
                 <Label className="font-semibold">Testimonials</Label>
-                {(contentForm.testimonials || []).map((testimonial, index) => (
-                  <div key={index} className="border rounded-lg p-3 space-y-2">
-                    <textarea
-                      className="w-full border rounded-md p-2 min-h-[72px]"
-                      placeholder="Quote"
-                      value={testimonial.quote}
-                      onChange={(e) => updateTestimonial(index, "quote", e.target.value)}
-                    />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <Input
-                        placeholder="Who"
-                        value={testimonial.who}
-                        onChange={(e) => updateTestimonial(index, "who", e.target.value)}
+                {(contentForm.testimonials || []).map(
+                  (testimonial, index) => (
+                    <div
+                      key={index}
+                      className="border rounded-lg p-3 space-y-2"
+                    >
+                      <textarea
+                        className="w-full border rounded-md p-2 min-h-[72px]"
+                        placeholder="Quote"
+                        value={testimonial.quote}
+                        onChange={(e) =>
+                          updateTestimonial(index, "quote", e.target.value)
+                        }
                       />
-                      <Input
-                        placeholder="Tag / Industry"
-                        value={testimonial.tag || ""}
-                        onChange={(e) => updateTestimonial(index, "tag", e.target.value)}
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => removeTestimonial(index)}
-                      >
-                        Remove
-                      </Button>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <Input
+                          placeholder="Who"
+                          value={testimonial.who}
+                          onChange={(e) =>
+                            updateTestimonial(index, "who", e.target.value)
+                          }
+                        />
+                        <Input
+                          placeholder="Tag / Industry"
+                          value={testimonial.tag || ""}
+                          onChange={(e) =>
+                            updateTestimonial(index, "tag", e.target.value)
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removeTestimonial(index)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                <Button className="bg-brand-coral text-white" type="button" variant="outline" onClick={addTestimonial}>
+                  ),
+                )}
+                <Button
+                  className="bg-brand-coral text-white"
+                  type="button"
+                  variant="outline"
+                  onClick={addTestimonial}
+                >
                   Add Testimonial
                 </Button>
               </div>
@@ -584,7 +685,9 @@ export function PortfolioItemsManager() {
                   <Label>Testimonials Title</Label>
                   <Input
                     value={contentForm.testimonialsTitle || ""}
-                    onChange={(e) => handleContentChange("testimonialsTitle", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange("testimonialsTitle", e.target.value)
+                    }
                     placeholder="What Our Clients Say"
                   />
                 </div>
@@ -592,13 +695,22 @@ export function PortfolioItemsManager() {
                   <Label>Testimonials Subtitle</Label>
                   <textarea
                     value={contentForm.testimonialsSubtitle || ""}
-                    onChange={(e) => handleContentChange("testimonialsSubtitle", e.target.value)}
+                    onChange={(e) =>
+                      handleContentChange(
+                        "testimonialsSubtitle",
+                        e.target.value,
+                      )
+                    }
                     className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="bg-brand-purple" disabled={savingContent}>
+              <Button
+                type="submit"
+                className="bg-brand-purple"
+                disabled={savingContent}
+              >
                 {savingContent ? "Saving..." : "Save Portfolio Content"}
               </Button>
             </form>
@@ -609,7 +721,9 @@ export function PortfolioItemsManager() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>{editingId ? "Edit Portfolio Item" : "Add Portfolio Item"}</CardTitle>
+            <CardTitle>
+              {editingId ? "Edit Portfolio Item" : "Add Portfolio Item"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form className="space-y-4" onSubmit={handleSubmit}>
@@ -617,7 +731,9 @@ export function PortfolioItemsManager() {
                 <Label>Service Category</Label>
                 <select
                   value={form.serviceCategory || ""}
-                  onChange={(e) => handleChange("serviceCategory", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("serviceCategory", e.target.value)
+                  }
                   className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white"
                 >
                   <option value="">Select a service category...</option>
@@ -675,7 +791,9 @@ export function PortfolioItemsManager() {
                 <Label>Description</Label>
                 <textarea
                   value={form.description || ""}
-                  onChange={(e) => handleChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleChange("description", e.target.value)
+                  }
                   placeholder="Short summary about this portfolio item"
                   className="w-full border rounded-md p-2 mt-1 min-h-[96px]"
                 />
@@ -685,7 +803,9 @@ export function PortfolioItemsManager() {
                   <Label>Investment</Label>
                   <Input
                     value={form.investment || ""}
-                    onChange={(e) => handleChange("investment", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("investment", e.target.value)
+                    }
                     placeholder="$6.9K"
                   />
                 </div>
@@ -693,7 +813,9 @@ export function PortfolioItemsManager() {
                   <Label>Total Value</Label>
                   <Input
                     value={form.totalValue || ""}
-                    onChange={(e) => handleChange("totalValue", e.target.value)}
+                    onChange={(e) =>
+                      handleChange("totalValue", e.target.value)
+                    }
                     placeholder="$24K"
                   />
                 </div>
@@ -721,7 +843,7 @@ export function PortfolioItemsManager() {
                 <Input
                   value={form.imageUrl || ""}
                   onChange={(e) => handleChange("imageUrl", e.target.value)}
-                  placeholder="/images/octupus.png"
+                  placeholder="https://res.cloudinary.com/your-cloud-name/image/upload/..."
                 />
               </div>
               <div>
@@ -729,7 +851,7 @@ export function PortfolioItemsManager() {
                 <Input
                   value={form.image || ""}
                   onChange={(e) => handleChange("image", e.target.value)}
-                  placeholder="Same as Image URL unless set differently"
+                  placeholder="Cloudinary publicId or same as Image URL"
                 />
               </div>
               <div>
@@ -737,38 +859,62 @@ export function PortfolioItemsManager() {
                 <input
                   type="file"
                   accept="image/*"
+                  disabled={uploadingImage}
                   onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
                     try {
+                      setUploadingImage(true);
                       const formData = new FormData();
+                      // ✅ must match backend: cloudinaryUpload.single("image")
                       formData.append("image", file);
-                      const res = await fetch("/api/upload/portfolio-image", {
-                        method: "POST",
-                        headers: {
-                          Authorization: `Bearer ${token}`,
+                      const res = await fetch(
+                        "/api/upload/portfolio-image",
+                        {
+                          method: "POST",
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                          body: formData,
                         },
-                        body: formData,
-                      });
+                      );
                       const data = await res.json();
                       if (!res.ok || !data?.imageUrl) {
                         throw new Error(data?.error || "Upload failed");
                       }
+                      // ✅ Cloudinary URL + publicId from backend
                       handleChange("imageUrl", data.imageUrl);
+                      if (data.filename) {
+                        handleChange("image", data.filename);
+                      }
                     } catch (err) {
+                      console.error(err);
                       alert((err as Error).message);
+                    } finally {
+                      setUploadingImage(false);
                     }
                   }}
                   className="mt-1"
                 />
-                {form.imageUrl && (
-                  <div className="mt-2 text-sm text-gray-600 break-all">{form.imageUrl}</div>
+                {uploadingImage && (
+                  <div className="mt-1 text-xs text-gray-500">
+                    Uploading to Cloudinary...
+                  </div>
+                )}
+                {form.imageUrl && !uploadingImage && (
+                  <div className="mt-2 text-sm text-gray-600 break-all">
+                    {form.imageUrl}
+                  </div>
                 )}
               </div>
               <div>
                 <Label>Features (comma separated)</Label>
                 <Input
-                  value={Array.isArray(form.features) ? form.features.join(", ") : (form.features as any) || ""}
+                  value={
+                    Array.isArray(form.features)
+                      ? form.features.join(", ")
+                      : (form.features as any) || ""
+                  }
                   onChange={(e) => handleChange("features", e.target.value)}
                   placeholder="Lead automation, Pipeline tracking"
                 />
@@ -776,7 +922,11 @@ export function PortfolioItemsManager() {
               <div>
                 <Label>Tech Stack (comma separated)</Label>
                 <Input
-                  value={Array.isArray(form.techStack) ? form.techStack.join(", ") : (form.techStack as any) || ""}
+                  value={
+                    Array.isArray(form.techStack)
+                      ? form.techStack.join(", ")
+                      : (form.techStack as any) || ""
+                  }
                   onChange={(e) => handleChange("techStack", e.target.value)}
                   placeholder="React, Node.js, Stripe"
                 />
@@ -804,16 +954,32 @@ export function PortfolioItemsManager() {
                 <Input
                   type="number"
                   value={Number(form.orderIndex || 0)}
-                  onChange={(e) => handleChange("orderIndex", Number(e.target.value))}
+                  onChange={(e) =>
+                    handleChange("orderIndex", Number(e.target.value))
+                  }
                 />
               </div>
 
               <div className="flex gap-3">
-                <Button type="submit" className="bg-brand-purple" disabled={loading}>
-                  {editingId ? (loading ? "Saving..." : "Save Changes") : loading ? "Creating..." : "Create Item"}
+                <Button
+                  type="submit"
+                  className="bg-brand-purple"
+                  disabled={loading}
+                >
+                  {editingId
+                    ? loading
+                      ? "Saving..."
+                      : "Save Changes"
+                    : loading
+                    ? "Creating..."
+                    : "Create Item"}
                 </Button>
                 {editingId && (
-                  <Button type="button" variant="outline" onClick={resetForm}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={resetForm}
+                  >
                     Cancel
                   </Button>
                 )}
@@ -824,26 +990,47 @@ export function PortfolioItemsManager() {
 
         <div className="lg:col-span-2 space-y-4">
           {isLoading ? (
-            <Card><CardContent className="p-6">Loading...</CardContent></Card>
+            <Card>
+              <CardContent className="p-6">Loading...</CardContent>
+            </Card>
           ) : error ? (
-            <Card><CardContent className="p-6 text-red-600">Failed to load items</CardContent></Card>
+            <Card>
+              <CardContent className="p-6 text-red-600">
+                Failed to load items
+              </CardContent>
+            </Card>
           ) : items.length === 0 ? (
-            <Card><CardContent className="p-6 text-gray-600">No portfolio items yet.</CardContent></Card>
+            <Card>
+              <CardContent className="p-6 text-gray-600">
+                No portfolio items yet.
+              </CardContent>
+            </Card>
           ) : (
             items.map((it) => (
-              <Card key={it.id} className="hover:shadow-sm transition-shadow">
+              <Card
+                key={it.id}
+                className="hover:shadow-sm transition-shadow"
+              >
                 <CardContent className="p-4 flex gap-4 items-center">
                   <div className="w-24 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
                     {it.imageUrl ? (
-                      <img src={it.imageUrl} alt={it.title} className="w-full h-full object-cover" />
+                      <img
+                        src={it.imageUrl}
+                        alt={it.title}
+                        className="w-full h-full object-cover"
+                      />
                     ) : (
                       <div className="text-xs text-gray-400">No Image</div>
                     )}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <div className="font-semibold text-brand-purple">{it.title}</div>
-                      {it.isFeatured && <Badge className="bg-yellow-500">Featured</Badge>}
+                      <div className="font-semibold text-brand-purple">
+                        {it.title}
+                      </div>
+                      {it.isFeatured && (
+                        <Badge className="bg-yellow-500">Featured</Badge>
+                      )}
                       {it.isActive ? (
                         <Badge className="bg-green-600">Active</Badge>
                       ) : (
@@ -851,12 +1038,23 @@ export function PortfolioItemsManager() {
                       )}
                     </div>
                     <div className="text-sm text-gray-600">
-                      /portfolio/{it.slug} • {it.industry} • Order {it.orderIndex}
+                      /portfolio/{it.slug} • {it.industry} • Order{" "}
+                      {it.orderIndex}
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => setEditingId(it.id)}>Edit</Button>
-                    <Button variant="destructive" onClick={() => handleDelete(it.id)}>Delete</Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setEditingId(it.id)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => handleDelete(it.id)}
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -867,5 +1065,3 @@ export function PortfolioItemsManager() {
     </div>
   );
 }
-
-

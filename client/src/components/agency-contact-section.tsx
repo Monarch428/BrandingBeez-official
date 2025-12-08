@@ -74,7 +74,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   const { toast } = useToast();
 
   // 🌍 Auto-detect country for phone input
-  const [countryCode, setCountryCode] = useState<string>("");
+  const [countryCode, setCountryCode] = useState<string>("us");
 
   useEffect(() => {
     if (typeof window === "undefined") return;

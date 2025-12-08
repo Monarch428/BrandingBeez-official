@@ -7,6 +7,8 @@ import multer from "multer";
 import newsletterRoutes from "./routes/newsletter";
 import appointmentsRouter from "./appointments";
 import googleAuthRoutes from "./google-auth-router";
+// import uploadRouter from "./routes/upload";
+import { upload as cloudinaryUpload } from "./middleware/cloudinaryUpload";
 
 
 // Extend Express Request type to include user
@@ -134,6 +136,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/newsletter", newsletterRoutes);
   app.use("/api", appointmentsRouter);
   app.use("/api/google", googleAuthRoutes);
+  // app.use("/api/upload", authenticateAdmin, uploadRouter);
+
 
 
 
@@ -1332,6 +1336,538 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete contact endpoint
+  app.delete("/api/contacts/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deleteContact(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting contact:", error);
+      res.status(500).json({ message: "Failed to delete contact" });
+    }
+  });
+
+  // Object storage for image uploads
+  app.post("/api/objects/upload", async (req, res) => {
+    try {
+      // Mock implementation for now - in production would use proper object storage
+      const uploadURL = `https://storage.googleapis.com/bucket/uploads/${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      res.json({ uploadURL });
+    } catch (error) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ message: "Failed to get upload URL" });
+    }
+  });
+
+  // Update pricing package
+  app.put(
+    "/api/admin/pricing-packages/:id",
+    authenticateAdmin,
+    async (req, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        const updatedPackage = await storage.updatePricingPackage(id, req.body);
+        res.json(updatedPackage);
+      } catch (error) {
+        console.error("Error updating pricing package:", error);
+        res.status(500).json({ message: "Failed to update pricing package" });
+      }
+    },
+  );
+
+  // Delete pricing package
+  app.delete(
+    "/api/admin/pricing-packages/:id",
+    authenticateAdmin,
+    async (req, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        await storage.deletePricingPackage(id);
+        res.json({ success: true });
+      } catch (error) {
+        console.error("Error deleting pricing package:", error);
+        res.status(500).json({ message: "Failed to delete pricing package" });
+      }
+    },
+  );
+
+  // Update case study
+  app.put(
+    "/api/admin/case-studies/:id",
+    authenticateAdmin,
+    async (req, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        const updatedCaseStudy = await storage.updateCaseStudy(id, req.body);
+        res.json(updatedCaseStudy);
+      } catch (error) {
+        console.error("Error updating case study:", error);
+        res.status(500).json({ message: "Failed to update case study" });
+      }
+    },
+  );
+
+  // Delete case study
+  app.delete(
+    "/api/admin/case-studies/:id",
+    authenticateAdmin,
+    async (req, res) => {
+      try {
+        const id = parseInt(req.params.id);
+        await storage.deleteCaseStudy(id);
+        res.json({ success: true });
+      } catch (error) {
+        console.error("Error deleting case study:", error);
+        res.status(500).json({ message: "Failed to delete case study" });
+      }
+    },
+  );
+
+  // Single blog generation endpoint
+  app.post(
+    "/api/admin/generate-single-blog",
+    authenticateAdmin,
+    async (req, res) => {
+      try {
+        const { title, keywords, category, targetAudience } = req.body;
+
+        if (
+          !title ||
+          !keywords ||
+          !Array.isArray(keywords) ||
+          keywords.length === 0
+        ) {
+          return res.status(400).json({
+            message: "Title and keywords are required",
+          });
+        }
+
+        // Import the blog generator
+        const { generateSingleBlog } = await import("./blog-generator");
+
+        // Generate single blog
+        const blogContent = await generateSingleBlog({
+          title,
+          keywords,
+          category,
+          targetAudience,
+        });
+
+        res.json({
+          success: true,
+          blog: blogContent,
+          message: "Blog generated successfully",
+        });
+      } catch (error) {
+        console.error("Error generating single blog:", error);
+        res.status(500).json({ message: "Failed to generate blog" });
+      }
+    },
+  );
+
+  // Blog generation endpoints
+  app.post("/api/admin/generate-blogs", authenticateAdmin, async (req, res) => {
+    try {
+      const { count = 120 } = req.body;
+
+      // Import the blog generator
+      const { generateMonthlyBlogs } = await import("./blog-generator");
+
+      // Start generation in background
+      generateMonthlyBlogs(count).catch((error) => {
+        console.error("Blog generation failed:", error);
+      });
+
+      res.json({
+        success: true,
+        message: `Started generating ${count} blogs. Check server logs for progress.`,
+      });
+    } catch (error) {
+      console.error("Error starting blog generation:", error);
+      res.status(500).json({ message: "Failed to start blog generation" });
+    }
+  });
+
+  app.post(
+    "/api/admin/generate-daily-blogs",
+    authenticateAdmin,
+    async (req, res) => {
+      try {
+        const { scheduleDailyBlogGeneration } = await import(
+          "./blog-generator"
+        );
+
+        // Start daily generation
+        scheduleDailyBlogGeneration().catch((error) => {
+          console.error("Daily blog generation failed:", error);
+        });
+
+        res.json({
+          success: true,
+          message:
+            "Started daily blog generation schedule (4 blogs/day for 30 days)",
+        });
+      } catch (error) {
+        console.error("Error starting daily blog generation:", error);
+        res.status(500).json({ message: "Failed to start daily generation" });
+      }
+    },
+  );
+
+  // File upload endpoint for blog images
+  // app.post("/api/upload/image", authenticateAdmin, async (req, res) => {
+  //   try {
+  //     const resolveUploadDir = () => {
+  //       if (process.env.BLOG_UPLOAD_DIR) {
+  //         return path.resolve(process.env.BLOG_UPLOAD_DIR);
+  //       }
+
+  //       // default: projectRoot/client/public/upload_image/blog_image
+  //       return path.resolve(
+  //         process.cwd(),
+  //         "client",
+  //         "public",
+  //         "upload_image",
+  //         "blog_image",
+  //       );
+  //     };
+
+  //     // Configure multer for file uploads
+  //     const storage = multer.diskStorage({
+  //       destination: (req: any, file: any, cb: any) => {
+  //         try {
+  //           const uploadPath = resolveUploadDir();
+  //           if (!fs.existsSync(uploadPath)) {
+  //             fs.mkdirSync(uploadPath, { recursive: true });
+  //           }
+  //           cb(null, uploadPath);
+  //         } catch (err) {
+  //           cb(err, null);
+  //         }
+  //       },
+  //       filename: (req: any, file: any, cb: any) => {
+  //         // Generate unique filename with timestamp
+  //         const uniqueSuffix =
+  //           Date.now() + "-" + Math.round(Math.random() * 1e9);
+  //         const ext = path.extname(file.originalname);
+  //         const name = file.originalname
+  //           .replace(ext, "")
+  //           .replace(/[^a-zA-Z0-9]/g, "-")
+  //           .toLowerCase();
+  //         cb(null, `${name}-${uniqueSuffix}${ext}`);
+  //       },
+  //     });
+
+  //     const upload = multer({
+  //       storage: storage,
+  //       limits: {
+  //         fileSize: 5 * 1024 * 1024, // 5MB limit
+  //       },
+  //       fileFilter: (req: any, file: any, cb: any) => {
+  //         // Check if file is an image
+  //         if (file.mimetype.startsWith("image/")) {
+  //           cb(null, true);
+  //         } else {
+  //           cb(new Error("Only image files are allowed!"), false);
+  //         }
+  //       },
+  //     });
+
+  //     console.log("[upload-image] Starting upload request");
+  //     upload.single("image")(req, res, (err: any) => {
+  //       if (err) {
+  //         console.error("[upload-image] Multer error:", err);
+  //         return res.status(400).json({ error: err.message });
+  //       }
+
+  //       if (!req.file) {
+  //         console.warn("[upload-image] No file provided in request");
+  //         return res.status(400).json({ error: "No file uploaded" });
+  //       }
+
+  //       console.log("[upload-image] File saved:", {
+  //         filename: req.file.filename,
+  //         mimetype: req.file.mimetype,
+  //         size: req.file.size,
+  //       });
+
+  //       // Return the URL path that can be used in the frontend
+  //       const publicPath = "/upload_image/blog_image";
+  //       const imageUrl = `${publicPath}/${req.file.filename}`;
+  //       console.log("[upload-image] Responding with URL:", imageUrl);
+
+  //       res.json({
+  //         success: true,
+  //         imageUrl: imageUrl,
+  //         filename: req.file.filename,
+  //       });
+  //     });
+  //   } catch (error) {
+  //     console.error("Error uploading image:", error);
+  //     res.status(500).json({ error: "Failed to upload image" });
+  //   }
+  // });
+
+  // app.post(
+  //   "/api/upload/image",
+  //   authenticateAdmin,
+  //   (req, res) => {
+  //     console.log("[upload-image] Starting Cloudinary upload request");
+
+  //     cloudinaryUpload.single("image")(req as any, res as any, (err: any) => {
+  //       if (err) {
+  //         console.error("[upload-image] Multer/Cloudinary error:", err);
+  //         return res.status(400).json({ error: err.message || "Upload failed" });
+  //       }
+
+  //       if (!req.file) {
+  //         console.warn("[upload-image] No file provided in request");
+  //         return res.status(400).json({ error: "No file uploaded" });
+  //       }
+
+  //       const file = req.file as Express.Multer.File & {
+  //         path?: string;     // Cloudinary URL
+  //         filename?: string; // Cloudinary public ID
+  //       };
+
+  //       console.log("[upload-image] File uploaded to Cloudinary:", {
+  //         url: file.path,
+  //         publicId: file.filename,
+  //         mimetype: file.mimetype,
+  //         size: file.size,
+  //       });
+
+  //       // Keep response shape compatible with your existing frontend
+  //       res.json({
+  //         success: true,
+  //         imageUrl: file.path,      // use this in BlogPost.imageUrl
+  //         filename: file.filename,  // optional: store as publicId in DB if you want
+  //       });
+  //     });
+  //   },
+  // );
+
+  app.post(
+    "/api/upload/image",
+    authenticateAdmin,
+    (req, res) => {
+      console.log("[upload-image] Starting Cloudinary upload request");
+
+      cloudinaryUpload.single("image")(req as any, res as any, (err: any) => {
+        if (err) {
+          console.error("[upload-image] Multer/Cloudinary error:", err);
+          return res
+            .status(400)
+            .json({ error: err.message || "Upload failed" });
+        }
+
+        if (!req.file) {
+          console.warn("[upload-image] No file provided in request");
+          return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const file = req.file as Express.Multer.File & {
+          path?: string;     // Cloudinary URL
+          filename?: string; // Cloudinary public ID
+        };
+
+        console.log("[upload-image] File uploaded to Cloudinary:", {
+          url: file.path,
+          publicId: file.filename,
+          mimetype: file.mimetype,
+          size: file.size,
+        });
+
+        // 🔁 Same shape as portfolio
+        res.json({
+          success: true,
+          imageUrl: file.path,     // use this in BlogPost.imageUrl
+          filename: file.filename, // optional: store as publicId
+        });
+      });
+    },
+  );
+
+  app.post(
+    "/api/upload/portfolio-image",
+    authenticateAdmin,
+    (req, res) => {
+      console.log("[upload-portfolio-image] Starting Cloudinary upload request");
+
+      cloudinaryUpload.single("image")(req as any, res as any, (err: any) => {
+        if (err) {
+          console.error("[upload-portfolio-image] Multer/Cloudinary error:", err);
+          return res.status(400).json({ error: err.message || "Upload failed" });
+        }
+
+        if (!req.file) {
+          console.warn("[upload-portfolio-image] No file provided in request");
+          return res.status(400).json({ error: "No file uploaded" });
+        }
+
+        const file = req.file as Express.Multer.File & {
+          path?: string;     // Cloudinary URL
+          filename?: string; // Cloudinary public ID
+        };
+
+        console.log("[upload-portfolio-image] Uploaded to Cloudinary:", {
+          url: file.path,
+          publicId: file.filename,
+          mimetype: file.mimetype,
+          size: file.size,
+        });
+
+        const imageUrl = file.path;
+
+        res.json({
+          success: true,
+          imageUrl,          // use this in PortfolioItem.imageUrl
+          filename: file.filename, // optional: store as publicId in `image` field
+        });
+      });
+    },
+  );
+
+  // Portfolio public routes
+  app.get("/api/portfolio", publicContentRateLimit, async (req, res) => {
+    try {
+      const items = await storage.getPublicPortfolioItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+
+  app.get("/api/portfolio/content", publicContentRateLimit, async (req, res) => {
+    try {
+      const content = await storage.getPortfolioContent();
+      res.json(content);
+    } catch (error) {
+      console.error("Error fetching portfolio content:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio content" });
+    }
+  });
+
+  app.get("/api/portfolio/:slug", publicContentRateLimit, async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const item = await storage.getPortfolioItemBySlug(slug);
+      if (!item) {
+        return res.status(404).json({ message: "Portfolio item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error fetching portfolio item:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio item" });
+    }
+  });
+
+  // Admin portfolio content routes
+  app.get("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
+    try {
+      const content = await storage.getPortfolioContent();
+      res.json(content);
+    } catch (error) {
+      console.error("Failed to fetch portfolio content:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio content" });
+    }
+  });
+
+  app.put("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
+    try {
+      const validated = insertPortfolioContentSchema.parse(req.body);
+      const content = await storage.upsertPortfolioContent(validated);
+      res.json(content);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio content:", error);
+      res.status(500).json({ message: "Failed to update portfolio content" });
+    }
+  });
+
+  // Update hero stats only
+  app.put("/api/admin/portfolio-content/stats", authenticateAdmin, async (req, res) => {
+    try {
+      const { heroStats } = req.body;
+
+      if (!Array.isArray(heroStats)) {
+        return res.status(400).json({ message: "heroStats must be an array" });
+      }
+
+      // Get existing content and merge with new stats
+      const existingContent = await storage.getPortfolioContent();
+      const updatedContent = {
+        ...existingContent,
+        heroStats,
+      };
+
+      const validated = insertPortfolioContentSchema.parse(updatedContent);
+      const content = await storage.upsertPortfolioContent(validated);
+      res.json({ success: true, content });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio stats:", error);
+      res.status(500).json({ message: "Failed to update portfolio stats" });
+    }
+  });
+
+  // Admin portfolio items routes
+  app.get("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
+    try {
+      const items = await storage.getAllPortfolioItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Failed to fetch portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+
+  app.post("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
+    try {
+      const validated = insertPortfolioItemSchema.parse(req.body);
+      const item = await storage.createPortfolioItem(validated);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to create portfolio item:", error);
+      res.status(500).json({ message: "Failed to create portfolio item" });
+    }
+  });
+
+  app.put("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validated = insertPortfolioItemSchema.partial().parse(req.body);
+      const item = await storage.updatePortfolioItem(id, validated);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio item:", error);
+      res.status(500).json({ message: "Failed to update portfolio item" });
+    }
+  });
+
+  app.delete("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePortfolioItem(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete portfolio item:", error);
+      res.status(500).json({ message: "Failed to delete portfolio item" });
+    }
+  });
+
   // Blog Management API Routes
   app.get("/api/admin/blog-posts", authenticateAdmin, async (req, res) => {
     try {
@@ -1674,491 +2210,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete contact endpoint
-  app.delete("/api/contacts/:id", authenticateAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deleteContact(id);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Error deleting contact:", error);
-      res.status(500).json({ message: "Failed to delete contact" });
-    }
-  });
-
-  // Object storage for image uploads
-  app.post("/api/objects/upload", async (req, res) => {
-    try {
-      // Mock implementation for now - in production would use proper object storage
-      const uploadURL = `https://storage.googleapis.com/bucket/uploads/${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      res.json({ uploadURL });
-    } catch (error) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ message: "Failed to get upload URL" });
-    }
-  });
-
-  // Update pricing package
-  app.put(
-    "/api/admin/pricing-packages/:id",
-    authenticateAdmin,
-    async (req, res) => {
-      try {
-        const id = parseInt(req.params.id);
-        const updatedPackage = await storage.updatePricingPackage(id, req.body);
-        res.json(updatedPackage);
-      } catch (error) {
-        console.error("Error updating pricing package:", error);
-        res.status(500).json({ message: "Failed to update pricing package" });
-      }
-    },
-  );
-
-  // Delete pricing package
-  app.delete(
-    "/api/admin/pricing-packages/:id",
-    authenticateAdmin,
-    async (req, res) => {
-      try {
-        const id = parseInt(req.params.id);
-        await storage.deletePricingPackage(id);
-        res.json({ success: true });
-      } catch (error) {
-        console.error("Error deleting pricing package:", error);
-        res.status(500).json({ message: "Failed to delete pricing package" });
-      }
-    },
-  );
-
-  // Update case study
-  app.put(
-    "/api/admin/case-studies/:id",
-    authenticateAdmin,
-    async (req, res) => {
-      try {
-        const id = parseInt(req.params.id);
-        const updatedCaseStudy = await storage.updateCaseStudy(id, req.body);
-        res.json(updatedCaseStudy);
-      } catch (error) {
-        console.error("Error updating case study:", error);
-        res.status(500).json({ message: "Failed to update case study" });
-      }
-    },
-  );
-
-  // Delete case study
-  app.delete(
-    "/api/admin/case-studies/:id",
-    authenticateAdmin,
-    async (req, res) => {
-      try {
-        const id = parseInt(req.params.id);
-        await storage.deleteCaseStudy(id);
-        res.json({ success: true });
-      } catch (error) {
-        console.error("Error deleting case study:", error);
-        res.status(500).json({ message: "Failed to delete case study" });
-      }
-    },
-  );
-
-  // Single blog generation endpoint
-  app.post(
-    "/api/admin/generate-single-blog",
-    authenticateAdmin,
-    async (req, res) => {
-      try {
-        const { title, keywords, category, targetAudience } = req.body;
-
-        if (
-          !title ||
-          !keywords ||
-          !Array.isArray(keywords) ||
-          keywords.length === 0
-        ) {
-          return res.status(400).json({
-            message: "Title and keywords are required",
-          });
-        }
-
-        // Import the blog generator
-        const { generateSingleBlog } = await import("./blog-generator");
-
-        // Generate single blog
-        const blogContent = await generateSingleBlog({
-          title,
-          keywords,
-          category,
-          targetAudience,
-        });
-
-        res.json({
-          success: true,
-          blog: blogContent,
-          message: "Blog generated successfully",
-        });
-      } catch (error) {
-        console.error("Error generating single blog:", error);
-        res.status(500).json({ message: "Failed to generate blog" });
-      }
-    },
-  );
-
-  // Blog generation endpoints
-  app.post("/api/admin/generate-blogs", authenticateAdmin, async (req, res) => {
-    try {
-      const { count = 120 } = req.body;
-
-      // Import the blog generator
-      const { generateMonthlyBlogs } = await import("./blog-generator");
-
-      // Start generation in background
-      generateMonthlyBlogs(count).catch((error) => {
-        console.error("Blog generation failed:", error);
-      });
-
-      res.json({
-        success: true,
-        message: `Started generating ${count} blogs. Check server logs for progress.`,
-      });
-    } catch (error) {
-      console.error("Error starting blog generation:", error);
-      res.status(500).json({ message: "Failed to start blog generation" });
-    }
-  });
-
-  app.post(
-    "/api/admin/generate-daily-blogs",
-    authenticateAdmin,
-    async (req, res) => {
-      try {
-        const { scheduleDailyBlogGeneration } = await import(
-          "./blog-generator"
-        );
-
-        // Start daily generation
-        scheduleDailyBlogGeneration().catch((error) => {
-          console.error("Daily blog generation failed:", error);
-        });
-
-        res.json({
-          success: true,
-          message:
-            "Started daily blog generation schedule (4 blogs/day for 30 days)",
-        });
-      } catch (error) {
-        console.error("Error starting daily blog generation:", error);
-        res.status(500).json({ message: "Failed to start daily generation" });
-      }
-    },
-  );
-
-  // File upload endpoint for blog images
-  app.post("/api/upload/image", authenticateAdmin, async (req, res) => {
-    try {
-      const resolveUploadDir = () => {
-        if (process.env.BLOG_UPLOAD_DIR) {
-          return path.resolve(process.env.BLOG_UPLOAD_DIR);
-        }
-
-        // default: projectRoot/client/public/upload_image/blog_image
-        return path.resolve(
-          process.cwd(),
-          "client",
-          "public",
-          "upload_image",
-          "blog_image",
-        );
-      };
-
-      // Configure multer for file uploads
-      const storage = multer.diskStorage({
-        destination: (req: any, file: any, cb: any) => {
-          try {
-            const uploadPath = resolveUploadDir();
-            if (!fs.existsSync(uploadPath)) {
-              fs.mkdirSync(uploadPath, { recursive: true });
-            }
-            cb(null, uploadPath);
-          } catch (err) {
-            cb(err, null);
-          }
-        },
-        filename: (req: any, file: any, cb: any) => {
-          // Generate unique filename with timestamp
-          const uniqueSuffix =
-            Date.now() + "-" + Math.round(Math.random() * 1e9);
-          const ext = path.extname(file.originalname);
-          const name = file.originalname
-            .replace(ext, "")
-            .replace(/[^a-zA-Z0-9]/g, "-")
-            .toLowerCase();
-          cb(null, `${name}-${uniqueSuffix}${ext}`);
-        },
-      });
-
-      const upload = multer({
-        storage: storage,
-        limits: {
-          fileSize: 5 * 1024 * 1024, // 5MB limit
-        },
-        fileFilter: (req: any, file: any, cb: any) => {
-          // Check if file is an image
-          if (file.mimetype.startsWith("image/")) {
-            cb(null, true);
-          } else {
-            cb(new Error("Only image files are allowed!"), false);
-          }
-        },
-      });
-
-      console.log("[upload-image] Starting upload request");
-      upload.single("image")(req, res, (err: any) => {
-        if (err) {
-          console.error("[upload-image] Multer error:", err);
-          return res.status(400).json({ error: err.message });
-        }
-
-        if (!req.file) {
-          console.warn("[upload-image] No file provided in request");
-          return res.status(400).json({ error: "No file uploaded" });
-        }
-
-        console.log("[upload-image] File saved:", {
-          filename: req.file.filename,
-          mimetype: req.file.mimetype,
-          size: req.file.size,
-        });
-
-        // Return the URL path that can be used in the frontend
-        const publicPath = "/upload_image/blog_image";
-        const imageUrl = `${publicPath}/${req.file.filename}`;
-        console.log("[upload-image] Responding with URL:", imageUrl);
-
-        res.json({
-          success: true,
-          imageUrl: imageUrl,
-          filename: req.file.filename,
-        });
-      });
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      res.status(500).json({ error: "Failed to upload image" });
-    }
-  });
-
-  // File upload endpoint for portfolio images
-  app.post("/api/upload/portfolio-image", authenticateAdmin, async (req, res) => {
-    try {
-      const resolveUploadDir = () => {
-        if (process.env.PORTFOLIO_UPLOAD_DIR) {
-          return path.resolve(process.env.PORTFOLIO_UPLOAD_DIR);
-        }
-        // default: projectRoot/client/public/upload_image/portfolio_images
-        return path.resolve(
-          process.cwd(),
-          "client",
-          "public",
-          "upload_image",
-          "portfolio_images",
-        );
-      };
-
-      const storage = multer.diskStorage({
-        destination: (req: any, file: any, cb: any) => {
-          try {
-            const uploadPath = resolveUploadDir();
-            if (!fs.existsSync(uploadPath)) {
-              fs.mkdirSync(uploadPath, { recursive: true });
-            }
-            cb(null, uploadPath);
-          } catch (err) {
-            cb(err, null);
-          }
-        },
-        filename: (req: any, file: any, cb: any) => {
-          const uniqueSuffix =
-            Date.now() + "-" + Math.round(Math.random() * 1e9);
-          const ext = path.extname(file.originalname);
-          const name = file.originalname
-            .replace(ext, "")
-            .replace(/[^a-zA-Z0-9]/g, "-")
-            .toLowerCase();
-          cb(null, `${name}-${uniqueSuffix}${ext}`);
-        },
-      });
-
-      const upload = multer({
-        storage: storage,
-        limits: { fileSize: 5 * 1024 * 1024 },
-        fileFilter: (req: any, file: any, cb: any) => {
-          if (file.mimetype.startsWith("image/")) {
-            cb(null, true);
-          } else {
-            cb(new Error("Only image files are allowed!"), false);
-          }
-        },
-      });
-
-      upload.single("image")(req, res, (err: any) => {
-        if (err) {
-          return res.status(400).json({ error: err.message });
-        }
-        if (!req.file) {
-          return res.status(400).json({ error: "No file uploaded" });
-        }
-        const publicPath = "/upload_image/portfolio_images";
-        const imageUrl = `${publicPath}/${req.file.filename}`;
-        res.json({
-          success: true,
-          imageUrl,
-          filename: req.file.filename,
-        });
-      });
-    } catch (error) {
-      console.error("Error uploading portfolio image:", error);
-      res.status(500).json({ error: "Failed to upload portfolio image" });
-    }
-  });
-
-  // Portfolio public routes
-  app.get("/api/portfolio", publicContentRateLimit, async (req, res) => {
-    try {
-      const items = await storage.getPublicPortfolioItems();
-      res.json(items);
-    } catch (error) {
-      console.error("Error fetching portfolio items:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio items" });
-    }
-  });
-
-  app.get("/api/portfolio/content", publicContentRateLimit, async (req, res) => {
-    try {
-      const content = await storage.getPortfolioContent();
-      res.json(content);
-    } catch (error) {
-      console.error("Error fetching portfolio content:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio content" });
-    }
-  });
-
-  app.get("/api/portfolio/:slug", publicContentRateLimit, async (req, res) => {
-    try {
-      const slug = req.params.slug;
-      const item = await storage.getPortfolioItemBySlug(slug);
-      if (!item) {
-        return res.status(404).json({ message: "Portfolio item not found" });
-      }
-      res.json(item);
-    } catch (error) {
-      console.error("Error fetching portfolio item:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio item" });
-    }
-  });
-
-  // Admin portfolio content routes
-  app.get("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
-    try {
-      const content = await storage.getPortfolioContent();
-      res.json(content);
-    } catch (error) {
-      console.error("Failed to fetch portfolio content:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio content" });
-    }
-  });
-
-  app.put("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
-    try {
-      const validated = insertPortfolioContentSchema.parse(req.body);
-      const content = await storage.upsertPortfolioContent(validated);
-      res.json(content);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to update portfolio content:", error);
-      res.status(500).json({ message: "Failed to update portfolio content" });
-    }
-  });
-
-  // Update hero stats only
-  app.put("/api/admin/portfolio-content/stats", authenticateAdmin, async (req, res) => {
-    try {
-      const { heroStats } = req.body;
-
-      if (!Array.isArray(heroStats)) {
-        return res.status(400).json({ message: "heroStats must be an array" });
-      }
-
-      // Get existing content and merge with new stats
-      const existingContent = await storage.getPortfolioContent();
-      const updatedContent = {
-        ...existingContent,
-        heroStats,
-      };
-
-      const validated = insertPortfolioContentSchema.parse(updatedContent);
-      const content = await storage.upsertPortfolioContent(validated);
-      res.json({ success: true, content });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to update portfolio stats:", error);
-      res.status(500).json({ message: "Failed to update portfolio stats" });
-    }
-  });
-
-  // Admin portfolio items routes
-  app.get("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
-    try {
-      const items = await storage.getAllPortfolioItems();
-      res.json(items);
-    } catch (error) {
-      console.error("Failed to fetch portfolio items:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio items" });
-    }
-  });
-
-  app.post("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
-    try {
-      const validated = insertPortfolioItemSchema.parse(req.body);
-      const item = await storage.createPortfolioItem(validated);
-      res.json(item);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to create portfolio item:", error);
-      res.status(500).json({ message: "Failed to create portfolio item" });
-    }
-  });
-
-  app.put("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validated = insertPortfolioItemSchema.partial().parse(req.body);
-      const item = await storage.updatePortfolioItem(id, validated);
-      res.json(item);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to update portfolio item:", error);
-      res.status(500).json({ message: "Failed to update portfolio item" });
-    }
-  });
-
-  app.delete("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deletePortfolioItem(id);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete portfolio item:", error);
-      res.status(500).json({ message: "Failed to delete portfolio item" });
-    }
-  });
 
   // Contact form endpoint
   app.post("/api/contact", async (req, res) => {
