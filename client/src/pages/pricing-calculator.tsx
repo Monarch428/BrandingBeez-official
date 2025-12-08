@@ -190,8 +190,8 @@ export default function PricingCalculator() {
   ];
 
   const resourceTypes = [
-    'Graphic Designer', 'Video Editor', 'SEO Specialist', 'Google Ads Expert',
-    'Web Developer', 'Full Stack Developer', 'AI Developer'
+    'Google Ads Expert','SEO Specialist','Web Developer',
+     'Full Stack Developer', 'AI Developer',  'Graphic Designer', 'Video Editor'
   ];
 
   const getSkillLevelsForResource = (resourceType: string) => ['junior', 'mid', 'senior'];

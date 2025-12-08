@@ -1693,7 +1693,7 @@ export default function Home() {
           <section className="py-14 sm:py-16 bg-gradient-to-t from-white via-gray-50 to-gray-100">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="flex justify-center items-center">
-                <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-purple/5 border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-brand-coral mb-4">
+                <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-coral border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-white mb-4">
                   {/* <span className="h-2 w-2 rounded-full bg-brand-coral" /> */}
                   Who We Work With
                 </div>
@@ -1855,7 +1855,7 @@ export default function Home() {
           <section className="py-14 sm:py-16 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="flex justify-center items-center">
-                <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-purple/5 border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-brand-coral mb-4">
+                <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-coral border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-white mb-4">
                   {/* <span className="h-2 w-2 rounded-full bg-brand-coral" /> */}
                   Problems We Solve
                 </div>
