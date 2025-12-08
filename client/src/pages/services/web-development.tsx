@@ -379,15 +379,9 @@ export default function WebDevelopment() {
   return (
     <>
       <Helmet>
-        <title>White-Label Web Development | Custom Websites</title>
-        <meta
-          name="description"
-          content="Get professional white-label WordPress websites built for agencies and businesses. From $600 — fast, SEO-optimized, mobile-friendly, and ready to scale."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/services/web-development"
-        />
+        <title>White-Label Web Development for Agencies | BrandingBeez</title>
+        <meta name="description" content="We build agency-ready websites under your brand. White-label WordPress & custom web development — fast delivery, zero client exposure." />
+        <link rel="canonical" href="https://brandingbeez.co.uk/services/web-development" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">

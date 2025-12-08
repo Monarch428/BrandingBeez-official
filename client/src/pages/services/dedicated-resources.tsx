@@ -155,10 +155,10 @@ export default function DedicatedResources() {
   return (
     <>
       <Helmet>
-        <title>Dedicated Development Teams | Branding Beez Services 2025</title>
+        <title>Dedicated White-Label Teams for Agencies | BrandingBeez</title>
         <meta
           name="description"
-          content="Build dedicated developer, design & specialist teams that integrate with your workflow. Scale faster with 150% output gains, 60% cost savings & quick setup."
+          content="Hire dedicated white-label developers, designers, SEO & PPC specialists. Scale delivery, cut costs, and stay in control — no hiring risk."
         />
         <link
           rel="canonical"

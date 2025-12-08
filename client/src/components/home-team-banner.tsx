@@ -56,13 +56,16 @@ const teamMembers: TeamMember[] = [
 export function HomeTeamBanner() {
   return (
     <div className="relative">
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <Badge className="bg-white/20 text-white mb-4 text-sm">
           👥 Our Expert Team
         </Badge>
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2">A Team of 20+ Ready to Help</h3>
-        <p className="text-white/90 text-base sm:text-lg">
-          Development, design, marketing & operations experts
+        <h3 className="text-xl sm:text-lg md:text-xl font-bold text-white mb-2">
+          {/* A Team of 20+ Ready to Help */} A Dedicated 20+ Person Delivery Team Built for Agencies
+        </h3>
+        <p className="text-white/90 text-base sm:text-sm md:text-sm">
+          {/* Development, design, marketing & operations experts */}
+          Designers, developers, SEO & PPC specialists working as an extension of your agency.
         </p>
       </div>
       {/* Equal Treatment Grid Layout */}

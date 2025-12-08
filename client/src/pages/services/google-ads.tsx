@@ -327,8 +327,8 @@ export default function GoogleAds() {
   return (
     <>
       <Helmet>
-        <title>Google Ads Management Services | PPC Experts for Agencies</title>
-        <meta name="description" content="Maximize ROI with expert Google Ads management. From £399/month — campaign setup, optimization & reporting for agencies and growing businesses." />
+        <title>White-Label Google Ads Management for Agencies | BrandingBeez</title>
+        <meta name="description" content="White-label Google Ads management for agencies. Scale PPC services with expert strategy, lower CPAs & branded reporting. Trusted by US & UK agencies." />
         <link rel="canonical" href="https://brandingbeez.co.uk/services/google-ads" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>

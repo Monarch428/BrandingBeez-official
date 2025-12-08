@@ -69,7 +69,8 @@ export default function Footer() {
             <h2 className="font-semibold mb-3 text-base">BrandingBeez</h2>
             <BrandingBeezLogo />
             <p className="text-gray-400 mb-4 max-w-md text-sm">
-              Trusted white-label partner since 2020.
+              {/* Trusted white-label partner since 2020. */}
+              Trusted white-label partner for US digital agencies since 2020.
             </p>
             <div className="flex flex-wrap gap-4">
               <a
@@ -159,7 +160,7 @@ export default function Footer() {
                   info@brandingbeez.co.uk
                 </a>
               </li>
-<li className="flex items-start gap-2">
+              <li className="flex items-start gap-2">
                 <Phone className="w-4 h-4 text-brand-coral mt-0.5 flex-shrink-0" />
                 <a
                   href="tel:+917200626556"

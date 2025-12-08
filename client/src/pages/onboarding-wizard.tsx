@@ -60,13 +60,13 @@ export default function OnboardingWizard() {
           icon: <Zap className="w-6 h-6" />,
           value: 'startup'
         },
-        {
-          id: 'enterprise',
-          label: 'Enterprise Company',
-          description: 'Large company needing specialized teams',
-          icon: <Globe className="w-6 h-6" />,
-          value: 'enterprise'
-        },
+        // {
+        //   id: 'enterprise',
+        //   label: 'Enterprise Company',
+        //   description: 'Large company needing specialized teams',
+        //   icon: <Globe className="w-6 h-6" />,
+        //   value: 'enterprise'
+        // },
         {
           id: 'freelancer',
           label: 'Freelancer/Consultant',
@@ -175,7 +175,7 @@ export default function OnboardingWizard() {
         {
           id: 'marketing-services',
           label: 'Digital Marketing',
-          description: 'SEO, ads, and online promotion',
+          description: 'SEO, ads, and growth strategies',
           icon: <TrendingUp className="w-6 h-6" />,
           value: 'marketing-services'
         },
@@ -531,7 +531,7 @@ export default function OnboardingWizard() {
     // Create service mapping from user selection to service names
     const servicePriorityMapping: { [key: string]: string } = {
       'web-development': 'Web Development',
-      'design-services': 'Design Services',
+      // 'design-services': 'Design Services',
       'marketing-services': 'SEO Services',
       'dedicated-team': 'Dedicated Resources',
       'ai-automation': 'AI Development'
