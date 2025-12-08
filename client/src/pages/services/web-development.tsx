@@ -396,81 +396,113 @@ export default function WebDevelopment() {
         <Header />
         <main className="pb-0">
           {/* Featured Web Development Client Section */}
-          <section className="py-12 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
+          <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-brand-purple via-brand-purple/95 to-brand-coral text-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                {/* Left: Copy + CTA */}
+                <div className="max-w-2xl">
+                  {/* Badge */}
                   <div className="flex items-center justify-center">
-                    <Badge className="bg-brand-coral font-medium text-md text-white mb-6 px-4 py-1">
-                      Featured White-Label Website Partner for Agencies
-                    </Badge>
+                    <div className="flex justify-center lg:justify-start">
+                      <Badge className="inline-flex items-center justify-center rounded-full bg-brand-coral font-medium text-xs sm:text-sm text-white mb-6 px-4 py-1.5 backdrop-blur-sm shadow-sm">
+                        Featured White-Label Website Partner for Agencies
+                      </Badge>
+                    </div>
                   </div>
-                  <h1 className="text-4xl font-bold mb-6">
-                    {/* SocialLand Digital */}
-                    {/* End-to-End Web Development for Growing Brands */}
+
+                  {/* Heading */}
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-5">
                     White-Label Website Development for Digital Agencies
                   </h1>
-                  <p className="text-xl text-gray-100 mb-8 align-justify">
-                    {/* {featuredClient.description} */}
-                    We build high-performing WordPress and custom websites under
-                    your brand, so you can sell web development services without
-                    hiring, managing, or delivering in-house.
-                    Trusted by agencies across the US & UK for fast turnaround, clean builds, and fully white-labeled execution.
+
+                  {/* Description */}
+                  <p className="text-base sm:text-lg md:text-xl text-gray-100/90 mb-8 text-justify">
+                    We build high-performing WordPress and custom websites under your brand, so you can sell
+                    web development services without hiring, managing, or delivering in-house. Trusted by
+                    agencies across the US &amp; UK for fast turnaround, clean builds, and fully white-labeled
+                    execution.
                   </p>
 
-                  <div className="bg.white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
-                    <h2 className="text-xl font-bold mb-4">
-                      Development Achievements in Initial project +2 year partnership
-                    </h2>
-                    <ul className="space-y-2 text-gray-100">
-                      {featuredClient.achievements.map((achievement, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <CheckCircle className="w-5 h-5 text.white" />
-                          <span>{achievement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    {/* <Button
-                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
-                      // onClick={() => window.open("https://calendly.com/vignesh-velusamy/30min?month=2025-09","_blank",)}
-                      onClick={() => window.open("/book-appointment", "_blank",)}
-                    >
-                      Schedule a Consultation
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Button> */}
+                  {/* CTA */}
+                  <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                     <BookCallButtonWithModal
                       buttonLabel="Schedule Consultation"
-                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple font-semibold px-6 py-3 rounded-lg shadow-md w-full sm:w-auto justify-center"
                       buttonSize="lg"
-                      // buttonVariant="outline"
                       defaultServiceType="Web Development"
                     />
                   </div>
+
+                  {/* Optional quick trust strip */}
+                  {/* <div className="mt-6 flex flex-wrap gap-3 text-xs sm:text-sm text-gray-100/90">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      100% White-Label Delivery
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      WordPress &amp; Custom Builds
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                      US &amp; UK Agency Experience
+                    </span>
+                  </div> */}
                 </div>
 
+                {/* Right: Achievements Card */}
                 <div className="relative">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden hover:scale-105 transition-transform duration-300">
-                    <img
-                      src={featuredClient.logo}
-                      alt="Social Land Digital website homepage showing local digital marketing experts in Essex with service packages and team information"
-                      className="w-full h-auto object-cover"
-                      loading="eager"
-                    />
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-white font-semibold text-sm">
-                        {featuredClient.name}
-                      </p>
-                      <p className="text-white/90 text-xs">
-                        {featuredClient.industry}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                        <p className="text-green-300 text-xs font-medium">
-                          2-Year Partnership
+                  {/* Glow accent */}
+                  <div className="pointer-events-none absolute inset-0 -right-10 -top-10 rounded-3xl bg-white/10 blur-3xl opacity-40" />
+
+                  <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-7 border border-white/20 shadow-xl">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h2 className="text-lg sm:text-xl font-bold">
+                          Development Results from Initial Project + 2-Year Partnership
+                        </h2>
+                        <p className="text-xs sm:text-sm text-gray-100/80 mt-1">
+                          Consistent, white-label delivery for a growing agency partner.
                         </p>
+                      </div>
+
+                      {/* Small highlight stat (optional) */}
+                      {/* <div className="inline-flex flex-col items-end text-right">
+                        <span className="text-[10px] uppercase tracking-wide text-gray-200/80">
+                          Websites Shipped
+                        </span>
+                        <span className="text-xl font-bold leading-tight">
+                          {featuredClient.siteCount ?? "20+"}
+                        </span>
+                      </div> */}
+                    </div>
+
+                    <ul className="space-y-2.5 text-gray-100/95 mb-5">
+                      {featuredClient.achievements.map((achievement, index) => (
+                        <li key={index} className="flex items-start gap-2.5">
+                          <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-white" />
+                          <span className="text-sm sm:text-base leading-relaxed">
+                            {achievement}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Bottom meta strip */}
+                    <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
+                        <div className="text-gray-200/90">Tech Stack</div>
+                        <div className="font-semibold">
+                          {"WordPress & Custom"}
+                          {/* featuredClient.techStack ?? */}
+                        </div>
+                      </div>
+                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
+                        <div className="text-gray-200/90">Region</div>
+                        <div className="font-semibold">
+                          {"US & UK"}
+                          {/* featuredClient.region ?? */}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -479,7 +511,31 @@ export default function WebDevelopment() {
             </div>
           </section>
 
-{/* ✅ FEATURED CASE STUDY – Green Paradise (below hero) */}
+
+          {/* <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden hover:scale-105 transition-transform duration-300">
+            <img
+              src={featuredClient.logo}
+              alt="Social Land Digital website homepage showing local digital marketing experts in Essex with service packages and team information"
+              className="w-full h-auto object-cover"
+              loading="eager"
+            />
+            <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
+              <p className="text-white font-semibold text-sm">
+                {featuredClient.name}
+              </p>
+              <p className="text-white/90 text-xs">
+                {featuredClient.industry}
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                <p className="text-green-300 text-xs font-medium">
+                  2-Year Partnership
+                </p>
+              </div>
+            </div>
+          </div> */}
+
+          {/* ✅ FEATURED CASE STUDY – Green Paradise (below hero) */}
           <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
@@ -598,7 +654,7 @@ export default function WebDevelopment() {
                   {/* Discover how we've helped businesses across industries build
                   powerful web solutions that drive growth and success. */}
                   See how agencies use our white-label web development team to
-                  deliver fast, 
+                  deliver fast,
                   reliable websites for their clients without expanding internal teams.
                 </p>
               </div>
@@ -686,20 +742,20 @@ export default function WebDevelopment() {
                 className="relative flex items-center justify-center mt-4"
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd} */}
-              {/* > */}
-                {/* Gradient phase card (same visual style as dedicated team slider) */}
-                {/* <Card
+          {/* > */}
+          {/* Gradient phase card (same visual style as dedicated team slider) */}
+          {/* <Card
                                   className="
                     bg-gradient-to-r from-brand-purple to-brand-coral 
                     text-white border-none shadow-lg 
                     mx-auto px-10 sm:px-14 py-8 
                     rounded-2xl */}
-                    {/* h-[360px] sm:h-[400px]  /* 🔹 Fixed height */ }
-                    {/* w-[1000px]
+          {/* h-[360px] sm:h-[400px]  /* 🔹 Fixed height */}
+          {/* w-[1000px]
                   "
                                 > */}
-                  {/* header – phase label + title */}
-                  {/* <CardHeader className="pb-4 px-0">
+          {/* header – phase label + title */}
+          {/* <CardHeader className="pb-4 px-0">
                     <div className="flex flex-col items-start gap-1 pl-16 sm:pl-24">
                       <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] text-white/90">
                         {activePhase.label} of {totalPhases}
@@ -711,8 +767,8 @@ export default function WebDevelopment() {
                   </CardHeader>
 
                   <CardContent className="space-y-5 px-6 sm:px-10"> */}
-                    {/* bullets in 2 columns */}
-                    {/* <div className="pl-12 sm:pl-16">
+          {/* bullets in 2 columns */}
+          {/* <div className="pl-12 sm:pl-16">
                       <p className="text-base font-medium text-white mb-2">
                         {activePhase.intro}
                       </p>
@@ -729,14 +785,14 @@ export default function WebDevelopment() {
                       </ul>
                     </div> */}
 
-                    {/* bottom: outcome + dots */}
-                    {/* <div className="pt-4 border-t border-white/15">
+          {/* bottom: outcome + dots */}
+          {/* <div className="pt-4 border-t border-white/15">
                       <p className="text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-4 text-center">
                         <span>{activePhase.outcome}</span>
                       </p> */}
 
-                      {/* dots */}
-                      {/* <div className="flex items-center justify-center gap-2">
+          {/* dots */}
+          {/* <div className="flex items-center justify-center gap-2">
                         {dedicatedPhases.map((dedicatedPhases, idx) => (
                           <button
                             key={dedicatedPhases.id}
@@ -756,8 +812,8 @@ export default function WebDevelopment() {
                   </CardContent>
                 </Card> */}
 
-                {/* SIDE ARROWS – more visible, fixed-ish position with extra gap */}
-                {/* <button
+          {/* SIDE ARROWS – more visible, fixed-ish position with extra gap */}
+          {/* <button
                   type="button"
                   onClick={goToPrevPhase}
                   disabled={currentPhase === 0}
@@ -781,14 +837,14 @@ export default function WebDevelopment() {
                   </span>
                 </button> */}
 
-                {/* <button
+          {/* <button
                   type="button"
                   onClick={goToNextPhase}
                   disabled={currentPhase === totalPhases - 1}
                   className="
     group absolute */}
-    {/* -right-16  /* ⬅ Pushes arrow fully outside the card */ }
-    {/* top-40 -translate-y-1/2
+          {/* -right-16  /* ⬅ Pushes arrow fully outside the card */}
+          {/* top-40 -translate-y-1/2
     flex items-center justify-center
     h-14 w-14
     rounded-full bg-brand-purple text-white
@@ -808,12 +864,12 @@ export default function WebDevelopment() {
             </div>
           </section> */}
 
-<PhaseSliderSection
-  sectionId="web-development-process"
-  heading="How the Web Development Process Works"
-  subheading="A simple, transparent process built for agencies."
-  phases={webDevelopmentPhases}
-/>
+          <PhaseSliderSection
+            sectionId="web-development-process"
+            heading="How the Web Development Process Works"
+            subheading="A simple, transparent process built for agencies."
+            phases={webDevelopmentPhases}
+          />
           {/* Pricing Packages Section */}
           <section className="py-16 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
@@ -839,11 +895,10 @@ export default function WebDevelopment() {
                 {pricingPackages.map((pkg) => (
                   <Card
                     key={pkg.id}
-                    className={`relative flex flex-col h-full ${
-                      pkg.popular
-                        ? "border-2 border-brand-coral scale-105"
-                        : "border border-gray-200 hover:border-brand-coral/50"
-                    } transition-all.duration-300`}
+                    className={`relative flex flex-col h-full ${pkg.popular
+                      ? "border-2 border-brand-coral scale-105"
+                      : "border border-gray-200 hover:border-brand-coral/50"
+                      } transition-all.duration-300`}
                   >
                     {pkg.popular && (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -889,11 +944,10 @@ export default function WebDevelopment() {
                           className="w-full"
                         >
                           <Button
-                            className={`w-full py-4 px-8 font-medium text-md transition-all duration-300 ${
-                              pkg.popular
-                                ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
-                                : "bg-brand-purple hover:bg-brand-purple/90 text-white"
-                            }`}
+                            className={`w-full py-4 px-8 font-medium text-md transition-all duration-300 ${pkg.popular
+                              ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                              : "bg-brand-purple hover:bg-brand-purple/90 text-white"
+                              }`}
                           >
                             {pkg.id === 1
                               ? "Start Your Website"
@@ -956,7 +1010,7 @@ export default function WebDevelopment() {
             submissionSourceLabel="Service Page Contact Form Submission"
           />
 
-{/* 🔹 NEW FAQ SECTION – before final CTA */}
+          {/* 🔹 NEW FAQ SECTION – before final CTA */}
           <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
@@ -1015,9 +1069,8 @@ export default function WebDevelopment() {
                           {faq.question}
                         </span>
                         <ChevronDown
-                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
+                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                            }`}
                         />
                       </button>
                       {isOpen && (
@@ -1056,7 +1109,7 @@ export default function WebDevelopment() {
                   onClick={() => navigate('/#newsletter')}
                 >
                   Subscribe Now
-                  </Button>
+                </Button>
               </div>
             </div>
           </section>
