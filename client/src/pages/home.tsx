@@ -1280,9 +1280,9 @@ export default function Home() {
 
         <main>
           {/* Hero Section */}
-          <section className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral text-white py-10 sm:py-14 lg:py-20 px-4 sm:px-6">
-            <div className="max-w-[84rem] mx-auto px-2 sm:px-4">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <section className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral text-white py-10 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
                 {/* Left: Copy */}
                 <div>
                   <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-5 sm:mb-6">
@@ -1293,20 +1293,20 @@ export default function Home() {
 
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
                     Scale Your Agency
-                    <span className="text-brand-yellow"> Without Hiring Full-Time Staff</span>
+                    <span className="text-brand-yellow">
+                      {" "}
+                      Without Hiring Full-Time Staff
+                    </span>
                   </h1>
 
-                  <p className="text-base sm:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 text-left lg:text-left leading-relaxed">
-                    {/* White-label digital services that help agencies hire expert teams
-                    for web development, PPC, and SEO. We handle the entire process so
-                    you can focus on growing your business and delivering results for
-                    your clients. */}
-                    White-label delivery teams for US digital agencies offering dedicated resources,
-                    websites, SEO, PPC, and AI-powered development under your brand.
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 text-left leading-relaxed">
+                    White-label delivery teams for US digital agencies offering
+                    dedicated resources, websites, SEO, PPC, and AI-powered
+                    development under your brand.
                   </p>
 
-                  <h2 className="text-lg sm:text-lg lg:text-xl font-medium text-white/90 mb-6 sm:mb-8 leading-snug">
-                    {/* A Team of 20+ Ready to Help */} A Dedicated 20+ Person Delivery Team Built for Agencies
+                  <h2 className="text-base sm:text-lg lg:text-xl font-medium text-white/90 mb-6 sm:mb-8 leading-snug">
+                    A Dedicated 20+ Person Delivery Team Built for Agencies
                   </h2>
 
                   {/* Key Benefits */}
@@ -1314,19 +1314,19 @@ export default function Home() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        {/* 100% White-Label */} 100% White-Label Delivery
+                        100% White-Label Delivery
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        {/* 24hr Response Time */} US-Timezone Overlap & 24-Hour Turnaround
+                        US-Timezone Overlap &amp; 24-Hour Turnaround
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        {/* 85% Satisfaction Rate */} Save Up to 60% vs In-House Hiring
+                        Save Up to 60% vs In-House Hiring
                       </span>
                     </div>
                   </div>
@@ -1340,7 +1340,7 @@ export default function Home() {
                     >
                       <Link href="/onboarding-wizard">
                         <span className="hidden sm:inline">
-                          {/* Find Your Perfect Service */} Hire Dedicated Resources
+                          Hire Dedicated Resources
                         </span>
                         <span className="sm:hidden">Hire Resources</span>
                         <ArrowRight className="ml-2 h-4 w-4" />
@@ -1351,13 +1351,12 @@ export default function Home() {
                       buttonLabel="Book a Free Strategy Call"
                       className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
                       buttonSize="lg"
-                    // defaultServiceType="Website Development"
                     />
                   </div>
                 </div>
 
                 {/* Right: HomeTeamBanner (hidden <= 480px) */}
-                <div className="relative max-[480px]:hidden">
+                <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
                 </div>
               </div>
@@ -1365,8 +1364,8 @@ export default function Home() {
           </section>
 
           {/* Why Work With Us Section */}
-          <section className="py-16 sm:py-20 bg-gradient-to-b from-white via-white to-brand-purple/5">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-white to-brand-purple/5">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="relative">
                 {/* Eyebrow / Badge */}
                 <div className="flex justify-center mb-4">
@@ -1377,35 +1376,43 @@ export default function Home() {
 
                 {/* Headline */}
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-4 tracking-tight">
-                  More Than a Vendor Your White-Label Delivery Partner
+                  More Than a Vendor — Your White-Label Delivery Partner
                 </h2>
 
                 {/* Sub-Headline */}
                 <p className="text-base sm:text-lg lg:text-xl text-slate-700 text-center max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed">
-                  At BrandingBeez, we don’t just execute tasks. We operate as an extension of your agency,
-                  aligning with your processes, timelines, and quality standards.
+                  At BrandingBeez, we don’t just execute tasks. We operate as an
+                  extension of your agency, aligning with your processes,
+                  timelines, and quality standards.
                 </p>
 
                 {/* Body Copy + Stats */}
                 <div className="max-w-4xl mx-auto mb-10 space-y-6">
                   <p className="text-sm sm:text-base md:text-lg text-slate-700 text-center leading-relaxed">
-                    With 6+ years of white-label delivery experience and a 20+ in-house specialist team,
-                    we help US agencies scale faster without the cost, complexity, or risk of local hiring.
+                    With 6+ years of white-label delivery experience and a 20+
+                    in-house specialist team, we help US agencies scale faster
+                    without the cost, complexity, or risk of local hiring.
                   </p>
 
                   {/* Small stat strip */}
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm">
                     <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5">
                       <span className="h-2 w-2 rounded-full bg-brand-coral" />
-                      <span className="font-semibold text-slate-900">6+ years white-label delivery</span>
+                      <span className="font-semibold text-slate-900">
+                        6+ years white-label delivery
+                      </span>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5">
                       <span className="h-2 w-2 rounded-full bg-brand-purple" />
-                      <span className="font-semibold text-slate-900">20+ in-house specialists</span>
+                      <span className="font-semibold text-slate-900">
+                        20+ in-house specialists
+                      </span>
                     </div>
                     <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5">
                       <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                      <span className="font-semibold text-slate-900">Trusted by US & UK agencies</span>
+                      <span className="font-semibold text-slate-900">
+                        Trusted by US &amp; UK agencies
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1415,7 +1422,8 @@ export default function Home() {
                   <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
                     <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
                     <p className="text-slate-900 text-sm sm:text-base">
-                      Reduce delivery costs compared to hiring US-based full-time staff
+                      Reduce delivery costs compared to hiring US-based full-time
+                      staff
                     </p>
                   </div>
 
@@ -1450,7 +1458,8 @@ export default function Home() {
                   <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
                     <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
                     <p className="text-slate-900 text-sm sm:text-base">
-                      Trusted by digital agencies across the US, UK & worldwide
+                      Trusted by digital agencies across the US, UK &amp;
+                      worldwide
                     </p>
                   </div>
                 </div>
@@ -1459,17 +1468,15 @@ export default function Home() {
           </section>
 
           {/* Services Section */}
-          <section className="py-12 sm:py-16 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-10 sm:mb-12">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                   Our Services
                 </h2>
                 <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
-                  {/* We offer a wide range of digital marketing services to help you
-                  grow your business. */}
-                  White-label services designed to help US agencies deliver faster,
-                  scale profitably, and retain clients longer
+                  White-label services designed to help US agencies deliver
+                  faster, scale profitably, and retain clients longer.
                 </p>
               </div>
 
@@ -1492,7 +1499,7 @@ export default function Home() {
                           </CardTitle>
                         </div>
 
-                        {/* DESCRIPTION - fixed min height for alignment */}
+                        {/* DESCRIPTION */}
                         <p className="text-sm sm:text-base text-gray-700 leading-relaxed line-clamp-4 min-h-[80px]">
                           {service.description}
                         </p>
@@ -1505,7 +1512,6 @@ export default function Home() {
                           <div className="text-base sm:text-lg font-bold text-brand-coral-darker">
                             {service.pricing}
                           </div>
-
 
                           {/* FEATURES */}
                           <ul className="space-y-2 flex-1">
@@ -1523,12 +1529,7 @@ export default function Home() {
                           {/* BUTTON — STICKS TO BOTTOM */}
                           <div className="mt-auto pt-4">
                             <Link href={service.href}>
-                              <Button
-                                className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark
-                        hover:from-brand-coral-dark hover:to-brand-coral-darker text-white
-                        font-bold text-sm sm:text-base flex items-center justify-center gap-2
-                        shadow-lg whitespace-nowrap"
-                              >
+                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
                                 <span className="leading-tight text-white text-sm sm:text-base">
                                   Learn More
                                 </span>
@@ -1546,9 +1547,9 @@ export default function Home() {
           </section>
 
           {/* 🌍 Regional Business Partners Section */}
-          <section className="py-16 sm:py-20 px-4 sm:px-6 bg-white">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12 sm:mb-16">
+              <div className="text-center mb-10 sm:mb-14">
                 <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-brand-purple/5 px-4 py-1.5 text-xs sm:text-sm font-bold text-brand-coral mb-4">
                   <Globe size={16} className="animate-pulse" />
                   <span>Global Team, Local Expertise</span>
@@ -1557,22 +1558,19 @@ export default function Home() {
                   Regional partners growing BrandingBeez in key markets worldwide
                 </h2>
                 <p className="text-xs sm:text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
-                  {/* From the US to Europe, our local business partners help agencies and
-                  businesses adopt AI, automation, and performance marketing — with
-                  on-ground context and support. */}
-                  From the US to Europe, our local partners help agencies win projects, communicate faster,
-                  and close deals with confidence backed by a single global delivery team.
+                  From the US to Europe, our local partners help agencies win
+                  projects, communicate faster, and close deals with confidence
+                  backed by a single global delivery team.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-14 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10 md:mb-12 items-stretch">
                 {regionalPartners.map((partner, index) => (
                   <Card
                     key={index}
                     className="h-full flex border border-brand-purple/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
                   >
                     <CardContent className="p-5 sm:p-6 flex flex-col h-full w-full">
-                      {/* content that grows */}
                       <div className="flex flex-col flex-grow">
                         <div className="flex items-center gap-4 mb-4">
                           <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
@@ -1601,12 +1599,10 @@ export default function Home() {
                           </div>
                         </div>
 
-                        {/* Fixed height for role text so "Key expertise" aligns across cards */}
                         <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed md:min-h-[72px]">
                           {partner.role}
                         </p>
 
-                        {/* Key expertise section */}
                         <div>
                           <p className="text-xs font-bold text-gray-700 mb-2">
                             Key expertise
@@ -1625,7 +1621,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* footer fixed at bottom */}
                       <div className="pt-3 mt-4 border-t border-gray-100">
                         <p className="text-xs md:text-sm text-brand-coral font-medium">
                           {partner.contact}
@@ -1641,12 +1636,12 @@ export default function Home() {
                   Global Partnership Benefits
                 </h3>
 
-                <p className="text-md lg:text-md text-gray-600 mb-6 sm:mb-8 text-center max-w-2xl mx-auto">
-                  One strong delivery team supported by local partners who understand their
-                  markets and customers.
+                <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center max-w-2xl mx-auto">
+                  One strong delivery team supported by local partners who
+                  understand their markets and customers.
                 </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {[
                     {
                       icon: Globe,
@@ -1667,7 +1662,6 @@ export default function Home() {
                     {
                       icon: TrendingUp,
                       text: "Compliance support for US & EU clients (GDPR, HIPAA, SOC-aligned workflows)",
-                      // text: "Help with regulations like GDPR and HIPAA",
                     },
                     {
                       icon: Heart,
@@ -1676,12 +1670,12 @@ export default function Home() {
                   ].map((benefit, index) => (
                     <div
                       key={index}
-                      className="flex items-center gap-2 p-3 rounded-xl hover:bg-brand-wings/60 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-wings/60 transition-colors"
                     >
                       <div className="w-12 h-12 rounded-xl bg-brand-coral/10 flex items-center justify-center flex-shrink-0">
-                        <benefit.icon size={30} className="text-brand-coral" />
+                        <benefit.icon size={24} className="text-brand-coral" />
                       </div>
-                      <p className="text-md text-gray-700">{benefit.text}</p>
+                      <p className="text-sm text-gray-700">{benefit.text}</p>
                     </div>
                   ))}
                 </div>
@@ -1690,11 +1684,10 @@ export default function Home() {
           </section>
 
           {/* Who We Work With Section */}
-          <section className="py-14 sm:py-16 bg-gradient-to-t from-white via-gray-50 to-gray-100">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-t from-white via-gray-50 to-gray-100">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-center items-center">
                 <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-coral border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-white mb-4">
-                  {/* <span className="h-2 w-2 rounded-full bg-brand-coral" /> */}
                   Who We Work With
                 </div>
               </div>
@@ -1702,14 +1695,15 @@ export default function Home() {
               <div className="relative grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 items-center">
                 {/* Left: copy */}
                 <div className="md:col-span-3">
-
                   <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
                     Built for Growing Digital Marketing Agencies
                   </h2>
 
                   <p className="text-sm sm:text-base md:text-lg text-slate-700 mb-5 sm:mb-6 leading-relaxed">
-                    We specialize in supporting US and UK digital marketing agencies that want to grow revenue,
-                    expand service offerings, and take on more clients without increasing payroll or overhead.
+                    We specialize in supporting US and UK digital marketing
+                    agencies that want to grow revenue, expand service offerings,
+                    and take on more clients without increasing payroll or
+                    overhead.
                   </p>
 
                   <p className="text-sm sm:text-base font-medium text-slate-700 leading-relaxed mb-4">
@@ -1736,7 +1730,8 @@ export default function Home() {
                   </ul>
 
                   <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                    …under your brand, while a reliable partner handles execution BrandingBeez is built for you.
+                    …under your brand, while a reliable partner handles execution
+                    — BrandingBeez is built for you.
                   </p>
                 </div>
 
@@ -1767,19 +1762,19 @@ export default function Home() {
           </section>
 
           {/* Partner Agencies Marquee */}
-          <section className="py-12 sm:py-16 bg-gray-50 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-10 sm:mb-12">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-brand-coral">
+                  <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-coral">
                     25+{" "}
                   </span>
                   <span className="text-gray-800">Partner Agencies</span>
                 </h2>
 
                 <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
-                  Trusted by leading agencies worldwide who rely on our expert teams
-                  to deliver exceptional results for their clients.
+                  Trusted by leading agencies worldwide who rely on our expert
+                  teams to deliver exceptional results for their clients.
                 </p>
               </div>
 
@@ -1852,11 +1847,10 @@ export default function Home() {
           </section>
 
           {/* Problems We Solve (Why Agencies Choose Us) */}
-          <section className="py-14 sm:py-16 bg-white">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <section className="py-12 sm:py-16 lg:py-20 bg-white">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-center items-center">
                 <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-coral border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-white mb-4">
-                  {/* <span className="h-2 w-2 rounded-full bg-brand-coral" /> */}
                   Problems We Solve
                 </div>
               </div>
@@ -1865,7 +1859,8 @@ export default function Home() {
                   Scale Faster Without the Usual Agency Headaches
                 </h2>
                 <p className="text-sm sm:text-base md:text-lg text-slate-700 leading-relaxed">
-                  Most agencies hit the same growth roadblocks. We help you skip them entirely.
+                  Most agencies hit the same growth roadblocks. We help you skip
+                  them entirely.
                 </p>
               </div>
 
@@ -1881,7 +1876,9 @@ export default function Home() {
                   <ul className="space-y-3 text-sm sm:text-base text-slate-900">
                     <li className="flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>The high cost and risk of full-time hiring in the US</span>
+                      <span>
+                        The high cost and risk of full-time hiring in the US
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
@@ -1889,7 +1886,9 @@ export default function Home() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>Overloaded internal teams causing delivery bottlenecks</span>
+                      <span>
+                        Overloaded internal teams causing delivery bottlenecks
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
@@ -1897,7 +1896,9 @@ export default function Home() {
                     </li>
                     <li className="flex items-start gap-2">
                       <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>Tight deadlines that threaten quality and reputation</span>
+                      <span>
+                        Tight deadlines that threaten quality and reputation
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -1908,30 +1909,44 @@ export default function Home() {
                     Here’s how we solve it
                   </p>
                   <p className="text-sm sm:text-base text-slate-800 mb-4">
-                    We’ve designed our model to remove those bottlenecks from your agency.
+                    We’ve designed our model to remove those bottlenecks from your
+                    agency.
                   </p>
                   <ul className="space-y-3 text-sm sm:text-base text-slate-900 mb-5">
                     <li className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>Dedicated, full-time white-label resources assigned to your agency</span>
+                      <span>
+                        Dedicated, full-time white-label resources assigned to
+                        your agency
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>Reliable delivery fully aligned with your workflows and standards</span>
+                      <span>
+                        Reliable delivery fully aligned with your workflows and
+                        standards
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>Scalable capacity that grows or shrinks with client demand</span>
+                      <span>
+                        Scalable capacity that grows or shrinks with client demand
+                      </span>
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>Consistent quality, on-time delivery, and strict confidentiality</span>
+                      <span>
+                        Consistent quality, on-time delivery, and strict
+                        confidentiality
+                      </span>
                     </li>
                   </ul>
 
                   <p className="text-sm sm:text-base text-slate-800 mt-auto pt-2 border-t border-emerald-100">
-                    <span className="font-semibold">You</span> focus on sales, strategy, and client relationships.{" "}
-                    <span className="font-semibold">We</span> make sure delivery never slows you down.
+                    <span className="font-semibold">You</span> focus on sales,
+                    strategy, and client relationships.{" "}
+                    <span className="font-semibold">We</span> make sure delivery
+                    never slows you down.
                   </p>
                 </div>
               </div>
@@ -1939,9 +1954,9 @@ export default function Home() {
           </section>
 
           {/* Dedicated Resources Section */}
-          <section className="py-12 sm:py-16 px-4 sm:px-6 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-5xl mx-auto text-center">
-              <Badge className="bg-white/20 text-white text-md font-medium border-white/30 mb-6 sm:mb-8 mx-auto">
+              <Badge className="bg-white/20 text-white text-sm sm:text-md font-medium border-white/30 mb-6 sm:mb-8 mx-auto">
                 🔥 Most Sought-After Service
               </Badge>
 
@@ -1950,21 +1965,20 @@ export default function Home() {
               </h2>
 
               <p className="text-sm sm:text-base lg:text-lg text-gray-100 mb-7 sm:mb-10 lg:mb-12 max-w-4xl mx-auto leading-relaxed">
-                Scale your agency with handpicked pros who integrate seamlessly into
-                your workflows and client delivery.
+                Scale your agency with handpicked pros who integrate seamlessly
+                into your workflows and client delivery.
               </p>
 
-              <div
-                className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12
-              border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto"
-              >
+              <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
                   </span>
                   $1200/month
                 </div>
-                <p className="mb-1 font-medium">Cancel anytime | No long-term contracts | Fully white-label</p>
+                <p className="mb-1 font-medium">
+                  Cancel anytime | No long-term contracts | Fully white-label
+                </p>
 
                 <div className="text-sm sm:text-base lg:text-lg text-gray-200 mb-2 sm:mb-3">
                   Team Discounts: Up to 20% Off
@@ -1975,10 +1989,12 @@ export default function Home() {
                 </div>
 
                 <div className="flex items-center justify-center">
-                  <ul className="space-y-2 sm:space-y-3 text-left text-gray-100 mb-6 sm:mb-8 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-left text-gray-100 mb-6 sm:mb-8">
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">Graphic Designers</span>
+                      <span className="text-sm sm:text-base">
+                        Graphic Designers
+                      </span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
@@ -1988,12 +2004,16 @@ export default function Home() {
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">SEO Specialists</span>
+                      <span className="text-sm sm:text-base">
+                        SEO Specialists
+                      </span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">Google Ads Experts</span>
+                      <span className="text-sm sm:text-base">
+                        Google Ads Experts
+                      </span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
@@ -2003,7 +2023,9 @@ export default function Home() {
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">Full-Stack Developers</span>
+                      <span className="text-sm sm:text-base">
+                        Full-Stack Developers
+                      </span>
                     </li>
                   </ul>
                 </div>
@@ -2030,7 +2052,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Contact Form Section (now a reusable component) */}
+          {/* Contact Form Section (reusable component) */}
           <AgencyContactSection
             sectionId="contact-form"
             heading="Ready to Scale Your Agency?"
@@ -2043,20 +2065,23 @@ export default function Home() {
           {/* Book Appointment Section */}
           <section
             id="book-appointment"
-            className="py-14 md:py-16 px-4 md:px-4 bg-slate-950 border-t border-slate-900"
+            className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-slate-950 border-t border-slate-900"
           >
             <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
               <div className="text-center max-w-3xl mx-auto">
-                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[18px] uppercase tracking-[0.2em] mb-3 font-bold">
+                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[11px] sm:text-xs md:text-sm uppercase tracking-[0.2em] mb-3 font-bold">
                   Book a free strategy call
                 </p>
-                <h2 className="text-4xl lg:text-3xl md:text-3xl font-bold text-white mb-2">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
                   Ready to see what BrandingBeez can do for you?
                 </h2>
-                <p className="text-sm md:text-base text-slate-400">
-                  Pick an available slot with our lead consultant and we&apos;ll walk
-                  through your website, ads or AI idea live on the call.&nbsp;                  
-                  <span>Agencies typically book this call to evaluate dedicated resources, pricing, and delivery timelines.</span>
+                <p className="text-sm md:text-base text-slate-400 leading-relaxed">
+                  Pick an available slot with our lead consultant and we&apos;ll
+                  walk through your website, ads or AI idea live on the call.&nbsp;
+                  <span>
+                    Agencies typically book this call to evaluate dedicated
+                    resources, pricing, and delivery timelines.
+                  </span>
                 </p>
               </div>
 
@@ -2070,14 +2095,18 @@ export default function Home() {
           </section>
 
           {/* Testimonials – Card + Screenshot Style */}
-          <section id="testimonials" className="py-12 sm:py-16 px-4 bg-white">
+          <section
+            id="testimonials"
+            className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white"
+          >
             <div className="max-w-6xl mx-auto text-center">
               {/* Header */}
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
                 What Our Clients Say
               </h2>
               <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-2xl mx-auto mb-10">
-                Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
+                Agencies and brands trust BrandingBeez to deliver high-impact,
+                white-label solutions with care, speed, and attention to detail.
               </p>
 
               {/* Cards */}
@@ -2085,17 +2114,20 @@ export default function Home() {
                 {/* Mark Muse */}
                 <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+                    <div className="text-brand-purple text-4xl mb-3 leading-none">
+                      ❝
+                    </div>
 
                     <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                      Brandingbeez understood not only the technical challenges but was also completely
-                      responsive throughout..
+                      Brandingbeez understood not only the technical challenges
+                      but was also completely responsive throughout..
                       <br />
                       <br />
-                      They the provided framework, assets, and vision into a beautiful website tailored
-                      to a high-ticket offering, helping the end client stay competitive. The team stayed
-                      responsive and aware of the technical challenges, even with multiple change requests
-                      from the end client.
+                      They the provided framework, assets, and vision into a
+                      beautiful website tailored to a high-ticket offering,
+                      helping the end client stay competitive. The team stayed
+                      responsive and aware of the technical challenges, even with
+                      multiple change requests from the end client.
                     </p>
 
                     <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
@@ -2114,13 +2146,17 @@ export default function Home() {
                 {/* Daniel Fechete */}
                 <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+                    <div className="text-brand-purple text-4xl mb-3 leading-none">
+                      ❝
+                    </div>
 
                     <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                      Their attention to detail and interest in understanding our requirements perfectly
-                      stood out.. Brandingbeez successfully designed the requested brochures, demonstrating
-                      a thorough understanding of the client's products and expectations. The detail-oriented
-                      team delivered the project on time and maintained constant communication through email,
+                      Their attention to detail and interest in understanding our
+                      requirements perfectly stood out.. Brandingbeez successfully
+                      designed the requested brochures, demonstrating a thorough
+                      understanding of the client&apos;s products and
+                      expectations. The detail-oriented team delivered the project
+                      on time and maintained constant communication through email,
                       messaging apps, and virtual meetings.
                     </p>
 
@@ -2133,21 +2169,27 @@ export default function Home() {
                     </div>
 
                     <p className="font-bold text-gray-900">Daniel Fechete</p>
-                    <p className="text-gray-500 text-xs sm:text-sm">Creative Partner</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      Creative Partner
+                    </p>
                   </CardContent>
                 </Card>
 
                 {/* Gemma Murphy */}
                 <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
                   <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
+                    <div className="text-brand-purple text-4xl mb-3 leading-none">
+                      ❝
+                    </div>
 
                     <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                      Branding Beez have been a great help to my business. Before meeting Raie and her team,
-                      I was doing the sales, building the websites and handling all the tech and aftercare.
-                      Now I have the time to grow the business, working 'ON' it, instead of constantly 'IN' it.
-                      So they've been a gamechanger for me and my business. Even taking my first holiday this
-                      year WITHOUT my laptop! Thanks so much!
+                      Branding Beez have been a great help to my business. Before
+                      meeting Raie and her team, I was doing the sales, building
+                      the websites and handling all the tech and aftercare. Now I
+                      have the time to grow the business, working &apos;ON&apos;
+                      it, instead of constantly &apos;IN&apos; it. So they&apos;ve
+                      been a gamechanger for me and my business. Even taking my
+                      first holiday this year WITHOUT my laptop! Thanks so much!
                     </p>
 
                     <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
@@ -2159,46 +2201,49 @@ export default function Home() {
                     </div>
 
                     <p className="font-bold text-gray-900">Gemma Murphy</p>
-                    <p className="text-gray-500 text-xs sm:text-sm">Founder, Website Architect</p>
+                    <p className="text-gray-500 text-xs sm:text-sm">
+                      Founder, Website Architect
+                    </p>
                   </CardContent>
                 </Card>
               </div>
             </div>
           </section>
 
-          {/* Newsletter CTA Section (inline newsletter page design) */}
+          {/* Newsletter CTA Section */}
           <section
             id="newsletter"
-            className="py-10 sm:py-12 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
+            className="py-10 sm:py-12 lg:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white"
           >
             <div className="max-w-6xl mx-auto">
               {/* HEADER */}
-              <div className="text-center mb-5">
+              <div className="text-center mb-6">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">
                   Subscribe to Our Newsletter!
                 </h2>
                 <p className="text-xs sm:text-sm md:text-base text-white/90 max-w-2xl mx-auto">
-                  Join 1000+ marketers & agencies getting exclusive tips on SEO, AI,
-                  and growth strategies.
+                  Join 1000+ marketers &amp; agencies getting exclusive tips on
+                  SEO, AI, and growth strategies.
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* CONTENT: MERGED */}
-                <div className="max-w-3xl mx-auto mb-8 text-justify space-y-3">
+              <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
+                {/* CONTENT */}
+                <div className="w-full lg:w-1/2 mb-2 lg:mb-0 space-y-3 text-justify">
                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
 
                   <p className="text-sm text-gray-100 leading-normal">
-                    Get actionable tips, pricing tricks, automation tactics, fast client-winning
-                    strategies, proposal hacks, AI workflows, and real stories from growing
-                    agencies all delivered in simple 1-minute reads to help you scale
-                    smarter every week.
+                    Get actionable tips, pricing tricks, automation tactics, fast
+                    client-winning strategies, proposal hacks, AI workflows, and
+                    real stories from growing agencies — all delivered in simple
+                    1-minute reads to help you scale smarter every week.
                   </p>
                 </div>
+
                 {/* FORM */}
-                <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
+                <div className="w-full lg:w-1/2 bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
                     Subscribe Free
                   </h3>
@@ -2219,8 +2264,7 @@ export default function Home() {
                       onChange={(e) => setNewsletterName(e.target.value)}
                       placeholder="Full Name"
                       required
-                      className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
-          focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
+                      className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
                     />
 
                     <input
@@ -2229,16 +2273,14 @@ export default function Home() {
                       onChange={(e) => setNewsletterEmail(e.target.value)}
                       placeholder="Email Address"
                       required
-                      className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 
-          focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
+                      className="flex-1 px-3 py-2 rounded-lg bg-white/25 text-white placeholder-gray-200 border border-white/30 focus:border-white/60 focus:ring-1 focus:ring-white/40 transition-all text-sm"
                     />
 
                     <button
                       type="submit"
                       disabled={newsletterLoading}
-                      className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm 
-            hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap
-            ${newsletterLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+                      className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap ${newsletterLoading ? "opacity-60 cursor-not-allowed" : ""
+                        }`}
                     >
                       {newsletterLoading ? "Subscribing..." : "Subscribe"}
                     </button>
@@ -2274,5 +2316,6 @@ export default function Home() {
       </div>
     </>
   );
+
 }
 
