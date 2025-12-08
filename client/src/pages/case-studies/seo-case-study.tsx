@@ -1000,6 +1000,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { AtlanticFoundationSchema } from "@/utils/all-schemas";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import atlanLogo from "../../../public/images/atlantic-logo.jpg";
 
 export default function SEOCaseStudy() {
   return (
@@ -1277,15 +1278,16 @@ export default function SEOCaseStudy() {
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                   <div>
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-brand-coral to-brand-purple rounded-lg flex items-center justify-center">
-                        <Globe className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 bg-blue-200 rounded-lg flex items-center justify-center">
+                        {/* <Globe className="w-8 h-8 text-white" /> */}
+                        <img src={atlanLogo} alt="Atlantic Foundation" />
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">
-                          Atlantic Cleaning
+                          Atlantic Foundation
                         </h3>
                         <h4 className="text-gray-600">
-                          Commercial Cleaning Services
+                          Crawl Space Repair
                         </h4>
                       </div>
                     </div>
@@ -1294,7 +1296,7 @@ export default function SEOCaseStudy() {
                       <div className="flex items-center gap-3">
                         <Users className="w-5 h-5 text-brand-coral" />
                         <span className="text-gray-700">
-                          Commercial cleaning company
+                          Atlantic Foundation & Crawl Space Repair
                         </span>
                       </div>
                       <div className="flex items-center gap-3">

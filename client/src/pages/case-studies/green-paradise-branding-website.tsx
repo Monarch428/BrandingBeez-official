@@ -645,7 +645,7 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
                         </div>
                         <Link href="/contact?service=website-development&/#contact-form">
                           <Button className="mt-6 bg-green-600 hover:bg-green-700 text-white">
-                            Start Your Brand Project
+                            Build Your Website
                             <ArrowRight className="w-4 h-4 ml-2" />
                           </Button>
                         </Link>

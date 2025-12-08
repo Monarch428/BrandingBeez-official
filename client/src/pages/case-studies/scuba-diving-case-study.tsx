@@ -561,6 +561,7 @@ import { Helmet } from "react-helmet";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SEOHead } from "@/components/seo-head";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import scubaLogo from "../../../public/images/Scuba_logo.png";
 
 export default function ScubaDivingCaseStudy() {
   return (
@@ -826,7 +827,7 @@ export default function ScubaDivingCaseStudy() {
             <div className="max-w-4xl mx-auto px-4">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
+                  <p className="text-sm font-medium text-brand-coral uppercase tracking-wide">
                     Not sure where to start?
                   </p>
                   <h3 className="text-xl md:text-2xl font-bold text-gray-900">
@@ -875,8 +876,9 @@ export default function ScubaDivingCaseStudy() {
                 <div className="grid md:grid-cols-2 gap-12 items-center">
                   <div>
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-16 h-16 bg-gradient-to-br from-brand-coral to-blue-500 rounded-lg flex items-center justify-center">
-                        <Globe className="w-8 h-8 text-white" />
+                      <div className="w-16 h-16 bg-blue-500 rounded-lg flex items-center justify-center">
+                        {/* <Globe className="w-8 h-8 text-white" /> */}
+                        <img src={scubaLogo} alt="Scuba Logo" />
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-gray-900">

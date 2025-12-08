@@ -271,27 +271,27 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                 {[
                   {
                     title: "Business Discovery",
-                    desc: "Understanding your current agency setup, services, and target market",
+                    desc: "Understanding your agency model, services, and growth goals",
                   },
                   {
                     title: "Challenge Identification",
-                    desc: "Pinpointing specific pain points and growth bottlenecks you're facing",
+                    desc: "Identifying delivery bottlenecks and scaling challenges",
                   },
                   {
                     title: "Collaboration Opportunities",
-                    desc: "Exploring how our services can complement your existing offerings",
+                    desc: "Exploring where our white-label services fit your offering",
                   },
                   {
                     title: "Resource Assessment",
-                    desc: "Determining what type of support would best accelerate your growth",
+                    desc: "Recommending the right talent and service mix",
                   },
                   {
                     title: "Partnership Benefits",
-                    desc: "Discussing mutual opportunities for long-term collaboration",
+                    desc: "Aligning for long-term, white-label collaboration",
                   },
                   {
                     title: "Next Steps",
-                    desc: "Outlining a clear action plan if there's a good fit between our businesses",
+                    desc: "Clear action plan if there’s a strong mutual fit",
                   },
                 ].map((item, idx) => (
                   <li key={idx} className="flex items-start space-x-3">
@@ -309,9 +309,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
               </ul>
               <div className="mt-6 pt-2 border-t border-purple-200">
                 <p className="text-xs sm:text-sm text-gray-700 italic">
-                  This call is designed to be a genuine business-to-business
-                  conversation focused on mutual growth and partnership
-                  opportunities.
+                  This call is a genuine B2B discussion focused on partnership and growth.
                 </p>
               </div>
             </div>
@@ -551,112 +549,112 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         {/* Website Development Options */}
                         {formData.servicesInterested ===
                           "Website Development" && (
-                          <>
-                            {[
-                              "WordPress",
-                              "Shopify",
-                              "BigCommerce",
-                              "Custom Coded",
-                            ].map((option) => (
-                              <div
-                                key={option}
-                                className="flex items-center space-x-2"
-                              >
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(
-                                    option
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                            <>
+                              {[
+                                "WordPress",
+                                "Shopify",
+                                "BigCommerce",
+                                "Custom Coded",
+                              ].map((option) => (
+                                <div
+                                  key={option}
+                                  className="flex items-center space-x-2"
                                 >
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
+                                  <Checkbox
+                                    id={option}
+                                    checked={formData.subServices.includes(
+                                      option
+                                    )}
+                                    onCheckedChange={(checked) =>
+                                      handleSubServiceChange(option, !!checked)
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={option}
+                                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                                  >
+                                    {option}
+                                  </Label>
+                                </div>
+                              ))}
+                            </>
+                          )}
 
                         {/* Dedicated Resource Options */}
                         {formData.servicesInterested ===
                           "Dedicated Resource" && (
-                          <>
-                            {[
-                              "Graphic Designer",
-                              "Video Editor",
-                              "SEO Specialist",
-                              "Google Ads Expert",
-                              "Web Developer",
-                              "Full-Stack Developer",
-                              "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                            ].map((option) => (
-                              <div
-                                key={option}
-                                className="flex items-center space-x-2"
-                              >
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(
-                                    option
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                            <>
+                              {[
+                                "Graphic Designer",
+                                "Video Editor",
+                                "SEO Specialist",
+                                "Google Ads Expert",
+                                "Web Developer",
+                                "Full-Stack Developer",
+                                "Others (Data Entry/Virtual Assistants/Social Media Managers)",
+                              ].map((option) => (
+                                <div
+                                  key={option}
+                                  className="flex items-center space-x-2"
                                 >
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
+                                  <Checkbox
+                                    id={option}
+                                    checked={formData.subServices.includes(
+                                      option
+                                    )}
+                                    onCheckedChange={(checked) =>
+                                      handleSubServiceChange(option, !!checked)
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={option}
+                                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                                  >
+                                    {option}
+                                  </Label>
+                                </div>
+                              ))}
+                            </>
+                          )}
 
                         {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
                         {formData.servicesInterested ===
                           "Custom Web & Mobile Application Development (AI-Powered)" && (
-                          <>
-                            {[
-                              "AI Powered web app/Mobile app development",
-                              "AI Agentic Platform development",
-                              "AI Integration into existing platforms",
-                              "Prototype / MVP Mobile App",
-                              "Full-Scale Production App",
-                              "iOS & Android App (Native/Hybrid)",
-                              "Web + Mobile App Bundle",
-                              "Redesign / Rebuild Existing App",
-                              "Ongoing Maintenance & Feature Updates",
-                            ].map((option) => (
-                              <div
-                                key={option}
-                                className="flex items-center space-x-2"
-                              >
-                                <Checkbox
-                                  id={option}
-                                  checked={formData.subServices.includes(
-                                    option
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
-                                />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
+                            <>
+                              {[
+                                "AI Powered web app/Mobile app development",
+                                "AI Agentic Platform development",
+                                "AI Integration into existing platforms",
+                                "Prototype / MVP Mobile App",
+                                "Full-Scale Production App",
+                                "iOS & Android App (Native/Hybrid)",
+                                "Web + Mobile App Bundle",
+                                "Redesign / Rebuild Existing App",
+                                "Ongoing Maintenance & Feature Updates",
+                              ].map((option) => (
+                                <div
+                                  key={option}
+                                  className="flex items-center space-x-2"
                                 >
-                                  {option}
-                                </Label>
-                              </div>
-                            ))}
-                          </>
-                        )}
+                                  <Checkbox
+                                    id={option}
+                                    checked={formData.subServices.includes(
+                                      option
+                                    )}
+                                    onCheckedChange={(checked) =>
+                                      handleSubServiceChange(option, !!checked)
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={option}
+                                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                                  >
+                                    {option}
+                                  </Label>
+                                </div>
+                              ))}
+                            </>
+                          )}
                       </div>
                       {errors.subServices && (
                         <p className="text-xs text-red-500 mt-1">
@@ -689,7 +687,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                     disabled={contactMutation.isPending}
                     className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
                   >
-                    {contactMutation.isPending ? "Submitting..." : "Submit Form"}
+                    {contactMutation.isPending ? "Submitting..." : "Schedule Strategy Call"}
                   </Button>
                 </form>
               </CardContent>
