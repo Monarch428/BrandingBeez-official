@@ -58,9 +58,9 @@ const caseStudies = [
   {
     id: 1,
     title: "UK Legal Services Excellence",
-    client: 
-    // "Arlingsworth Solicitors",
-    "Arlingsworth Solicitors – UK Law Firm",
+    client:
+      // "Arlingsworth Solicitors",
+      "Arlingsworth Solicitors – UK Law Firm",
     industry: "Legal Services",
     results: {
       cpa: "£6.5 Lowest CPA",
@@ -318,7 +318,7 @@ const faqs = [
 
 export default function GoogleAds() {
   const [, setLocation] = useLocation();
-    const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const navigateToPricingCalculator = () => {
     setLocation('/pricing-calculator');
@@ -364,31 +364,35 @@ export default function GoogleAds() {
         }} />
         <Header />
         <main className="pt-0">
+
           {/* Featured Google Ads Client Section */}
           <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-7xl mx-auto p-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <div className="flex items-center justify-center">
-                    <Badge className="bg-brand-coral text-white text-md mb-6 font-medium px-4 py-1 rounded-full">
-                      Featured Google Ads Client of the Month
-                    </Badge>
-                  </div>
-                  <h1 className="text-2xl sm:text-xl md:text-3xl lg:text-5xl font-bold mb-6">
-                    {/* Arlingsworth Solicitors */}
+                <div className="max-w-4xl w-full mx-auto lg:mx-0">
+                  {/* Badge */}
+                  <Badge className="bg-brand-coral text-white text-md mb-6 font-medium px-4 py-1 rounded-full">
+                    Featured Google Ads Client of the Month
+                  </Badge>
+
+                  {/* Heading */}
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold leading-tight mb-6">
                     White-Label Google Ads Management for Agencies
                   </h1>
-                  <p className="text-xl text-gray-100 mb-8">
-                    {/* {featuredClient.description} */}
+
+                  {/* Paragraph 1 */}
+                  <p className="text-lg sm:text-xl text-gray-100 mb-6">
                     Scale your agency’s PPC services with a dedicated white-label Google Ads team.
-                    We manage strategy, setup, optimization, and reporting — fully under your brand.
+                    We manage strategy, setup, optimization, and reporting fully under your brand.
                   </p>
-                  <p className="text-xl text-gray-100 mb-8">
-                    {/* {featuredClient.description} */}
-                    Trusted by UK & US agencies to deliver profitable Google Ads campaigns for law firms, 
+
+                  {/* Paragraph 2 */}
+                  <p className="text-lg sm:text-xl text-gray-100 mb-8">
+                    Trusted by UK & US agencies to deliver profitable Google Ads campaigns for law firms,
                     local services, e-commerce brands, and high-intent leads.
                   </p>
 
+                  {/* Achievement Box */}
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 mb-8 border border-white/20">
                     <h2 className="text-xl font-bold mb-4">Google Ads Results in 30 days</h2>
                     <ul className="space-y-2 text-gray-100">
@@ -401,28 +405,29 @@ export default function GoogleAds() {
                     </ul>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row gap-4 items-center">
-                    <Button className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple" asChild>
+                  {/* CTA Buttons */}
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                    <Button
+                      className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                      asChild
+                    >
                       <Link href="/contact?service=google-ads&/#contact-form">
                         Start Your Campaign
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Link>
                     </Button>
+
                     <Button
-                                      size="lg"
-                                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
-                                      onClick={() =>
-                                        window.open(
-                                          "/book-appiontment",
-                                          "_blank",
-                                        )
-                                      }
-                                    >
-                                      <Calendar className="w-4 h-4 mr-2" />
-                                       Book a Free Strategy Call
-                                    </Button>
+                      size="lg"
+                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                      onClick={() => window.open("/book-appiontment", "_blank")}
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Book a Free Strategy Call
+                    </Button>
                   </div>
                 </div>
+
 
                 <div className="relative">
                   <Card className="bg-white/95 backdrop-blur-sm border border-white/20 p-6">
@@ -456,85 +461,85 @@ export default function GoogleAds() {
             </div>
           </section>
 
-<PhaseSliderSection
-  sectionId="google-ads-process"
-  heading="How the Google Ads Process Works"
-  subheading="A simple, transparent process built for agencies."
-  phases={googleAdsPhases}
-/>
+          <PhaseSliderSection
+            sectionId="google-ads-process"
+            heading="How the Google Ads Process Works"
+            subheading="A simple, transparent process built for agencies."
+            phases={googleAdsPhases}
+          />
 
-{/* WHY AGENCIES CHOOSE OUR WHITE-LABEL PPC */}
-<section className="py-16 px-4 bg-white">
-  <div className="max-w-5xl mx-auto">
-    {/* Heading */}
-    <div className="text-center mb-10">
-      <span className="inline-flex items-center rounded-full bg-brand-purple/5 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-wide text-brand-purple">
-        Why Agencies Choose Our White-Label PPC
-      </span>
-      <h2 className="mt-4 text-3xl font-bold text-brand-purple">
-        Why Agencies Partner With BrandingBeez for Google Ads
-      </h2>
-      <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
-        We don’t act like vendors — we operate as your in-house paid media team,
-        fully behind the scenes under your brand.
-      </p>
-    </div>
-
-    {/* Content Card */}
-    <Card className="bg-gray-50 border border-brand-purple/10 shadow-sm">
-      <CardContent className="p-6 sm:p-8">
-        <div className="grid gap-6 md:grid-cols-[1.2fr,0.9fr] items-start">
-          {/* Left – bullets */}
-          <div>
-            <ul className="space-y-3 text-sm sm:text-base text-gray-800">
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
-                <span>Google Ads managed under your agency name</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
-                <span>No client-facing branding or credit taken</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
-                <span>US-focused strategy, targeting &amp; messaging</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
-                <span>
-                  Proven performance across legal, home services &amp; local businesses
+          {/* WHY AGENCIES CHOOSE OUR WHITE-LABEL PPC */}
+          <section className="py-16 px-4 bg-white">
+            <div className="max-w-5xl mx-auto">
+              {/* Heading */}
+              <div className="text-center mb-10">
+                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-wide text-white">
+                  Why Agencies Choose Our White-Label PPC
                 </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
-                <span>
-                  Direct access to PPC specialists — not account managers only
-                </span>
-              </li>
-            </ul>
-          </div>
+                <h2 className="mt-4 text-3xl font-bold text-brand-purple">
+                  Why Agencies Partner With BrandingBeez for Google Ads
+                </h2>
+                <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+                  We don’t act like vendors — we operate as your in-house paid media team,
+                  fully behind the scenes under your brand.
+                </p>
+              </div>
 
-          {/* Right – emphasis block */}
-          <div className="rounded-2xl bg-gradient-to-r from-brand-purple to-brand-coral text-white p-5 sm:p-6 flex flex-col justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80 mb-2">
-                White-Label Advantage
-              </p>
-              <p className="text-base sm:text-lg font-semibold leading-relaxed">
-                You keep the client. <br className="hidden sm:block" />
-                We do the execution.
-              </p>
+              {/* Content Card */}
+              <Card className="bg-gray-50 border border-brand-purple/10 shadow-sm">
+                <CardContent className="p-6 sm:p-8">
+                  <div className="grid gap-6 md:grid-cols-[1.2fr,0.9fr] items-start">
+                    {/* Left – bullets */}
+                    <div>
+                      <ul className="space-y-3 text-sm sm:text-base text-gray-800">
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                          <span>Google Ads managed under your agency name</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                          <span>No client-facing branding or credit taken</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                          <span>US-focused strategy, targeting &amp; messaging</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                          <span>
+                            Proven performance across legal, home services &amp; local businesses
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
+                          <span>
+                            Direct access to PPC specialists — not account managers only
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Right – emphasis block */}
+                    <div className="rounded-2xl bg-gradient-to-r from-brand-purple to-brand-coral text-white p-5 sm:p-6 flex flex-col justify-between">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/80 mb-2">
+                          White-Label Advantage
+                        </p>
+                        <p className="text-base sm:text-lg font-semibold leading-relaxed">
+                          You keep the client. <br className="hidden sm:block" />
+                          We do the execution.
+                        </p>
+                      </div>
+                      <p className="mt-4 text-sm text-white/90">
+                        From audits to scaling, every campaign is built, optimized, and reported
+                        under your agency brand — while our team handles the heavy lifting.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <p className="mt-4 text-sm text-white/90">
-              From audits to scaling, every campaign is built, optimized, and reported
-              under your agency brand — while our team handles the heavy lifting.
-            </p>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-</section>
+          </section>
 
           {/* Case Studies Section */}
           <section className="py-16 px-4 bg-gray-50">
@@ -554,10 +559,13 @@ export default function GoogleAds() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {caseStudies.map((study, index) => (
-                  <Card key={study.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <Card
+                    key={study.id}
+                    className="flex flex-col h-full shadow-lg hover:shadow-xl transition-shadow duration-300"
+                  >
                     {index === 0 ? (
                       /* Arlingsworth Solicitors with uploaded image */
-                      (<div className="aspect-video rounded-t-lg overflow-hidden bg-white border-b border-gray-200">
+                      <div className="aspect-video rounded-t-lg overflow-hidden bg-white border-b border-gray-200">
                         <picture>
                           <source srcSet="/images/img_g1.png" type="image/png" />
                           <img
@@ -567,25 +575,32 @@ export default function GoogleAds() {
                             loading="lazy"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
+                              target.style.display = "none";
                               const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
+                              if (fallback) fallback.style.display = "flex";
                             }}
                           />
                         </picture>
-                        <div className="w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center" style={{ display: 'none' }}>
+                        <div
+                          className="w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center"
+                          style={{ display: "none" }}
+                        >
                           <div className="text-center p-6">
                             <div className="w-16 h-16 bg-brand-coral/20 rounded-full flex items-center justify-center mx-auto mb-3">
                               <DollarSign className="w-8 h-8 text-brand-coral" />
                             </div>
-                            <h4 className="text-lg font-bold text-brand-purple mb-2">{study.client}</h4>
-                            <p className="text-sm font-medium text-gray-700">{study.industry}</p>
+                            <h4 className="text-lg font-bold text-brand-purple mb-2">
+                              {study.client}
+                            </h4>
+                            <p className="text-sm font-medium text-gray-700">
+                              {study.industry}
+                            </p>
                           </div>
                         </div>
-                      </div>)
+                      </div>
                     ) : index === 1 ? (
                       /* Junksaway with uploaded image */
-                      (<div className="aspect-video rounded-t-lg overflow-hidden bg-white border-b border-gray-200">
+                      <div className="aspect-video rounded-t-lg overflow-hidden bg-white border-b border-gray-200">
                         <picture>
                           <source srcSet="/images/img_g2.png" type="image/png" />
                           <img
@@ -595,25 +610,32 @@ export default function GoogleAds() {
                             loading="lazy"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
+                              target.style.display = "none";
                               const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
+                              if (fallback) fallback.style.display = "flex";
                             }}
                           />
                         </picture>
-                        <div className="w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center" style={{ display: 'none' }}>
+                        <div
+                          className="w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center"
+                          style={{ display: "none" }}
+                        >
                           <div className="text-center p-6">
                             <div className="w-16 h-16 bg-brand-coral/20 rounded-full flex items-center justify-center mx-auto mb-3">
                               <DollarSign className="w-8 h-8 text-brand-coral" />
                             </div>
-                            <h4 className="text-lg font-bold text-brand-purple mb-2">{study.client}</h4>
-                            <p className="text-sm font-medium text-gray-700">{study.industry}</p>
+                            <h4 className="text-lg font-bold text-brand-purple mb-2">
+                              {study.client}
+                            </h4>
+                            <p className="text-sm font-medium text-gray-700">
+                              {study.industry}
+                            </p>
                           </div>
                         </div>
-                      </div>)
+                      </div>
                     ) : index === 2 ? (
                       /* The Dog Guy with uploaded image */
-                      (<div className="aspect-video rounded-t-lg overflow-hidden bg-white border-b border-gray-200">
+                      <div className="aspect-video rounded-t-lg overflow-hidden bg-white border-b border-gray-200">
                         <picture>
                           <source srcSet="/images/img_g3.png" type="image/png" />
                           <img
@@ -623,36 +645,48 @@ export default function GoogleAds() {
                             loading="lazy"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
+                              target.style.display = "none";
                               const fallback = target.nextElementSibling as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
+                              if (fallback) fallback.style.display = "flex";
                             }}
                           />
                         </picture>
-                        <div className="w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center" style={{ display: 'none' }}>
+                        <div
+                          className="w-full h-full bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 flex items-center justify-center"
+                          style={{ display: "none" }}
+                        >
                           <div className="text-center p-6">
                             <div className="w-16 h-16 bg-brand-coral/20 rounded-full flex items-center justify-center mx-auto mb-3">
                               <DollarSign className="w-8 h-8 text-brand-coral" />
                             </div>
-                            <h4 className="text-lg font-bold text-brand-purple mb-2">{study.client}</h4>
-                            <p className="text-sm font-medium text-gray-700">{study.industry}</p>
+                            <h4 className="text-lg font-bold text-brand-purple mb-2">
+                              {study.client}
+                            </h4>
+                            <p className="text-sm font-medium text-gray-700">
+                              {study.industry}
+                            </p>
                           </div>
                         </div>
-                      </div>)
+                      </div>
                     ) : (
                       /* Placeholder for other case studies */
-                      (<div className="aspect-video bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 rounded-t-lg overflow-hidden flex items-center justify-center relative">
+                      <div className="aspect-video bg-gradient-to-br from-brand-purple/10 to-brand-coral/10 rounded-t-lg overflow-hidden flex items-center justify-center relative">
                         <div className="absolute inset-0 bg-gradient-to-r from-brand-purple/20 to-brand-coral/20"></div>
                         <div className="relative z-10 text-center p-6">
                           <div className="w-16 h-16 bg-brand-coral/20 rounded-full flex items-center justify-center mx-auto mb-3">
                             <DollarSign className="w-8 h-8 text-brand-coral" />
                           </div>
-                          <h4 className="text-lg font-bold text-brand-purple mb-2">{study.client}</h4>
-                          <p className="text-sm font-medium text-gray-700">{study.industry}</p>
+                          <h4 className="text-lg font-bold text-brand-purple mb-2">
+                            {study.client}
+                          </h4>
+                          <p className="text-sm font-medium text-gray-700">
+                            {study.industry}
+                          </p>
                         </div>
-                      </div>)
+                      </div>
                     )}
-                    <CardContent className="p-6">
+
+                    <CardContent className="p-6 flex flex-col flex-grow">
                       <h3 className="text-xl font-bold text-brand-purple mb-2">
                         {study.client}
                       </h3>
@@ -662,50 +696,65 @@ export default function GoogleAds() {
                         {study.results.cpa && (
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Best CPA</span>
-                            <span className="font-bold text-green-600">{study.results.cpa}</span>
+                            <span className="font-bold text-green-600">
+                              {study.results.cpa}
+                            </span>
                           </div>
                         )}
                         {study.results.conversionRate && (
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Conversion Rate</span>
-                            <span className="font-bold text-blue-600">{study.results.conversionRate}</span>
+                            <span className="font-bold text-blue-600">
+                              {study.results.conversionRate}
+                            </span>
                           </div>
                         )}
                         {study.results.clicks && (
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Clicks</span>
-                            <span className="font-bold text-brand-coral">{study.results.clicks}</span>
+                            <span className="font-bold text-brand-coral">
+                              {study.results.clicks}
+                            </span>
                           </div>
                         )}
                         {study.results.cpaReduction && (
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">CPA Reduction</span>
-                            <span className="font-bold text-green-600">{study.results.cpaReduction}</span>
+                            <span className="font-bold text-green-600">
+                              {study.results.cpaReduction}
+                            </span>
                           </div>
                         )}
                         {study.results.conversions && (
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">Conversions</span>
-                            <span className="font-bold text-blue-600">{study.results.conversions}</span>
+                            <span className="font-bold text-blue-600">
+                              {study.results.conversions}
+                            </span>
                           </div>
                         )}
                         {study.results.roas && (
                           <div className="flex justify-between text-sm">
                             <span className="text-gray-600">ROAS</span>
-                            <span className="font-bold text-purple-600">{study.results.roas}</span>
+                            <span className="font-bold text-purple-600">
+                              {study.results.roas}
+                            </span>
                           </div>
                         )}
                       </div>
 
-                      <Button
-                        className="w-full bg-brand-coral hover:bg-brand-purple text-white"
-                        asChild
-                      >
-                        <Link href={study.link}>
-                          View Full Case Study
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                      </Button>
+                      {/* Bottom-aligned button */}
+                      <div className="mt-auto pt-4 border-t border-gray-200">
+                        <Button
+                          className="w-full bg-brand-coral hover:bg-brand-purple text-white"
+                          asChild
+                        >
+                          <Link href={study.link}>
+                            View Full Case Study
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Link>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -713,12 +762,12 @@ export default function GoogleAds() {
             </div>
           </section>
 
-                    {/* PROBLEMS WE SOLVE FOR AGENCIES */}
+          {/* PROBLEMS WE SOLVE FOR AGENCIES */}
           <section className="py-16 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
               {/* Heading */}
               <div className="text-center mb-10">
-                <span className="inline-flex items-center rounded-full bg-brand-purple/5 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-wide text-brand-purple">
+                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-wide text-white">
                   Problems We Solve for Agencies
                 </span>
                 <h2 className="mt-4 text-3xl font-bold text-brand-purple">
@@ -806,43 +855,42 @@ export default function GoogleAds() {
             </div>
           </section>
 
-{/* FINAL CTA – before pricing */}
-<section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
-  <div className="max-w-5xl mx-auto text-center">
-    <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1 text-xs sm:text-sm font-semibold uppercase tracking-[0.18em]">
-      Ready to Scale Your PPC Offering
-    </span>
+          {/* FINAL CTA – before pricing */}
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+            <div className="max-w-5xl mx-auto text-center">
+              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1 text-xs sm:text-sm font-medium tracking-[0.18em]">
+                Ready to Scale Your PPC Offering
+              </span>
 
-    <h2 className="mt-5 text-3xl sm:text-4xl font-bold leading-tight">
-      Ready to Scale Your Agency’s PPC Offering?
-    </h2>
+              <h2 className="mt-5 text-3xl sm:text-4xl font-bold leading-tight">
+                Ready to Scale Your Agency’s PPC Offering?
+              </h2>
 
-    <p className="mt-4 text-base sm:text-lg text-white/90 max-w-3xl mx-auto">
-      Stop hiring, training, and managing Google Ads internally.  
-      Let our white-label PPC team handle strategy, build, and optimization —
-      while you stay front-facing with your clients.
-    </p>
+              <p className="mt-4 text-base sm:text-lg text-white/90 max-w-3xl mx-auto">
+                Stop hiring, training, and managing Google Ads internally.
+                Let our white-label PPC team handle strategy, build, and optimization
+                while you stay front-facing with your clients.
+              </p>
 
-    <p className="mt-3 text-sm sm:text-base text-white/80 max-w-2xl mx-auto">
-      We run the campaigns under your brand at scale, with clear reporting and
-      agency-first communication so you can confidently sell and grow.
-    </p>
+              <p className="mt-3 text-sm sm:text-base text-white/80 max-w-2xl mx-auto">
+                We run the campaigns under your brand at scale, with clear reporting and
+                agency-first communication so you can confidently sell and grow.
+              </p>
 
-    <div className="mt-8 flex justify-center">
-      <Button
-        size="lg"
-        className="bg-brand-purple text-brand-white hover:bg-gray-100 hover:text-brand-purple flex items-center gap-2"
-        onClick={() =>
-          window.open("/book-appiontment", "_blank")
-        }
-      >
-        Book a Free White-Label PPC Strategy Call
-        <ArrowRight className="w-4 h-4" />
-      </Button>
-    </div>
-  </div>
-</section>
-
+              <div className="mt-8 flex justify-center">
+                <Button
+                  size="lg"
+                  className="bg-brand-purple text-brand-white hover:bg-gray-100 hover:text-brand-purple flex items-center gap-2"
+                  onClick={() =>
+                    window.open("/book-appiontment", "_blank")
+                  }
+                >
+                  Book a Free White-Label PPC Strategy Call
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          </section>
 
           {/* Google Ads Management Packages Section */}
           <section className="py-16 px-4 bg-white">
@@ -855,15 +903,15 @@ export default function GoogleAds() {
                 <h3 className="text-4xl font-bold text-brand-purple mb-4">
                   Choose Your Google Ads Package
                 </h3>
-                  {/* <p className="text-xl text-gray-900/80 max-w-3xl mx-auto">
+                {/* <p className="text-xl text-gray-900/80 max-w-3xl mx-auto">
                     Professional Google Ads management designed to maximize your return on investment.
                     All packages include setup, optimization, and detailed reporting.
                   </p> */}
-                  <p className="text-xl text-gray-900/80 max-w-5xl mx-auto">
-                    Professional Google Ads management designed to maximize ROI — with setup, ongoing optimization,
-                    detailed performance reporting, and fully white-label, agency-first communication.
-                  </p>
-                </div>
+                <p className="text-xl text-gray-900/80 max-w-5xl mx-auto">
+                  Professional Google Ads management designed to maximize ROI with setup, ongoing optimization,
+                  detailed performance reporting, and fully white-label, agency-first communication.
+                </p>
+              </div>
 
               {/* Pricing Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -907,9 +955,11 @@ export default function GoogleAds() {
                         ))}
                       </ul>
 
-                      {/* Bottom Buttons */}
+                      {/* Bottom Buttons — always aligned */}
                       <div className="mt-auto pt-8 border-t border-brand-purple/10">
                         <div className="flex flex-col gap-4">
+
+                          {/* Primary Button */}
                           <Button
                             asChild
                             className={`w-full h-11 px-4 font-medium text-sm transition-all duration-300 ${pkg.popular
@@ -927,30 +977,7 @@ export default function GoogleAds() {
                             </Link>
                           </Button>
 
-                          {/* <Button
-                            asChild
-                            variant="outline"
-                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
-                          >
-                            <Link href="/pricing-calculator">
-                              View Google Ads Details
-                              <ArrowRight className="w-4 h-4 ml-2" />
-                            </Link>
-                          </Button> */}
-                          {/* <a
-                            href="/book-appointment/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-full"
-                          >
-                            <Button
-                              variant="outline"
-                              className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
-                            >
-                              Schedule Consultation
-                              <Calendar className="w-4 h-4 ml-2" />
-                            </Button>
-                          </a> */}
+                          {/* Schedule Call Button */}
                           <BookCallButtonWithModal
                             buttonLabel="Schedule Consultation"
                             className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
@@ -961,18 +988,19 @@ export default function GoogleAds() {
                         </div>
                       </div>
                     </CardContent>
+
                   </Card>
                 ))}
               </div>
 
-                 {/* ✅ Trust micro-copy under pricing */}
-    <div className="mt-10 text-center text-sm text-gray-800">
-      <p className="max-w-3xl mx-auto leading-relaxed">
-        ✔️ No long-term contracts &nbsp;•&nbsp; 
-        ✔️ Scales with your client base &nbsp;•&nbsp; 
-        ✔️ NDA available for all agency partners
-      </p>
-    </div>
+              {/* ✅ Trust micro-copy under pricing */}
+              <div className="mt-10 text-center text-sm text-gray-800">
+                <p className="max-w-3xl mx-auto leading-relaxed">
+                  ✔️ No long-term contracts &nbsp;•&nbsp;
+                  ✔️ Scales with your client base &nbsp;•&nbsp;
+                  ✔️ NDA available for all agency partners
+                </p>
+              </div>
 
               {/* Footer CTA */}
               {/* <div className="text-center mt-12">
@@ -993,85 +1021,82 @@ export default function GoogleAds() {
             </div>
           </section>
 
-
-{/* WHAT AGENCIES GET – after pricing */}
-<section className="py-16 px-4 bg-grey-50">
-  <div className="max-w-7xl mx-auto">
-    {/* Heading */}
-    <div className="text-center mb-12">
-      <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-[0.18em] text-brand-purple">
-        What Agencies Get
-      </span>
-      <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
-        What’s Included in Our White-Label Google Ads Management
-      </h2>
-      <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
-        Everything you need to offer fully managed Google Ads to your clients —
-        delivered by our team, under your brand, with clear accountability.
-      </p>
-    </div>
-
-    {/* Gradient Content Card */}
-    <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white shadow-lg border-none">
-      <CardContent className="p-8 sm:p-10">
-        <div className="grid gap-8 md:grid-cols-2 items-start">
-          {/* Left Column */}
-          <div>
-            <ul className="space-y-4 text-sm sm:text-base">
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Account setup from scratch or full rebuild of existing accounts
+          {/* WHAT AGENCIES GET – after pricing */}
+          <section className="py-16 px-4 bg-grey-50">
+            <div className="max-w-7xl mx-auto">
+              {/* Heading */}
+              <div className="text-center mb-12">
+                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-[0.18em] text-white">
+                  What Agencies Get
                 </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Conversion tracking configuration for calls, forms, and purchases
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Search, Performance Max &amp; Display campaigns tailored to your client’s goals
-                </span>
-              </li>
-            </ul>
-          </div>
+                <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
+                  What’s Included in Our White-Label Google Ads Management
+                </h2>
+                <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+                  Everything you need to offer fully managed Google Ads to your clients
+                  delivered by our team, under your brand, with clear accountability.
+                </p>
+              </div>
 
-          {/* Right Column */}
-          <div>
-            <ul className="space-y-4 text-sm sm:text-base">
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Landing page optimization recommendations to improve conversion rates
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Monthly performance reporting, fully branded for your agency
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Strategy calls you can join with your client — or stay behind the scenes while we handle it
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  </div>
-</section>
+              {/* Gradient Content Card */}
+              <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white shadow-lg border-none">
+                <CardContent className="p-8 sm:p-10">
+                  <div className="grid gap-8 md:grid-cols-2 items-start">
+                    {/* Left Column */}
+                    <div>
+                      <ul className="space-y-4 text-sm sm:text-base">
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Account setup from scratch or full rebuild of existing accounts
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Conversion tracking configuration for calls, forms, and purchases
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Search, Performance Max &amp; Display campaigns tailored to your client’s goals
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
 
+                    {/* Right Column */}
+                    <div>
+                      <ul className="space-y-4 text-sm sm:text-base">
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Landing page optimization recommendations to improve conversion rates
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Monthly performance reporting, fully branded for your agency
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Strategy calls you can join with your client or stay behind the scenes while we handle it
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </section>
 
-
-{/* Contact Form Section (now a reusable component) */}
-<AgencyContactSection
+          {/* Contact Form Section (now a reusable component) */}
+          <AgencyContactSection
             sectionId="contact-form"
             heading="Ready to Scale Your Agency?"
             subheading="Get a free consultation and discover how we can help you grow."
@@ -1080,7 +1105,7 @@ export default function GoogleAds() {
             submissionSourceLabel="Service Page Contact Form Submission"
           />
 
-{/* 🔹 NEW FAQ SECTION – before final CTA */}
+          {/* 🔹 NEW FAQ SECTION – before final CTA */}
           <section className="py-16 px-4 bg-gray-50">
             <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
@@ -1139,9 +1164,8 @@ export default function GoogleAds() {
                           {faq.question}
                         </span>
                         <ChevronDown
-                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
+                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                            }`}
                         />
                       </button>
                       {isOpen && (
@@ -1163,111 +1187,113 @@ export default function GoogleAds() {
                   >
                     Book a quick call with our team
                   </a> */}
-                   <Button
-                              variant="outline"
-                              className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
-                            >
-                              Book a quick call with our team
-                              <Calendar className="w-4 h-4 ml-2" />
-                            </Button>
+                  <Button
+                    variant="outline"
+                    className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                  >
+                    Book a quick call with our team
+                    <Calendar className="w-4 h-4 ml-2" />
+                  </Button>
                 </div>
               </div>
             </div>
           </section>
 
-{/* ✅ INDUSTRIES WE MANAGE GOOGLE ADS FOR */}
-<section className="py-16 px-4 bg-gray-50">
-  <div className="max-w-7xl mx-auto">
-    {/* Heading */}
-    <div className="text-center mb-12">
-      <span className="inline-flex items-center rounded-full bg-brand-purple/10 px-4 py-1 text-s sm:text-m font-semibold uppercase tracking-[0.18em] text-brand-purple">
-        Industries We Manage Google Ads For
-      </span>
-
-      <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
-        Industries We Manage White-Label Google Ads For
-      </h2>
-
-      <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
-        Our white-label PPC team has proven experience managing high-intent Google Ads
-        campaigns across competitive industries worldwide.
-      </p>
-    </div>
-
-    {/* Unified Gradient Card with Tick Points */}
-    <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white shadow-lg border-none rounded-2xl">
-      <CardContent className="p-8 sm:p-10">
-        <div className="grid gap-8 md:grid-cols-2 items-start">
-          {/* Left Column */}
-          <div>
-            <ul className="space-y-4 text-sm sm:text-base">
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Law Firms &amp; Legal Services
+          {/* ✅ INDUSTRIES WE MANAGE GOOGLE ADS FOR */}
+          <section className="py-16 px-4 bg-gray-50">
+            <div className="max-w-7xl mx-auto">
+              {/* Heading */}
+              <div className="text-center mb-12">
+                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-[0.18em] text-white">
+                  Industries We Manage Google Ads For
                 </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Home Services (HVAC, plumbing, roofing, construction, foundations)
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Local Businesses &amp; Multi-Location Brands
-                </span>
-              </li>
-            </ul>
-          </div>
 
-          {/* Right Column */}
-          <div>
-            <ul className="space-y-4 text-sm sm:text-base">
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  E-commerce Stores (Search, Shopping &amp; Performance Max)
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  Healthcare &amp; Professional Services
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
-                <span className="text-white/95 font-medium">
-                  B2B Services &amp; Lead Generation Businesses
-                </span>
-              </li>
-            </ul>
-          </div>
-        </div>
+                <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
+                  Industries We Manage White-Label Google Ads For
+                </h2>
 
-        
-      </CardContent>
-    </Card>
-    <p className="mt-8 text-m sm:text-base text-black/85 max-w-3xl mx-auto text-center leading-relaxed">
-          We tailor ad strategy, keyword intent, bidding models, and landing-page alignment
-          based on industry behavior — not generic ad templates.
-        </p>
-  </div>
-</section>
+                <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
+                  Our white-label PPC team has proven experience managing high-intent Google Ads
+                  campaigns across competitive industries worldwide.
+                </p>
+              </div>
 
-{/* ✅ QUICK TRUST STRIP – just before final CTA */}
+              {/* Unified Gradient Card with Tick Points */}
+              <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white shadow-lg border-none rounded-2xl">
+                <CardContent className="p-8 sm:p-10">
+                  <div className="grid gap-8 md:grid-cols-2 items-start">
+                    {/* Left Column */}
+                    <div>
+                      <ul className="space-y-4 text-sm sm:text-base">
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Law Firms &amp; Legal Services
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Home Services (HVAC, plumbing, roofing, construction, foundations)
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Local Businesses &amp; Multi-Location Brands
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Right Column */}
+                    <div>
+                      <ul className="space-y-4 text-sm sm:text-base">
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            E-commerce Stores (Search, Shopping &amp; Performance Max)
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            Healthcare &amp; Professional Services
+                          </span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                          <CheckCircle className="w-5 h-5 mt-0.5 text-white flex-shrink-0 drop-shadow-md" />
+                          <span className="text-white/95 font-medium">
+                            B2B Services &amp; Lead Generation Businesses
+                          </span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+
+                </CardContent>
+              </Card>
+              <p className="mt-8 text-m sm:text-base text-black/85 max-w-3xl mx-auto text-center leading-relaxed">
+                We tailor ad strategy, keyword intent, bidding models, and landing-page alignment
+                based on industry behavior not generic ad templates.
+              </p>
+            </div>
+          </section>
+
+          {/* ✅ QUICK TRUST STRIP – just before final CTA */}
           <section className="py-10 px-4 bg-gray-50 border-t border-b border-brand-purple/10">
             <div className="max-w-6xl mx-auto text-center">
-              <h3 className="text-sm sm:text-base font-semibold tracking-[0.18em] uppercase text-brand-purple mb-4">
-                Why Agencies Trust BrandingBeez
-              </h3>
+              <div className="flex items-center justify-center">
+                <h3 className="text-sm sm:text-base font-medium px-4 py-1 rounded-full tracking-[0.18em] text-white bg-brand-coral mb-4">
+                  Why Agencies Trust BrandingBeez
+                </h3>
+              </div>
               <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
                 {[
                   "100% White-Label Delivery",
                   "US & UK Market Experience",
-                  "No Client Contact — Ever",
+                  "No Client Contact Ever",
                   "Proven Results Across Competitive Niches",
                   "Scalable Team, No Freelancer Risk",
                 ].map((item) => (
@@ -1287,7 +1313,7 @@ export default function GoogleAds() {
           <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl font-bold mb-4">Google Ads Tips That Drive ROI</h2>
-              <p className="text-xl mb-8 text-white/90">Get expert tips, campaign strategies, and real case studies to boost your ROI—delivered straight to your inbox.</p>
+              <p className="text-xl mb-8 text-white/90">Get expert tips, campaign strategies, and real case studies to boost your ROI delivered straight to your inbox.</p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"

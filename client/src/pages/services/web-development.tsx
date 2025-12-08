@@ -491,11 +491,11 @@ export default function WebDevelopment() {
                   Featured White-Label Partnership
                 </h2>
                 <h2 className="text-2xl sm:text-3xl font-bold text-brand-purple">
-                  White-Label Website Development — Green Paradise Success Story
+                  White-Label Website Development Green Paradise Success Story
                 </h2>
                 <p className="text-xl text-gray-600 max-w-4xl mx-auto">
                   How we, as a white-label web partner, built a high-converting,
-                  agency-ready WordPress website — under the agency’s brand,
+                  agency-ready WordPress website under the agency’s brand,
                   with no client-facing visibility of us.
                 </p>
               </div>
@@ -526,7 +526,7 @@ export default function WebDevelopment() {
                       <div className="space-y-3 text-sm sm:text-base text-gray-700">
                         <p>
                           Green Paradise needed a modern online presence that
-                          matched their premium landscaping work — without
+                          matched their premium landscaping work without
                           taking their agency’s internal team away from other
                           client projects.
                         </p>
@@ -599,7 +599,7 @@ export default function WebDevelopment() {
                   powerful web solutions that drive growth and success. */}
                   See how agencies use our white-label web development team to
                   deliver fast, 
-                  reliable websites for their clients — without expanding internal teams.
+                  reliable websites for their clients without expanding internal teams.
                 </p>
               </div>
 
