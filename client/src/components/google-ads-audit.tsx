@@ -10,18 +10,19 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { insertContactSchema } from "@shared/schema";
 import { z } from "zod";
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Target, 
-  DollarSign, 
-  CheckCircle, 
+import {
+  BarChart3,
+  TrendingUp,
+  Target,
+  DollarSign,
+  CheckCircle,
   AlertTriangle,
   Users,
   Zap,
   Upload,
   Link as LinkIcon
 } from "lucide-react";
+import { BookCallButtonWithModal } from "./book-appoinment";
 
 const googleAdsAuditSchema = insertContactSchema.extend({
   companyName: z.string().min(2, "Company name must be at least 2 characters"),
@@ -64,7 +65,7 @@ export function GoogleAdsAudit() {
     mutationFn: async (data: GoogleAdsAuditData) => {
       // Submit contact form
       await apiRequest("/api/contacts", "POST", data);
-      
+
       // Get AI-powered Google Ads audit analysis
       const adSpend = parseInt(data.currentAdSpend.replace(/[^0-9]/g, '')) || 5000;
       const response = await apiRequest("/api/google-ads-audit", "POST", {
@@ -74,7 +75,7 @@ export function GoogleAdsAudit() {
         currentCPC: parseFloat(data.currentCPC) || 3.5,
         goals: data.goals || []
       });
-      
+
       return response.audit;
     },
     onSuccess: (result) => {
@@ -142,7 +143,7 @@ export function GoogleAdsAudit() {
                       id="companyName"
                       placeholder="Enter your company name"
                       value={formData.companyName}
-                      onChange={(e) => setFormData({...formData, companyName: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
                       required
                     />
                   </div>
@@ -152,7 +153,7 @@ export function GoogleAdsAudit() {
                       id="currentAdSpend"
                       placeholder="$5,000"
                       value={formData.currentAdSpend}
-                      onChange={(e) => setFormData({...formData, currentAdSpend: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, currentAdSpend: e.target.value })}
                       required
                     />
                   </div>
@@ -165,7 +166,7 @@ export function GoogleAdsAudit() {
                       id="name"
                       placeholder="John Smith"
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
                     />
                   </div>
@@ -176,7 +177,7 @@ export function GoogleAdsAudit() {
                       type="email"
                       placeholder="Enter your email"
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
                     />
                   </div>
@@ -188,7 +189,7 @@ export function GoogleAdsAudit() {
                     id="phone"
                     placeholder="Enter your phone number"
                     value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   />
                 </div>
 
@@ -202,7 +203,7 @@ export function GoogleAdsAudit() {
                         name="adsAccountAccess"
                         value="connect"
                         checked={formData.adsAccountAccess === "connect"}
-                        onChange={(e) => setFormData({...formData, adsAccountAccess: e.target.value as any})}
+                        onChange={(e) => setFormData({ ...formData, adsAccountAccess: e.target.value as any })}
                       />
                       <label htmlFor="connect" className="text-sm">
                         Connect Google Ads Account
@@ -215,7 +216,7 @@ export function GoogleAdsAudit() {
                         name="adsAccountAccess"
                         value="upload"
                         checked={formData.adsAccountAccess === "upload"}
-                        onChange={(e) => setFormData({...formData, adsAccountAccess: e.target.value as any})}
+                        onChange={(e) => setFormData({ ...formData, adsAccountAccess: e.target.value as any })}
                       />
                       <label htmlFor="upload" className="text-sm">
                         Upload Analytics Report
@@ -228,7 +229,7 @@ export function GoogleAdsAudit() {
                         name="adsAccountAccess"
                         value="provide_access"
                         checked={formData.adsAccountAccess === "provide_access"}
-                        onChange={(e) => setFormData({...formData, adsAccountAccess: e.target.value as any})}
+                        onChange={(e) => setFormData({ ...formData, adsAccountAccess: e.target.value as any })}
                       />
                       <label htmlFor="provide_access" className="text-sm">
                         Provide Access Later
@@ -243,14 +244,14 @@ export function GoogleAdsAudit() {
                     id="goals"
                     placeholder="What are you trying to achieve with Google Ads? (More leads, sales, brand awareness, etc.)"
                     value={formData.goals}
-                    onChange={(e) => setFormData({...formData, goals: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, goals: e.target.value })}
                     rows={3}
                     required
                   />
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="w-full bg-brand-coral rand-coral/90 text-white py-3"
                   disabled={mutation.isPending}
                 >
@@ -336,13 +337,19 @@ export function GoogleAdsAudit() {
                   <p className="text-gray-600 mb-4">
                     Ready to optimize your Google Ads campaigns? Let's discuss your strategy.
                   </p>
-                  <Button 
+                  {/* <Button 
                     className="bg-brand-coral rand-coral/90 text-white"
                     // onClick={() => window.open('https://calendly.com/vignesh-velusamy/30min', '_blank')}
-                    onClick={() => window.open("/book-appiontment", '_blank')}
+                    onClick={() => window.open("/book-appointment", '_blank')}
                   >
                     Book Strategy Call
-                  </Button>
+                  </Button> */}
+                  <BookCallButtonWithModal
+                    buttonLabel="Book a strategy call"
+                    className="bg-brand-coral rand-coral/90 text-white"
+                    buttonSize="lg"
+                  // defaultServiceType="Website Development"
+                  />
                 </div>
               </CardContent>
             </Card>

@@ -33,6 +33,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { DedicatedResourcesSchema } from "@/utils/all-schemas";
 import { navigate } from "wouter/use-browser-location";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 
 export default function DedicatedResources() {
@@ -219,9 +220,9 @@ export default function DedicatedResources() {
                     <Link href="/pricing-calculator?service=dedicated-resources">
                       <Button
                         size="lg"
-                        className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                        className="bg-white font-medium text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                       >
-                        Get Team Quote
+                        Hire Your Team
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </Link>
@@ -771,19 +772,26 @@ export default function DedicatedResources() {
 
                 </div>
 
-                <Button
+                {/* <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <Calendar className="w-4 h-4 mr-2" />
                   Book Free Team Planning Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Free Team Planning Call"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  buttonSize="lg"
+                  // buttonVariant="outline"
+                  defaultServiceType="Dedicated Resources"
+                />
               </div>
               <p className="text-sm md:text-base text-gray-800 mt-4 font-medium text-left">
                 And recommend a lean, efficient team structure that gets results from Month 1.
@@ -1114,19 +1122,26 @@ export default function DedicatedResources() {
                       dedicated team structure in a short call.
                     </p>
                   </div>
-                  <Button
+                  {/* <Button
                     size="lg"
                     className="bg-brand-coral text-white hover:bg-brand-coral/90"
                     onClick={() =>
                       window.open(
-                        "/book-appiontment",
+                        "/book-appointment",
                         "_blank",
                       )
                     }
                   >
                     <Calendar className="w-4 h-4 mr-2" />
                     Talk to the Team Planning Desk
-                  </Button>
+                  </Button> */}
+                  <BookCallButtonWithModal
+                    buttonLabel="Talk to the Team Planning Desk"
+                    className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                    buttonSize="lg"
+                    // buttonVariant="outline"
+                    defaultServiceType="Dedicated Resources"
+                  />
                 </div>
               </Card>
             </div>

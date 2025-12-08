@@ -33,6 +33,7 @@ import {
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function ArlingsworthSolicitorsCaseStudy() {
   const { regionConfig } = useRegion();
@@ -91,17 +92,24 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                   </div>
                 </div>
                 <div className="mt-5 ">
-                  <Button
+                  {/* <Button
                     size="lg"
                     variant="outline"
                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
                     onClick={() =>
                       // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-                      window.open("/book-appiontment", "_blank",)
+                      window.open("/book-appointment", "_blank",)
                     }
                   >
-                    Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
-                  </Button>
+                    Schedule a Free Consultation <ArrowRight className="w-4 h-4 mr-2" />
+                  </Button> */}
+                  <BookCallButtonWithModal
+                    buttonLabel="Schedule a Free Consultation"
+                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                    buttonSize="lg"
+                    buttonVariant="outline"
+                    defaultServiceType="Google Ads"
+                  />
                 </div>
               </div>
             </div>
@@ -483,13 +491,20 @@ export default function ArlingsworthSolicitorsCaseStudy() {
                 and 18.95% conversion rates for Arlingsworth Solicitors */}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() => window.open(getCalendlyUrl(), "_blank")}
                 > <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Strategy Call"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="outline"
+                  defaultServiceType="Google Ads"
+                />
                 <Button
                   size="lg"
                   variant="outline"

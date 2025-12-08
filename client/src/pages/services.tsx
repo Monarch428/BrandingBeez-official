@@ -250,7 +250,7 @@ export default function Services() {
       // Redirect to Calendly
       setTimeout(() => {
         // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
-        window.open("/book-appiontment", "_blank");
+        window.open("/book-appointment", "_blank");
       }, 1000);
     },
     onError: () => {

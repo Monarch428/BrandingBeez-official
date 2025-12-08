@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { navigate } from "wouter/use-browser-location";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 
 // Featured SEO Client Data
@@ -344,7 +345,7 @@ export default function SEOServices() {
                   <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <Link href="/contact?service=seo#contact-form">
                       <Button className="bg-white text-brand-purple hover:bg-brand-coral hover:text-white">
-                        Subscribe Free
+                        Start Your SEO Journey
                         <ArrowRight className="w-4 h-4 ml-2" />
                       </Button>
                     </Link>
@@ -846,8 +847,8 @@ export default function SEOServices() {
                             </Button>
                           </Link>
 
-                          <a
-                            href="/book-appiontment/"
+                          {/* <a
+                            href="/book-appointment/"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full"
@@ -859,7 +860,14 @@ export default function SEOServices() {
                               Schedule Consultation
                               <Calendar className="w-4 h-4 ml-2" />
                             </Button>
-                          </a>
+                          </a> */}
+                          <BookCallButtonWithModal
+                            buttonLabel="Schedule Consultation"
+                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                            buttonSize="lg"
+                            buttonVariant="outline"
+                            defaultServiceType="SEO / AIO Services"
+                          />
                         </div>
                       </div>
                     </CardContent>
@@ -2068,7 +2076,7 @@ export default function SEOServices() {
 //                         asChild
 //                       >
 //                         <a
-//                           href="/book-appiontment"
+//                           href="/book-appointment"
 //                           target="_blank"
 //                           rel="noopener noreferrer"
 //                         >
@@ -2587,7 +2595,7 @@ export default function SEOServices() {
 //                     asChild
 //                   >
 //                     <a
-//                       href="/book-appiontment"
+//                       href="/book-appointment"
 //                       target="_blank"
 //                       rel="noopener noreferrer"
 //                     >

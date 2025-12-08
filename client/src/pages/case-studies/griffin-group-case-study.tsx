@@ -95,7 +95,7 @@
 //                     <Button
 //                       onClick={() =>
 //                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
-//                         window.open("/book-appiontment", "_blank",)
+//                         window.open("/book-appointment", "_blank",)
 //                       }
 //                       size="lg"
 //                       variant="outline"
@@ -1441,6 +1441,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import teamMem_1 from "../../../public/images/yuva-team-member.png";
 import teamMem_2 from "../../../public/images/vishnu-team-member.png";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function GriffinGroupCaseStudy() {
   const { regionConfig } = useRegion();
@@ -1507,11 +1508,11 @@ export default function GriffinGroupCaseStudy() {
                     </div>
                   </div>
                   <div className="mt-8">
-                    <Button
+                    {/* <Button
                       onClick={() =>
                         // window.open("https://calendly.com/vignesh-velusamy/30min","_blank",)
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
@@ -1521,7 +1522,14 @@ export default function GriffinGroupCaseStudy() {
                     >
                       Start Your SEO Growth Today
                       <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Schedule a Free Consultation"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      buttonSize="lg"
+                      buttonVariant="outline"
+                      defaultServiceType="SEO / AIO Services"
+                    />
                   </div>
                 </div>
 
@@ -1985,19 +1993,26 @@ export default function GriffinGroupCaseStudy() {
                         growth goals.
                       </p>
                     </div>
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-brand-coral text-white hover:bg-brand-coral/90"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank",
                         )
                       }
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Talk to the SEO Team
-                    </Button>
+                    </Button> */}
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to the SEO Team"
+                      className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                      buttonSize="lg"
+                      buttonVariant="default"
+                      defaultServiceType="SEO / AIO Services"
+                    />
                   </div>
                 </Card>
               </div>
@@ -2491,7 +2506,7 @@ export default function GriffinGroupCaseStudy() {
                 business.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   // variant="outline"
                   className="bg-white text-brand-coral hover:bg-brand-coral hover:text-white"
@@ -2506,7 +2521,14 @@ export default function GriffinGroupCaseStudy() {
                     <Calendar className="w-5 h-5" />
                     Book Your Free SEO Consultation
                   </a>
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free SEO Consultation"
+                  className="bg-white text-brand-coral hover:bg-brand-coral hover:text-white"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="SEO / AIO Services"
+                />
 
                 <Link href="/services/seo">
                   <Button

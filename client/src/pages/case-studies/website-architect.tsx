@@ -26,6 +26,7 @@ import { SchemaMarkup } from "@/components/schema-markup";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
 import Gemma_Image from "../../../public/images/Gemma.png";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 
 export default function WebsiteArchitectCaseStudy() {
@@ -85,19 +86,15 @@ export default function WebsiteArchitectCaseStudy() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button
-                      size="lg"
-                      className="bg-white text-brand-purple hover:bg-gray-100"
-                      onClick={() =>
-                        window.open(
-                          "/book-appiontment",
-                          "_blank"
-                        )
-                      }
-                    >
-                      Start Your Team
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Button>
+                    <Link href="/pricing-calculator?service=dedicated-resources">
+                      <Button
+                        size="lg"
+                        className="bg-white text-brand-purple hover:bg-gray-100"
+                      >
+                        Hire Your Team
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
 
@@ -474,19 +471,26 @@ export default function WebsiteArchitectCaseStudy() {
                 so you spend your time on sales, strategy, and growth.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Strategy Call"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"
@@ -702,7 +706,7 @@ export default function WebsiteArchitectCaseStudy() {
           {/* Testimonial Section */}
           <section className="py-16 px-4">
             <div className="max-w-4xl mx-auto">
-<Card className="bg-gradient-to-r from-brand-coral to-brand-coral-dark text-white">
+              <Card className="bg-gradient-to-r from-brand-coral to-brand-coral-dark text-white">
                 <CardContent className="p-12 text-center">
                   <Quote className="w-12 h-12 mx-auto mb-6 opacity-80" />
                   <blockquote className="text-xl font-light mb-8 leading-relaxed">
@@ -724,8 +728,8 @@ export default function WebsiteArchitectCaseStudy() {
                       <p className="font-bold text-white">Gemma Murphy</p>
                       <p className="text-gray-50 text-xs sm:text-sm">Founder, Website Architect</p>
                       <div className="text-white/60 text-sm">
-                      <a className="hover:text-white" href="https://website-architect.co.uk/" target="_blank">https://website-architect.co.uk/</a>
-                        
+                        <a className="hover:text-white" href="https://website-architect.co.uk/" target="_blank">https://website-architect.co.uk/</a>
+
                       </div>
                     </div>
                   </div>
@@ -745,19 +749,26 @@ export default function WebsiteArchitectCaseStudy() {
                 own dedicated team that scales with you.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment/",
+                      "/book-appointment/",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Website Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"

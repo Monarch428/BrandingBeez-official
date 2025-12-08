@@ -19,13 +19,14 @@ import {
   Calendar,
   ExternalLink
 } from "lucide-react";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function Contact() {
   const { regionConfig } = useRegion();
 
   const openCalendly = () => {
     // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank');
-    window.open('/book-appiontment', '_blank');
+    window.open('/book-appointment', '_blank');
   };
 
   return (
@@ -75,14 +76,12 @@ export default function Contact() {
 
             {/* Primary CTA */}
             <div className="flex justify-center mb-6">
-              <Button
-                onClick={openCalendly}
-                size="lg"
-                className="bg-brand-coral hover:bg-brand-coral/90 text-white"
-              >
-                <Calendar className="mr-2 h-5 w-5" />
-                {regionConfig.ctaButton}
-              </Button>
+              <BookCallButtonWithModal
+                buttonLabel="Book a strategy call"
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
+                buttonSize="lg"
+              // defaultServiceType="Website Development"
+              />
             </div>
 
             {/* Inline Quick Contact Bar */}

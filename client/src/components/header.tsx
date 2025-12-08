@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import brandingBeezLogo from "@assets/BB_Logo_Color.png";
+import { BookCallButtonWithModal } from "./book-appoinment";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -10,7 +11,7 @@ export default function Header() {
 
   const openCalendly = () => {
     // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
-    window.open("/book-appiontment", "_blank");
+    window.open("/book-appointment", "_blank");
   };
 
   const scrollToSection = (sectionId: string) => {
@@ -111,12 +112,18 @@ export default function Header() {
 
           {/* CTA */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <Button
+            {/* <Button
               onClick={openCalendly}
               className="hidden sm:flex bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base touch-manipulation"
             >
               Book a Call
-            </Button>
+            </Button> */}
+            <BookCallButtonWithModal
+              buttonLabel="Book a call"
+              className="hidden sm:flex bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base touch-manipulation"
+              buttonSize="lg"
+              // defaultServiceType="Website Development"
+            />
 
             {/* Mobile Menu Button */}
             <Button

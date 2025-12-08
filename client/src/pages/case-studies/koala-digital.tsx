@@ -24,6 +24,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { KoalaDigitalSchema } from "@/utils/all-schemas";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function KoalaDigitalCaseStudy() {
   return (
@@ -85,18 +86,29 @@ export default function KoalaDigitalCaseStudy() {
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <Button
+                    {/* <Button
                       size="lg"
                       className="bg-white text-brand-purple hover:bg-gray-100"
                       onClick={() =>
                         window.open(
-                          "/book-appiontment",
+                          "/book-appointment",
                           "_blank"
                         )
                       }
                     >
                       Start Your Team
                       <ArrowRight className="w-5 h-5 ml-2" />
+                    </Button> */}
+                    <Button
+                      size="lg"
+                      variant="outline"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-purple"
+                      asChild
+                    >
+                      <Link href="/pricing-calculator?service=dedicated-resources">
+                        Hire Your Team
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </Link>
                     </Button>
                   </div>
                 </div>
@@ -693,19 +705,26 @@ export default function KoalaDigitalCaseStudy() {
                 specialist team could plug into your agency workflow in days.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Strategy Call"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"
@@ -953,19 +972,26 @@ export default function KoalaDigitalCaseStudy() {
                 an extension of your agency.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment/",
+                      "/book-appointment/",
                       "_blank"
                     )
                   }
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Strategy Call
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Website Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-50"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Dedicated Resources"
+                />
                 <Button
                   size="lg"
                   variant="outline"

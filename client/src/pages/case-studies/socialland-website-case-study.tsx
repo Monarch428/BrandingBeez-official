@@ -33,6 +33,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SocialLandWebsiteSchema } from "@/utils/all-schemas";
 import { Helmet } from "react-helmet";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function SocialLandWebsiteCaseStudy() {
   return (
@@ -97,18 +98,25 @@ export default function SocialLandWebsiteCaseStudy() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   Start Your Website
                   <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Schedule a Free Consultation"
+                  className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="outline"
+                  defaultServiceType="Website Development"
+                />
                 <Button
                   variant="outline"
                   className="border-white bg-transparent text-white hover:bg-white hover:text-brand-coral"
@@ -188,19 +196,26 @@ export default function SocialLandWebsiteCaseStudy() {
                     improve conversions, speed, and credibility.
                   </h3>
                 </div>
-                <Button
+                {/* <Button
                   size="lg"
                   className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
                 >
                   <Search className="w-4 h-4 mr-2" />
                   Request Free Website Review
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Request a Strategy Consultation"
+                  className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Website Development"
+                />
               </div>
             </div>
           </section>
@@ -458,19 +473,26 @@ export default function SocialLandWebsiteCaseStudy() {
                           and tech stack.
                         </p>
                       </div>
-                      <Button
+                      {/* <Button
                         size="lg"
                         className="bg-brand-coral text-white hover:bg-brand-coral/90"
                         onClick={() =>
                           window.open(
-                            "/book-appiontment",
+                            "/book-appointment",
                             "_blank",
                           )
                         }
                       >
                         <Calendar className="w-4 h-4 mr-2" />
                         Talk to the Web Team
-                      </Button>
+                      </Button> */}
+                      <BookCallButtonWithModal
+                        buttonLabel="Talk to the DEvelopment Team"
+                        className="bg-brand-coral text-white hover:bg-brand-coral/90"
+                        buttonSize="lg"
+                        buttonVariant="default"
+                        defaultServiceType="Website Development"
+                      />
                     </div>
                   </Card>
                 </div>
@@ -607,11 +629,11 @@ export default function SocialLandWebsiteCaseStudy() {
                 website that grows your business.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   onClick={() =>
                     window.open(
-                      "/book-appiontment",
+                      "/book-appointment",
                       "_blank",
                     )
                   }
@@ -619,7 +641,14 @@ export default function SocialLandWebsiteCaseStudy() {
                 >
                   <Calendar className="w-5 h-5 mr-1" />
                   Book Your Free Website Consultation
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Your Free Consultation"
+                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  buttonSize="lg"
+                  buttonVariant="default"
+                  defaultServiceType="Website Development"
+                />
                 <Button
                   asChild
                   size="lg"
