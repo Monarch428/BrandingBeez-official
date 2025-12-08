@@ -376,12 +376,27 @@ export default function WebDevelopment() {
     setTouchStartX(null);
   };
 
+  const handleScrollToCaseStudies = () => {
+    if (typeof document === "undefined") return;
+
+    const section = document.getElementById("case-studies");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>White-Label Web Development for Agencies | BrandingBeez</title>
-        <meta name="description" content="We build agency-ready websites under your brand. White-label WordPress & custom web development — fast delivery, zero client exposure." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/services/web-development" />
+        <meta
+          name="description"
+          content="We build agency-ready websites under your brand. White-label WordPress & custom web development — fast delivery, zero client exposure."
+        />
+        <link
+          rel="canonical"
+          href="https://brandingbeez.co.uk/services/web-development"
+        />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
@@ -398,16 +413,14 @@ export default function WebDevelopment() {
           {/* Featured Web Development Client Section */}
           <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-brand-purple via-brand-purple/95 to-brand-coral text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
                 {/* Left: Copy + CTA */}
                 <div className="max-w-2xl">
                   {/* Badge */}
-                  <div className="flex items-center justify-center">
-                    <div className="flex justify-center lg:justify-start">
-                      <Badge className="inline-flex items-center justify-center rounded-full bg-brand-coral font-medium text-xs sm:text-sm text-white mb-6 px-4 py-1.5 backdrop-blur-sm shadow-sm">
-                        Featured White-Label Website Partner for Agencies
-                      </Badge>
-                    </div>
+                  <div className="flex justify-center lg:justify-start">
+                    <Badge className="inline-flex items-center justify-center rounded-full bg-brand-coral font-medium text-xs sm:text-sm text-white mb-6 px-4 py-1.5 backdrop-blur-sm shadow-sm">
+                      Featured White-Label Website Partner for Agencies
+                    </Badge>
                   </div>
 
                   {/* Heading */}
@@ -416,11 +429,12 @@ export default function WebDevelopment() {
                   </h1>
 
                   {/* Description */}
-                  <p className="text-base sm:text-lg md:text-xl text-gray-100/90 mb-8 text-justify">
-                    We build high-performing WordPress and custom websites under your brand, so you can sell
-                    web development services without hiring, managing, or delivering in-house. Trusted by
-                    agencies across the US &amp; UK for fast turnaround, clean builds, and fully white-labeled
-                    execution.
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-100/90 mb-8 text-justify">
+                    We build high-performing WordPress and custom websites under
+                    your brand, so you can sell web development services without
+                    hiring, managing, or delivering in-house. Trusted by agencies
+                    across the US &amp; UK for fast turnaround, clean builds, and
+                    fully white-labeled execution.
                   </p>
 
                   {/* CTA */}
@@ -431,23 +445,16 @@ export default function WebDevelopment() {
                       buttonSize="lg"
                       defaultServiceType="Web Development"
                     />
+                    {/* Secondary CTA */}
+                    <Button
+                      variant="outline"
+                      onClick={handleScrollToCaseStudies}
+                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
+                    >
+                      View SEO Case Studies
+                      <ExternalLink className="w-4 h-4" />
+                    </Button>
                   </div>
-
-                  {/* Optional quick trust strip */}
-                  {/* <div className="mt-6 flex flex-wrap gap-3 text-xs sm:text-sm text-gray-100/90">
-                    <span className="inline-flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                      100% White-Label Delivery
-                    </span>
-                    <span className="inline-flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                      WordPress &amp; Custom Builds
-                    </span>
-                    <span className="inline-flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                      US &amp; UK Agency Experience
-                    </span>
-                  </div> */}
                 </div>
 
                 {/* Right: Achievements Card */}
@@ -455,31 +462,26 @@ export default function WebDevelopment() {
                   {/* Glow accent */}
                   <div className="pointer-events-none absolute inset-0 -right-10 -top-10 rounded-3xl bg-white/10 blur-3xl opacity-40" />
 
-                  <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-6 sm:p-7 border border-white/20 shadow-xl">
-                    <div className="flex items-center justify-between mb-4">
+                  <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-7 border border-white/20 shadow-xl">
+                    <div className="flex items-start justify-between gap-4 mb-4">
                       <div>
-                        <h2 className="text-lg sm:text-xl font-bold">
-                          Development Results from Initial Project + 2-Year Partnership
+                        <h2 className="text-base sm:text-lg md:text-xl font-bold">
+                          Development Results from Initial Project + 2-Year
+                          Partnership
                         </h2>
                         <p className="text-xs sm:text-sm text-gray-100/80 mt-1">
-                          Consistent, white-label delivery for a growing agency partner.
+                          Consistent, white-label delivery for a growing agency
+                          partner.
                         </p>
                       </div>
-
-                      {/* Small highlight stat (optional) */}
-                      {/* <div className="inline-flex flex-col items-end text-right">
-                        <span className="text-[10px] uppercase tracking-wide text-gray-200/80">
-                          Websites Shipped
-                        </span>
-                        <span className="text-xl font-bold leading-tight">
-                          {featuredClient.siteCount ?? "20+"}
-                        </span>
-                      </div> */}
                     </div>
 
                     <ul className="space-y-2.5 text-gray-100/95 mb-5">
                       {featuredClient.achievements.map((achievement, index) => (
-                        <li key={index} className="flex items-start gap-2.5">
+                        <li
+                          key={index}
+                          className="flex items-start gap-2.5"
+                        >
                           <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-white" />
                           <span className="text-sm sm:text-base leading-relaxed">
                             {achievement}
@@ -494,14 +496,12 @@ export default function WebDevelopment() {
                         <div className="text-gray-200/90">Tech Stack</div>
                         <div className="font-semibold">
                           {"WordPress & Custom"}
-                          {/* featuredClient.techStack ?? */}
                         </div>
                       </div>
                       <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
                         <div className="text-gray-200/90">Region</div>
                         <div className="font-semibold">
                           {"US & UK"}
-                          {/* featuredClient.region ?? */}
                         </div>
                       </div>
                     </div>
@@ -511,155 +511,40 @@ export default function WebDevelopment() {
             </div>
           </section>
 
-
-          {/* <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 overflow-hidden hover:scale-105 transition-transform duration-300">
-            <img
-              src={featuredClient.logo}
-              alt="Social Land Digital website homepage showing local digital marketing experts in Essex with service packages and team information"
-              className="w-full h-auto object-cover"
-              loading="eager"
-            />
-            <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-              <p className="text-white font-semibold text-sm">
-                {featuredClient.name}
-              </p>
-              <p className="text-white/90 text-xs">
-                {featuredClient.industry}
-              </p>
-              <div className="flex items-center gap-2 mt-1">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <p className="text-green-300 text-xs font-medium">
-                  2-Year Partnership
-                </p>
-              </div>
-            </div>
-          </div> */}
-
-          {/* ✅ FEATURED CASE STUDY – Green Paradise (below hero) */}
-          <section className="py-16 px-4 bg-gray-50">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                {/* <span className="inline-flex items-center self-start rounded-full bg-brand-purple/5 px-4 py-1 text-s font-semibold uppercase tracking-wide text-brand-purple">
-                  Featured White-Label Partnership
-                </span> */}
-                <h2 className="bg-brand-purple text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
-                  {/* 💎 Web Development Packages */}
-                  Featured White-Label Partnership
-                </h2>
-                <h2 className="text-2xl sm:text-3xl font-bold text-brand-purple">
-                  White-Label Website Development Green Paradise Success Story
-                </h2>
-                <p className="text-xl text-gray-600 max-w-4xl mx-auto">
-                  How we, as a white-label web partner, built a high-converting,
-                  agency-ready WordPress website under the agency’s brand,
-                  with no client-facing visibility of us.
-                </p>
-              </div>
-
-              <Card className="shadow-lg border border-gray-100 overflow-hidden">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                  {/* Left: copy + strip + CTA */}
-                  <div className="p-6 sm:p-8 flex flex-col justify-between">
-                    <div className="space-y-5">
-                      {/* Quick stats strip */}
-                      <div className="flex flex-wrap gap-3 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-800 border border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>Delivered in a few weeks</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>100% white-label — your brand only</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>
-                            Conversion-focused design + SEO-ready build
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3 text-sm sm:text-base text-gray-700">
-                        <p>
-                          Green Paradise needed a modern online presence that
-                          matched their premium landscaping work without
-                          taking their agency’s internal team away from other
-                          client projects.
-                        </p>
-                        <p>
-                          We handled the full WordPress build as a silent
-                          partner: structure, design, development, and launch,
-                          while the agency stayed front-facing with the client.
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-3">
-                      <Button
-                        className="bg-brand-coral hover:bg-brand-coral/90 text-white"
-                        asChild
-                      >
-                        <Link href="/contact?service=website-development&/#contact-form">
-                          Start Your White-Label Web Build
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Link>
-                      </Button>
-                      {/* <Button
-                        variant="outline"
-                        className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
-                        asChild
-                      >
-                        <Link href="/case-studies/green-paradise-branding-website">
-                          View Full Green Paradise Case Study
-                        </Link>
-                      </Button> */}
-                    </div>
-                  </div>
-
-                  {/* Right: image, same feel as other case study cards */}
-                  <div className="relative bg-gray-100">
-                    <img
-                      src={greenParadiseImage}
-                      alt="Green Paradise landscaping and outdoor living website preview"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute bottom-4 left-4 right-4 rounded-lg bg-black/75 backdrop-blur-sm p-3 text-xs sm:text-sm text-white border border-white/10">
-                      <p className="font-semibold">
-                        Green Paradise — Landscaping & Outdoor Living
-                      </p>
-                      <p className="text-white/80">
-                        Complete brand + website launch delivered as a
-                        white-label project for our agency partner.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+          {/* Process Section */}
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 via-white to-white">
+            <div className="max-w-6xl mx-auto">
+              <PhaseSliderSection
+                sectionId="web-development-process"
+                heading="How the Web Development Process Works"
+                subheading="A simple, transparent process built for agencies."
+                phases={webDevelopmentPhases}
+                badgeLabel="White-Label Web Development Process"
+                sectionClassName="py-0 px-0"
+                wrapperClassName="max-w-5xl mx-auto"
+                cardHeightClass="min-h-[320px] sm:min-h-[360px] md:min-h-[380px]"
+              />
             </div>
           </section>
 
           {/* Case Studies Section */}
-          <section className="py-16 px-4 bg-gray-50">
+          <section id="case-studies" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
+              <div className="text-center mb-10 sm:mb-12">
+                <h2 className="bg-brand-coral text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
                   🎯 Success Stories
                 </h2>
-                <h3 className="text-4xl font-bold text-brand-purple mb-6">
-                  {/* Web Development Case Studies & Portfolio00 */}
-                  White-Label Website Case Studies & Portfolio
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-4 sm:mb-6">
+                  White-Label Website Case Studies &amp; Portfolio
                 </h3>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                  {/* Discover how we've helped businesses across industries build
-                  powerful web solutions that drive growth and success. */}
+                <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
                   See how agencies use our white-label web development team to
-                  deliver fast,
-                  reliable websites for their clients without expanding internal teams.
+                  deliver fast, reliable websites for their clients without
+                  expanding internal teams.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
                 {caseStudies.map((study) => (
                   <Card
                     key={study.id}
@@ -676,28 +561,28 @@ export default function WebDevelopment() {
                     </div>
 
                     {/* Card Content */}
-                    <CardContent className="flex flex-col flex-grow p-6">
-                      <h3 className="text-xl font-bold text-brand-purple mb-2">
+                    <CardContent className="flex flex-col flex-grow p-5 sm:p-6">
+                      <h3 className="text-lg sm:text-xl font-bold text-brand-purple mb-2">
                         {study.title}
                       </h3>
-                      <p className="text-gray-600 mb-4 flex-grow">
+                      <p className="text-gray-600 mb-4 flex-grow text-sm sm:text-base">
                         {study.description}
                       </p>
 
-                      <div className="space-y-2 mb-6">
-                        <div className="flex justify-between text-sm">
+                      <div className="space-y-2 mb-6 text-sm">
+                        <div className="flex justify-between">
                           <span className="text-gray-600">Performance</span>
                           <span className="font-bold text-green-600">
                             {study.results.performance}
                           </span>
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between">
                           <span className="text-gray-600">Conversions</span>
                           <span className="font-bold text-blue-600">
                             {study.results.conversions}
                           </span>
                         </div>
-                        <div className="flex justify-between text-sm">
+                        <div className="flex justify-between">
                           <span className="text-gray-600">Scale</span>
                           <span className="font-bold text-brand-coral">
                             {study.results.users}
@@ -721,209 +606,59 @@ export default function WebDevelopment() {
                   </Card>
                 ))}
               </div>
-
             </div>
           </section>
 
-          {/* 🔹 NEW PROCESS SECTION – same phase-wise gradient card + arrows + dots */}
-          {/* <section className="py-16 px-4 bg-gray-50">
-            <div className="max-w-5xl mx-auto">
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-brand-purple mb-3">
-                  Our White-Label Web Development Process
-                </h2>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-                  We help agencies deliver high-quality websites and web apps
-                  without delays, freelancer risk, or internal bottlenecks.
-                </p>
-              </div>
-
-              <div
-                className="relative flex items-center justify-center mt-4"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd} */}
-          {/* > */}
-          {/* Gradient phase card (same visual style as dedicated team slider) */}
-          {/* <Card
-                                  className="
-                    bg-gradient-to-r from-brand-purple to-brand-coral 
-                    text-white border-none shadow-lg 
-                    mx-auto px-10 sm:px-14 py-8 
-                    rounded-2xl */}
-          {/* h-[360px] sm:h-[400px]  /* 🔹 Fixed height */}
-          {/* w-[1000px]
-                  "
-                                > */}
-          {/* header – phase label + title */}
-          {/* <CardHeader className="pb-4 px-0">
-                    <div className="flex flex-col items-start gap-1 pl-16 sm:pl-24">
-                      <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] text-white/90">
-                        {activePhase.label} of {totalPhases}
-                      </p>
-                      <h3 className="text-xl md:text-3xl font-bold text-white">
-                        {activePhase.title}
-                      </h3>
-                    </div>
-                  </CardHeader>
-
-                  <CardContent className="space-y-5 px-6 sm:px-10"> */}
-          {/* bullets in 2 columns */}
-          {/* <div className="pl-12 sm:pl-16">
-                      <p className="text-base font-medium text-white mb-2">
-                        {activePhase.intro}
-                      </p>
-                      <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-20 gap-y-2 text-m text-white/90">
-                        {activePhase.points.map((point) => (
-                          <li
-                            key={point}
-                            className="flex items-start gap-2 leading-relaxed"
-                          >
-                            <CheckCircle className="w-4 h-4 mt-0.5 text-white flex-shrink-0" />
-                            <span>{point}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div> */}
-
-          {/* bottom: outcome + dots */}
-          {/* <div className="pt-4 border-t border-white/15">
-                      <p className="text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-4 text-center">
-                        <span>{activePhase.outcome}</span>
-                      </p> */}
-
-          {/* dots */}
-          {/* <div className="flex items-center justify-center gap-2">
-                        {dedicatedPhases.map((dedicatedPhases, idx) => (
-                          <button
-                            key={dedicatedPhases.id}
-                            type="button"
-                            onClick={() => setCurrentPhase(idx)}
-                            className={[
-                              "h-2.5 w-2.5 rounded-full transition-all duration-200",
-                              idx === currentPhase
-                                ? "bg-white scale-125 shadow-sm"
-                                : "bg-white/40 hover:bg-white/70",
-                            ].join(" ")}
-                            aria-label={dedicatedPhases.title}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card> */}
-
-          {/* SIDE ARROWS – more visible, fixed-ish position with extra gap */}
-          {/* <button
-                  type="button"
-                  onClick={goToPrevPhase}
-                  disabled={currentPhase === 0}
-                  className="
-    group absolute
-    -left-16
-    top-40 -translate-y-1/2
-    flex items-center justify-center
-    h-14 w-14
-    rounded-full bg-brand-purple text-white
-    shadow-xl border-2 border-white
-    disabled:opacity-40 disabled:cursor-not-allowed
-    hover:bg-brand-coral hover:shadow-2xl hover:scale-110
-    focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-coral/40
-    transition-all duration-200
-  "
-                  aria-label="Previous phase"
-                >
-                  <span className="text-2xl font-bold tracking-tight transition-transform duration-200 group-hover:-translate-x-0.5">
-                    {"<"}
-                  </span>
-                </button> */}
-
-          {/* <button
-                  type="button"
-                  onClick={goToNextPhase}
-                  disabled={currentPhase === totalPhases - 1}
-                  className="
-    group absolute */}
-          {/* -right-16  /* ⬅ Pushes arrow fully outside the card */}
-          {/* top-40 -translate-y-1/2
-    flex items-center justify-center
-    h-14 w-14
-    rounded-full bg-brand-purple text-white
-    shadow-xl border-2 border-white
-    disabled:opacity-40 disabled:cursor-not-allowed
-    hover:bg-brand-coral hover:shadow-2xl hover:scale-110
-    focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-coral/40
-    transition-all duration-200
-  "
-                  aria-label="Next phase"
-                >
-                  <span className="text-2xl font-bold tracking-tight transition-transform duration-200 group-hover:translate-x-0.5">
-                    {">"}
-                  </span>
-                </button>
-              </div>
-            </div>
-          </section> */}
-
-          <PhaseSliderSection
-            sectionId="web-development-process"
-            heading="How the Web Development Process Works"
-            subheading="A simple, transparent process built for agencies."
-            phases={webDevelopmentPhases}
-          />
           {/* Pricing Packages Section */}
-          <section className="py-16 px-4 bg-white">
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="bg-brand-purple text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
-                  {/* 💎 Web Development Packages */}
+              <div className="text-center mb-10 sm:mb-12">
+                <h2 className="bg-brand-purple text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
                   White-Label Website Packages
                 </h2>
-                <h3 className="text-4xl font-bold text-brand-purple mb-6">
-                  {/* Choose Your Development Package */}
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-4 sm:mb-6">
                   Choose Your White-Label Website Development Package
                 </h3>
-                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-                  {/* Professional web development solutions designed for businesses
-                  of all sizes. All packages include modern design and mobile
-                  optimization. */}
-                  Agency-ready website development packages you can resell under your brand.
-                  No BrandingBeez logos. No client exposure. Full delivery ownership stays with you.
+                <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
+                  Agency-ready website development packages you can resell under
+                  your brand. No BrandingBeez logos. No client exposure. Full
+                  delivery ownership stays with you.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
                 {pricingPackages.map((pkg) => (
                   <Card
                     key={pkg.id}
                     className={`relative flex flex-col h-full ${pkg.popular
-                      ? "border-2 border-brand-coral scale-105"
+                      ? "border-2 border-brand-coral md:scale-105"
                       : "border border-gray-200 hover:border-brand-coral/50"
-                      } transition-all.duration-300`}
+                      } transition-all duration-300`}
                   >
                     {pkg.popular && (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-brand-coral text-white px-4 py-1">
+                        <Badge className="bg-brand-coral text-white px-4 py-1 text-xs sm:text-sm">
                           Most Popular
                         </Badge>
                       </div>
                     )}
 
-                    <CardHeader className="text-center pb-4 flex-shrink-0">
-                      <h4 className="text-2xl font-bold text-brand-purple">
+                    <CardHeader className="text-center pb-4 flex-shrink-0 px-4 sm:px-6 pt-6 sm:pt-8">
+                      <h4 className="text-xl sm:text-2xl font-bold text-brand-purple">
                         {pkg.name}
                       </h4>
                       <div className="mt-4">
-                        <span className="text-4xl font-bold text-brand-coral">
+                        <span className="text-3xl sm:text-4xl font-bold text-brand-coral">
                           {pkg.price}
                         </span>
                         <span className="text-gray-600"> {pkg.period}</span>
                       </div>
-                      <p className="text-gray-600 mt-2">
+                      <p className="text-gray-600 mt-2 text-sm sm:text-base">
                         {pkg.description}
                       </p>
                     </CardHeader>
 
-                    <CardContent className="flex flex-col flex-grow">
+                    <CardContent className="flex flex-col flex-grow px-4 sm:px-6 pb-6 sm:pb-8">
                       <ul className="space-y-3 mb-8 flex-grow">
                         {pkg.features.map((feature, index) => (
                           <li
@@ -938,13 +673,13 @@ export default function WebDevelopment() {
                         ))}
                       </ul>
 
-                      <div className="flex flex-col gap-2 mt-auto pt-8 border-t border-gray-100">
+                      <div className="flex flex-col gap-2 mt-auto pt-6 border-t border-gray-100">
                         <Link
                           href="/contact?service=website-development&/#contact-form"
                           className="w-full"
                         >
                           <Button
-                            className={`w-full py-4 px-8 font-medium text-md transition-all duration-300 ${pkg.popular
+                            className={`w-full py-3 sm:py-4 px-6 sm:px-8 font-medium text-sm sm:text-md transition-all duration-300 ${pkg.popular
                               ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
                               : "bg-brand-purple hover:bg-brand-purple/90 text-white"
                               }`}
@@ -957,20 +692,7 @@ export default function WebDevelopment() {
                             <Gift className="w-5 h-5 ml-3" />
                           </Button>
                         </Link>
-                        {/* <a
-                          href="/book-appointment/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full"
-                        >
-                          <Button
-                            variant="outline"
-                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all.duration-300"
-                          >
-                            Schedule Consultation
-                            <Calendar className="w-4 h-4 ml-2" />
-                          </Button>
-                        </a> */}
+
                         <BookCallButtonWithModal
                           buttonLabel="Schedule Consultation"
                           className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
@@ -983,24 +705,10 @@ export default function WebDevelopment() {
                   </Card>
                 ))}
               </div>
-
-              {/* <div className="text-center mt-12">
-                <h3 className="text-gray-600 mb-4">
-                  Need a custom solution? We offer tailored web development for enterprise clients.
-                </h3>
-                <Link href="/contact">
-                  <Button
-                    variant="outline"
-                    className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
-                  >
-                    Contact Us for Custom Pricing
-                  </Button>
-                </Link>
-              </div> */}
             </div>
           </section>
 
-          {/* Contact Form Section (now a reusable component) */}
+          {/* Contact Form Section (reusable component) */}
           <AgencyContactSection
             sectionId="contact-form"
             heading="Ready to Scale Your Agency?"
@@ -1010,31 +718,31 @@ export default function WebDevelopment() {
             submissionSourceLabel="Service Page Contact Form Submission"
           />
 
-          {/* 🔹 NEW FAQ SECTION – before final CTA */}
-          <section className="py-16 px-4 bg-gray-50">
-            <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
+          {/* FAQ SECTION */}
+          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+            <div className="max-w-6xl mx-auto grid gap-10 lg:gap-12 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
-                  <span className="text-s font-bold tracking-wide uppercase text-brand-purple">
+                  <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
                     White-Label Web Development – FAQs
                   </span>
                 </div>
-                <h2 className="text-3xl font-bold text-brand-purple mb-4">
+                <h2 className="text-2xl sm:text-3xl font-bold text-brand-purple mb-4">
                   Answers to the questions agencies ask us most.
                 </h2>
-                <p className="text-lg text-gray-600 mb-6">
-                  You keep client relationships and strategy. We handle the
-                  build, QA, and tech — completely under your brand.
+                <p className="text-base sm:text-lg text-gray-600 mb-6">
+                  You keep client relationships and strategy. We handle the build,
+                  QA, and tech completely under your brand.
                 </p>
 
                 <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white border-none shadow-lg">
                   <CardHeader className="pb-2">
-                    <p className="text-sm font-semibold text-white/80 uppercase tracking-[0.16em]">
+                    <p className="text-xs sm:text-sm font-medium text-white/80 uppercase tracking-[0.16em]">
                       Why agencies choose BrandingBeez
                     </p>
-                    <h3 className="text-xl font-bold mt-1">
+                    <h3 className="text-lg sm:text-xl font-bold mt-1">
                       Reliable delivery without freelancer risk.
                     </h3>
                   </CardHeader>
@@ -1063,7 +771,7 @@ export default function WebDevelopment() {
                         onClick={() =>
                           setOpenFaqIndex(isOpen ? null : index)
                         }
-                        className="w-full text-left px-5 py-4 flex items-center justify-between gap-4"
+                        className="w-full text-left px-4 sm:px-5 py-4 flex items-center justify-between gap-4"
                       >
                         <span className="font-semibold text-sm sm:text-base text-brand-purple">
                           {faq.question}
@@ -1074,7 +782,7 @@ export default function WebDevelopment() {
                         />
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-6 pt-4 text-sm text-gray-700 border-t border-gray-100">
+                        <div className="px-4 sm:px-5 pb-5 pt-3 text-sm text-gray-700 border-t border-gray-100">
                           {faq.answer}
                         </div>
                       )}
@@ -1082,31 +790,36 @@ export default function WebDevelopment() {
                   );
                 })}
 
-                <div className="pt-2 text-sm text-gray-600">
-                  Still have a question?{" "}
-                  <a
-                    href="/book-appiontment"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="font-semibold text-brand-coral hover:underline"
-                  >
-                    Book a quick call with our team →
-                  </a>
+
+                <div className="pt-2 flex items-center justify-between text-sm text-gray-600">
+                  <span>Still have a question?{" "}</span>
+                  <BookCallButtonWithModal
+                    buttonLabel="Talk to Our SEO Team"
+                    className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                    buttonSize="lg"
+                    buttonVariant="outline"
+                    defaultServiceType="SEO / AIO Services"
+                  />
                 </div>
               </div>
             </div>
           </section>
 
           {/* CTA Section */}
-          <section className="py-12 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
+          <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-4">Subscribe to Our Newsletter!</h2>
-              <p className="text-xl mb-8 text-white/90">Join 1000+ marketers & agencies getting exclusive tips on SEO, AI, and growth strategies delivered straight to their inbox.</p>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+                Subscribe to Our Newsletter!
+              </h2>
+              <p className="text-base sm:text-lg md:text-xl mb-8 text-white/90">
+                Join 1000+ marketers &amp; agencies getting exclusive tips on SEO,
+                AI, and growth strategies delivered straight to their inbox.
+              </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
                   className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
-                  onClick={() => navigate('/#newsletter')}
+                  onClick={() => navigate("/#newsletter")}
                 >
                   Subscribe Now
                 </Button>
@@ -1115,7 +828,8 @@ export default function WebDevelopment() {
           </section>
         </main>
         <Footer />
-      </div>
+      </div >
     </>
   );
+
 }

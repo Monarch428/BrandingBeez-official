@@ -324,6 +324,16 @@ export default function GoogleAds() {
     setLocation('/pricing-calculator');
   };
 
+
+  const handleScrollToCaseStudies = () => {
+    if (typeof document === "undefined") return;
+
+    const section = document.getElementById("case-studies");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <>
       <Helmet>
@@ -408,13 +418,14 @@ export default function GoogleAds() {
                       </Link>
                     </Button>
 
+                    {/* Secondary CTA */}
                     <Button
-                      size="lg"
-                      className="whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90 font-semibold px-6 py-3 rounded-lg shadow-md flex items-center justify-center"
-                      onClick={() => window.open("/book-appiontment", "_blank")}
+                      variant="outline"
+                      onClick={handleScrollToCaseStudies}
+                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
                     >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Book a Free Strategy Call
+                      View SEO Case Studies
+                      <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
 
@@ -541,7 +552,7 @@ export default function GoogleAds() {
                   Why Agencies Partner With BrandingBeez for Google Ads
                 </h2>
                 <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
-                  We don’t act like vendors — we operate as your in-house paid media team,
+                  We don’t act like vendors we operate as your in-house paid media team,
                   fully behind the scenes under your brand.
                 </p>
               </div>
@@ -603,7 +614,7 @@ export default function GoogleAds() {
           </section>
 
           {/* Case Studies Section */}
-          <section className="py-16 px-4 bg-gray-50">
+          <section id="case-studies" className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
                 <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
@@ -844,7 +855,7 @@ export default function GoogleAds() {
                 {/* Left – challenges */}
                 <Card className="border border-brand-purple/10 shadow-sm bg-gray-50">
                   <CardHeader className="pb-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-purple/80">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-brand-purple/80">
                       Challenges We Hear Every Week
                     </p>
                     <h3 className="mt-2 text-xl font-bold text-brand-purple">
@@ -880,7 +891,7 @@ export default function GoogleAds() {
                 {/* Right – how we fix it */}
                 <Card className="border-none shadow-lg bg-gradient-to-r from-brand-purple to-brand-coral text-white">
                   <CardHeader className="pb-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-white/80">
+                    <p className="text-xs font-medium uppercase tracking-[0.16em] text-white/80">
                       How We Fix It
                     </p>
                     <h3 className="mt-2 text-xl font-bold">
@@ -1174,7 +1185,7 @@ export default function GoogleAds() {
                 <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
                   <span className="text-s font-bold tracking-wide uppercase text-brand-purple">
-                    White-Label Web Development – FAQs
+                    White-Label PPC – FAQs
                   </span>
                 </div>
                 <h2 className="text-3xl font-bold text-brand-purple mb-4">
@@ -1182,12 +1193,12 @@ export default function GoogleAds() {
                 </h2>
                 <p className="text-lg text-gray-600 mb-6">
                   You keep client relationships and strategy. We handle the
-                  build, QA, and tech — completely under your brand.
+                  build, QA, and tech completely under your brand.
                 </p>
 
                 <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white border-none shadow-lg">
                   <CardHeader className="pb-2">
-                    <p className="text-sm font-semibold text-white/80 uppercase tracking-[0.16em]">
+                    <p className="text-sm font-medium text-white/80 uppercase tracking-[0.16em]">
                       Why agencies choose BrandingBeez
                     </p>
                     <h3 className="text-xl font-bold mt-1">
@@ -1238,8 +1249,8 @@ export default function GoogleAds() {
                   );
                 })}
 
-                <div className="pt-2 text-sm text-gray-600">
-                  Still have a question?{" "}
+                <div className="pt-2 flex items-center justify-between text-sm text-gray-600">
+                  <span>Still have a question?{" "}</span>
                   {/* <a
                     href="/book-appiontment"
                     target="_blank"

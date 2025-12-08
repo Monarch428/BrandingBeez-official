@@ -146,13 +146,76 @@ import {
   Gift,
   Calendar,
   Minus,
-  Plus
+  Plus,
+  HelpCircle,
+  ChevronDown
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { useState } from "react";
+import { PhaseSliderSection, type PhaseItem, } from "@/components/phase-slider-section";
+
+const seoAioPhases: PhaseItem[] = [
+  {
+    id: 1,
+    label: "Phase 1",
+    title: "Discovery & Strategy",
+    intro:
+      "We learn your agency, client industry, goals, and competitive gaps.",
+    points: [
+      "Agency goals & positioning",
+      "Industry & competition",
+      "Strengths & SEO gaps",
+    ],
+    outcome:
+      "You get a clear SEO & AIO roadmap aligned with your agency’s positioning.",
+  },
+  {
+    id: 2,
+    label: "Phase 2",
+    title: "SEO & AIO Foundation",
+    intro: "We create a strong base for Google Search + AI-generated answers.",
+    points: [
+      "Keyword & intent mapping",
+      "Technical fixes",
+      "On-page optimization",
+      "Entity-based SEO structure",
+    ],
+    outcome:
+      "You get a technically sound, AI-ready site that can actually rank and be referenced.",
+  },
+  {
+    id: 3,
+    label: "Phase 3",
+    title: "Execution & Optimization",
+    intro: "Our team handles day-to-day SEO tasks, fully white-label.",
+    points: [
+      "Content optimization & publishing",
+      "Link building & authority growth",
+      "Local SEO activities",
+      "Continuous ranking improvements",
+    ],
+    outcome:
+      "You get consistent work going out under your brand — with rankings and traffic moving up.",
+  },
+  {
+    id: 4,
+    label: "Phase 4",
+    title: "Reporting & Scale",
+    intro:
+      "Clear reporting and insights to help you retain and scale SEO retainers.",
+    points: [
+      "Branded SEO performance reports",
+      "Insights & next-step recommendations",
+      "Upsell-ready insights",
+      "Optional strategy calls",
+    ],
+    outcome:
+      "You get client-facing reports, upsell opportunities, and a scalable delivery engine.",
+  },
+];
 
 // Featured SEO Client Data
 const featuredClient = {
@@ -436,7 +499,7 @@ export default function SEOServices() {
   };
 
   const handleScrollToCaseStudies = () => {
-    if (typeof document === "undefined") return; // safety for SSR
+    if (typeof document === "undefined") return;
 
     const section = document.getElementById("case-studies");
     if (section) {
@@ -516,7 +579,7 @@ export default function SEOServices() {
 
                   {/* Sub-headline */}
                   <p className="text-base sm:text-lg lg:text-xl text-gray-100 mb-4 sm:mb-5 leading-relaxed">
-                    Deliver SEO results under your brand while we handle execution, optimization, and AI visibility
+                    Deliver SEO results under your client brand while we handle execution, optimization, and AI visibility
                     across Google, ChatGPT, Perplexity, and Copilot.
                   </p>
 
@@ -605,6 +668,130 @@ export default function SEOServices() {
                   </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* White-Label SEO & AIO Process Section */}
+          <section className="py-12 sm:py-12 bg-gradient-to-b from-white via-gray-50 to-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+              {/* White-Label SEO & AIO Process Section */}
+              <PhaseSliderSection
+                sectionId="seo-aio-process"
+                heading="Our White-Label SEO & AIO Process"
+                subheading="A proven, agency-first SEO framework designed to deliver consistent rankings and long-term growth."
+                badgeLabel="How We Deliver White-Label SEO & AIO"
+                phases={seoAioPhases}
+                cardHeightClass="min-h-[360px] sm:min-h-[420px]"
+                sectionClassName="py-14 sm:py-14 bg-gradient-to-b from-white via-gray-50 to-white px-4 sm:px-6"
+                cardClassName="max-w-4xl"
+              />
+            </div>
+          </section>
+
+          {/* AI SEARCH OPTIMIZATION (AIO) OVERVIEW SECTION */}
+          <section className="py-20 px-6 bg-gradient-to-br from-[#2B0A3D] via-[#4D1A59] to-[#8A2E70] text-white">
+            <div className="max-w-7xl mx-auto">
+
+              {/* SECTION HEADER */}
+              <div className="text-center mb-6">
+                <h2 className="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+                  🚀 NEW: AI Search Optimization (AIO)
+                </h2>
+                <h3 className="text-4xl font-bold mb-4">Rank Inside AI Search Results Not Just Google</h3>
+                <p className="text-xl text-white/80 max-w-3xl mx-auto">
+                  We help agencies position their clients inside AI-generated answers across
+                  Google SGE, ChatGPT, Copilot, and Perplexity not just traditional blue links.
+                </p>
+              </div>
+              <div className="flex items-center justify-center mb-6">
+                <span className="">AIO works alongside SEO think of it as modern search visibility for AI-driven discovery.</span>
+              </div>
+
+              {/* 3 EXPLANATION CARDS – NOT PACKAGES */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                {/* AIO FOR LOCAL & EARLY-STAGE BRANDS */}
+                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
+                  <h4 className="text-2xl font-bold mb-3">AIO for Local & Emerging Brands</h4>
+                  <p className="text-white/90 text-sm leading-relaxed mb-5">
+                    For businesses who’ve never thought about AI search before. We focus on making
+                    sure AI tools can clearly understand who you are, what you do, and where you operate.
+                  </p>
+                  <ul className="space-y-2 text-white/90 text-sm">
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Clarify your brand, service, and location entities for AI engines.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Shape key pages so they’re easy for AI to quote as an answer.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Lay the foundation for appearing in local AI search results.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* AIO FOR GROWING COMPANIES */}
+                <div className="rounded-2xl bg-white/20 border border-brand-yellow/80 p-7 shadow-2xl backdrop-blur-xl scale-[1.02]">
+                  <h4 className="text-2xl font-bold mb-3"> AIO for Scaling Brands & Agencies</h4>
+                  <p className="text-white/90 text-sm leading-relaxed mb-5">
+                    For brands that already get SEO traffic and now want to be seen repeatedly
+                    inside AI answer summaries, comparison blocks, and conversational searches.
+                  </p>
+                  <ul className="space-y-2 text-white/90 text-sm">
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Build topic clusters so AI treats you as an authority, not just a result.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Re-structure key pages for answer extraction and rich AI snippets.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Align schema, internal links, and content with AI-first intent.</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* AIO FOR ENTERPRISE & E-COMMERCE */}
+                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
+                  <h4 className="text-2xl font-bold mb-3"> AIO for Enterprise, Multi-Location & E-commerce</h4>
+                  <p className="text-white/90 text-sm leading-relaxed mb-5">
+                    For teams managing multiple locations, products, or service lines who need
+                    AI visibility at scale across markets, categories, and brand experiences.
+                  </p>
+                  <ul className="space-y-2 text-white/90 text-sm">
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Align technical SEO, Core Web Vitals, and AIO signals together.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Design full topic graphs and entity networks across products & regions.</span>
+                    </li>
+                    <li className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
+                      <span>Track AI surfacing across SGE, Perplexity, Copilot & ChatGPT Search.</span>
+                    </li>
+                  </ul>
+                </div>
+
+              </div>
+
+              {/* BOTTOM CTA */}
+              <div className="text-center mt-14">
+                <Link href="/services/ai-search-optimization">
+                  <Button
+                    className="bg-brand-coral text-white font-bold px-8 py-4 hover:bg-brand-purple hover:text-white"
+                  >
+                    Explore Full AIO Service
+                  </Button>
+                </Link>
+              </div>
+
             </div>
           </section>
 
@@ -855,299 +1042,6 @@ export default function SEOServices() {
             </div>
           </section>
 
-          {/* White-Label SEO & AIO Process Section */}
-          <section className="py-16 sm:py-20 bg-gradient-to-b from-white via-gray-50 to-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
-
-              {/* Heading */}
-              <div className="text-center mb-12">
-                <div className="flex items-center justify-center">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-brand-coral px-4 py-1.5 border border-brand-purple/15 text-xs sm:text-sm font-medium text-white mb-4">
-                    <span>How We Deliver White-Label SEO & AIO</span>
-                  </div>
-                </div>
-
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-brand-purple mb-4">
-                  Our White-Label SEO & AIO Process
-                </h2>
-
-                <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto leading-relaxed">
-                  A proven, agency-first SEO framework designed to deliver consistent rankings, qualified traffic,
-                  and long-term growth all under your brand.
-                </p>
-              </div>
-
-              {/* 4 Cards — Same Row */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* CARD 1 */}
-                <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6 hover:shadow-md transition flex flex-col">
-                  {/* TOP */}
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-brand-purple text-white flex items-center justify-center font-bold">
-                        1
-                      </div>
-                      <p className="text-sm font-bold uppercase tracking-wide text-brand-purple">
-                        Discovery
-                      </p>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-brand-purple mb-3">
-                      Discovery & Strategy
-                    </h3>
-
-                    <p className="text-gray-700 text-sm">
-                      We learn your agency, client industry, goals, and competitive gaps.
-                    </p>
-                  </div>
-
-                  {/* BOTTOM LIST */}
-                  <div className="mt-6">
-                    <ul className="space-y-2">
-                      {[
-                        "Agency goals & positioning",
-                        "Industry & competition",
-                        "Strengths & SEO gaps",
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2 text-gray-700 text-sm">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* CARD 2 */}
-                <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6 hover:shadow-md transition flex flex-col">
-                  {/* TOP */}
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-brand-coral text-white flex items-center justify-center font-bold">
-                        2
-                      </div>
-                      <p className="text-sm font-bold uppercase tracking-wide text-brand-purple">
-                        SEO Foundation
-                      </p>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-brand-purple mb-3">
-                      SEO & AIO Foundation
-                    </h3>
-
-                    <p className="text-gray-700 text-sm">
-                      We create a strong base for Google Search + AI answers.
-                    </p>
-                  </div>
-
-                  {/* BOTTOM LIST */}
-                  <div className="mt-6">
-                    <ul className="space-y-2">
-                      {[
-                        "Keyword & intent mapping",
-                        "Technical fixes",
-                        "On-page optimization",
-                        "Entity-based SEO structure",
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2 text-gray-700 text-sm">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* CARD 3 */}
-                <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6 hover:shadow-md transition flex flex-col">
-                  {/* TOP */}
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center font-bold">
-                        3
-                      </div>
-                      <p className="text-sm font-bold uppercase tracking-wide text-brand-purple">
-                        Execution
-                      </p>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-brand-purple mb-3">
-                      Execution & Optimization
-                    </h3>
-
-                    <p className="text-gray-700 text-sm">
-                      Our team handles day-to-day SEO tasks, fully white-label.
-                    </p>
-                  </div>
-
-                  {/* BOTTOM LIST */}
-                  <div className="mt-6">
-                    <ul className="space-y-2">
-                      {[
-                        "Content optimization & publishing",
-                        "Link building & authority growth",
-                        "Local SEO activities",
-                        "Continuous ranking improvements",
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2 text-gray-700 text-sm">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-
-                {/* CARD 4 */}
-                <div className="bg-white shadow-sm border border-gray-200 rounded-xl p-6 hover:shadow-md transition flex flex-col">
-                  {/* TOP */}
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-brand-purple text-white flex items-center justify-center font-bold">
-                        4
-                      </div>
-                      <p className="text-sm font-bold uppercase tracking-wide text-brand-purple">
-                        Reporting
-                      </p>
-                    </div>
-
-                    <h3 className="text-lg font-bold text-brand-purple mb-3">
-                      Reporting & Scale
-                    </h3>
-
-                    <p className="text-gray-700 text-sm">
-                      Clear reporting and insights to help you retain & scale clients.
-                    </p>
-                  </div>
-
-                  {/* BOTTOM LIST */}
-                  <div className="mt-6">
-                    <ul className="space-y-2">
-                      {[
-                        "Branded SEO performance reports",
-                        "Insights & next-step recommendations",
-                        "Upsell-ready insights",
-                        "Optional strategy calls",
-                      ].map((item, i) => (
-                        <li key={i} className="flex items-center gap-2 text-gray-700 text-sm">
-                          <CheckCircle className="w-4 h-4 text-brand-coral" />
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* AI SEARCH OPTIMIZATION (AIO) OVERVIEW SECTION */}
-          <section className="py-20 px-6 bg-gradient-to-br from-[#2B0A3D] via-[#4D1A59] to-[#8A2E70] text-white">
-            <div className="max-w-7xl mx-auto">
-
-              {/* SECTION HEADER */}
-              <div className="text-center mb-6">
-                <h2 className="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
-                  🚀 NEW: AI Search Optimization (AIO)
-                </h2>
-                <h3 className="text-4xl font-bold mb-4">Rank Inside AI Search Results Not Just Google</h3>
-                <p className="text-xl text-white/80 max-w-3xl mx-auto">
-                  We help agencies position their clients inside AI-generated answers across
-                  Google SGE, ChatGPT, Copilot, and Perplexity not just traditional blue links.
-                </p>
-              </div>
-              <div className="flex items-center justify-center mb-6">
-                <span className="">AIO works alongside SEO think of it as modern search visibility for AI-driven discovery.</span>
-              </div>
-
-              {/* 3 EXPLANATION CARDS – NOT PACKAGES */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-
-                {/* AIO FOR LOCAL & EARLY-STAGE BRANDS */}
-                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
-                  <h4 className="text-2xl font-bold mb-3">AIO for Local & Emerging Brands</h4>
-                  <p className="text-white/90 text-sm leading-relaxed mb-5">
-                    For businesses who’ve never thought about AI search before. We focus on making
-                    sure AI tools can clearly understand who you are, what you do, and where you operate.
-                  </p>
-                  <ul className="space-y-2 text-white/90 text-sm">
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Clarify your brand, service, and location entities for AI engines.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Shape key pages so they’re easy for AI to quote as an answer.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Lay the foundation for appearing in local AI search results.</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* AIO FOR GROWING COMPANIES */}
-                <div className="rounded-2xl bg-white/20 border border-brand-yellow/80 p-7 shadow-2xl backdrop-blur-xl scale-[1.02]">
-                  <h4 className="text-2xl font-bold mb-3"> AIO for Scaling Brands & Agencies</h4>
-                  <p className="text-white/90 text-sm leading-relaxed mb-5">
-                    For brands that already get SEO traffic and now want to be seen repeatedly
-                    inside AI answer summaries, comparison blocks, and conversational searches.
-                  </p>
-                  <ul className="space-y-2 text-white/90 text-sm">
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Build topic clusters so AI treats you as an authority, not just a result.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Re-structure key pages for answer extraction and rich AI snippets.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Align schema, internal links, and content with AI-first intent.</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* AIO FOR ENTERPRISE & E-COMMERCE */}
-                <div className="rounded-2xl bg-white/10 border border-white/20 p-7 backdrop-blur-xl shadow-xl">
-                  <h4 className="text-2xl font-bold mb-3"> AIO for Enterprise, Multi-Location & E-commerce</h4>
-                  <p className="text-white/90 text-sm leading-relaxed mb-5">
-                    For teams managing multiple locations, products, or service lines who need
-                    AI visibility at scale across markets, categories, and brand experiences.
-                  </p>
-                  <ul className="space-y-2 text-white/90 text-sm">
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Align technical SEO, Core Web Vitals, and AIO signals together.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Design full topic graphs and entity networks across products & regions.</span>
-                    </li>
-                    <li className="flex gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-300 mt-0.5" />
-                      <span>Track AI surfacing across SGE, Perplexity, Copilot & ChatGPT Search.</span>
-                    </li>
-                  </ul>
-                </div>
-
-              </div>
-
-              {/* BOTTOM CTA */}
-              <div className="text-center mt-14">
-                <Link href="/services/ai-search-optimization">
-                  <Button
-                    className="bg-brand-coral text-white font-bold px-8 py-4 hover:bg-brand-purple hover:text-white"
-                  >
-                    Explore Full AIO Service
-                  </Button>
-                </Link>
-              </div>
-
-            </div>
-          </section>
-
           {/* Pricing Packages Section */}
           <section className="py-16 px-4 bg-white">
             <div className="max-w-7xl mx-auto">
@@ -1290,48 +1184,47 @@ export default function SEOServices() {
             submissionSourceLabel="Service Page Contact Form Submission"
           />
 
-          {/* CTA Section */}
-          <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-4">Stay on Top of SEO Trends</h2>
-              <p className="text-xl mb-8 text-white/90">Join marketers & agencies getting expert tips, ranking strategies, and SEO case studies from BrandingBeez straight to your inbox.</p>
-              <div className="flex flex-row gap-4 justify-center">
-                <Button
-                  size="lg"
-                  className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white font-semibold"
-                  onClick={() => navigate('/#newsletter')}
-                >Subscribe for Free</Button>
-              </div>
-            </div>
-          </section>
-
           {/* White-Label SEO FAQ Section */}
           <section className="py-16 sm:py-20 bg-[#f7f6f3]">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6">
-              {/* Heading */}
-              <div className="text-center mb-8 sm:mb-10">
-                <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:gap-12 lg:grid-cols-[1.1fr,1fr] items-start">
+              {/* Left – intro / highlight */}
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                  <HelpCircle className="w-4 h-4 text-brand-purple" />
+                  <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
+                    White-Label SEO &amp; AIO – FAQs
+                  </span>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-bold text-brand-purple mb-4">
                   White-Label SEO – Frequently Asked Questions
                 </h2>
-                <p className="text-sm sm:text-base text-gray-600 max-w-2xl mx-auto">
-                  Clear answers for agencies looking to scale SEO without hiring in-house teams.
+
+                <p className="text-base sm:text-lg text-gray-600 mb-6">
+                  Clear answers for agencies who want to scale SEO and AI Search Optimization
+                  without hiring in-house teams. You keep the client relationship, we handle
+                  delivery under your brand.
                 </p>
+
+                <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white border-none shadow-lg">
+                  <CardHeader className="pb-2">
+                    <p className="text-xs sm:text-sm font-medium text-white/80 uppercase tracking-[0.16em]">
+                      Why agencies choose BrandingBeez for SEO
+                    </p>
+                    <h3 className="text-lg sm:text-xl font-bold mt-1">
+                      Technical SEO, content &amp; AIO fully white-label.
+                    </h3>
+                  </CardHeader>
+                  <CardContent className="pt-2 space-y-2 text-sm text-white/90">
+                    <p>✔ 100% white-label communication and reporting.</p>
+                    <p>✔ SEO + AI Search Optimization (AIO) handled by a dedicated team.</p>
+                    <p>✔ Built for agencies managing multiple client accounts and retainers.</p>
+                  </CardContent>
+                </Card>
               </div>
 
-              {/* Search bar */}
-              {/* <div className="relative max-w-xl mx-auto mb-8 sm:mb-10">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search for a question"
-                  className="w-full rounded-full bg-white border border-gray-200 py-3 pl-10 pr-4 text-sm sm:text-base text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-coral focus:border-brand-coral placeholder:text-gray-400"
-                />
-              </div> */}
-
-              {/* FAQ list */}
-              <div className="space-y-3 sm:space-y-4">
+              {/* Right – FAQ accordion */}
+              <div className="space-y-4">
                 {filteredFaqs.length === 0 && (
                   <div className="rounded-2xl bg-white border border-dashed border-gray-300 py-6 px-4 text-center text-sm text-gray-500">
                     No questions match your search. Try a different keyword.
@@ -1344,51 +1237,64 @@ export default function SEOServices() {
                   return (
                     <div
                       key={item.id}
-                      className={`rounded-2xl bg-white border border-gray-200 shadow-sm transition-all duration-200 ${isOpen ? "shadow-md" : "hover:shadow-md"
-                        }`}
+                      className="bg-white/90 border border-brand-purple/10 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
                     >
                       <button
                         type="button"
                         onClick={() => setOpenId(isOpen ? null : item.id)}
-                        className="w-full flex items-center justify-between gap-4 px-5 sm:px-6 py-4 sm:py-5 text-left"
+                        className="w-full text-left px-4 sm:px-5 py-4 flex items-center justify-between gap-4"
                       >
-                        <span className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                        <span className="font-semibold text-sm sm:text-base text-brand-purple">
                           {item.question}
                         </span>
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-700 flex-shrink-0">
-                          {isOpen ? (
-                            <Minus className="h-4 w-4" />
-                          ) : (
-                            <Plus className="h-4 w-4" />
-                          )}
-                        </span>
+                        <ChevronDown
+                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                            }`}
+                        />
                       </button>
 
                       {isOpen && (
-                        <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-0 text-sm sm:text-base text-gray-700 border-t border-gray-100">
+                        <div className="px-4 sm:px-5 pb-5 pt-3 text-sm sm:text-base text-gray-700 border-t border-gray-100">
                           {item.answer}
                         </div>
                       )}
                     </div>
                   );
                 })}
+
+                {/* CTA under FAQ */}
+                <div className="pt-2 sm:pt-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                    <p className="text-sm sm:text-base text-gray-700 text-center sm:text-left">
+                      Still have questions about white-label SEO &amp; AIO for your agency?{" "}
+                      <span className="font-semibold text-brand-purple">
+                        Our team can walk you through everything.
+                      </span>
+                    </p>
+
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to Our SEO Team"
+                      className="inline-flex items-center justify-center rounded-md bg-brand-coral px-6 sm:px-8 py-3 text-sm sm:text-base font-semibold text-white shadow-md hover:bg-brand-purple hover:text-white transition-all duration-200 touch-manipulation"
+                      buttonSize="lg"
+                      defaultServiceType="SEO / AIO Services"
+                    />
+                  </div>
+                </div>
               </div>
+            </div>
+          </section>
 
-              {/* CTA under FAQ */}
-              <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
-                <p className="text-sm sm:text-base text-gray-700 text-center sm:text-left">
-                  Still have questions about white-label SEO for your agency?{" "}
-                  <span className="font-semibold text-brand-purple">
-                    Our team can walk you through everything.
-                  </span>
-                </p>
-
-                <BookCallButtonWithModal
-                  buttonLabel="Talk to Our SEO Team"
-                  className="inline-flex items-center justify-center rounded-md bg-brand-coral px-6 sm:px-8 py-3 text-sm sm:text-base font-semibold text-white shadow-md hover:bg-brand-purple hover:text-white transition-all duration-200 touch-manipulation"
-                  buttonSize="lg"
-                  defaultServiceType="SEO / AIO Services"
-                />
+          {/* CTA Section */}
+          <section className="py-16 px-4 bg-gradient-to-r from-brand-coral to-brand-purple text-white">
+            <div className="max-w-4xl mx-auto text-center">
+              <h2 className="text-3xl font-bold mb-4">Stay on Top of SEO Trends</h2>
+              <p className="text-xl mb-8 text-white/90">Join marketers & agencies getting expert tips, ranking strategies, and SEO case studies from BrandingBeez straight to your inbox.</p>
+              <div className="flex flex-row gap-4 justify-center">
+                <Button
+                  size="lg"
+                  className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white font-semibold"
+                  onClick={() => navigate('/#newsletter')}
+                >Subscribe for Free</Button>
               </div>
             </div>
           </section>
