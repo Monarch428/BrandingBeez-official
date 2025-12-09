@@ -495,12 +495,12 @@ app.use((req, res, next) => {
   //   cert: fs.readFileSync("cert/localhost.pem")
   // };
   const port = parseInt(process.env.PORT || '5000', 10);
-  // server.listen({
-  //   port,
-  //   host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
-  // }, () => {
-  //   log(`serving on port ${port}`);
-  // });
+  server.listen({
+    port,
+    host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
+  }, () => {
+    log(`serving on port ${port}`);
+  });
   // https.createServer(httpsOptions, app).listen(port, () => {
   //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
   // });
