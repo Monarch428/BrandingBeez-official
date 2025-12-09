@@ -991,6 +991,61 @@
 //     </>
 //   );
 // }
+// ✅ Regional Partners type + data
+// type RegionalPartnersMember = {
+//   name: string;
+//   title: string;
+//   location: string;
+//   role: string;
+//   expertise: string[];
+//   contact: string;
+//   image?: string;
+// };
+
+// const regionalPartners: RegionalPartnersMember[] = [
+//   {
+//     name: "Ken",
+//     title: "Business Partner - United States",
+//     location: "Nationwide USA Coverage",
+//     role: "Ken represents BrandingBeez across the United States, connecting with local businesses and forums to bring AI automation solutions to American SMBs.",
+//     expertise: [
+//       "US market AI adoption strategies",
+//       "Local business development and networking",
+//       "SMB outreach and community engagement",
+//       "Regional compliance and business practices",
+//     ],
+//     contact: "Reach Ken for US-based projects and consultations",
+//     image: ken,
+//   },
+//   {
+//     name: "Matt",
+//     title: "Business Partner - Miami/Southeast",
+//     location: "Miami, Florida & Southeast Region",
+//     role: "Matt focuses on the vibrant Miami business ecosystem and Southeast markets, specializing in connecting with local entrepreneurs and established businesses.",
+//     expertise: [
+//       "Southeast US market penetration",
+//       "Miami startup and SMB ecosystem",
+//       "Local networking and business development",
+//       "Regional market insights and opportunities",
+//     ],
+//     contact: "Connect with Matt for Southeast US projects",
+//     image: matt,
+//   },
+//   {
+//     name: "Phillip Einetter",
+//     title: "Business Partner - Germany/Europe",
+//     location: "Germany & European Markets",
+//     role: "Philip brings BrandingBeez AI solutions to German and European businesses, navigating GDPR compliance and regional business practices.",
+//     expertise: [
+//       "European market AI regulations (GDPR compliance)",
+//       "German business culture and practices",
+//       "EU-wide business development",
+//       "Multi-language project coordination",
+//     ],
+//     contact: "Contact Philip for European projects & consultations",
+//     image: phillip,
+//   },
+// ];
 
 
 
@@ -1021,12 +1076,17 @@ import {
   Users,
   TrendingUp,
   Heart,
+  Check,
+  CheckCircle2,
+  Shield,
+  X,
 } from "lucide-react";
 
 import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
 import bniLogo from "@assets/bni_1752907520728.jpg";
 import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
 import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
+import webArtLogo from "../../public/images/website-architect-logo.jpeg"
 
 // Partner Agency Logos
 import newVisionTechLogo from "@assets/IMG-20250719-WA0264_1752907768834.jpg";
@@ -1053,62 +1113,8 @@ import Mark_Image from "../../public/images/Mark.png";
 import Dani_Image from "../../public/images/Dani.png";
 import Gemma_Image from "../../public/images/Gemma.png";
 import AgencyContactSection from "@/components/agency-contact-section";
+import { TestimonialCard } from "@/components/TestimonialCard";
 
-// ✅ Regional Partners type + data
-type RegionalPartnersMember = {
-  name: string;
-  title: string;
-  location: string;
-  role: string;
-  expertise: string[];
-  contact: string;
-  image?: string;
-};
-
-const regionalPartners: RegionalPartnersMember[] = [
-  {
-    name: "Ken",
-    title: "Business Partner - United States",
-    location: "Nationwide USA Coverage",
-    role: "Ken represents BrandingBeez across the United States, connecting with local businesses and forums to bring AI automation solutions to American SMBs.",
-    expertise: [
-      "US market AI adoption strategies",
-      "Local business development and networking",
-      "SMB outreach and community engagement",
-      "Regional compliance and business practices",
-    ],
-    contact: "Reach Ken for US-based projects and consultations",
-    image: ken,
-  },
-  {
-    name: "Matt",
-    title: "Business Partner - Miami/Southeast",
-    location: "Miami, Florida & Southeast Region",
-    role: "Matt focuses on the vibrant Miami business ecosystem and Southeast markets, specializing in connecting with local entrepreneurs and established businesses.",
-    expertise: [
-      "Southeast US market penetration",
-      "Miami startup and SMB ecosystem",
-      "Local networking and business development",
-      "Regional market insights and opportunities",
-    ],
-    contact: "Connect with Matt for Southeast US projects",
-    image: matt,
-  },
-  {
-    name: "Phillip Einetter",
-    title: "Business Partner - Germany/Europe",
-    location: "Germany & European Markets",
-    role: "Philip brings BrandingBeez AI solutions to German and European businesses, navigating GDPR compliance and regional business practices.",
-    expertise: [
-      "European market AI regulations (GDPR compliance)",
-      "German business culture and practices",
-      "EU-wide business development",
-      "Multi-language project coordination",
-    ],
-    contact: "Contact Philip for European projects & consultations",
-    image: phillip,
-  },
-];
 
 export default function Home() {
   useEffect(() => {
@@ -1144,6 +1150,19 @@ export default function Home() {
 
     setTimeout(handleScrollToSection, 50);
   }, []);
+
+  const service = [
+    'Websites or web applications',
+    'SEO or PPC services',
+    'Mobile apps',
+    'Dedicated ongoing resources'
+  ];
+
+  const benefits = [
+    'Faster delivery without compromising quality',
+    'Predictable, scalable fulfillment',
+    'A white-label team they can trust long-term'
+  ];
 
   // Newsletter CTA state (for home page CTA section)
   const [newsletterName, setNewsletterName] = useState("");
@@ -1251,6 +1270,61 @@ export default function Home() {
       href: "/services/custom-app-development",
       icon: Zap,
     },
+  ];
+
+  const stats = [
+    { number: '6+', label: 'Years Experience', icon: Award },
+    { number: '20+', label: 'In-house Specialists', icon: Users },
+    { number: '100%', label: 'White-Label', icon: Shield }
+  ];
+
+  const benefit = [
+    'Reduce delivery costs compared to hiring US-based full-time staff',
+    'Deliver consistent, high-quality work fully under your brand',
+    'Scale capacity instantly without overloading internal teams',
+    'Maintain strict confidentiality and white-label control',
+    'Meet deadlines confidently even during sudden client growth',
+    'Trusted by digital agencies across the US, UK & worldwide'
+  ];
+
+  const problems = [
+    "The high cost and risk of full-time hiring in the US",
+    "Inconsistent freelancers and unreliable contractors",
+    "Overloaded internal teams causing delivery bottlenecks",
+    "Limited scalability when client demand spikes",
+    "Tight deadlines that threaten quality and reputation"
+  ];
+
+  const solutions = [
+    "Dedicated, full-time white-label resources assigned to your agency",
+    "Reliable delivery fully aligned with your workflows and standards",
+    "Scalable capacity that grows or shrinks with client demand",
+    "Consistent quality, on-time delivery, and strict confidentiality"
+  ];
+
+  const testimonials = [
+    {
+      id: 1,
+      name: "Mark Muse",
+      company: "Partner",
+      testimonial: "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
+      imageUrl: Mark_Image
+    },
+    {
+      id: 2,
+      name: "Daniel Fechete",
+      company: "Creative Partner",
+      testimonial: "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
+      imageUrl: Dani_Image
+    },
+    {
+      id: 3,
+      name: "Gemma Murphy",
+      company: "Founder, Website Architect",
+      testimonial: "Branding Beez have been a great help to my business. Before meeting Rale and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
+      imageUrl: Gemma_Image,
+      logoUrl: webArtLogo
+    }
   ];
 
   return (
@@ -1364,104 +1438,58 @@ export default function Home() {
           </section>
 
           {/* Why Work With Us Section */}
-          <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-b from-white via-white to-brand-purple/5">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="relative">
-                {/* Eyebrow / Badge */}
-                <div className="flex justify-center mb-4">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-brand-purple/5 px-4 py-1.5 text-xs sm:text-sm font-bold text-brand-coral">
-                    Why Work With BrandingBeez
-                  </span>
+          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-20 px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto">
+              {/* Header Section */}
+              <div className="mb-16">
+                <div className="block bg-brand-coral text-white font-medium px-4 py-2 rounded-full mb-[24px] text-center mt-[0px] mx-auto w-fit">
+                  Why Work With BrandingBeez
                 </div>
-
-                {/* Headline */}
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 text-center mb-4 tracking-tight">
-                  More Than a Vendor — Your White-Label Delivery Partner
-                </h2>
-
-                {/* Sub-Headline */}
-                <p className="text-base sm:text-lg lg:text-xl text-slate-700 text-center max-w-3xl mx-auto mb-6 sm:mb-8 leading-relaxed">
-                  At BrandingBeez, we don’t just execute tasks. We operate as an
-                  extension of your agency, aligning with your processes,
-                  timelines, and quality standards.
-                </p>
-
-                {/* Body Copy + Stats */}
-                <div className="max-w-4xl mx-auto mb-10 space-y-6">
-                  <p className="text-sm sm:text-base md:text-lg text-slate-700 text-center leading-relaxed">
-                    With 6+ years of white-label delivery experience and a 20+
-                    in-house specialist team, we help US agencies scale faster
-                    without the cost, complexity, or risk of local hiring.
+                <h1 className="text-gray-900 mb-8 text-3xl font-bold max-w-3xl mx-auto text-center">
+                  More Than a Vendor Your White-Label Delivery Partner
+                </h1>
+                <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-3xl mx-auto">
+                  <p className="text-gray-600 text-left md:text-left">
+                    At BrandingBeez, we don't just execute tasks. We operate as an extension of your agency, aligning with your processes, timelines, and quality standards.
                   </p>
-
-                  {/* Small stat strip */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 text-xs sm:text-sm">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5">
-                      <span className="h-2 w-2 rounded-full bg-brand-coral" />
-                      <span className="font-semibold text-slate-900">
-                        6+ years white-label delivery
-                      </span>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5">
-                      <span className="h-2 w-2 rounded-full bg-brand-purple" />
-                      <span className="font-semibold text-slate-900">
-                        20+ in-house specialists
-                      </span>
-                    </div>
-                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 border border-slate-200 px-3 py-1.5">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                      <span className="font-semibold text-slate-900">
-                        Trusted by US &amp; UK agencies
-                      </span>
-                    </div>
-                  </div>
+                  <p className="text-gray-600 text-left md:text-left">
+                    With 6+ years of white-label delivery experience and a 20+ in-house specialist team, we help US agencies scale faster without the cost, complexity, or risk of local hiring.
+                  </p>
                 </div>
 
-                {/* Bullet Points */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 max-w-4xl mx-auto">
-                  <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
-                    <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
-                    <p className="text-slate-900 text-sm sm:text-base">
-                      Reduce delivery costs compared to hiring US-based full-time
-                      staff
-                    </p>
-                  </div>
+                {/* Stats Cards */}
+                <div className="grid sm:grid-cols-3 gap-6 mb-16">
+                  {stats.map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                      <div
+                        key={index}
+                        className="bg-white border-2 border-gray-100 rounded-2xl p-6 text-center hover:border-brand-coral transition-all duration-300 hover:shadow-xl"
+                      >
+                        <Icon className="w-10 h-10 text-brand-coral mx-auto mb-4" />
+                        <div className="text-gray-900 font-medium mb-2">{stat.number}</div>
+                        <div className="text-gray-600">{stat.label}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-                  <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
-                    <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
-                    <p className="text-slate-900 text-sm sm:text-base">
-                      Deliver consistent, high-quality work fully under your brand
-                    </p>
-                  </div>
-
-                  <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
-                    <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
-                    <p className="text-slate-900 text-sm sm:text-base">
-                      Scale capacity instantly without overloading internal teams
-                    </p>
-                  </div>
-
-                  <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
-                    <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
-                    <p className="text-slate-900 text-sm sm:text-base">
-                      Maintain strict confidentiality and white-label control
-                    </p>
-                  </div>
-
-                  <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
-                    <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
-                    <p className="text-slate-900 text-sm sm:text-base">
-                      Meet deadlines confidently even during sudden client growth
-                    </p>
-                  </div>
-
-                  <div className="flex items-start gap-3 rounded-2xl bg-slate-50/80 border border-slate-200 px-4 py-3.5">
-                    <CheckCircle className="w-5 h-5 text-brand-coral flex-shrink-0 mt-0.5" />
-                    <p className="text-slate-900 text-sm sm:text-base">
-                      Trusted by digital agencies across the US, UK &amp;
-                      worldwide
-                    </p>
-                  </div>
+              {/* Benefits Section */}
+              <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-3xl p-8 md:p-12">
+                <h2 className="text-white text-xl font-medium mb-8">Key Benefits</h2>
+                <div className="grid md:grid-cols-2 gap-5">
+                  {benefit.map((benefits, index) => (
+                    <div
+                      key={index}
+                      className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 hover:bg-white/20 transition-all duration-300"
+                    >
+                      <div className="flex gap-4">
+                        <CheckCircle2 className="w-6 h-6 text-white flex-shrink-0 mt-0.5" />
+                        <p className="text-white/90">{benefits}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -1547,77 +1575,71 @@ export default function Home() {
           </section>
 
           {/* Who We Work With Section */}
-          <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-t from-white via-gray-50 to-gray-100">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-center items-center">
-                <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-coral border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-white mb-4">
-                  Who We Work With
+          <section className="min-h-screen bg-[rgb(255,255,255)] px-6 py-20">
+            <div className="max-w-6xl mx-auto">
+              {/* Header */}
+              <div className="mb-16">
+                <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-8 mx-auto w-fit">
+                  {/* <div className="w-2 h-2 bg-white rounded-full animate-pulse" /> */}
+                  <span className="font-medium">Who We Work With</span>
                 </div>
+
+                <h1 className="mb-6 text-black max-w-3xl text-center mx-auto font-bold text-3xl">
+                  Built for Growing Digital Marketing Agencies
+                </h1>
+
+                <p className="text-slate-700 leading-relaxed max-w-2xl text-center mx-auto">
+                  We specialize in supporting US and UK digital marketing agencies that want to grow revenue, expand service offerings, and take on more clients without increasing payroll or overhead.
+                </p>
               </div>
 
-              <div className="relative grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10 items-center">
-                {/* Left: copy */}
-                <div className="md:col-span-3">
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-                    Built for Growing Digital Marketing Agencies
-                  </h2>
-
-                  <p className="text-sm sm:text-base md:text-lg text-slate-700 mb-5 sm:mb-6 leading-relaxed">
-                    We specialize in supporting US and UK digital marketing
-                    agencies that want to grow revenue, expand service offerings,
-                    and take on more clients without increasing payroll or
-                    overhead.
-                  </p>
-
-                  <p className="text-sm sm:text-base font-medium text-slate-700 leading-relaxed mb-4">
+              {/* Content Grid */}
+              <div className="grid lg:grid-cols-2 gap-8">
+                {/* Services Section */}
+                <div className="px-[0px] py-[-16px] mx-[0px] my-[-52px]">
+                  <h3 className="text-[rgba(0,0,0,0.82)] mb-8 flex items-center gap-3 font-bold">
                     If your agency needs to deliver:
-                  </p>
+                  </h3>
 
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm sm:text-base text-slate-800 mb-4">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                      <span>Websites or web applications</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                      <span>Mobile apps</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                      <span>SEO or PPC services</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                      <span>Dedicated ongoing resources</span>
-                    </li>
-                  </ul>
+                  <div className="space-y-4">
+                    {service.map((services, index) => (
+                      <div
+                        key={index}
+                        className="group flex items-center gap-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-5 hover:border-[#FF5A5F] transition-all hover:bg-white/30 shadow-lg"
+                      >
+                        <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-brand-coral flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
+                        </div>
+                        <span className="text-black">{services}</span>
+                      </div>
+                    ))}
+                  </div>
 
-                  <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                    …under your brand, while a reliable partner handles execution
-                    — BrandingBeez is built for you.
-                  </p>
+                  <div className="mt-8 p-6 bg-brand-coral rounded-xl">
+                    <p className="text-[rgb(255,255,255)] italic">
+                      Under your brand, while a reliable partner handles execution BrandingBeez is built for you.
+                    </p>
+                  </div>
                 </div>
 
-                {/* Right: reasons */}
-                <div className="md:col-span-2">
-                  <div className="rounded-2xl bg-slate-50 border border-slate-200 p-5 sm:p-6 h-full flex flex-col">
-                    <p className="text-sm font-bold uppercase tracking-wide text-brand-purple mb-3">
-                      Our agency partners come to us when they want:
-                    </p>
-                    <ul className="space-y-3 text-sm sm:text-base text-slate-800">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                        <span>Faster delivery without compromising quality</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                        <span>Predictable, scalable fulfillment</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 mt-0.5 text-brand-coral flex-shrink-0" />
-                        <span>A white-label team they can trust long-term</span>
-                      </li>
-                    </ul>
+                {/* Benefits Section */}
+                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-8 px-[32px] py-[70px]">
+                  <h3 className="text-white mb-8 uppercase font-medium tracking-wider">
+                    Our agency partners come to us when they want:
+                  </h3>
+
+                  <div className="space-y-4">
+                    {benefits.map((benefit, index) => (
+                      <div
+                        key={index}
+                        className="flex items-start gap-4 bg-white/10 backdrop-blur-lg rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all"
+                      >
+                        <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-brand-coral flex items-center justify-center mt-0.5">
+                          <Check className="w-4 h-4 text-white" strokeWidth={3} />
+                        </div>
+                        <span className="text-white leading-relaxed">{benefit}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -1710,107 +1732,89 @@ export default function Home() {
           </section>
 
           {/* Problems We Solve (Why Agencies Choose Us) */}
-          <section className="py-12 sm:py-16 lg:py-20 bg-white">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-center items-center">
-                <div className="inline-flex justify-center items-center gap-2 rounded-full bg-brand-coral border border-brand-purple/15 px-3 py-1.5 text-xs sm:text-sm font-bold text-white mb-4">
+          <section className="min-h-screen bg-white py-20 px-4">
+            <div className="max-w-7xl mx-auto">
+              {/* Header */}
+              <div className="text-center mb-6">
+                <button className="bg-brand-coral text-white font-medium px-6 py-2 rounded-full mb-6 inline-flex items-center gap-2">
                   Problems We Solve
-                </div>
-              </div>
-              <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-10">
-                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
+                </button>
+                <h1 className="text-[rgba(16,24,40,0.81)] text-2xl mb-4 font-bold">
                   Scale Faster Without the Usual Agency Headaches
-                </h2>
-                <p className="text-sm sm:text-base md:text-lg text-slate-700 leading-relaxed">
-                  Most agencies hit the same growth roadblocks. We help you skip
-                  them entirely.
+                </h1>
+                <p className="text-gray-600 max-w-xl mx-auto text-lg">
+                  Most agencies hit the same growth roadblocks. We help you skip them entirely.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
-                {/* Problems */}
-                <div className="rounded-2xl border border-red-100 bg-red-50/60 p-5 sm:p-6">
-                  <p className="text-sm font-bold uppercase tracking-wide text-red-700 mb-3">
-                    Problems we see every week
-                  </p>
-                  <p className="text-sm sm:text-base text-slate-800 mb-4">
-                    Agencies work with us because they’re tired of:
-                  </p>
-                  <ul className="space-y-3 text-sm sm:text-base text-slate-900">
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>
-                        The high cost and risk of full-time hiring in the US
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>Inconsistent freelancers and unreliable contractors</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>
-                        Overloaded internal teams causing delivery bottlenecks
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>Limited scalability when client demand spikes</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                      <span>
-                        Tight deadlines that threaten quality and reputation
-                      </span>
-                    </li>
-                  </ul>
+              {/* Main Content Grid */}
+              <div className="grid lg:grid-cols-2 gap-8 items-start">
+                {/* Problems Section */}
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-2xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                        <X className="w-6 h-6 text-red-600" />
+                      </div>
+                      <h2 className="text-red-600 font-medium">The Problems</h2>
+                    </div>
+                    <p className="text-gray-700">
+                      Agencies work with us because they&apos;re tired of:
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {problems.map((problem, index) => (
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-200 rounded-xl p-4 hover:border-red-300 transition-colors shadow-sm"
+                      >
+                        <div className="flex gap-3">
+                          <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <X className="w-4 h-4 text-red-600" />
+                          </div>
+                          <p className="text-gray-700 text-sm">{problem}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Solutions */}
-                <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5 sm:p-6 flex flex-col">
-                  <p className="text-sm font-bold uppercase tracking-wide text-emerald-800 mb-3">
-                    Here’s how we solve it
-                  </p>
-                  <p className="text-sm sm:text-base text-slate-800 mb-4">
-                    We’ve designed our model to remove those bottlenecks from your
-                    agency.
-                  </p>
-                  <ul className="space-y-3 text-sm sm:text-base text-slate-900 mb-5">
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>
-                        Dedicated, full-time white-label resources assigned to
-                        your agency
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>
-                        Reliable delivery fully aligned with your workflows and
-                        standards
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>
-                        Scalable capacity that grows or shrinks with client demand
-                      </span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <CheckCircle className="w-4 h-4 mt-0.5 text-emerald-600 flex-shrink-0" />
-                      <span>
-                        Consistent quality, on-time delivery, and strict
-                        confidentiality
-                      </span>
-                    </li>
-                  </ul>
+                {/* Solutions Section */}
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                        <Zap className="w-6 h-6 text-white" />
+                      </div>
+                      <h2 className="text-white font-medium">The Solution</h2>
+                    </div>
+                    <p className="text-white/90">
+                      We&apos;ve designed our model to remove those bottlenecks from your agency.
+                    </p>
+                  </div>
 
-                  <p className="text-sm sm:text-base text-slate-800 mt-auto pt-2 border-t border-emerald-100">
-                    <span className="font-semibold">You</span> focus on sales,
-                    strategy, and client relationships.{" "}
-                    <span className="font-semibold">We</span> make sure delivery
-                    never slows you down.
-                  </p>
+                  <div className="space-y-3">
+                    {solutions.map((solution, index) => (
+                      <div
+                        key={index}
+                        className="bg-white border border-gray-200 rounded-xl p-4 hover:border-green-300 transition-colors shadow-sm"
+                      >
+                        <div className="flex gap-3">
+                          <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <Zap className="w-4 h-4 text-green-600" />
+                          </div>
+                          <p className="text-gray-700 text-sm">{solution}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mt-4">
+                    <p className="text-gray-700 text-sm">
+                      You focus on sales, strategy, and client relationships. We make sure delivery never slows you down.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1819,7 +1823,7 @@ export default function Home() {
           {/* Dedicated Resources Section */}
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-5xl mx-auto text-center">
-              <Badge className="bg-white/20 text-white text-sm sm:text-md font-medium border-white/30 mb-6 sm:mb-8 mx-auto">
+              <Badge className="bg-white/20 text-white text-sm sm:text-md font-medium border-white/30 mb-6 sm:mb-8 px-4 py-2 mx-auto">
                 🔥 Most Sought-After Service
               </Badge>
 
@@ -1958,117 +1962,32 @@ export default function Home() {
           </section>
 
           {/* Testimonials – Card + Screenshot Style */}
-          <section
-            id="testimonials"
-            className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white"
-          >
-            <div className="max-w-6xl mx-auto text-center">
-              {/* Header */}
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-                What Our Clients Say
-              </h2>
-              <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-2xl mx-auto mb-10">
-                Agencies and brands trust BrandingBeez to deliver high-impact,
-                white-label solutions with care, speed, and attention to detail.
+          <section className="min-h-screen bg-gray-50 py-16 px-4">
+            <div className="max-w-7xl mx-auto">
+              {/* Heading Button */}
+              <div className="flex justify-center mb-6">
+                <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
+                  {/* <span className="w-2 h-2 bg-white rounded-full"></span> */}
+                  <span>What Our Clients Say</span>
+                </div>
+              </div>
+
+              {/* Subheading Text */}
+              <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
+                Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
               </p>
 
-              {/* Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                {/* Mark Muse */}
-                <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
-                  <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="text-brand-purple text-4xl mb-3 leading-none">
-                      ❝
-                    </div>
-
-                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                      Brandingbeez understood not only the technical challenges
-                      but was also completely responsive throughout..
-                      <br />
-                      <br />
-                      They the provided framework, assets, and vision into a
-                      beautiful website tailored to a high-ticket offering,
-                      helping the end client stay competitive. The team stayed
-                      responsive and aware of the technical challenges, even with
-                      multiple change requests from the end client.
-                    </p>
-
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
-                      <img
-                        src={Mark_Image}
-                        alt="Mark Muse"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    <p className="font-bold text-gray-900">Mark Muse</p>
-                    <p className="text-gray-500 text-xs sm:text-sm">Partner</p>
-                  </CardContent>
-                </Card>
-
-                {/* Daniel Fechete */}
-                <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
-                  <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="text-brand-purple text-4xl mb-3 leading-none">
-                      ❝
-                    </div>
-
-                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                      Their attention to detail and interest in understanding our
-                      requirements perfectly stood out.. Brandingbeez successfully
-                      designed the requested brochures, demonstrating a thorough
-                      understanding of the client&apos;s products and
-                      expectations. The detail-oriented team delivered the project
-                      on time and maintained constant communication through email,
-                      messaging apps, and virtual meetings.
-                    </p>
-
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
-                      <img
-                        src={Dani_Image}
-                        alt="Daniel Fechete"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    <p className="font-bold text-gray-900">Daniel Fechete</p>
-                    <p className="text-gray-500 text-xs sm:text-sm">
-                      Creative Partner
-                    </p>
-                  </CardContent>
-                </Card>
-
-                {/* Gemma Murphy */}
-                <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
-                  <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="text-brand-purple text-4xl mb-3 leading-none">
-                      ❝
-                    </div>
-
-                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                      Branding Beez have been a great help to my business. Before
-                      meeting Raie and her team, I was doing the sales, building
-                      the websites and handling all the tech and aftercare. Now I
-                      have the time to grow the business, working &apos;ON&apos;
-                      it, instead of constantly &apos;IN&apos; it. So they&apos;ve
-                      been a gamechanger for me and my business. Even taking my
-                      first holiday this year WITHOUT my laptop! Thanks so much!
-                    </p>
-
-                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
-                      <img
-                        src={Gemma_Image}
-                        alt="Gemma Murphy"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    <p className="font-bold text-gray-900">Gemma Murphy</p>
-                    <p className="text-gray-500 text-xs sm:text-sm">
-                      Founder, Website Architect
-                    </p>
-                  </CardContent>
-                </Card>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {testimonials.map((testimonial) => (
+                  <TestimonialCard
+                    key={testimonial.id}
+                    name={testimonial.name}
+                    company={testimonial.company}
+                    testimonial={testimonial.testimonial}
+                    imageUrl={testimonial.imageUrl}
+                    logoUrl={testimonial.logoUrl}
+                  />
+                ))}
               </div>
             </div>
           </section>
@@ -2179,6 +2098,5 @@ export default function Home() {
       </div>
     </>
   );
-
 }
 

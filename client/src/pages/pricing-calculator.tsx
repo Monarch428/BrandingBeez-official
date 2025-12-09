@@ -190,16 +190,16 @@ export default function PricingCalculator() {
   ];
 
   const resourceTypes = [
-    'Google Ads Expert','SEO Specialist','Web Developer',
-     'Full Stack Developer', 'AI Developer',  'Graphic Designer', 'Video Editor'
+    'Google Ads Expert', 'SEO Specialist', 'Web Developer',
+    'Full Stack Developer', 'AI Developer', 'Graphic Designer', 'Video Editor'
   ];
 
   const getSkillLevelsForResource = (resourceType: string) => ['junior', 'mid', 'senior'];
 
   const dedicatedResourcesPricing = {
-    junior: { 'Graphic Designer': 1000, 'Video Editor': 1000, 'SEO Specialist': 1000, 'Google Ads Expert': 1200, 'Web Developer': 1000, 'Full Stack Developer': 1200, 'AI Developer': 800 },
-    mid: { 'Graphic Designer': 1200, 'Video Editor': 1400, 'SEO Specialist': 1800, 'Google Ads Expert': 2000, 'Web Developer': 1800, 'Full Stack Developer': 2000, 'AI Developer': 1000 },
-    senior: { 'Graphic Designer': 2000, 'Video Editor': 2200, 'SEO Specialist': 2800, 'Google Ads Expert': 3000, 'Web Developer': 2800, 'Full Stack Developer': 3500, 'AI Developer': 1400 }
+    junior: { 'Graphic Designer': 1200, 'Video Editor': 1200, 'SEO Specialist': 1200, 'Google Ads Expert': 1400, 'Web Developer': 1200, 'Full Stack Developer': 1500, 'AI Developer': 1200, },
+    mid: { 'Graphic Designer': 1400, 'Video Editor': 1500, 'SEO Specialist': 1800, 'Google Ads Expert': 2200, 'Web Developer': 1800, 'Full Stack Developer': 2200, 'AI Developer': 1600, },
+    senior: { 'Graphic Designer': 1800, 'Video Editor': 2400, 'SEO Specialist': 2600, 'Google Ads Expert': 3000, 'Web Developer': 2800, 'Full Stack Developer': 3600, 'AI Developer': 2200, },
   };
 
   const googleAdsPricing = {
