@@ -5,11 +5,10 @@ import { storage } from "./storage";
 const {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
-  GOOGLE_REFRESH_TOKEN,
   GOOGLE_CALENDAR_ID,
 } = process.env;
 
-const CALENDAR_ID = GOOGLE_CALENDAR_ID || "primary";
+const DEFAULT_CALENDAR_ID = GOOGLE_CALENDAR_ID || "primary";
 
 const oauth2Client = new google.auth.OAuth2(
   GOOGLE_CLIENT_ID,
@@ -24,12 +23,8 @@ export interface CreateMeetEventParams {
   date: string; // "YYYY-MM-DD"
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
-
-  // main attendee
   attendeeEmail?: string;
   attendeeName?: string;
-
-  // ✅ NEW: guests
   guestEmails?: string[];
 }
 
@@ -38,6 +33,41 @@ export interface CreateMeetEventResult {
   meetingLink?: string;
 }
 
+/**
+ * Shared auth helper.
+ * Returns the calendarId that should be used.
+ */
+async function ensureGoogleAuth(): Promise<{ calendarId: string } | null> {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    console.warn(
+      "[Google Calendar] Missing OAuth env vars (CLIENT_ID / CLIENT_SECRET).",
+    );
+    return null;
+  }
+
+  // Always prefer DB tokens (from OAuth flow)
+  const tokens = await storage.getGoogleAuthTokens();
+
+  if (!tokens || !tokens.refreshToken) {
+    console.warn(
+      "[Google Calendar] No refresh token found in DB – cannot talk to Calendar.",
+    );
+    return null;
+  }
+
+  oauth2Client.setCredentials({
+    access_token: tokens.accessToken,
+    refresh_token: tokens.refreshToken,
+    expiry_date: tokens.expiryDate,
+  });
+
+  const calendarId = tokens.calendarId || DEFAULT_CALENDAR_ID;
+  return { calendarId };
+}
+
+/* ------------------------------------------------------------------
+   CREATE GOOGLE MEET EVENT
+------------------------------------------------------------------ */
 export async function createGoogleMeetEvent(
   params: CreateMeetEventParams,
 ): Promise<CreateMeetEventResult> {
@@ -54,41 +84,17 @@ export async function createGoogleMeetEvent(
 
   console.log("[Google Calendar] createGoogleMeetEvent params:", params);
 
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  const auth = await ensureGoogleAuth();
+  if (!auth) {
     console.warn(
-      "[Google Calendar] Missing OAuth env vars (CLIENT_ID / CLIENT_SECRET) – skipping Meet creation.",
+      "[Google Calendar] Auth failed – skipping Meet creation, but continuing booking.",
     );
     return { eventId: "", meetingLink: undefined };
   }
-
-  let accessToken: string | undefined;
-  let refreshToken: string | undefined;
-  let expiryDate: number | undefined;
-
-  if (GOOGLE_REFRESH_TOKEN) {
-    refreshToken = GOOGLE_REFRESH_TOKEN;
-  } else {
-    const tokens = await storage.getGoogleAuthTokens();
-    if (!tokens || !tokens.refreshToken) {
-      console.warn(
-        "[Google Calendar] No refresh token found in DB – skipping Meet creation.",
-      );
-      return { eventId: "", meetingLink: undefined };
-    }
-    accessToken = tokens.accessToken;
-    refreshToken = tokens.refreshToken;
-    expiryDate = tokens.expiryDate;
-  }
-
-  oauth2Client.setCredentials({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-    expiry_date: expiryDate,
-  });
+  const { calendarId } = auth;
 
   const timeZone = "Asia/Kolkata";
 
-  // ✅ Build attendees list: main attendee + guests
   const attendees: { email: string; displayName?: string }[] = [];
 
   if (attendeeEmail) {
@@ -101,7 +107,6 @@ export async function createGoogleMeetEvent(
   guestEmails
     .filter((g) => !!g)
     .forEach((g) => {
-      // avoid duplicating main attendee
       if (!attendeeEmail || g.toLowerCase() !== attendeeEmail.toLowerCase()) {
         attendees.push({ email: g });
       }
@@ -121,16 +126,14 @@ export async function createGoogleMeetEvent(
     attendees,
     conferenceData: {
       createRequest: {
-        requestId: `meet-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2)}`,
+        requestId: `meet-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         conferenceSolutionKey: { type: "hangoutsMeet" },
       },
     },
   };
 
   const response = await calendar.events.insert({
-    calendarId: CALENDAR_ID,
+    calendarId,
     requestBody: event as any,
     conferenceDataVersion: 1,
   });
@@ -153,4 +156,67 @@ export async function createGoogleMeetEvent(
     eventId: data.id || "",
     meetingLink,
   };
+}
+
+/* ------------------------------------------------------------------
+   BUSY TIME LOOKUP
+------------------------------------------------------------------ */
+
+export interface BusyTimeRange {
+  start: string; // ISO
+  end: string; // ISO
+}
+
+export async function getBusyTimeRangesForDate(
+  date: string, // "YYYY-MM-DD"
+): Promise<BusyTimeRange[]> {
+  const auth = await ensureGoogleAuth();
+  if (!auth) {
+    console.warn(
+      "[Google Calendar] Auth failed – returning empty busy list for date",
+      date,
+    );
+    return [];
+  }
+  const { calendarId } = auth;
+
+  const timeZone = "Asia/Kolkata";
+
+  const timeMin = new Date(`${date}T00:00:00+05:30`).toISOString();
+  const timeMax = new Date(`${date}T23:59:59+05:30`).toISOString();
+
+  const res = await calendar.freebusy.query({
+    requestBody: {
+      timeMin,
+      timeMax,
+      timeZone,
+      items: [{ id: calendarId }],
+    },
+  });
+
+  const busy =
+    res.data.calendars?.[calendarId]?.busy?.map((b) => ({
+      start: b.start as string,
+      end: b.end as string,
+    })) ?? [];
+
+  console.log("[Google Calendar] Busy ranges for", date, "=>", busy);
+
+  return busy;
+}
+
+export function isSlotOverlappingBusy(
+  date: string,
+  startTime: string,
+  endTime: string,
+  busyRanges: BusyTimeRange[],
+): boolean {
+  const slotStart = new Date(`${date}T${startTime}:00+05:30`).getTime();
+  const slotEnd = new Date(`${date}T${endTime}:00+05:30`).getTime();
+
+  return busyRanges.some((b) => {
+    const busyStart = new Date(b.start).getTime();
+    const busyEnd = new Date(b.end).getTime();
+    return slotStart < busyEnd && slotEnd > busyStart;
+  });
 }

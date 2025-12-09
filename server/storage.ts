@@ -170,12 +170,12 @@ export interface IStorage {
 
   // ✅ NEW: for admin panel filters
   getAppointmentsFiltered(params: {
-    date?: string;                 // exact date
-    fromDate?: string;             // >= fromDate (YYYY-MM-DD)
-    toDate?: string;               // <= toDate (YYYY-MM-DD)
-    status?: AppointmentStatus;    // booked | cancelled | completed
-    serviceType?: string;          // partial match (SEO, Google Ads, etc.)
-    search?: string;               // name/email/phone/notes contains
+    date?: string;
+    fromDate?: string;
+    toDate?: string;
+    status?: AppointmentStatus;
+    serviceType?: string;
+    search?: string;
   }): Promise<Appointment[]>;
 
   // ✅ NEW: Google OAuth token storage
@@ -183,6 +183,8 @@ export interface IStorage {
     accessToken: string;
     refreshToken: string;
     expiryDate: number;
+    email: string;
+    calendarId?: string;
   }): Promise<any>;
 
   getGoogleAuthTokens(): Promise<any | null>;

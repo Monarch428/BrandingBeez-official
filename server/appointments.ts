@@ -221,7 +221,11 @@ import {
   sendAppointmentNotification,
   sendAppointmentConfirmationEmails,
 } from "./email-service";
-import { createGoogleMeetEvent } from "./google-calendar";
+import {
+  createGoogleMeetEvent,
+  getBusyTimeRangesForDate,
+  isSlotOverlappingBusy,
+} from "./google-calendar";
 import { AppointmentStatus } from "@shared/schema";
 
 const router = express.Router();
@@ -231,10 +235,11 @@ const router = express.Router();
 type SlotStatus = "available" | AppointmentStatus;
 
 interface AppointmentSlot {
-  startTime: string; 
-  endTime: string;   
+  startTime: string;
+  endTime: string;
   status: SlotStatus;
   appointmentId?: number;
+  blockedByCalendar?: boolean;
 }
 
 interface CreateAppointmentBody {
@@ -243,9 +248,9 @@ interface CreateAppointmentBody {
   phone?: string;
   serviceType?: string;
   notes?: string;
-  date: string;        // "YYYY-MM-DD"
-  startTime: string;   // "HH:mm"
-  endTime: string;     // "HH:mm"
+  date: string; // "YYYY-MM-DD"
+  startTime: string; // "HH:mm"
+  endTime: string; // "HH:mm"
 
   // ✅ NEW
   guestEmails?: string[];
@@ -293,10 +298,15 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "date query param is required" });
     }
 
-    const appointments = await storage.getAppointmentsByDate(date);
+    const [appointments, busyRanges] = await Promise.all([
+      storage.getAppointmentsByDate(date),
+      getBusyTimeRangesForDate(date),
+    ]);
+
     const baseSlots = generateDailySlots();
 
     const slots: AppointmentSlot[] = baseSlots.map((slot) => {
+      // 1) Existing appointment in DB (booked/completed) wins
       const found = appointments.find(
         (a) =>
           a.startTime === slot.startTime &&
@@ -304,17 +314,33 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
           a.status !== "cancelled",
       );
 
-      if (!found) {
+      if (found) {
         return {
           ...slot,
-          status: "available",
+          status: found.status as AppointmentStatus,
+          appointmentId: found.id,
         };
       }
 
+      // 2) If Google Calendar is busy in this window, treat as booked
+      const busyInCalendar = isSlotOverlappingBusy(
+        date,
+        slot.startTime,
+        slot.endTime,
+        busyRanges,
+      );
+
+      if (busyInCalendar) {
+        return {
+          ...slot,
+          status: "booked",
+        };
+      }
+
+      // 3) Else available
       return {
         ...slot,
-        status: found.status as AppointmentStatus,
-        appointmentId: found.id,
+        status: "available",
       };
     });
 
@@ -348,12 +374,16 @@ router.post("/appointments", async (req: Request, res: Response) => {
     // Normalise guest emails array
     const cleanGuestEmails: string[] = Array.isArray(guestEmails)
       ? guestEmails
-          .map((g) => (typeof g === "string" ? g.trim() : ""))
-          .filter((g) => !!g)
+        .map((g) => (typeof g === "string" ? g.trim() : ""))
+        .filter((g) => !!g)
       : [];
 
     // Check if slot already booked (booked or completed – ignore cancelled)
-    const existing = await storage.getAppointmentsByDate(date);
+    const [existing, busyRanges] = await Promise.all([
+      storage.getAppointmentsByDate(date),
+      getBusyTimeRangesForDate(date),
+    ]);
+
     const clash = existing.find(
       (a) =>
         a.startTime === startTime &&
@@ -365,6 +395,21 @@ router.post("/appointments", async (req: Request, res: Response) => {
       return res
         .status(409)
         .json({ message: "This time slot is already booked" });
+    }
+
+    // ✅ NEW: Block if Google Calendar already busy during this window
+    const busyInCalendar = isSlotOverlappingBusy(
+      date,
+      startTime,
+      endTime,
+      busyRanges,
+    );
+
+    if (busyInCalendar) {
+      return res.status(409).json({
+        message:
+          "This time slot is already booked in calendar. Please choose another time.",
+      });
     }
 
     // ✅ Try to create Google Meet event (with main attendee + guests)

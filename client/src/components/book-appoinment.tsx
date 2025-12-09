@@ -424,8 +424,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     ? "grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]"
     : "flex justify-center";
 
-  const safeConsultantName = consultantName || "Consultant name";
-  const safeConsultantTitle = consultantTitle || "Consultant title";
+  const safeConsultantName = consultantName || "Raja Rajeshwari";
+  const safeConsultantTitle = consultantTitle || "CEO, BrandingBeez";
 
   return (
     <div className={layoutClass}>
@@ -727,7 +727,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
               </div>
               <div>
                 <p className="text-[11px] uppercase tracking-[0.2em] text-blue-500 font-medium">
-                  30–45 min discovery call
+                  30 min discovery call
                 </p>
                 <h3 className="text-sm md:text-base font-semibold text-slate-900">
                   {safeConsultantName}

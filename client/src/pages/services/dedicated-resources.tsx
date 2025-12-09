@@ -164,6 +164,10 @@ export default function DedicatedResources() {
     }
   };
 
+  const handleHireClick = () => {
+    navigate("/pricing-calculator?service=dedicated-resources");
+  };
+
   return (
     <>
       <Helmet>
@@ -401,288 +405,342 @@ export default function DedicatedResources() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {/* 1 - Graphic Designer */}
-                <Card className="transition-shadow h-full">
-                  <div className="flex flex-row items-center gap-2 m-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
-                      <Target className="w-6 h-6 text-white" />
+                <Card className="transition-shadow h-full flex flex-col">
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row items-center gap-2 m-4">
+                      <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <Target className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-brand-purple">
+                        Graphic Designer
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-bold text-brand-purple">
-                      Graphic Designer
-                    </h3>
+
+                    <CardContent>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        Visual design experts for all your branding needs
+                      </p>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Junior Level</span>
+                            <span className="text-xs text-gray-500">
+                              1+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Senior Level</span>
+                            <span className="text-xs text-gray-500">
+                              2+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Creative Director</span>
+                            <span className="text-xs text-gray-500">
+                              5+ years experience
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
                   </div>
 
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                      Visual design experts for all your branding needs
-                    </p>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Junior Level</span>
-                          <span className="text-xs text-gray-500">
-                            1+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Senior Level</span>
-                          <span className="text-xs text-gray-500">
-                            2+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Creative Director</span>
-                          <span className="text-xs text-gray-500">
-                            5+ years experience
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
+                  {/* Button */}
+                  <div className="flex justify-end p-4 mt-auto">
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
+                      Hire Your Team
+                    </Button>
+                  </div>
                 </Card>
 
                 {/* 2 - Video Editor */}
-                <Card className="transition-shadow h-full">
-                  <div className="flex flex-row items-center gap-2 m-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-white" />
+                <Card className="transition-shadow h-full flex flex-col">
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row items-center gap-2 m-4">
+                      <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <Zap className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-brand-purple">
+                        Video Editor
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-bold text-brand-purple">
-                      Video Editor
-                    </h3>
+
+                    <CardContent>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        Professional video editing and motion graphics
+                      </p>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Junior Level</span>
+                            <span className="text-xs text-gray-500">
+                              1+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Senior Level</span>
+                            <span className="text-xs text-gray-500">
+                              2+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Production Lead</span>
+                            <span className="text-xs text-gray-500">
+                              5+ years experience
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
                   </div>
 
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                      Professional video editing and motion graphics
-                    </p>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Junior Level</span>
-                          <span className="text-xs text-gray-500">
-                            1+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Senior Level</span>
-                          <span className="text-xs text-gray-500">
-                            2+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Production Lead</span>
-                          <span className="text-xs text-gray-500">
-                            5+ years experience
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
+                  {/* Button */}
+                  <div className="flex justify-end p-4 mt-auto">
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
+                      Hire Your Team
+                    </Button>
+                  </div>
                 </Card>
 
                 {/* 3 - SEO Specialist */}
-                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full">
+                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full flex flex-col">
                   <span className="absolute top-3 right-3 rounded-full bg-brand-coral text-white text-xs font-semibold px-3 py-1">
                     Most in demand
                   </span>
 
-                  <div className="flex flex-row items-center gap-2 m-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-white" />
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row items-center gap-2 m-4">
+                      <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <TrendingUp className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-brand-purple">
+                        SEO Specialist
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-bold text-brand-purple">
-                      SEO Specialist
-                    </h3>
+
+                    <CardContent>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        Organic search optimization experts
+                      </p>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Junior Level</span>
+                            <span className="text-xs text-gray-500">
+                              1+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Senior Level</span>
+                            <span className="text-xs text-gray-500">
+                              2+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Specialist</span>
+                            <span className="text-xs text-gray-500">
+                              5+ years experience
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
                   </div>
 
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                      Organic search optimization experts
-                    </p>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Junior Level</span>
-                          <span className="text-xs text-gray-500">
-                            1+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Senior Level</span>
-                          <span className="text-xs text-gray-500">
-                            2+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Specialist</span>
-                          <span className="text-xs text-gray-500">
-                            5+ years experience
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
+                  {/* Button */}
+                  <div className="flex justify-end p-4 mt-auto">
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
+                      Hire Your Team
+                    </Button>
+                  </div>
                 </Card>
 
                 {/* 4 - Google Ads Expert */}
-                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full">
+                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full flex flex-col">
                   <span className="absolute top-3 right-3 rounded-full bg-brand-coral text-white text-xs font-semibold px-3 py-1">
                     Most in demand
                   </span>
 
-                  <div className="flex flex-row items-center gap-2 m-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
-                      <Target className="w-6 h-6 text-white" />
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row items-center gap-2 m-4">
+                      <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <Target className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-brand-purple">
+                        Google Ads Expert
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-bold text-brand-purple">
-                      Google Ads Expert
-                    </h3>
+
+                    <CardContent>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        PPC campaign management professionals
+                      </p>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Senior Level</span>
+                            <span className="text-xs text-gray-500">
+                              2+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Specialist</span>
+                            <span className="text-xs text-gray-500">
+                              5+ years experience
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
                   </div>
 
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                      PPC campaign management professionals
-                    </p>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Senior Level</span>
-                          <span className="text-xs text-gray-500">
-                            2+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Specialist</span>
-                          <span className="text-xs text-gray-500">
-                            5+ years experience
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
+                  {/* Button */}
+                  <div className="flex justify-end p-4 mt-auto">
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
+                      Hire Your Team
+                    </Button>
+                  </div>
                 </Card>
 
                 {/* 5 - Web Developer */}
-                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full">
+                <Card className="relative border-2 border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full flex flex-col">
                   <span className="absolute top-3 right-3 rounded-full bg-brand-coral text-white text-xs font-semibold px-3 py-1">
                     Most in demand
                   </span>
 
-                  <div className="flex flex-row items-center gap-2 m-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
-                      <Building className="w-6 h-6 text-white" />
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row items-center gap-2 m-4">
+                      <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <Building className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-brand-purple">
+                        Web Developer
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-bold text-brand-purple">
-                      Web Developer
-                    </h3>
+
+                    <CardContent>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        Frontend and WordPress development experts
+                      </p>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Junior Level</span>
+                            <span className="text-xs text-gray-500">
+                              1+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Senior Level</span>
+                            <span className="text-xs text-gray-500">
+                              2+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">E-comm Specialist</span>
+                            <span className="text-xs text-gray-500">
+                              5+ years experience
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
                   </div>
 
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                      Frontend and WordPress development experts
-                    </p>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Junior Level</span>
-                          <span className="text-xs text-gray-500">
-                            1+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Senior Level</span>
-                          <span className="text-xs text-gray-500">
-                            2+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">E-comm Specialist</span>
-                          <span className="text-xs text-gray-500">
-                            5+ years experience
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
+                  {/* Button */}
+                  <div className="flex justify-end p-4 mt-auto">
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
+                      Hire Your Team
+                    </Button>
+                  </div>
                 </Card>
 
                 {/* 6 - Full-Stack Developer */}
-                <Card className="border border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full">
-                  <div className="flex flex-row items-center gap-2 m-4">
-                    <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
-                      <Users className="w-6 h-6 text-white" />
+                <Card className="border border-brand-purple/40 shadow-lg shadow-brand-purple/10 transition-shadow h-full flex flex-col">
+                  <div className="flex-1 flex flex-col">
+                    <div className="flex flex-row items-center gap-2 m-4">
+                      <div className="w-10 h-10 bg-brand-purple rounded-lg flex items-center justify-center">
+                        <Users className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-brand-purple">
+                        Full-Stack Developer
+                      </h3>
                     </div>
-                    <h3 className="text-lg font-bold text-brand-purple">
-                      Full-Stack Developer
-                    </h3>
+
+                    <CardContent>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        Complete web application development
+                      </p>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Junior Level</span>
+                            <span className="text-xs text-gray-500">
+                              1+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Senior Level</span>
+                            <span className="text-xs text-gray-500">
+                              2+ years experience
+                            </span>
+                          </div>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
+                          <div className="text-sm leading-tight">
+                            <span className="font-medium block">Lead / Manager</span>
+                            <span className="text-xs text-gray-500">
+                              5+ years experience
+                            </span>
+                          </div>
+                        </li>
+                      </ul>
+                    </CardContent>
                   </div>
 
-                  <CardContent>
-                    <p className="text-gray-600 mb-4 text-sm sm:text-base">
-                      Complete web application development
-                    </p>
-                    <ul className="space-y-2">
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Junior Level</span>
-                          <span className="text-xs text-gray-500">
-                            1+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Senior Level</span>
-                          <span className="text-xs text-gray-500">
-                            2+ years experience
-                          </span>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <CheckCircle className="w-4 h-4 text-brand-purple mt-0.5" />
-                        <div className="text-sm leading-tight">
-                          <span className="font-medium block">Lead / Manager</span>
-                          <span className="text-xs text-gray-500">
-                            5+ years experience
-                          </span>
-                        </div>
-                      </li>
-                    </ul>
-                  </CardContent>
+                  {/* Button */}
+                  <div className="flex justify-end p-4 mt-auto">
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
+                      Hire Your Team
+                    </Button>
+                  </div>
                 </Card>
               </div>
             </div>
