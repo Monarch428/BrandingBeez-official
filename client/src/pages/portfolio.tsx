@@ -1,13 +1,29 @@
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle, Users, Search, Globe, Users2, TrendingUp, Bot, Code, Star, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+    ArrowRight,
+    CheckCircle,
+    Users,
+    Search,
+    Globe,
+    Users2,
+    TrendingUp,
+    Bot,
+    Code,
+    Star,
+    ChevronLeft,
+    ChevronRight,
+} from "lucide-react";
 import { Link } from "wouter";
-import { useEffect, useMemo, useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useMemo, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import Mark_Image from "../../public/images/Mark.png";
 import Dani_Image from "../../public/images/Dani.png";
 import Gemma_Image from "../../public/images/Gemma.png";
+import { TestimonialCard } from "@/components/TestimonialCard";
+import webArtLogo from "../../public/images/website-architect-logo.jpeg"
+
 
 // Custom scrollbar styles
 const scrollbarStyles = `
@@ -61,6 +77,10 @@ type PortfolioItem = {
     orderIndex: number;
     isActive: boolean;
     serviceCategory?: string;
+
+    // 🔥 new fields aligned with schema
+    projectUrl?: string;
+    projectUrlLabel?: string;
 };
 
 type PortfolioHeroStat = {
@@ -110,12 +130,14 @@ const defaultContent: PortfolioContent = {
         "Transparent pricing, predictable delivery, and partners who stay accountable end to end.",
     testimonials: [
         {
-            quote: "The ROI was immediate. We saw efficiency gains within the first week.",
+            quote:
+                "The ROI was immediate. We saw efficiency gains within the first week.",
             who: "AC Graphics",
             tag: "Manufacturing",
         },
         {
-            quote: "BrandingBeez delivered exactly what they promised, on time and on budget.",
+            quote:
+                "BrandingBeez delivered exactly what they promised, on time and on budget.",
             who: "Wellenpuls",
             tag: "HealthTech",
         },
@@ -144,7 +166,8 @@ const serviceCategories = [
     {
         id: "dedicated-resources",
         title: "Dedicated Resources",
-        description: "Scale your agency with handpicked pros who integrate seamlessly",
+        description:
+            "Scale your agency with handpicked pros who integrate seamlessly",
         icon: Users2,
     },
     {
@@ -162,7 +185,8 @@ const serviceCategories = [
     {
         id: "custom-app-development",
         title: "Custom Web & Mobile App Development",
-        description: "High-performance custom apps built for scalability and seamless user experience",
+        description:
+            "High-performance custom apps built for scalability and seamless user experience",
         icon: Code,
     },
 ];
@@ -180,7 +204,10 @@ function groupPortfolioItemsByService(items: PortfolioItem[]) {
     });
 
     // Return groups in the order of serviceCategories
-    const ordered: { category: typeof serviceCategories[0] | null; items: PortfolioItem[] }[] = [];
+    const ordered: {
+        category: (typeof serviceCategories)[0] | null;
+        items: PortfolioItem[];
+    }[] = [];
 
     serviceCategories.forEach((cat) => {
         if (grouped[cat.id]) {
@@ -238,9 +265,10 @@ function calculatePortfolioStats(items: PortfolioItem[]): PortfolioHeroStat[] {
     const averageRoi = roiCount > 0 ? Math.round(totalRoi / roiCount) : 0;
 
     // Format total value with proper decimal places
-    const formattedTotalValue = totalValueInThousands > 0
-        ? `$${totalValueInThousands.toFixed(1)}K`
-        : "$0K";
+    const formattedTotalValue =
+        totalValueInThousands > 0
+            ? `$${totalValueInThousands.toFixed(1)}K`
+            : "$0K";
 
     return [
         {
@@ -259,9 +287,14 @@ function calculatePortfolioStats(items: PortfolioItem[]): PortfolioHeroStat[] {
 }
 
 // Save calculated stats to database
-async function saveStatsToDatabase(stats: PortfolioHeroStat[]): Promise<boolean> {
+async function saveStatsToDatabase(
+    stats: PortfolioHeroStat[],
+): Promise<boolean> {
     try {
-        const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
+        const token =
+            typeof window !== "undefined"
+                ? localStorage.getItem("adminToken")
+                : null;
 
         if (!token) {
             console.log("Not authenticated - skipping stats save");
@@ -290,18 +323,21 @@ async function saveStatsToDatabase(stats: PortfolioHeroStat[]): Promise<boolean>
     }
 }
 
+
 export default function PortfolioPage() {
     const [items, setItems] = useState<PortfolioItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [content, setContent] = useState<PortfolioContent | null>(null);
     const [calculatedStats, setCalculatedStats] = useState<PortfolioHeroStat[]>(
-        defaultContent.heroStats
+        defaultContent.heroStats,
     );
-    const [expandedItems, setExpandedItems] = useState<{ [key: number]: boolean }>({});
+    const [expandedItems, setExpandedItems] = useState<{
+        [key: number]: boolean;
+    }>({});
 
     // Inject custom scrollbar styles
     useEffect(() => {
-        const styleElement = document.createElement('style');
+        const styleElement = document.createElement("style");
         styleElement.textContent = scrollbarStyles;
         document.head.appendChild(styleElement);
 
@@ -317,7 +353,9 @@ export default function PortfolioPage() {
             try {
                 const [itemsRes, contentRes] = await Promise.all([
                     fetch("/api/portfolio", { headers: { "Cache-Control": "no-cache" } }),
-                    fetch("/api/portfolio/content", { headers: { "Cache-Control": "no-cache" } }),
+                    fetch("/api/portfolio/content", {
+                        headers: { "Cache-Control": "no-cache" },
+                    }),
                 ]);
 
                 try {
@@ -344,7 +382,8 @@ export default function PortfolioPage() {
                         try {
                             const contentData = await contentRes.json();
                             setContent({
-                                heroTitle: contentData.heroTitle || defaultContent.heroTitle,
+                                heroTitle:
+                                    contentData.heroTitle || defaultContent.heroTitle,
                                 heroHighlight: contentData.heroHighlight || "",
                                 heroSubtitle: contentData.heroSubtitle || "",
                                 heroDescription: contentData.heroDescription || "",
@@ -352,23 +391,32 @@ export default function PortfolioPage() {
                                     ? contentData.heroStats
                                     : [],
                                 heroPrimaryCtaText:
-                                    contentData.heroPrimaryCtaText || defaultContent.heroPrimaryCtaText,
+                                    contentData.heroPrimaryCtaText ||
+                                    defaultContent.heroPrimaryCtaText,
                                 heroPrimaryCtaHref:
-                                    contentData.heroPrimaryCtaHref || defaultContent.heroPrimaryCtaHref,
+                                    contentData.heroPrimaryCtaHref ||
+                                    defaultContent.heroPrimaryCtaHref,
                                 heroSecondaryCtaText:
-                                    contentData.heroSecondaryCtaText || defaultContent.heroSecondaryCtaText,
+                                    contentData.heroSecondaryCtaText ||
+                                    defaultContent.heroSecondaryCtaText,
                                 heroSecondaryCtaHref:
-                                    contentData.heroSecondaryCtaHref || defaultContent.heroSecondaryCtaHref,
+                                    contentData.heroSecondaryCtaHref ||
+                                    defaultContent.heroSecondaryCtaHref,
                                 testimonialsTitle:
-                                    contentData.testimonialsTitle || defaultContent.testimonialsTitle,
+                                    contentData.testimonialsTitle ||
+                                    defaultContent.testimonialsTitle,
                                 testimonialsSubtitle:
-                                    contentData.testimonialsSubtitle || defaultContent.testimonialsSubtitle,
+                                    contentData.testimonialsSubtitle ||
+                                    defaultContent.testimonialsSubtitle,
                                 testimonials: Array.isArray(contentData.testimonials)
                                     ? contentData.testimonials
                                     : [],
                             });
                         } catch (contentError) {
-                            console.error("Failed to parse portfolio content", contentError);
+                            console.error(
+                                "Failed to parse portfolio content",
+                                contentError,
+                            );
                             setContent(null);
                         }
                     } else {
@@ -398,13 +446,10 @@ export default function PortfolioPage() {
 
     const featured = useMemo(
         () => items.find((i) => i.isFeatured) || items[0],
-        [items]
+        [items],
     );
     // Don't filter out featured from gridItems - include all items for section grouping
-    const gridItems = useMemo(
-        () => items,
-        [items]
-    );
+    const gridItems = useMemo(() => items, [items]);
 
     useEffect(() => {
         // No longer need to reset featured expanded state
@@ -417,15 +462,52 @@ export default function PortfolioPage() {
         heroContent.testimonials && heroContent.testimonials.length > 0
             ? heroContent.testimonials
             : defaultContent.testimonials;
-    const testimonialsTitle = heroContent.testimonialsTitle || defaultContent.testimonialsTitle;
+    const testimonialsTitle =
+        heroContent.testimonialsTitle || defaultContent.testimonialsTitle;
     const testimonialsSubtitle =
-        heroContent.testimonialsSubtitle || defaultContent.testimonialsSubtitle;
-    const primaryCtaText = heroContent.heroPrimaryCtaText || defaultContent.heroPrimaryCtaText || "";
-    const primaryCtaHref = heroContent.heroPrimaryCtaHref || defaultContent.heroPrimaryCtaHref || "/";
+        heroContent.testimonialsSubtitle ||
+        defaultContent.testimonialsSubtitle;
+    const primaryCtaText =
+        heroContent.heroPrimaryCtaText ||
+        defaultContent.heroPrimaryCtaText ||
+        "";
+    const primaryCtaHref =
+        heroContent.heroPrimaryCtaHref ||
+        defaultContent.heroPrimaryCtaHref ||
+        "/";
     const secondaryCtaText =
-        heroContent.heroSecondaryCtaText || defaultContent.heroSecondaryCtaText || "";
+        heroContent.heroSecondaryCtaText ||
+        defaultContent.heroSecondaryCtaText ||
+        "";
     const secondaryCtaHref =
-        heroContent.heroSecondaryCtaHref || defaultContent.heroSecondaryCtaHref || "/pricing-calculator";
+        heroContent.heroSecondaryCtaHref ||
+        defaultContent.heroSecondaryCtaHref ||
+        "/pricing-calculator";
+
+    const testimonial_clients = [
+        {
+            id: 1,
+            name: "Mark Muse",
+            company: "Partner",
+            testimonial: "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
+            imageUrl: Mark_Image
+        },
+        {
+            id: 2,
+            name: "Daniel Fechete",
+            company: "Creative Partner",
+            testimonial: "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
+            imageUrl: Dani_Image
+        },
+        {
+            id: 3,
+            name: "Gemma Murphy",
+            company: "Founder, Website Architect",
+            testimonial: "Branding Beez have been a great help to my business. Before meeting Rale and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
+            imageUrl: Gemma_Image,
+            logoUrl: webArtLogo
+        }
+    ];
 
     return (
         <>
@@ -440,43 +522,48 @@ export default function PortfolioPage() {
                                 {heroContent.heroHighlight && (
                                     <>
                                         {" "}
-                                        <span className="font-extrabold">{heroContent.heroHighlight}</span>
+                                        <span className="font-extrabold">
+                                            {heroContent.heroHighlight}
+                                        </span>
                                     </>
                                 )}
                             </h1>
-                            {(heroContent.heroSubtitle || heroContent.heroDescription) && (
-                                <div className="text-lg sm:text-xl text-white/90 mt-4 space-y-3">
-                                    {heroContent.heroSubtitle && <p>{heroContent.heroSubtitle}</p>}
-                                    {heroContent.heroDescription && (
-                                        <p className="text-base sm:text-lg text-white/80">
-                                            {heroContent.heroDescription}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                            {(heroContent.heroSubtitle ||
+                                heroContent.heroDescription) && (
+                                    <div className="text-lg sm:text-xl text-white/90 mt-4 space-y-3">
+                                        {heroContent.heroSubtitle && (
+                                            <p>{heroContent.heroSubtitle}</p>
+                                        )}
+                                        {heroContent.heroDescription && (
+                                            <p className="text-base sm:text-lg text-white/80">
+                                                {heroContent.heroDescription}
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
 
                             {/* Stats (glassy) */}
                             {/* <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                                {heroStats.map((s, i) => (
-                                    <div
-                                        key={`${s.kpi}-${s.label}-${i}`}
-                                        className="rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm p-6 text-center"
-                                    >
-                                        <div className="text-3xl font-bold mb-1">{s.kpi}</div>
-                                        <div className="text-sm text-white/80">{s.label}</div>
-                                    </div>
-                                ))}
-                            </div> */}
+                {heroStats.map((s, i) => (
+                  <div
+                    key={`${s.kpi}-${s.label}-${i}`}
+                    className="rounded-lg border border-white/20 bg-white/10 backdrop-blur-sm p-6 text-center"
+                  >
+                    <div className="text-3xl font-bold mb-1">{s.kpi}</div>
+                    <div className="text-sm text-white/80">{s.label}</div>
+                  </div>
+                ))}
+              </div> */}
 
                             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
                                 {/* {primaryCtaText && (
-                                    <Link href={primaryCtaHref}>
-                                        <Button className="bg-white text-brand-purple hover:bg-brand-purple hover:text-white">
-                                            {primaryCtaText}
-                                            <ArrowRight className="ml-2 h-5 w-5" />
-                                        </Button>
-                                    </Link>
-                                )} */}
+                  <Link href={primaryCtaHref}>
+                    <Button className="bg-white text-brand-purple hover:bg-brand-purple hover:text-white">
+                      {primaryCtaText}
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  </Link>
+                )} */}
                                 {secondaryCtaText && (
                                     <Link href={secondaryCtaHref}>
                                         <Button
@@ -500,17 +587,20 @@ export default function PortfolioPage() {
                                 Transparent, Documented Case Studies
                             </h2>
                             <p className="text-base md:text-lg text-gray-700 mt-2">
-                                Each one details the problem, approach, stack, timeline, cost, and business impact.
+                                Each one details the problem, approach, stack, timeline,
+                                cost, and business impact.
                             </p>
                         </div>
 
                         {/* Section Navigation */}
                         {!loading && gridItems.length > 0 && (
                             <div className="mb-12 p-6 bg-gradient-to-r from-brand-purple/5 to-brand-coral/5 rounded-xl border border-brand-purple/10">
-                                <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">Browse by Service</h3>
+                                <h3 className="text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
+                                    Browse by Service
+                                </h3>
                                 <div className="flex flex-wrap gap-3">
                                     {groupPortfolioItemsByService(gridItems)
-                                        .filter(group => group.category) // Only show groups with categories
+                                        .filter((group) => group.category) // Only show groups with categories
                                         .map((group) => (
                                             <a
                                                 key={group.category?.id}
@@ -518,16 +608,23 @@ export default function PortfolioPage() {
                                                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-200 hover:border-brand-purple hover:text-brand-purple transition-all duration-200 text-gray-700 hover:shadow-md cursor-pointer"
                                                 onClick={(e) => {
                                                     e.preventDefault();
-                                                    const element = document.getElementById(`section-${group.category?.id}`);
+                                                    const element = document.getElementById(
+                                                        `section-${group.category?.id}`,
+                                                    );
                                                     if (element) {
-                                                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                                        element.scrollIntoView({
+                                                            behavior: "smooth",
+                                                            block: "start",
+                                                        });
                                                     }
                                                 }}
                                             >
                                                 {group.category?.icon && (
                                                     <group.category.icon className="w-4 h-4" />
                                                 )}
-                                                <span className="text-sm font-medium">{group.category?.title}</span>
+                                                <span className="text-sm font-medium">
+                                                    {group.category?.title}
+                                                </span>
                                                 <span className="text-xs bg-gray-100 px-2 py-0.5 rounded-full text-gray-600">
                                                     {group.items.length}
                                                 </span>
@@ -539,416 +636,379 @@ export default function PortfolioPage() {
 
                         {/* Featured (simple wide card) */}
                         {/* {featured && featured.serviceCategory && (
-                            <div className="mb-12 p-6 bg-blue-50 border-l-4 border-brand-purple rounded-lg">
-                                <p className="text-sm text-gray-600 mb-2">
-                                    <span className="font-semibold">Featured Project:</span> This item will be displayed in the <strong>{serviceCategories.find(c => c.id === featured.serviceCategory)?.title}</strong> section below
-                                </p>
-                            </div>
-                        )} */}
+              <div className="mb-12 p-6 bg-blue-50 border-l-4 border-brand-purple rounded-lg">
+                <p className="text-sm text-gray-600 mb-2">
+                  <span className="font-semibold">Featured Project:</span> This item will be displayed in the <strong>{serviceCategories.find(c => c.id === featured.serviceCategory)?.title}</strong> section below
+                </p>
+              </div>
+            )} */}
 
                         {/* Grid grouped by service category */}
                         {loading ? (
-                            <div className="text-center text-gray-600 py-8">Loading...</div>
+                            <div className="text-center text-gray-600 py-8">
+                                Loading...
+                            </div>
                         ) : (
                             <div className="space-y-12">
-                                {groupPortfolioItemsByService(gridItems).map((group, groupIndex) => (
-                                    <div key={group.category?.id || "other"}>
-                                        {/* Section Header */}
-                                        {group.category && (
-                                            <div
-                                                id={`section-${group.category?.id || "other"}`}
-                                                className="mb-8 scroll-mt-20"
-                                            >
-                                                <div className="flex items-center gap-4 mb-4">
-                                                    {group.category.icon && (
-                                                        <div className="p-3 rounded-lg bg-brand-purple/10">
-                                                            <group.category.icon className="w-8 h-8 text-brand-purple" />
+                                {groupPortfolioItemsByService(gridItems).map(
+                                    (group, groupIndex) => (
+                                        <div key={group.category?.id || "other"}>
+                                            {/* Section Header */}
+                                            {group.category && (
+                                                <div
+                                                    id={`section-${group.category?.id || "other"}`}
+                                                    className="mb-8 scroll-mt-20"
+                                                >
+                                                    <div className="flex items-center gap-4 mb-4">
+                                                        {group.category.icon && (
+                                                            <div className="p-3 rounded-lg bg-brand-purple/10">
+                                                                <group.category.icon className="w-8 h-8 text-brand-purple" />
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                                                                {group.category.title}
+                                                            </h2>
+                                                            <p className="text-gray-600 mt-1">
+                                                                {group.category.description}
+                                                            </p>
                                                         </div>
-                                                    )}
-                                                    <div>
-                                                        <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                                                            {group.category.title}
-                                                        </h2>
-                                                        <p className="text-gray-600 mt-1">
-                                                            {group.category.description}
-                                                        </p>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        )}
+                                            )}
 
-                                        {/* Portfolio Carousel */}
-                                        <div className="relative">
-                                            <div
-                                                id={`carousel-${group.category?.id || "other"}`}
-                                                className="carousel-scroll flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory"
-                                            >
-                                                {group.items.map((item) => {
-                                                    const isExpanded = expandedItems[item.id] || false;
-                                                    return (
-                                                        <div
-                                                            key={item.id}
-                                                            className="flex-shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start"
-                                                        >
-                                                            <Card
-                                                                className="relative overflow-hidden h-full flex flex-col shadow-sm border hover:shadow-md transition-all duration-300 bg-white"
+                                            {/* Portfolio Carousel */}
+                                            <div className="relative">
+                                                <div
+                                                    id={`carousel-${group.category?.id || "other"}`}
+                                                    className="carousel-scroll flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory"
+                                                >
+                                                    {group.items.map((item) => {
+                                                        const isExpanded =
+                                                            expandedItems[item.id] || false;
+                                                        return (
+                                                            <div
+                                                                key={item.id}
+                                                                className="flex-shrink-0 w-full md:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] snap-start"
                                                             >
-                                                                {/* Featured Badge */}
-                                                                {/* {item.isFeatured && (
-                                                                    <div className="absolute top-3 right-3 z-10">
-                                                                        <div className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
-                                                                            <Star className="w-3 h-3 fill-current" />
-                                                                            Featured
-                                                                        </div>
-                                                                    </div>
-                                                                )} */}
-
-                                                                {/* Image Section - Full Width at Top */}
-                                                                <div className="relative w-full aspect-video bg-gray-200 overflow-hidden">
-                                                                    <img
-                                                                        src={item.imageUrl || "/images/industry-digital-marketing.png"}
-                                                                        alt={item.title}
-                                                                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                                                                        loading="lazy"
-                                                                    />
-                                                                </div>
-
-                                                                {/* Card Content - Scrollable Section */}
-                                                                <div className="flex flex-col flex-1 p-5">
-                                                                    {/* Badge */}
-                                                                    <div className="mb-3">
-                                                                        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-brand-purple/10 text-brand-purple">
-                                                                            {item.badge || "Case Study"}
-                                                                        </span>
-                                                                    </div>
-
-                                                                    {/* Title */}
-                                                                    <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1 line-clamp-2">
-                                                                        {item.title}
-                                                                    </h3>
-
-                                                                    {/* Industry */}
-                                                                    <p className="text-xs text-gray-600 mb-3 font-medium">
-                                                                        {item.industry}
-                                                                    </p>
-
-                                                                    {/* Description - Collapsible */}
-                                                                    <p className={`text-gray-700 text-sm leading-relaxed mb-4 transition-all ${isExpanded ? "" : "line-clamp-2"}`}>
-                                                                        {item.description}
-                                                                    </p>
-
-                                                                    {/* Stats Grid */}
-                                                                    <div className="grid grid-cols-3 gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
-                                                                        <div className="text-center">
-                                                                            <div className="font-bold text-brand-purple text-sm">{item.investment || "-"}</div>
-                                                                            <div className="text-gray-500 text-xs mt-0.5">Investment</div>
-                                                                        </div>
-                                                                        <div className="text-center">
-                                                                            <div className="font-bold text-brand-purple text-sm">{item.totalValue || "-"}</div>
-                                                                            <div className="text-gray-500 text-xs mt-0.5">Value</div>
-                                                                        </div>
-                                                                        {item.serviceCategory === "google-ads" &&
-                                                                            <div className="text-center">
-                                                                                <div className="font-bold text-brand-coral text-sm">{item.roi || "-"}</div>
-                                                                                <div className="text-gray-500 text-xs mt-0.5">ROI</div>
-                                                                            </div>
-                                                                        }
-                                                                    </div>
-
-                                                                    {/* Expandable Details Section */}
-                                                                    {isExpanded && (
-                                                                        <div className="space-y-4 mb-4 pb-4 border-b border-gray-200">
-
-                                                                            {/* Tech Stack */}
-                                                                            {item.techStack && item.techStack.length > 0 && (
-                                                                                <div>
-                                                                                    <div className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-2">Technology Stack</div>
-                                                                                    <div className="flex flex-wrap gap-2">
-                                                                                        {item.techStack.map((tech, idx) => (
-                                                                                            <span key={idx} className="inline-flex items-center rounded-full bg-brand-purple/10 text-brand-purple px-2.5 py-1 text-xs font-medium">
-                                                                                                {tech}
-                                                                                            </span>
-                                                                                        ))}
-                                                                                    </div>
-                                                                                </div>
-                                                                            )}
-
-                                                                            {/* Timeline */}
-                                                                            {item.timeline && (
-                                                                                <div>
-                                                                                    <div className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-2">Delivery Timeline</div>
-                                                                                    <div className="text-gray-700 text-sm">{item.timeline}</div>
-                                                                                </div>
-                                                                            )}
-
-                                                                            {/* Features */}
-                                                                            {item.features && item.features.length > 0 && (
-                                                                                <div>
-                                                                                    <div className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-2">Key Features</div>
-                                                                                    <ul className="space-y-2">
-                                                                                        {item.features.map((feature, idx) => (
-                                                                                            <li key={idx} className="flex items-start gap-2 text-gray-700 text-sm">
-                                                                                                <CheckCircle className="h-4 w-4 text-brand-purple mt-0.5 flex-shrink-0" />
-                                                                                                <span>{feature}</span>
-                                                                                            </li>
-                                                                                        ))}
-                                                                                    </ul>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    )}
-
-                                                                    {/* Action Buttons */}
-                                                                    <div className="flex flex-col gap-2 mt-auto pt-2">
-                                                                        {/* Expand/Collapse Button */}
-                                                                        {/* <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                                            // onClick={() => setExpandedItems({ ...expandedItems, [item.id]: !isExpanded })}
-                                                                            onClick={() => setExpandedItems({ [item.id]: !isExpanded })
-                                                                            }
-                                                                        >
-                                                                            {isExpanded ? "Show Less" : "Show Details"}
-                                                                            <span className={`ml-2 transition-transform ${isExpanded ? "rotate-180" : ""}`}>
-                                                                                ▼
-                                                                            </span>
-                                                                        </Button> */}
-
-                                                                        {/* <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                                            onClick={() => {
-                                                                                const allExpanded: { [key: number]: boolean } = {};
-                                                                                group.items.forEach((i) => {
-                                                                                    allExpanded[i.id] = true; // expand ALL cards
-                                                                                });
-                                                                                setExpandedItems(allExpanded);
-                                                                            }}
-                                                                        >
-                                                                            Show All Details
-                                                                            <span className="ml-2">▼</span>
-                                                                        </Button> */}
-
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
-                                                                            onClick={() => {
-                                                                                const areAllExpanded = group.items.every((i) => expandedItems[i.id]);
-
-                                                                                if (areAllExpanded) {
-                                                                                    // collapse all
-                                                                                    const collapsed: { [key: number]: boolean } = {};
-                                                                                    group.items.forEach((i) => {
-                                                                                        collapsed[i.id] = false;
-                                                                                    });
-                                                                                    setExpandedItems(collapsed);
-                                                                                } else {
-                                                                                    // expand all
-                                                                                    const expanded: { [key: number]: boolean } = {};
-                                                                                    group.items.forEach((i) => {
-                                                                                        expanded[i.id] = true;
-                                                                                    });
-                                                                                    setExpandedItems(expanded);
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            {group.items.every((i) => expandedItems[i.id]) ? "Close All Details" : "Show All Details"}
-                                                                            <span className="ml-2">
-                                                                                {group.items.every((i) => expandedItems[i.id]) ? "▲" : "▼"}
-                                                                            </span>
-                                                                        </Button>
-
-
-                                                                        {/* View Case Study Button 
-                                                                        <Button 
-                                                                            className="w-full h-9 text-xs font-semibold bg-brand-purple text-white hover:bg-brand-purple/90 transition-all"
-                                                                            asChild
-                                                                        >
-                                                                            <Link href={`/portfolio/${item.slug}`}>
-                                                                                View Case Study
-                                                                                <ArrowRight className="ml-2 h-3 w-3" />
-                                                                            </Link>
-                                                                        </Button> */}
-                                                                    </div>
-                                                                </div>
-                                                            </Card>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-
-                                            <button
-                                                onClick={() => {
-                                                    const carousel = document.getElementById(`carousel-${group.category?.id || "other"}`);
-                                                    if (carousel) {
-                                                        carousel.scrollBy({ left: -400, behavior: "smooth" });
-                                                    }
-                                                }}
-                                                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 md:-translate-x-16 z-20 
-             p-0 bg-transparent shadow-none hover:shadow-none"
-                                                aria-label="Scroll left"
-                                            >
-                                                <ChevronLeft className="w-14 h-14 text-brand-purple hover:text-brand-coral transition-colors" />
-                                            </button>
-
-                                            <button
-                                                onClick={() => {
-                                                    const carousel = document.getElementById(`carousel-${group.category?.id || "other"}`);
-                                                    if (carousel) {
-                                                        carousel.scrollBy({ left: 400, behavior: "smooth" });
-                                                    }
-                                                }}
-                                                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 md:translate-x-16 z-20 
-             p-0 bg-transparent shadow-none hover:shadow-none"
-                                                aria-label="Scroll right"
-                                            >
-                                                <ChevronRight className="w-14 h-14 text-brand-purple hover:text-brand-coral transition-colors" />
-                                            </button>
-                                        </div>
+                                                                <Card className="relative overflow-hidden h-full flex flex-col shadow-sm border hover:shadow-md transition-all duration-300 bg-white">
+                                                                    {/* Featured Badge */}
+                                                                    {/* {item.isFeatured && (
+                                    <div className="absolute top-3 right-3 z-10">
+                                      <div className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+                                        <Star className="w-3 h-3 fill-current" />
+                                        Featured
+                                      </div>
                                     </div>
-                                ))}
+                                  )} */}
+
+                                                                    {/* Image Section - Full Width at Top */}
+                                                                    <div className="relative w-full aspect-video bg-gray-200 overflow-hidden">
+                                                                        <img
+                                                                            src={
+                                                                                item.imageUrl ||
+                                                                                "/images/industry-digital-marketing.png"
+                                                                            }
+                                                                            alt={item.title}
+                                                                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                                                                            loading="lazy"
+                                                                        />
+                                                                    </div>
+
+                                                                    {/* Card Content - Scrollable Section */}
+                                                                    <div className="flex flex-col flex-1 p-5">
+                                                                        {/* Badge */}
+                                                                        <div className="mb-3">
+                                                                            <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-brand-purple/10 text-brand-purple">
+                                                                                {item.badge || "Case Study"}
+                                                                            </span>
+                                                                        </div>
+
+                                                                        {/* Title */}
+                                                                        <h3 className="text-lg font-bold text-gray-900 leading-tight mb-1 line-clamp-2">
+                                                                            {item.title}
+                                                                        </h3>
+
+                                                                        {/* Industry */}
+                                                                        <p className="text-xs text-gray-600 mb-3 font-medium">
+                                                                            {item.industry}
+                                                                        </p>
+
+                                                                        {/* Description - Collapsible */}
+                                                                        <p
+                                                                            className={`text-gray-700 text-sm leading-relaxed mb-4 transition-all ${isExpanded ? "" : "line-clamp-2"
+                                                                                }`}
+                                                                        >
+                                                                            {item.description}
+                                                                        </p>
+
+                                                                        {/* Stats Grid */}
+                                                                        <div className="grid grid-cols-3 gap-2 mb-4 p-3 bg-gray-50 rounded-lg">
+                                                                            <div className="text-center">
+                                                                                <div className="font-bold text-brand-purple text-sm">
+                                                                                    {item.investment || "-"}
+                                                                                </div>
+                                                                                <div className="text-gray-500 text-xs mt-0.5">
+                                                                                    Investment
+                                                                                </div>
+                                                                            </div>
+                                                                            <div className="text-center">
+                                                                                <div className="font-bold text-brand-purple text-sm">
+                                                                                    {item.totalValue || "-"}
+                                                                                </div>
+                                                                                <div className="text-gray-500 text-xs mt-0.5">
+                                                                                    Value
+                                                                                </div>
+                                                                            </div>
+                                                                            {item.serviceCategory ===
+                                                                                "google-ads" && (
+                                                                                    <div className="text-center">
+                                                                                        <div className="font-bold text-brand-coral text-sm">
+                                                                                            {item.roi || "-"}
+                                                                                        </div>
+                                                                                        <div className="text-gray-500 text-xs mt-0.5">
+                                                                                            ROI
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                        </div>
+
+                                                                        {/* Expandable Details Section */}
+                                                                        {isExpanded && (
+                                                                            <div className="space-y-4 mb-4 pb-4 border-b border-gray-200">
+                                                                                {/* Tech Stack */}
+                                                                                {item.techStack &&
+                                                                                    item.techStack.length > 0 && (
+                                                                                        <div>
+                                                                                            <div className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-2">
+                                                                                                Technology Stack
+                                                                                            </div>
+                                                                                            <div className="flex flex-wrap gap-2">
+                                                                                                {item.techStack.map(
+                                                                                                    (tech, idx) => (
+                                                                                                        <span
+                                                                                                            key={idx}
+                                                                                                            className="inline-flex items-center rounded-full bg-brand-purple/10 text-brand-purple px-2.5 py-1 text-xs font-medium"
+                                                                                                        >
+                                                                                                            {tech}
+                                                                                                        </span>
+                                                                                                    ),
+                                                                                                )}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    )}
+
+                                                                                {/* Timeline */}
+                                                                                {item.timeline && (
+                                                                                    <div>
+                                                                                        <div className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-2">
+                                                                                            Delivery Timeline
+                                                                                        </div>
+                                                                                        <div className="text-gray-700 text-sm">
+                                                                                            {item.timeline}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+
+                                                                                {/* Features */}
+                                                                                {item.features &&
+                                                                                    item.features.length > 0 && (
+                                                                                        <div>
+                                                                                            <div className="font-bold text-gray-900 text-xs uppercase tracking-wide mb-2">
+                                                                                                Key Features
+                                                                                            </div>
+                                                                                            <ul className="space-y-2">
+                                                                                                {item.features.map(
+                                                                                                    (feature, idx) => (
+                                                                                                        <li
+                                                                                                            key={idx}
+                                                                                                            className="flex items-start gap-2 text-gray-700 text-sm"
+                                                                                                        >
+                                                                                                            <CheckCircle className="h-4 w-4 text-brand-purple mt-0.5 flex-shrink-0" />
+                                                                                                            <span>{feature}</span>
+                                                                                                        </li>
+                                                                                                    ),
+                                                                                                )}
+                                                                                            </ul>
+                                                                                        </div>
+                                                                                    )}
+                                                                            </div>
+                                                                        )}
+
+                                                                        {/* Action Buttons */}
+                                                                        <div className="flex flex-col gap-2 mt-auto pt-2">
+                                                                            {/* Toggle all in section button */}
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                className="w-full text-xs font-medium border-gray-300 text-gray-700 hover:bg-gray-50"
+                                                                                onClick={() => {
+                                                                                    const areAllExpanded =
+                                                                                        group.items.every(
+                                                                                            (i) => expandedItems[i.id],
+                                                                                        );
+
+                                                                                    if (areAllExpanded) {
+                                                                                        // collapse all
+                                                                                        const collapsed: {
+                                                                                            [key: number]: boolean;
+                                                                                        } = {};
+                                                                                        group.items.forEach((i) => {
+                                                                                            collapsed[i.id] = false;
+                                                                                        });
+                                                                                        setExpandedItems(collapsed);
+                                                                                    } else {
+                                                                                        // expand all
+                                                                                        const expanded: {
+                                                                                            [key: number]: boolean;
+                                                                                        } = {};
+                                                                                        group.items.forEach((i) => {
+                                                                                            expanded[i.id] = true;
+                                                                                        });
+                                                                                        setExpandedItems(expanded);
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                {group.items.every(
+                                                                                    (i) => expandedItems[i.id],
+                                                                                )
+                                                                                    ? "Close All Details"
+                                                                                    : "Show All Details"}
+                                                                                <span className="ml-2">
+                                                                                    {group.items.every(
+                                                                                        (i) => expandedItems[i.id],
+                                                                                    )
+                                                                                        ? "▲"
+                                                                                        : "▼"}
+                                                                                </span>
+                                                                            </Button>
+
+                                                                            {/* 🔗 NEW: External project link button */}
+                                                                            {item.projectUrl && (
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    className="w-full h-9 text-xs font-semibold bg-brand-purple text-white hover:bg-brand-purple/90 transition-all"
+                                                                                    asChild
+                                                                                >
+                                                                                    <a
+                                                                                        href={item.projectUrl}
+                                                                                        target="_blank"
+                                                                                        rel="noopener noreferrer"
+                                                                                    >
+                                                                                        {item.projectUrlLabel ||
+                                                                                            "View Project"}
+                                                                                        <ArrowRight className="ml-2 h-3 w-3" />
+                                                                                    </a>
+                                                                                </Button>
+                                                                            )}
+
+                                                                            {/* View Case Study Button 
+                                      <Button 
+                                        className="w-full h-9 text-xs font-semibold bg-brand-purple text-white hover:bg-brand-purple/90 transition-all"
+                                        asChild
+                                      >
+                                        <Link href={`/portfolio/${item.slug}`}>
+                                          View Case Study
+                                          <ArrowRight className="ml-2 h-3 w-3" />
+                                        </Link>
+                                      </Button> */}
+                                                                        </div>
+                                                                    </div>
+                                                                </Card>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+
+                                                <button
+                                                    onClick={() => {
+                                                        const carousel = document.getElementById(
+                                                            `carousel-${group.category?.id || "other"}`,
+                                                        );
+                                                        if (carousel) {
+                                                            carousel.scrollBy({
+                                                                left: -400,
+                                                                behavior: "smooth",
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 md:-translate-x-16 z-20 
+             p-0 bg-transparent shadow-none hover:shadow-none"
+                                                    aria-label="Scroll left"
+                                                >
+                                                    <ChevronLeft className="w-14 h-14 text-brand-purple hover:text-brand-coral transition-colors" />
+                                                </button>
+
+                                                <button
+                                                    onClick={() => {
+                                                        const carousel = document.getElementById(
+                                                            `carousel-${group.category?.id || "other"}`,
+                                                        );
+                                                        if (carousel) {
+                                                            carousel.scrollBy({
+                                                                left: 400,
+                                                                behavior: "smooth",
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 md:translate-x-16 z-20 
+             p-0 bg-transparent shadow-none hover:shadow-none"
+                                                    aria-label="Scroll right"
+                                                >
+                                                    <ChevronRight className="w-14 h-14 text-brand-purple hover:text-brand-coral transition-colors" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ),
+                                )}
                             </div>
                         )}
                     </div>
                 </section>
 
-                {/* TESTIMONIALS */}
-                {/* <section className="border-y border-gray-100 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 py-16">
-                        <h2 className="text-3xl font-bold text-center mb-4 text-gray-900">
-                            {testimonialsTitle}
-                        </h2>
-                        {testimonialsSubtitle && (
-                            <p className="text-center text-gray-600 mb-10 max-w-3xl mx-auto">
-                                {testimonialsSubtitle}
-                            </p>
-                        )}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                            {testimonials.map((t, idx) => (
-                                <div key={`${t.who}-${idx}`} className="rounded-lg border border-gray-200 bg-white p-6">
-                                    <p className="text-gray-700 mb-4">“{t.quote}”</p>
-                                    <div className="font-bold text-gray-900">{t.who}</div>
-                                    {t.tag && <div className="text-sm text-gray-500">{t.tag}</div>}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section> */}
-
                 {/* Testimonials – Card + Screenshot Style */}
-                <section
-                    id="testimonials"
-                    className="py-12 sm:py-16 px-4 bg-white"
-                >
-                    <div className="max-w-6xl mx-auto text-center">
-                        {/* Header */}
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3">
-                            What Our Clients Say
-                        </h2>
-                        <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-2xl mx-auto mb-10">
+                <section className="min-h-screen bg-gray-50 py-16 px-4">
+                    <div className="max-w-7xl mx-auto">
+                        {/* Heading Button */}
+                        <div className="flex justify-center mb-6">
+                            <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
+                                {/* <span className="w-2 h-2 bg-white rounded-full"></span> */}
+                                <span>What Our Clients Say</span>
+                            </div>
+                        </div>
+
+                        {/* Subheading Text */}
+                        <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
                             Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
                         </p>
 
-                        {/* Cards */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-
-                            {/* Mark Muse */}
-                            <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
-                                <CardContent className="p-6 flex flex-col items-center text-center">
-                                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
-
-                                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                                        Brandingbeez understood not only the technical challenges but was also completely
-                                        responsive throughout..
-                                        <br /><br />
-                                        They the provided framework, assets, and vision into a beautiful website tailored
-                                        to a high-ticket offering, helping the end client stay competitive. The team stayed
-                                        responsive and aware of the technical challenges, even with multiple change requests
-                                        from the end client.
-                                    </p>
-
-                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
-                                        <img
-                                            src={Mark_Image}
-                                            alt="Mark Muse"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-
-                                    <p className="font-bold text-gray-900">Mark Muse</p>
-                                    <p className="text-gray-500 text-xs sm:text-sm">Partner</p>
-                                </CardContent>
-                            </Card>
-
-                            {/* Daniel Fechete */}
-                            <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
-                                <CardContent className="p-6 flex flex-col items-center text-center">
-
-                                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
-
-                                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                                        Their attention to detail and interest in understanding our requirements perfectly
-                                        stood out.. Brandingbeez successfully designed the requested brochures, demonstrating
-                                        a thorough understanding of the client's products and expectations. The detail-oriented
-                                        team delivered the project on time and maintained constant communication through email,
-                                        messaging apps, and virtual meetings.
-                                    </p>
-
-                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
-                                        <img
-                                            src={Dani_Image}
-                                            alt="Daniel Fechete"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-
-                                    <p className="font-bold text-gray-900">Daniel Fechete</p>
-                                    <p className="text-gray-500 text-xs sm:text-sm">Creative Partner</p>
-                                </CardContent>
-                            </Card>
-
-                            {/* Gemma Murphy */}
-                            <Card className="rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200">
-                                <CardContent className="p-6 flex flex-col items-center text-center">
-
-                                    <div className="text-brand-purple text-4xl mb-3 leading-none">❝</div>
-
-                                    <p className="text-gray-800 text-sm sm:text-base leading-relaxed mb-4">
-                                        Branding Beez have been a great help to my business. Before meeting Raie and her team,
-                                        I was doing the sales, building the websites and handling all the tech and aftercare.
-                                        Now I have the time to grow the business, working 'ON' it, instead of constantly 'IN' it.
-                                        So they've been a gamechanger for me and my business. Even taking my first holiday this
-                                        year WITHOUT my laptop! Thanks so much!
-                                    </p>
-
-                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-100 flex-shrink-0 mb-4">
-                                        <img
-                                            src={Gemma_Image}
-                                            alt="Gemma Murphy"
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-
-                                    <p className="font-bold text-gray-900">Gemma Murphy</p>
-                                    <p className="text-gray-500 text-xs sm:text-sm">Founder, Website Architect</p>
-                                </CardContent>
-                            </Card>
-
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {testimonial_clients.map((testimonial) => (
+                                <TestimonialCard
+                                    key={testimonial.id}
+                                    name={testimonial.name}
+                                    company={testimonial.company}
+                                    testimonial={testimonial.testimonial}
+                                    imageUrl={testimonial.imageUrl}
+                                    logoUrl={testimonial.logoUrl}
+                                />
+                            ))}
                         </div>
                     </div>
                 </section>
 
                 {/* BOTTOM CTA (same style as your CTA section) */}
-                <section id="estimate" className="py-16 px-4 bg-brand-purple text-white">
+                <section
+                    id="estimate"
+                    className="py-16 px-4 bg-brand-purple text-white"
+                >
                     <div className="max-w-4xl mx-auto text-center">
                         <h2 className="text-3xl md:text-5xl font-bold mb-4">
                             Ready to Transform Your Business?
                         </h2>
                         <p className="text-xl mb-8 text-white/90">
-                            Get transparent timelines, costs, and ROI projections no surprises, no fluff.
+                            Get transparent timelines, costs, and ROI projections no
+                            surprises, no fluff.
                         </p>
 
                         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
