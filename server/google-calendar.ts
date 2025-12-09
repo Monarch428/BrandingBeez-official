@@ -38,6 +38,48 @@ export interface CreateMeetEventResult {
   meetingLink?: string;
 }
 
+// ✅ NEW: shared auth helper
+async function ensureGoogleAuth(): Promise<boolean> {
+  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+    console.warn(
+      "[Google Calendar] Missing OAuth env vars (CLIENT_ID / CLIENT_SECRET).",
+    );
+    return false;
+  }
+
+  let accessToken: string | undefined;
+  let refreshToken: string | undefined;
+  let expiryDate: number | undefined;
+
+  if (GOOGLE_REFRESH_TOKEN) {
+    // using static refresh token from env
+    refreshToken = GOOGLE_REFRESH_TOKEN;
+  } else {
+    // fallback: tokens from DB
+    const tokens = await storage.getGoogleAuthTokens();
+    if (!tokens || !tokens.refreshToken) {
+      console.warn(
+        "[Google Calendar] No refresh token found in DB – cannot talk to Calendar.",
+      );
+      return false;
+    }
+    accessToken = tokens.accessToken;
+    refreshToken = tokens.refreshToken;
+    expiryDate = tokens.expiryDate;
+  }
+
+  oauth2Client.setCredentials({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+    expiry_date: expiryDate,
+  });
+
+  return true;
+}
+
+/* ------------------------------------------------------------------
+   CREATE GOOGLE MEET EVENT
+------------------------------------------------------------------ */
 export async function createGoogleMeetEvent(
   params: CreateMeetEventParams,
 ): Promise<CreateMeetEventResult> {
@@ -54,37 +96,13 @@ export async function createGoogleMeetEvent(
 
   console.log("[Google Calendar] createGoogleMeetEvent params:", params);
 
-  if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
+  const authOk = await ensureGoogleAuth();
+  if (!authOk) {
     console.warn(
-      "[Google Calendar] Missing OAuth env vars (CLIENT_ID / CLIENT_SECRET) – skipping Meet creation.",
+      "[Google Calendar] Auth failed – skipping Meet creation, but continuing booking.",
     );
     return { eventId: "", meetingLink: undefined };
   }
-
-  let accessToken: string | undefined;
-  let refreshToken: string | undefined;
-  let expiryDate: number | undefined;
-
-  if (GOOGLE_REFRESH_TOKEN) {
-    refreshToken = GOOGLE_REFRESH_TOKEN;
-  } else {
-    const tokens = await storage.getGoogleAuthTokens();
-    if (!tokens || !tokens.refreshToken) {
-      console.warn(
-        "[Google Calendar] No refresh token found in DB – skipping Meet creation.",
-      );
-      return { eventId: "", meetingLink: undefined };
-    }
-    accessToken = tokens.accessToken;
-    refreshToken = tokens.refreshToken;
-    expiryDate = tokens.expiryDate;
-  }
-
-  oauth2Client.setCredentials({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-    expiry_date: expiryDate,
-  });
 
   const timeZone = "Asia/Kolkata";
 
@@ -121,9 +139,7 @@ export async function createGoogleMeetEvent(
     attendees,
     conferenceData: {
       createRequest: {
-        requestId: `meet-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2)}`,
+        requestId: `meet-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         conferenceSolutionKey: { type: "hangoutsMeet" },
       },
     },
@@ -153,4 +169,75 @@ export async function createGoogleMeetEvent(
     eventId: data.id || "",
     meetingLink,
   };
+}
+
+/* ------------------------------------------------------------------
+   NEW: BUSY TIME LOOKUP
+   - Use this so GCal busy = booked in your scheduler
+------------------------------------------------------------------ */
+
+export interface BusyTimeRange {
+  start: string; // ISO
+  end: string;   // ISO
+}
+
+/**
+ * Get all busy periods in Google Calendar for a specific date (IST day).
+ */
+export async function getBusyTimeRangesForDate(
+  date: string, // "YYYY-MM-DD"
+): Promise<BusyTimeRange[]> {
+  const authOk = await ensureGoogleAuth();
+  if (!authOk) {
+    console.warn(
+      "[Google Calendar] Auth failed – returning empty busy list for date",
+      date,
+    );
+    return [];
+  }
+
+  const timeZone = "Asia/Kolkata";
+
+  // full day in IST
+  const timeMin = new Date(`${date}T00:00:00+05:30`).toISOString();
+  const timeMax = new Date(`${date}T23:59:59+05:30`).toISOString();
+
+  const res = await calendar.freebusy.query({
+    requestBody: {
+      timeMin,
+      timeMax,
+      timeZone,
+      items: [{ id: CALENDAR_ID }],
+    },
+  });
+
+  const busy =
+    res.data.calendars?.[CALENDAR_ID]?.busy?.map((b) => ({
+      start: b.start as string,
+      end: b.end as string,
+    })) ?? [];
+
+  console.log("[Google Calendar] Busy ranges for", date, "=>", busy);
+
+  return busy;
+}
+
+/**
+ * Check if a given slot overlaps any busy range.
+ */
+export function isSlotOverlappingBusy(
+  date: string,       // "YYYY-MM-DD"
+  startTime: string,  // "HH:mm"
+  endTime: string,    // "HH:mm"
+  busyRanges: BusyTimeRange[],
+): boolean {
+  const slotStart = new Date(`${date}T${startTime}:00+05:30`).getTime();
+  const slotEnd = new Date(`${date}T${endTime}:00+05:30+05:30`.replace("+05:30+05:30", "+05:30")).getTime();
+
+  return busyRanges.some((b) => {
+    const busyStart = new Date(b.start).getTime();
+    const busyEnd = new Date(b.end).getTime();
+    // overlap check
+    return slotStart < busyEnd && slotEnd > busyStart;
+  });
 }
