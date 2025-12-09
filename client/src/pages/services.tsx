@@ -598,7 +598,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,000/month</div>
+                              {/* Junior Graphic Designer = 1200 */}
+                              <div className="text-white font-bold">$1,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-graphic"
@@ -624,7 +625,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,200/month</div>
+                              {/* Mid Graphic Designer = 1400 */}
+                              <div className="text-white font-bold">$1,400/month</div>
                             </label>
 
                             <label
@@ -651,7 +653,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$2,000/month</div>
+                              {/* Senior Graphic (Creative Director) = 1800 */}
+                              <div className="text-white font-bold">$1,800/month</div>
                             </label>
                           </div>
                         </div>
@@ -687,7 +690,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,000/month</div>
+                              {/* Junior Video Editor = 1200 */}
+                              <div className="text-white font-bold">$1,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-video"
@@ -713,7 +717,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,400/month</div>
+                              {/* Mid Video Editor = 1500 */}
+                              <div className="text-white font-bold">$1,500/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "lead-video"
@@ -739,7 +744,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$2,200/month</div>
+                              {/* Senior Video Editor = 2400 */}
+                              <div className="text-white font-bold">$2,400/month</div>
                             </label>
                           </div>
                         </div>
@@ -775,7 +781,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,000/month</div>
+                              {/* Junior SEO = 1200 */}
+                              <div className="text-white font-bold">$1,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-seo"
@@ -801,6 +808,7 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
+                              {/* Mid SEO = 1800 */}
                               <div className="text-white font-bold">$1,800/month</div>
                             </label>
                             <label
@@ -827,7 +835,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$2,800/month</div>
+                              {/* Senior SEO = 2600 */}
+                              <div className="text-white font-bold">$2,600/month</div>
                             </label>
                           </div>
                         </div>
@@ -863,7 +872,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,200/month</div>
+                              {/* Junior Google Ads = 1400 */}
+                              <div className="text-white font-bold">$1,400/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-ads"
@@ -889,7 +899,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$2,000/month</div>
+                              {/* Mid Google Ads = 2200 */}
+                              <div className="text-white font-bold">$2,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "specialist-ads"
@@ -915,6 +926,7 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
+                              {/* Senior Google Ads = 3000 */}
                               <div className="text-white font-bold">$3,000/month</div>
                             </label>
                           </div>
@@ -951,7 +963,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,000/month</div>
+                              {/* Junior Web Dev = 1200 */}
+                              <div className="text-white font-bold">$1,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-web"
@@ -977,6 +990,7 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
+                              {/* Mid Web Dev = 1800 */}
                               <div className="text-white font-bold">$1,800/month</div>
                             </label>
                             <label
@@ -1003,6 +1017,7 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
+                              {/* Senior Web Dev = 2800 */}
                               <div className="text-white font-bold">$2,800/month</div>
                             </label>
                           </div>
@@ -1039,7 +1054,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$1,200/month</div>
+                              {/* Junior Full Stack = 1500 */}
+                              <div className="text-white font-bold">$1,500/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-fullstack"
@@ -1065,7 +1081,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$2,000/month</div>
+                              {/* Mid Full Stack = 2200 */}
+                              <div className="text-white font-bold">$2,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "lead-fullstack"
@@ -1091,7 +1108,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-white font-bold">$3,500/month</div>
+                              {/* Senior Full Stack = 3600 */}
+                              <div className="text-white font-bold">$3,600/month</div>
                             </label>
                           </div>
                         </div>
@@ -1127,8 +1145,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              {/* junior.AI Developer = 800 */}
-                              <div className="text-white font-bold">$800/month</div>
+                              {/* junior.AI Developer = 1200 */}
+                              <div className="text-white font-bold">$1,200/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "mid-ai"
@@ -1154,8 +1172,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              {/* mid.AI Developer = 1000 */}
-                              <div className="text-white font-bold">$1,000/month</div>
+                              {/* mid.AI Developer = 1600 */}
+                              <div className="text-white font-bold">$1,600/month</div>
                             </label>
                             <label
                               className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "senior-ai"
@@ -1181,71 +1199,8 @@ export default function Services() {
                                   </div>
                                 </div>
                               </div>
-                              {/* senior.AI Developer = 1400 */}
-                              <div className="text-white font-bold">$1,400/month</div>
-                            </label>
-                          </div>
-                        </div>
-                      )}
-
-                      {selectedService === "others" && (
-                        <div className="bg-white/10 p-4 rounded-lg border border-white/30">
-                          <label className="block text-sm font-medium text-gray-200 mb-2">
-                            Select type for Data Entry/Virtual Assistants/Social
-                            Media Managers
-                          </label>
-                          <div className="space-y-3">
-                            <label
-                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "data-entry"
-                                ? "bg-white/20 border-white/50"
-                                : "bg-white/10 border-white/20 hover:bg-white/15"
-                                }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <input
-                                  type="radio"
-                                  name="others-level"
-                                  value="data-entry"
-                                  checked={selectedLevel === "data-entry"}
-                                  onChange={(e) => setSelectedLevel(e.target.value)}
-                                  className="text-white bg-white/20 border-white/30"
-                                />
-                                <div>
-                                  <div className="text-white font-semibold">
-                                    Data Entry/Virtual Assistant
-                                  </div>
-                                  <div className="text-gray-300 text-sm">
-                                    2+ Years experience
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-white font-bold">$400/month</div>
-                            </label>
-                            <label
-                              className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer ${selectedLevel === "social-media"
-                                ? "bg-white/20 border-white/50"
-                                : "bg-white/10 border-white/20 hover:bg-white/15"
-                                }`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <input
-                                  type="radio"
-                                  name="others-level"
-                                  value="social-media"
-                                  checked={selectedLevel === "social-media"}
-                                  onChange={(e) => setSelectedLevel(e.target.value)}
-                                  className="text-white bg-white/20 border-white/30"
-                                />
-                                <div>
-                                  <div className="text-white font-semibold">
-                                    Social Media Manager
-                                  </div>
-                                  <div className="text-gray-300 text-sm">
-                                    2+ Years experience
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="text-white font-bold">$1200/month</div>
+                              {/* senior.AI Developer = 2200 */}
+                              <div className="text-white font-bold">$2,200/month</div>
                             </label>
                           </div>
                         </div>
@@ -1266,7 +1221,7 @@ export default function Services() {
                                 <span className="text-white text-sm">Graphic Designer</span>
                               </div>
                               <span className="text-white text-sm font-semibold">
-                                From $1,000/mo
+                                From $1,200/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1278,7 +1233,7 @@ export default function Services() {
                                 <span className="text-white text-sm">Video Editor</span>
                               </div>
                               <span className="text-white text-sm font-semibold">
-                                From $1,000/mo
+                                From $1,200/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1290,7 +1245,7 @@ export default function Services() {
                                 <span className="text-white text-sm">SEO Specialist</span>
                               </div>
                               <span className="text-white text-sm font-semibold">
-                                From $1,000/mo
+                                From $1,200/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1302,7 +1257,7 @@ export default function Services() {
                                 <span className="text-white text-sm">Google Ads Expert</span>
                               </div>
                               <span className="text-white text-sm font-semibold">
-                                From $1,200/mo
+                                From $1,400/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1314,7 +1269,7 @@ export default function Services() {
                                 <span className="text-white text-sm">Web Developer</span>
                               </div>
                               <span className="text-white text-sm font-semibold">
-                                From $1,000/mo
+                                From $1,200/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1326,7 +1281,7 @@ export default function Services() {
                                 <span className="text-white text-sm">Full Stack Developer</span>
                               </div>
                               <span className="text-white text-sm font-semibold">
-                                From $1,200/mo
+                                From $1,500/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1337,9 +1292,9 @@ export default function Services() {
                                 />
                                 <span className="text-white text-sm">AI Developer</span>
                               </div>
-                              {/* junior.AI Developer = 800 */}
+                              {/* junior.AI Developer = 1200 */}
                               <span className="text-white text-sm font-semibold">
-                                From $800/mo
+                                From $1,200/mo
                               </span>
                             </div>
                             <div className="flex items-center justify-between p-2 bg-white/5 rounded border border-white/10">
@@ -1391,7 +1346,6 @@ export default function Services() {
                       We'll confirm your appointment within 24 hours
                     </p>
                   </form>
-
                 </div>
               </div>
             </div>
