@@ -1041,7 +1041,7 @@ export default function Admin() {
           </div>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     );
   }
@@ -1498,7 +1498,7 @@ export default function Admin() {
         </div>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

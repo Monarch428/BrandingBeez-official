@@ -34,7 +34,7 @@ import type {
   User,
   Appointment,
   InsertAppointment,
-  AppointmentStatus, 
+  AppointmentStatus,
 } from "@shared/schema";
 import {
   BlogPostModel,
@@ -844,6 +844,8 @@ export class DatabaseStorage implements IStorage {
     accessToken: string;
     refreshToken: string;
     expiryDate: number;
+    email: string;
+    calendarId?: string;
   }) {
     await this.ensureConnection();
     const existing = await GoogleAuthModel.findOne();
@@ -852,6 +854,10 @@ export class DatabaseStorage implements IStorage {
       existing.accessToken = tokens.accessToken;
       existing.refreshToken = tokens.refreshToken;
       existing.expiryDate = tokens.expiryDate;
+      existing.email = tokens.email;
+      if (tokens.calendarId) {
+        existing.calendarId = tokens.calendarId;
+      }
       await existing.save();
       return toPlain(existing);
     }

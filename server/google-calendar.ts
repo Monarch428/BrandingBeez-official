@@ -5,11 +5,10 @@ import { storage } from "./storage";
 const {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
-  GOOGLE_REFRESH_TOKEN,
   GOOGLE_CALENDAR_ID,
 } = process.env;
 
-const CALENDAR_ID = GOOGLE_CALENDAR_ID || "primary";
+const DEFAULT_CALENDAR_ID = GOOGLE_CALENDAR_ID || "primary";
 
 const oauth2Client = new google.auth.OAuth2(
   GOOGLE_CLIENT_ID,
@@ -24,12 +23,8 @@ export interface CreateMeetEventParams {
   date: string; // "YYYY-MM-DD"
   startTime: string; // "HH:mm"
   endTime: string; // "HH:mm"
-
-  // main attendee
   attendeeEmail?: string;
   attendeeName?: string;
-
-  // ✅ NEW: guests
   guestEmails?: string[];
 }
 
@@ -38,43 +33,36 @@ export interface CreateMeetEventResult {
   meetingLink?: string;
 }
 
-// ✅ NEW: shared auth helper
-async function ensureGoogleAuth(): Promise<boolean> {
+/**
+ * Shared auth helper.
+ * Returns the calendarId that should be used.
+ */
+async function ensureGoogleAuth(): Promise<{ calendarId: string } | null> {
   if (!GOOGLE_CLIENT_ID || !GOOGLE_CLIENT_SECRET) {
     console.warn(
       "[Google Calendar] Missing OAuth env vars (CLIENT_ID / CLIENT_SECRET).",
     );
-    return false;
+    return null;
   }
 
-  let accessToken: string | undefined;
-  let refreshToken: string | undefined;
-  let expiryDate: number | undefined;
+  // Always prefer DB tokens (from OAuth flow)
+  const tokens = await storage.getGoogleAuthTokens();
 
-  if (GOOGLE_REFRESH_TOKEN) {
-    // using static refresh token from env
-    refreshToken = GOOGLE_REFRESH_TOKEN;
-  } else {
-    // fallback: tokens from DB
-    const tokens = await storage.getGoogleAuthTokens();
-    if (!tokens || !tokens.refreshToken) {
-      console.warn(
-        "[Google Calendar] No refresh token found in DB – cannot talk to Calendar.",
-      );
-      return false;
-    }
-    accessToken = tokens.accessToken;
-    refreshToken = tokens.refreshToken;
-    expiryDate = tokens.expiryDate;
+  if (!tokens || !tokens.refreshToken) {
+    console.warn(
+      "[Google Calendar] No refresh token found in DB – cannot talk to Calendar.",
+    );
+    return null;
   }
 
   oauth2Client.setCredentials({
-    access_token: accessToken,
-    refresh_token: refreshToken,
-    expiry_date: expiryDate,
+    access_token: tokens.accessToken,
+    refresh_token: tokens.refreshToken,
+    expiry_date: tokens.expiryDate,
   });
 
-  return true;
+  const calendarId = tokens.calendarId || DEFAULT_CALENDAR_ID;
+  return { calendarId };
 }
 
 /* ------------------------------------------------------------------
@@ -96,17 +84,17 @@ export async function createGoogleMeetEvent(
 
   console.log("[Google Calendar] createGoogleMeetEvent params:", params);
 
-  const authOk = await ensureGoogleAuth();
-  if (!authOk) {
+  const auth = await ensureGoogleAuth();
+  if (!auth) {
     console.warn(
       "[Google Calendar] Auth failed – skipping Meet creation, but continuing booking.",
     );
     return { eventId: "", meetingLink: undefined };
   }
+  const { calendarId } = auth;
 
   const timeZone = "Asia/Kolkata";
 
-  // ✅ Build attendees list: main attendee + guests
   const attendees: { email: string; displayName?: string }[] = [];
 
   if (attendeeEmail) {
@@ -119,7 +107,6 @@ export async function createGoogleMeetEvent(
   guestEmails
     .filter((g) => !!g)
     .forEach((g) => {
-      // avoid duplicating main attendee
       if (!attendeeEmail || g.toLowerCase() !== attendeeEmail.toLowerCase()) {
         attendees.push({ email: g });
       }
@@ -146,7 +133,7 @@ export async function createGoogleMeetEvent(
   };
 
   const response = await calendar.events.insert({
-    calendarId: CALENDAR_ID,
+    calendarId,
     requestBody: event as any,
     conferenceDataVersion: 1,
   });
@@ -172,33 +159,29 @@ export async function createGoogleMeetEvent(
 }
 
 /* ------------------------------------------------------------------
-   NEW: BUSY TIME LOOKUP
-   - Use this so GCal busy = booked in your scheduler
+   BUSY TIME LOOKUP
 ------------------------------------------------------------------ */
 
 export interface BusyTimeRange {
   start: string; // ISO
-  end: string;   // ISO
+  end: string; // ISO
 }
 
-/**
- * Get all busy periods in Google Calendar for a specific date (IST day).
- */
 export async function getBusyTimeRangesForDate(
   date: string, // "YYYY-MM-DD"
 ): Promise<BusyTimeRange[]> {
-  const authOk = await ensureGoogleAuth();
-  if (!authOk) {
+  const auth = await ensureGoogleAuth();
+  if (!auth) {
     console.warn(
       "[Google Calendar] Auth failed – returning empty busy list for date",
       date,
     );
     return [];
   }
+  const { calendarId } = auth;
 
   const timeZone = "Asia/Kolkata";
 
-  // full day in IST
   const timeMin = new Date(`${date}T00:00:00+05:30`).toISOString();
   const timeMax = new Date(`${date}T23:59:59+05:30`).toISOString();
 
@@ -207,12 +190,12 @@ export async function getBusyTimeRangesForDate(
       timeMin,
       timeMax,
       timeZone,
-      items: [{ id: CALENDAR_ID }],
+      items: [{ id: calendarId }],
     },
   });
 
   const busy =
-    res.data.calendars?.[CALENDAR_ID]?.busy?.map((b) => ({
+    res.data.calendars?.[calendarId]?.busy?.map((b) => ({
       start: b.start as string,
       end: b.end as string,
     })) ?? [];
@@ -222,22 +205,18 @@ export async function getBusyTimeRangesForDate(
   return busy;
 }
 
-/**
- * Check if a given slot overlaps any busy range.
- */
 export function isSlotOverlappingBusy(
-  date: string,       // "YYYY-MM-DD"
-  startTime: string,  // "HH:mm"
-  endTime: string,    // "HH:mm"
+  date: string,
+  startTime: string,
+  endTime: string,
   busyRanges: BusyTimeRange[],
 ): boolean {
   const slotStart = new Date(`${date}T${startTime}:00+05:30`).getTime();
-  const slotEnd = new Date(`${date}T${endTime}:00+05:30+05:30`.replace("+05:30+05:30", "+05:30")).getTime();
+  const slotEnd = new Date(`${date}T${endTime}:00+05:30`).getTime();
 
   return busyRanges.some((b) => {
     const busyStart = new Date(b.start).getTime();
     const busyEnd = new Date(b.end).getTime();
-    // overlap check
     return slotStart < busyEnd && slotEnd > busyStart;
   });
 }

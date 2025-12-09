@@ -491,21 +491,25 @@ export const AppointmentModel =
 
 interface GoogleAuthDocument extends mongoose.Document {
   id: number;
+  email: string;
   accessToken: string;
   refreshToken: string;
   expiryDate: number;
+  calendarId?: string,
   createdAt: Date;
 }
 
 const googleAuthSchema = new Schema<GoogleAuthDocument>(
   {
-    id: numericIdField, // <- numeric autoincrement ID via counters
+    id: numericIdField,
+    email: { type: String, required: true },
     accessToken: { type: String, required: true },
     refreshToken: { type: String, required: true },
     expiryDate: { type: Number, required: true },
+    calendarId: { type: String, required: false }, 
     createdAt: { type: Date, default: Date.now },
   },
-  { collection: "google_auth_tokens", versionKey: false }, // 👈 collection name
+  { collection: "google_auth_tokens", versionKey: false },
 );
 
 export const GoogleAuthModel =

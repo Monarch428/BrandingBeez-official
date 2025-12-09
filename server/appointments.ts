@@ -239,6 +239,7 @@ interface AppointmentSlot {
   endTime: string;
   status: SlotStatus;
   appointmentId?: number;
+  blockedByCalendar?: boolean;
 }
 
 interface CreateAppointmentBody {
@@ -373,8 +374,8 @@ router.post("/appointments", async (req: Request, res: Response) => {
     // Normalise guest emails array
     const cleanGuestEmails: string[] = Array.isArray(guestEmails)
       ? guestEmails
-          .map((g) => (typeof g === "string" ? g.trim() : ""))
-          .filter((g) => !!g)
+        .map((g) => (typeof g === "string" ? g.trim() : ""))
+        .filter((g) => !!g)
       : [];
 
     // Check if slot already booked (booked or completed – ignore cancelled)
