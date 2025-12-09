@@ -154,8 +154,1659 @@
 <!--  -->
 
 
+<!-- Portflio Routes -->
+ <!-- // Portfolio public routes
+  app.get("/api/portfolio", publicContentRateLimit, async (req, res) => {
+    try {
+      const items = await storage.getPublicPortfolioItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+
+  app.get("/api/portfolio/content", publicContentRateLimit, async (req, res) => {
+    try {
+      const content = await storage.getPortfolioContent();
+      res.json(content);
+    } catch (error) {
+      console.error("Error fetching portfolio content:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio content" });
+    }
+  });
+
+  app.get("/api/portfolio/:slug", publicContentRateLimit, async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const item = await storage.getPortfolioItemBySlug(slug);
+      if (!item) {
+        return res.status(404).json({ message: "Portfolio item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error fetching portfolio item:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio item" });
+    }
+  });
+
+  // Admin portfolio content routes
+  app.get("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
+    try {
+      const content = await storage.getPortfolioContent();
+      res.json(content);
+    } catch (error) {
+      console.error("Failed to fetch portfolio content:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio content" });
+    }
+  });
+
+  app.put("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
+    try {
+      const validated = insertPortfolioContentSchema.parse(req.body);
+      const content = await storage.upsertPortfolioContent(validated);
+      res.json(content);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio content:", error);
+      res.status(500).json({ message: "Failed to update portfolio content" });
+    }
+  });
+
+  // Update hero stats only
+  app.put("/api/admin/portfolio-content/stats", authenticateAdmin, async (req, res) => {
+    try {
+      const { heroStats } = req.body;
+
+      if (!Array.isArray(heroStats)) {
+        return res.status(400).json({ message: "heroStats must be an array" });
+      }
+
+      // Get existing content and merge with new stats
+      const existingContent = await storage.getPortfolioContent();
+      const updatedContent = {
+        ...existingContent,
+        heroStats,
+      };
+
+      const validated = insertPortfolioContentSchema.parse(updatedContent);
+      const content = await storage.upsertPortfolioContent(validated);
+      res.json({ success: true, content });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio stats:", error);
+      res.status(500).json({ message: "Failed to update portfolio stats" });
+    }
+  });
+
+  // Admin portfolio items routes
+  app.get("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
+    try {
+      const items = await storage.getAllPortfolioItems();
+      res.json(items);
+    } catch (error) {
+      console.error("Failed to fetch portfolio items:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio items" });
+    }
+  });
+
+  app.post("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
+    try {
+      const validated = insertPortfolioItemSchema.parse(req.body);
+      const item = await storage.createPortfolioItem(validated);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to create portfolio item:", error);
+      res.status(500).json({ message: "Failed to create portfolio item" });
+    }
+  });
+
+  app.put("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const validated = insertPortfolioItemSchema.partial().parse(req.body);
+      const item = await storage.updatePortfolioItem(id, validated);
+      res.json(item);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      console.error("Failed to update portfolio item:", error);
+      res.status(500).json({ message: "Failed to update portfolio item" });
+    }
+  });
+
+  app.delete("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePortfolioItem(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Failed to delete portfolio item:", error);
+      res.status(500).json({ message: "Failed to delete portfolio item" });
+    }
+  }); -->
+
+<!-- 
+const portfolioItemSchema = new Schema<PortfolioItemDocument>(
+  {
+    id: numericIdField,
+    slug: { type: String, required: true, unique: true },
+    title: { type: String, required: true },
+    industry: { type: String, required: true },
+    client: String,
+    badge: String,
+    investment: String,
+    totalValue: String,
+    roi: String,
+    description: String,
+    features: { type: [String], default: [] },
+    techStack: { type: [String], default: [] },
+    timeline: String,
+    imageUrl: String,
+    image: String,
+    isFeatured: { type: Boolean, default: false },
+    orderIndex: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true },
+    serviceCategory: String,
+  },
+  {
+    collection: "portfolio_items",
+    versionKey: false,
+    timestamps: { createdAt: "createdAt", updatedAt: "updatedAt" },
+  },
+); -->
+
+<!-- End of Protfolio Routes -->
+
+<!-- Full DB-storage file Sources -->
+<!-- 
+
+import type { IStorage } from "./storage";
+import type {
+  BlogPost,
+  CaseStudy,
+  ChatSession,
+  Client,
+  Contact,
+  Coupon,
+  CouponUsage,
+  DedicatedResourcesLead,
+  FeaturedClient,
+  InsertBlogPost,
+  InsertCaseStudy,
+  InsertChatSession,
+  InsertClient,
+  InsertContact,
+  InsertCoupon,
+  InsertCouponUsage,
+  InsertDedicatedResourcesLead,
+  InsertFeaturedClient,
+  InsertPricingPackage,
+  InsertSeoAudit,
+  InsertServicePage,
+  InsertUser,
+  InsertNewsletterSubscriber,
+  NewsletterSubscriber,
+  PortfolioItem,
+  InsertPortfolioItem,
+  PortfolioContent,
+  InsertPortfolioContent,
+  PricingPackage,
+  SeoAudit,
+  ServicePage,
+  User,
+  Appointment,
+  InsertAppointment,
+  AppointmentStatus,
+} from "@shared/schema";
+import {
+  BlogPostModel,
+  CaseStudyModel,
+  ChatSessionModel,
+  ClientModel,
+  ContactModel,
+  CouponModel,
+  CouponUsageModel,
+  DedicatedResourcesLeadModel,
+  FeaturedClientModel,
+  PricingPackageModel,
+  SeoAuditModel,
+  ServicePageModel,
+  UserModel,
+  NewsletterSubscriberModel,
+  PortfolioItemModel,
+  PortfolioContentModel,
+  AppointmentModel,
+  GoogleAuthModel,
+} from "./models";
+import { connectToDatabase, getNextSequence } from "./db";
+
+function toPlain<T>(doc: any): T {
+  if (!doc) return doc;
+  const obj = doc.toObject ? doc.toObject() : { ...doc };
+  delete obj._id;
+  return obj as T;
+}
+
+export class DatabaseStorage implements IStorage {
+  private async ensureConnection(): Promise<void> {
+    await connectToDatabase();
+  }
+
+  private defaultPortfolioContent(): InsertPortfolioContent {
+    return {
+      heroTitle: "Real AI Solutions We’ve Built",
+      heroHighlight: "with Full Transparency",
+      heroSubtitle:
+        "Actual costs, timelines, tech stack, and ROI verified and documented. No fluff. Just results you can trust.",
+      heroDescription:
+        "We partner with founders and teams to ship automation and AI products that deliver measurable ROI in weeks, not months.",
+      heroStats: [
+        { kpi: "15+", label: "Projects Delivered" },
+        { kpi: "$127K", label: "Total Value Created" },
+        { kpi: "325%", label: "Average ROI" },
+      ],
+      heroPrimaryCtaText: "Explore Case Studies",
+      heroPrimaryCtaHref: "/#case-studies",
+      heroSecondaryCtaText: "Get an Estimate",
+      heroSecondaryCtaHref: "/pricing-calculator",
+      testimonialsTitle: "What Our Clients Say",
+      testimonialsSubtitle:
+        "Transparent pricing, predictable delivery, and partners who stay accountable end to end.",
+      testimonials: [
+        {
+          quote:
+            "The ROI was immediate. We saw efficiency gains within the first week.",
+          who: "AC Graphics",
+          tag: "Manufacturing",
+        },
+        {
+          quote:
+            "BrandingBeez delivered exactly what they promised, on time and on budget.",
+          who: "Wellenpuls",
+          tag: "HealthTech",
+        },
+        {
+          quote: "Finally, an agency that shows you the real costs upfront.",
+          who: "Digital Identity Client",
+          tag: "SaaS Startup",
+        },
+      ],
+    };
+  }
+
+  private normalizePortfolioContent(
+    content: PortfolioContent,
+  ): PortfolioContent {
+    return {
+      ...content,
+      heroStats: content.heroStats ?? [],
+      testimonials: content.testimonials ?? [],
+    };
+  }
+
+  async getUser(id: number): Promise<User | undefined> {
+    await this.ensureConnection();
+    const user = await UserModel.findOne({ id }).lean<User>();
+    return user ?? undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    await this.ensureConnection();
+    const user = await UserModel.findOne({ username }).lean<User>();
+    return user ?? undefined;
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    await this.ensureConnection();
+    const id = await getNextSequence("users");
+    const created = await UserModel.create({ id, ...user });
+    return toPlain<User>(created);
+  }
+
+  async createContact(contact: InsertContact): Promise<Contact> {
+    await this.ensureConnection();
+    const id = await getNextSequence("contacts");
+    const created = await ContactModel.create({ id, ...contact });
+    return toPlain<Contact>(created);
+  }
+
+  async getAllContacts(): Promise<Contact[]> {
+    await this.ensureConnection();
+    const contacts = await ContactModel.find().sort({ createdAt: -1 }).lean<Contact[]>();
+    return contacts;
+  }
+
+  async deleteContact(id: number): Promise<void> {
+    await this.ensureConnection();
+    await ContactModel.deleteOne({ id });
+  }
+
+  // Client management
+  async createClient(client: InsertClient): Promise<Client> {
+    await this.ensureConnection();
+    const id = await getNextSequence("clients");
+    const created = await ClientModel.create({ id, ...client });
+    return toPlain<Client>(created);
+  }
+
+  async getClient(id: number): Promise<Client | undefined> {
+    await this.ensureConnection();
+    const client = await ClientModel.findOne({ id }).lean<Client>();
+    return client ?? undefined;
+  }
+
+  async getClientByEmail(email: string): Promise<Client | undefined> {
+    await this.ensureConnection();
+    const client = await ClientModel.findOne({ email }).lean<Client>();
+    return client ?? undefined;
+  }
+
+  async getAllClients(): Promise<Client[]> {
+    await this.ensureConnection();
+    const clients = await ClientModel.find().sort({ createdAt: -1 }).lean<Client[]>();
+    return clients;
+  }
+
+  async updateClientStatus(id: number, status: string): Promise<Client> {
+    await this.ensureConnection();
+    const updated = await ClientModel.findOneAndUpdate(
+      { id },
+      { status },
+      { new: true },
+    ).lean<Client>();
+    if (!updated) {
+      throw new Error("Client not found");
+    }
+    return updated;
+  }
+
+  // SEO Audit management
+  async createSeoAudit(audit: InsertSeoAudit): Promise<SeoAudit> {
+    await this.ensureConnection();
+    const id = await getNextSequence("seo_audits");
+    const created = await SeoAuditModel.create({ id, ...audit });
+    return toPlain<SeoAudit>(created);
+  }
+
+  async getSeoAudit(id: number): Promise<SeoAudit | undefined> {
+    await this.ensureConnection();
+    const audit = await SeoAuditModel.findOne({ id }).lean<SeoAudit>();
+    return audit ?? undefined;
+  }
+
+  async getAuditsByClient(clientId: number): Promise<SeoAudit[]> {
+    await this.ensureConnection();
+    const audits = await SeoAuditModel.find({ clientId }).lean<SeoAudit[]>();
+    return audits;
+  }
+
+  async updateAuditData(
+    id: number,
+    data: any,
+    score: number,
+    recommendations: string,
+  ): Promise<SeoAudit> {
+    await this.ensureConnection();
+    const updated = await SeoAuditModel.findOneAndUpdate(
+      { id },
+      {
+        auditData: data,
+        score,
+        recommendations,
+        status: "completed",
+        completedAt: new Date(),
+      },
+      { new: true },
+    ).lean<SeoAudit>();
+    if (!updated) {
+      throw new Error("SEO audit not found");
+    }
+    return updated;
+  }
+
+  // Chat sessions
+  async createChatSession(session: InsertChatSession): Promise<ChatSession> {
+    await this.ensureConnection();
+    const id = await getNextSequence("chat_sessions");
+    const created = await ChatSessionModel.create({ id, ...session });
+    return toPlain<ChatSession>(created);
+  }
+
+  async getChatSession(sessionId: string): Promise<ChatSession | undefined> {
+    await this.ensureConnection();
+    const session = await ChatSessionModel.findOne({ sessionId }).lean<ChatSession>();
+    return session ?? undefined;
+  }
+
+  async updateChatSession(
+    sessionId: string,
+    messages: any[],
+    recommendations?: any[],
+  ): Promise<ChatSession> {
+    await this.ensureConnection();
+    const updateData: Record<string, unknown> = {
+      messages,
+      updatedAt: new Date(),
+    };
+    if (recommendations) {
+      updateData.recommendations = recommendations;
+    }
+    const updated = await ChatSessionModel.findOneAndUpdate(
+      { sessionId },
+      updateData,
+      { new: true },
+    ).lean<ChatSession>();
+    if (!updated) {
+      throw new Error("Chat session not found");
+    }
+    return updated;
+  }
+
+  // Featured Clients
+  async createFeaturedClient(client: InsertFeaturedClient): Promise<FeaturedClient> {
+    await this.ensureConnection();
+    const id = await getNextSequence("featured_clients");
+    const created = await FeaturedClientModel.create({ id, ...client });
+    return toPlain<FeaturedClient>(created);
+  }
+
+  async getFeaturedClientsByService(servicePage: string): Promise<FeaturedClient[]> {
+    await this.ensureConnection();
+    const clients = await FeaturedClientModel.find({
+      servicePage,
+      isActive: true,
+    }).lean<FeaturedClient[]>();
+    return clients;
+  }
+
+  async getAllFeaturedClients(): Promise<FeaturedClient[]> {
+    await this.ensureConnection();
+    const clients = await FeaturedClientModel.find({ isActive: true }).lean<FeaturedClient[]>();
+    return clients;
+  }
+
+  async updateFeaturedClient(
+    id: number,
+    data: Partial<InsertFeaturedClient>,
+  ): Promise<FeaturedClient> {
+    await this.ensureConnection();
+    const updated = await FeaturedClientModel.findOneAndUpdate(
+      { id },
+      { ...data },
+      { new: true },
+    ).lean<FeaturedClient>();
+    if (!updated) {
+      throw new Error("Featured client not found");
+    }
+    return updated;
+  }
+
+  async deleteFeaturedClient(id: number): Promise<void> {
+    await this.ensureConnection();
+    await FeaturedClientModel.deleteOne({ id });
+  }
+
+  // Case Studies
+  async createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy> {
+    await this.ensureConnection();
+    const id = await getNextSequence("case_studies");
+    const created = await CaseStudyModel.create({ id, ...caseStudy });
+    return toPlain<CaseStudy>(created);
+  }
+
+  async getCaseStudiesByService(servicePage: string): Promise<CaseStudy[]> {
+    await this.ensureConnection();
+    const studies = await CaseStudyModel.find({ servicePage, isActive: true }).lean<CaseStudy[]>();
+    return studies;
+  }
+
+  async getAllCaseStudies(): Promise<CaseStudy[]> {
+    await this.ensureConnection();
+    const studies = await CaseStudyModel.find({ isActive: true }).lean<CaseStudy[]>();
+    return studies;
+  }
+
+  async updateCaseStudy(
+    id: number,
+    data: Partial<InsertCaseStudy>,
+  ): Promise<CaseStudy> {
+    await this.ensureConnection();
+    const updated = await CaseStudyModel.findOneAndUpdate(
+      { id },
+      { ...data },
+      { new: true },
+    ).lean<CaseStudy>();
+    if (!updated) {
+      throw new Error("Case study not found");
+    }
+    return updated;
+  }
+
+  async deleteCaseStudy(id: number): Promise<void> {
+    await this.ensureConnection();
+    await CaseStudyModel.deleteOne({ id });
+  }
+
+  // Pricing Packages
+  async createPricingPackage(pkg: InsertPricingPackage): Promise<PricingPackage> {
+    await this.ensureConnection();
+    const id = await getNextSequence("pricing_packages");
+    const created = await PricingPackageModel.create({ id, ...pkg });
+    return toPlain<PricingPackage>(created);
+  }
+
+  async getPricingPackagesByService(servicePage: string): Promise<PricingPackage[]> {
+    await this.ensureConnection();
+    const packages = await PricingPackageModel.find({
+      servicePage,
+      isActive: true,
+    })
+      .sort({ orderIndex: 1 })
+      .lean<PricingPackage[]>();
+    return packages;
+  }
+
+  async getAllPricingPackages(): Promise<PricingPackage[]> {
+    await this.ensureConnection();
+    const packages = await PricingPackageModel.find({ isActive: true })
+      .sort({ orderIndex: 1 })
+      .lean<PricingPackage[]>();
+    return packages;
+  }
+
+  async updatePricingPackage(
+    id: number,
+    data: Partial<InsertPricingPackage>,
+  ): Promise<PricingPackage> {
+    await this.ensureConnection();
+    const updated = await PricingPackageModel.findOneAndUpdate(
+      { id },
+      { ...data },
+      { new: true },
+    ).lean<PricingPackage>();
+    if (!updated) {
+      throw new Error("Pricing package not found");
+    }
+    return updated;
+  }
+
+  async deletePricingPackage(id: number): Promise<void> {
+    await this.ensureConnection();
+    await PricingPackageModel.deleteOne({ id });
+  }
+
+  // Service Pages
+  async createServicePage(page: InsertServicePage): Promise<ServicePage> {
+    await this.ensureConnection();
+    const id = await getNextSequence("service_pages");
+    const created = await ServicePageModel.create({ id, ...page });
+    return toPlain<ServicePage>(created);
+  }
+
+  async getServicePage(slug: string): Promise<ServicePage | undefined> {
+    await this.ensureConnection();
+    const page = await ServicePageModel.findOne({ slug, isActive: true }).lean<ServicePage>();
+    return page ?? undefined;
+  }
+
+  async getAllServicePages(): Promise<ServicePage[]> {
+    await this.ensureConnection();
+    const pages = await ServicePageModel.find({ isActive: true }).lean<ServicePage[]>();
+    return pages;
+  }
+
+  async updateServicePage(
+    id: number,
+    data: Partial<InsertServicePage>,
+  ): Promise<ServicePage> {
+    await this.ensureConnection();
+    const updated = await ServicePageModel.findOneAndUpdate(
+      { id },
+      { ...data },
+      { new: true },
+    ).lean<ServicePage>();
+    if (!updated) {
+      throw new Error("Service page not found");
+    }
+    return updated;
+  }
+
+  async deleteServicePage(id: number): Promise<void> {
+    await this.ensureConnection();
+    await ServicePageModel.deleteOne({ id });
+  }
+
+  // Coupon Management
+  async createCoupon(coupon: InsertCoupon): Promise<Coupon> {
+    await this.ensureConnection();
+    const id = await getNextSequence("coupons");
+    const created = await CouponModel.create({ id, ...coupon });
+    return toPlain<Coupon>(created);
+  }
+
+  async getCoupon(code: string): Promise<Coupon | undefined> {
+    await this.ensureConnection();
+    const coupon = await CouponModel.findOne({ code }).lean<Coupon>();
+    return coupon ?? undefined;
+  }
+
+  async validateCouponForEmail(
+    code: string,
+    email: string,
+  ): Promise<{ valid: boolean; message: string; coupon?: Coupon }> {
+    await this.ensureConnection();
+    const coupon = await this.getCoupon(code);
+
+    if (!coupon) {
+      return { valid: false, message: "Coupon code not found" };
+    }
+
+    if (!coupon.isActive) {
+      return { valid: false, message: "Coupon is no longer active" };
+    }
+
+    if (coupon.expiresAt && new Date() > coupon.expiresAt) {
+      return { valid: false, message: "Coupon has expired" };
+    }
+
+    if (coupon.maxUses && coupon.currentUses >= coupon.maxUses) {
+      return { valid: false, message: "Coupon usage limit reached" };
+    }
+
+    const existingUsage = await CouponUsageModel.findOne({
+      couponId: coupon.id,
+      email,
+    }).lean<CouponUsage>();
+
+    if (existingUsage) {
+      return { valid: false, message: "You have already used this coupon code" };
+    }
+
+    return { valid: true, message: "Coupon is valid", coupon };
+  }
+
+  async useCoupon(code: string, email: string): Promise<void> {
+    await this.ensureConnection();
+    const coupon = await this.getCoupon(code);
+    if (!coupon) {
+      return;
+    }
+
+    const usageId = await getNextSequence("coupon_usage");
+    await CouponUsageModel.create({
+      id: usageId,
+      couponId: coupon.id,
+      email,
+    });
+
+    await CouponModel.updateOne({ id: coupon.id }, { $inc: { currentUses: 1 } });
+  }
+
+  async getAllCoupons(): Promise<Coupon[]> {
+    await this.ensureConnection();
+    const coupons = await CouponModel.find().lean<Coupon[]>();
+    return coupons;
+  }
+
+  // Dedicated Resources Leads
+  async createDedicatedResourcesLead(
+    lead: InsertDedicatedResourcesLead,
+  ): Promise<DedicatedResourcesLead> {
+    await this.ensureConnection();
+    const id = await getNextSequence("dedicated_resources_leads");
+    const created = await DedicatedResourcesLeadModel.create({ id, ...lead });
+    return toPlain<DedicatedResourcesLead>(created);
+  }
+
+  async getAllDedicatedResourcesLeads(): Promise<DedicatedResourcesLead[]> {
+    await this.ensureConnection();
+    const leads = await DedicatedResourcesLeadModel.find()
+      .sort({ createdAt: -1 })
+      .lean<DedicatedResourcesLead[]>();
+    return leads;
+  }
+
+  // Blog Posts
+  async createBlogPost(post: InsertBlogPost): Promise<BlogPost> {
+    await this.ensureConnection();
+    const id = await getNextSequence("blog_posts");
+    const created = await BlogPostModel.create({ id, ...post });
+    return toPlain<BlogPost>(created);
+  }
+
+  async getAllBlogPosts(): Promise<BlogPost[]> {
+    await this.ensureConnection();
+    const posts = await BlogPostModel.find().sort({ createdAt: -1 }).lean<BlogPost[]>();
+    return posts;
+  }
+
+  async getBlogPost(slug: string): Promise<BlogPost | undefined> {
+    await this.ensureConnection();
+    const post = await BlogPostModel.findOne({ slug, isPublished: true }).lean<BlogPost>();
+    return post ?? undefined;
+  }
+
+  async getPublishedBlogPosts(): Promise<BlogPost[]> {
+    await this.ensureConnection();
+    const posts = await BlogPostModel.find({ isPublished: true })
+      .sort({ createdAt: -1 })
+      .lean<BlogPost[]>();
+    return posts;
+  }
+
+  async getFeaturedBlogPosts(): Promise<BlogPost[]> {
+    await this.ensureConnection();
+    const posts = await BlogPostModel.find({ isPublished: true, isFeatured: true })
+      .sort({ createdAt: -1 })
+      .lean<BlogPost[]>();
+    return posts;
+  }
+
+  async updateBlogPost(
+    id: number,
+    data: Partial<InsertBlogPost>,
+  ): Promise<BlogPost> {
+    await this.ensureConnection();
+    const updated = await BlogPostModel.findOneAndUpdate(
+      { id },
+      { ...data },
+      { new: true },
+    ).lean<BlogPost>();
+    if (!updated) {
+      throw new Error("Blog post not found");
+    }
+    return updated;
+  }
+
+  async deleteBlogPost(id: number): Promise<void> {
+    await this.ensureConnection();
+    await BlogPostModel.deleteOne({ id });
+  }
+
+  async getBlogPostById(id: number): Promise<BlogPost | undefined> {
+    await this.ensureConnection();
+    const post = await BlogPostModel.findOne({ id }).lean<BlogPost>();
+    return post ?? undefined;
+  }
+
+  // Newsletter subscribers
+  async createNewsletterSubscriber(
+    subscriber: InsertNewsletterSubscriber,
+  ): Promise<NewsletterSubscriber> {
+    await this.ensureConnection();
+    const id = await getNextSequence("newsletter_subscribers");
+    const created = await NewsletterSubscriberModel.create({ id, ...subscriber });
+    return toPlain<NewsletterSubscriber>(created);
+  }
+
+  async getNewsletterSubscriberByEmail(
+    email: string,
+  ): Promise<NewsletterSubscriber | undefined> {
+    await this.ensureConnection();
+    const subscriber = await NewsletterSubscriberModel.findOne({ email }).lean<NewsletterSubscriber>();
+    return subscriber ?? undefined;
+  }
+
+  async getAllNewsletterSubscribers(): Promise<NewsletterSubscriber[]> {
+    await this.ensureConnection();
+    const subscribers = await NewsletterSubscriberModel.find().sort({ subscribedAt: -1 }).lean<NewsletterSubscriber[]>();
+    return subscribers;
+  }
+
+  async deleteNewsletterSubscriber(id: number): Promise<void> {
+    await this.ensureConnection();
+    await NewsletterSubscriberModel.deleteOne({ id });
+  }
+
+  // Portfolio Items
+  async createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem> {
+    await this.ensureConnection();
+    const id = await getNextSequence("portfolio_items");
+    const created = await PortfolioItemModel.create({ id, ...item });
+    return toPlain<PortfolioItem>(created);
+  }
+
+  async getAllPortfolioItems(): Promise<PortfolioItem[]> {
+    await this.ensureConnection();
+    const items = await PortfolioItemModel.find().sort({ orderIndex: 1, createdAt: -1 }).lean<PortfolioItem[]>();
+    return items;
+  }
+
+  async getPublicPortfolioItems(): Promise<PortfolioItem[]> {
+    await this.ensureConnection();
+    const items = await PortfolioItemModel.find({ isActive: true })
+      .sort({ orderIndex: 1, createdAt: -1 })
+      .lean<PortfolioItem[]>();
+    return items;
+  }
+
+  async getFeaturedPortfolioItems(): Promise<PortfolioItem[]> {
+    await this.ensureConnection();
+    const items = await PortfolioItemModel.find({ isActive: true, isFeatured: true })
+      .sort({ orderIndex: 1, createdAt: -1 })
+      .lean<PortfolioItem[]>();
+    return items;
+  }
+
+  async getPortfolioItemBySlug(slug: string): Promise<PortfolioItem | undefined> {
+    await this.ensureConnection();
+    const item = await PortfolioItemModel.findOne({ slug, isActive: true }).lean<PortfolioItem>();
+    return item ?? undefined;
+  }
+
+  async updatePortfolioItem(
+    id: number,
+    data: Partial<InsertPortfolioItem>,
+  ): Promise<PortfolioItem> {
+    await this.ensureConnection();
+    const updated = await PortfolioItemModel.findOneAndUpdate(
+      { id },
+      { ...data },
+      { new: true },
+    ).lean<PortfolioItem>();
+    if (!updated) {
+      throw new Error("Portfolio item not found");
+    }
+    return updated;
+  }
+
+  async deletePortfolioItem(id: number): Promise<void> {
+    await this.ensureConnection();
+    await PortfolioItemModel.deleteOne({ id });
+  }
+
+  async getPortfolioContent(): Promise<PortfolioContent> {
+    await this.ensureConnection();
+    let content = await PortfolioContentModel.findOne().lean<PortfolioContent>();
+
+    if (!content) {
+      const id = await getNextSequence("portfolio_content");
+      const defaults = this.defaultPortfolioContent();
+      const created = await PortfolioContentModel.create({
+        id,
+        ...defaults,
+      });
+      return this.normalizePortfolioContent(toPlain<PortfolioContent>(created));
+    }
+
+    return this.normalizePortfolioContent(content);
+  }
+
+  async upsertPortfolioContent(
+    data: InsertPortfolioContent,
+  ): Promise<PortfolioContent> {
+    await this.ensureConnection();
+    const payload = {
+      ...data,
+      heroStats: data.heroStats ?? [],
+      testimonials: data.testimonials ?? [],
+    };
+
+    const existing = await PortfolioContentModel.findOne();
+    if (!existing) {
+      const id = await getNextSequence("portfolio_content");
+      const created = await PortfolioContentModel.create({
+        id,
+        ...payload,
+      });
+      return this.normalizePortfolioContent(toPlain<PortfolioContent>(created));
+    }
+
+    const updated = await PortfolioContentModel.findOneAndUpdate(
+      { id: existing.get("id") },
+      payload,
+      { new: true },
+    ).lean<PortfolioContent>();
+
+    if (!updated) {
+      throw new Error("Failed to update portfolio content");
+    }
+
+    return this.normalizePortfolioContent(updated);
+  }
+
+  async getAllPortfolioItemsByCategory(
+    serviceCategory: string,
+  ): Promise<PortfolioItem[]> {
+    await this.ensureConnection();
+    const items = await PortfolioItemModel.find({ serviceCategory })
+      .sort({ orderIndex: 1, createdAt: -1 })
+      .lean<PortfolioItem[]>();
+    return items;
+  }
+
+  async getPublicPortfolioItemsByCategory(
+    serviceCategory: string,
+  ): Promise<PortfolioItem[]> {
+    await this.ensureConnection();
+    const items = await PortfolioItemModel.find({
+      isActive: true,
+      serviceCategory,
+    })
+      .sort({ orderIndex: 1, createdAt: -1 })
+      .lean<PortfolioItem[]>();
+    return items;
+  }
 
 
+  async createAppointment(appointment: InsertAppointment): Promise<Appointment> {
+    await this.ensureConnection();
+    const id = await getNextSequence("appointments");
+    const created = await AppointmentModel.create({
+      id,
+      status: "booked",
+      ...appointment,
+    });
+    return toPlain<Appointment>(created);
+  }
+
+  async getAppointment(id: number): Promise<Appointment | undefined> {
+    await this.ensureConnection();
+    const appt = await AppointmentModel.findOne({ id }).lean<Appointment>();
+    return appt ?? undefined;
+  }
+
+  async getAppointmentsByDate(date: string): Promise<Appointment[]> {
+    await this.ensureConnection();
+    const appts = await AppointmentModel.find({ date })
+      .sort({ startTime: 1 })
+      .lean<Appointment[]>();
+    return appts;
+  }
+
+  async getAllAppointments(): Promise<Appointment[]> {
+    await this.ensureConnection();
+    const appts = await AppointmentModel.find()
+      .sort({ date: 1, startTime: 1 })
+      .lean<Appointment[]>();
+    return appts;
+  }
+
+  async getAppointmentsFiltered(params: {
+    date?: string;
+    fromDate?: string;
+    toDate?: string;
+    status?: AppointmentStatus;
+    serviceType?: string;
+    search?: string; // name / email / phone contains
+  }): Promise<Appointment[]> {
+    await this.ensureConnection();
+
+    const { date, fromDate, toDate, status, serviceType, search } = params;
+    const query: any = {};
+
+    if (date) {
+      query.date = date;
+    } else if (fromDate || toDate) {
+      query.date = {};
+      if (fromDate) query.date.$gte = fromDate;
+      if (toDate) query.date.$lte = toDate;
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    if (serviceType) {
+      query.serviceType = { $regex: serviceType, $options: "i" };
+    }
+
+    if (search) {
+      const regex = new RegExp(search, "i");
+      query.$or = [
+        { name: regex },
+        { email: regex },
+        { phone: regex },
+        { notes: regex },
+      ];
+    }
+
+    const appts = await AppointmentModel.find(query)
+      .sort({ date: 1, startTime: 1 })
+      .lean<Appointment[]>();
+
+    return appts;
+  }
+
+  async updateAppointmentStatus(
+    id: number,
+    status: AppointmentStatus,
+  ): Promise<Appointment> {
+    await this.ensureConnection();
+    const updated = await AppointmentModel.findOneAndUpdate(
+      { id },
+      { status },
+      { new: true },
+    ).lean<Appointment>();
+
+    if (!updated) {
+      throw new Error("Appointment not found");
+    }
+
+    return updated;
+  }
+
+  async saveGoogleAuthTokens(tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiryDate: number;
+    email: string;
+    calendarId?: string;
+  }) {
+    await this.ensureConnection();
+    const existing = await GoogleAuthModel.findOne();
+
+    if (existing) {
+      existing.accessToken = tokens.accessToken;
+      existing.refreshToken = tokens.refreshToken;
+      existing.expiryDate = tokens.expiryDate;
+      existing.email = tokens.email;
+      if (tokens.calendarId) {
+        existing.calendarId = tokens.calendarId;
+      }
+      await existing.save();
+      return toPlain(existing);
+    }
+
+    const id = await getNextSequence("google_auth_tokens");
+    const created = await GoogleAuthModel.create({ id, ...tokens });
+    return toPlain(created);
+  }
+
+  async getGoogleAuthTokens() {
+    await this.ensureConnection();
+    const row = await GoogleAuthModel.findOne().lean();
+    return row ?? null;
+  }
+
+}
+
+export const storage = new DatabaseStorage();
+ -->
+<!-- End of Full DB-storage file Sources  -->
+
+<!-- IStorage Backup -->
+
+<!-- 
+import type {
+  BlogPost,
+  CaseStudy,
+  ChatSession,
+  Client,
+  Contact,
+  Coupon,
+  CouponUsage,
+  DedicatedResourcesLead,
+  FeaturedClient,
+  InsertBlogPost,
+  InsertCaseStudy,
+  InsertChatSession,
+  InsertClient,
+  InsertContact,
+  InsertCoupon,
+  InsertCouponUsage,
+  InsertDedicatedResourcesLead,
+  InsertFeaturedClient,
+  InsertPricingPackage,
+  InsertSeoAudit,
+  InsertServicePage,
+  InsertUser,
+  InsertNewsletterSubscriber,
+  NewsletterSubscriber,
+  PortfolioItem,
+  InsertPortfolioItem,
+  PortfolioContent,
+  InsertPortfolioContent,
+  PricingPackage,
+  SeoAudit,
+  ServicePage,
+  User,
+  Appointment,
+  InsertAppointment,
+  AppointmentStatus,
+} from "@shared/schema";
+
+import { storage as dbStorage } from "./db-storage";
+
+export interface IStorage {
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+
+  createContact(contact: InsertContact): Promise<Contact>;
+  getAllContacts(): Promise<Contact[]>;
+  deleteContact(id: number): Promise<void>;
+
+  createClient(client: InsertClient): Promise<Client>;
+  getClient(id: number): Promise<Client | undefined>;
+  getClientByEmail(email: string): Promise<Client | undefined>;
+  getAllClients(): Promise<Client[]>;
+  updateClientStatus(id: number, status: string): Promise<Client>;
+
+  createSeoAudit(audit: InsertSeoAudit): Promise<SeoAudit>;
+  getSeoAudit(id: number): Promise<SeoAudit | undefined>;
+  getAuditsByClient(clientId: number): Promise<SeoAudit[]>;
+  updateAuditData(
+    id: number,
+    data: any,
+    score: number,
+    recommendations: string,
+  ): Promise<SeoAudit>;
+
+  createChatSession(session: InsertChatSession): Promise<ChatSession>;
+  getChatSession(sessionId: string): Promise<ChatSession | undefined>;
+  updateChatSession(
+    sessionId: string,
+    messages: any[],
+    recommendations?: any[],
+  ): Promise<ChatSession>;
+
+  createFeaturedClient(client: InsertFeaturedClient): Promise<FeaturedClient>;
+  getFeaturedClientsByService(servicePage: string): Promise<FeaturedClient[]>;
+  getAllFeaturedClients(): Promise<FeaturedClient[]>;
+  updateFeaturedClient(
+    id: number,
+    data: Partial<InsertFeaturedClient>,
+  ): Promise<FeaturedClient>;
+  deleteFeaturedClient(id: number): Promise<void>;
+
+  createCaseStudy(caseStudy: InsertCaseStudy): Promise<CaseStudy>;
+  getCaseStudiesByService(servicePage: string): Promise<CaseStudy[]>;
+  getAllCaseStudies(): Promise<CaseStudy[]>;
+  updateCaseStudy(
+    id: number,
+    data: Partial<InsertCaseStudy>,
+  ): Promise<CaseStudy>;
+  deleteCaseStudy(id: number): Promise<void>;
+
+  createPricingPackage(pkg: InsertPricingPackage): Promise<PricingPackage>;
+  getPricingPackagesByService(servicePage: string): Promise<PricingPackage[]>;
+  getAllPricingPackages(): Promise<PricingPackage[]>;
+  updatePricingPackage(
+    id: number,
+    data: Partial<InsertPricingPackage>,
+  ): Promise<PricingPackage>;
+  deletePricingPackage(id: number): Promise<void>;
+
+  createServicePage(page: InsertServicePage): Promise<ServicePage>;
+  getServicePage(slug: string): Promise<ServicePage | undefined>;
+  getAllServicePages(): Promise<ServicePage[]>;
+  updateServicePage(
+    id: number,
+    data: Partial<InsertServicePage>,
+  ): Promise<ServicePage>;
+  deleteServicePage(id: number): Promise<void>;
+
+  createCoupon(coupon: InsertCoupon): Promise<Coupon>;
+  getCoupon(code: string): Promise<Coupon | undefined>;
+  validateCouponForEmail(
+    code: string,
+    email: string,
+  ): Promise<{ valid: boolean; message: string; coupon?: Coupon }>;
+  useCoupon(code: string, email: string): Promise<void>;
+  getAllCoupons(): Promise<Coupon[]>;
+
+  createDedicatedResourcesLead(
+    lead: InsertDedicatedResourcesLead,
+  ): Promise<DedicatedResourcesLead>;
+  getAllDedicatedResourcesLeads(): Promise<DedicatedResourcesLead[]>;
+
+  createBlogPost(post: InsertBlogPost): Promise<BlogPost>;
+  getAllBlogPosts(): Promise<BlogPost[]>;
+  getBlogPost(slug: string): Promise<BlogPost | undefined>;
+  getPublishedBlogPosts(): Promise<BlogPost[]>;
+  getFeaturedBlogPosts(): Promise<BlogPost[]>;
+  updateBlogPost(id: number, data: Partial<InsertBlogPost>): Promise<BlogPost>;
+  deleteBlogPost(id: number): Promise<void>;
+  getBlogPostById(id: number): Promise<BlogPost | undefined>;
+
+  createNewsletterSubscriber(
+    subscriber: InsertNewsletterSubscriber,
+  ): Promise<NewsletterSubscriber>;
+  getNewsletterSubscriberByEmail(
+    email: string,
+  ): Promise<NewsletterSubscriber | undefined>;
+  getAllNewsletterSubscribers(): Promise<NewsletterSubscriber[]>;
+  deleteNewsletterSubscriber(id: number): Promise<void>;
+
+  createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
+  getAllPortfolioItems(): Promise<PortfolioItem[]>;
+  getPublicPortfolioItems(): Promise<PortfolioItem[]>;
+  getFeaturedPortfolioItems(): Promise<PortfolioItem[]>;
+  getPortfolioItemBySlug(slug: string): Promise<PortfolioItem | undefined>;
+  updatePortfolioItem(
+    id: number,
+    data: Partial<InsertPortfolioItem>,
+  ): Promise<PortfolioItem>;
+  deletePortfolioItem(id: number): Promise<void>;
+
+  getPortfolioContent(): Promise<PortfolioContent>;
+  upsertPortfolioContent(
+    data: InsertPortfolioContent,
+  ): Promise<PortfolioContent>;
+
+  getAllPortfolioItemsByCategory(
+    serviceCategory: string,
+  ): Promise<PortfolioItem[]>;
+
+  getPublicPortfolioItemsByCategory(
+    serviceCategory: string,
+  ): Promise<PortfolioItem[]>;
+
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  getAppointmentsByDate(date: string): Promise<Appointment[]>;
+  getAllAppointments(): Promise<Appointment[]>;
+  updateAppointmentStatus(
+    id: number,
+    status: AppointmentStatus,
+  ): Promise<Appointment>;
+  getAppointment(id: number): Promise<Appointment | undefined>;
+  getAppointmentsFiltered(params: {
+    date?: string;
+    fromDate?: string;
+    toDate?: string;
+    status?: AppointmentStatus;
+    serviceType?: string;
+    search?: string;
+  }): Promise<Appointment[]>;
+
+  saveGoogleAuthTokens(tokens: {
+    accessToken: string;
+    refreshToken: string;
+    expiryDate: number;
+    email: string;
+    calendarId?: string;
+  }): Promise<any>;
+
+  getGoogleAuthTokens(): Promise<any | null>;
+}
+
+// ✅ Hook the composed db-storage into this module
+export const storage: IStorage = dbStorage;
+ -->
+
+<!-- End Of IStorage Backup -->
+
+<!-- SharedSchema Backup -->
+
+<!-- import { z } from "zod";
+
+const jsonValueSchema: z.ZodType<unknown> = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+  z.null(),
+  z.array(z.lazy(() => jsonValueSchema)),
+  z.record(z.lazy(() => jsonValueSchema)),
+]);
+
+// Users
+export const insertUserSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  password: z.string().min(1, "Password is required"),
+});
+export type InsertUser = z.infer<typeof insertUserSchema>;
+export interface User extends InsertUser {
+  id: number;
+}
+
+// Contacts
+export const insertContactSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional().nullable(),
+  company: z.string().optional().nullable(),
+  inquiry_type: z.string().min(1, "Inquiry type is required"),
+  message: z.string().min(1, "Message is required"),
+  preferred_contact: z.string().min(1, "Preferred contact is required"),
+  agencyName: z.string().optional().nullable(),
+  country: z.string().min(1, "Country is required"),
+  topPriority: z.string().min(1, "Top priority is required"),
+  couponCode: z.string().optional().nullable(),
+  servicesSelected: z.array(z.string()).optional().nullable(),
+  service: z.string().optional().nullable(),
+  budget: z.string().optional().nullable(),
+  timeline: z.string().optional().nullable(),
+  referralSource: z.string().optional().nullable(),
+  serviceDetails: jsonValueSchema.optional(),
+  automationDetails: jsonValueSchema.optional(),
+  dedicatedResourceDetails: jsonValueSchema.optional(),
+  websiteDetails: jsonValueSchema.optional(),
+  contactFormType: z.string().optional().nullable(),
+}).passthrough(); // Allow additional fields
+
+export type InsertContact = z.infer<typeof insertContactSchema>;
+export interface Contact extends InsertContact {
+  id: number;
+  createdAt: Date;
+  contactFormType: string;
+}
+
+// Clients
+export const insertClientSchema = z.object({
+  name: z.string().min(1),
+  email: z.string().email(),
+  company: z.string().optional(),
+  phone: z.string().optional(),
+  website: z.string().optional(),
+  region: z.string().optional(),
+});
+export type InsertClient = z.infer<typeof insertClientSchema>;
+export interface Client extends InsertClient {
+  id: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// SEO Audits
+export const insertSeoAuditSchema = z.object({
+  websiteUrl: z.string().min(1),
+  clientId: z.number().int(),
+  status: z.string().optional(),
+});
+export type InsertSeoAudit = z.infer<typeof insertSeoAuditSchema>;
+export interface SeoAudit {
+  id: number;
+  clientId: number;
+  websiteUrl: string;
+  auditData?: unknown;
+  score?: number | null;
+  status: string;
+  recommendations?: string | null;
+  createdAt: Date;
+  completedAt?: Date | null;
+}
+
+// Chat Sessions
+export const insertChatSessionSchema = z.object({
+  sessionId: z.string().min(1),
+  clientInfo: jsonValueSchema.optional(),
+});
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
+export interface ChatSession extends InsertChatSession {
+  id: number;
+  messages: unknown[];
+  recommendations?: unknown[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Featured Clients
+export const insertFeaturedClientSchema = z.object({
+  servicePage: z.string().min(1),
+  name: z.string().min(1),
+  logo: z.string().optional(),
+  website: z.string().optional(),
+  description: z.string().min(1),
+  achievements: z.array(z.string()),
+  industry: z.string().min(1),
+  timeframe: z.string().min(1),
+  isActive: z.boolean().optional(),
+});
+export type InsertFeaturedClient = z.infer<typeof insertFeaturedClientSchema>;
+export interface FeaturedClient extends InsertFeaturedClient {
+  id: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Case Studies
+export const insertCaseStudySchema = z.object({
+  servicePage: z.string().min(1),
+  title: z.string().min(1),
+  client: z.string().min(1),
+  industry: z.string().min(1),
+  results: jsonValueSchema,
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
+export interface CaseStudy extends InsertCaseStudy {
+  id: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export const insertPortfolioItemSchema = z.object({
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  industry: z.string().min(1),
+  client: z.string().optional(),
+  badge: z.string().optional(),
+  investment: z.string().optional(),
+  totalValue: z.string().optional(),
+  roi: z.string().optional(),
+  description: z.string().optional(),
+  features: z.array(z.string()).optional(),
+  techStack: z.array(z.string()).optional(),
+  timeline: z.string().optional(),
+  imageUrl: z.string().optional(),
+  image: z.string().optional(),
+  isFeatured: z.boolean().optional(),
+  orderIndex: z.number().int().optional(),
+  isActive: z.boolean().optional(),
+  serviceCategory: z.string().optional(),
+});
+export type InsertPortfolioItem = z.infer<typeof insertPortfolioItemSchema>;
+export interface PortfolioItem extends InsertPortfolioItem {
+  id: number;
+  isFeatured: boolean;
+  orderIndex: number;
+  isActive: boolean;
+  serviceCategory?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const heroStatSchema = z.object({
+  kpi: z.string().min(1),
+  label: z.string().min(1),
+});
+
+const testimonialSchema = z.object({
+  quote: z.string().min(1),
+  who: z.string().min(1),
+  tag: z.string().optional(),
+});
+
+export const insertPortfolioContentSchema = z.object({
+  heroTitle: z.string().min(1),
+  heroHighlight: z.string().optional(),
+  heroSubtitle: z.string().optional(),
+  heroDescription: z.string().optional(),
+  heroStats: z.array(heroStatSchema).optional(),
+  heroPrimaryCtaText: z.string().optional(),
+  heroPrimaryCtaHref: z.string().optional(),
+  heroSecondaryCtaText: z.string().optional(),
+  heroSecondaryCtaHref: z.string().optional(),
+  testimonialsTitle: z.string().optional(),
+  testimonialsSubtitle: z.string().optional(),
+  testimonials: z.array(testimonialSchema).optional(),
+});
+export type InsertPortfolioContent = z.infer<typeof insertPortfolioContentSchema>;
+export interface PortfolioContent extends InsertPortfolioContent {
+  id: number;
+  heroStats: z.infer<typeof heroStatSchema>[];
+  testimonials: z.infer<typeof testimonialSchema>[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Pricing Packages
+export const insertPricingPackageSchema = z.object({
+  servicePage: z.string().min(1),
+  name: z.string().min(1),
+  price: z.string().min(1),
+  description: z.string().optional(),
+  features: z.array(z.string()),
+  isPopular: z.boolean().optional(),
+  orderIndex: z.number().int().optional(),
+  isActive: z.boolean().optional(),
+});
+export type InsertPricingPackage = z.infer<typeof insertPricingPackageSchema>;
+export interface PricingPackage extends InsertPricingPackage {
+  id: number;
+  isPopular: boolean;
+  orderIndex: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Service Pages
+export const insertServicePageSchema = z.object({
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().optional(),
+  description: z.string().optional(),
+  heroTitle: z.string().optional(),
+  heroSubtitle: z.string().optional(),
+  auditFormType: z.string().optional(),
+  isActive: z.boolean().optional(),
+});
+export type InsertServicePage = z.infer<typeof insertServicePageSchema>;
+export interface ServicePage extends InsertServicePage {
+  id: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Coupons
+export const insertCouponSchema = z.object({
+  code: z.string().min(1),
+  description: z.string().min(1),
+  discountPercentage: z.number().int().min(0),
+  maxUses: z.number().int().min(1).nullable().optional(),
+  isActive: z.boolean().optional(),
+  expiresAt: z.date().optional(),
+});
+export type InsertCoupon = z.infer<typeof insertCouponSchema>;
+export interface Coupon extends Omit<InsertCoupon, "expiresAt"> {
+  id: number;
+  maxUses: number | null;
+  currentUses: number;
+  expiresAt?: Date | null;
+  createdAt: Date;
+}
+
+// Coupon Usage
+export const insertCouponUsageSchema = z.object({
+  couponId: z.number().int(),
+  email: z.string().email(),
+});
+export type InsertCouponUsage = z.infer<typeof insertCouponUsageSchema>;
+export interface CouponUsage extends InsertCouponUsage {
+  id: number;
+  usedAt: Date;
+}
+
+// Dedicated Resources Leads
+export const insertDedicatedResourcesLeadSchema = z.object({
+  fullName: z.string().min(1),
+  email: z.string().email(),
+  resourceType: z.string().min(1),
+  hiringLevel: z.string().optional(),
+  multipleResources: jsonValueSchema.optional(),
+  additionalNotes: z.string().optional(),
+});
+export type InsertDedicatedResourcesLead = z.infer<
+  typeof insertDedicatedResourcesLeadSchema
+>;
+export interface DedicatedResourcesLead
+  extends InsertDedicatedResourcesLead {
+  id: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Blog Posts
+export const insertBlogPostSchema = z.object({
+  slug: z.string().min(1),
+  title: z.string().min(1),
+  subtitle: z.string().optional(),
+  excerpt: z.string().optional(),
+  content: z.string().min(1),
+  imageUrl: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  author: z.string().optional(),
+  readTime: z.number().int().optional(),
+  isPublished: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  metaDescription: z.string().optional(),
+  metaTitle: z.string().optional(),
+});
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export interface BlogPost extends InsertBlogPost {
+  id: number;
+  tags?: string[];
+  author: string;
+  readTime: number;
+  isPublished: boolean;
+  isFeatured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// Newsletter Subscribers
+export const insertNewsletterSubscriberSchema = z.object({
+  email: z.string().email(),
+  name: z.string().min(1),
+});
+export type InsertNewsletterSubscriber = z.infer<
+  typeof insertNewsletterSubscriberSchema
+>;
+export interface NewsletterSubscriber extends InsertNewsletterSubscriber {
+  id: number;
+  subscribedAt: Date;
+}
+
+export type AppointmentStatus = "booked" | "cancelled" | "completed";
+
+export interface Appointment {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  serviceType?: string;      // now potentially comma-separated list
+  notes?: string;
+
+  date: string;              // YYYY-MM-DD
+  startTime: string;         // HH:mm
+  endTime: string;           // HH:mm
+
+  meetingLink?: string;
+
+  // NEW: guests
+  guestEmails?: string[];    // extra attendees (if any)
+
+  status: AppointmentStatus;
+
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+export type InsertAppointment = Omit<
+  Appointment,
+  "id" | "status" | "createdAt" | "updatedAt"
+>;
+
+ -->
+
+<!-- End of SharedSchema -->
 
 db.getCollection("portfolio_items").insertMany([
   {

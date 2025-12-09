@@ -5,8 +5,9 @@ import path from "path";
 import fs from "fs";
 import multer from "multer";
 import newsletterRoutes from "./routes/newsletter";
-import appointmentsRouter from "./appointments";
-import googleAuthRoutes from "./google-auth-router";
+import appointmentsRouter from "./routes/appointments";
+import googleAuthRoutes from "./routes/google-auth-router";
+import portfolioRouter, { createPortfolioRouter } from "./routes/portfolio-router";
 // import uploadRouter from "./routes/upload";
 import { upload as cloudinaryUpload } from "./middleware/cloudinaryUpload";
 
@@ -65,6 +66,31 @@ import { notificationService } from "./notification-service";
 import { connectToDatabase, getMongooseConnection } from "./db";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+
+
+  // Admin login endpoint
+  app.post("/api/auth/login", (req, res) => {
+    const { email, password } = req.body;
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+      const token = Buffer.from(`${email}:${password}`).toString("base64");
+      res.json({
+        authenticated: true,
+        token,
+        user: {
+          id: "admin",
+          name: "Admin User",
+          email: email,
+        },
+      });
+    } else {
+      res.status(401).json({
+        authenticated: false,
+        message: "Invalid email or password",
+      });
+    }
+  });
+
   // Apply security middleware
   app.use(hidePoweredBy);
   app.use(securityLogger);
@@ -110,33 +136,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
-  // Admin login endpoint
-  app.post("/api/auth/login", (req, res) => {
-    const { email, password } = req.body;
+  const portfolioRouter = createPortfolioRouter(
+    authenticateAdmin,
+    publicContentRateLimit,
+  );
+  app.use("/api", portfolioRouter);
 
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      const token = Buffer.from(`${email}:${password}`).toString("base64");
-      res.json({
-        authenticated: true,
-        token,
-        user: {
-          id: "admin",
-          name: "Admin User",
-          email: email,
-        },
-      });
-    } else {
-      res.status(401).json({
-        authenticated: false,
-        message: "Invalid email or password",
-      });
-    }
-  });
-
-  app.use("/api/newsletter", newsletterRoutes);
   app.use("/api", appointmentsRouter);
+
+  // Google OAuth (must be public)
   app.use("/api/google", googleAuthRoutes);
-  // app.use("/api/upload", authenticateAdmin, uploadRouter);
+
+  app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
 
 
 
@@ -1728,145 +1739,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     },
   );
-
-  // Portfolio public routes
-  app.get("/api/portfolio", publicContentRateLimit, async (req, res) => {
-    try {
-      const items = await storage.getPublicPortfolioItems();
-      res.json(items);
-    } catch (error) {
-      console.error("Error fetching portfolio items:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio items" });
-    }
-  });
-
-  app.get("/api/portfolio/content", publicContentRateLimit, async (req, res) => {
-    try {
-      const content = await storage.getPortfolioContent();
-      res.json(content);
-    } catch (error) {
-      console.error("Error fetching portfolio content:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio content" });
-    }
-  });
-
-  app.get("/api/portfolio/:slug", publicContentRateLimit, async (req, res) => {
-    try {
-      const slug = req.params.slug;
-      const item = await storage.getPortfolioItemBySlug(slug);
-      if (!item) {
-        return res.status(404).json({ message: "Portfolio item not found" });
-      }
-      res.json(item);
-    } catch (error) {
-      console.error("Error fetching portfolio item:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio item" });
-    }
-  });
-
-  // Admin portfolio content routes
-  app.get("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
-    try {
-      const content = await storage.getPortfolioContent();
-      res.json(content);
-    } catch (error) {
-      console.error("Failed to fetch portfolio content:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio content" });
-    }
-  });
-
-  app.put("/api/admin/portfolio-content", authenticateAdmin, async (req, res) => {
-    try {
-      const validated = insertPortfolioContentSchema.parse(req.body);
-      const content = await storage.upsertPortfolioContent(validated);
-      res.json(content);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to update portfolio content:", error);
-      res.status(500).json({ message: "Failed to update portfolio content" });
-    }
-  });
-
-  // Update hero stats only
-  app.put("/api/admin/portfolio-content/stats", authenticateAdmin, async (req, res) => {
-    try {
-      const { heroStats } = req.body;
-
-      if (!Array.isArray(heroStats)) {
-        return res.status(400).json({ message: "heroStats must be an array" });
-      }
-
-      // Get existing content and merge with new stats
-      const existingContent = await storage.getPortfolioContent();
-      const updatedContent = {
-        ...existingContent,
-        heroStats,
-      };
-
-      const validated = insertPortfolioContentSchema.parse(updatedContent);
-      const content = await storage.upsertPortfolioContent(validated);
-      res.json({ success: true, content });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to update portfolio stats:", error);
-      res.status(500).json({ message: "Failed to update portfolio stats" });
-    }
-  });
-
-  // Admin portfolio items routes
-  app.get("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
-    try {
-      const items = await storage.getAllPortfolioItems();
-      res.json(items);
-    } catch (error) {
-      console.error("Failed to fetch portfolio items:", error);
-      res.status(500).json({ message: "Failed to fetch portfolio items" });
-    }
-  });
-
-  app.post("/api/admin/portfolio-items", authenticateAdmin, async (req, res) => {
-    try {
-      const validated = insertPortfolioItemSchema.parse(req.body);
-      const item = await storage.createPortfolioItem(validated);
-      res.json(item);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to create portfolio item:", error);
-      res.status(500).json({ message: "Failed to create portfolio item" });
-    }
-  });
-
-  app.put("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validated = insertPortfolioItemSchema.partial().parse(req.body);
-      const item = await storage.updatePortfolioItem(id, validated);
-      res.json(item);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Failed to update portfolio item:", error);
-      res.status(500).json({ message: "Failed to update portfolio item" });
-    }
-  });
-
-  app.delete("/api/admin/portfolio-items/:id", authenticateAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      await storage.deletePortfolioItem(id);
-      res.json({ success: true });
-    } catch (error) {
-      console.error("Failed to delete portfolio item:", error);
-      res.status(500).json({ message: "Failed to delete portfolio item" });
-    }
-  });
 
   // Blog Management API Routes
   app.get("/api/admin/blog-posts", authenticateAdmin, async (req, res) => {

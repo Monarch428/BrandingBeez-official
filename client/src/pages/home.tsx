@@ -1546,143 +1546,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* 🌍 Regional Business Partners Section */}
-          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-10 sm:mb-14">
-                <div className="inline-flex items-center gap-2 rounded-full border border-brand-purple/15 bg-brand-purple/5 px-4 py-1.5 text-xs sm:text-sm font-bold text-brand-coral mb-4">
-                  <Globe size={16} className="animate-pulse" />
-                  <span>Global Team, Local Expertise</span>
-                </div>
-                <h2 className="font-bold text-2xl sm:text-3xl lg:text-4xl text-brand-purple text-balance mb-4">
-                  Regional partners growing BrandingBeez in key markets worldwide
-                </h2>
-                <p className="text-xs sm:text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
-                  From the US to Europe, our local partners help agencies win
-                  projects, communicate faster, and close deals with confidence
-                  backed by a single global delivery team.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-10 md:mb-12 items-stretch">
-                {regionalPartners.map((partner, index) => (
-                  <Card
-                    key={index}
-                    className="h-full flex border border-brand-purple/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
-                  >
-                    <CardContent className="p-5 sm:p-6 flex flex-col h-full w-full">
-                      <div className="flex flex-col flex-grow">
-                        <div className="flex items-center gap-4 mb-4">
-                          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                            <img
-                              src={
-                                partner.image
-                                  ? partner.image
-                                  : `/professional-business-partner-headshot-.jpg?height=400&width=400&query=professional business partner headshot ${partner.name}`
-                              }
-                              alt={partner.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-
-                          <div className="flex flex-col leading-tight">
-                            <h3 className="font-semibold text-sm sm:text-base md:text-lg text-brand-purple">
-                              {partner.name}
-                            </h3>
-                            <p className="text-xs md:text-sm text-brand-coral font-medium">
-                              {partner.title}
-                            </p>
-                            <div className="flex items-center gap-1 text-[11px] md:text-xs text-gray-500 mt-1">
-                              <MapPin size={12} />
-                              <span>{partner.location}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed md:min-h-[72px]">
-                          {partner.role}
-                        </p>
-
-                        <div>
-                          <p className="text-xs font-bold text-gray-700 mb-2">
-                            Key expertise
-                          </p>
-                          <ul className="space-y-1">
-                            {partner.expertise.map((item, i) => (
-                              <li
-                                key={i}
-                                className="flex items-start gap-2 text-xs md:text-sm text-gray-600"
-                              >
-                                <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-coral" />
-                                <span>{item}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-
-                      <div className="pt-3 mt-4 border-t border-gray-100">
-                        <p className="text-xs md:text-sm text-brand-coral font-medium">
-                          {partner.contact}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              <div className="bg-white/90 backdrop-blur-sm border border-brand-purple/10 rounded-2xl p-6 sm:p-8 shadow-sm">
-                <h3 className="font-bold text-xl sm:text-xl lg:text-2xl text-brand-purple mb-2 text-center">
-                  Global Partnership Benefits
-                </h3>
-
-                <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 text-center max-w-2xl mx-auto">
-                  One strong delivery team supported by local partners who
-                  understand their markets and customers.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {[
-                    {
-                      icon: Globe,
-                      text: "24/7 support across all major time zones",
-                    },
-                    {
-                      icon: MapPin,
-                      text: "Local partners who understand regional needs",
-                    },
-                    {
-                      icon: Award,
-                      text: "Consistent quality from our global team",
-                    },
-                    {
-                      icon: Users,
-                      text: "Solutions tailored to local cultures",
-                    },
-                    {
-                      icon: TrendingUp,
-                      text: "Compliance support for US & EU clients (GDPR, HIPAA, SOC-aligned workflows)",
-                    },
-                    {
-                      icon: Heart,
-                      text: "Stronger relationships through local presence",
-                    },
-                  ].map((benefit, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center gap-3 p-3 rounded-xl hover:bg-brand-wings/60 transition-colors"
-                    >
-                      <div className="w-12 h-12 rounded-xl bg-brand-coral/10 flex items-center justify-center flex-shrink-0">
-                        <benefit.icon size={24} className="text-brand-coral" />
-                      </div>
-                      <p className="text-sm text-gray-700">{benefit.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Who We Work With Section */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-t from-white via-gray-50 to-gray-100">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -2229,7 +2092,7 @@ export default function Home() {
 
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
                 {/* CONTENT */}
-                <div className="w-full lg:w-1/2 mb-2 lg:mb-0 space-y-3 text-justify">
+                <div className="w-full lg:w-[500px] mb-2 lg:mb-0 space-y-3 text-justify">
                   <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
@@ -2237,18 +2100,18 @@ export default function Home() {
                   <p className="text-sm text-gray-100 leading-normal">
                     Get actionable tips, pricing tricks, automation tactics, fast
                     client-winning strategies, proposal hacks, AI workflows, and
-                    real stories from growing agencies — all delivered in simple
+                    real stories from growing agencies all delivered in simple
                     1-minute reads to help you scale smarter every week.
                   </p>
                 </div>
 
                 {/* FORM */}
-                <div className="w-full lg:w-1/2 bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
+                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
                     Subscribe Free
                   </h3>
                   <p className="text-gray-200 text-center text-xs sm:text-sm mb-4">
-                    Join 3,000+ agency owners — no spam.
+                    Join 3,000+ agency owners no spam.
                   </p>
 
                   <form

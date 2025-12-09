@@ -2,7 +2,7 @@ import { Switch, Route, useLocation } from "wouter";
 import { useEffect, Suspense, lazy } from "react";
 import { apiRequest, queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
+import { AppToastProvider } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PerformanceOptimizer } from "@/components/performance-optimizer";
 import { CriticalPathOptimizer } from "@/components/critical-path-optimizer";
@@ -426,15 +426,16 @@ function App() {
       <SecurityHeadersProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
-            <CriticalPathOptimizer />
-            <PerformanceOptimizer />
-            <Toaster />
-            <Router />
-            {/* <AIChatbot /> */}
-            <CookieConsent />
-            {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
+            <AppToastProvider >
+              <CriticalPathOptimizer />
+              <PerformanceOptimizer />
+              <Router />
+              {/* <AIChatbot /> */}
+              <CookieConsent />
+              {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
             <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} /> */}
-            <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+              <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+            </AppToastProvider>
           </TooltipProvider>
         </QueryClientProvider>
       </SecurityHeadersProvider>
