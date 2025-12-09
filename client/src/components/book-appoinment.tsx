@@ -234,7 +234,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     }
   }, [defaultServiceType]);
 
-  // Days grid for current month
+  // Days grid for current month (WEEK STARTS ON SUNDAY)
   const daysInMonth = useMemo(() => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
@@ -245,7 +245,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     const totalDays = lastDay.getDate();
 
     const days: (Date | null)[] = [];
-    const offset = (firstWeekday + 6) % 7; // Monday-first index
+    const offset = firstWeekday; // Sunday-first layout
 
     for (let i = 0; i < offset; i++) {
       days.push(null);
@@ -362,7 +362,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
       // ✅ Success message shown on right side even after form closes
       setStatusType("success");
       setStatusMessage(
-        `🎉 Appointment confirmed...! Please check your email for the Google Meet link.`,
+        `🎉 Appointment confirmed...! Please check your email for the Google Meet link.${meetText}`,
       );
       setTimeout(() => setStatusMessage(null), 6000);
 
@@ -419,10 +419,10 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   // effective date when converting IST → target timezone
   const effectiveSelectedDate = selectedDate || today;
 
-  // 🔹 Layout classes: center card when there is no right panel
+  // 🔹 Layout classes: responsive grid
   const layoutClass = showRightPanel
-    ? "grid gap-6 lg:gap-10 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)]"
-    : "flex justify-center";
+    ? "grid w-full gap-4 md:gap-6 lg:gap-8 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)] items-start"
+    : "flex w-full justify-center";
 
   const safeConsultantName = consultantName || "Raja Rajeshwari";
   const safeConsultantTitle = consultantTitle || "CEO, BrandingBeez";
@@ -430,9 +430,9 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   return (
     <div className={layoutClass}>
       {/* LEFT SECTION: Calendar or Time Slots */}
-      <div className={showRightPanel ? "" : "w-full max-w-lg"}>
+      <div className={showRightPanel ? "w-full" : "w-full max-w-lg"}>
         <Card className="bg-white border-slate-200 shadow-md w-full">
-          <CardHeader className="flex flex-row items-center justify-between gap-3 border-b border-slate-200">
+          <CardHeader className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-200">
             <div>
               <p className="text-[12px] uppercase tracking-[0.2em] text-blue-500 font-bold">
                 Book a strategy call
@@ -446,7 +446,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
 
             {/* Month navigation only relevant while picking date */}
             {bookingStage === "date" && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 md:self-auto self-start">
                 <Button
                   variant="outline"
                   size="icon"
@@ -494,8 +494,9 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
             {/* STEP 1: Calendar (stage = date) */}
             {bookingStage === "date" && (
               <div>
+                {/* Weekdays: starting from Sunday */}
                 <div className="grid grid-cols-7 text-[11px] md:text-[13px] text-center text-slate-500 mb-1">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(
+                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
                     (d) => (
                       <div key={d} className="py-1">
                         {d}
@@ -541,8 +542,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                           isSelected
                             ? "bg-blue-600 text-white border-blue-600 shadow-sm font-bold"
                             : isDisabled
-                            ? "opacity-30 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
-                            : "border-slate-300 bg-white hover:border-blue-500 hover:bg-blue-50 text-slate-700",
+                              ? "opacity-30 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+                              : "border-slate-300 bg-white hover:border-blue-500 hover:bg-blue-50 text-slate-700",
                         ].join(" ")}
                       >
                         {date.getDate()}
@@ -556,17 +557,17 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
             {/* STEP 2: Time slots (stage = time or form) */}
             {bookingStage !== "date" && (
               <div className="border-t border-slate-200 pt-4">
-                <div className="flex items-center justify-between mb-3 gap-3">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-3 gap-3">
                   <div className="flex flex-col gap-1 text-xs text-slate-700">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-slate-500" />
                       <span>
                         {selectedDate
                           ? selectedDate.toLocaleDateString("en-GB", {
-                              weekday: "short",
-                              day: "numeric",
-                              month: "short",
-                            })
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                          })
                           : "Select a date to see available times"}
                       </span>
                     </div>
@@ -577,7 +578,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                     </span>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1 text-[11px] text-slate-500">
+                  <div className="flex flex-col items-start md:items-end gap-1 text-[11px] text-slate-500">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-[10px] text-slate-600">
                         Showing times in:
@@ -600,7 +601,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="flex gap-2 text-[10px] text-slate-600">
+                    <div className="flex flex-wrap gap-2 text-[10px] text-slate-600">
                       <span className="flex items-center gap-1">
                         <span className="w-3 h-3 rounded-sm border border-emerald-400 bg-emerald-100" />
                         Available
@@ -708,7 +709,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
 
       {/* Right: Consultant card + multi-step form + status*/}
       {showRightPanel && (
-        <Card className="bg-white border-slate-200 shadow-md">
+        <Card className="bg-white border-slate-200 shadow-md w-full mt-4 lg:mt-0">
           <CardHeader className="pb-3 flex flex-row items-start justify-between gap-3 border-b border-slate-200">
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -766,11 +767,11 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                 <b>Time:</b>{" "}
                 {selectedSlot
                   ? formatSlotLabelForTimeZone(
-                      selectedSlot.startTime,
-                      selectedSlot.endTime,
-                      effectiveSelectedDate,
-                      timeZone,
-                    )
+                    selectedSlot.startTime,
+                    selectedSlot.endTime,
+                    effectiveSelectedDate,
+                    timeZone,
+                  )
                   : "Pick a slot on the left"}
               </p>
             </div>
@@ -1028,8 +1029,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                                   setSelectedServiceValues((prev) =>
                                     isChecked
                                       ? prev.filter(
-                                          (v) => v !== service.value,
-                                        )
+                                        (v) => v !== service.value,
+                                      )
                                       : [...prev, service.value],
                                   );
                                 }}
@@ -1053,8 +1054,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                                         checked
                                           ? [...prev, service.value]
                                           : prev.filter(
-                                              (v) => v !== service.value,
-                                            ),
+                                            (v) => v !== service.value,
+                                          ),
                                       );
                                     }}
                                   />
@@ -1119,11 +1120,11 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                           <b>Time:</b>{" "}
                           {selectedSlot
                             ? formatSlotLabelForTimeZone(
-                                selectedSlot.startTime,
-                                selectedSlot.endTime,
-                                effectiveSelectedDate,
-                                timeZone,
-                              )
+                              selectedSlot.startTime,
+                              selectedSlot.endTime,
+                              effectiveSelectedDate,
+                              timeZone,
+                            )
                             : "Not selected"}
                         </p>
                         {guestEmailsList.length > 0 && (
@@ -1138,9 +1139,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
 
                 {/* Step navigation buttons */}
                 <div
-                  className={`flex items-center pt-1 ${
-                    formStep === 0 ? "justify-end" : "justify-between"
-                  }`}
+                  className={`flex items-center pt-1 ${formStep === 0 ? "justify-end" : "justify-between"
+                    }`}
                 >
                   {/* Show Back button only after moving past the first step */}
                   {formStep > 0 && (
@@ -1224,13 +1224,13 @@ export const AppointmentCalendarModal: React.FC<
 > = ({ open, onOpenChange, ...calendarProps }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-full p-0 gap-0">
+      <DialogContent className="w-full max-w-[95vw] sm:max-w-5xl p-0 gap-0">
         <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200">
           <DialogTitleUI className="text-base md:text-lg font-semibold">
             Book a strategy call
           </DialogTitleUI>
           <DialogDescription className="text-xs md:text-sm text-slate-500">
-            Pick a suitable date & time and share a few details so we can
+            Pick a suitable date &amp; time and share a few details so we can
             prepare for the call.
           </DialogDescription>
         </DialogHeaderUI>
@@ -1273,56 +1273,55 @@ export const BookCallButtonWithModal: React.FC<
   buttonSize,
   ...calendarProps
 }) => {
-  const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(false);
 
-  const mergedClassName = [buttonClassName, className]
-    .filter(Boolean)
-    .join(" ");
+    const mergedClassName = [buttonClassName, className]
+      .filter(Boolean)
+      .join(" ");
 
-  const labelToUse = buttonLabel || "Book a call"; // placeholder if not provided
-  const variantToUse: "default" | "outline" | "secondary" | "ghost" | "link" =
-    buttonVariant || "default";
-  const sizeToUse: "default" | "sm" | "lg" | "icon" = buttonSize || "default";
+    const labelToUse = buttonLabel || "Book a call"; // placeholder if not provided
+    const variantToUse: "default" | "outline" | "secondary" | "ghost" | "link" =
+      buttonVariant || "default";
+    const sizeToUse: "default" | "sm" | "lg" | "icon" = buttonSize || "default";
 
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant={variantToUse}
-          size={sizeToUse}
-          className={mergedClassName}
-        >
-          {labelToUse}
-        </Button>
-      </DialogTrigger>
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button
+            type="button"
+            variant={variantToUse}
+            size={sizeToUse}
+            className={mergedClassName}
+          >
+            {labelToUse}
+          </Button>
+        </DialogTrigger>
 
-      <DialogContent className="max-w-5xl w-full p-0 gap-0">
-        <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200">
-          <DialogTitleUI className="text-base md:text-xl uppercase font-bold text-brand-coral">
-            Book a strategy call
-          </DialogTitleUI>
-          <DialogDescription className="text-xs md:text-sm text-slate-500">
-            Choose a time that works for you. You’ll get a Google Meet invite
-            via email after booking.
-          </DialogDescription>
-        </DialogHeaderUI>
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-5xl p-0 gap-0">
+          <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200">
+            <DialogTitleUI className="text-base md:text-xl uppercase font-bold text-brand-coral">
+              Book a strategy call
+            </DialogTitleUI>
+            <DialogDescription className="text-xs md:text-sm text-slate-500">
+              Choose a time that works for you. You’ll get a Google Meet invite
+              via email after booking.
+            </DialogDescription>
+          </DialogHeaderUI>
 
-        <div className="p-3 md:p-4">
-          <AppointmentCalendarContent
-            {...calendarProps}
-            onClose={() => setOpen(false)}
-          />
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-};
+          <div className="p-3 md:p-4">
+            <AppointmentCalendarContent
+              {...calendarProps}
+              onClose={() => setOpen(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  };
 
 // Keep old name for inline use
 export const AppointmentCalendar = AppointmentCalendarContent;
 export default AppointmentCalendarContent;
-
 
 
 

@@ -216,11 +216,11 @@
 
 // src/server/appointments-router.ts
 import express, { Request, Response } from "express";
-import { storage } from "./storage";
+import { storage } from "../storage";
 import {
   sendAppointmentNotification,
   sendAppointmentConfirmationEmails,
-} from "./email-service";
+} from "../email-service";
 import {
   createGoogleMeetEvent,
   getBusyTimeRangesForDate,

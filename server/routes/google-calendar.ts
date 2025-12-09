@@ -1,6 +1,6 @@
 // src/server/google-calendar.ts
 import { google } from "googleapis";
-import { storage } from "./storage";
+import { storage } from "../storage";
 
 const {
   GOOGLE_CLIENT_ID,

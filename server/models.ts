@@ -363,7 +363,7 @@ export const NewsletterSubscriberModel =
     newsletterSubscriberSchema,
   );
 
-interface PortfolioItemDocument extends mongoose.Document, PortfolioItem { }
+interface PortfolioItemDocument extends mongoose.Document, PortfolioItem {}
 const portfolioItemSchema = new Schema<PortfolioItemDocument>(
   {
     id: numericIdField,
@@ -384,7 +384,66 @@ const portfolioItemSchema = new Schema<PortfolioItemDocument>(
     isFeatured: { type: Boolean, default: false },
     orderIndex: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true },
+
+    // 🔗 Live site / app / download link
+    projectUrl: String,
+    projectUrlLabel: String,
+
+    // Key service selector
     serviceCategory: String,
+
+    // 🔥 SEO Case Study Fields
+    seoDetails: {
+      seoOverview: String,
+      clientChallenge: String,
+      primarySeoGoal: String,
+      seoSummaryImage: String,
+
+      seoFocusAreas: { type: [String], default: [] },
+      seoStrategySummary: String,
+      seoToolsUsed: { type: [String], default: [] },
+      seoDeliverables: { type: [String], default: [] },
+
+      stats: [
+        new Schema(
+          {
+            label: { type: String, required: true },
+            value: { type: String, required: true },
+          },
+          { _id: false },
+        ),
+      ],
+    },
+
+    // 🔥 Google Ads Case Study Fields
+    googleAdsDetails: {
+      googleAdsSummaryImage: String,
+      industry: String,
+      timeline: String,
+      campaignOverview: String,
+
+      googleAdsClientChallenge: String,
+      primaryCampaignGoal: String,
+      campaignType: String,
+
+      platforms: { type: [String], default: [] },
+      monthlyAdSpend: String,
+
+      googleAdsStrategySummary: String,
+
+      targetLocations: { type: [String], default: [] },
+      trackingAndAnalytics: { type: [String], default: [] },
+
+      stats: [
+        new Schema(
+          {
+            label: { type: String, required: true },
+            value: { type: String, required: true },
+          },
+          { _id: false },
+        ),
+      ],
+    },
   },
   {
     collection: "portfolio_items",
@@ -398,7 +457,7 @@ export const PortfolioItemModel =
 
 interface PortfolioContentDocument
   extends mongoose.Document,
-  PortfolioContent { }
+    PortfolioContent {}
 const portfolioContentSchema = new Schema<PortfolioContentDocument>(
   {
     id: numericIdField,
@@ -447,7 +506,6 @@ const portfolioContentSchema = new Schema<PortfolioContentDocument>(
 export const PortfolioContentModel =
   (models.PortfolioContent as Model<PortfolioContentDocument>) ||
   model<PortfolioContentDocument>("PortfolioContent", portfolioContentSchema);
-
 
 interface AppointmentDocument extends mongoose.Document, Appointment { }
 
@@ -506,7 +564,7 @@ const googleAuthSchema = new Schema<GoogleAuthDocument>(
     accessToken: { type: String, required: true },
     refreshToken: { type: String, required: true },
     expiryDate: { type: Number, required: true },
-    calendarId: { type: String, required: false }, 
+    calendarId: { type: String, required: false },
     createdAt: { type: Date, default: Date.now },
   },
   { collection: "google_auth_tokens", versionKey: false },

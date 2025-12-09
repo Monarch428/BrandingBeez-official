@@ -12,6 +12,53 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAppToast } from "@/components/ui/toaster";
+
+// ---------- Helpers ----------
+
+const slugifyTitle = (title: string) =>
+  title
+    .toLowerCase()
+    .trim()
+    .replace(/[\s_]+/g, "-") // spaces/underscores -> -
+    .replace(/[^a-z0-9-]/g, "") // remove non-alphanumeric except -
+    .replace(/-+/g, "-") // collapse multiple -
+    .replace(/^-|-$/g, ""); // trim - from ends
+
+// ---------- Types for SEO & Google Ads details ----------
+
+type MetricStat = {
+  label: string;
+  value: string;
+};
+
+type SeoDetails = {
+  seoOverview?: string;
+  clientChallenge?: string;
+  primarySeoGoal?: string;
+  seoSummaryImage?: string;
+  seoFocusAreas?: string[];
+  seoStrategySummary?: string;
+  seoToolsUsed?: string[];
+  seoDeliverables?: string[];
+  stats?: MetricStat[];
+};
+
+type GoogleAdsDetails = {
+  googleAdsSummaryImage?: string;
+  industry?: string;
+  timeline?: string;
+  campaignOverview?: string;
+  googleAdsClientChallenge?: string;
+  primaryCampaignGoal?: string;
+  campaignType?: string;
+  platforms?: string[];
+  monthlyAdSpend?: string;
+  googleAdsStrategySummary?: string;
+  targetLocations?: string[];
+  trackingAndAnalytics?: string[];
+  stats?: MetricStat[];
+};
 
 type PortfolioItem = {
   id: number;
@@ -35,6 +82,14 @@ type PortfolioItem = {
   serviceCategory?: string;
   createdAt: string;
   updatedAt: string;
+
+  // NEW nested fields
+  seoDetails?: SeoDetails;
+  googleAdsDetails?: GoogleAdsDetails;
+
+  // NEW: project URL / CTA
+  projectUrl?: string;
+  projectUrlLabel?: string;
 };
 
 type PortfolioHeroStat = {
@@ -63,6 +118,34 @@ type PortfolioContent = {
   testimonials: PortfolioTestimonial[];
 };
 
+const emptySeoDetails: SeoDetails = {
+  seoOverview: "",
+  clientChallenge: "",
+  primarySeoGoal: "",
+  seoSummaryImage: "",
+  seoFocusAreas: [],
+  seoStrategySummary: "",
+  seoToolsUsed: [],
+  seoDeliverables: [],
+  stats: [],
+};
+
+const emptyGoogleAdsDetails: GoogleAdsDetails = {
+  googleAdsSummaryImage: "",
+  industry: "",
+  timeline: "",
+  campaignOverview: "",
+  googleAdsClientChallenge: "",
+  primaryCampaignGoal: "",
+  campaignType: "",
+  platforms: [],
+  monthlyAdSpend: "",
+  googleAdsStrategySummary: "",
+  targetLocations: [],
+  trackingAndAnalytics: [],
+  stats: [],
+};
+
 const emptyForm: Partial<PortfolioItem> = {
   slug: "",
   title: "",
@@ -82,6 +165,10 @@ const emptyForm: Partial<PortfolioItem> = {
   isActive: true,
   orderIndex: 0,
   serviceCategory: "",
+  seoDetails: emptySeoDetails,
+  googleAdsDetails: emptyGoogleAdsDetails,
+  projectUrl: "",
+  projectUrlLabel: "",
 };
 
 const emptyContent: PortfolioContent = {
@@ -132,9 +219,13 @@ export function PortfolioItemsManager() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [savingContent, setSavingContent] = useState(false);
-  const [contentForm, setContentForm] = useState<PortfolioContent>(emptyContent);
+  const [contentForm, setContentForm] =
+    useState<PortfolioContent>(emptyContent);
   const [contentDialogOpen, setContentDialogOpen] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false); // ✅ Cloudinary upload state
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [slugTouched, setSlugTouched] = useState(false); // ✅ track manual slug edit
+
+  const { success, error: toastError } = useAppToast();
   const queryClient = useQueryClient();
 
   const token =
@@ -180,7 +271,24 @@ export function PortfolioItemsManager() {
         ...it,
         features: it.features || [],
         techStack: it.techStack || [],
+        seoDetails: {
+          ...emptySeoDetails,
+          ...(it.seoDetails || {}),
+          seoFocusAreas: it.seoDetails?.seoFocusAreas || [],
+          seoToolsUsed: it.seoDetails?.seoToolsUsed || [],
+          seoDeliverables: it.seoDetails?.seoDeliverables || [],
+          stats: it.seoDetails?.stats || [],
+        },
+        googleAdsDetails: {
+          ...emptyGoogleAdsDetails,
+          ...(it.googleAdsDetails || {}),
+          platforms: it.googleAdsDetails?.platforms || [],
+          targetLocations: it.googleAdsDetails?.targetLocations || [],
+          trackingAndAnalytics: it.googleAdsDetails?.trackingAndAnalytics || [],
+          stats: it.googleAdsDetails?.stats || [],
+        },
       });
+      setSlugTouched(true); // ✅ do not auto-change slug when editing
     }
   }, [editingId, items]);
 
@@ -211,6 +319,29 @@ export function PortfolioItemsManager() {
 
   const handleChange = (field: keyof PortfolioItem, value: any) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSeoDetailsChange = (field: keyof SeoDetails, value: any) => {
+    setForm((prev) => ({
+      ...prev,
+      seoDetails: {
+        ...(prev.seoDetails || emptySeoDetails),
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleGoogleAdsDetailsChange = (
+    field: keyof GoogleAdsDetails,
+    value: any,
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      googleAdsDetails: {
+        ...(prev.googleAdsDetails || emptyGoogleAdsDetails),
+        [field]: value,
+      },
+    }));
   };
 
   const handleContentChange = (field: keyof PortfolioContent, value: any) => {
@@ -276,7 +407,71 @@ export function PortfolioItemsManager() {
     e.preventDefault();
     setLoading(true);
     try {
-      const payload = {
+      const isSeo = form.serviceCategory === "seo";
+      const isGoogleAds = form.serviceCategory === "google-ads";
+
+      const rawSeo = form.seoDetails || emptySeoDetails;
+      const rawGoogleAds = form.googleAdsDetails || emptyGoogleAdsDetails;
+
+      const seoDetailsPayload = isSeo
+        ? {
+            seoOverview: rawSeo.seoOverview || "",
+            clientChallenge: rawSeo.clientChallenge || "",
+            primarySeoGoal: rawSeo.primarySeoGoal || "",
+            seoSummaryImage: rawSeo.seoSummaryImage || "",
+            seoFocusAreas: Array.isArray(rawSeo.seoFocusAreas)
+              ? rawSeo.seoFocusAreas
+              : [],
+            seoStrategySummary: rawSeo.seoStrategySummary || "",
+            seoToolsUsed: Array.isArray(rawSeo.seoToolsUsed)
+              ? rawSeo.seoToolsUsed
+              : [],
+            seoDeliverables: Array.isArray(rawSeo.seoDeliverables)
+              ? rawSeo.seoDeliverables
+              : [],
+            stats: (rawSeo.stats || [])
+              .map((s) => ({
+                label: s.label?.trim() || "",
+                value: s.value?.trim() || "",
+              }))
+              .filter((s) => s.label || s.value),
+          }
+        : undefined;
+
+      const googleAdsDetailsPayload = isGoogleAds
+        ? {
+            googleAdsSummaryImage: rawGoogleAds.googleAdsSummaryImage || "",
+            industry: rawGoogleAds.industry || "",
+            timeline: rawGoogleAds.timeline || "",
+            campaignOverview: rawGoogleAds.campaignOverview || "",
+            googleAdsClientChallenge:
+              rawGoogleAds.googleAdsClientChallenge || "",
+            primaryCampaignGoal: rawGoogleAds.primaryCampaignGoal || "",
+            campaignType: rawGoogleAds.campaignType || "",
+            platforms: Array.isArray(rawGoogleAds.platforms)
+              ? rawGoogleAds.platforms
+              : [],
+            monthlyAdSpend: rawGoogleAds.monthlyAdSpend || "",
+            googleAdsStrategySummary:
+              rawGoogleAds.googleAdsStrategySummary || "",
+            targetLocations: Array.isArray(rawGoogleAds.targetLocations)
+              ? rawGoogleAds.targetLocations
+              : [],
+            trackingAndAnalytics: Array.isArray(
+              rawGoogleAds.trackingAndAnalytics,
+            )
+              ? rawGoogleAds.trackingAndAnalytics
+              : [],
+            stats: (rawGoogleAds.stats || [])
+              .map((s) => ({
+                label: s.label?.trim() || "",
+                value: s.value?.trim() || "",
+              }))
+              .filter((s) => s.label || s.value),
+          }
+        : undefined;
+
+      const payload: any = {
         slug: form.slug,
         title: form.title,
         industry: form.industry,
@@ -300,13 +495,21 @@ export function PortfolioItemsManager() {
               .filter(Boolean),
         timeline: form.timeline,
         imageUrl: form.imageUrl,
-        // ✅ Store Cloudinary publicId in `image` if present, else fallback
         image: form.image || form.imageUrl,
         isFeatured: Boolean(form.isFeatured),
         orderIndex: Number(form.orderIndex || 0),
         isActive: form.isActive !== false,
         serviceCategory: form.serviceCategory || undefined,
+        projectUrl: form.projectUrl || "",
+        projectUrlLabel: form.projectUrlLabel || "",
       };
+
+      if (seoDetailsPayload) {
+        payload.seoDetails = seoDetailsPayload;
+      }
+      if (googleAdsDetailsPayload) {
+        payload.googleAdsDetails = googleAdsDetailsPayload;
+      }
 
       const url = editingId
         ? `/api/admin/portfolio-items/${editingId}`
@@ -330,9 +533,16 @@ export function PortfolioItemsManager() {
       });
       setForm(emptyForm);
       setEditingId(null);
+      setSlugTouched(false);
+
+      // ✅ success toast
+      success("Portfolio item saved successfully.", "Success");
     } catch (err) {
       console.error(err);
-      alert((err as Error).message);
+      toastError(
+        (err as Error).message || "Failed to save portfolio item.",
+        "Error",
+      );
     } finally {
       setLoading(false);
     }
@@ -352,16 +562,23 @@ export function PortfolioItemsManager() {
       if (editingId === id) {
         setEditingId(null);
         setForm(emptyForm);
+        setSlugTouched(false);
       }
+
+      success("Portfolio item deleted.", "Deleted");
     } catch (err) {
       console.error(err);
-      alert((err as Error).message);
+      toastError(
+        (err as Error).message || "Failed to delete portfolio item.",
+        "Error",
+      );
     }
   };
 
   const resetForm = () => {
     setEditingId(null);
     setForm(emptyForm);
+    setSlugTouched(false);
   };
 
   const handleSaveContent = async (e: React.FormEvent) => {
@@ -419,9 +636,14 @@ export function PortfolioItemsManager() {
           : [],
       });
       setContentDialogOpen(false);
+
+      success("Portfolio page content updated.", "Success");
     } catch (err) {
       console.error(err);
-      alert((err as Error).message);
+      toastError(
+        (err as Error).message || "Failed to update portfolio content.",
+        "Error",
+      );
     } finally {
       setSavingContent(false);
     }
@@ -433,6 +655,12 @@ export function PortfolioItemsManager() {
 
   const showROI =
     selectedCategory?.title?.toLowerCase().includes("google ads") ?? false;
+
+  const isSeo = form.serviceCategory === "seo";
+  const isGoogleAds = form.serviceCategory === "google-ads";
+
+  const seo = form.seoDetails || emptySeoDetails;
+  const googleAds = form.googleAdsDetails || emptyGoogleAdsDetails;
 
   return (
     <div className="space-y-6">
@@ -719,21 +947,41 @@ export function PortfolioItemsManager() {
       </Dialog>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-1">
-          <CardHeader>
+        {/* FORM COLUMN WITH SEPARATE SCROLL */}
+        <Card className="lg:col-span-1 max-h-[80vh] flex flex-col">
+          <CardHeader className="flex-shrink-0">
             <CardTitle>
               {editingId ? "Edit Portfolio Item" : "Add Portfolio Item"}
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 overflow-y-auto pr-2">
             <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <Label>Service Category</Label>
                 <select
                   value={form.serviceCategory || ""}
-                  onChange={(e) =>
-                    handleChange("serviceCategory", e.target.value)
-                  }
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    handleChange("serviceCategory", value);
+
+                    // Reset detail sections when switching category
+                    if (value === "seo") {
+                      setForm((prev) => ({
+                        ...prev,
+                        seoDetails: {
+                          ...(prev.seoDetails || emptySeoDetails),
+                        },
+                      }));
+                    } else if (value === "google-ads") {
+                      setForm((prev) => ({
+                        ...prev,
+                        googleAdsDetails: {
+                          ...(prev.googleAdsDetails ||
+                            emptyGoogleAdsDetails),
+                        },
+                      }));
+                    }
+                  }}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1 bg-white"
                 >
                   <option value="">Select a service category...</option>
@@ -748,7 +996,10 @@ export function PortfolioItemsManager() {
                 <Label>Slug</Label>
                 <Input
                   value={form.slug || ""}
-                  onChange={(e) => handleChange("slug", e.target.value)}
+                  onChange={(e) => {
+                    setSlugTouched(true);
+                    handleChange("slug", e.target.value);
+                  }}
                   placeholder="octupus-ai"
                   required
                 />
@@ -757,7 +1008,16 @@ export function PortfolioItemsManager() {
                 <Label>Title</Label>
                 <Input
                   value={form.title || ""}
-                  onChange={(e) => handleChange("title", e.target.value)}
+                  onChange={(e) => {
+                    const newTitle = e.target.value;
+                    handleChange("title", newTitle);
+
+                    // Auto-generate slug from title when creating & slug not manually changed
+                    if (!editingId && !slugTouched) {
+                      const autoSlug = slugifyTitle(newTitle);
+                      setForm((prev) => ({ ...prev, slug: autoSlug }));
+                    }
+                  }}
                   placeholder="Octupus.ai – AI Agent Platform"
                   required
                 />
@@ -866,7 +1126,6 @@ export function PortfolioItemsManager() {
                     try {
                       setUploadingImage(true);
                       const formData = new FormData();
-                      // ✅ must match backend: cloudinaryUpload.single("image")
                       formData.append("image", file);
                       const res = await fetch(
                         "/api/upload/portfolio-image",
@@ -882,14 +1141,18 @@ export function PortfolioItemsManager() {
                       if (!res.ok || !data?.imageUrl) {
                         throw new Error(data?.error || "Upload failed");
                       }
-                      // ✅ Cloudinary URL + publicId from backend
                       handleChange("imageUrl", data.imageUrl);
                       if (data.filename) {
                         handleChange("image", data.filename);
                       }
+
+                      success("Image uploaded successfully.", "Upload");
                     } catch (err) {
                       console.error(err);
-                      alert((err as Error).message);
+                      toastError(
+                        (err as Error).message || "Image upload failed.",
+                        "Error",
+                      );
                     } finally {
                       setUploadingImage(false);
                     }
@@ -907,6 +1170,471 @@ export function PortfolioItemsManager() {
                   </div>
                 )}
               </div>
+
+              {/* NEW: Project URL / CTA */}
+              <div>
+                <Label>
+                  Project URL (site / app / download link)
+                </Label>
+                <Input
+                  value={form.projectUrl || ""}
+                  onChange={(e) => handleChange("projectUrl", e.target.value)}
+                  placeholder="https://client-domain.com / App Store / Google Play / Drive link"
+                />
+              </div>
+              <div>
+                <Label>Project URL Label (button text)</Label>
+                <Input
+                  value={form.projectUrlLabel || ""}
+                  onChange={(e) =>
+                    handleChange("projectUrlLabel", e.target.value)
+                  }
+                  placeholder='e.g. "View Site", "Open App", "Download"'
+                />
+              </div>
+
+              {/* ---------- SEO SPECIFIC FIELDS ---------- */}
+              {isSeo && (
+                <div className="space-y-3 border rounded-lg p-3">
+                  <div className="font-semibold text-sm text-brand-purple">
+                    SEO Case Study Details
+                  </div>
+                  <div>
+                    <Label>SEO Overview</Label>
+                    <textarea
+                      value={seo.seoOverview || ""}
+                      onChange={(e) =>
+                        handleSeoDetailsChange("seoOverview", e.target.value)
+                      }
+                      className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
+                      placeholder="Short SEO overview..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Client Challenge</Label>
+                    <textarea
+                      value={seo.clientChallenge || ""}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "clientChallenge",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
+                      placeholder="Low traffic, no local ranking..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Primary SEO Goal</Label>
+                    <Input
+                      value={seo.primarySeoGoal || ""}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "primarySeoGoal",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Increase organic traffic and rank top keywords on Page 1"
+                    />
+                  </div>
+                  <div>
+                    <Label>SEO Summary Image URL</Label>
+                    <Input
+                      value={seo.seoSummaryImage || ""}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "seoSummaryImage",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="SEO dashboard / hero image URL"
+                    />
+                  </div>
+                  <div>
+                    <Label>SEO Focus Areas (comma separated)</Label>
+                    <Input
+                      value={(seo.seoFocusAreas || []).join(", ")}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "seoFocusAreas",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      placeholder="Technical SEO, On-page SEO, Local SEO"
+                    />
+                  </div>
+                  <div>
+                    <Label>SEO Strategy Summary</Label>
+                    <textarea
+                      value={seo.seoStrategySummary || ""}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "seoStrategySummary",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
+                      placeholder="We improved site architecture, optimized content..."
+                    />
+                  </div>
+                  <div>
+                    <Label>SEO Tools Used (comma separated)</Label>
+                    <Input
+                      value={(seo.seoToolsUsed || []).join(", ")}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "seoToolsUsed",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      placeholder="Google Search Console, GA4, SEMrush, Ahrefs"
+                    />
+                  </div>
+                  <div>
+                    <Label>SEO Deliverables (comma separated)</Label>
+                    <Input
+                      value={(seo.seoDeliverables || []).join(", ")}
+                      onChange={(e) =>
+                        handleSeoDetailsChange(
+                          "seoDeliverables",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      placeholder="Site Audit, On-page Optimization, Link Building"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>SEO Stat Tiles (max 4)</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          handleSeoDetailsChange(
+                            "stats",
+                            [...(seo.stats || []), { label: "", value: "" }],
+                          )
+                        }
+                        disabled={(seo.stats || []).length >= 4}
+                      >
+                        Add Stat
+                      </Button>
+                    </div>
+                    {(seo.stats || []).map((stat, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-2"
+                      >
+                        <Input
+                          placeholder="Label (e.g. Organic Traffic Growth)"
+                          value={stat.label}
+                          onChange={(e) => {
+                            const next = [...(seo.stats || [])];
+                            next[index] = {
+                              ...next[index],
+                              label: e.target.value,
+                            };
+                            handleSeoDetailsChange("stats", next);
+                          }}
+                        />
+                        <Input
+                          placeholder="Value (e.g. +180% in 4 months)"
+                          value={stat.value}
+                          onChange={(e) => {
+                            const next = [...(seo.stats || [])];
+                            next[index] = {
+                              ...next[index],
+                              value: e.target.value,
+                            };
+                            handleSeoDetailsChange("stats", next);
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            const next = (seo.stats || []).filter(
+                              (_, i) => i !== index,
+                            );
+                            handleSeoDetailsChange("stats", next);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                    {(seo.stats || []).length === 0 && (
+                      <p className="text-xs text-gray-500">
+                        Optional: add up to 4 SEO stats to show as tiles.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- GOOGLE ADS SPECIFIC FIELDS ---------- */}
+              {isGoogleAds && (
+                <div className="space-y-3 border rounded-lg p-3">
+                  <div className="font-semibold text-sm text-brand-purple">
+                    Google Ads Case Study Details
+                  </div>
+                  <div>
+                    <Label>Google Ads Summary Image URL</Label>
+                    <Input
+                      value={googleAds.googleAdsSummaryImage || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "googleAdsSummaryImage",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Google Ads dashboard / hero image URL"
+                    />
+                  </div>
+                  <div>
+                    <Label>Industry (Ads Specific)</Label>
+                    <Input
+                      value={googleAds.industry || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "industry",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="E-commerce — Fashion / Local Service — Plumbing"
+                    />
+                  </div>
+                  <div>
+                    <Label>Timeline (Campaign Duration)</Label>
+                    <Input
+                      value={googleAds.timeline || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "timeline",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="6 weeks / 3 months ongoing"
+                    />
+                  </div>
+                  <div>
+                    <Label>Campaign Overview</Label>
+                    <textarea
+                      value={googleAds.campaignOverview || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "campaignOverview",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
+                      placeholder="We managed lead gen campaigns to reduce CPL..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Client Challenge</Label>
+                    <textarea
+                      value={googleAds.googleAdsClientChallenge || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "googleAdsClientChallenge",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
+                      placeholder="High CPL, poor-quality traffic, no tracking..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Primary Campaign Goal</Label>
+                    <Input
+                      value={googleAds.primaryCampaignGoal || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "primaryCampaignGoal",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Reduce CPL and increase qualified leads"
+                    />
+                  </div>
+                  <div>
+                    <Label>Campaign Type</Label>
+                    <Input
+                      value={googleAds.campaignType || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "campaignType",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="Lead Generation / E-commerce / Brand Awareness"
+                    />
+                  </div>
+                  <div>
+                    <Label>Platforms / Networks (comma separated)</Label>
+                    <Input
+                      value={(googleAds.platforms || []).join(", ")}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "platforms",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      placeholder="Search, Display, Performance Max, Remarketing"
+                    />
+                  </div>
+                  <div>
+                    <Label>Monthly Ad Spend</Label>
+                    <Input
+                      value={googleAds.monthlyAdSpend || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "monthlyAdSpend",
+                          e.target.value,
+                        )
+                      }
+                      placeholder="$2,000 / ₹1,20,000"
+                    />
+                  </div>
+                  <div>
+                    <Label>Google Ads Strategy Summary</Label>
+                    <textarea
+                      value={googleAds.googleAdsStrategySummary || ""}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "googleAdsStrategySummary",
+                          e.target.value,
+                        )
+                      }
+                      className="w-full border rounded-md p-2 mt-1 min-h-[72px]"
+                      placeholder="We restructured campaigns, focused on high-intent keywords..."
+                    />
+                  </div>
+                  <div>
+                    <Label>Target Locations (comma separated)</Label>
+                    <Input
+                      value={(googleAds.targetLocations || []).join(", ")}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "targetLocations",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      placeholder="UK, US, Manchester, London"
+                    />
+                  </div>
+                  <div>
+                    <Label>Tracking & Analytics Setup (comma separated)</Label>
+                    <Input
+                      value={(googleAds.trackingAndAnalytics || []).join(", ")}
+                      onChange={(e) =>
+                        handleGoogleAdsDetailsChange(
+                          "trackingAndAnalytics",
+                          e.target.value
+                            .split(",")
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        )
+                      }
+                      placeholder="GA4, Google Ads Conversions, Call Tracking, Tag Manager"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Label>Google Ads Stat Tiles (max 4)</Label>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        onClick={() =>
+                          handleGoogleAdsDetailsChange(
+                            "stats",
+                            [
+                              ...(googleAds.stats || []),
+                              { label: "", value: "" },
+                            ],
+                          )
+                        }
+                        disabled={(googleAds.stats || []).length >= 4}
+                      >
+                        Add Stat
+                      </Button>
+                    </div>
+                    {(googleAds.stats || []).map((stat, index) => (
+                      <div
+                        key={index}
+                        className="grid grid-cols-1 md:grid-cols-3 gap-2"
+                      >
+                        <Input
+                          placeholder="Label (e.g. Cost Per Lead)"
+                          value={stat.label}
+                          onChange={(e) => {
+                            const next = [...(googleAds.stats || [])];
+                            next[index] = {
+                              ...next[index],
+                              label: e.target.value,
+                            };
+                            handleGoogleAdsDetailsChange("stats", next);
+                          }}
+                        />
+                        <Input
+                          placeholder="Value (e.g. ↓ 48% in 30 days)"
+                          value={stat.value}
+                          onChange={(e) => {
+                            const next = [...(googleAds.stats || [])];
+                            next[index] = {
+                              ...next[index],
+                              value: e.target.value,
+                            };
+                            handleGoogleAdsDetailsChange("stats", next);
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            const next = (googleAds.stats || []).filter(
+                              (_, i) => i !== index,
+                            );
+                            handleGoogleAdsDetailsChange("stats", next);
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                    {(googleAds.stats || []).length === 0 && (
+                      <p className="text-xs text-gray-500">
+                        Optional: add up to 4 Google Ads stats to show as
+                        metric tiles.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ---------- COMMON FIELDS CONTINUE ---------- */}
               <div>
                 <Label>Features (comma separated)</Label>
                 <Input
@@ -960,7 +1688,7 @@ export function PortfolioItemsManager() {
                 />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-3 pb-2">
                 <Button
                   type="submit"
                   className="bg-brand-purple"
@@ -988,6 +1716,7 @@ export function PortfolioItemsManager() {
           </CardContent>
         </Card>
 
+        {/* LIST COLUMN */}
         <div className="lg:col-span-2 space-y-4">
           {isLoading ? (
             <Card>
@@ -1041,11 +1770,26 @@ export function PortfolioItemsManager() {
                       /portfolio/{it.slug} • {it.industry} • Order{" "}
                       {it.orderIndex}
                     </div>
+                    {it.projectUrl && (
+                      <div className="mt-1">
+                        <a
+                          href={it.projectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-brand-purple underline"
+                        >
+                          {it.projectUrlLabel || "Open project"}
+                        </a>
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setEditingId(it.id)}
+                      onClick={() => {
+                        setEditingId(it.id);
+                        setSlugTouched(true);
+                      }}
                     >
                       Edit
                     </Button>
