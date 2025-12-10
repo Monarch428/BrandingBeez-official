@@ -16,10 +16,10 @@ import GopalStroke from "@assets/Gopal Stroke_1753273701284.png";
 import AthiraStroke from "@assets/Athira Stroke_1753273701280.png";
 // import Praveen_Stroke from "@assets/Praveen_Stroke.png";
 import NijuStroke from "@assets/Niju Stroke_1753273695212.png";
-import Pradeep_Stroke from "../../public/images/Pradeep-team-member.png";
-import Jithendran_Stroke from "../../public/images/Jithen-team-member.png";
-import Raja_Stroke from "../../public/images/Raja-team-member.png";
-import pranav_Stroke from "../../public/images/Pranav-team-member.png";
+// import Pradeep_Stroke from "../../public/images/Pradeep-team-member.png";
+// import Jithendran_Stroke from "../../public/images/Jithen-team-member.png";
+// import Raja_Stroke from "../../public/images/Raja-team-member.png";
+// import pranav_Stroke from "../../public/images/Pranav-team-member.png";
 
 interface TeamMember {
   name: string;
@@ -31,7 +31,7 @@ interface TeamMember {
 const teamMembers: TeamMember[] = [
   // TOP ROW – closer to collage top
   { name: "Sathesh Kumar", role: "Full-Stack Developer", image: Sathish_Stroke, position: { x: 7, y: 14, size: 78 }, },
-  { name: "Pradeep", role: "Full-Stack Developer", image: Pradeep_Stroke, position: { x: 24, y: 20, size: 78 }, },
+  // { name: "Pradeep", role: "Full-Stack Developer", image: Pradeep_Stroke, position: { x: 24, y: 20, size: 78 }, },
   { name: "Priya", role: "Automation Specialist", image: PriyaStroke, position: { x: 41, y: 14, size: 78 }, },
   { name: "Athira", role: "HR", image: AthiraStroke, position: { x: 72, y: 14, size: 78 }, },
   { name: "Azeez", role: "Graphic Designer", image: Azeez_Stroke, position: { x: 90, y: 14, size: 78 }, },
@@ -49,9 +49,9 @@ const teamMembers: TeamMember[] = [
   { name: "Gopal", role: "Google Ads Expert", image: GopalStroke, position: { x: 91, y: 73, size: 84 }, },
 
   // BOTTOM ROW – extra members
-  { name: "Jithendran", role: "Video Editor", image: Jithendran_Stroke, position: { x: 25, y: 78, size: 76 }, },
-  { name: "Raja", role: "AI Specialist", image: Raja_Stroke, position: { x: 55, y: 78, size: 76 }, },
-  { name: "Pranavkumar", role: "Content Manager", image: pranav_Stroke, position: { x: 78, y: 84, size: 76 }, },
+  // { name: "Jithendran", role: "Video Editor", image: Jithendran_Stroke, position: { x: 25, y: 78, size: 76 }, },
+  // { name: "Raja", role: "AI Specialist", image: Raja_Stroke, position: { x: 55, y: 78, size: 76 }, },
+  // { name: "Pranavkumar", role: "Content Manager", image: pranav_Stroke, position: { x: 78, y: 84, size: 76 }, },
 ];
 
 export function TeamCollageBanner() {
