@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, User, Clock, Share2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Helmet } from "react-helmet";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 interface BlogPost {
   id: number;
@@ -37,7 +38,9 @@ const PageLoader = () => (
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple mx-auto mb-4"></div>
         <p className="text-lg font-semibold">Loading Article...</p>
-        <p className="text-sm text-gray-500 mt-2">Please wait while we load the blog post</p>
+        <p className="text-sm text-gray-500 mt-2">
+          Please wait while we load the blog post
+        </p>
       </div>
     </div>
     <Footer />
@@ -135,6 +138,25 @@ export default function DynamicBlogPost() {
   const author = blogPost?.author || "BrandingBeez Team";
   const readTime = blogPost?.readTime || 5;
 
+  // ✅ Resolve relative / absolute URLs into a proper absolute URL (Safari friendly)
+  const resolvedImageUrl = useMemo(() => {
+    if (!blogPost?.imageUrl) return undefined;
+
+    const raw = blogPost.imageUrl.trim();
+
+    // Already absolute (Cloudinary etc.)
+    if (/^https?:\/\//i.test(raw)) {
+      return raw;
+    }
+
+    try {
+      // Handles "/images/foo.png" or "images/foo.png"
+      return new URL(raw, window.location.origin).toString();
+    } catch {
+      return raw;
+    }
+  }, [blogPost?.imageUrl]);
+
   if (isLoading) return <PageLoader />;
 
   if (isError) {
@@ -191,17 +213,35 @@ export default function DynamicBlogPost() {
     <div className="min-h-screen bg-white">
       {/* SEO */}
       <Helmet>
-        <title>{blogPost.metaTitle || `${blogPost.title} | BrandingBeez`}</title>
-        <meta name="description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
-        <meta name="keywords" content={Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""} />
-        <meta property="og:title" content={blogPost.metaTitle || blogPost.title} />
-        <meta property="og:description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
-        <meta property="og:image" content={blogPost.imageUrl || "/api/placeholder/800/600"} />
+        <title>
+          {blogPost.metaTitle || `${blogPost.title} | BrandingBeez`}
+        </title>
+        <meta
+          name="description"
+          content={blogPost.metaDescription || blogPost.excerpt || ""}
+        />
+        <meta
+          name="keywords"
+          content={
+            Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""
+          }
+        />
+        <meta
+          property="og:title"
+          content={blogPost.metaTitle || blogPost.title}
+        />
+        <meta
+          property="og:description"
+          content={blogPost.metaDescription || blogPost.excerpt || ""}
+        />
+        <meta
+          property="og:image"
+          content={resolvedImageUrl || "/api/placeholder/800/600"}
+        />
         <meta property="article:author" content={author} />
         <meta property="article:published_time" content={publishDate} />
       </Helmet>
 
-      
       <Header />
 
       {/* Article Header */}
@@ -216,8 +256,14 @@ export default function DynamicBlogPost() {
             Back to Blog
           </Button>
 
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">{blogPost.title}</h1>
-          {blogPost.subtitle && <h2 className="text-xl md:text-2xl text-white/90 mb-6">{blogPost.subtitle}</h2>}
+          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            {blogPost.title}
+          </h1>
+          {blogPost.subtitle && (
+            <h2 className="text-xl md:text-2xl text-white/90 mb-6">
+              {blogPost.subtitle}
+            </h2>
+          )}
 
           <div className="flex flex-wrap items-center gap-6 text-white/90 mb-6">
             <div className="flex items-center">
@@ -248,30 +294,49 @@ export default function DynamicBlogPost() {
       {/* Article Content */}
       <article className="py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          {blogPost.imageUrl && (
+          {resolvedImageUrl && (
             <div className="mb-12">
               <img
-                src={blogPost.imageUrl}
+                src={resolvedImageUrl}
                 alt={blogPost.title}
                 className="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg"
-                loading="lazy"
+                // Safari sometimes behaves better without lazy for key hero image
+                loading="eager"
+                onError={(e) => {
+                  console.warn(
+                    "❌ Blog hero image failed to load:",
+                    resolvedImageUrl,
+                  );
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/images/blog-fallback.png"; // make sure this exists in /public/images
+                }}
               />
             </div>
           )}
 
           {blogPost.excerpt && (
             <div className="mb-8 p-6 bg-blue-50 border-l-4 border-brand-coral rounded-r-lg">
-              <h3 className="font-semibold text-brand-purple mb-2">Article Summary:</h3>
-              <p className="text-gray-700 text-lg leading-relaxed">{blogPost.excerpt}</p>
+              <h3 className="font-semibold text-brand-purple mb-2">
+                Article Summary:
+              </h3>
+              <p className="text-gray-700 text-lg leading-relaxed">
+                {blogPost.excerpt}
+              </p>
             </div>
           )}
 
           {Array.isArray(blogPost.tags) && blogPost.tags.length > 0 && (
             <div className="mb-8">
-              <h3 className="font-semibold mb-3 text-brand-purple">Topics Covered:</h3>
+              <h3 className="font-semibold mb-3 text-brand-purple">
+                Topics Covered:
+              </h3>
               <div className="flex gap-2 flex-wrap">
                 {blogPost.tags.map((tag, index) => (
-                  <Badge key={index} variant="outline" className="text-brand-coral border-brand-coral">
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="text-brand-coral border-brand-coral"
+                  >
                     {tag}
                   </Badge>
                 ))}
@@ -288,22 +353,24 @@ export default function DynamicBlogPost() {
           />
 
           <div className="mt-16 p-8 bg-gradient-to-r from-brand-purple to-brand-coral rounded-2xl text-white text-center">
-            <h2 className="text-2xl font-bold mb-4">Ready to Get Started?</h2>
+            <h2 className="text-2xl font-bold mb-4">
+              Ready to Get Started?
+            </h2>
             <p className="text-lg mb-6 opacity-90">
-              Contact our expert team to discuss how we can help grow your business with proven digital marketing strategies.
+              Contact our expert team to discuss how we can help grow your
+              business with proven digital marketing strategies.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button
-                onClick={() => window.open("https://calendly.com/brandingbeez/30min", "_blank")}
-                size="lg"
+              <BookCallButtonWithModal
+                buttonLabel="Get Free Consultation"
                 className="bg-white text-brand-purple hover:bg-gray-100"
-              >
-                Get Free Consultation
-              </Button>
+                buttonSize="lg"
+              // defaultServiceType="Website Development"
+              />
               <p className="text-lg">
                 📞 Call us at{" "}
-                <a href="tel:+919952462833" className="text-white underline font-semibold">
-                  +91 99524 62833
+                <a href="tel:+917871990263" className="text-white underline font-semibold">
+                  +91 78719 90263
                 </a>
               </p>
             </div>
@@ -311,7 +378,6 @@ export default function DynamicBlogPost() {
           </div>
         </div>
       </article>
-
       <Footer />
     </div>
   );
