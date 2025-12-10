@@ -1237,7 +1237,7 @@ export function PortfolioItemsManager() {
                       placeholder="Increase organic traffic and rank top keywords on Page 1"
                     />
                   </div>
-                  <div>
+                  {/* <div>
                     <Label>SEO Summary Image URL</Label>
                     <Input
                       value={seo.seoSummaryImage || ""}
@@ -1249,7 +1249,7 @@ export function PortfolioItemsManager() {
                       }
                       placeholder="SEO dashboard / hero image URL"
                     />
-                  </div>
+                  </div> */}
                   <div>
                     <Label>SEO Focus Areas (comma separated)</Label>
                     <Input

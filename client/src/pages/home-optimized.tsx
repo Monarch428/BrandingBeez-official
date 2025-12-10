@@ -146,7 +146,7 @@ export default function HomeOptimized() {
     <div className="min-h-screen bg-white">
       <PerformanceOptimizer />
       <SchemaMarkup 
-        type="Organization"
+        type="organization"
         data={{
           "@context": "https://schema.org",
           "@type": "Organization",

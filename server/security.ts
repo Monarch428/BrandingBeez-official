@@ -138,7 +138,7 @@
 //   skip: (req, res) => {
 //     // Skip in development
 //     if (process.env.NODE_ENV === 'development') return true;
-    
+
 //     // Skip for public blog endpoints that should be freely accessible
 //     const publicEndpoints = [
 //       '/api/blog',
@@ -146,7 +146,7 @@
 //       '/api/health',
 //       '/api/environment'
 //     ];
-    
+
 //     return publicEndpoints.some(endpoint => req.path.startsWith(endpoint));
 //   },
 // });
@@ -193,7 +193,7 @@
 // // Basic spam detection middleware
 // export function spamDetection(req: Request, res: Response, next: NextFunction) {
 //   const { body } = req;
-  
+
 //   // Check for common spam patterns
 //   const spamPatterns = [
 //     /viagra|cialis|pharmacy/i,
@@ -215,7 +215,7 @@
 
 //   // Check all text fields for spam patterns
 //   const textFields = [body.message, body.name, body.company, body.email].filter(Boolean);
-  
+
 //   for (const field of textFields) {
 //     if (typeof field === 'string') {
 //       for (const pattern of spamPatterns) {
@@ -260,18 +260,18 @@
 //   const missingFields = [];
 //   if (isEmptyString(name)) missingFields.push('name');
 //   if (isEmptyString(email)) missingFields.push('email address');
-  
+
 //   // Message is optional if service details are provided
 //   const hasServiceDetails = service || company || phone;
 //   if (!hasServiceDetails && isEmptyString(message)) {
 //     missingFields.push('message or service selection');
 //   }
-  
+
 //   if (missingFields.length > 0) {
 //     const fieldList = missingFields.length === 1 
 //       ? missingFields[0]
 //       : missingFields.slice(0, -1).join(', ') + ' and ' + missingFields[missingFields.length - 1];
-    
+
 //     return res.status(400).json({
 //       error: 'Missing required fields',
 //       message: `Please provide your ${fieldList}.`
@@ -296,7 +296,7 @@
 //     'temp-mail.org',
 //     'mailinator.com'
 //   ];
-  
+
 //   const emailDomain = email.split('@')[1]?.toLowerCase();
 //   if (disposableDomains.includes(emailDomain)) {
 //     return res.status(400).json({
@@ -345,12 +345,12 @@
 //   origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
 //     // Allow requests with no origin (like mobile apps or curl requests)
 //     if (!origin) return callback(null, true);
-    
+
 //     // Allow all origins in development
 //     if (process.env.NODE_ENV === 'development') {
 //       return callback(null, true);
 //     }
-    
+
 //     // In production, only allow specific domains
 //     const allowedOrigins = [
 //       'https://brandingbeez.com',
@@ -363,7 +363,7 @@
 //       'https://brandingbeez-official.onrender.com'
 //       // Add other production domains here
 //     ];
-    
+
 //     // Allow specific domains or any replit.app subdomain
 //     if (allowedOrigins.indexOf(origin) !== -1 || (origin && origin.endsWith('.replit.app'))) {
 //       callback(null, true);
@@ -380,7 +380,7 @@
 // // Security logging middleware
 // export function securityLogger(req: Request, res: Response, next: NextFunction) {
 //   const startTime = Date.now();
-  
+
 //   // Log suspicious patterns
 //   const suspiciousPatterns = [
 //     /\/admin/i,
@@ -430,7 +430,7 @@ export function securityHeaders() {
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
-          "'unsafe-eval'", 
+          "'unsafe-eval'",
           "data:",
           "https://*.google.com",
           "https://*.googleapis.com",
@@ -539,7 +539,7 @@ export function securityHeaders() {
       includeSubDomains: true,
       preload: true
     },
-    frameguard: false, 
+    frameguard: false,
     noSniff: true,
     xssFilter: true,
     referrerPolicy: {
@@ -686,8 +686,8 @@ export function validateContactForm(req: Request, res: Response, next: NextFunct
       missingFields.length === 1
         ? missingFields[0]
         : missingFields.slice(0, -1).join(", ") +
-          " and " +
-          missingFields[missingFields.length - 1];
+        " and " +
+        missingFields[missingFields.length - 1];
 
     return res.status(400).json({
       error: "Missing required fields",

@@ -4,17 +4,15 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./db-init";
 import dotenv from "dotenv";
-// import https from "https";
-// import fs from "fs";
+import https from "https";
+import fs from "fs";
 
 
 dotenv.config({ path: ".env" });
 const app = express();
 
-// Set environment from NODE_ENV
 app.set('env', process.env.NODE_ENV || 'development');
 
-// Enable compression for faster response times (fixes PageSpeed 'No compression applied')
 app.use(compression({
   filter: (req: Request, res: Response) => {
     if (req.headers['x-no-compression']) {
@@ -22,23 +20,19 @@ app.use(compression({
     }
     return compression.filter(req, res);
   },
-  level: 6, // Balanced compression
-  threshold: 1024, // Only compress files > 1KB
+  level: 6,
+  threshold: 1024,
 }));
 
-// Trust proxy for proper rate limiting and forwarded headers
-// Configure trust proxy more securely for Replit environment
+
 if (process.env.NODE_ENV === 'production') {
-  // In production, trust first proxy (Replit's load balancer)
   app.set('trust proxy', 1);
 } else {
-  // In development, trust all proxies for testing
   app.set('trust proxy', true);
 }
 
 // Security and performance headers
 app.use((req: Request, res: Response, next: NextFunction) => {
-  // Performance headers (helmet handles most security headers via security.ts)
   res.setHeader('X-DNS-Prefetch-Control', 'on');
 
   // Proper MIME types to fix PageSpeed errors
@@ -65,7 +59,7 @@ app.use(express.json({ limit: '50mb' }));
 // Explicit robots.txt serving with proper headers
 app.get('/robots.txt', (req: Request, res: Response) => {
   res.type('text/plain');
-  res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+  res.setHeader('Cache-Control', 'public, max-age=86400');
   res.send(`User-agent: *
 Disallow: /src/
 Disallow: /_next/
@@ -399,20 +393,18 @@ app.get('/sitemap.xml', (req: Request, res: Response) => {
 
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 
-// Optimized static file serving with caching headers
+// Optimized static file serving  caching headers
 app.use('/attached_assets', express.static('attached_assets', {
-  maxAge: '1y', // Cache for 1 year
+  maxAge: '1y',
   etag: true,
   lastModified: true
 }));
 
-// Serve static files from public directory with optimized caching
 app.use(express.static('public', {
   maxAge: '30d',
   etag: true,
   lastModified: true,
   setHeaders: (res, path) => {
-    // Set specific cache headers for different file types
     if (path.match(/\.(jpg|jpeg|png|gif|ico|svg|webp)$/)) {
       res.setHeader('Cache-Control', 'public, max-age=2592000');
     } else if (path.match(/\.(css|js)$/)) {
@@ -461,14 +453,11 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    // Log error but don't throw to prevent crashes
     console.error('Server Error:', err);
     res.status(status).json({ message });
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
+
   if (process.env.NODE_ENV === 'production') {
     try {
       console.log('Setting up static file serving for production...');
@@ -490,18 +479,18 @@ app.use((req, res, next) => {
     }
   }
 
-  // const httpsOptions = {
-  //   key: fs.readFileSync("cert/localhost-key.pem"),
-  //   cert: fs.readFileSync("cert/localhost.pem")
-  // };
+  const httpsOptions = {
+    key: fs.readFileSync("cert/localhost-key.pem"),
+    cert: fs.readFileSync("cert/localhost.pem")
+  };
   const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
-  }, () => {
-    log(`serving on port ${port}`);
-  });
-  // https.createServer(httpsOptions, app).listen(port, () => {
-  //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
+  // server.listen({
+  //   port,
+  //   host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
+  // }, () => {
+  //   log(`serving on port ${port}`);
   // });
+  https.createServer(httpsOptions, app).listen(port, () => {
+    log(`🚀 HTTPS Server running at https://localhost:${port}`);
+  });
 })();
