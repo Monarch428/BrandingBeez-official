@@ -169,7 +169,7 @@ const pricingPackages = [
   {
     id: 1,
     name: "Starter",
-    price: "$800",
+    price: "$500",
     period: "/month",
     period1: "+ ad spend",
     description: "Perfect for small businesses starting with Google Ads",

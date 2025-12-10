@@ -57,7 +57,7 @@ const serviceCategories = [
     ],
     metrics: "Average 150% increase in organic traffic",
     couponCode: "SEO50",
-    discount: "50% OFF",
+    discount: "20% OFF",
     discountDescription: "your first service",
   },
   {
@@ -89,7 +89,7 @@ const serviceCategories = [
     description: "Custom websites that turn visitors into lifelong customers",
     icon: Globe,
     href: "/services/web-development",
-    pricing: "Starting at $900",
+    pricing: "Starting at $750",
     features: ["WordPress", "Shopify", "BigCommerce", "Custom Coded"],
     metrics: "Average build time: 3 weeks",
     couponCode: "WEB20",
@@ -102,7 +102,7 @@ const serviceCategories = [
     description: "Maximize ROI with expert PPC campaign management",
     icon: TrendingUp,
     href: "/services/google-ads",
-    pricing: "Starting at $800/project",
+    pricing: "Starting at $500/project",
     features: [
       "Starter Package",
       "Growth Package",
@@ -111,7 +111,7 @@ const serviceCategories = [
     ],
     metrics: "Average ROAS: 2.5x",
     couponCode: "ADS15",
-    discount: "15% OFF",
+    discount: "20% OFF",
     discountDescription: "your first project",
   },
   // {

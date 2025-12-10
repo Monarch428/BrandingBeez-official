@@ -201,7 +201,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
               </div>
 
               {/* Bottom block: always sticks to bottom of card */}
-              <div className="pt-4 border-t border-white/15 mt-auto">
+              <div className="pt-4 border-t border-white/15 mt-6">
                 <p className="text-xs md:text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-3 sm:mb-4 text-center px-2">
                   <span>{activePhase.outcome}</span>
                 </p>

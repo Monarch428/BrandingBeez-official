@@ -16,10 +16,11 @@ import GopalStroke from "@assets/Gopal Stroke_1753273701284.png";
 import AthiraStroke from "@assets/Athira Stroke_1753273701280.png";
 // import Praveen_Stroke from "@assets/Praveen_Stroke.png";
 import NijuStroke from "@assets/Niju Stroke_1753273695212.png";
-import Pradeep_Stroke from "../../public/images/Pradeep-team-member.png";
-import Jithendran_Stroke from "../../public/images/Jithen-team-member.png";
-import Raja_Stroke from "../../public/images/Raja-team-member.png";
-import pranav_Stroke from "../../public/images/Pranav-team-member.png";
+import Pradeep_Stroke from "@assets/Pradeep-team-member.png";
+import Jithendran_Stroke from "@assets/Jithen-team-member.png";
+import Raja_Stroke from "@assets/Raja-team-member.png";
+import pranav_Stroke from "@assets/Pranav-team-member.png";
+
 
 interface TeamMember {
   name: string;

@@ -20,6 +20,7 @@ import ErrorBoundary from "@/components/error-boundary";
 // CRITICAL: Only import home page immediately (above the fold)
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
+import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
 
 // LAZY LOAD: All other pages split into separate bundles
 const Services = lazy(() => import("@/pages/services"));
@@ -119,8 +120,6 @@ const ComingSoon = lazy(() => import("@/pages/coming-soon"));
 const Newsletter = lazy(() => import("@/pages/newsletter"));
 
 // Blog posts - handled by dynamic route
-
-// Dynamically load the blog post component
 const DynamicBlogPost = lazy(() => import("@/pages/blog/[slug]"));
 
 // Loading component for lazy routes
@@ -141,6 +140,31 @@ const LazyRoute = ({
   </Suspense>
 );
 
+// 🌨 Global snowfall overlay (for Christmas month)
+const SnowfallOverlay = () => {
+  const flakes = Array.from({ length: 80 });
+
+  return (
+    <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
+      {flakes.map((_, index) => (
+        <span
+          key={index}
+          className="snowflake select-none"
+          style={{
+            left: `${Math.random() * 100}%`,
+            animationDuration: `${10 + Math.random() * 20}s`,
+            animationDelay: `${Math.random() * -20}s`,
+            fontSize: `${12 + Math.random() * 24}px`,
+            opacity: 0.3 + Math.random() * 0.7,
+          }}
+        >
+          ❄
+        </span>
+      ))}
+    </div>
+  );
+};
+
 function Router() {
   const [location] = useLocation();
 
@@ -157,25 +181,13 @@ function Router() {
     window.scrollTo(0, 0);
   }, [location]);
 
-  // useEffect(() => {
-  //   const OAuthToken = async () => {
-  //     try {
-  //       const tokens = await apiRequest<any>("/api/google/oauth/token", "GET");
-  //       localStorage.setItem("OA_AT", tokens.accessToken)
-  //       localStorage.setItem("OA_RT", tokens.refreshToken)
-  //       console.log("OAuth Token JSON:", tokens);
-  //     } catch (error) {
-  //       console.error("OAuth Token Error:", error);
-  //     }
-  //   };
-
-  //   OAuthToken();
-  // }, []);
-
   return (
     <Switch>
       {/* CRITICAL: Home page loads immediately */}
-      <Route path='/book-appointment' component={() => <LazyRoute component={BookApiontment} />} />
+      <Route
+        path="/book-appointment"
+        component={() => <LazyRoute component={BookApiontment} />}
+      />
       <Route path="/" component={Home} />
 
       {/* LAZY: All other routes load on demand */}
@@ -216,13 +228,7 @@ function Router() {
         component={() => <LazyRoute component={custApp} />}
       />
 
-      {/* <Route path="/blog" component={() => <LazyRoute component={Blog} />} /> */}
-
       <Route path="/blog" component={BlogPage} />
-
-      {/* Dynamic Blog Route - handles all blog posts */}
-      {/* <Route path="/blog/:slug" component={DynamicBlogPost} /> */}
-
       <Route path="/blog/:slug" component={DynamicBlogPostPage} />
 
       {/* Case Studies */}
@@ -334,9 +340,7 @@ function Router() {
       />
       <Route
         path="/case-studies/fse-digital"
-        component={() => (
-          <LazyRoute component={FSEDigital} />
-        )}
+        component={() => <LazyRoute component={FSEDigital} />}
       />
 
       {/* Tools and utilities */}
@@ -366,7 +370,10 @@ function Router() {
         path="/newsletter"
         component={() => <LazyRoute component={Newsletter} />}
       />
-      <Route path="/portfolio" component={() => <LazyRoute component={Portfolio} />} />
+      <Route
+        path="/portfolio"
+        component={() => <LazyRoute component={Portfolio} />}
+      />
 
       {/* Legal pages */}
       <Route
@@ -426,15 +433,19 @@ function App() {
       <SecurityHeadersProvider>
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
-            <AppToastProvider >
+            <AppToastProvider>
               <CriticalPathOptimizer />
               <PerformanceOptimizer />
+
               <Router />
               {/* <AIChatbot /> */}
               <CookieConsent />
               {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
-            <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} /> */}
-              <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+              <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} /> */}
+              <MobilePopup
+                isOpen={mobilePopupOpen}
+                onClose={closeMobilePopup}
+              />
             </AppToastProvider>
           </TooltipProvider>
         </QueryClientProvider>

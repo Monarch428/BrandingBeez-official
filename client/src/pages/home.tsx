@@ -1086,7 +1086,9 @@ import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
 import bniLogo from "@assets/bni_1752907520728.jpg";
 import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
 import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
-import webArtLogo from "../../public/images/website-architect-logo.jpeg"
+import webArtLogo from "../../public/images/website-architect-logo.jpeg";
+import mdmLogo from "../../public/images/MDM Logo.png";
+import nvtLogo from "../../public/images/NVT Logo.png";
 
 // Partner Agency Logos
 import newVisionTechLogo from "@assets/IMG-20250719-WA0264_1752907768834.jpg";
@@ -1114,6 +1116,8 @@ import Dani_Image from "../../public/images/Dani.png";
 import Gemma_Image from "../../public/images/Gemma.png";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
+import ChristmasEffects from "@/components/FestiveSnowOverlay";
+import { navigate } from "wouter/use-browser-location";
 
 
 export default function Home() {
@@ -1151,11 +1155,27 @@ export default function Home() {
     setTimeout(handleScrollToSection, 50);
   }, []);
 
-  const service = [
-    'Websites or web applications',
-    'SEO or PPC services',
-    'Mobile apps',
-    'Dedicated ongoing resources'
+  const who_service = [
+    {
+      label: "SEO",
+      href: "/services/seo",
+    },
+    {
+      label: "PPC/Google Ads",
+      href: "/services/google-ads",
+    },
+    {
+      label: "Dedicated ongoing resources",
+      href: "/services/dedicated-resources",
+    },
+    {
+      label: "Websites Design & Development",
+      href: "/services/web-development",
+    },
+    {
+      label: "Custome Web & Mobile apps (Powered by AI)",
+      href: "/services/custom-app-development",
+    },
   ];
 
   const benefits = [
@@ -1212,15 +1232,20 @@ export default function Home() {
   const services = [
     {
       id: 1,
-      title: "Search Engine Optimization",
+      title: "SEO Services",
       description:
-        "Improve your website's visibility and drive organic traffic with our expert SEO services.",
+        "White-label SEO services built for US agencies managing multiple clients.",
       pricing: "Starting at $500/month",
+      originalPrice: "$500",
+      discountedPrice: "$400",
+      discountLabel: "20% OFF",
+      billingUnit: "/month",
+      extraNote: "Average 150% increase in organic traffic",
       features: [
-        "Keyword research",
-        "On-page optimization",
-        "Link building",
-        "Content creation",
+        "White-label SEO reporting",
+        "On-page & technical SEO",
+        "Content & keyword strategy",
+        "Backlink strategy for competitive niches",
       ],
       href: "/services/seo",
       icon: Search,
@@ -1229,43 +1254,74 @@ export default function Home() {
       id: 2,
       title: "PPC Advertising",
       description:
-        "Reach your target audience and generate leads with our data-driven PPC advertising campaigns.",
-      pricing: "Starting at $400/month",
+        "Maximize ROI with expert PPC campaign management for your agency clients.",
+      pricing: "Starting at $800/project",
+      originalPrice: "$500",
+      discountedPrice: "$400",
+      discountLabel: "20% OFF",
+      billingUnit: "/project",
+      extraNote: "Best for agencies managing multiple client accounts",
       features: [
-        "Google Ads management",
-        "Keyword targeting",
-        "Ad copywriting",
-        "Conversion tracking",
+        "Google Ads account setup & audit",
+        "Keyword & audience targeting",
+        "Conversion & call tracking setup",
+        "Weekly optimization & reporting",
       ],
       href: "/services/google-ads",
       icon: Target,
     },
     {
       id: 3,
-      title: "Web Development",
+      title: "Dedicated Resources",
       description:
-        "Build a professional and user-friendly website with our custom web development services.",
-      pricing: "Starting at $600",
+        "Scale your agency with handpicked pros who integrate seamlessly into your workflow.",
+      pricing: "Starting at $1,200/month",
+      billingUnit: "/month",
       features: [
-        "Website design",
-        "E-commerce development",
-        "Mobile-friendly design",
-        "Content management system",
+        "Average 60% cost savings vs. in-house team",
+        "Graphic Designers & Video Editors",
+        "SEO & Google Ads Specialists",
+        "Web & Full-Stack Developers",
+      ],
+      href: "/services/dedicated-resources",
+      icon: Users,
+    },
+    {
+      id: 4,
+      title: "Website Design & Development",
+      description:
+        "Custom websites that turn visitors into lifelong customers for your agency clients.",
+      pricing: "Starting at $900/project",
+      originalPrice: "$750",
+      discountedPrice: "$600",
+      discountLabel: "20% OFF",
+      billingUnit: "/project",
+      extraNote: "Ideal for landing pages, service sites & local businesses",
+      features: [
+        "Conversion-focused UX & copy structure",
+        "Responsive & mobile-first design",
+        "CMS integration (WordPress/Headless)",
+        "Speed & core web vitals optimization",
       ],
       href: "/services/web-development",
       icon: Code,
     },
     {
-      id: 4,
-      title: "Custom Mobile App Development",
+      id: 5,
+      title: "Custom Web & Mobile App Development (AI-Powered)",
       description:
-        "High-performance custom apps built for scalability and seamless user experience.",
-      pricing: "Starting at $2,000/project",
+        "High-performance applications built for scalability, automation, and seamless user experience.",
+      pricing: "Starting at $3,500/project",
+      originalPrice: "$3,500",
+      discountedPrice: "$2,800",
+      discountLabel: "20% OFF",
+      billingUnit: "/project",
+      extraNote: "Perfect for portals, SaaS, internal tools & AI workflows",
       features: [
         "Custom Web Application Development",
         "iOS & Android Mobile App Development",
-        "Full-Stack Web Applications",
-        "UI/UX Design & Prototyping",
+        "AI & automation flows integration",
+        "UI/UX Design & prototyping",
       ],
       href: "/services/custom-app-development",
       icon: Zap,
@@ -1278,7 +1334,7 @@ export default function Home() {
     { number: '100%', label: 'White-Label', icon: Shield }
   ];
 
-  const benefit = [
+  const why_benefits = [
     'Reduce delivery costs compared to hiring US-based full-time staff',
     'Deliver consistent, high-quality work fully under your brand',
     'Scale capacity instantly without overloading internal teams',
@@ -1306,16 +1362,18 @@ export default function Home() {
     {
       id: 1,
       name: "Mark Muse",
-      company: "Partner",
+      company: "Founder, Muse Digital Media",
       testimonial: "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
-      imageUrl: Mark_Image
+      imageUrl: Mark_Image,
+      logoUrl: mdmLogo,
     },
     {
       id: 2,
       name: "Daniel Fechete",
-      company: "Creative Partner",
+      company: "COO, New Vision Tech",
       testimonial: "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
-      imageUrl: Dani_Image
+      imageUrl: Dani_Image,
+      logoUrl: nvtLogo,
     },
     {
       id: 3,
@@ -1327,8 +1385,19 @@ export default function Home() {
     }
   ];
 
+  // 🎄 Only show snowfall in December (month index 11)
+  const isChristmasSeason = new Date().getMonth() === 11;
+
   return (
     <>
+      {isChristmasSeason && (
+        <ChristmasEffects showOnMobile={true}
+          showSnow={true}
+          showGlow={true}
+          showLights={false}
+          showEmojiSnow={true}
+        />
+      )}
       <Helmet>
         <title>
           White Label Digital Services | Scale Your Agency Without Hiring
@@ -1445,20 +1514,20 @@ export default function Home() {
                 <div className="block bg-brand-coral text-white font-medium px-4 py-2 rounded-full mb-[24px] text-center mt-[0px] mx-auto w-fit">
                   Why Work With BrandingBeez
                 </div>
-                <h1 className="text-gray-900 mb-8 text-3xl font-bold max-w-3xl mx-auto text-center">
-                  More Than a Vendor Your White-Label Delivery Partner
+                <h1 className="text-gray-900 mb-8 max-w-3xl mx-auto text-center text-2xl font-bold">
+                  More Than a Vendor — Your White-Label Delivery Partner
                 </h1>
-                <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-3xl mx-auto">
-                  <p className="text-gray-600 text-left md:text-left">
+                <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
+                  <p className="text-gray-600 text-center md:text-left">
                     At BrandingBeez, we don't just execute tasks. We operate as an extension of your agency, aligning with your processes, timelines, and quality standards.
                   </p>
-                  <p className="text-gray-600 text-left md:text-left">
+                  <p className="text-gray-600 text-center md:text-left">
                     With 6+ years of white-label delivery experience and a 20+ in-house specialist team, we help US agencies scale faster without the cost, complexity, or risk of local hiring.
                   </p>
                 </div>
 
                 {/* Stats Cards */}
-                <div className="grid sm:grid-cols-3 gap-6 mb-16">
+                <div className="grid sm:grid-cols-3 gap-6 mb-[40px] mt-[-25px] mr-[0px] ml-[0px] px-[0px] py-[-39px]">
                   {stats.map((stat, index) => {
                     const Icon = stat.icon;
                     return (
@@ -1467,7 +1536,7 @@ export default function Home() {
                         className="bg-white border-2 border-gray-100 rounded-2xl p-6 text-center hover:border-brand-coral transition-all duration-300 hover:shadow-xl"
                       >
                         <Icon className="w-10 h-10 text-brand-coral mx-auto mb-4" />
-                        <div className="text-gray-900 font-medium mb-2">{stat.number}</div>
+                        <div className="text-gray-900 mb-2 font-medium">{stat.number}</div>
                         <div className="text-gray-600">{stat.label}</div>
                       </div>
                     );
@@ -1476,17 +1545,17 @@ export default function Home() {
               </div>
 
               {/* Benefits Section */}
-              <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-3xl p-8 md:p-12">
-                <h2 className="text-white text-xl font-medium mb-8">Key Benefits</h2>
-                <div className="grid md:grid-cols-2 gap-5">
-                  {benefit.map((benefits, index) => (
+              <div className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral rounded-3xl p-8 md:p-12 mx-[0px] my-[-52px]">
+                <h2 className="text-white mb-[50px] mt-[-25px] mr-[0px] ml-[0px] px-[0px] py-[-12px] font-bold text-xl">Key Benefits</h2>
+                <div className="grid md:grid-cols-2 gap-5 px-[0px] py-[15px] mx-[0px] my-[-32px]">
+                  {why_benefits.map((benefit, index) => (
                     <div
                       key={index}
                       className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 hover:bg-white/20 transition-all duration-300"
                     >
                       <div className="flex gap-4">
                         <CheckCircle2 className="w-6 h-6 text-white flex-shrink-0 mt-0.5" />
-                        <p className="text-white/90">{benefits}</p>
+                        <p className="text-white/90">{benefit}</p>
                       </div>
                     </div>
                   ))}
@@ -1497,38 +1566,40 @@ export default function Home() {
 
           {/* Services Section */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-[84%] mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Heading */}
               <div className="text-center mb-10 sm:mb-12">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                   Our Services
                 </h2>
                 <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
-                  White-label services designed to help US agencies deliver
-                  faster, scale profitably, and retain clients longer.
+                  White-label services designed to help US agencies deliver faster, scale
+                  profitably, and retain clients longer.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
+              {/* Cards Grid */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-6 xl:gap-8 items-stretch">
                 {services.map((service) => {
                   const Icon = service.icon;
 
                   return (
                     <Card
                       key={service.id}
-                      className="group border-gray-200 shadow-sm transition-all duration-300 flex flex-col h-full"
+                      className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                     >
                       {/* HEADER */}
-                      <CardHeader className="flex-shrink-0">
+                      <CardHeader className="flex-shrink-0 pb-3 sm:pb-4">
                         {/* ICON + TITLE ROW */}
-                        <div className="flex items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
-                          <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0" />
-                          <CardTitle className="text-base sm:text-lg font-bold text-brand-purple min-h-[56px] flex items-center">
+                        <div className="flex items-start sm:items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
+                          <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0 mt-0.5 sm:mt-0" />
+                          <CardTitle className="text-md sm:text-base md:text-md font-bold text-brand-purple leading-snug sm:leading-normal min-h-[36px] sm:min-h-[44px] flex items-center">
                             {service.title}
                           </CardTitle>
                         </div>
 
                         {/* DESCRIPTION */}
-                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed line-clamp-4 min-h-[80px]">
+                        <p className="text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed line-clamp-3 sm:line-clamp-4 min-h-[54px] sm:min-h-[72px] md:min-h-[80px]">
                           {service.description}
                         </p>
                       </CardHeader>
@@ -1536,29 +1607,75 @@ export default function Home() {
                       {/* BODY */}
                       <CardContent className="pt-0 flex flex-col flex-1">
                         <div className="flex flex-col flex-1 space-y-4">
-                          {/* PRICING */}
-                          <div className="text-base sm:text-lg font-bold text-brand-coral-darker">
-                            {service.pricing}
-                          </div>
+                          {/* PRICING with discount */}
+                          {service.discountedPrice && service.originalPrice ? (
+                            <div className="space-y-1">
+                              {/* Discount badge */}
+                              {service.discountLabel && (
+                                <div className="inline-flex items-center rounded-full bg-brand-coral/10 px-3 py-1">
+                                  <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-coral-darker">
+                                    {service.discountLabel}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Old vs new price */}
+                              <div className="flex flex-wrap items-baseline gap-1 text-sm sm:text-base">
+                                <span className="text-[11px] sm:text-xs text-gray-500 mr-1">
+                                  Starting at
+                                </span>
+
+                                <span className="text-sm sm:text-base text-gray-400 line-through mr-1">
+                                  {service.originalPrice}
+                                  {service.billingUnit && (
+                                    <span className="ml-0.5 text-[10px] sm:text-xs">
+                                      {service.billingUnit}
+                                    </span>
+                                  )}
+                                </span>
+
+                                <span className="text-base sm:text-lg font-bold text-brand-coral-darker">
+                                  {service.discountedPrice}
+                                  {service.billingUnit && (
+                                    <span className="ml-0.5 text-[10px] sm:text-xs font-medium text-brand-coral-darker/90">
+                                      {service.billingUnit}
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+
+                              {/* Extra note like “Average 150% increase…” */}
+                              {service.extraNote && (
+                                <p className="text-[11px] sm:text-xs text-gray-600">
+                                  {service.extraNote}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            // Fallback for services without discount (e.g., Dedicated Resources)
+                            <div className="text-sm sm:text-base md:text-lg font-bold text-brand-coral-darker">
+                              {service.pricing}
+                            </div>
+                          )}
 
                           {/* FEATURES */}
-                          <ul className="space-y-2 flex-1">
+                          <ul className="space-y-1.5 sm:space-y-2 flex-1">
                             {service.features.map((feature, index) => (
                               <li
                                 key={index}
                                 className="flex items-start gap-2 text-xs sm:text-sm"
                               >
                                 <CheckCircle className="w-4 h-4 text-brand-coral-darker mt-0.5 flex-shrink-0" />
-                                <span>{feature}</span>
+                                <span className="leading-snug">{feature}</span>
                               </li>
                             ))}
                           </ul>
 
                           {/* BUTTON — STICKS TO BOTTOM */}
-                          <div className="mt-auto pt-4">
+                          <div className="mt-4 sm:mt-6 pt-2 border-t border-gray-100">
                             <Link href={service.href}>
-                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
-                                <span className="leading-tight text-white text-sm sm:text-base">
+                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-xs sm:text-sm md:text-base flex items-center justify-center gap-2 shadow-lg">
+                                <span className="leading-tight">
                                   Learn More
                                 </span>
                                 <ArrowRight className="w-4 h-4" />
@@ -1589,7 +1706,8 @@ export default function Home() {
                 </h1>
 
                 <p className="text-slate-700 leading-relaxed max-w-2xl text-center mx-auto">
-                  We specialize in supporting US and UK digital marketing agencies that want to grow revenue, expand service offerings, and take on more clients without increasing payroll or overhead.
+                  We specialize in supporting US and UK digital marketing agencies that want to grow revenue,
+                  expand service offerings, and take on more clients without increasing payroll or overhead.
                 </p>
               </div>
 
@@ -1602,15 +1720,16 @@ export default function Home() {
                   </h3>
 
                   <div className="space-y-4">
-                    {service.map((services, index) => (
+                    {who_service.map((service, index) => (
                       <div
                         key={index}
-                        className="group flex items-center gap-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-5 hover:border-[#FF5A5F] transition-all hover:bg-white/30 shadow-lg"
+                        onClick={() => navigate(service.href)}
+                        className="group flex items-center gap-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-5 hover:border-[#FF5A5F] transition-all hover:bg-white/30 shadow-lg cursor-pointer"
                       >
                         <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-brand-coral flex items-center justify-center group-hover:scale-110 transition-transform">
                           <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
                         </div>
-                        <span className="text-black">{services}</span>
+                        <span className="text-black">{service.label}</span>
                       </div>
                     ))}
                   </div>
