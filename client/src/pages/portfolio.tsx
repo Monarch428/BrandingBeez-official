@@ -1247,19 +1247,18 @@ type PortfolioContent = {
 };
 
 const defaultContent: PortfolioContent = {
-    heroTitle: "Real AI Solutions We’ve Built",
+    heroTitle: "Our Work With Agencies Around the World",
     heroHighlight: "with Full Transparency",
     heroSubtitle:
         "Actual costs, timelines, tech stack, and ROI verified and documented. No fluff. Just results you can trust.",
-    heroDescription:
-        "We partner with founders and teams to ship automation and AI products that deliver measurable ROI in weeks, not months.",
+    heroDescription: "We operate as the backend production team for partners in the UK, US, Germany, and beyond. Each case study outlines our process, tools, timelines, and the results achieved.",
     heroStats: [
-        { kpi: "15+", label: "Projects Delivered" },
-        { kpi: "$127K", label: "Total Value Created" },
-        { kpi: "0%", label: "Average ROI" },
+        { kpi: "", label: "Projects Delivered" },
+        { kpi: "", label: "Total Value Created" },
+        { kpi: "", label: "Average ROI" },
     ],
     heroPrimaryCtaText: "Explore Case Studies",
-    heroPrimaryCtaHref: "/case-studies",
+    heroPrimaryCtaHref: "/#case-studies",
     heroSecondaryCtaText: "Get an Estimate",
     heroSecondaryCtaHref: "/pricing-calculator",
     testimonialsTitle: "What Our Clients Say",
