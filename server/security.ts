@@ -481,12 +481,14 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://assets.calendly.com"
         ],
-        imgSrc: [
+                imgSrc: [
           "'self'",
           "data:",
           "blob:",
           "https:",
           "http:",
+          "https://res.cloudinary.com",
+          "https://*.res.cloudinary.com",
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://*.googleusercontent.com",
@@ -499,6 +501,8 @@ export function securityHeaders() {
         ],
         connectSrc: [
           "'self'",
+          "https://res.cloudinary.com",
+          "https://*.res.cloudinary.com",
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://www.google-analytics.com",
@@ -515,7 +519,7 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com"
         ],
-        frameSrc: [
+          frameSrc: [
           "'self'",
           "https://calendly.com",
           "https://*.calendly.com",
