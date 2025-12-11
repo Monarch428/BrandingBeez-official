@@ -481,7 +481,7 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://assets.calendly.com"
         ],
-        imgSrc: [
+                imgSrc: [
           "'self'",
           "data:",
           "blob:",
@@ -519,7 +519,7 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com"
         ],
-        frameSrc: [
+          frameSrc: [
           "'self'",
           "https://calendly.com",
           "https://*.calendly.com",

@@ -4,6 +4,7 @@ import { Link, useLocation } from "wouter";
 import { Menu, X, ChevronDown, Search, MousePointerClick, Users, MonitorSmartphone, Cpu, Dot, } from "lucide-react";
 import brandingBeezLogo from "@assets/BB_Logo_Color.png";
 import { BookCallButtonWithModal } from "./book-appoinment";
+import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.png";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -101,18 +102,18 @@ export default function Header() {
 
   return (
     <header className="bg-white/95 backdrop-blur-sm shadow-lg border-b border-brand-coral/10 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         <div className="flex justify-between items-center h-14 sm:h-16">
           {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
               <div className="flex-shrink-0 cursor-pointer">
                 <img
-                  src={brandingBeezLogo}
+                  src={BB_Chris_Logo}
                   alt="BrandingBeez"
-                  className="h-12 w-auto object-contain"
-                  width="160"
-                  height="60"
+                  className="h-16 w-auto object-contain"
+                  width="320"
+                  height="80"
                 />
               </div>
             </Link>

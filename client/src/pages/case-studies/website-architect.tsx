@@ -710,7 +710,7 @@ export default function WebsiteArchitectCaseStudy() {
                 <CardContent className="p-12 text-center">
                   <Quote className="w-12 h-12 mx-auto mb-6 opacity-80" />
                   <blockquote className="text-xl font-light mb-8 leading-relaxed">
-                    " Branding Beez have been a great help to my business. Before meeting Raie and her team,
+                    " Branding Beez have been a great help to my business. Before meeting Raje and her team,
                     I was doing the sales, building the websites and handling all the tech and aftercare.
                     Now I have the time to grow the business, working 'ON' it, instead of constantly 'IN' it.
                     So they've been a gamechanger for me and my business. Even taking my first holiday this

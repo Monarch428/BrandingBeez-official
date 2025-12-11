@@ -11,6 +11,7 @@ import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 import superbLogo from "../../public/images/superb.png";
 import semrushLogo from "../../public/images/Semrush.svg";
 import { BookCallButtonWithModal } from "./book-appoinment";
+import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo_White.png";
 
 export default function Footer() {
   const { regionConfig } = useRegion();
@@ -20,10 +21,9 @@ export default function Footer() {
   const BrandingBeezLogo = () => (
     <div className="mb-4">
       <img
-        src={brandingBeezLogo}
+        src={BB_Chris_Logo}
         alt="BrandingBeez"
-        className="h-12 sm:h-14 w-auto max-w-[190px]"
-        style={{ aspectRatio: "3.5 / 1", objectFit: "contain" }}
+        className="h-16 sm:h-20 max-w-[260px] bg-cover"
         loading="lazy"
         decoding="async"
       />
@@ -66,7 +66,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div className="sm:col-span-1 lg:col-span-1">
-            <h2 className="font-semibold mb-3 text-base">BrandingBeez</h2>
+            {/* <h2 className="font-semibold mb-3 text-base">BrandingBeez</h2> */}
             <BrandingBeezLogo />
             <p className="text-gray-400 mb-4 max-w-md text-sm">
               {/* Trusted white-label partner since 2020. */}

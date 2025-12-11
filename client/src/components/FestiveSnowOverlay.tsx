@@ -23,12 +23,15 @@ const CanvasSnow: React.FC<{ className?: string }> = ({ className }) => {
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
 
+    // 🔹 Global speed factor – lower = slower, higher = faster
+    const SPEED_FACTOR = 0.18; 
+
     // start flakes spread across the whole screen
     const flakes = Array.from({ length: 150 }).map(() => ({
       x: Math.random() * width,
       y: Math.random() * height,
       r: 1 + Math.random() * 3,
-      d: Math.random() + 1, // density / speed factor
+      d: Math.random() + 1, 
     }));
 
     const draw = () => {
@@ -48,19 +51,19 @@ const CanvasSnow: React.FC<{ className?: string }> = ({ className }) => {
     const update = () => {
       flakes.forEach((f) => {
         // gentle diagonal: mostly down, slightly left
-        f.y += Math.pow(f.d, 2) + 0.8;   // vertical fall
-        f.x -= 0.15 * f.d;               // horizontal drift to the left
+        f.y += (Math.pow(f.d, 2) + 0.8) * SPEED_FACTOR;
+        f.x -= 0.15 * f.d * SPEED_FACTOR;              
 
         // when the flake goes below the screen -> respawn at random X along top
         if (f.y > height) {
           f.y = -10;
-          f.x = Math.random() * width;   // anywhere along the top
+          f.x = Math.random() * width; 
         }
 
         // if it drifts far off to the left, re-enter from the right sometimes
         if (f.x < -50) {
           f.x = width + Math.random() * 50;
-          f.y = Math.random() * (height * 0.3); // top 30% zone
+          f.y = Math.random() * (height * 0.3); 
         }
       });
     };
