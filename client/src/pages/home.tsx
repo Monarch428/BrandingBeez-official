@@ -1270,22 +1270,22 @@ export default function Home() {
       href: "/services/google-ads",
       icon: Target,
     },
-    {
-      id: 3,
-      title: "Dedicated Resources",
-      description:
-        "Scale your agency with handpicked pros who integrate seamlessly into your workflow.",
-      pricing: "Starting at $1,200/month",
-      billingUnit: "/month",
-      features: [
-        "Average 60% cost savings vs. in-house team",
-        "Graphic Designers & Video Editors",
-        "SEO & Google Ads Specialists",
-        "Web & Full-Stack Developers",
-      ],
-      href: "/services/dedicated-resources",
-      icon: Users,
-    },
+    // {
+    //   id: 3,
+    //   title: "Dedicated Resources",
+    //   description:
+    //     "Scale your agency with handpicked pros who integrate seamlessly into your workflow.",
+    //   pricing: "Starting at $1,200/month",
+    //   billingUnit: "/month",
+    //   features: [
+    //     "Average 60% cost savings vs. in-house team",
+    //     "Graphic Designers & Video Editors",
+    //     "SEO & Google Ads Specialists",
+    //     "Web & Full-Stack Developers",
+    //   ],
+    //   href: "/services/dedicated-resources",
+    //   icon: Users,
+    // },
     {
       id: 4,
       title: "Website Design & Development",
@@ -1579,7 +1579,7 @@ export default function Home() {
               </div>
 
               {/* Cards Grid */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 lg:gap-6 xl:gap-8 items-stretch">
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6 xl:gap-8 items-stretch">
                 {services.map((service) => {
                   const Icon = service.icon;
 
@@ -1613,7 +1613,7 @@ export default function Home() {
                               {/* Discount badge */}
                               {service.discountLabel && (
                                 <div className="inline-flex items-center rounded-full bg-brand-coral/10 px-3 py-1">
-                                  <span className="text-[11px] font-semibold uppercase tracking-wide text-brand-coral-darker">
+                                  <span className="text-[12px] font-bold uppercase tracking-wide text-brand-coral-darker">
                                     {service.discountLabel}
                                   </span>
                                 </div>
@@ -1646,7 +1646,7 @@ export default function Home() {
 
                               {/* Extra note like “Average 150% increase…” */}
                               {service.extraNote && (
-                                <p className="text-[11px] sm:text-xs text-gray-600">
+                                <p className="text-[14px] sm:text-sm text-gray-600">
                                   {service.extraNote}
                                 </p>
                               )}

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Search, MousePointerClick, Users, MonitorSmartphone, Cpu, Dot, } from "lucide-react";
 import brandingBeezLogo from "@assets/BB_Logo_Color.png";
 import { BookCallButtonWithModal } from "./book-appoinment";
 
@@ -31,26 +31,36 @@ export default function Header() {
       label: "SEO Services",
       href: "/services/seo",
       description: "White-label SEO for agencies managing multiple clients.",
+      icon: Search,
+      recommended: false,
     },
     {
       label: "PPC Advertising",
       href: "/services/google-ads",
       description: "Done-for-you Google Ads & PPC campaign management.",
+      icon: MousePointerClick,
+      recommended: false,
     },
     {
       label: "Dedicated Resources",
       href: "/services/dedicated-resources",
       description: "Hire designers, developers, SEO & PPC specialists.",
+      icon: Users,
+      recommended: true,
     },
     {
       label: "Website Design & Development",
       href: "/services/web-development",
       description: "High-converting sites built for your agency clients.",
+      icon: MonitorSmartphone,
+      recommended: false,
     },
     {
       label: "Custom Web & Mobile Application Development (AI-Powered)",
       href: "/services/custom-app-development",
       description: "Custom apps & AI-powered solutions for scale.",
+      icon: Cpu,
+      recommended: false,
     },
   ];
 
@@ -63,7 +73,6 @@ export default function Header() {
       const next = !prev;
       setIsDesktopServicesOpen(next);
       if (next) {
-        // only navigate when we're opening it
         navigate("/services");
       }
       return next;
@@ -116,11 +125,10 @@ export default function Header() {
           >
             <Link href="/">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Home
               </span>
@@ -139,41 +147,86 @@ export default function Header() {
                 }
               }}
             >
-              {/* Services trigger – one click = open/close + (when opening) navigate */}
               <button
                 type="button"
                 onClick={handleDesktopServicesClick}
-                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${
-                  location.startsWith("/services") || isDesktopServicesOpen
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${location.startsWith("/services") || isDesktopServicesOpen
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Services
                 <ChevronDown
-                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${
-                    isDesktopServicesOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${isDesktopServicesOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
-              {/* Mega Menu Panel */}
               {isDesktopServicesOpen && (
-                <div className="absolute left-1/2 -translate-x-1/2 mt-1 w-[320px] sm:w-[420px] lg:w-[560px] z-40">
-                  <div className="rounded-2xl border border-gray-100 bg-white shadow-xl shadow-black/5 p-4 sm:p-5 ring-1 ring-black/5">
+                // aligned to the right and wider
+                <div className="absolute top-5 right-35 mt-2 w-[720px] lg:w-[880px] z-40">
+                  <div className="rounded-2xl border border-gray-100 bg-white shadow-xl shadow-black/5 p-4 sm:p-6 ring-1 ring-black/5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      {serviceMenuItems.map((item) => (
-                        <Link key={item.href} href={item.href}>
-                          <div className="group/item cursor-pointer rounded-xl px-3 py-2.5 border border-transparent hover:bg-brand-coral/20 hover:border-brand-coral hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150">
-                            <div className="text-sm font-semibold text-gray-900 group-hover/item:text-brand-coral-darker">
-                              {item.label}
-                            </div>
-                            {/* <p className="mt-1 text-xs sm:text-[13px] text-gray-600 leading-snug">
-                              {item.description}
-                            </p> */}
-                          </div>
-                        </Link>
-                      ))}
+                      {serviceMenuItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link key={item.href} href={item.href} className="relative group">
+                            <a className="block relative cursor-pointer rounded-xl px-3 py-3 border border-transparent hover:bg-brand-coral/10 hover:border-brand-coral hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150">
+                              <div className="flex items-center gap-3">
+                                {/* main icon */}
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <div className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-brand-coral">
+                                    <Icon className="w-5 h-5 text-gray-700 group-hover:text-white" />
+                                  </div>
+                                </div>
+
+                                {/* label + recommended */}
+                                <div className="min-w-0 w-full">
+                                  <div className="flex items-center gap-3">
+                                    {/* label */}
+                                    <div className="text-sm font-bold text-gray-900 group-hover:text-brand-coral-darker truncate">
+                                      {item.label}
+                                    </div>
+
+                                    {/* RECOMMENDED (NO hover effects applied) */}
+                                    {item.recommended && (
+                                      <div className="flex items-center group/recommended">
+                                        <span className="relative inline-flex items-center gap-1 text-[12px] font-bold px-3 py-[4px] rounded-full bg-brand-coral/10 text-brand-coral-darker">
+
+                                          {/* Dot icon — stays same even on hover */}
+                                          <Dot className="w-4 h-4 text-brand-coral" />
+
+                                          <span>RECOMMENDED</span>
+
+                                          {/* glow halo — always same */}
+                                          <span
+                                            className="absolute inset-0 rounded-full pointer-events-none animate-shimmer"
+                                            aria-hidden="true"
+                                            style={{
+                                              boxShadow: "0 0 18px rgba(255, 255, 255, 0.6)",
+                                              filter: "blur(8px)"
+                                            }}
+                                          />
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* chevron—still hoverable */}
+                                <div className="ml-auto hidden sm:flex items-center">
+                                  <svg xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 text-gray-400 group-hover:text-brand-coral-darker"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                  </svg>
+                                </div>
+                              </div>
+
+                            </a>
+                          </Link>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
@@ -182,33 +235,30 @@ export default function Header() {
 
             <Link href="/blog">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/blog"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/blog"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Blog
               </span>
             </Link>
             <Link href="/about">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/about"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/about"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 About
               </span>
             </Link>
             <Link href="/portfolio">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/portfolio"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/portfolio"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Portfolio
               </span>
@@ -221,7 +271,7 @@ export default function Header() {
               buttonLabel="Book a call"
               className="hidden sm:flex bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base touch-manipulation"
               buttonSize="lg"
-              // defaultServiceType="Website Development"
+            // defaultServiceType="Website Development"
             />
 
             {/* Mobile Menu Button */}
@@ -257,11 +307,10 @@ export default function Header() {
             <div className="px-4 py-2 space-y-1">
               <Link href="/">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
@@ -270,11 +319,10 @@ export default function Header() {
 
               {/* SERVICES with mobile submenu */}
               <div
-                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                  location.startsWith("/services")
-                    ? "text-brand-coral-darker bg-brand-coral/10"
-                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                }`}
+                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location.startsWith("/services")
+                  ? "text-brand-coral-darker bg-brand-coral/10"
+                  : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                  }`}
               >
                 {/* ⭐ Click text -> navigate to /services */}
                 <button
@@ -296,9 +344,8 @@ export default function Header() {
                   }}
                 >
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      isServicesSubmenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isServicesSubmenuOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -344,11 +391,10 @@ export default function Header() {
               </Link> */}
               <Link href="/blog">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/blog"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/blog"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Blog
@@ -356,11 +402,10 @@ export default function Header() {
               </Link>
               <Link href="/about">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/about"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/about"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
@@ -368,11 +413,10 @@ export default function Header() {
               </Link>
               <Link href="/portfolio">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/portfolio"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Portfolio
@@ -380,11 +424,10 @@ export default function Header() {
               </Link>
               <Link href="/contact">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/contact"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/contact"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Contact
