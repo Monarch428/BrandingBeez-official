@@ -21,6 +21,7 @@ import ErrorBoundary from "@/components/error-boundary";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
 import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
+import BeeLoadingScreen from "./components/BeeLoadingScreen";
 
 // LAZY LOAD: All other pages split into separate bundles
 const Services = lazy(() => import("@/pages/services"));
@@ -123,11 +124,13 @@ const Newsletter = lazy(() => import("@/pages/newsletter"));
 const DynamicBlogPost = lazy(() => import("@/pages/blog/[slug]"));
 
 // Loading component for lazy routes
-const PageLoader = () => (
-  <div className="flex items-center justify-center min-h-screen">
-    <div className="loading-skeleton w-full h-64 rounded-lg max-w-4xl mx-auto"></div>
-  </div>
-);
+// const PageLoader = () => (
+//   <div className="flex items-center justify-center min-h-screen">
+//     <div className="loading-skeleton w-full h-64 rounded-lg max-w-4xl mx-auto"></div>
+//   </div>
+// );
+const PageLoader = () => <BeeLoadingScreen />;
+
 
 // Wrap lazy components with Suspense
 const LazyRoute = ({
@@ -189,6 +192,7 @@ function Router() {
         component={() => <LazyRoute component={BookApiontment} />}
       />
       <Route path="/" component={Home} />
+      <Route path="/loader" component={BeeLoadingScreen} />
 
       {/* LAZY: All other routes load on demand */}
       <Route

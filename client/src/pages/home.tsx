@@ -1118,6 +1118,7 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
 import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
+import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 
 export default function Home() {
@@ -1379,7 +1380,7 @@ export default function Home() {
       id: 3,
       name: "Gemma Murphy",
       company: "Founder, Website Architect",
-      testimonial: "Branding Beez have been a great help to my business. Before meeting Rale and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
+      testimonial: "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
       imageUrl: Gemma_Image,
       logoUrl: webArtLogo
     }
@@ -1506,64 +1507,6 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Why Work With Us Section */}
-          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-20 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto">
-              {/* Header Section */}
-              <div className="mb-16">
-                <div className="block bg-brand-coral text-white font-medium px-4 py-2 rounded-full mb-[24px] text-center mt-[0px] mx-auto w-fit">
-                  Why Work With BrandingBeez
-                </div>
-                <h1 className="text-gray-900 mb-8 max-w-3xl mx-auto text-center text-2xl font-bold">
-                  More Than a Vendor — Your White-Label Delivery Partner
-                </h1>
-                <div className="grid md:grid-cols-2 gap-8 mb-12 max-w-4xl mx-auto">
-                  <p className="text-gray-600 text-center md:text-left">
-                    At BrandingBeez, we don't just execute tasks. We operate as an extension of your agency, aligning with your processes, timelines, and quality standards.
-                  </p>
-                  <p className="text-gray-600 text-center md:text-left">
-                    With 6+ years of white-label delivery experience and a 20+ in-house specialist team, we help US agencies scale faster without the cost, complexity, or risk of local hiring.
-                  </p>
-                </div>
-
-                {/* Stats Cards */}
-                <div className="grid sm:grid-cols-3 gap-6 mb-[40px] mt-[-25px] mr-[0px] ml-[0px] px-[0px] py-[-39px]">
-                  {stats.map((stat, index) => {
-                    const Icon = stat.icon;
-                    return (
-                      <div
-                        key={index}
-                        className="bg-white border-2 border-gray-100 rounded-2xl p-6 text-center hover:border-brand-coral transition-all duration-300 hover:shadow-xl"
-                      >
-                        <Icon className="w-10 h-10 text-brand-coral mx-auto mb-4" />
-                        <div className="text-gray-900 mb-2 font-medium">{stat.number}</div>
-                        <div className="text-gray-600">{stat.label}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Benefits Section */}
-              <div className="bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral rounded-3xl p-8 md:p-12 mx-[0px] my-[-52px]">
-                <h2 className="text-white mb-[50px] mt-[-25px] mr-[0px] ml-[0px] px-[0px] py-[-12px] font-bold text-xl">Key Benefits</h2>
-                <div className="grid md:grid-cols-2 gap-5 px-[0px] py-[15px] mx-[0px] my-[-32px]">
-                  {why_benefits.map((benefit, index) => (
-                    <div
-                      key={index}
-                      className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-5 hover:bg-white/20 transition-all duration-300"
-                    >
-                      <div className="flex gap-4">
-                        <CheckCircle2 className="w-6 h-6 text-white flex-shrink-0 mt-0.5" />
-                        <p className="text-white/90">{benefit}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* Services Section */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
             <div className="max-w-[84%] mx-auto px-4 sm:px-6 lg:px-8">
@@ -1589,7 +1532,7 @@ export default function Home() {
                       className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
                     >
                       {/* HEADER */}
-                      <CardHeader className="flex-shrink-0 pb-3 sm:pb-4">
+                      <CardHeader className="flex-shrink-0 pb-3 sm:pb-2">
                         {/* ICON + TITLE ROW */}
                         <div className="flex items-start sm:items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
                           <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0 mt-0.5 sm:mt-0" />
@@ -1768,6 +1711,7 @@ export default function Home() {
           {/* Partner Agencies Marquee */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
               <div className="text-center mb-10 sm:mb-12">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                   <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-coral">
@@ -1788,46 +1732,16 @@ export default function Home() {
                   {[...Array(2)].map((_, i) => (
                     <div key={i} className="flex gap-4 sm:gap-6">
                       {[
-                        {
-                          logo: socialLandLogo,
-                          name: "Social Land",
-                        },
-                        {
-                          logo: websiteArchitectLogo,
-                          name: "Website Architect",
-                        },
-                        {
-                          logo: focusEcommerceLogo,
-                          name: "Focus E-commerce",
-                        },
-                        {
-                          logo: smartConnectingLogo,
-                          name: "Koala Digital",
-                        },
-                        {
-                          logo: newVisionTechLogo,
-                          name: "New Vision Tech",
-                        },
-                        {
-                          logo: carolinaWebLogo,
-                          name: "Carolina Web",
-                        },
-                        {
-                          logo: intrinsicLogo,
-                          name: "Intrinsic",
-                        },
-                        {
-                          logo: socialBrainLogo,
-                          name: "Social Brain",
-                        },
-                        {
-                          logo: fsbLogo,
-                          name: "FSE Digital",
-                        },
-                        {
-                          logo: museLogo,
-                          name: "MUSE Digital Media",
-                        },
+                        { logo: socialLandLogo, name: "Social Land" },
+                        { logo: websiteArchitectLogo, name: "Website Architect" },
+                        { logo: focusEcommerceLogo, name: "Focus E-commerce" },
+                        { logo: smartConnectingLogo, name: "Koala Digital" },
+                        { logo: newVisionTechLogo, name: "New Vision Tech" },
+                        { logo: carolinaWebLogo, name: "Carolina Web" },
+                        { logo: intrinsicLogo, name: "Intrinsic" },
+                        { logo: socialBrainLogo, name: "Social Brain" },
+                        { logo: fsbLogo, name: "FSE Digital" },
+                        { logo: museLogo, name: "MUSE Digital Media" },
                       ].map((item, idx) => (
                         <div
                           key={idx}
@@ -1846,6 +1760,40 @@ export default function Home() {
                     </div>
                   ))}
                 </div>
+              </div>
+
+              {/* CTA BUTTON */}
+              <div className="mt-10 sm:mt-12 text-center">
+                <BookCallButtonWithModal
+                  buttonLabel="Become Our next Partner"
+                  className="bg-brand-coral hover:bg-brand-purple-light backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-2 sm:py-2 text-sm sm:text-base touch-manipulation"
+                  buttonSize="default"
+                />
+              </div>
+
+            </div>
+          </section>
+
+          {/* Why Work With Us Section */}
+          {/* <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50">
+            <div className="w-full mx-auto">
+              <PortfolioCtaSection />
+            </div>
+          </section> */}
+          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+              {/* Header */}
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
+                Our Portfolio’s
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-6 sm:mb-8">
+                Explore our collection of beautifully crafted, performance-driven projects
+                built for top digital agencies and brands across the globe.
+              </p>
+
+              {/* Card container without inner padding so image fills fully */}
+              <div className="bg-white/80 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
+                <PortfolioCtaSection />
               </div>
             </div>
           </section>
@@ -2086,25 +2034,40 @@ export default function Home() {
               {/* Heading Button */}
               <div className="flex justify-center mb-6">
                 <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
-                  {/* <span className="w-2 h-2 bg-white rounded-full"></span> */}
                   <span>What Our Clients Say</span>
                 </div>
               </div>
 
-              {/* Subheading Text */}
+              {/* Subheading */}
               <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
                 Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
               </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {testimonials.map((testimonial) => (
+              {/* --- MOBILE SLIDER (hidden on md+) --- */}
+              <div className="md:hidden overflow-x-auto flex gap-4 snap-x snap-mandatory pb-4">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="min-w-[85%] snap-center">
+                    <TestimonialCard
+                      name={t.name}
+                      company={t.company}
+                      testimonial={t.testimonial}
+                      imageUrl={t.imageUrl}
+                      logoUrl={t.logoUrl}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* --- DESKTOP GRID (hidden on mobile) --- */}
+              <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 text-justify">
+                {testimonials.map((t) => (
                   <TestimonialCard
-                    key={testimonial.id}
-                    name={testimonial.name}
-                    company={testimonial.company}
-                    testimonial={testimonial.testimonial}
-                    imageUrl={testimonial.imageUrl}
-                    logoUrl={testimonial.logoUrl}
+                    key={t.id}
+                    name={t.name}
+                    company={t.company}
+                    testimonial={t.testimonial}
+                    imageUrl={t.imageUrl}
+                    logoUrl={t.logoUrl}
                   />
                 ))}
               </div>
@@ -2131,7 +2094,7 @@ export default function Home() {
               <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 items-start">
                 {/* CONTENT */}
                 <div className="w-full lg:w-[500px] mb-2 lg:mb-0 space-y-3 text-justify">
-                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold leading-tight text-left sm:text-center md:text-left">
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
 
@@ -2206,7 +2169,7 @@ export default function Home() {
           </section>
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
-          <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:block">
+          <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <HomeTeamBanner />
             </div>
