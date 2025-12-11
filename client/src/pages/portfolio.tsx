@@ -895,143 +895,98 @@ export default function PortfolioPage() {
                                                                         {/* Expanded details with INNER SCROLLBAR */}
                                                                         {isExpanded && (
                                                                             <div className="case-study-scroll mt-3 pt-3 border-t border-gray-200 space-y-4 bg-gray-50/60 rounded-md">
-                                                                                {/* SEO Case Study */}
-                                                                                {item.seoDetails && (
+                                                                                {/* SEO Case Study – only for SEO service category */}
+                                                                                {item.serviceCategory === "seo" && item.seoDetails && (
                                                                                     <div className="space-y-3 px-2 pt-1">
                                                                                         <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide">
                                                                                             SEO Case Study Snapshot
                                                                                         </div>
 
-                                                                                        {item.seoDetails
-                                                                                            .clientChallenge && (
-                                                                                                <p className="text-sm text-gray-600">
-                                                                                                    <span className="font-bold">
-                                                                                                        Client Challenge:
-                                                                                                    </span>{" "}
-                                                                                                    {
-                                                                                                        item.seoDetails
-                                                                                                            .clientChallenge
-                                                                                                    }
-                                                                                                </p>
-                                                                                            )}
+                                                                                        {item.seoDetails.clientChallenge && (
+                                                                                            <p className="text-sm text-gray-600">
+                                                                                                <span className="font-bold">Client Challenge:</span>{" "}
+                                                                                                {item.seoDetails.clientChallenge}
+                                                                                            </p>
+                                                                                        )}
 
-                                                                                        {item.seoDetails
-                                                                                            .primarySeoGoal && (
-                                                                                                <p className="text-sm text-gray-600">
-                                                                                                    <span className="font-bold">
-                                                                                                        Primary SEO Goal:
-                                                                                                    </span>{" "}
-                                                                                                    {
-                                                                                                        item.seoDetails
-                                                                                                            .primarySeoGoal
-                                                                                                    }
-                                                                                                </p>
-                                                                                            )}
+                                                                                        {item.seoDetails.primarySeoGoal && (
+                                                                                            <p className="text-sm text-gray-600">
+                                                                                                <span className="font-bold">Primary SEO Goal:</span>{" "}
+                                                                                                {item.seoDetails.primarySeoGoal}
+                                                                                            </p>
+                                                                                        )}
 
-                                                                                        {item.seoDetails
-                                                                                            .seoStrategySummary && (
-                                                                                                <p className="text-sm text-gray-600">
-                                                                                                    <span className="font-bold">
-                                                                                                        Strategy:
-                                                                                                    </span>{" "}
-                                                                                                    {
-                                                                                                        item.seoDetails
-                                                                                                            .seoStrategySummary
-                                                                                                    }
-                                                                                                </p>
-                                                                                            )}
+                                                                                        {item.seoDetails.seoStrategySummary && (
+                                                                                            <p className="text-sm text-gray-600">
+                                                                                                <span className="font-bold">Strategy:</span>{" "}
+                                                                                                {item.seoDetails.seoStrategySummary}
+                                                                                            </p>
+                                                                                        )}
 
-                                                                                        {item.seoDetails
-                                                                                            .seoFocusAreas &&
-                                                                                            item.seoDetails
-                                                                                                .seoFocusAreas.length >
-                                                                                            0 && (
+                                                                                        {item.seoDetails.seoFocusAreas &&
+                                                                                            item.seoDetails.seoFocusAreas.length > 0 && (
                                                                                                 <div>
                                                                                                     <div className="text-sm font-bold text-gray-700 mb-1">
                                                                                                         SEO Focus Areas
                                                                                                     </div>
                                                                                                     <div className="flex flex-wrap gap-1.5">
-                                                                                                        {item.seoDetails.seoFocusAreas.map(
-                                                                                                            (fa, idx) => (
-                                                                                                                <span
-                                                                                                                    key={idx}
-                                                                                                                    className="inline-flex items-center rounded-full bg-brand-purple/5 text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium"
-                                                                                                                >
-                                                                                                                    {fa}
-                                                                                                                </span>
-                                                                                                            ),
-                                                                                                        )}
+                                                                                                        {item.seoDetails.seoFocusAreas.map((fa, idx) => (
+                                                                                                            <span
+                                                                                                                key={idx}
+                                                                                                                className="inline-flex items-center rounded-full bg-brand-purple/5 text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium"
+                                                                                                            >
+                                                                                                                {fa}
+                                                                                                            </span>
+                                                                                                        ))}
                                                                                                     </div>
                                                                                                 </div>
                                                                                             )}
                                                                                     </div>
                                                                                 )}
 
-                                                                                {/* Google Ads Case Study */}
-                                                                                {item.googleAdsDetails && (
+                                                                                {/* Google Ads Case Study – only for Google Ads service category */}
+                                                                                {item.serviceCategory === "google-ads" && item.googleAdsDetails && (
                                                                                     <div className="space-y-3 px-2 pt-1">
                                                                                         <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide">
                                                                                             Google Ads Case Study Snapshot
                                                                                         </div>
 
-                                                                                        {item.googleAdsDetails
-                                                                                            .googleAdsClientChallenge && (
-                                                                                                <p className="text-sm text-gray-600">
-                                                                                                    <span className="font-bold">
-                                                                                                        Client Challenge:
-                                                                                                    </span>{" "}
-                                                                                                    {
-                                                                                                        item.googleAdsDetails
-                                                                                                            .googleAdsClientChallenge
-                                                                                                    }
-                                                                                                </p>
-                                                                                            )}
+                                                                                        {item.googleAdsDetails.googleAdsClientChallenge && (
+                                                                                            <p className="text-sm text-gray-600">
+                                                                                                <span className="font-bold">Client Challenge:</span>{" "}
+                                                                                                {item.googleAdsDetails.googleAdsClientChallenge}
+                                                                                            </p>
+                                                                                        )}
 
-                                                                                        {item.googleAdsDetails
-                                                                                            .primaryCampaignGoal && (
-                                                                                                <p className="text-sm text-gray-600">
-                                                                                                    <span className="font-bold">
-                                                                                                        Primary Goal:
-                                                                                                    </span>{" "}
-                                                                                                    {
-                                                                                                        item.googleAdsDetails
-                                                                                                            .primaryCampaignGoal
-                                                                                                    }
-                                                                                                </p>
-                                                                                            )}
+                                                                                        {item.googleAdsDetails.primaryCampaignGoal && (
+                                                                                            <p className="text-sm text-gray-600">
+                                                                                                <span className="font-bold">Primary Goal:</span>{" "}
+                                                                                                {item.googleAdsDetails.primaryCampaignGoal}
+                                                                                            </p>
+                                                                                        )}
 
-                                                                                        {item.googleAdsDetails
-                                                                                            .campaignType && (
-                                                                                                <p className="text-sm text-gray-600">
-                                                                                                    <span className="font-bold">
-                                                                                                        Campaign Type:
-                                                                                                    </span>{" "}
-                                                                                                    {
-                                                                                                        item.googleAdsDetails
-                                                                                                            .campaignType
-                                                                                                    }
-                                                                                                </p>
-                                                                                            )}
+                                                                                        {item.googleAdsDetails.campaignType && (
+                                                                                            <p className="text-sm text-gray-600">
+                                                                                                <span className="font-bold">Campaign Type:</span>{" "}
+                                                                                                {item.googleAdsDetails.campaignType}
+                                                                                            </p>
+                                                                                        )}
 
-                                                                                        {item.googleAdsDetails
-                                                                                            .platforms &&
-                                                                                            item.googleAdsDetails
-                                                                                                .platforms.length > 0 && (
+                                                                                        {item.googleAdsDetails.platforms &&
+                                                                                            item.googleAdsDetails.platforms.length > 0 && (
                                                                                                 <div>
                                                                                                     <div className="text-sm font-bold text-gray-700 mb-1">
                                                                                                         Platforms
                                                                                                     </div>
                                                                                                     <div className="flex flex-wrap gap-1.5">
-                                                                                                        {item.googleAdsDetails.platforms.map(
-                                                                                                            (p, idx) => (
-                                                                                                                <span
-                                                                                                                    key={idx}
-                                                                                                                    className="inline-flex items-center rounded-full bg-brand-purple/5 text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium"
-                                                                                                                >
-                                                                                                                    {p}
-                                                                                                                </span>
-                                                                                                            ),
-                                                                                                        )}
+                                                                                                        {item.googleAdsDetails.platforms.map((p, idx) => (
+                                                                                                            <span
+                                                                                                                key={idx}
+                                                                                                                className="inline-flex items-center rounded-full bg-brand-purple/5 text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium"
+                                                                                                            >
+                                                                                                                {p}
+                                                                                                            </span>
+                                                                                                        ))}
                                                                                                     </div>
                                                                                                 </div>
                                                                                             )}
@@ -1039,26 +994,23 @@ export default function PortfolioPage() {
                                                                                 )}
 
                                                                                 {/* Tech Stack */}
-                                                                                {item.techStack &&
-                                                                                    item.techStack.length > 0 && (
-                                                                                        <div className="px-2">
-                                                                                            <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
-                                                                                                Technology Stack
-                                                                                            </div>
-                                                                                            <div className="flex flex-wrap gap-1.5">
-                                                                                                {item.techStack.map(
-                                                                                                    (tech, idx) => (
-                                                                                                        <span
-                                                                                                            key={idx}
-                                                                                                            className="inline-flex items-center rounded-full bg-white text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium border border-brand-purple/20"
-                                                                                                        >
-                                                                                                            {tech}
-                                                                                                        </span>
-                                                                                                    ),
-                                                                                                )}
-                                                                                            </div>
+                                                                                {item.techStack && item.techStack.length > 0 && (
+                                                                                    <div className="px-2">
+                                                                                        <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
+                                                                                            Technology Stack
                                                                                         </div>
-                                                                                    )}
+                                                                                        <div className="flex flex-wrap gap-1.5">
+                                                                                            {item.techStack.map((tech, idx) => (
+                                                                                                <span
+                                                                                                    key={idx}
+                                                                                                    className="inline-flex items-center rounded-full bg-white text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium border border-brand-purple/20"
+                                                                                                >
+                                                                                                    {tech}
+                                                                                                </span>
+                                                                                            ))}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
 
                                                                                 {/* Timeline */}
                                                                                 {item.timeline && (
@@ -1066,34 +1018,29 @@ export default function PortfolioPage() {
                                                                                         <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
                                                                                             Delivery Timeline
                                                                                         </div>
-                                                                                        <div className="text-sm text-gray-700">
-                                                                                            {item.timeline}
-                                                                                        </div>
+                                                                                        <div className="text-sm text-gray-700">{item.timeline}</div>
                                                                                     </div>
                                                                                 )}
 
                                                                                 {/* Features */}
-                                                                                {item.features &&
-                                                                                    item.features.length > 0 && (
-                                                                                        <div className="px-2 pb-2">
-                                                                                            <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
-                                                                                                Key Features
-                                                                                            </div>
-                                                                                            <ul className="space-y-2">
-                                                                                                {item.features.map(
-                                                                                                    (feature, idx) => (
-                                                                                                        <li
-                                                                                                            key={idx}
-                                                                                                            className="flex items-start gap-2 text-sm md:text-base text-gray-700"
-                                                                                                        >
-                                                                                                            <CheckCircle className="h-4 w-4 text-brand-purple mt-1 flex-shrink-0" />
-                                                                                                            <span>{feature}</span>
-                                                                                                        </li>
-                                                                                                    ),
-                                                                                                )}
-                                                                                            </ul>
+                                                                                {item.features && item.features.length > 0 && (
+                                                                                    <div className="px-2 pb-2">
+                                                                                        <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
+                                                                                            Key Features
                                                                                         </div>
-                                                                                    )}
+                                                                                        <ul className="space-y-2">
+                                                                                            {item.features.map((feature, idx) => (
+                                                                                                <li
+                                                                                                    key={idx}
+                                                                                                    className="flex items-start gap-2 text-sm md:text-base text-gray-700"
+                                                                                                >
+                                                                                                    <CheckCircle className="h-4 w-4 text-brand-purple mt-1 flex-shrink-0" />
+                                                                                                    <span>{feature}</span>
+                                                                                                </li>
+                                                                                            ))}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         )}
 
