@@ -756,18 +756,18 @@ export default function PortfolioPage() {
                           "google-ads",
                           "custom-app-development",
                         ].includes(group.category.id) && (
-                          <Button
-                            className="self-start md:self-auto"
-                            onClick={() =>
-                              openFormForCategory(group.category.id)
-                            }
-                          >
-                            {getCategoryCtaText(
-                              group.category.id,
-                              group.category.title,
-                            )}
-                          </Button>
-                        )}
+                            <Button
+                              className="self-start md:self-auto"
+                              onClick={() =>
+                                openFormForCategory(group.category.id)
+                              }
+                            >
+                              {getCategoryCtaText(
+                                group.category.id,
+                                group.category.title,
+                              )}
+                            </Button>
+                          )}
                       </div>
                     )}
 
@@ -835,8 +835,8 @@ export default function PortfolioPage() {
                                           ? "SEO Case Study"
                                           : item.serviceCategory ===
                                             "google-ads"
-                                          ? "Google Ads Case Study"
-                                          : "Case Study")}
+                                            ? "Google Ads Case Study"
+                                            : "Case Study")}
                                     </span>
 
                                     {item.projectUrl && (
@@ -866,9 +866,8 @@ export default function PortfolioPage() {
                                   {/* Short description */}
                                   {effectiveDescription && (
                                     <p
-                                      className={`text-gray-700 text-sm md:text-base leading-relaxed transition-all ${
-                                        isExpanded ? "" : "line-clamp-2"
-                                      }`}
+                                      className={`text-gray-700 text-sm md:text-base leading-relaxed transition-all ${isExpanded ? "" : "line-clamp-2"
+                                        }`}
                                     >
                                       {effectiveDescription}
                                     </p>
@@ -877,35 +876,34 @@ export default function PortfolioPage() {
                                   {/* KPI chips */}
                                   {(seoStats.length > 0 ||
                                     googleAdsStats.length > 0) && (
-                                    <div className="flex flex-wrap gap-2">
-                                      {(seoStats.length > 0
-                                        ? seoStats
-                                        : googleAdsStats
-                                      )
-                                        .slice(0, 3)
-                                        .map((stat, idx) => (
-                                          <span
-                                            key={`${stat.label}-${idx}`}
-                                            className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-xs md:text-sm font-medium text-gray-800 border border-gray-100"
-                                          >
-                                            <span className="mr-1 text-brand-purple font-semibold">
-                                              {stat.value}
+                                      <div className="flex flex-wrap gap-2">
+                                        {(seoStats.length > 0
+                                          ? seoStats
+                                          : googleAdsStats
+                                        )
+                                          .slice(0, 3)
+                                          .map((stat, idx) => (
+                                            <span
+                                              key={`${stat.label}-${idx}`}
+                                              className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-xs md:text-sm font-medium text-gray-800 border border-gray-100"
+                                            >
+                                              <span className="mr-1 text-brand-purple font-semibold">
+                                                {stat.value}
+                                              </span>
+                                              <span className="text-gray-600">
+                                                {stat.label}
+                                              </span>
                                             </span>
-                                            <span className="text-gray-600">
-                                              {stat.label}
-                                            </span>
-                                          </span>
-                                        ))}
-                                    </div>
-                                  )}
+                                          ))}
+                                      </div>
+                                    )}
 
                                   {/* Stats grid - full width, centered content */}
                                   <div
-                                    className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${
-                                      isGoogleAds
+                                    className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${isGoogleAds
                                         ? "grid grid-cols-3 gap-3 justify-items-center text-center"
                                         : "grid grid-cols-2 gap-3 justify-items-center text-center"
-                                    }`}
+                                      }`}
                                   >
                                     {/* Investment */}
                                     <div className="text-center">
@@ -956,42 +954,42 @@ export default function PortfolioPage() {
 
                                             {item.seoDetails
                                               .clientChallenge && (
-                                              <p className="text-sm text-gray-600">
-                                                <span className="font-bold">
-                                                  Client Challenge:
-                                                </span>{" "}
-                                                {
-                                                  item.seoDetails
-                                                    .clientChallenge
-                                                }
-                                              </p>
-                                            )}
+                                                <p className="text-sm text-gray-600">
+                                                  <span className="font-bold">
+                                                    Client Challenge:
+                                                  </span>{" "}
+                                                  {
+                                                    item.seoDetails
+                                                      .clientChallenge
+                                                  }
+                                                </p>
+                                              )}
 
                                             {item.seoDetails
                                               .primarySeoGoal && (
-                                              <p className="text-sm text-gray-600">
-                                                <span className="font-bold">
-                                                  Primary SEO Goal:
-                                                </span>{" "}
-                                                {
-                                                  item.seoDetails
-                                                    .primarySeoGoal
-                                                }
-                                              </p>
-                                            )}
+                                                <p className="text-sm text-gray-600">
+                                                  <span className="font-bold">
+                                                    Primary SEO Goal:
+                                                  </span>{" "}
+                                                  {
+                                                    item.seoDetails
+                                                      .primarySeoGoal
+                                                  }
+                                                </p>
+                                              )}
 
                                             {item.seoDetails
                                               .seoStrategySummary && (
-                                              <p className="text-sm text-gray-600">
-                                                <span className="font-bold">
-                                                  Strategy:
-                                                </span>{" "}
-                                                {
-                                                  item.seoDetails
-                                                    .seoStrategySummary
-                                                }
-                                              </p>
-                                            )}
+                                                <p className="text-sm text-gray-600">
+                                                  <span className="font-bold">
+                                                    Strategy:
+                                                  </span>{" "}
+                                                  {
+                                                    item.seoDetails
+                                                      .seoStrategySummary
+                                                  }
+                                                </p>
+                                              )}
 
                                             {item.seoDetails
                                               .seoFocusAreas &&
@@ -1029,42 +1027,42 @@ export default function PortfolioPage() {
 
                                             {item.googleAdsDetails
                                               .googleAdsClientChallenge && (
-                                              <p className="text-sm text-gray-600">
-                                                <span className="font-bold">
-                                                  Client Challenge:
-                                                </span>{" "}
-                                                {
-                                                  item.googleAdsDetails
-                                                    .googleAdsClientChallenge
-                                                }
-                                              </p>
-                                            )}
+                                                <p className="text-sm text-gray-600">
+                                                  <span className="font-bold">
+                                                    Client Challenge:
+                                                  </span>{" "}
+                                                  {
+                                                    item.googleAdsDetails
+                                                      .googleAdsClientChallenge
+                                                  }
+                                                </p>
+                                              )}
 
                                             {item.googleAdsDetails
                                               .primaryCampaignGoal && (
-                                              <p className="text-sm text-gray-600">
-                                                <span className="font-bold">
-                                                  Primary Goal:
-                                                </span>{" "}
-                                                {
-                                                  item.googleAdsDetails
-                                                    .primaryCampaignGoal
-                                                }
-                                              </p>
-                                            )}
+                                                <p className="text-sm text-gray-600">
+                                                  <span className="font-bold">
+                                                    Primary Goal:
+                                                  </span>{" "}
+                                                  {
+                                                    item.googleAdsDetails
+                                                      .primaryCampaignGoal
+                                                  }
+                                                </p>
+                                              )}
 
                                             {item.googleAdsDetails
                                               .campaignType && (
-                                              <p className="text-sm text-gray-600">
-                                                <span className="font-bold">
-                                                  Campaign Type:
-                                                </span>{" "}
-                                                {
-                                                  item.googleAdsDetails
-                                                    .campaignType
-                                                }
-                                              </p>
-                                            )}
+                                                <p className="text-sm text-gray-600">
+                                                  <span className="font-bold">
+                                                    Campaign Type:
+                                                  </span>{" "}
+                                                  {
+                                                    item.googleAdsDetails
+                                                      .campaignType
+                                                  }
+                                                </p>
+                                              )}
 
                                             {item.googleAdsDetails.platforms &&
                                               item.googleAdsDetails.platforms
@@ -1247,7 +1245,7 @@ export default function PortfolioPage() {
         </section>
 
         {/* Testimonials – Card + Screenshot Style */}
-        <section className="min-h-screen bg-gray-50 py-16 px-4">
+        {/* <section className="min-h-screen bg-gray-50 py-16 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="flex justify-center mb-6">
               <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
@@ -1269,6 +1267,51 @@ export default function PortfolioPage() {
                   testimonial={testimonial.testimonial}
                   imageUrl={testimonial.imageUrl}
                   logoUrl={testimonial.logoUrl}
+                />
+              ))}
+            </div>
+          </div>
+        </section> */}
+        <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
+          <div className="max-w-7xl mx-auto">
+            {/* Heading Button */}
+            <div className="flex justify-center mb-6">
+              <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
+                <span>What Our Clients Say</span>
+              </div>
+            </div>
+
+            {/* Subheading */}
+            <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
+              Agencies and brands trust BrandingBeez to deliver high-impact,
+              white-label solutions with care, speed, and attention to detail.
+            </p>
+
+            {/* --- MOBILE SLIDER (only < 768px) --- */}
+            <div className="md:hidden flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
+              {testimonial_clients.map((t) => (
+                <div key={t.id} className="min-w-[85%] snap-center">
+                  <TestimonialCard
+                    name={t.name}
+                    company={t.company}
+                    testimonial={t.testimonial}
+                    imageUrl={t.imageUrl}
+                    logoUrl={t.logoUrl}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* --- DESKTOP GRID (only ≥ 768px) --- */}
+            <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 text-justify">
+              {testimonial_clients.map((t) => (
+                <TestimonialCard
+                  key={t.id}
+                  name={t.name}
+                  company={t.company}
+                  testimonial={t.testimonial}
+                  imageUrl={t.imageUrl}
+                  logoUrl={t.logoUrl}
                 />
               ))}
             </div>

@@ -164,8 +164,7 @@ export default function Header() {
               </button>
 
               {isDesktopServicesOpen && (
-                // aligned to the right and wider
-                <div className="absolute top-5 right-35 mt-2 w-[720px] lg:w-[880px] z-40">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[720px] lg:w-[880px] max-w-[calc(100vw-4rem)] z-40">
                   <div className="rounded-2xl border border-gray-100 bg-white shadow-xl shadow-black/5 p-4 sm:p-6 ring-1 ring-black/5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       {serviceMenuItems.map((item) => {
@@ -174,38 +173,29 @@ export default function Header() {
                           <Link key={item.href} href={item.href} className="relative group">
                             <a className="block relative cursor-pointer rounded-xl px-3 py-3 border border-transparent hover:bg-brand-coral/10 hover:border-brand-coral hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150">
                               <div className="flex items-center gap-3">
-                                {/* main icon */}
                                 <div className="flex-shrink-0 mt-0.5">
                                   <div className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-brand-coral">
                                     <Icon className="w-5 h-5 text-gray-700 group-hover:text-white" />
                                   </div>
                                 </div>
 
-                                {/* label + recommended */}
                                 <div className="min-w-0 w-full">
                                   <div className="flex items-center gap-3">
-                                    {/* label */}
                                     <div className="text-sm font-bold text-gray-900 group-hover:text-brand-coral-darker truncate">
                                       {item.label}
                                     </div>
 
-                                    {/* RECOMMENDED (NO hover effects applied) */}
                                     {item.recommended && (
                                       <div className="flex items-center group/recommended">
                                         <span className="relative inline-flex items-center gap-1 text-[12px] font-bold px-3 py-[4px] rounded-full bg-brand-coral/10 text-brand-coral-darker">
-
-                                          {/* Dot icon — stays same even on hover */}
                                           <Dot className="w-4 h-4 text-brand-coral" />
-
                                           <span>RECOMMENDED</span>
-
-                                          {/* glow halo — always same */}
                                           <span
                                             className="absolute inset-0 rounded-full pointer-events-none animate-shimmer"
                                             aria-hidden="true"
                                             style={{
                                               boxShadow: "0 0 18px rgba(255, 255, 255, 0.6)",
-                                              filter: "blur(8px)"
+                                              filter: "blur(8px)",
                                             }}
                                           />
                                         </span>
@@ -214,16 +204,23 @@ export default function Header() {
                                   </div>
                                 </div>
 
-                                {/* chevron—still hoverable */}
                                 <div className="ml-auto hidden sm:flex items-center">
-                                  <svg xmlns="http://www.w3.org/2000/svg"
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
                                     className="h-4 w-4 text-gray-400 group-hover:text-brand-coral-darker"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 5l7 7-7 7"
+                                    />
                                   </svg>
                                 </div>
                               </div>
-
                             </a>
                           </Link>
                         );
@@ -232,6 +229,7 @@ export default function Header() {
                   </div>
                 </div>
               )}
+
             </div>
 
             <Link href="/blog">

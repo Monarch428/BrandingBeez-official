@@ -58,6 +58,7 @@
   0% {
     transform: translate3d(30vw, -100%, 0) rotate(0deg);
   }
+
   100% {
     transform: translate3d(-20vw, 110vh, 0) rotate(360deg);
   }
@@ -69,12 +70,10 @@
   position: absolute;
   top: 20%;
   border-radius: 9999px;
-  background: radial-gradient(
-    circle,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(255, 255, 255, 0.4) 45%,
-    rgba(255, 255, 255, 0) 70%
-  );
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.4) 45%,
+      rgba(255, 255, 255, 0) 70%);
   box-shadow:
     0 0 6px rgba(255, 255, 255, 0.9),
     0 0 18px rgba(255, 255, 255, 0.6);
@@ -90,13 +89,31 @@
     transform: translate3d(20vw, -100%, 0);
     opacity: 0;
   }
+
   10% {
     opacity: 0.8;
   }
+
   100% {
     transform: translate3d(-30vw, 110vh, 0);
     opacity: 0;
   }
+}
+
+/* Hide scrollbars universally but keep scroll behavior */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+
+.scrollbar-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 
@@ -107,20 +124,20 @@
 
 /* Custom Scrollbar */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 4px;             
+  width: 4px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1); 
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #ff6f61;                
+  background: #ff6f61;
   border-radius: 10px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #ff4f45;              
+  background: #ff4f45;
 }
 
 /* Consistent Button Styles */
@@ -189,8 +206,13 @@
 }
 
 @keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .animate-marquee {
@@ -217,9 +239,17 @@ img {
 
 /* Optimized animations with reduced motion support */
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-3px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {
@@ -227,17 +257,20 @@ img {
 }
 
 @keyframes shimmer {
-  0% { background-position: -200px 0; }
-  100% { background-position: 200px 0; }
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: 200px 0;
+  }
 }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0.1) 0%,
-    rgba(255,255,255,0.5) 50%,
-    rgba(255,255,255,0.1) 100%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.1) 100%);
   background-size: 200px 100%;
   animation: shimmer 2s linear infinite;
 }

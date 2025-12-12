@@ -1051,6 +1051,13 @@
 
 
 
+
+
+
+
+
+
+
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
@@ -1070,14 +1077,9 @@ import {
   Code,
   Zap,
   Target,
-  Globe,
-  MapPin,
   Award,
   Users,
-  TrendingUp,
-  Heart,
   Check,
-  CheckCircle2,
   Shield,
   X,
 } from "lucide-react";
@@ -1109,7 +1111,10 @@ import "react-phone-input-2/lib/style.css";
 import ken from "../../public/images/Ken.png";
 import matt from "../../public/images/Matt.png";
 import phillip from "../../public/images/Phillip.png";
-import { AppointmentCalendar, BookCallButtonWithModal } from "@/components/book-appoinment";
+import {
+  AppointmentCalendar,
+  BookCallButtonWithModal,
+} from "@/components/book-appoinment";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import Mark_Image from "../../public/images/Mark.png";
 import Dani_Image from "../../public/images/Dani.png";
@@ -1119,7 +1124,6 @@ import { TestimonialCard } from "@/components/TestimonialCard";
 import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
 import PortfolioCtaSection from "@/components/portfolioimagecta";
-
 
 export default function Home() {
   useEffect(() => {
@@ -1180,9 +1184,9 @@ export default function Home() {
   ];
 
   const benefits = [
-    'Faster delivery without compromising quality',
-    'Predictable, scalable fulfillment',
-    'A white-label team they can trust long-term'
+    "Faster delivery without compromising quality",
+    "Predictable, scalable fulfillment",
+    "A white-label team they can trust long-term",
   ];
 
   // Newsletter CTA state (for home page CTA section)
@@ -1225,11 +1229,6 @@ export default function Home() {
     }
   };
 
-  // const openCalendly = () => {
-  //   // window.open('https://calendly.com/vignesh-velusamy/30min', '_blank'); Raje Calendar - https://calendar.app.google/Y8XZq71qtvPRhktH9
-  //   window.open("/book-appointment", "_blank");
-  // };
-
   const services = [
     {
       id: 1,
@@ -1271,22 +1270,6 @@ export default function Home() {
       href: "/services/google-ads",
       icon: Target,
     },
-    // {
-    //   id: 3,
-    //   title: "Dedicated Resources",
-    //   description:
-    //     "Scale your agency with handpicked pros who integrate seamlessly into your workflow.",
-    //   pricing: "Starting at $1,200/month",
-    //   billingUnit: "/month",
-    //   features: [
-    //     "Average 60% cost savings vs. in-house team",
-    //     "Graphic Designers & Video Editors",
-    //     "SEO & Google Ads Specialists",
-    //     "Web & Full-Stack Developers",
-    //   ],
-    //   href: "/services/dedicated-resources",
-    //   icon: Users,
-    // },
     {
       id: 4,
       title: "Website Design & Development",
@@ -1309,7 +1292,7 @@ export default function Home() {
     },
     {
       id: 5,
-      title: "Custom Web & Mobile App Development (AI-Powered)",
+      title: "Custom App Development",
       description:
         "High-performance applications built for scalability, automation, and seamless user experience.",
       pricing: "Starting at $3,500/project",
@@ -1330,18 +1313,9 @@ export default function Home() {
   ];
 
   const stats = [
-    { number: '6+', label: 'Years Experience', icon: Award },
-    { number: '20+', label: 'In-house Specialists', icon: Users },
-    { number: '100%', label: 'White-Label', icon: Shield }
-  ];
-
-  const why_benefits = [
-    'Reduce delivery costs compared to hiring US-based full-time staff',
-    'Deliver consistent, high-quality work fully under your brand',
-    'Scale capacity instantly without overloading internal teams',
-    'Maintain strict confidentiality and white-label control',
-    'Meet deadlines confidently even during sudden client growth',
-    'Trusted by digital agencies across the US, UK & worldwide'
+    { number: "6+", label: "Years Experience", icon: Award },
+    { number: "20+", label: "In-house Specialists", icon: Users },
+    { number: "100%", label: "White-Label", icon: Shield },
   ];
 
   const problems = [
@@ -1349,14 +1323,14 @@ export default function Home() {
     "Inconsistent freelancers and unreliable contractors",
     "Overloaded internal teams causing delivery bottlenecks",
     "Limited scalability when client demand spikes",
-    "Tight deadlines that threaten quality and reputation"
+    "Tight deadlines that threaten quality and reputation",
   ];
 
   const solutions = [
     "Dedicated, full-time white-label resources assigned to your agency",
     "Reliable delivery fully aligned with your workflows and standards",
     "Scalable capacity that grows or shrinks with client demand",
-    "Consistent quality, on-time delivery, and strict confidentiality"
+    "Consistent quality, on-time delivery, and strict confidentiality",
   ];
 
   const testimonials = [
@@ -1364,7 +1338,8 @@ export default function Home() {
       id: 1,
       name: "Mark Muse",
       company: "Founder, Muse Digital Media",
-      testimonial: "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
+      testimonial:
+        "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
       imageUrl: Mark_Image,
       logoUrl: mdmLogo,
     },
@@ -1372,7 +1347,8 @@ export default function Home() {
       id: 2,
       name: "Daniel Fechete",
       company: "COO, New Vision Tech",
-      testimonial: "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
+      testimonial:
+        "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
       imageUrl: Dani_Image,
       logoUrl: nvtLogo,
     },
@@ -1380,10 +1356,11 @@ export default function Home() {
       id: 3,
       name: "Gemma Murphy",
       company: "Founder, Website Architect",
-      testimonial: "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
+      testimonial:
+        "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
       imageUrl: Gemma_Image,
-      logoUrl: webArtLogo
-    }
+      logoUrl: webArtLogo,
+    },
   ];
 
   // 🎄 Only show snowfall in December (month index 11)
@@ -1392,7 +1369,8 @@ export default function Home() {
   return (
     <>
       {isChristmasSeason && (
-        <ChristmasEffects showOnMobile={true}
+        <ChristmasEffects
+          showOnMobile={true}
           showSnow={true}
           showGlow={true}
           showLights={false}
@@ -1509,40 +1487,38 @@ export default function Home() {
 
           {/* Services Section */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
-            <div className="max-w-[84%] mx-auto px-4 sm:px-6 lg:px-8">
-              {/* Heading */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-10 sm:mb-12">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                   Our Services
                 </h2>
                 <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
-                  White-label services designed to help US agencies deliver faster, scale
-                  profitably, and retain clients longer.
+                  White-label services designed to help US agencies deliver
+                  faster, scale profitably, and retain clients longer.
                 </p>
               </div>
 
-              {/* Cards Grid */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6 xl:gap-8 items-stretch">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-stretch">
                 {services.map((service) => {
                   const Icon = service.icon;
 
                   return (
                     <Card
                       key={service.id}
-                      className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                      className="group border-gray-200 shadow-sm transition-all duration-300 flex flex-col h-full"
                     >
                       {/* HEADER */}
-                      <CardHeader className="flex-shrink-0 pb-3 sm:pb-2">
+                      <CardHeader className="flex-shrink-0">
                         {/* ICON + TITLE ROW */}
-                        <div className="flex items-start sm:items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
-                          <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0 mt-0.5 sm:mt-0" />
-                          <CardTitle className="text-md sm:text-base md:text-md font-bold text-brand-purple leading-snug sm:leading-normal min-h-[36px] sm:min-h-[44px] flex items-center">
+                        <div className="flex items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
+                          <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0" />
+                          <CardTitle className="text-base sm:text-lg font-bold text-brand-purple min-h-[56px] flex items-center">
                             {service.title}
                           </CardTitle>
                         </div>
 
                         {/* DESCRIPTION */}
-                        <p className="text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed line-clamp-3 sm:line-clamp-4 min-h-[54px] sm:min-h-[72px] md:min-h-[80px]">
+                        <p className="text-sm sm:text-base text-gray-700 leading-relaxed line-clamp-4 min-h-[80px]">
                           {service.description}
                         </p>
                       </CardHeader>
@@ -1550,75 +1526,29 @@ export default function Home() {
                       {/* BODY */}
                       <CardContent className="pt-0 flex flex-col flex-1">
                         <div className="flex flex-col flex-1 space-y-4">
-                          {/* PRICING with discount */}
-                          {service.discountedPrice && service.originalPrice ? (
-                            <div className="space-y-1">
-                              {/* Discount badge */}
-                              {service.discountLabel && (
-                                <div className="inline-flex items-center rounded-full bg-brand-coral/10 px-3 py-1">
-                                  <span className="text-[12px] font-bold uppercase tracking-wide text-brand-coral-darker">
-                                    {service.discountLabel}
-                                  </span>
-                                </div>
-                              )}
-
-                              {/* Old vs new price */}
-                              <div className="flex flex-wrap items-baseline gap-1 text-sm sm:text-base">
-                                <span className="text-[11px] sm:text-xs text-gray-500 mr-1">
-                                  Starting at
-                                </span>
-
-                                <span className="text-sm sm:text-base text-gray-400 line-through mr-1">
-                                  {service.originalPrice}
-                                  {service.billingUnit && (
-                                    <span className="ml-0.5 text-[10px] sm:text-xs">
-                                      {service.billingUnit}
-                                    </span>
-                                  )}
-                                </span>
-
-                                <span className="text-base sm:text-lg font-bold text-brand-coral-darker">
-                                  {service.discountedPrice}
-                                  {service.billingUnit && (
-                                    <span className="ml-0.5 text-[10px] sm:text-xs font-medium text-brand-coral-darker/90">
-                                      {service.billingUnit}
-                                    </span>
-                                  )}
-                                </span>
-                              </div>
-
-                              {/* Extra note like “Average 150% increase…” */}
-                              {service.extraNote && (
-                                <p className="text-[14px] sm:text-sm text-gray-600">
-                                  {service.extraNote}
-                                </p>
-                              )}
-                            </div>
-                          ) : (
-                            // Fallback for services without discount (e.g., Dedicated Resources)
-                            <div className="text-sm sm:text-base md:text-lg font-bold text-brand-coral-darker">
-                              {service.pricing}
-                            </div>
-                          )}
+                          {/* PRICING */}
+                          <div className="text-base sm:text-lg font-bold text-brand-coral-darker">
+                            {service.pricing}
+                          </div>
 
                           {/* FEATURES */}
-                          <ul className="space-y-1.5 sm:space-y-2 flex-1">
+                          <ul className="space-y-2 flex-1">
                             {service.features.map((feature, index) => (
                               <li
                                 key={index}
                                 className="flex items-start gap-2 text-xs sm:text-sm"
                               >
                                 <CheckCircle className="w-4 h-4 text-brand-coral-darker mt-0.5 flex-shrink-0" />
-                                <span className="leading-snug">{feature}</span>
+                                <span>{feature}</span>
                               </li>
                             ))}
                           </ul>
 
                           {/* BUTTON — STICKS TO BOTTOM */}
-                          <div className="mt-4 sm:mt-6 pt-2 border-t border-gray-100">
+                          <div className="mt-auto pt-4">
                             <Link href={service.href}>
-                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-xs sm:text-sm md:text-base flex items-center justify-center gap-2 shadow-lg">
-                                <span className="leading-tight">
+                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
+                                <span className="leading-tight text-white text-sm sm:text-base">
                                   Learn More
                                 </span>
                                 <ArrowRight className="w-4 h-4" />
@@ -1635,30 +1565,31 @@ export default function Home() {
           </section>
 
           {/* Who We Work With Section */}
-          <section className="min-h-screen bg-[rgb(255,255,255)] px-6 py-20">
+          <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto">
               {/* Header */}
-              <div className="mb-16">
-                <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-8 mx-auto w-fit">
-                  {/* <div className="w-2 h-2 bg-white rounded-full animate-pulse" /> */}
+              <div className="mb-10 sm:mb-14 md:mb-16">
+                <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-6 sm:mb-8 mx-auto w-fit">
                   <span className="font-medium">Who We Work With</span>
                 </div>
 
-                <h1 className="mb-6 text-black max-w-3xl text-center mx-auto font-bold text-3xl">
+                <h1 className="mb-4 sm:mb-6 text-black max-w-3xl text-center mx-auto font-bold text-2xl sm:text-3xl">
                   Built for Growing Digital Marketing Agencies
                 </h1>
 
-                <p className="text-slate-700 leading-relaxed max-w-2xl text-center mx-auto">
-                  We specialize in supporting US and UK digital marketing agencies that want to grow revenue,
-                  expand service offerings, and take on more clients without increasing payroll or overhead.
+                <p className="text-slate-700 leading-relaxed max-w-2xl text-center mx-auto text-sm sm:text-base">
+                  We specialize in supporting US and UK digital marketing
+                  agencies that want to grow revenue, expand service offerings,
+                  and take on more clients without increasing payroll or
+                  overhead.
                 </p>
               </div>
 
               {/* Content Grid */}
               <div className="grid lg:grid-cols-2 gap-8">
                 {/* Services Section */}
-                <div className="px-[0px] py-[-16px] mx-[0px] my-[-52px]">
-                  <h3 className="text-[rgba(0,0,0,0.82)] mb-8 flex items-center gap-3 font-bold">
+                <div className="px-0">
+                  <h3 className="text-[rgba(0,0,0,0.82)] mb-5 sm:mb-8 flex items-center gap-3 font-bold">
                     If your agency needs to deliver:
                   </h3>
 
@@ -1670,23 +1601,27 @@ export default function Home() {
                         className="group flex items-center gap-4 bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-5 hover:border-[#FF5A5F] transition-all hover:bg-white/30 shadow-lg cursor-pointer"
                       >
                         <div className="flex-shrink-0 w-6 h-6 rounded-lg bg-brand-coral flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
+                          <Check
+                            className="w-4 h-4 text-white"
+                            strokeWidth={2.5}
+                          />
                         </div>
                         <span className="text-black">{service.label}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-8 p-6 bg-brand-coral rounded-xl">
+                  <div className="mt-6 sm:mt-8 p-6 bg-brand-coral rounded-xl">
                     <p className="text-[rgb(255,255,255)] italic">
-                      Under your brand, while a reliable partner handles execution BrandingBeez is built for you.
+                      Under your brand, while a reliable partner handles
+                      execution BrandingBeez is built for you.
                     </p>
                   </div>
                 </div>
 
                 {/* Benefits Section */}
-                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-8 px-[32px] py-[70px]">
-                  <h3 className="text-white mb-8 uppercase font-medium tracking-wider">
+                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[70px]">
+                  <h3 className="text-white mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
                   </h3>
 
@@ -1694,12 +1629,14 @@ export default function Home() {
                     {benefits.map((benefit, index) => (
                       <div
                         key={index}
-                        className="flex items-start gap-4 bg-white/10 backdrop-blur-lg rounded-xl p-5 border border-white/20 hover:bg-white/20 transition-all"
+                        className="flex items-start gap-4 bg-white/10 backdrop-blur-lg rounded-xl p-4 sm:p-5 border border-white/20 hover:bg-white/20 transition-all"
                       >
                         <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-brand-coral flex items-center justify-center mt-0.5">
                           <Check className="w-4 h-4 text-white" strokeWidth={3} />
                         </div>
-                        <span className="text-white leading-relaxed">{benefit}</span>
+                        <span className="text-white leading-relaxed text-sm sm:text-base">
+                          {benefit}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -1711,7 +1648,6 @@ export default function Home() {
           {/* Partner Agencies Marquee */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
               <div className="text-center mb-10 sm:mb-12">
                 <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
                   <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-brand-coral">
@@ -1733,8 +1669,14 @@ export default function Home() {
                     <div key={i} className="flex gap-4 sm:gap-6">
                       {[
                         { logo: socialLandLogo, name: "Social Land" },
-                        { logo: websiteArchitectLogo, name: "Website Architect" },
-                        { logo: focusEcommerceLogo, name: "Focus E-commerce" },
+                        {
+                          logo: websiteArchitectLogo,
+                          name: "Website Architect",
+                        },
+                        {
+                          logo: focusEcommerceLogo,
+                          name: "Focus E-commerce",
+                        },
                         { logo: smartConnectingLogo, name: "Koala Digital" },
                         { logo: newVisionTechLogo, name: "New Vision Tech" },
                         { logo: carolinaWebLogo, name: "Carolina Web" },
@@ -1766,40 +1708,22 @@ export default function Home() {
               <div className="mt-10 sm:mt-12 text-center">
                 <BookCallButtonWithModal
                   buttonLabel="Become Our next Partner"
-                  className="bg-brand-coral hover:bg-brand-purple-light backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-2 sm:py-2 text-sm sm:text-base touch-manipulation"
+                  className="bg-brand-purple hover:bg-brand-coral-light backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-2 sm:py-2 text-sm sm:text-base touch-manipulation"
                   buttonSize="default"
                 />
               </div>
-
             </div>
           </section>
 
-          {/* Why Work With Us Section */}
-          {/* <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50">
+          {/* Why Work With Us Section (Portfolio Slider) */}
+          <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16 md:py-20">
             <div className="w-full mx-auto">
               <PortfolioCtaSection />
-            </div>
-          </section> */}
-          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-              {/* Header */}
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
-                Our Portfolio’s
-              </h2>
-              <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-6 sm:mb-8">
-                Explore our collection of beautifully crafted, performance-driven projects
-                built for top digital agencies and brands across the globe.
-              </p>
-
-              {/* Card container without inner padding so image fills fully */}
-              <div className="bg-white/80 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
-                <PortfolioCtaSection />
-              </div>
             </div>
           </section>
 
           {/* Problems We Solve (Why Agencies Choose Us) */}
-          <section className="min-h-screen bg-white py-20 px-4">
+          <section className="bg-white py-12 sm:py-16 md:py-20 px-4">
             <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-6">
@@ -1810,7 +1734,8 @@ export default function Home() {
                   Scale Faster Without the Usual Agency Headaches
                 </h1>
                 <p className="text-gray-600 max-w-xl mx-auto text-lg">
-                  Most agencies hit the same growth roadblocks. We help you skip them entirely.
+                  Most agencies hit the same growth roadblocks. We help you skip
+                  them entirely.
                 </p>
               </div>
 
@@ -1857,7 +1782,8 @@ export default function Home() {
                       <h2 className="text-white font-medium">The Solution</h2>
                     </div>
                     <p className="text-white/90">
-                      We&apos;ve designed our model to remove those bottlenecks from your agency.
+                      We&apos;ve designed our model to remove those bottlenecks
+                      from your agency.
                     </p>
                   </div>
 
@@ -1879,7 +1805,8 @@ export default function Home() {
 
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mt-4">
                     <p className="text-gray-700 text-sm">
-                      You focus on sales, strategy, and client relationships. We make sure delivery never slows you down.
+                      You focus on sales, strategy, and client relationships. We
+                      make sure delivery never slows you down.
                     </p>
                   </div>
                 </div>
@@ -1952,7 +1879,9 @@ export default function Home() {
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">Web Developers</span>
+                      <span className="text-sm sm:text-base">
+                        Web Developers
+                      </span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
@@ -2029,7 +1958,7 @@ export default function Home() {
           </section>
 
           {/* Testimonials – Card + Screenshot Style */}
-          <section className="min-h-screen bg-gray-50 py-16 px-4">
+          <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
             <div className="max-w-7xl mx-auto">
               {/* Heading Button */}
               <div className="flex justify-center mb-6">
@@ -2040,11 +1969,12 @@ export default function Home() {
 
               {/* Subheading */}
               <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
-                Agencies and brands trust BrandingBeez to deliver high-impact, white-label solutions with care, speed, and attention to detail.
+                Agencies and brands trust BrandingBeez to deliver high-impact,
+                white-label solutions with care, speed, and attention to detail.
               </p>
 
-              {/* --- MOBILE SLIDER (hidden on md+) --- */}
-              <div className="md:hidden overflow-x-auto flex gap-4 snap-x snap-mandatory pb-4">
+              {/* --- MOBILE SLIDER (only < 768px) --- */}
+              <div className="md:hidden flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
                 {testimonials.map((t) => (
                   <div key={t.id} className="min-w-[85%] snap-center">
                     <TestimonialCard
@@ -2058,7 +1988,7 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* --- DESKTOP GRID (hidden on mobile) --- */}
+              {/* --- DESKTOP GRID (only ≥ 768px) --- */}
               <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 text-justify">
                 {testimonials.map((t) => (
                   <TestimonialCard
@@ -2099,10 +2029,11 @@ export default function Home() {
                   </h3>
 
                   <p className="text-sm text-gray-100 leading-normal">
-                    Get actionable tips, pricing tricks, automation tactics, fast
-                    client-winning strategies, proposal hacks, AI workflows, and
-                    real stories from growing agencies all delivered in simple
-                    1-minute reads to help you scale smarter every week.
+                    Get actionable tips, pricing tricks, automation tactics,
+                    fast client-winning strategies, proposal hacks, AI
+                    workflows, and real stories from growing agencies all
+                    delivered in simple 1-minute reads to help you scale smarter
+                    every week.
                   </p>
                 </div>
 
@@ -2143,7 +2074,9 @@ export default function Home() {
                     <button
                       type="submit"
                       disabled={newsletterLoading}
-                      className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap ${newsletterLoading ? "opacity-60 cursor-not-allowed" : ""
+                      className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap ${newsletterLoading
+                          ? "opacity-60 cursor-not-allowed"
+                          : ""
                         }`}
                     >
                       {newsletterLoading ? "Subscribing..." : "Subscribe"}
@@ -2168,7 +2101,7 @@ export default function Home() {
             />
           </section>
 
-          {/* HomeTeamBanner at bottom for screens ≤ 480px ONLY */}
+          {/* HomeTeamBanner at bottom for screens ≤ 480px also hidden */}
           <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <HomeTeamBanner />
@@ -2181,4 +2114,3 @@ export default function Home() {
     </>
   );
 }
-

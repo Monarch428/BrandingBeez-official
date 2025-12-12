@@ -1,3 +1,133 @@
+<!-- Our Service Backup from Home -->
+<!--   {/* Services Section */}
+          <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
+            <div className="max-w-[84%] mx-auto px-4 sm:px-6 lg:px-8">
+              {/* Heading */}
+              <div className="text-center mb-10 sm:mb-12">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
+                  Our Services
+                </h2>
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto">
+                  White-label services designed to help US agencies deliver
+                  faster, scale profitably, and retain clients longer.
+                </p>
+              </div>
+
+              {/* Cards Grid */}
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 lg:gap-6 xl:gap-8 items-stretch">
+                {services.map((service) => {
+                  const Icon = service.icon;
+
+                  return (
+                    <Card
+                      key={service.id}
+                      className="group flex h-full flex-col rounded-xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                    >
+                      {/* HEADER */}
+                      <CardHeader className="flex-shrink-0 pb-3 sm:pb-2">
+                        {/* ICON + TITLE ROW */}
+                        <div className="flex items-start sm:items-center gap-3 mb-3 sm:mb-4 bg-brand-coral/10 rounded-lg px-3 py-2 group-hover:bg-brand-coral/20 transition-colors">
+                          <Icon className="w-6 h-6 text-brand-coral-darker flex-shrink-0 mt-0.5 sm:mt-0" />
+                          <CardTitle className="text-md sm:text-base md:text-md font-bold text-brand-purple leading-snug sm:leading-normal min-h-[36px] sm:min-h-[44px] flex items-center">
+                            {service.title}
+                          </CardTitle>
+                        </div>
+
+                        {/* DESCRIPTION */}
+                        <p className="text-xs sm:text-sm md:text-base text-gray-700 leading-relaxed line-clamp-3 sm:line-clamp-4 min-h-[54px] sm:min-h-[72px] md:min-h-[80px]">
+                          {service.description}
+                        </p>
+                      </CardHeader>
+
+                      {/* BODY */}
+                      <CardContent className="pt-0 flex flex-col flex-1">
+                        <div className="flex flex-col flex-1 space-y-4">
+                          {/* PRICING with discount */}
+                          {service.discountedPrice && service.originalPrice ? (
+                            <div className="space-y-1">
+                              {/* Discount badge */}
+                              {service.discountLabel && (
+                                <div className="inline-flex items-center rounded-full bg-brand-coral/10 px-3 py-1">
+                                  <span className="text-[12px] font-bold uppercase tracking-wide text-brand-coral-darker">
+                                    {service.discountLabel}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Old vs new price */}
+                              <div className="flex flex-wrap items-baseline gap-1 text-sm sm:text-base">
+                                <span className="text-[11px] sm:text-xs text-gray-500 mr-1">
+                                  Starting at
+                                </span>
+
+                                <span className="text-sm sm:text-base text-gray-400 line-through mr-1">
+                                  {service.originalPrice}
+                                  {service.billingUnit && (
+                                    <span className="ml-0.5 text-[10px] sm:text-xs">
+                                      {service.billingUnit}
+                                    </span>
+                                  )}
+                                </span>
+
+                                <span className="text-base sm:text-lg font-bold text-brand-coral-darker">
+                                  {service.discountedPrice}
+                                  {service.billingUnit && (
+                                    <span className="ml-0.5 text-[10px] sm:text-xs font-medium text-brand-coral-darker/90">
+                                      {service.billingUnit}
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+
+                              {/* Extra note like “Average 150% increase…” */}
+                              {service.extraNote && (
+                                <p className="text-[14px] sm:text-sm text-gray-600">
+                                  {service.extraNote}
+                                </p>
+                              )}
+                            </div>
+                          ) : (
+                            // Fallback for services without discount (e.g., Dedicated Resources)
+                            <div className="text-sm sm:text-base md:text-lg font-bold text-brand-coral-darker">
+                              {service.pricing}
+                            </div>
+                          )}
+
+                          {/* FEATURES */}
+                          <ul className="space-y-1.5 sm:space-y-2 flex-1">
+                            {service.features.map((feature, index) => (
+                              <li
+                                key={index}
+                                className="flex items-start gap-2 text-xs sm:text-sm"
+                              >
+                                <CheckCircle className="w-4 h-4 text-brand-coral-darker mt-0.5 flex-shrink-0" />
+                                <span className="leading-snug">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+
+                          {/* BUTTON — STICKS TO BOTTOM */}
+                          <div className="mt-4 sm:mt-6 pt-2 border-t border-gray-100">
+                            <Link href={service.href}>
+                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-xs sm:text-sm md:text-base flex items-center justify-center gap-2 shadow-lg">
+                                <span className="leading-tight">
+                                  Learn More
+                                </span>
+                                <ArrowRight className="w-4 h-4" />
+                              </Button>
+                            </Link>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          </section>  -->
+
+<!-- End of Our service -->
+
 <!-- Service portfoilio old -->
  <!-- <section className="py-16 px-4 bg-white">
 

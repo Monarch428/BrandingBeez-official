@@ -14,6 +14,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BlogSchema } from "@/utils/all-schemas";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 interface BlogPost {
   id: number;
@@ -165,20 +166,17 @@ export default function Blog() {
         <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-6xl mx-auto text-center p-6">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Digital Marketing <span className="text-yellow-300">Insights</span>
+              The Playbook for&nbsp;
+              <span className="text-yellow-300">Growing a Profitable Agency</span>
             </h1>
-            <p className="text-xl md:text-2xl mb-8 text-white/90">
-              Stay ahead with expert strategies, trends, and actionable insights
-              from our team
+            <p className="text-lg md:text-xl mb-8 text-white/90">
+              A curated collection of knowledge for agencies to grow through systems,strategies, breakdowns, case studies, and frameworks to help you scale without increasing overhead.
             </p>
-            <Button
-              onClick={openCalendly}
-              size="lg"
-              className="bg-white text-brand-purple hover:bg-brand-purple hover:text-white"
-            >
-              Get Free Strategy Session
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <BookCallButtonWithModal
+              buttonLabel="Schedule Your Free Strategy Session"
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
+              buttonSize="lg"
+            />
           </div>
         </section>
 
