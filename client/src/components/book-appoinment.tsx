@@ -10,7 +10,7 @@ import {
   type DaySlot,
   type SlotStatus,
 } from "@/lib/appointmentService";
-import { ChevronLeft, ChevronRight, Clock, User, X } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, Clock, User, X } from "lucide-react";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import {
   Select,
@@ -1279,10 +1279,12 @@ export const BookCallButtonWithModal: React.FC<
       .filter(Boolean)
       .join(" ");
 
-    const labelToUse = buttonLabel || "Book a call"; // placeholder if not provided
+    const labelToUse = buttonLabel || "Book a call";
     const variantToUse: "default" | "outline" | "secondary" | "ghost" | "link" =
       buttonVariant || "default";
     const sizeToUse: "default" | "sm" | "lg" | "icon" = buttonSize || "default";
+
+    const isIconOnly = sizeToUse === "icon";
 
     return (
       <Dialog open={open} onOpenChange={setOpen}>
@@ -1291,9 +1293,14 @@ export const BookCallButtonWithModal: React.FC<
             type="button"
             variant={variantToUse}
             size={sizeToUse}
-            className={mergedClassName}
+            className={`inline-flex items-center gap-2 ${mergedClassName}`}
+            aria-label={isIconOnly ? labelToUse : undefined}
           >
-            {labelToUse}
+            {/* 🗓 Default calendar icon at the start */}
+            <Calendar className="w-4 h-4" />
+
+            {/* For normal buttons, show text too; for icon size, only the icon */}
+            {!isIconOnly && <span>{labelToUse}</span>}
           </Button>
         </DialogTrigger>
 
