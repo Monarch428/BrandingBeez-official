@@ -1565,9 +1565,19 @@ export default function Home() {
           </section>
 
           {/* Why Work With Us Section (Portfolio Slider) */}
-          <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16 md:py-20">
-            <div className="w-full mx-auto">
-              <PortfolioCtaSection />
+          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
+              {/* Header */}
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
+                Our Portfolio’s
+              </h2>
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-6 sm:mb-8">
+                Explore our collection of beautifully crafted, performance-driven projects
+                built for top digital agencies and brands across the globe.
+              </p>
+              <div className="w-full mx-auto">
+                <PortfolioCtaSection />
+              </div>
             </div>
           </section>
 
