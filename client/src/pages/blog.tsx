@@ -15,6 +15,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BlogSchema } from "@/utils/all-schemas";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import BrandingBeezLoader from "@/components/BeeLoadingScreen";
 
 interface BlogPost {
   id: number;
@@ -106,18 +107,7 @@ export default function Blog() {
   }, [blogPosts, selectedCategory, searchQuery]);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header />
-        <div className="flex items-center justify-center py-20">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-purple mx-auto mb-4"></div>
-            <p className="text-lg font-semibold">Loading Articles...</p>
-          </div>
-        </div>
-        <Footer />
-      </div>
-    );
+    return <BrandingBeezLoader />;
   }
 
   if (isError) {
@@ -133,9 +123,7 @@ export default function Blog() {
             <p className="text-gray-600">
               {(error as Error)?.message || "Please try again in a moment."}
             </p>
-            <Button onClick={() => window.location.reload()}>
-              Retry
-            </Button>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
           </div>
         </div>
         <Footer />
@@ -147,7 +135,10 @@ export default function Blog() {
     <>
       <Helmet>
         <title>Digital Marketing Blog | Expert SEO, PPC & AI Insights</title>
-        <meta name="description" content="Explore Branding Beez insights on SEO, Google Ads, AI, and digital marketing. Actionable strategies, case studies, and expert tips to grow your business." />
+        <meta
+          name="description"
+          content="Explore Branding Beez insights on SEO, Google Ads, AI, and digital marketing. Actionable strategies, case studies, and expert tips to grow your business."
+        />
         <link rel="canonical" href="https://brandingbeez.co.uk/blog" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
@@ -167,14 +158,18 @@ export default function Blog() {
           <div className="max-w-6xl mx-auto text-center p-6">
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               The Playbook for&nbsp;
-              <span className="text-yellow-300">Growing a Profitable Agency</span>
+              <span className="text-yellow-300">
+                Growing a Profitable Agency
+              </span>
             </h1>
             <p className="text-lg md:text-xl mb-8 text-white/90">
-              A curated collection of knowledge for agencies to grow through systems,strategies, breakdowns, case studies, and frameworks to help you scale without increasing overhead.
+              A curated collection of knowledge for agencies to grow through
+              systems,strategies, breakdowns, case studies, and frameworks to
+              help you scale without increasing overhead.
             </p>
             <BookCallButtonWithModal
-              buttonLabel="Schedule Your Free Strategy Session"
-              className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
+              buttonLabel="Schedule Your Free Strategy Session"
+              className="bg-white/20 hover:bg_white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
               buttonSize="lg"
             />
           </div>
@@ -203,14 +198,16 @@ export default function Blog() {
                     <Badge variant="secondary" className="mb-4">
                       {featuredPost.category ||
                         (Array.isArray(featuredPost.tags) &&
-                          featuredPost.tags.length > 0
+                        featuredPost.tags.length > 0
                           ? featuredPost.tags[0]
                           : "Featured")}
                     </Badge>
                     <h3 className="text-2xl font-bold mb-4 text-gray-900">
                       {featuredPost.title}
                     </h3>
-                    <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
+                    <p className="text-gray-600 mb-4">
+                      {featuredPost.excerpt}
+                    </p>
                     <div className="flex items-center gap-4 mb-4 text-sm text-gray-500">
                       <div className="flex items-center gap-1">
                         <User className="h-4 w-4" />
@@ -263,7 +260,9 @@ export default function Blog() {
                 {categories.map((category) => (
                   <Button
                     key={category.id}
-                    variant={selectedCategory === category.id ? "default" : "outline"}
+                    variant={
+                      selectedCategory === category.id ? "default" : "outline"
+                    }
                     onClick={() => setSelectedCategory(category.id)}
                     className={
                       selectedCategory === category.id
@@ -280,14 +279,17 @@ export default function Blog() {
             {/* Blog Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPosts.map((post: BlogPost) => {
-                const displayCategory = post.category || post.tags?.[0] || "Digital Marketing";
+                const displayCategory =
+                  post.category ||
+                  post.tags?.[0] ||
+                  "Digital Marketing";
                 const publishDate = post.publishedAt || post.createdAt;
                 const formattedDate = publishDate
                   ? new Date(publishDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  })
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })
                   : "Recent";
 
                 return (
@@ -312,7 +314,9 @@ export default function Blog() {
                       </Link>
 
                       <p className="mt-2 text-sm md:text-[15px] text-gray-600 leading-relaxed line-clamp-2">
-                        {post.excerpt || post.subtitle || "Insightful digital marketing article."}
+                        {post.excerpt ||
+                          post.subtitle ||
+                          "Insightful digital marketing article."}
                       </p>
                     </CardHeader>
 
@@ -327,7 +331,6 @@ export default function Blog() {
                             {post.author || "BrandingBeez Team"}
                           </span>
                         </div>
-
 
                         <div className="inline-flex items-center gap-2.5 whitespace-nowrap">
                           <span className="hidden md:inline-block h-1 w-1 rounded-full bg-gray-300" />
@@ -347,8 +350,10 @@ export default function Blog() {
                       {/* CTA pinned to bottom */}
                       <div className="mt-auto pt-4 border-t">
                         <Link href={`/blog/${post.slug}`}>
-                          <Button variant="outline"
-                            className="w-full hover:bg-brand-purple hover:text-white transition-colors" >
+                          <Button
+                            variant="outline"
+                            className="w-full hover:bg-brand-purple hover:text-white transition-colors"
+                          >
                             Read Article
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>

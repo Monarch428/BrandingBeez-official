@@ -30,7 +30,7 @@ export function TestimonialCard({ name, company, testimonial, imageUrl, logoUrl 
         )}
       </div>
       
-      <div className="text-[rgb(130,130,130)] text-6xl mb-[-22px] font-[Akaya_Kanadaka] text-[64px] px-[0px] py-[-9px] mt-[-10px] mr-[0px] ml-[0px]">"</div>
+      <div className="text-[rgb(130,130,130)] text-6xl mb-[-22px] text-[64px] px-[0px] py-[-9px] mt-[-10px] mr-[0px] ml-[0px]">"</div>
       
       <p className="text-gray-700 leading-relaxed mb-8 flex-grow">
         {testimonial}

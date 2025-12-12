@@ -40,6 +40,7 @@ const googleAdsDetailsSchema = z.object({
 export const insertPortfolioItemSchema = z.object({
     slug: z.string().min(1),
     title: z.string().min(1),
+    subTitle: z.string().optional(),
     industry: z.string().min(1),
     client: z.string().optional(),
     badge: z.string().optional(),

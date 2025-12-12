@@ -232,12 +232,12 @@ export default function OnboardingWizard() {
     }
   ];
 
-  const generateRecommendations = () => {
-    const businessType = answers['business-type'];
-    const primaryGoal = answers['primary-goal'];
-    const challenge = answers['current-challenges'];
-    const servicePriority = answers['service-priority'];
-    const budget = answers['budget-range'];
+  const generateRecommendations = (allAnswers: Record<string, string>) => {
+    const businessType = allAnswers['business-type'];
+    const primaryGoal = allAnswers['primary-goal'];
+    const challenge = allAnswers['current-challenges'];
+    const servicePriority = allAnswers['service-priority'];
+    const budget = allAnswers['budget-range'];
 
     const recs: ServiceRecommendation[] = [];
 
@@ -541,11 +541,8 @@ export default function OnboardingWizard() {
 
     // Sort: User's selected service ALWAYS first, regardless of confidence
     recs.sort((a, b) => {
-      // If 'a' is the user's selected service, put it first
       if (selectedService && a.service === selectedService) return -1;
-      // If 'b' is the user's selected service, put it first
       if (selectedService && b.service === selectedService) return 1;
-      // For all other services, sort by confidence
       return b.confidence - a.confidence;
     });
 
@@ -553,18 +550,22 @@ export default function OnboardingWizard() {
   };
 
   const handleAnswer = (value: string) => {
-    setAnswers({ ...answers, [steps[currentStep].id]: value });
+    const stepId = steps[currentStep].id;
+    const updatedAnswers = { ...answers, [stepId]: value };
+
+    setAnswers(updatedAnswers);
 
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep((prev) => prev + 1);
     } else {
-      generateRecommendations();
+      // use the latest answers including this step
+      generateRecommendations(updatedAnswers);
     }
   };
 
   const goBack = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep((prev) => prev - 1);
     }
   };
 
@@ -581,90 +582,132 @@ export default function OnboardingWizard() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
         <Header />
         <div className="py-6 sm:py-12">
-          <div className="container mx-auto px-3 sm:px-4 max-w-4xl">
+          <div className="container mx-auto px-3 sm:px-4 max-w-5xl">
             <div className="text-center mb-6 sm:mb-8">
               <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500 mx-auto mb-3 sm:mb-4" />
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Your Personalized Recommendations</h1>
-              <p className="text-sm sm:text-base text-gray-600 px-4">Based on your answers, here are the best services for your needs</p>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+                Your Personalized Recommendations
+              </h1>
+              <p className="text-sm sm:text-base text-gray-600 px-4">
+                Based on your answers, here are the best services for your needs
+              </p>
             </div>
 
-            <div className="space-y-6 px-2 sm:px-0">
-              {recommendations.map((rec, index) => (
-                <Card key={index} className={`border-2 ${index === 0 ? 'border-green-500 bg-green-50' : 'border-gray-200'}`}>
-                  <CardHeader className="px-4 sm:px-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                      <CardTitle className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                        {index === 0 && <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 flex-shrink-0" />}
-                        <span className={`text-lg sm:text-xl ${index === 0 ? 'text-green-700' : 'text-gray-900'}`}>
-                          {rec.service}
-                        </span>
-                        {index === 0 && (
-                          <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                            Best Match
+            {/* GRID LAYOUT FOR CARDS */}
+            <div className="px-2 sm:px-0">
+              <div
+                className={`
+                grid gap-4 sm:gap-6
+                ${recommendations.length === 1
+                    ? 'grid-cols-1 max-w-xl mx-auto'
+                    : recommendations.length === 2
+                      ? 'grid-cols-1 md:grid-cols-2'
+                      : 'grid-cols-1 md:grid-cols-3'}
+              `}
+              >
+                {recommendations.map((rec, index) => (
+                  <Card
+                    key={index}
+                    className={`
+                    h-full flex flex-col border-2
+                    ${index === 0 ? 'border-green-500 bg-green-50' : 'border-gray-200'}
+                  `}
+                  >
+                    <CardHeader className="px-4 sm:px-6 pb-3 sm:pb-4">
+                      <div className="flex flex-col gap-3">
+                        <CardTitle className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                          {index === 0 && (
+                            <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 flex-shrink-0" />
+                          )}
+                          <span
+                            className={`text-lg sm:text-xl ${index === 0 ? 'text-green-700' : 'text-gray-900'
+                              }`}
+                          >
+                            {rec.service}
                           </span>
-                        )}
-                      </CardTitle>
-                      <div className="text-left sm:text-right">
-                        <div className="text-xs sm:text-sm text-gray-500">Confidence</div>
-                        <div className={`text-lg sm:text-xl font-bold ${index === 0 ? 'text-green-600' : 'text-gray-600'}`}>
-                          {rec.confidence}%
+                          {index === 0 && (
+                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                              Best Match
+                            </span>
+                          )}
+                        </CardTitle>
+                        <div className="text-left">
+                          <div className="text-xs sm:text-sm text-gray-500">Confidence</div>
+                          <div
+                            className={`text-lg sm:text-xl font-bold ${index === 0 ? 'text-green-600' : 'text-gray-600'
+                              }`}
+                          >
+                            {rec.confidence}%
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4 px-4 sm:px-6">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Why this is perfect for you:</h4>
-                      <ul className="space-y-1">
-                        {rec.reasons.map((reason, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                            <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                            {reason}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                    </CardHeader>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <CardContent className="flex flex-col gap-3 sm:gap-4 px-4 sm:px-6 pb-4 sm:pb-6 flex-1">
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">Pricing</h4>
-                        <p className="text-gray-600 text-sm">{rec.pricing}</p>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
+                          Why this is perfect for you:
+                        </h4>
+                        <ul className="space-y-1">
+                          {rec.reasons.map((reason, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-xs sm:text-sm text-gray-600"
+                            >
+                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                              {reason}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
+
+                      <div className="grid grid-cols-1 gap-3 text-xs sm:text-sm">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-1">Pricing</h4>
+                          <p className="text-gray-600">{rec.pricing}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-1">Timeline</h4>
+                          <p className="text-gray-600">{rec.timeline}</p>
+                        </div>
+                      </div>
+
                       <div>
-                        <h4 className="font-semibold text-gray-900 mb-1">Timeline</h4>
-                        <p className="text-gray-600 text-sm">{rec.timeline}</p>
+                        <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
+                          Next Steps:
+                        </h4>
+                        <ol className="space-y-1">
+                          {rec.nextSteps.map((step, i) => (
+                            <li
+                              key={i}
+                              className="flex items-start gap-2 text-xs sm:text-sm text-gray-600"
+                            >
+                              <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs flex items-center justify-center font-medium">
+                                {i + 1}
+                              </span>
+                              {step}
+                            </li>
+                          ))}
+                        </ol>
                       </div>
-                    </div>
 
-                    <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">Next Steps:</h4>
-                      <ol className="space-y-1">
-                        {rec.nextSteps.map((step, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm text-gray-600">
-                            <span className="flex-shrink-0 w-5 h-5 bg-blue-100 text-blue-600 rounded-full text-xs flex items-center justify-center font-medium">
-                              {i + 1}
-                            </span>
-                            {step}
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-
-                    <div className="flex pt-4 border-t">
-                      <Button
-                        onClick={() => {
-                          setSelectedRecommendation(rec);
-                          setQuoteModalOpen(true);
-                        }}
-                        className="w-full bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral/90 hover:to-pink-500/90 text-sm"
-                      >
-                        Get Quote
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                      {/* Button pinned at bottom of card */}
+                      <div className="pt-3 mt-auto border-t">
+                        <Button
+                          onClick={() => {
+                            setSelectedRecommendation(rec);
+                            setQuoteModalOpen(true);
+                          }}
+                          className="w-full bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral/90 hover:to-pink-500/90 text-sm"
+                        >
+                          Get Quote
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
 
             <div className="text-center mt-6 sm:mt-8 space-y-3 sm:space-y-4 px-4">
@@ -672,13 +715,16 @@ export default function OnboardingWizard() {
                 Start Over
               </Button>
               <p className="text-xs sm:text-sm text-gray-500 leading-relaxed">
-                Need help deciding? <Link href="/contact" className="text-brand-coral underline">Contact our experts</Link> for a free consultation.
+                Need help deciding?{' '}
+                <Link href="/contact" className="text-brand-coral underline">
+                  Contact our experts
+                </Link>{' '}
+                for a free consultation.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Custom Quote Modal */}
         {selectedRecommendation && (
           <CustomQuoteModal
             isOpen={quoteModalOpen}
@@ -694,11 +740,15 @@ export default function OnboardingWizard() {
     );
   }
 
+
   return (
     <>
       <Helmet>
         <title>Find Your Perfect Service | Branding Beez Onboarding Wizard</title>
-        <meta name="description" content="Discover which Branding Beez services fit your business best. Take our quick onboarding wizard to get personalized digital and marketing recommendations." />
+        <meta
+          name="description"
+          content="Discover which Branding Beez services fit your business best. Take our quick onboarding wizard to get personalized digital and marketing recommendations."
+        />
         <link rel="canonical" href="https://brandingbeez.co.uk/onboarding-wizard" />
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
