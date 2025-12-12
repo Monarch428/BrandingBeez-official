@@ -1564,6 +1564,13 @@ export default function Home() {
             </div>
           </section>
 
+          {/* Why Work With Us Section (Portfolio Slider) */}
+          <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16 md:py-20">
+            <div className="w-full mx-auto">
+              <PortfolioCtaSection />
+            </div>
+          </section>
+
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto">
@@ -1712,13 +1719,6 @@ export default function Home() {
                   buttonSize="default"
                 />
               </div>
-            </div>
-          </section>
-
-          {/* Why Work With Us Section (Portfolio Slider) */}
-          <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16 md:py-20">
-            <div className="w-full mx-auto">
-              <PortfolioCtaSection />
             </div>
           </section>
 
@@ -1973,8 +1973,8 @@ export default function Home() {
                 white-label solutions with care, speed, and attention to detail.
               </p>
 
-              {/* --- MOBILE SLIDER (only < 768px) --- */}
-              <div className="md:hidden flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
+              {/* --- MOBILE SLIDER (ONLY ≤ 480px) --- */}
+              <div className="hidden max-[480px]:flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
                 {testimonials.map((t) => (
                   <div key={t.id} className="min-w-[85%] snap-center">
                     <TestimonialCard
@@ -1988,8 +1988,8 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* --- DESKTOP GRID (only ≥ 768px) --- */}
-              <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 text-justify">
+              {/* --- TABLET + DESKTOP GRID ( > 480px ) --- */}
+              <div className="grid max-[480px]:hidden grid-cols-1 md:grid-cols-3 gap-6 text-justify">
                 {testimonials.map((t) => (
                   <TestimonialCard
                     key={t.id}
@@ -2075,8 +2075,8 @@ export default function Home() {
                       type="submit"
                       disabled={newsletterLoading}
                       className={`px-4 py-2 rounded-lg bg-white text-brand-purple font-bold text-sm hover:bg-brand-coral hover:text-white transition-all whitespace-nowrap ${newsletterLoading
-                          ? "opacity-60 cursor-not-allowed"
-                          : ""
+                        ? "opacity-60 cursor-not-allowed"
+                        : ""
                         }`}
                     >
                       {newsletterLoading ? "Subscribing..." : "Subscribe"}

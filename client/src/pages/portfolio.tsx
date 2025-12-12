@@ -901,8 +901,8 @@ export default function PortfolioPage() {
                                   {/* Stats grid - full width, centered content */}
                                   <div
                                     className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${isGoogleAds
-                                        ? "grid grid-cols-3 gap-3 justify-items-center text-center"
-                                        : "grid grid-cols-2 gap-3 justify-items-center text-center"
+                                      ? "grid grid-cols-3 gap-3 justify-items-center text-center"
+                                      : "grid grid-cols-2 gap-3 justify-items-center text-center"
                                       }`}
                                   >
                                     {/* Investment */}
@@ -1272,6 +1272,7 @@ export default function PortfolioPage() {
             </div>
           </div>
         </section> */}
+        {/* Testimonials – Card + Screenshot Style */}
         <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
           <div className="max-w-7xl mx-auto">
             {/* Heading Button */}
@@ -1287,8 +1288,8 @@ export default function PortfolioPage() {
               white-label solutions with care, speed, and attention to detail.
             </p>
 
-            {/* --- MOBILE SLIDER (only < 768px) --- */}
-            <div className="md:hidden flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
+            {/* --- MOBILE SLIDER (ONLY ≤ 480px) --- */}
+            <div className="hidden max-[480px]:flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
               {testimonial_clients.map((t) => (
                 <div key={t.id} className="min-w-[85%] snap-center">
                   <TestimonialCard
@@ -1302,8 +1303,8 @@ export default function PortfolioPage() {
               ))}
             </div>
 
-            {/* --- DESKTOP GRID (only ≥ 768px) --- */}
-            <div className="hidden md:grid grid-cols-1 md:grid-cols-3 gap-6 text-justify">
+            {/* --- TABLET + DESKTOP GRID ( > 480px ) --- */}
+            <div className="grid max-[480px]:hidden grid-cols-1 md:grid-cols-3 gap-6 text-justify">
               {testimonial_clients.map((t) => (
                 <TestimonialCard
                   key={t.id}
