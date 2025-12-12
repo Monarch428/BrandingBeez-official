@@ -43,8 +43,9 @@ const PortfolioCtaSection: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [hovered, setHovered] = useState(false);
 
-  // 🔹 Refs for thumbnails so we can auto-scroll the active one
+  // 🔹 Refs for thumbnails and the scroll container
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const thumbStripRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -86,16 +87,28 @@ const PortfolioCtaSection: React.FC = () => {
     return () => clearInterval(timer);
   }, [paused, slides.length]);
 
-  // 🔹 Whenever active changes, scroll the corresponding thumbnail into view
+  // 🔹 When active changes, only scroll the thumbnail STRIP (not the page)
   useEffect(() => {
+    const strip = thumbStripRef.current;
     const activeThumb = thumbRefs.current[active];
-    if (activeThumb) {
-      activeThumb.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    }
+
+    if (!strip || !activeThumb) return;
+
+    const stripRect = strip.getBoundingClientRect();
+    const thumbRect = activeThumb.getBoundingClientRect();
+
+    const currentScrollLeft = strip.scrollLeft;
+    const thumbCenter =
+      thumbRect.left - stripRect.left + currentScrollLeft + thumbRect.width / 2;
+    const targetScrollLeft = thumbCenter - stripRect.width / 2;
+
+    const maxScroll = strip.scrollWidth - strip.clientWidth;
+    const clampedScroll = Math.max(0, Math.min(maxScroll, targetScrollLeft));
+
+    strip.scrollTo({
+      left: clampedScroll,
+      behavior: "smooth",
+    });
   }, [active]);
 
   if (loading || slides.length === 0) return null;
@@ -205,6 +218,7 @@ const PortfolioCtaSection: React.FC = () => {
         >
           {/* Fixed-width, scrollable thumbnail strip */}
           <div
+            ref={thumbStripRef}
             className="
               mx-auto 
               max-w-[220px] sm:max-w-[320px] md:max-w-[380px] 
@@ -265,8 +279,6 @@ const PortfolioCtaSection: React.FC = () => {
 };
 
 export default PortfolioCtaSection;
-
-
 
 
 
