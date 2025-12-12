@@ -1565,9 +1565,8 @@ export default function Home() {
           </section>
 
           {/* Why Work With Us Section (Portfolio Slider) */}
-          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
+          {/* <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-              {/* Header */}
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
                 Our Portfolio’s
               </h2>
@@ -1579,7 +1578,7 @@ export default function Home() {
                 <PortfolioCtaSection />
               </div>
             </div>
-          </section>
+          </section> */}
 
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">

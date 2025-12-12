@@ -139,7 +139,7 @@ const PortfolioCtaSection: React.FC = () => {
           <div className="absolute inset-y-0 left-0 w-3/4 md:w-[55%] bg-gradient-to-r from-black/90 via-black/65 to-transparent" />
 
           {/* STRONG RIGHT SHADOW (visual balance) */}
-          <div className="absolute inset-y-0 right-0 w-2/3 md:w-[45%] bg-gradient-to-l from-black/80 via-black/55 to-transparent" />
+          {/* <div className="absolute inset-y-0 right-0 w-2/3 md:w-[45%] bg-gradient-to-l from-black/80 via-black/55 to-transparent" /> */}
         </div>
       ))}
 
