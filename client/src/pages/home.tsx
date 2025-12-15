@@ -1582,7 +1582,8 @@ export default function Home() {
                 <PortfolioCtaSection />
               </div>
             </div>
-          </section> */}
+          </section>
+
 
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
