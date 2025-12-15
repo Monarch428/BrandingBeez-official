@@ -1259,7 +1259,7 @@ export default function About() {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl p-8 text-white text-center shadow-2xl w-full max-w-md">
+                  <div className="bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl p-4 text-white text-center shadow-2xl w-full max-w-md">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
                       <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">

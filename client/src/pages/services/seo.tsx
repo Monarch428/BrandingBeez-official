@@ -387,7 +387,7 @@ const pricingPackages = [
   {
     id: 1,
     name: "Starter SEO",
-    price: "$500",
+    price: "$399", //"$500"
     period: "/month",
     description: "Perfect for local businesses and startups",
     features: [

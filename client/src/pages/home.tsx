@@ -1235,9 +1235,9 @@ export default function Home() {
       title: "SEO Services",
       description:
         "White-label SEO services built for US agencies managing multiple clients.",
-      pricing: "Starting at $500/month",
+      pricing: "Starting at $399/month",
       originalPrice: "$500",
-      discountedPrice: "$400",
+      discountedPrice: "$399",
       discountLabel: "20% OFF",
       billingUnit: "/month",
       extraNote: "Average 150% increase in organic traffic",
@@ -1255,8 +1255,8 @@ export default function Home() {
       title: "PPC Advertising",
       description:
         "Maximize ROI with expert PPC campaign management for your agency clients.",
-      pricing: "Starting at $800/project",
-      originalPrice: "$500",
+      pricing: "Starting at $399/project",
+      originalPrice: "$399",
       discountedPrice: "$400",
       discountLabel: "20% OFF",
       billingUnit: "/project",
@@ -1275,8 +1275,8 @@ export default function Home() {
       title: "Website Design & Development",
       description:
         "Custom websites that turn visitors into lifelong customers for your agency clients.",
-      pricing: "Starting at $900/project",
-      originalPrice: "$750",
+      pricing: "Starting at $599/project",
+      originalPrice: "$599",
       discountedPrice: "$600",
       discountLabel: "20% OFF",
       billingUnit: "/project",
@@ -1295,8 +1295,8 @@ export default function Home() {
       title: "Custom App Development",
       description:
         "High-performance applications built for scalability, automation, and seamless user experience.",
-      pricing: "Starting at $3,500/project",
-      originalPrice: "$3,500",
+      pricing: "Starting at $2,799/project",
+      originalPrice: "$2,799",
       discountedPrice: "$2,800",
       discountLabel: "20% OFF",
       billingUnit: "/project",
@@ -1364,11 +1364,11 @@ export default function Home() {
   ];
 
   // 🎄 Only show snowfall in December (month index 11)
-  const isChristmasSeason = new Date().getMonth() === 11;
+  // const isChristmasSeason = new Date().getMonth() === 11;
 
   return (
     <>
-      {isChristmasSeason && (
+      {/* {isChristmasSeason && (
         <ChristmasEffects
           showOnMobile={true}
           showSnow={true}
@@ -1376,7 +1376,8 @@ export default function Home() {
           showLights={false}
           showEmojiSnow={true}
         />
-      )}
+      )} */}
+
       <Helmet>
         <title>
           White Label Digital Services | Scale Your Agency Without Hiring
@@ -1564,17 +1565,20 @@ export default function Home() {
             </div>
           </section>
 
-          {/* Why Work With Us Section (Portfolio Slider) */}
-                    <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
-                Our Portfolio’s
-              </h2>
-              <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto mb-6 sm:mb-8">
-                Explore our collection of beautifully crafted, performance-driven projects
-                built for top digital agencies and brands across the globe.
-              </p>
-              <div className="w-full mx-auto">
+          {/* Our Portfolio Section (with Slider) */}
+          {/* <section className="bg-gradient-to-br from-pink-50 via-white to-blue-50 py-10 sm:py-14 md:py-16">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6">
+              <div className="text-center mb-6 sm:mb-8 md:mb-10">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
+                  Our Portfolio’s
+                </h2>
+                <p className="text-gray-600 text-sm sm:text-base md:text-lg max-w-2xl mx-auto">
+                  Explore our collection of beautifully crafted, performance-driven projects
+                  built for top digital agencies and brands across the globe.
+                </p>
+              </div>
+
+              <div className="-mx-4 sm:-mx-6 md:mx-0">
                 <PortfolioCtaSection />
               </div>
             </div>
@@ -1586,11 +1590,11 @@ export default function Home() {
             <div className="max-w-6xl mx-auto">
               {/* Header */}
               <div className="mb-10 sm:mb-14 md:mb-16">
-                <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-6 sm:mb-8 mx-auto w-fit">
+                {/* <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-6 sm:mb-8 mx-auto w-fit">
                   <span className="font-medium">Who We Work With</span>
-                </div>
+                </div> */}
 
-                <h1 className="mb-4 sm:mb-6 text-black max-w-3xl text-center mx-auto font-bold text-2xl sm:text-3xl">
+                <h1 className="mb-4 sm:mb-6 text-black max-w-3xl text-center mx-auto font-bold text-2xl sm:text-3xl lg:text-4xl">
                   Built for Growing Digital Marketing Agencies
                 </h1>
 
@@ -1737,10 +1741,10 @@ export default function Home() {
             <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-6">
-                <button className="bg-brand-coral text-white font-medium px-6 py-2 rounded-full mb-6 inline-flex items-center gap-2">
+                {/* <button className="bg-brand-coral text-white font-medium px-6 py-2 rounded-full mb-6 inline-flex items-center gap-2">
                   Problems We Solve
-                </button>
-                <h1 className="text-[rgba(16,24,40,0.81)] text-2xl mb-4 font-bold">
+                </button> */}
+                <h1 className="text-black text-2xl sm:text-2xl lg:text-4xl mb-4 font-bold">
                   Scale Faster Without the Usual Agency Headaches
                 </h1>
                 <p className="text-gray-600 max-w-xl mx-auto text-lg">
@@ -1845,7 +1849,7 @@ export default function Home() {
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
                   </span>
-                  $1200/month
+                  $1,199/month
                 </div>
                 <p className="mb-1 font-medium">
                   Cancel anytime | No long-term contracts | Fully white-label
@@ -1972,9 +1976,9 @@ export default function Home() {
             <div className="max-w-7xl mx-auto">
               {/* Heading Button */}
               <div className="flex justify-center mb-6">
-                <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
-                  <span>What Our Clients Say</span>
-                </div>
+                {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
+                  <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">What Our Clients Say</span>
+                {/* </div> */}
               </div>
 
               {/* Subheading */}

@@ -1146,7 +1146,8 @@ export default function DedicatedResources() {
                     </h3>
                     <div className="mt-3 sm:mt-4">
                       <div className="text-2xl sm:text-3xl font-extrabold text-brand-coral">
-                        From $1200
+                        {/* From $1200 */}
+                        From $1,199
                       </div>
                       <div className="text-sm text-gray-900/70">
                         /month per resource

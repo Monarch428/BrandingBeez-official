@@ -164,7 +164,7 @@ export default function Header() {
               </button>
 
               {isDesktopServicesOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[720px] lg:w-[880px] max-w-[calc(100vw-4rem)] z-40">
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 mt-3 w-[720px] lg:w-[880px] max-w-[calc(100vw-4rem)] z-40">
                   <div className="rounded-2xl border border-gray-100 bg-white shadow-xl shadow-black/5 p-4 sm:p-6 ring-1 ring-black/5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                       {serviceMenuItems.map((item) => {
