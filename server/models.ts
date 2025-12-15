@@ -363,12 +363,13 @@ export const NewsletterSubscriberModel =
     newsletterSubscriberSchema,
   );
 
-interface PortfolioItemDocument extends mongoose.Document, PortfolioItem {}
+interface PortfolioItemDocument extends mongoose.Document, PortfolioItem { }
 const portfolioItemSchema = new Schema<PortfolioItemDocument>(
   {
     id: numericIdField,
     slug: { type: String, required: true, unique: true },
     title: { type: String, required: true },
+    subTitle: String,
     industry: { type: String, required: true },
     client: String,
     badge: String,
@@ -457,7 +458,7 @@ export const PortfolioItemModel =
 
 interface PortfolioContentDocument
   extends mongoose.Document,
-    PortfolioContent {}
+  PortfolioContent { }
 const portfolioContentSchema = new Schema<PortfolioContentDocument>(
   {
     id: numericIdField,

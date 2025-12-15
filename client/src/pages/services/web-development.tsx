@@ -189,7 +189,7 @@ const pricingPackages = [
   {
     id: 1,
     name: "WordPress Starter",
-    price: "$750",
+    price: "$599", //"$750"
     period: "— one-time",
     description: "Perfect for small businesses and startups",
     features: [

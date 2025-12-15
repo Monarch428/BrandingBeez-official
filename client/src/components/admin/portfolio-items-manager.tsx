@@ -64,6 +64,7 @@ type PortfolioItem = {
   id: number;
   slug: string;
   title: string;
+  subTitle: string;
   industry: string;
   client?: string;
   badge?: string;
@@ -149,6 +150,7 @@ const emptyGoogleAdsDetails: GoogleAdsDetails = {
 const emptyForm: Partial<PortfolioItem> = {
   slug: "",
   title: "",
+  subTitle: "",
   industry: "",
   client: "",
   badge: "",
@@ -415,65 +417,66 @@ export function PortfolioItemsManager() {
 
       const seoDetailsPayload = isSeo
         ? {
-            seoOverview: rawSeo.seoOverview || "",
-            clientChallenge: rawSeo.clientChallenge || "",
-            primarySeoGoal: rawSeo.primarySeoGoal || "",
-            seoSummaryImage: rawSeo.seoSummaryImage || "",
-            seoFocusAreas: Array.isArray(rawSeo.seoFocusAreas)
-              ? rawSeo.seoFocusAreas
-              : [],
-            seoStrategySummary: rawSeo.seoStrategySummary || "",
-            seoToolsUsed: Array.isArray(rawSeo.seoToolsUsed)
-              ? rawSeo.seoToolsUsed
-              : [],
-            seoDeliverables: Array.isArray(rawSeo.seoDeliverables)
-              ? rawSeo.seoDeliverables
-              : [],
-            stats: (rawSeo.stats || [])
-              .map((s) => ({
-                label: s.label?.trim() || "",
-                value: s.value?.trim() || "",
-              }))
-              .filter((s) => s.label || s.value),
-          }
+          seoOverview: rawSeo.seoOverview || "",
+          clientChallenge: rawSeo.clientChallenge || "",
+          primarySeoGoal: rawSeo.primarySeoGoal || "",
+          seoSummaryImage: rawSeo.seoSummaryImage || "",
+          seoFocusAreas: Array.isArray(rawSeo.seoFocusAreas)
+            ? rawSeo.seoFocusAreas
+            : [],
+          seoStrategySummary: rawSeo.seoStrategySummary || "",
+          seoToolsUsed: Array.isArray(rawSeo.seoToolsUsed)
+            ? rawSeo.seoToolsUsed
+            : [],
+          seoDeliverables: Array.isArray(rawSeo.seoDeliverables)
+            ? rawSeo.seoDeliverables
+            : [],
+          stats: (rawSeo.stats || [])
+            .map((s) => ({
+              label: s.label?.trim() || "",
+              value: s.value?.trim() || "",
+            }))
+            .filter((s) => s.label || s.value),
+        }
         : undefined;
 
       const googleAdsDetailsPayload = isGoogleAds
         ? {
-            googleAdsSummaryImage: rawGoogleAds.googleAdsSummaryImage || "",
-            industry: rawGoogleAds.industry || "",
-            timeline: rawGoogleAds.timeline || "",
-            campaignOverview: rawGoogleAds.campaignOverview || "",
-            googleAdsClientChallenge:
-              rawGoogleAds.googleAdsClientChallenge || "",
-            primaryCampaignGoal: rawGoogleAds.primaryCampaignGoal || "",
-            campaignType: rawGoogleAds.campaignType || "",
-            platforms: Array.isArray(rawGoogleAds.platforms)
-              ? rawGoogleAds.platforms
-              : [],
-            monthlyAdSpend: rawGoogleAds.monthlyAdSpend || "",
-            googleAdsStrategySummary:
-              rawGoogleAds.googleAdsStrategySummary || "",
-            targetLocations: Array.isArray(rawGoogleAds.targetLocations)
-              ? rawGoogleAds.targetLocations
-              : [],
-            trackingAndAnalytics: Array.isArray(
-              rawGoogleAds.trackingAndAnalytics,
-            )
-              ? rawGoogleAds.trackingAndAnalytics
-              : [],
-            stats: (rawGoogleAds.stats || [])
-              .map((s) => ({
-                label: s.label?.trim() || "",
-                value: s.value?.trim() || "",
-              }))
-              .filter((s) => s.label || s.value),
-          }
+          googleAdsSummaryImage: rawGoogleAds.googleAdsSummaryImage || "",
+          industry: rawGoogleAds.industry || "",
+          timeline: rawGoogleAds.timeline || "",
+          campaignOverview: rawGoogleAds.campaignOverview || "",
+          googleAdsClientChallenge:
+            rawGoogleAds.googleAdsClientChallenge || "",
+          primaryCampaignGoal: rawGoogleAds.primaryCampaignGoal || "",
+          campaignType: rawGoogleAds.campaignType || "",
+          platforms: Array.isArray(rawGoogleAds.platforms)
+            ? rawGoogleAds.platforms
+            : [],
+          monthlyAdSpend: rawGoogleAds.monthlyAdSpend || "",
+          googleAdsStrategySummary:
+            rawGoogleAds.googleAdsStrategySummary || "",
+          targetLocations: Array.isArray(rawGoogleAds.targetLocations)
+            ? rawGoogleAds.targetLocations
+            : [],
+          trackingAndAnalytics: Array.isArray(
+            rawGoogleAds.trackingAndAnalytics,
+          )
+            ? rawGoogleAds.trackingAndAnalytics
+            : [],
+          stats: (rawGoogleAds.stats || [])
+            .map((s) => ({
+              label: s.label?.trim() || "",
+              value: s.value?.trim() || "",
+            }))
+            .filter((s) => s.label || s.value),
+        }
         : undefined;
 
       const payload: any = {
         slug: form.slug,
         title: form.title,
+        subTitle: form.subTitle,
         industry: form.industry,
         client: form.client,
         badge: form.badge,
@@ -484,15 +487,15 @@ export function PortfolioItemsManager() {
         features: Array.isArray(form.features)
           ? form.features
           : String(form.features || "")
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean),
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
         techStack: Array.isArray(form.techStack)
           ? form.techStack
           : String(form.techStack || "")
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean),
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean),
         timeline: form.timeline,
         imageUrl: form.imageUrl,
         image: form.image || form.imageUrl,
@@ -1020,6 +1023,14 @@ export function PortfolioItemsManager() {
                   }}
                   placeholder="Octupus.ai – AI Agent Platform"
                   required
+                />
+              </div>
+              <div>
+                <Label>Subtitle</Label>
+                <Input
+                  value={form.subTitle || ""}
+                  onChange={(e) => handleChange("subTitle", e.target.value)}
+                  placeholder="Revolutionizing AI Agent Deployment for Businesses"
                 />
               </div>
               <div>
@@ -1699,8 +1710,8 @@ export function PortfolioItemsManager() {
                       ? "Saving..."
                       : "Save Changes"
                     : loading
-                    ? "Creating..."
-                    : "Create Item"}
+                      ? "Creating..."
+                      : "Create Item"}
                 </Button>
                 {editingId && (
                   <Button
