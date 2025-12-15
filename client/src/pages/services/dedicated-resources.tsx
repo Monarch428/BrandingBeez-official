@@ -227,7 +227,7 @@ export default function DedicatedResources() {
                     <Link href="/pricing-calculator?service=dedicated-resources">
                       <Button
                         size="lg"
-                        className="w-full sm:w-auto bg-white font-medium text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
+                        className="w-full sm:w-auto bg-white font-medium text-brand-purple hover:bg-brand-coral hover:text-white"
                       >
                         Hire Your Team
                         <ArrowRight className="w-5 h-5 ml-2" />
@@ -246,52 +246,18 @@ export default function DedicatedResources() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 sm:p-8 mt-8 lg:mt-0">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                    <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-sm mx-auto sm:mx-0">
-                      <img
-                        src={socialLandLogo}
-                        alt="Social Land Logo"
-                        className="w-full h-full object-contain"
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/o1pOaGyjVuQ"
+                        title="Founder Video — Our Story"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
                       />
                     </div>
-                    <div className="flex justify-center sm:justify-end">
-                      <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                        Digital Marketing Agency
-                      </Badge>
-                    </div>
-                  </div>
-                  <p className="text-lg sm:text-xl font-bold mb-4 text-center sm:text-left">
-                    Social Land Success Story
-                  </p>
-                  <div className="space-y-3 sm:space-y-4 text-sm sm:text-base">
-                    <div className="flex items-center gap-3">
-                      <Building className="w-5 h-5 text-white/80 flex-shrink-0" />
-                      <span>United Kingdom Headquarters</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Users className="w-5 h-5 text-white/80 flex-shrink-0" />
-                      <span>6-person embedded team</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <TrendingUp className="w-5 h-5 text-white/80 flex-shrink-0" />
-                      <span>25+ projects monthly (from 10-12)</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-5 h-5 text-white/80 flex-shrink-0" />
-                      <span>3-4 day turnaround (from 8-10)</span>
-                    </div>
-                  </div>
-                  <div className="mt-6">
-                    <Link href="/case-studies/social-land">
-                      <Button
-                        size="sm"
-                        className="w-full bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple"
-                      >
-                        View Full Case Study
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
                   </div>
                 </div>
               </div>

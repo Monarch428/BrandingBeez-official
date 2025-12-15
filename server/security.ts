@@ -481,7 +481,7 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://assets.calendly.com"
         ],
-                imgSrc: [
+        imgSrc: [
           "'self'",
           "data:",
           "blob:",
@@ -497,7 +497,9 @@ export function securityHeaders() {
           "https://stats.g.doubleclick.net",
           "https://assets.calendly.com",
           "https://www.clarity.ms",
-          "https://c.clarity.ms"
+          "https://c.clarity.ms",
+          "https://px.ads.linkedin.com",
+          "https://*.linkedin.com"
         ],
         connectSrc: [
           "'self'",
@@ -519,16 +521,15 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com"
         ],
-          frameSrc: [
+        frameSrc: [
           "'self'",
           "https://calendly.com",
           "https://*.calendly.com",
           "https://www.google.com",
           "https://www.youtube.com",
-          "https://*.youtube.com",
           "https://youtube.com",
-          "https://www.youtube-nocookie.com",
-          "https://*.youtube-nocookie.com"
+          "https://youtu.be",
+          "https://www.youtube-nocookie.com"
         ],
         objectSrc: ["'none'"],
         upgradeInsecureRequests: []
