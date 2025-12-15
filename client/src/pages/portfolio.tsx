@@ -132,6 +132,7 @@ type PortfolioItem = {
   id: number;
   slug: string;
   title: string;
+  subTitle: string;
   industry: string;
   client?: string;
   badge?: string;
@@ -858,6 +859,9 @@ export default function PortfolioPage() {
                                     <h3 className="text-lg md:text-xl font-bold text-gray-900 leading-snug mb-1 line-clamp-2">
                                       {item.title}
                                     </h3>
+                                    <h4 className="text-md md:text-lg font-medium text-gray-800 leading-snug mb-1 line-clamp-2">
+                                      {item.subTitle}
+                                    </h4>
                                     <p className="text-sm md:text-base text-gray-600 font-medium">
                                       {item.industry}
                                     </p>

@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, Star, X } from 'lucide-react';
+import { CheckCircle, Star } from 'lucide-react';
+import { ThankYouPopup } from '@/components/thank-you-popup'; // ✅ import your component
 
 interface CustomQuoteModalProps {
   isOpen: boolean;
@@ -20,26 +21,29 @@ interface CustomQuoteModalProps {
 
 const allServices = [
   'Dedicated Resources',
-  'SEO Services', 
+  'SEO Services',
   'Web Development',
   'Google Ads',
   'AI Development',
-  'Content Marketing',
-  'Social Media Marketing',
-  'Email Marketing',
-  'Graphic Design',
-  'Brand Strategy'
 ];
 
-export function CustomQuoteModal({ isOpen, onClose, recommendedService, confidence }: CustomQuoteModalProps) {
+export function CustomQuoteModal({
+  isOpen,
+  onClose,
+  recommendedService,
+  confidence,
+}: CustomQuoteModalProps) {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     companyWebsite: '',
-    additionalServices: [] as string[]
+    additionalServices: [] as string[],
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+
+  // ✅ control ThankYouPopup
+  const [showThankYou, setShowThankYou] = useState(false);
 
   const submitMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -66,37 +70,42 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
         country: 'US',
         topPriority: recommendedService,
         contactFormType: 'survey-custom-quote',
-        servicesSelected: [recommendedService, ...data.additionalServices]
+        servicesSelected: [recommendedService, ...data.additionalServices],
       });
     },
     onSuccess: () => {
       toast({
-        title: "Quote Request Submitted!",
+        title: 'Quote Request Submitted!',
         description: "We'll get back to you within 24 hours with a custom quote.",
       });
+
+      // ✅ show your ThankYouPopup
+      setShowThankYou(true);
+
+      // close the quote form modal
       onClose();
-      // Reset form
+
+      // reset form + errors
       setFormData({
         name: '',
         email: '',
         companyWebsite: '',
-        additionalServices: []
+        additionalServices: [],
       });
       setErrors({});
     },
     onError: (error: any) => {
       console.error('Quote submission error:', error);
       toast({
-        title: "Submission Failed",
-        description: "There was an error submitting your quote request. Please try again.",
-        variant: "destructive",
+        title: 'Submission Failed',
+        description: 'There was an error submitting your quote request. Please try again.',
+        variant: 'destructive',
       });
     },
   });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error when user starts typing
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -106,12 +115,12 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
     if (checked) {
       setFormData(prev => ({
         ...prev,
-        additionalServices: [...prev.additionalServices, service]
+        additionalServices: [...prev.additionalServices, service],
       }));
     } else {
       setFormData(prev => ({
         ...prev,
-        additionalServices: prev.additionalServices.filter(s => s !== service)
+        additionalServices: prev.additionalServices.filter(s => s !== service),
       }));
     }
   };
@@ -146,132 +155,156 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
     }
   };
 
-  const availableServices = allServices.filter(service => service !== recommendedService);
+  const availableServices = allServices.filter(
+    service => service !== recommendedService
+  );
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Star className="w-6 h-6 text-yellow-500" />
-            Get Quote
-          </DialogTitle>
-          <DialogDescription>
-            Based on your survey answers, we'll create a personalized quote for your business needs.
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      {/* Quote Modal */}
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Star className="w-6 h-6 text-yellow-500" />
+              Get Quote
+            </DialogTitle>
+            <DialogDescription>
+              Based on your survey answers, we'll create a personalized quote for your business needs.
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Recommended Service */}
-          <Card className="border-2 border-green-500 bg-green-50">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <h3 className="font-semibold text-green-700">Your Perfect Match</h3>
-                <Badge variant="secondary" className="ml-auto">
-                  {confidence}% Confidence
-                </Badge>
-              </div>
-              <p className="text-green-800 font-medium">{recommendedService}</p>
-              <p className="text-sm text-green-600 mt-1">
-                Based on your survey responses, this service is the best fit for your business goals.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Contact Information */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Contact Information</h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange('name', e.target.value)}
-                  placeholder="Enter your full name"
-                  className={errors.name ? 'border-red-500' : ''}
-                />
-                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-              </div>
-
-              <div>
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Enter your email address"
-                  className={errors.email ? 'border-red-500' : ''}
-                />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="companyWebsite">Company Website *</Label>
-              <Input
-                id="companyWebsite"
-                type="url"
-                value={formData.companyWebsite}
-                onChange={(e) => handleInputChange('companyWebsite', e.target.value)}
-                placeholder="https://yourcompany.com"
-                className={errors.companyWebsite ? 'border-red-500' : ''}
-              />
-              {errors.companyWebsite && <p className="text-red-500 text-sm mt-1">{errors.companyWebsite}</p>}
-            </div>
-          </div>
-
-          {/* Additional Services */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Interested in Other Services?</h3>
-            <p className="text-sm text-gray-600">
-              Select any additional services you might be interested in learning about.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {availableServices.map((service) => (
-                <div key={service} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={service}
-                    checked={formData.additionalServices.includes(service)}
-                    onCheckedChange={(checked) => handleServiceToggle(service, !!checked)}
-                  />
-                  <Label 
-                    htmlFor={service} 
-                    className="text-sm font-normal cursor-pointer"
-                  >
-                    {service}
-                  </Label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Recommended Service Card */}
+            <Card className="border-2 border-green-500 bg-green-50">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <h3 className="font-semibold text-green-700">Your Perfect Match</h3>
+                  <Badge variant="secondary" className="ml-auto">
+                    {confidence}% Confidence
+                  </Badge>
                 </div>
-              ))}
-            </div>
-          </div>
+                <p className="text-green-800 font-medium">{recommendedService}</p>
+                <p className="text-sm text-green-600 mt-1">
+                  Based on your survey responses, this service is the best fit for your business goals.
+                </p>
+              </CardContent>
+            </Card>
 
-          {/* Action Buttons */}
-          <div className="flex gap-3 pt-6 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="flex-1"
-              disabled={submitMutation.isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1 bg-gradient-to-r from-brand-coral-darker to-pink-600 hover:from-brand-coral-dark hover:to-pink-700 text-white font-semibold"
-              disabled={submitMutation.isPending}
-            >
-              {submitMutation.isPending ? 'Submitting...' : 'Get Custom Quote'}
-            </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+            {/* Contact Info */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Contact Information</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="name">Full Name *</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={e => handleInputChange('name', e.target.value)}
+                    placeholder="Enter your full name"
+                    className={errors.name ? 'border-red-500' : ''}
+                  />
+                  {errors.name && (
+                    <p className="text-red-500 text-sm mt-1">{errors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={e => handleInputChange('email', e.target.value)}
+                    placeholder="Enter your email address"
+                    className={errors.email ? 'border-red-500' : ''}
+                  />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="companyWebsite">Company Website *</Label>
+                <Input
+                  id="companyWebsite"
+                  type="url"
+                  value={formData.companyWebsite}
+                  onChange={e => handleInputChange('companyWebsite', e.target.value)}
+                  placeholder="https://yourcompany.com"
+                  className={errors.companyWebsite ? 'border-red-500' : ''}
+                />
+                {errors.companyWebsite && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.companyWebsite}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Additional Services */}
+            <div className="space-y-4">
+              <h3 className="font-semibold text-lg">Interested in Other Services?</h3>
+              <p className="text-sm text-gray-600">
+                Select any additional services you might be interested in learning about.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {availableServices.map(service => (
+                  <div key={service} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={service}
+                      checked={formData.additionalServices.includes(service)}
+                      onCheckedChange={checked =>
+                        handleServiceToggle(service, !!checked)
+                      }
+                    />
+                    <Label
+                      htmlFor={service}
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      {service}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                className="flex-1"
+                disabled={submitMutation.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-gradient-to-r from-brand-coral-darker to-pink-600 hover:from-brand-coral-dark hover:to-pink-700 text-white font-semibold"
+                disabled={submitMutation.isPending}
+              >
+                {submitMutation.isPending ? 'Submitting...' : 'Get Custom Quote'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* ✅ Your existing ThankYouPopup shown after submit */}
+      <ThankYouPopup
+        isOpen={showThankYou}
+        onClose={() => setShowThankYou(false)}
+        title="Thank you for requesting a custom quote!"
+        message="We've received your details and our team will get back to you within 24 hours with a tailored proposal."
+        formType="inquiry"
+      />
+    </>
   );
 }
