@@ -113,7 +113,21 @@ export default function KoalaDigitalCaseStudy() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/azHbi5z9TRs"
+                        title="Dedicated Resources Overview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-1">
                       <img
@@ -141,7 +155,7 @@ export default function KoalaDigitalCaseStudy() {
                       <span>SEO, Google Ads, WordPress Development</span>
                     </div>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </section>

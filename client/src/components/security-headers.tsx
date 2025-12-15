@@ -296,7 +296,6 @@
 
 
 
-
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -309,99 +308,149 @@ import {
   CheckCircle,
   Globe,
   Server,
-  Zap
+  Zap,
 } from "lucide-react";
 
-// Security Headers Component for displaying security status
+// -------------------- Hook to check SSL/Security status --------------------
+
+export function useSecurityStatus() {
+  const isBrowser = typeof window !== "undefined";
+  const isSecure = isBrowser && window.location.protocol === "https:";
+
+  // NOTE:
+  // From the browser you *cannot* reliably inspect HTTP response headers
+  // like Content-Security-Policy / HSTS for the main document.
+  // This flag is therefore only a soft indicator.
+  const hasSecurityHeaders = isBrowser; // assume yes; real enforcement is server-side
+
+  const securityLevel: "high" | "medium" | "low" = isSecure
+    ? "high"
+    : "low";
+
+  return {
+    isSecure,
+    hasSecurityHeaders,
+    securityLevel,
+  };
+}
+
+// -------------------- Security Headers Component (UI) --------------------
+
 export function SecurityHeaders() {
+  const { isSecure, securityLevel } = useSecurityStatus();
+
   const securityFeatures = [
     {
       name: "HTTPS/TLS Encryption",
       status: "active",
-      description: "All data transmitted between your browser and our servers is encrypted using TLS 1.3",
+      description:
+        "All data transmitted between your browser and our servers is encrypted using TLS 1.3",
       icon: <Lock className="w-5 h-5 text-green-600" />,
-      details: "256-bit SSL encryption protects all communications"
+      details: "256-bit SSL encryption protects all communications",
     },
     {
       name: "Content Security Policy",
       status: "active",
-      description: "Prevents cross-site scripting (XSS) attacks by controlling resource loading",
+      description:
+        "Prevents cross-site scripting (XSS) attacks by controlling resource loading",
       icon: <Shield className="w-5 h-5 text-green-600" />,
-      details: "Strict CSP with allowlisted sources only"
+      details: "Strict CSP with allowlisted sources only",
     },
     {
       name: "HSTS Protection",
       status: "active",
-      description: "HTTP Strict Transport Security ensures secure connections",
+      description:
+        "HTTP Strict Transport Security ensures secure connections",
       icon: <Zap className="w-5 h-5 text-green-600" />,
-      details: "Forces HTTPS for all future connections"
+      details: "Forces HTTPS for all future connections",
     },
     {
       name: "X-Frame-Options",
       status: "active",
-      description: "Prevents clickjacking attacks by controlling iframe embedding",
+      description:
+        "Prevents clickjacking attacks by controlling iframe embedding",
       icon: <Eye className="w-5 h-5 text-green-600" />,
-      details: "Blocks unauthorized iframe embedding"
+      details: "Blocks unauthorized iframe embedding",
     },
     {
       name: "Data Encryption",
       status: "active",
-      description: "All stored data is encrypted using AES-256 encryption",
+      description:
+        "All stored data is encrypted using AES-256 encryption",
       icon: <Lock className="w-5 h-5 text-green-600" />,
-      details: "Database and file storage protection"
+      details: "Database and file storage protection",
     },
     {
       name: "DDoS Protection",
       status: "active",
-      description: "Advanced protection against distributed denial of service attacks",
+      description:
+        "Advanced protection against distributed denial of service attacks",
       icon: <Server className="w-5 h-5 text-green-600" />,
-      details: "CloudFlare protection with rate limiting"
-    }
+      details: "Cloudflare protection with rate limiting",
+    },
   ];
 
   const securityCertifications = [
     {
       name: "ISO 27001",
       description: "Information Security Management System",
-      valid: "2025-2026",
-      icon: <Shield className="w-6 h-6 text-blue-600" />
+      valid: "2025–2026",
+      icon: <Shield className="w-6 h-6 text-blue-600" />,
     },
     {
       name: "SOC 2 Type II",
       description: "Service Organization Control audit",
-      valid: "2024-2025",
-      icon: <CheckCircle className="w-6 h-6 text-green-600" />
+      valid: "2024–2025",
+      icon: <CheckCircle className="w-6 h-6 text-green-600" />,
     },
     {
       name: "GDPR Compliant",
       description: "General Data Protection Regulation",
       valid: "Current",
-      icon: <Globe className="w-6 h-6 text-purple-600" />
-    }
+      icon: <Globe className="w-6 h-6 text-purple-600" />,
+    },
   ];
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-4">Security &amp; Compliance</h2>
+        <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          Security &amp; Compliance
+        </h2>
         <p className="text-xl text-gray-600">
           Enterprise-grade security protecting your data and business
         </p>
       </div>
 
-      {/* Security Status Alert */}
-      <Alert className="border-green-200 bg-green-50">
-        <CheckCircle className="h-4 w-4 text-green-600" />
-        <AlertDescription>
-          <strong>All security systems are operational.</strong> Last security audit: January 2025.
-          All vulnerabilities addressed within 24 hours of discovery.
-        </AlertDescription>
-      </Alert>
+      {/* Dynamic Security Status Alert */}
+      {isSecure ? (
+        <Alert className="border-green-200 bg-green-50">
+          <CheckCircle className="h-4 w-4 text-green-600" />
+          <AlertDescription>
+            <strong>All security systems are operational.</strong>{" "}
+            Connection is secured over HTTPS. Last security audit:
+            January 2025. All vulnerabilities are addressed within 24
+            hours of discovery.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <Alert className="border-yellow-200 bg-yellow-50">
+          <AlertTriangle className="h-4 w-4 text-yellow-600" />
+          <AlertDescription>
+            <strong>Connection is not using HTTPS.</strong>{" "}
+            For maximum security, please access this application over a
+            secure <code>https://</code> connection.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Security Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {securityFeatures.map((feature, index) => (
-          <Card key={index} className="transition-shadow">
+          <Card
+            key={index}
+            className="transition-shadow hover:shadow-lg"
+          >
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -415,8 +464,12 @@ export function SecurityHeaders() {
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-gray-600 mb-3">{feature.description}</p>
-              <p className="text-xs text-gray-500 font-medium">{feature.details}</p>
+              <p className="text-sm text-gray-600 mb-3">
+                {feature.description}
+              </p>
+              <p className="text-xs text-gray-500 font-medium">
+                {feature.details}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -434,11 +487,13 @@ export function SecurityHeaders() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {securityCertifications.map((cert, index) => (
               <div key={index} className="text-center">
-                <div className="mb-3">
-                  {cert.icon}
-                </div>
-                <h4 className="font-semibold text-gray-900 mb-1">{cert.name}</h4>
-                <p className="text-sm text-gray-600 mb-2">{cert.description}</p>
+                <div className="mb-3">{cert.icon}</div>
+                <h4 className="font-semibold text-gray-900 mb-1">
+                  {cert.name}
+                </h4>
+                <p className="text-sm text-gray-600 mb-2">
+                  {cert.description}
+                </p>
                 <Badge variant="outline">Valid: {cert.valid}</Badge>
               </div>
             ))}
@@ -458,19 +513,27 @@ export function SecurityHeaders() {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">Intrusion Detection</span>
-              <Badge className="bg-green-100 text-green-800">Online</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                Online
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Vulnerability Scanning</span>
-              <Badge className="bg-green-100 text-green-800">Active</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                Active
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Security Log Analysis</span>
-              <Badge className="bg-green-100 text-green-800">Running</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                Running
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Incident Response Team</span>
-              <Badge className="bg-green-100 text-green-800">Ready</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                Ready
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -485,19 +548,27 @@ export function SecurityHeaders() {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">Encryption at Rest</span>
-              <Badge className="bg-green-100 text-green-800">AES-256</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                AES-256
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Encryption in Transit</span>
-              <Badge className="bg-green-100 text-green-800">TLS 1.3</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                TLS 1.3
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Backup Encryption</span>
-              <Badge className="bg-green-100 text-green-800">Enabled</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                Enabled
+              </Badge>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-sm">Key Management</span>
-              <Badge className="bg-green-100 text-green-800">HSM</Badge>
+              <Badge className="bg-green-100 text-green-800">
+                HSM
+              </Badge>
             </div>
           </CardContent>
         </Card>
@@ -510,8 +581,8 @@ export function SecurityHeaders() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-600 mb-4">
-            If you discover a security vulnerability or have security concerns,
-            please contact our security team immediately.
+            If you discover a security vulnerability or have security
+            concerns, please contact our security team immediately.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -532,35 +603,30 @@ export function SecurityHeaders() {
   );
 }
 
-// Hook to check SSL/Security status
-export function useSecurityStatus() {
-  const isBrowser = typeof window !== "undefined";
-  const isSecure = isBrowser && window.location.protocol === "https:";
+// -------------------- Security Headers Provider (client-side extras) --------------------
 
-  return {
-    isSecure,
-    hasSecurityHeaders: isBrowser,
-    securityLevel: isSecure ? "high" : "low",
-  };
-}
-
-// Security Headers Middleware Component (for client-side extras)
-export function SecurityHeadersProvider({ children }: { children: React.ReactNode }) {
+export function SecurityHeadersProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   useEffect(() => {
-    // Client-side security measures
-
+    // Client-side UX hardening (not real security)
     // Disable right-click context menu in production-like mode
     if (process.env.NODE_ENV === "production") {
       const handleContextMenu = (e: MouseEvent) => {
         e.preventDefault();
       };
       document.addEventListener("contextmenu", handleContextMenu);
-      return () => document.removeEventListener("contextmenu", handleContextMenu);
+      return () =>
+        document.removeEventListener("contextmenu", handleContextMenu);
     }
   }, []);
 
   useEffect(() => {
-    // Add security meta tags if not present
+    // Add security-related meta tags that are safe to set client-side.
+    // REAL security headers (CSP, HSTS, X-Frame-Options) must still be set
+    // on the server / Next.js config, not from here.
     const addMetaTag = (name: string, content: string) => {
       if (!document.querySelector(`meta[name="${name}"]`)) {
         const meta = document.createElement("meta");
@@ -570,12 +636,9 @@ export function SecurityHeadersProvider({ children }: { children: React.ReactNod
       }
     };
 
-    // Add security-related meta tags
     addMetaTag("referrer", "strict-origin-when-cross-origin");
     addMetaTag("format-detection", "telephone=no");
-
   }, []);
 
   return <>{children}</>;
 }
-

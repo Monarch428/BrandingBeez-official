@@ -530,6 +530,13 @@ const appointmentSchema = new Schema<AppointmentDocument>(
       type: [String],
       default: [],
     },
+    
+    event: {
+      type: String,
+      default: "booking_success",
+      index: true,
+    },
+
 
     status: {
       type: String,
