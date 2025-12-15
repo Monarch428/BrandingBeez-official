@@ -1235,9 +1235,9 @@ export default function Home() {
       title: "SEO Services",
       description:
         "White-label SEO services built for US agencies managing multiple clients.",
-      pricing: "Starting at $500/month",
+      pricing: "Starting at $399/month",
       originalPrice: "$500",
-      discountedPrice: "$400",
+      discountedPrice: "$399",
       discountLabel: "20% OFF",
       billingUnit: "/month",
       extraNote: "Average 150% increase in organic traffic",
@@ -1255,8 +1255,8 @@ export default function Home() {
       title: "PPC Advertising",
       description:
         "Maximize ROI with expert PPC campaign management for your agency clients.",
-      pricing: "Starting at $800/project",
-      originalPrice: "$500",
+      pricing: "Starting at $399/project",
+      originalPrice: "$399",
       discountedPrice: "$400",
       discountLabel: "20% OFF",
       billingUnit: "/project",
@@ -1275,8 +1275,8 @@ export default function Home() {
       title: "Website Design & Development",
       description:
         "Custom websites that turn visitors into lifelong customers for your agency clients.",
-      pricing: "Starting at $900/project",
-      originalPrice: "$750",
+      pricing: "Starting at $599/project",
+      originalPrice: "$599",
       discountedPrice: "$600",
       discountLabel: "20% OFF",
       billingUnit: "/project",
@@ -1295,8 +1295,8 @@ export default function Home() {
       title: "Custom App Development",
       description:
         "High-performance applications built for scalability, automation, and seamless user experience.",
-      pricing: "Starting at $3,500/project",
-      originalPrice: "$3,500",
+      pricing: "Starting at $2,799/project",
+      originalPrice: "$2,799",
       discountedPrice: "$2,800",
       discountLabel: "20% OFF",
       billingUnit: "/project",
@@ -1565,7 +1565,7 @@ export default function Home() {
           </section>
 
           {/* Why Work With Us Section (Portfolio Slider) */}
-          {/* <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
+          <section className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 py-12 sm:py-16">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
                 Our Portfolio’s
@@ -1578,7 +1578,7 @@ export default function Home() {
                 <PortfolioCtaSection />
               </div>
             </div>
-          </section> */}
+          </section>
 
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
