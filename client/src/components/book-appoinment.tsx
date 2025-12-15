@@ -1,4 +1,6 @@
 // src/components/booking/AppointmentCalendar.tsx
+"use client";
+
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +12,14 @@ import {
   type DaySlot,
   type SlotStatus,
 } from "@/lib/appointmentService";
-import { Calendar, ChevronLeft, ChevronRight, Clock, User, X } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  User,
+  X,
+} from "lucide-react";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import {
   Select,
@@ -36,6 +45,9 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
+// ✅ Global thank-you hook
+import { useThankYou } from "@/context/thank-you-context";
 
 interface AppointmentCalendarProps {
   defaultServiceType?: string;
@@ -80,11 +92,6 @@ const toLocalDateKey = (date: Date) => {
   const m = String(date.getMonth() + 1).padStart(2, "0");
   const d = String(date.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-};
-
-const parseTimeToMinutes = (time: string) => {
-  const [hh, mm] = time.split(":").map(Number);
-  return hh * 60 + mm;
 };
 
 type BookingStage = "date" | "time" | "form";
@@ -151,6 +158,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
 
   // Timezone selection for display
   const [timeZone, setTimeZone] = useState<TimeZoneOptionId>("browser");
+
+  const { showThankYou } = useThankYou();
 
   const monthLabel = useMemo(() => {
     return currentMonth.toLocaleDateString("en-GB", {
@@ -300,6 +309,9 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     setFieldErrors({});
   };
 
+  const safeConsultantName = consultantName || "Raja Rajeshwari";
+  const safeConsultantTitle = consultantTitle || "CEO, BrandingBeez";
+
   const handleBook = async () => {
     if (!selectedDate || !selectedSlot) {
       setStatusType("error");
@@ -340,6 +352,22 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
       setStatusType(null);
       setStatusMessage(null);
 
+      const formattedSelectedDate =
+        selectedDate &&
+        selectedDate.toLocaleDateString("en-GB", {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        });
+
+      const timeLabel = formatSlotLabelForTimeZone(
+        selectedSlot.startTime,
+        selectedSlot.endTime,
+        selectedDate,
+        timeZone,
+      );
+
       const result = await createAppointment({
         name,
         email,
@@ -359,19 +387,40 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
         ? ` Your Google Meet link: ${result.meetingLink}`
         : "";
 
-      // ✅ Success message shown on right side even after form closes
+      // ✅ Status on side card
       setStatusType("success");
       setStatusMessage(
         `🎉 Appointment confirmed...! Please check your email for the Google Meet link.${meetText}`,
       );
       setTimeout(() => setStatusMessage(null), 6000);
 
+      // ✅ Global thank-you popup
+      const attendeeName = name.trim() || "there";
+      const dateLabel = formattedSelectedDate || selectedDateKey;
+
+      showThankYou({
+        title: "Your appointment is confirmed! 🎉",
+        message: `Hi ${attendeeName},
+
+Your meeting with ${safeConsultantName} (${safeConsultantTitle}) is confirmed.
+
+📅 Date: ${dateLabel}
+⏰ Time: ${timeLabel}
+${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""}${result?.meetingLink
+            ? `🔗 Google Meet link: ${result.meetingLink}\n`
+            : ""
+          }
+
+We’ve emailed you the confirmation and calendar invite. Looking forward to speaking with you!`,
+        formType: "strategy",
+      });
+
       // Clear selection & form and go back to time view (form "closed")
       setSelectedSlot(null);
       setBookingStage("time");
       resetForm();
 
-      // Optionally close the outer modal if provided
+      // Close outer modal (BookCallButtonWithModal)
       if (onClose) {
         onClose();
       }
@@ -423,9 +472,6 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   const layoutClass = showRightPanel
     ? "grid w-full gap-4 md:gap-6 lg:gap-8 lg:grid-cols-[minmax(0,1.8fr)_minmax(0,1.2fr)] items-start"
     : "flex w-full justify-center";
-
-  const safeConsultantName = consultantName || "Raja Rajeshwari";
-  const safeConsultantTitle = consultantTitle || "CEO, BrandingBeez";
 
   return (
     <div className={layoutClass}>
@@ -1114,7 +1160,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
                           {combinedServiceType || "Not selected"}
                         </p>
                         <p>
-                          <b>Date:</b> {formattedSelectedDate || "Not selected"}
+                          <b>Date:</b>{" "}
+                          {formattedSelectedDate || "Not selected"}
                         </p>
                         <p>
                           <b>Time:</b>{" "}
@@ -1329,6 +1376,7 @@ export const BookCallButtonWithModal: React.FC<
 // Keep old name for inline use
 export const AppointmentCalendar = AppointmentCalendarContent;
 export default AppointmentCalendarContent;
+
 
 
 

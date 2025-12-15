@@ -22,4 +22,7 @@ export interface AppointmentStorage {
     serviceType?: string;
     search?: string;
   }): Promise<Appointment[]>;
+
+  // ✅ NEW
+  deleteAppointment(id: number): Promise<Appointment | null>;
 }
