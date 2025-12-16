@@ -590,7 +590,12 @@ export function securityHeaders() {
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
-          "https://*.replit.com"
+          "https://*.replit.com",
+
+          // LinkedIn Insight Tag scripts
+          "https://snap.licdn.com",
+          "https://*.licdn.com"
+
         ],
 
         scriptSrcElem: [
@@ -627,7 +632,12 @@ export function securityHeaders() {
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
-          "https://*.replit.com"
+          "https://*.replit.com",
+
+          // LinkedIn Insight Tag scripts
+          "https://snap.licdn.com",
+          "https://*.licdn.com",
+
         ],
 
         scriptSrcAttr: ["'unsafe-inline'"],
@@ -714,7 +724,13 @@ export function securityHeaders() {
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
           "https://www.googletagmanager.com",
-          "https://*.googletagmanager.com"
+          "https://*.googletagmanager.com",
+
+          // ✅ LinkedIn Insight Tag (FIX connect-src blocks)
+          "https://px.ads.linkedin.com",
+          "https://snap.licdn.com",
+          "https://*.linkedin.com",
+          "https://*.licdn.com"
         ],
 
         frameSrc: [
