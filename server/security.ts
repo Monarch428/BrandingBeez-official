@@ -568,7 +568,12 @@ export function securityHeaders() {
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
 
-          // ✅ Tag Assistant Preview
+          // ✅ Google Ads / DoubleClick (CRITICAL FIX)
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
+          "https://stats.g.doubleclick.net",
+
+          // Tag Assistant Preview
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
 
@@ -600,7 +605,12 @@ export function securityHeaders() {
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
 
-          // ✅ Tag Assistant Preview
+          // ✅ Google Ads / DoubleClick (CRITICAL FIX)
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
+          "https://stats.g.doubleclick.net",
+
+          // Tag Assistant Preview
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
 
@@ -649,13 +659,15 @@ export function securityHeaders() {
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
 
-          // Google / GA
+          // Google / GA / Ads
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://*.googleusercontent.com",
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
           "https://stats.g.doubleclick.net",
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
 
           // Calendly
           "https://assets.calendly.com",
@@ -685,6 +697,7 @@ export function securityHeaders() {
           "https://stats.g.doubleclick.net",
           "https://*.doubleclick.net",
           "https://region1.google-analytics.com",
+          "https://www.googleadservices.com",
 
           // Microsoft Clarity
           "https://www.clarity.ms",
@@ -697,7 +710,7 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com",
 
-          // ✅ Tag Assistant Preview (CRITICAL)
+          // Tag Assistant Preview
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
           "https://www.googletagmanager.com",
@@ -718,9 +731,10 @@ export function securityHeaders() {
           "https://youtu.be",
           "https://www.youtube-nocookie.com",
 
-          // ✅ Tag Assistant Preview iframe
+          // ✅ Tag Assistant + GTM iframe (CRITICAL FIX)
           "https://tagassistant.google.com",
-          "https://*.tagassistant.google.com"
+          "https://*.tagassistant.google.com",
+          "https://www.googletagmanager.com"
         ],
 
         objectSrc: ["'none'"],
