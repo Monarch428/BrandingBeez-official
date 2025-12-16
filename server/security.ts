@@ -422,51 +422,206 @@ import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 
 // Security headers middleware
+// export function securityHeaders() {
+//   return helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'", "data:", "blob:"],
+//         scriptSrc: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "'unsafe-eval'",
+//           "data:",
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://*.googletagmanager.com",
+//           "https://www.google-analytics.com",
+//           "https://www.googletagmanager.com",
+//           "https://assets.calendly.com",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+//           "https://scripts.clarity.ms",
+//           "https://cdn.jsdelivr.net",
+//           "https://replit.com",
+//           "https://*.replit.com"
+//         ],
+//         scriptSrcElem: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "data:",
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://*.googletagmanager.com",
+//           "https://www.google-analytics.com",
+//           "https://www.googletagmanager.com",
+//           "https://assets.calendly.com",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+//           "https://scripts.clarity.ms",
+//           "https://cdn.jsdelivr.net",
+//           "https://replit.com",
+//           "https://*.replit.com"
+//         ],
+//         scriptSrcAttr: ["'unsafe-inline'"],
+//         styleSrc: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "https://*.googleapis.com",
+//           "https://fonts.googleapis.com",
+//           "https://assets.calendly.com"
+//         ],
+//         fontSrc: [
+//           "'self'",
+//           "data:",
+//           "https://fonts.gstatic.com",
+//           "https://*.googleapis.com",
+//           "https://assets.calendly.com"
+//         ],
+//         imgSrc: [
+//           "'self'",
+//           "data:",
+//           "blob:",
+//           "https:",
+//           "http:",
+//           "https://res.cloudinary.com",
+//           "https://*.res.cloudinary.com",
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://*.googleusercontent.com",
+//           "https://www.googletagmanager.com",
+//           "https://www.google-analytics.com",
+//           "https://stats.g.doubleclick.net",
+//           "https://assets.calendly.com",
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+//           "https://px.ads.linkedin.com",
+//           "https://*.linkedin.com"
+//         ],
+//         connectSrc: [
+//           "'self'",
+//           "https://res.cloudinary.com",
+//           "https://*.res.cloudinary.com",
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://www.google-analytics.com",
+//           "https://analytics.google.com",
+//           "https://*.google-analytics.com",
+//           "https://stats.g.doubleclick.net",
+//           "https://*.doubleclick.net",
+//           "https://region1.google-analytics.com",
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+//           "https://k.clarity.ms",
+//           "https://o.clarity.ms",
+//           "https://s.clarity.ms",
+//           "https://calendly.com",
+//           "https://*.calendly.com"
+//         ],
+//         frameSrc: [
+//           "'self'",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+//           "https://www.google.com",
+//           "https://www.youtube.com",
+//           "https://youtube.com",
+//           "https://youtu.be",
+//           "https://www.youtube-nocookie.com"
+//         ],
+//         objectSrc: ["'none'"],
+//         upgradeInsecureRequests: []
+//       }
+//     },
+//     hsts: {
+//       maxAge: 31536000,
+//       includeSubDomains: true,
+//       preload: true
+//     },
+//     frameguard: false,
+//     noSniff: true,
+//     xssFilter: true,
+//     referrerPolicy: {
+//       policy: "strict-origin-when-cross-origin"
+//     }
+//   });
+// }
+
 export function securityHeaders() {
   return helmet({
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'", "data:", "blob:"],
+
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
           "'unsafe-eval'",
           "data:",
+
+          // Google / GTM / GA
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
-          "https://www.google-analytics.com",
           "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+
+          // ✅ Tag Assistant Preview
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com",
+
+          // Calendly
           "https://assets.calendly.com",
           "https://calendly.com",
           "https://*.calendly.com",
+
+          // Microsoft Clarity
           "https://www.clarity.ms",
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
+
+          // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
           "https://*.replit.com"
         ],
+
         scriptSrcElem: [
           "'self'",
           "'unsafe-inline'",
           "data:",
+
+          // Google / GTM / GA
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
-          "https://www.google-analytics.com",
           "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+
+          // ✅ Tag Assistant Preview
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com",
+
+          // Calendly
           "https://assets.calendly.com",
           "https://calendly.com",
           "https://*.calendly.com",
+
+          // Microsoft Clarity
           "https://www.clarity.ms",
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
+
+          // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
           "https://*.replit.com"
         ],
+
         scriptSrcAttr: ["'unsafe-inline'"],
+
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -474,6 +629,7 @@ export function securityHeaders() {
           "https://fonts.googleapis.com",
           "https://assets.calendly.com"
         ],
+
         fontSrc: [
           "'self'",
           "data:",
@@ -481,30 +637,46 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://assets.calendly.com"
         ],
+
         imgSrc: [
           "'self'",
           "data:",
           "blob:",
           "https:",
           "http:",
+
+          // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
+
+          // Google / GA
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://*.googleusercontent.com",
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
           "https://stats.g.doubleclick.net",
+
+          // Calendly
           "https://assets.calendly.com",
+
+          // Microsoft Clarity
           "https://www.clarity.ms",
           "https://c.clarity.ms",
+
+          // LinkedIn Insight Tag
           "https://px.ads.linkedin.com",
           "https://*.linkedin.com"
         ],
+
         connectSrc: [
           "'self'",
+
+          // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
+
+          // Google / GA / Ads
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://www.google-analytics.com",
@@ -513,36 +685,60 @@ export function securityHeaders() {
           "https://stats.g.doubleclick.net",
           "https://*.doubleclick.net",
           "https://region1.google-analytics.com",
+
+          // Microsoft Clarity
           "https://www.clarity.ms",
           "https://c.clarity.ms",
           "https://k.clarity.ms",
           "https://o.clarity.ms",
           "https://s.clarity.ms",
-          "https://calendly.com",
-          "https://*.calendly.com"
-        ],
-        frameSrc: [
-          "'self'",
+
+          // Calendly
           "https://calendly.com",
           "https://*.calendly.com",
+
+          // ✅ Tag Assistant Preview (CRITICAL)
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com",
+          "https://www.googletagmanager.com",
+          "https://*.googletagmanager.com"
+        ],
+
+        frameSrc: [
+          "'self'",
+
+          // Calendly embeds
+          "https://calendly.com",
+          "https://*.calendly.com",
+
+          // YouTube
           "https://www.google.com",
           "https://www.youtube.com",
           "https://youtube.com",
           "https://youtu.be",
-          "https://www.youtube-nocookie.com"
+          "https://www.youtube-nocookie.com",
+
+          // ✅ Tag Assistant Preview iframe
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com"
         ],
+
         objectSrc: ["'none'"],
         upgradeInsecureRequests: []
       }
     },
+
+    // 🔐 Security headers
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
       preload: true
     },
+
     frameguard: false,
     noSniff: true,
     xssFilter: true,
+
     referrerPolicy: {
       policy: "strict-origin-when-cross-origin"
     }

@@ -458,52 +458,17 @@ export default function WebDevelopment() {
                 </div>
 
                 {/* Right: Achievements Card */}
-                <div className="relative">
-                  {/* Glow accent */}
-                  <div className="pointer-events-none absolute inset-0 -right-10 -top-10 rounded-3xl bg-white/10 blur-3xl opacity-40" />
-
-                  <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-7 border border-white/20 shadow-xl">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <h2 className="text-base sm:text-lg md:text-xl font-bold">
-                          Development Results from Initial Project + 2-Year
-                          Partnership
-                        </h2>
-                        <p className="text-xs sm:text-sm text-gray-100/80 mt-1">
-                          Consistent, white-label delivery for a growing agency
-                          partner.
-                        </p>
-                      </div>
-                    </div>
-
-                    <ul className="space-y-2.5 text-gray-100/95 mb-5">
-                      {featuredClient.achievements.map((achievement, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2.5"
-                        >
-                          <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-white" />
-                          <span className="text-sm sm:text-base leading-relaxed">
-                            {achievement}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* Bottom meta strip */}
-                    <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
-                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
-                        <div className="text-gray-200/90">Tech Stack</div>
-                        <div className="font-semibold">
-                          {"WordPress & Custom"}
-                        </div>
-                      </div>
-                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
-                        <div className="text-gray-200/90">Region</div>
-                        <div className="font-semibold">
-                          {"US & UK"}
-                        </div>
-                      </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/h2P606wR_Jk"
+                        title="Website Design & Development for Agencies | BrandingBeez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
                     </div>
                   </div>
                 </div>
