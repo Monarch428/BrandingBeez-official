@@ -189,7 +189,7 @@ const pricingPackages = [
   {
     id: 2,
     name: "Growth (Most Popular)",
-    price: "$1,200",
+    price: "$999", //"$1,200"
     period: "/month",
     period1: "+ ad spend",
     description: "Ideal for growing businesses improving ROI",
@@ -209,7 +209,7 @@ const pricingPackages = [
   {
     id: 3,
     name: "Scale (Premium Management)",
-    price: "$2,500",
+    price: "$1,999",
     period: "/month",
     period1: "+ ad spend",
     description: "For large businesses & complex, high-budget campaigns",
@@ -382,13 +382,13 @@ export default function GoogleAds() {
                 {/* Left: Main Content */}
                 <div className="max-w-3xl">
                   {/* Badge */}
-                  <div className="flex items-center justify-center">
+                  {/* <div className="flex items-center justify-center">
                     <div className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1.5 mb-6 shadow-sm backdrop-blur-sm">
                       <span className="text-xs sm:text-sm font-medium tracking-wide">
                         Featured Google Ads Client of the Month
                       </span>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Heading */}
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-5">
@@ -424,7 +424,7 @@ export default function GoogleAds() {
                       onClick={handleScrollToCaseStudies}
                       className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
                     >
-                      View SEO Case Studies
+                      View PPC Case Studies
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
@@ -451,7 +451,7 @@ export default function GoogleAds() {
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
-                      <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                      <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
                         <iframe
                           className="w-full h-full"
                           src="https://www.youtube.com/embed/8CRaG4x_IXA?rel=0&modestbranding=1"
@@ -495,22 +495,25 @@ export default function GoogleAds() {
                     </p>
                   </Card> */}
 
-          <PhaseSliderSection
-            sectionId="google-ads-process"
-            heading="How the Google Ads Process Works"
-            subheading="A simple, transparent process built for agencies."
-            phases={googleAdsPhases}
-          />
+          <section className="py-16 px-4 bg-gray-50">
+
+            <PhaseSliderSection
+              sectionId="google-ads-process"
+              heading="How the Google Ads Process Works"
+              subheading="A simple, transparent process built for agencies."
+              phases={googleAdsPhases}
+            />
+          </section>
 
           {/* WHY AGENCIES CHOOSE OUR WHITE-LABEL PPC */}
           <section className="py-16 px-4 bg-white">
             <div className="max-w-5xl mx-auto">
               {/* Heading */}
               <div className="text-center mb-10">
-                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-wide text-white">
+                {/* <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-wide text-white">
                   Why Agencies Choose Our White-Label PPC
-                </span>
-                <h2 className="mt-4 text-3xl font-bold text-brand-purple">
+                </span> */}
+                <h2 className="mt-4 text-4xl font-bold text-brand-purple">
                   Why Agencies Partner With BrandingBeez for Google Ads
                 </h2>
                 <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
@@ -579,10 +582,9 @@ export default function GoogleAds() {
           <section id="case-studies" className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
-                  {/* 🎯 Success Stories */}
+                {/* <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
                   Featured White-Label Google Ads Success
-                </h2>
+                </h2> */}
                 <h3 className="text-4xl font-bold text-brand-purple mb-6">
                   Google Ads Case Studies & Results
                 </h3>
@@ -801,10 +803,10 @@ export default function GoogleAds() {
             <div className="max-w-7xl mx-auto">
               {/* Heading */}
               <div className="text-center mb-10">
-                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-wide text-white">
+                {/* <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-wide text-white">
                   Problems We Solve for Agencies
-                </span>
-                <h2 className="mt-4 text-3xl font-bold text-brand-purple">
+                </span> */}
+                <h2 className="mt-4 text-4xl font-bold text-brand-purple">
                   Common Google Ads Challenges Agencies Face
                 </h2>
                 <p className="mt-3 text-lg text-gray-700 max-w-3xl mx-auto">
@@ -892,9 +894,9 @@ export default function GoogleAds() {
           {/* FINAL CTA – before pricing */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-5xl mx-auto text-center">
-              <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1 text-xs sm:text-sm font-medium tracking-[0.18em]">
+              {/* <span className="inline-flex items-center rounded-full bg-white/10 px-4 py-1 text-xs sm:text-sm font-medium tracking-[0.18em]">
                 Ready to Scale Your PPC Offering
-              </span>
+              </span> */}
 
               <h2 className="mt-5 text-3xl sm:text-4xl font-bold leading-tight">
                 Ready to Scale Your Agency’s PPC Offering?
@@ -936,9 +938,9 @@ export default function GoogleAds() {
             <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-12">
-                <h2 className="bg-brand-purple text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
+                {/* <h2 className="bg-brand-purple text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
                   💎 Google Ads Management Packages
-                </h2>
+                </h2> */}
                 <h3 className="text-4xl font-bold text-brand-purple mb-4">
                   Choose Your Google Ads Package
                 </h3>
@@ -1065,9 +1067,9 @@ export default function GoogleAds() {
             <div className="max-w-7xl mx-auto">
               {/* Heading */}
               <div className="text-center mb-12">
-                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-[0.18em] text-white">
+                {/* <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-[0.18em] text-white">
                   What Agencies Get
-                </span>
+                </span> */}
                 <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
                   What’s Included in Our White-Label Google Ads Management
                 </h2>
@@ -1249,9 +1251,9 @@ export default function GoogleAds() {
             <div className="max-w-7xl mx-auto">
               {/* Heading */}
               <div className="text-center mb-12">
-                <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-[0.18em] text-white">
+                {/* <span className="inline-flex items-center rounded-full bg-brand-coral px-4 py-1 text-s sm:text-sm font-medium tracking-[0.18em] text-white">
                   Industries We Manage Google Ads For
-                </span>
+                </span> */}
 
                 <h2 className="mt-4 text-3xl sm:text-4xl font-bold text-brand-purple">
                   Industries We Manage White-Label Google Ads For
@@ -1330,7 +1332,7 @@ export default function GoogleAds() {
           <section className="py-10 px-4 bg-gray-50 border-t border-b border-brand-purple/10">
             <div className="max-w-6xl mx-auto text-center">
               <div className="flex items-center justify-center">
-                <h3 className="text-sm sm:text-base font-medium px-4 py-1 rounded-full tracking-[0.18em] text-white bg-brand-coral mb-4">
+                <h3 className="text-3xl sm:text-3xl font-bold px-4 py-1 rounded-full tracking-[0.18em] text-brand-purple mb-4">
                   Why Agencies Trust BrandingBeez
                 </h3>
               </div>

@@ -122,7 +122,7 @@ export default function TSLandscapingCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
                       <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/k53Ua_qvWkc"
