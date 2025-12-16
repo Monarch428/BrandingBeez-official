@@ -912,16 +912,21 @@ export default function GoogleAds() {
               </p>
 
               <div className="mt-8 flex justify-center">
-                <Button
+                {/* <Button
                   size="lg"
                   className="bg-brand-purple text-brand-white hover:bg-gray-100 hover:text-brand-purple flex items-center gap-2"
                   onClick={() =>
-                    window.open("/book-appiontment", "_blank")
+                    window.open("/book-appointment", "_blank")
                   }
                 >
                   Book a Free White-Label PPC Strategy Call
                   <ArrowRight className="w-4 h-4" />
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel=" Book a Free White-Label PPC Strategy Call"
+                  className="bg-brand-purple text-brand-white hover:bg-gray-100 hover:text-brand-purple flex items-center gap-2"
+                  buttonSize="lg"
+                />
               </div>
             </div>
           </section>
@@ -1221,13 +1226,19 @@ export default function GoogleAds() {
                   >
                     Book a quick call with our team
                   </a> */}
-                  <Button
+                  {/* <Button
                     variant="outline"
                     className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                   >
                     Book a quick call with our team
                     <Calendar className="w-4 h-4 ml-2" />
-                  </Button>
+                  </Button> */}
+                  <BookCallButtonWithModal
+                    buttonLabel="Book a quick call with our team"
+                    className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                    buttonSize="lg"
+                    buttonVariant="outline"
+                  />
                 </div>
               </div>
             </div>
