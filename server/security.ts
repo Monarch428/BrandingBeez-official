@@ -421,134 +421,6 @@ import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 
-// Security headers middleware
-// export function securityHeaders() {
-//   return helmet({
-//     contentSecurityPolicy: {
-//       directives: {
-//         defaultSrc: ["'self'", "data:", "blob:"],
-//         scriptSrc: [
-//           "'self'",
-//           "'unsafe-inline'",
-//           "'unsafe-eval'",
-//           "data:",
-//           "https://*.google.com",
-//           "https://*.googleapis.com",
-//           "https://*.googletagmanager.com",
-//           "https://www.google-analytics.com",
-//           "https://www.googletagmanager.com",
-//           "https://assets.calendly.com",
-//           "https://calendly.com",
-//           "https://*.calendly.com",
-//           "https://www.clarity.ms",
-//           "https://c.clarity.ms",
-//           "https://scripts.clarity.ms",
-//           "https://cdn.jsdelivr.net",
-//           "https://replit.com",
-//           "https://*.replit.com"
-//         ],
-//         scriptSrcElem: [
-//           "'self'",
-//           "'unsafe-inline'",
-//           "data:",
-//           "https://*.google.com",
-//           "https://*.googleapis.com",
-//           "https://*.googletagmanager.com",
-//           "https://www.google-analytics.com",
-//           "https://www.googletagmanager.com",
-//           "https://assets.calendly.com",
-//           "https://calendly.com",
-//           "https://*.calendly.com",
-//           "https://www.clarity.ms",
-//           "https://c.clarity.ms",
-//           "https://scripts.clarity.ms",
-//           "https://cdn.jsdelivr.net",
-//           "https://replit.com",
-//           "https://*.replit.com"
-//         ],
-//         scriptSrcAttr: ["'unsafe-inline'"],
-//         styleSrc: [
-//           "'self'",
-//           "'unsafe-inline'",
-//           "https://*.googleapis.com",
-//           "https://fonts.googleapis.com",
-//           "https://assets.calendly.com"
-//         ],
-//         fontSrc: [
-//           "'self'",
-//           "data:",
-//           "https://fonts.gstatic.com",
-//           "https://*.googleapis.com",
-//           "https://assets.calendly.com"
-//         ],
-//         imgSrc: [
-//           "'self'",
-//           "data:",
-//           "blob:",
-//           "https:",
-//           "http:",
-//           "https://res.cloudinary.com",
-//           "https://*.res.cloudinary.com",
-//           "https://*.google.com",
-//           "https://*.googleapis.com",
-//           "https://*.googleusercontent.com",
-//           "https://www.googletagmanager.com",
-//           "https://www.google-analytics.com",
-//           "https://stats.g.doubleclick.net",
-//           "https://assets.calendly.com",
-//           "https://www.clarity.ms",
-//           "https://c.clarity.ms",
-//           "https://px.ads.linkedin.com",
-//           "https://*.linkedin.com"
-//         ],
-//         connectSrc: [
-//           "'self'",
-//           "https://res.cloudinary.com",
-//           "https://*.res.cloudinary.com",
-//           "https://*.google.com",
-//           "https://*.googleapis.com",
-//           "https://www.google-analytics.com",
-//           "https://analytics.google.com",
-//           "https://*.google-analytics.com",
-//           "https://stats.g.doubleclick.net",
-//           "https://*.doubleclick.net",
-//           "https://region1.google-analytics.com",
-//           "https://www.clarity.ms",
-//           "https://c.clarity.ms",
-//           "https://k.clarity.ms",
-//           "https://o.clarity.ms",
-//           "https://s.clarity.ms",
-//           "https://calendly.com",
-//           "https://*.calendly.com"
-//         ],
-//         frameSrc: [
-//           "'self'",
-//           "https://calendly.com",
-//           "https://*.calendly.com",
-//           "https://www.google.com",
-//           "https://www.youtube.com",
-//           "https://youtube.com",
-//           "https://youtu.be",
-//           "https://www.youtube-nocookie.com"
-//         ],
-//         objectSrc: ["'none'"],
-//         upgradeInsecureRequests: []
-//       }
-//     },
-//     hsts: {
-//       maxAge: 31536000,
-//       includeSubDomains: true,
-//       preload: true
-//     },
-//     frameguard: false,
-//     noSniff: true,
-//     xssFilter: true,
-//     referrerPolicy: {
-//       policy: "strict-origin-when-cross-origin"
-//     }
-//   });
-// }
-
 export function securityHeaders() {
   return helmet({
     contentSecurityPolicy: {
@@ -566,9 +438,19 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
           "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
           "https://www.google-analytics.com",
 
-          // ✅ Tag Assistant Preview
+          // ✅ Tag Assistant static assets (needed for preview UI/handshake)
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+
+          // ✅ Google Ads / DoubleClick (CRITICAL FIX)
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
+          "https://stats.g.doubleclick.net",
+
+          // Tag Assistant Preview
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
 
@@ -585,7 +467,11 @@ export function securityHeaders() {
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
-          "https://*.replit.com"
+          "https://*.replit.com",
+
+          // LinkedIn Insight Tag scripts
+          "https://snap.licdn.com",
+          "https://*.licdn.com"
         ],
 
         scriptSrcElem: [
@@ -598,9 +484,19 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
           "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
           "https://www.google-analytics.com",
 
-          // ✅ Tag Assistant Preview
+          // ✅ Tag Assistant static assets (needed for preview UI/handshake)
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+
+          // ✅ Google Ads / DoubleClick (CRITICAL FIX)
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
+          "https://stats.g.doubleclick.net",
+
+          // Tag Assistant Preview
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
 
@@ -617,7 +513,11 @@ export function securityHeaders() {
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
-          "https://*.replit.com"
+          "https://*.replit.com",
+
+          // LinkedIn Insight Tag scripts
+          "https://snap.licdn.com",
+          "https://*.licdn.com"
         ],
 
         scriptSrcAttr: ["'unsafe-inline'"],
@@ -649,13 +549,19 @@ export function securityHeaders() {
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
 
-          // Google / GA
+          // Google / GA / Ads
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://*.googleusercontent.com",
           "https://www.googletagmanager.com",
           "https://www.google-analytics.com",
           "https://stats.g.doubleclick.net",
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
+
+          // ✅ Tag Assistant static assets
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
 
           // Calendly
           "https://assets.calendly.com",
@@ -685,6 +591,17 @@ export function securityHeaders() {
           "https://stats.g.doubleclick.net",
           "https://*.doubleclick.net",
           "https://region1.google-analytics.com",
+          "https://www.googleadservices.com",
+
+          // ✅ Tag Assistant / Preview handshake helpers
+          "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
+          "https://*.googletagmanager.com",
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com",
+          "https://*.googleusercontent.com",
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
 
           // Microsoft Clarity
           "https://www.clarity.ms",
@@ -697,11 +614,11 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com",
 
-          // ✅ Tag Assistant Preview (CRITICAL)
-          "https://tagassistant.google.com",
-          "https://*.tagassistant.google.com",
-          "https://www.googletagmanager.com",
-          "https://*.googletagmanager.com"
+          // ✅ LinkedIn Insight Tag (FIX connect-src blocks)
+          "https://px.ads.linkedin.com",
+          "https://snap.licdn.com",
+          "https://*.linkedin.com",
+          "https://*.licdn.com"
         ],
 
         frameSrc: [
@@ -718,9 +635,18 @@ export function securityHeaders() {
           "https://youtu.be",
           "https://www.youtube-nocookie.com",
 
-          // ✅ Tag Assistant Preview iframe
+          // ✅ Tag Assistant + GTM iframe (CRITICAL FIX)
           "https://tagassistant.google.com",
-          "https://*.tagassistant.google.com"
+          "https://*.tagassistant.google.com",
+          "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
+
+          // ✅ Tag Assistant sometimes uses googleusercontent for preview frames
+          "https://*.googleusercontent.com",
+
+          // ✅ Tag Assistant static assets (rare but safe)
+          "https://www.gstatic.com",
+          "https://*.gstatic.com"
         ],
 
         objectSrc: ["'none'"],
@@ -756,7 +682,6 @@ export const apiRateLimit = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req: Request) => {
-    // Skip for public blog endpoints that should be freely accessible
     const publicEndpoints = [
       "/api/blog",
       "/api/blog/",
