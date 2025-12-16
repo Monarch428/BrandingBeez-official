@@ -566,7 +566,12 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
           "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
           "https://www.google-analytics.com",
+
+          // ✅ Tag Assistant static assets (needed for preview UI/handshake)
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
 
           // ✅ Google Ads / DoubleClick (CRITICAL FIX)
           "https://googleads.g.doubleclick.net",
@@ -595,7 +600,6 @@ export function securityHeaders() {
           // LinkedIn Insight Tag scripts
           "https://snap.licdn.com",
           "https://*.licdn.com"
-
         ],
 
         scriptSrcElem: [
@@ -608,7 +612,12 @@ export function securityHeaders() {
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
           "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
           "https://www.google-analytics.com",
+
+          // ✅ Tag Assistant static assets (needed for preview UI/handshake)
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
 
           // ✅ Google Ads / DoubleClick (CRITICAL FIX)
           "https://googleads.g.doubleclick.net",
@@ -636,8 +645,7 @@ export function securityHeaders() {
 
           // LinkedIn Insight Tag scripts
           "https://snap.licdn.com",
-          "https://*.licdn.com",
-
+          "https://*.licdn.com"
         ],
 
         scriptSrcAttr: ["'unsafe-inline'"],
@@ -679,6 +687,10 @@ export function securityHeaders() {
           "https://googleads.g.doubleclick.net",
           "https://www.googleadservices.com",
 
+          // ✅ Tag Assistant static assets
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+
           // Calendly
           "https://assets.calendly.com",
 
@@ -709,6 +721,16 @@ export function securityHeaders() {
           "https://region1.google-analytics.com",
           "https://www.googleadservices.com",
 
+          // ✅ Tag Assistant / Preview handshake helpers
+          "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
+          "https://*.googletagmanager.com",
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com",
+          "https://*.googleusercontent.com",
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+
           // Microsoft Clarity
           "https://www.clarity.ms",
           "https://c.clarity.ms",
@@ -719,12 +741,6 @@ export function securityHeaders() {
           // Calendly
           "https://calendly.com",
           "https://*.calendly.com",
-
-          // Tag Assistant Preview
-          "https://tagassistant.google.com",
-          "https://*.tagassistant.google.com",
-          "https://www.googletagmanager.com",
-          "https://*.googletagmanager.com",
 
           // ✅ LinkedIn Insight Tag (FIX connect-src blocks)
           "https://px.ads.linkedin.com",
@@ -750,7 +766,15 @@ export function securityHeaders() {
           // ✅ Tag Assistant + GTM iframe (CRITICAL FIX)
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
-          "https://www.googletagmanager.com"
+          "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
+
+          // ✅ Tag Assistant sometimes uses googleusercontent for preview frames
+          "https://*.googleusercontent.com",
+
+          // ✅ Tag Assistant static assets (rare but safe)
+          "https://www.gstatic.com",
+          "https://*.gstatic.com"
         ],
 
         objectSrc: ["'none'"],
