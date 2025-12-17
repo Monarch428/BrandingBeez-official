@@ -931,7 +931,7 @@ export function securityLogger(req: Request, res: Response, next: NextFunction) 
     /\/wp-admin/i,
     /\/phpmyadmin/i,
     /\.php$/i,
-    /\/api\/.*\/.*\/.*/ 
+    /\/api\/.*\/.*\/.*/
   ];
 
   if (suspiciousPatterns.some((pattern) => pattern.test(req.path))) {

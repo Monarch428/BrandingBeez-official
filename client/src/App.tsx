@@ -23,6 +23,8 @@ import NotFound from "@/pages/not-found";
 import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
 import BeeLoadingScreen from "./components/BeeLoadingScreen";
 import { ThankYouProvider } from "./context/thank-you-context";
+import { SeoCaseStudyPage } from "./pages/case-studies/seo-case-studies/[slug]";
+import { SeoCaseStudyCardsPage } from "./pages/case-studies/seo-case-studies/SeoCaseStudiesSection";
 
 // LAZY LOAD: All other pages split into separate bundles
 const Services = lazy(() => import("@/pages/services"));
@@ -194,6 +196,9 @@ function Router() {
       />
       <Route path="/" component={Home} />
       <Route path="/loader" component={BeeLoadingScreen} />
+      <Route path="/seo-case-studies" component={SeoCaseStudyCardsPage} />
+      <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
+
 
       {/* LAZY: All other routes load on demand */}
       <Route

@@ -132,10 +132,14 @@ export type SeoCaseStudyDetail = {
   updatedAt?: string;
 };
 
+// ✅ server might return _id for detail
+type SeoCaseStudyDetailDoc = SeoCaseStudyDetail & { _id?: string };
+
 type FormState = Partial<SeoCaseStudyCard> &
-  Partial<SeoCaseStudyDetail> & {
+  Partial<SeoCaseStudyDetailDoc> & {
     // local helpers
     cardMongoId?: string; // used when editing card list
+    detailMongoId?: string; // ✅ used when editing detail
   };
 
 const emptyForm: FormState = {
@@ -153,6 +157,9 @@ const emptyForm: FormState = {
 
   // ✅ FK field for detail
   cardId: "",
+
+  // ✅ detail id (for PUT)
+  detailMongoId: "",
 
   // Detail defaults (keep empty)
   heroBadgeText: "",
@@ -218,10 +225,80 @@ const emptyForm: FormState = {
   bottomSecondaryCtaHref: "",
 };
 
+function normalizeDetailToForm(detail: SeoCaseStudyDetailDoc): Partial<FormState> {
+  return {
+    detailMongoId: detail?._id || "",
+    cardId: detail.cardId,
+
+    heroBadgeText: detail.heroBadgeText || "",
+    heroCaseStudyLabel: detail.heroCaseStudyLabel || "",
+    heroClientName: detail.heroClientName || "",
+    heroRatingText: detail.heroRatingText || "",
+    heroHeadline: detail.heroHeadline || "",
+    heroDescription: detail.heroDescription || "",
+    heroStats: Array.isArray(detail.heroStats) ? detail.heroStats : [],
+    heroPrimaryCtaText: detail.heroPrimaryCtaText || "",
+    heroPrimaryCtaHref: detail.heroPrimaryCtaHref || "",
+    heroVideoUrl: detail.heroVideoUrl || "",
+    heroVideoPoster: detail.heroVideoPoster || "",
+    heroVideoBadgeText: detail.heroVideoBadgeText || "",
+
+    highlightsTitle: detail.highlightsTitle || "",
+    highlightsSubtitle: detail.highlightsSubtitle || "",
+    highlights: Array.isArray(detail.highlights) ? detail.highlights : [],
+
+    cta1Title: detail.cta1Title || "",
+    cta1Body: detail.cta1Body || "",
+    cta1PrimaryCtaText: detail.cta1PrimaryCtaText || "",
+    cta1PrimaryCtaHref: detail.cta1PrimaryCtaHref || "",
+
+    aboutBadgeText: detail.aboutBadgeText || "",
+    aboutLogoUrl: detail.aboutLogoUrl || "",
+    aboutTitle: detail.aboutTitle || "",
+    aboutParagraph1: detail.aboutParagraph1 || "",
+    aboutParagraph2: detail.aboutParagraph2 || "",
+    aboutStats: Array.isArray(detail.aboutStats) ? detail.aboutStats : [],
+    initialChallengesTitle: detail.initialChallengesTitle || "",
+    initialChallenges: Array.isArray(detail.initialChallenges) ? detail.initialChallenges : [],
+
+    issuesSectionTitle: detail.issuesSectionTitle || "",
+    issuesSectionSubtitle: detail.issuesSectionSubtitle || "",
+    issues: Array.isArray(detail.issues) ? detail.issues : [],
+
+    keywordPerformanceTitle: detail.keywordPerformanceTitle || "",
+    keywordPerformanceSubtitle: detail.keywordPerformanceSubtitle || "",
+    topKeywords: Array.isArray(detail.topKeywords) ? detail.topKeywords : [],
+
+    toolsSectionTitle: detail.toolsSectionTitle || "",
+    toolsSectionSubtitle: detail.toolsSectionSubtitle || "",
+    tools: Array.isArray(detail.tools) ? detail.tools : [],
+
+    testimonialsSectionTitle: detail.testimonialsSectionTitle || "",
+    testimonialsSectionSubtitle: detail.testimonialsSectionSubtitle || "",
+    testimonials: Array.isArray(detail.testimonials) ? detail.testimonials : [],
+    contactData: Array.isArray(detail.contactData) ? detail.contactData : [],
+    performanceMetrics: Array.isArray(detail.performanceMetrics) ? detail.performanceMetrics : [],
+    keywordMetrics: Array.isArray(detail.keywordMetrics) ? detail.keywordMetrics : [],
+
+    cta2Title: detail.cta2Title || "",
+    cta2Body: detail.cta2Body || "",
+    cta2PrimaryCtaText: detail.cta2PrimaryCtaText || "",
+    cta2PrimaryCtaHref: detail.cta2PrimaryCtaHref || "",
+
+    bottomCtaTitle: detail.bottomCtaTitle || "",
+    bottomCtaBody: detail.bottomCtaBody || "",
+    bottomPrimaryCtaText: detail.bottomPrimaryCtaText || "",
+    bottomPrimaryCtaHref: detail.bottomPrimaryCtaHref || "",
+    bottomSecondaryCtaText: detail.bottomSecondaryCtaText || "",
+    bottomSecondaryCtaHref: detail.bottomSecondaryCtaHref || "",
+  };
+}
+
 export function SeoCaseStudiesManager() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false);
 
   // ✅ dialog state
@@ -264,6 +341,51 @@ export function SeoCaseStudiesManager() {
     }));
   }, [cards]);
 
+  const handleChange = (field: keyof FormState, value: any) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setLoading(false);
+    setDetailLoading(false);
+  };
+
+  // ✅ Try multiple possible endpoints so it works with your backend variations
+  const fetchDetailByCardId = async (cardId: string): Promise<SeoCaseStudyDetailDoc | null> => {
+    if (!token) throw new Error("Admin token missing. Please login again.");
+    if (!cardId) return null;
+
+    const endpoints = [
+      `/api/admin/seo-case-study/detail/${cardId}`,
+      `/api/admin/seo-case-study/detail?cardId=${encodeURIComponent(cardId)}`,
+    ];
+
+    for (const url of endpoints) {
+      try {
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.status === 404) continue;
+        if (!res.ok) {
+          const t = await res.text().catch(() => "");
+          throw new Error(t || `Failed to fetch detail (${res.status})`);
+        }
+
+        const data = await res.json().catch(() => null);
+        if (!data) continue;
+        return data as SeoCaseStudyDetailDoc;
+      } catch (e) {
+        // try next endpoint
+        continue;
+      }
+    }
+
+    // no detail exists yet
+    return null;
+  };
+
   // ---------- open add popup ----------
   const openAdd = () => {
     setEditingSlug(null);
@@ -273,43 +395,51 @@ export function SeoCaseStudiesManager() {
     setDialogOpen(true);
   };
 
-  // ---------- open edit popup (card only; detail is linked by cardId selection) ----------
-  const openEdit = (slug: string) => {
+  // ✅ open edit popup (CARD + fetch DETAIL and hydrate)
+  const openEdit = async (slug: string) => {
     const it: any = (cards || []).find((x: any) => x.slug === slug);
     if (!it) return;
 
     setEditingSlug(slug);
-    setForm((prev) => ({
-      ...emptyForm,
-      ...prev,
-      ...it,
-      cardMongoId: it._id,
-      cardId: it._id, // ✅ default FK selection
-      heroStats: prev.heroStats || [],
-      highlights: prev.highlights || [],
-      aboutStats: prev.aboutStats || [],
-      initialChallenges: prev.initialChallenges || [],
-      issues: prev.issues || [],
-      topKeywords: prev.topKeywords || [],
-      tools: prev.tools || [],
-      testimonials: prev.testimonials || [],
-      contactData: prev.contactData || [],
-      performanceMetrics: prev.performanceMetrics || [],
-      keywordMetrics: prev.keywordMetrics || [],
-    }));
-
     setSlugTouched(true);
     setActiveTab("card");
     setDialogOpen(true);
-  };
 
-  const handleChange = (field: keyof FormState, value: any) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+    // 1) load card into form immediately
+    setForm({
+      ...emptyForm,
+      ...it,
+      cardMongoId: it._id,
+      cardId: it._id, // ✅ default FK selection
+      detailMongoId: "",
+    });
 
-  const closeDialog = () => {
-    setDialogOpen(false);
-    setLoading(false);
+    // 2) fetch detail and merge (so Detail tab is editable)
+    try {
+      setDetailLoading(true);
+      const detail = await fetchDetailByCardId(String(it._id));
+      if (detail) {
+        setForm((p) => ({
+          ...p,
+          ...normalizeDetailToForm(detail),
+        }));
+      } else {
+        // if no detail exists, keep empty detail but ensure cardId is set
+        setForm((p) => ({
+          ...p,
+          cardId: String(it._id),
+          detailMongoId: "",
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      toastError(
+        (err as Error).message || "Failed to load detail for edit.",
+        "Detail"
+      );
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   // ---------- Array handlers ----------
@@ -624,7 +754,7 @@ export function SeoCaseStudiesManager() {
     }
   };
 
-  // ✅ SAVE DETAIL ONLY (requires cardId FK)
+  // ✅ SAVE DETAIL (POST if new, PUT if existing)
   const saveDetail = async () => {
     setLoading(true);
     try {
@@ -742,19 +872,60 @@ export function SeoCaseStudiesManager() {
         bottomSecondaryCtaHref: form.bottomSecondaryCtaHref || undefined,
       };
 
-      const res = await fetch("/api/admin/seo-case-study/detail", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const isEdit = Boolean(String(form.detailMongoId || "").trim());
+      const endpoints = isEdit
+        ? [
+            `/api/admin/seo-case-study/detail/${encodeURIComponent(
+              String(form.detailMongoId)
+            )}`,
+            `/api/admin/seo-case-study/detail?detailId=${encodeURIComponent(
+              String(form.detailMongoId)
+            )}`,
+          ]
+        : ["/api/admin/seo-case-study/detail"];
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.message || "Failed to save detail");
+      const method = isEdit ? "PUT" : "POST";
 
-      success("Detail saved successfully.", "Detail");
+      let saved: any = null;
+      let lastErr: any = null;
+
+      for (const url of endpoints) {
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data?.message || "Failed to save detail");
+
+          saved = data;
+          break;
+        } catch (e) {
+          lastErr = e;
+          continue;
+        }
+      }
+
+      if (!saved) throw lastErr || new Error("Failed to save detail");
+
+      // ✅ store detail id if backend returns it
+      const newDetailId = saved?._id || saved?.detailId;
+      if (newDetailId) {
+        setForm((p) => ({ ...p, detailMongoId: String(newDetailId) }));
+      } else if (!form.detailMongoId) {
+        // if backend does not return id, try re-fetch once so future edits work
+        try {
+          const d = await fetchDetailByCardId(finalCardId);
+          if (d?._id) setForm((p) => ({ ...p, detailMongoId: String(d._id) }));
+        } catch {}
+      }
+
+      success(isEdit ? "Detail updated successfully." : "Detail saved successfully.", "Detail");
     } catch (err) {
       console.error(err);
       toastError((err as Error).message || "Failed to save detail.", "Error");
@@ -783,6 +954,55 @@ export function SeoCaseStudiesManager() {
     } catch (err) {
       console.error(err);
       toastError((err as Error).message || "Failed to delete.", "Error");
+    }
+  };
+
+  // ✅ when user selects a cardId in Detail tab, auto-load detail (for editing)
+  const handleDetailCardSelect = async (cardId: string) => {
+    handleChange("cardId", cardId);
+    handleChange("detailMongoId", "");
+
+    if (!cardId) return;
+
+    try {
+      setDetailLoading(true);
+      const detail = await fetchDetailByCardId(cardId);
+
+      if (detail) {
+        setForm((p) => ({
+          ...p,
+          ...normalizeDetailToForm(detail),
+        }));
+        success("Loaded existing detail for this card.", "Detail");
+      } else {
+        // clear detail fields but keep selected card
+        setForm((p) => ({
+          ...emptyForm,
+          ...p,
+          cardId,
+          cardMongoId: p.cardMongoId || cardId,
+          slug: p.slug || "",
+          cardTitle: p.cardTitle || "",
+          cardClient: p.cardClient || "",
+          cardIndustry: p.cardIndustry || "",
+          cardDescription: p.cardDescription || "",
+          cardResultsTraffic: p.cardResultsTraffic || "",
+          cardResultsKeywords: p.cardResultsKeywords || "",
+          cardResultsRevenue: p.cardResultsRevenue || "",
+          cardCoverImageUrl: p.cardCoverImageUrl || "",
+          cardCoverImageAlt: p.cardCoverImageAlt || "",
+          cardCoverFit: (p.cardCoverFit || "contain") as any,
+          detailMongoId: "",
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+      toastError(
+        (err as Error).message || "Failed to load detail for selected card.",
+        "Detail"
+      );
+    } finally {
+      setDetailLoading(false);
     }
   };
 
@@ -880,6 +1100,12 @@ export function SeoCaseStudiesManager() {
             </DialogTitle>
           </DialogHeader>
 
+          {detailLoading ? (
+            <div className="text-sm text-gray-600 mb-2">
+              Loading detail data...
+            </div>
+          ) : null}
+
           <div className="space-y-4">
             {/* Slug + Card Title */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -963,8 +1189,14 @@ export function SeoCaseStudiesManager() {
               <TabsContent value="detail">
                 <SeoCaseStudyDetailTab
                   form={form}
-                  onChange={(field, value) => handleChange(field as any, value)}
-                  cardOptions={cardOptions} // ✅ dropdown list
+                  onChange={(field, value) => {
+                    if (field === "cardId") {
+                      handleDetailCardSelect(String(value || ""));
+                      return;
+                    }
+                    handleChange(field as any, value);
+                  }}
+                  cardOptions={cardOptions}
 
                   addHeroStat={addHeroStat}
                   updateHeroStat={updateHeroStat}
@@ -1005,10 +1237,10 @@ export function SeoCaseStudiesManager() {
                   <Button
                     type="button"
                     className="bg-brand-purple"
-                    disabled={loading}
+                    disabled={loading || detailLoading}
                     onClick={saveDetail}
                   >
-                    {loading ? "Saving..." : "Save Detail"}
+                    {loading ? "Saving..." : form.detailMongoId ? "Update Detail" : "Save Detail"}
                   </Button>
 
                   <Button
