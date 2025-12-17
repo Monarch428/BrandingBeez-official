@@ -17,3 +17,4 @@ export * from "./schemavalidate/dedicated-resources";
 export * from "./schemavalidate/blog-posts";
 export * from "./schemavalidate/newsletter";
 export * from "./schemavalidate/appointments";
+export * from "./schemavalidate/seo-case-study";

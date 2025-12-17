@@ -16,6 +16,7 @@ import type { NewsletterStorage } from "./Istorage/storage-newsletter";
 import type { PortfolioStorage } from "./Istorage/storage-portfolio";
 import type { AppointmentStorage } from "./Istorage/storage-appointments";
 import type { GoogleAuthStorage } from "./Istorage/storage-google-auth";
+import type { SeoCaseStudyStorage } from "./Istorage/storage-seo-case-study";
 
 export interface IStorage
   extends UserStorage,
@@ -33,9 +34,10 @@ export interface IStorage
     NewsletterStorage,
     PortfolioStorage,
     AppointmentStorage,
-    GoogleAuthStorage {}
+    SeoCaseStudyStorage,
+    GoogleAuthStorage {}  
 
-// ✅ Hook the composed db-storage into this module
+// Hook the composed db-storage into this module
 export const storage: IStorage = dbStorage;
 
 

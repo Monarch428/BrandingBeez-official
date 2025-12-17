@@ -711,6 +711,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { AppointmentsManager } from "@/components/admin/appointments-manager";
+import { SeoCaseStudiesManager } from "@/components/admin/seo-case-study/SeoCaseStudiesManager";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -848,7 +849,8 @@ export default function Admin() {
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) throw new Error("Failed to fetch newsletter subscribers");
+      if (!response.ok)
+        throw new Error("Failed to fetch newsletter subscribers");
       return response.json();
     },
     enabled: isAuthenticated,
@@ -971,7 +973,10 @@ export default function Admin() {
                     type="email"
                     value={loginData.email}
                     onChange={(e) =>
-                      setLoginData((prev) => ({ ...prev, email: e.target.value }))
+                      setLoginData((prev) => ({
+                        ...prev,
+                        email: e.target.value,
+                      }))
                     }
                     placeholder="Enter admin email"
                     required
@@ -1104,8 +1109,6 @@ export default function Admin() {
       color: "text-teal-600",
       bgColor: "bg-teal-50",
     },
-    // ✅ NEW: Google Calendar connection status
-    // you can also move this to a separate place if you like
   ];
 
   const googleStatus =
@@ -1130,9 +1133,7 @@ export default function Admin() {
                   <h1 className="text-3xl font-bold text-brand-purple">
                     Admin Dashboard
                   </h1>
-                  <p className="text-gray-600">
-                    Welcome back, {userInfo?.email}
-                  </p>
+                  <p className="text-gray-600">Welcome back, {userInfo?.email}</p>
                 </div>
               </div>
 
@@ -1169,8 +1170,13 @@ export default function Admin() {
             </Badge>
           </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-10">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
+            {/* ✅ UPDATED: grid-cols-11 (added new tab) */}
+            <TabsList className="grid w-full grid-cols-11">
               <TabsTrigger
                 value="overview"
                 className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
@@ -1204,6 +1210,14 @@ export default function Admin() {
                 className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
               >
                 Case Studies
+              </TabsTrigger>
+
+              {/* ✅ NEW TAB */}
+              <TabsTrigger
+                value="seo-case-studies"
+                className="data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              >
+                SEO Studies
               </TabsTrigger>
 
               <TabsTrigger
@@ -1257,9 +1271,7 @@ export default function Admin() {
                           <div className="text-2xl font-bold text-brand-purple">
                             {stat.value}
                           </div>
-                          <div className="text-sm text-gray-600">
-                            {stat.title}
-                          </div>
+                          <div className="text-sm text-gray-600">{stat.title}</div>
                         </div>
                       </div>
                     </CardContent>
@@ -1277,9 +1289,7 @@ export default function Admin() {
                         <div className="text-2xl font-bold text-brand-purple">
                           {googleStatus}
                         </div>
-                        <div className="text-sm text-gray-600">
-                          Google Calendar
-                        </div>
+                        <div className="text-sm text-gray-600">Google Calendar</div>
                       </div>
                     </div>
                   </CardContent>
@@ -1321,9 +1331,7 @@ export default function Admin() {
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">
-                          Business Automation
-                        </span>
+                        <span className="text-gray-600">Business Automation</span>
                         <Badge>
                           {featuredClientsQuery.data?.filter(
                             (c: any) => c.servicePage === "ai-development",
@@ -1349,11 +1357,7 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("featured-clients");
                           setTimeout(
-                            () =>
-                              window.scrollTo({
-                                top: 0,
-                                behavior: "smooth",
-                              }),
+                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -1361,17 +1365,14 @@ export default function Admin() {
                         <Star className="w-4 h-4 mr-2" />
                         Add Featured Client
                       </Button>
+
                       <Button
                         className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("case-studies");
                           setTimeout(
-                            () =>
-                              window.scrollTo({
-                                top: 0,
-                                behavior: "smooth",
-                              }),
+                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -1379,17 +1380,30 @@ export default function Admin() {
                         <FileText className="w-4 h-4 mr-2" />
                         Create Case Study
                       </Button>
+
+                      {/* ✅ NEW quick action */}
+                      <Button
+                        className="w-full justify-start"
+                        variant="outline"
+                        onClick={() => {
+                          setActiveTab("seo-case-studies");
+                          setTimeout(
+                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            100,
+                          );
+                        }}
+                      >
+                        <BarChart3 className="w-4 h-4 mr-2" />
+                        Create SEO Case Study
+                      </Button>
+
                       <Button
                         className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("pricing");
                           setTimeout(
-                            () =>
-                              window.scrollTo({
-                                top: 0,
-                                behavior: "smooth",
-                              }),
+                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -1397,17 +1411,14 @@ export default function Admin() {
                         <DollarSign className="w-4 h-4 mr-2" />
                         Manage Pricing
                       </Button>
+
                       <Button
                         className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("service-pages");
                           setTimeout(
-                            () =>
-                              window.scrollTo({
-                                top: 0,
-                                behavior: "smooth",
-                              }),
+                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -1415,17 +1426,14 @@ export default function Admin() {
                         <Briefcase className="w-4 h-4 mr-2" />
                         Edit Service Pages
                       </Button>
+
                       <Button
                         className="w-full justify-start"
                         variant="outline"
                         onClick={() => {
                           setActiveTab("contacts");
                           setTimeout(
-                            () =>
-                              window.scrollTo({
-                                top: 0,
-                                behavior: "smooth",
-                              }),
+                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -1433,6 +1441,7 @@ export default function Admin() {
                         <MessageCircle className="w-4 h-4 mr-2" />
                         View Contacts
                       </Button>
+
                       <Button
                         className="w-full justify-start"
                         variant="outline"
@@ -1475,6 +1484,11 @@ export default function Admin() {
               <CaseStudiesManager />
             </TabsContent>
 
+            {/* ✅ NEW TAB CONTENT */}
+            <TabsContent value="seo-case-studies">
+              <SeoCaseStudiesManager />
+            </TabsContent>
+
             <TabsContent value="pricing">
               <PricingPackagesManager />
             </TabsContent>
@@ -1502,3 +1516,4 @@ export default function Admin() {
     </div>
   );
 }
+
