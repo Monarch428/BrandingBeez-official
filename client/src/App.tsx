@@ -22,6 +22,7 @@ import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
 import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
 import BeeLoadingScreen from "./components/BeeLoadingScreen";
+import { ThankYouProvider } from "./context/thank-you-context";
 
 // LAZY LOAD: All other pages split into separate bundles
 const Services = lazy(() => import("@/pages/services"));
@@ -438,18 +439,21 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <TooltipProvider>
             <AppToastProvider>
-              <CriticalPathOptimizer />
-              <PerformanceOptimizer />
+              <ThankYouProvider>
 
-              <Router />
-              {/* <AIChatbot /> */}
-              <CookieConsent />
-              {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
+                <CriticalPathOptimizer />
+                <PerformanceOptimizer />
+
+                <Router />
+                {/* <AIChatbot /> */}
+                <CookieConsent />
+                {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
               <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} /> */}
-              <MobilePopup
-                isOpen={mobilePopupOpen}
-                onClose={closeMobilePopup}
-              />
+                <MobilePopup
+                  isOpen={mobilePopupOpen}
+                  onClose={closeMobilePopup}
+                />
+              </ThankYouProvider>
             </AppToastProvider>
           </TooltipProvider>
         </QueryClientProvider>

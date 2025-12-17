@@ -194,7 +194,7 @@ export default function DedicatedResources() {
         <Header />
         <main>
           {/* Hero Section */}
-          <section className="pt-20 pb-14 sm:pb-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
+          <section className="py-14 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
                 <div>
@@ -240,7 +240,7 @@ export default function DedicatedResources() {
                       onClick={handleScrollToCaseStudies}
                       className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
                     >
-                      View SEO Case Studies
+                      View Dedicated Resources Case Studies
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
@@ -249,11 +249,11 @@ export default function DedicatedResources() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
                       <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/o1pOaGyjVuQ"
-                        title="Founder Video — Our Story"
+                        title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
@@ -265,7 +265,7 @@ export default function DedicatedResources() {
           </section>
 
           {/* NEW – How the Dedicated Team Setup Works (Phase Slider) */}
-          <section className="py-12 sm:py-14 lg:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-gray-50 to-white">
+          <section className="py-10 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-white via-gray-50 to-white">
             <div className="max-w-7xl mx-auto">
               <PhaseSliderSection
                 sectionId="dedicated-team-process"
@@ -420,8 +420,8 @@ export default function DedicatedResources() {
 
                   {/* Button */}
                   <div className="flex justify-end p-4 mt-auto">
-                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
-                      Hire Your Team
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-coral">
+                      Hire <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </Card>
@@ -476,8 +476,8 @@ export default function DedicatedResources() {
 
                   {/* Button */}
                   <div className="flex justify-end p-4 mt-auto">
-                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
-                      Hire Your Team
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-coral">
+                      Hire <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </Card>
@@ -536,8 +536,8 @@ export default function DedicatedResources() {
 
                   {/* Button */}
                   <div className="flex justify-end p-4 mt-auto">
-                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
-                      Hire Your Team
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-coral">
+                      Hire <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </Card>
@@ -587,8 +587,8 @@ export default function DedicatedResources() {
 
                   {/* Button */}
                   <div className="flex justify-end p-4 mt-auto">
-                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
-                      Hire Your Team
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-coral">
+                      Hire <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </Card>
@@ -647,8 +647,8 @@ export default function DedicatedResources() {
 
                   {/* Button */}
                   <div className="flex justify-end p-4 mt-auto">
-                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
-                      Hire Your Team
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-coral">
+                      Hire <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </Card>
@@ -703,8 +703,8 @@ export default function DedicatedResources() {
 
                   {/* Button */}
                   <div className="flex justify-end p-4 mt-auto">
-                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-purple/90">
-                      Hire Your Team
+                    <Button onClick={handleHireClick} className="bg-brand-purple text-white hover:bg-brand-coral">
+                      Hire <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </Card>
@@ -749,7 +749,7 @@ export default function DedicatedResources() {
                 <div className="w-full md:w-auto flex justify-start md:justify-end">
                   <BookCallButtonWithModal
                     buttonLabel="Book Free Team Planning Call"
-                    className="w-full md:w-auto whitespace-nowrap bg-brand-coral text-white hover:bg-brand-coral/90"
+                    className="w-full md:w-auto whitespace-nowrap bg-brand-coral text-white hover:bg-brand-purple"
                     buttonSize="lg"
                     defaultServiceType="Dedicated Resources"
                   />
@@ -876,7 +876,7 @@ export default function DedicatedResources() {
                     {/* Pinned CTA */}
                     <div className="mt-auto pt-4 border-t border-gray-100">
                       <Link href="/case-studies/social-land">
-                        <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        <Button className="w-full h-11 bg-brand-coral hover:text-white hover:bg-brand-purple">
                           View Full Case Study
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -933,7 +933,7 @@ export default function DedicatedResources() {
                     {/* Pinned CTA */}
                     <div className="mt-auto pt-4 border-t border-gray-100">
                       <Link href="/case-studies/koala-digital">
-                        <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        <Button className="w-full h-11 bg-brand-coral hover:text-white hover:bg-brand-purple">
                           View Full Case Study
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -990,7 +990,7 @@ export default function DedicatedResources() {
                     {/* Pinned CTA */}
                     <div className="mt-auto pt-4 border-t border-gray-100">
                       <Link href="/case-studies/website-architect">
-                        <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        <Button className="w-full h-11 bg-brand-coral hover:text-white hover:bg-brand-purple">
                           View Full Case Study
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>
@@ -1047,7 +1047,7 @@ export default function DedicatedResources() {
                     {/* Pinned CTA */}
                     <div className="mt-auto pt-4 border-t border-gray-100">
                       <Link href="/case-studies/fse-digital">
-                        <Button className="w-full h-11 bg-brand-coral hover:bg-brand-coral/90">
+                        <Button className="w-full h-11 bg-brand-coral hover:text-white hover:bg-brand-purple">
                           View Full Case Study
                           <ArrowRight className="w-4 h-4 ml-2" />
                         </Button>

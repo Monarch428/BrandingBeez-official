@@ -1341,11 +1341,11 @@ export default function CustomAppDevelopment() {
             <div className="max-w-7xl mx-auto">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 <div>
-                  <div className="flex flex-wrap.items-center justify-center mb-4">
+                  {/* <div className="flex flex-wrap.items-center justify-center mb-4">
                     <Badge className="bg-brand-coral text-white text-md font-medium whitespace-normal text-center px-4 py-1">
                       Custom apps for web & mobile with AI web agents{" "}
                     </Badge>
-                  </div>
+                  </div> */}
 
                   <h1 className="text-5xl font-bold mb-6.leading-tight">
                     Custom Web & Mobile Application Development (AI-Powered)

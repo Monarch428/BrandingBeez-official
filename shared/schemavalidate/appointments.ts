@@ -7,17 +7,18 @@ export interface Appointment {
   name: string;
   email: string;
   phone?: string;
-  serviceType?: string;     
+  serviceType?: string;
   notes?: string;
 
-  date: string;             
-  startTime: string;      
-  endTime: string;         
+  date: string;
+  startTime: string;
+  endTime: string;
 
   meetingLink?: string;
 
   // NEW: guests
-  guestEmails?: string[];    
+  guestEmails?: string[];
+  event?: string;
 
   status: AppointmentStatus;
 

@@ -417,11 +417,11 @@ export default function WebDevelopment() {
                 {/* Left: Copy + CTA */}
                 <div className="max-w-2xl">
                   {/* Badge */}
-                  <div className="flex justify-center lg:justify-start">
+                  {/* <div className="flex justify-center lg:justify-start">
                     <Badge className="inline-flex items-center justify-center rounded-full bg-brand-coral font-medium text-xs sm:text-sm text-white mb-6 px-4 py-1.5 backdrop-blur-sm shadow-sm">
                       Featured White-Label Website Partner for Agencies
                     </Badge>
-                  </div>
+                  </div> */}
 
                   {/* Heading */}
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-5">
@@ -451,59 +451,24 @@ export default function WebDevelopment() {
                       onClick={handleScrollToCaseStudies}
                       className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
                     >
-                      View SEO Case Studies
+                      View Website Case Studies
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
                 </div>
 
                 {/* Right: Achievements Card */}
-                <div className="relative">
-                  {/* Glow accent */}
-                  <div className="pointer-events-none absolute inset-0 -right-10 -top-10 rounded-3xl bg-white/10 blur-3xl opacity-40" />
-
-                  <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-5 sm:p-7 border border-white/20 shadow-xl">
-                    <div className="flex items-start justify-between gap-4 mb-4">
-                      <div>
-                        <h2 className="text-base sm:text-lg md:text-xl font-bold">
-                          Development Results from Initial Project + 2-Year
-                          Partnership
-                        </h2>
-                        <p className="text-xs sm:text-sm text-gray-100/80 mt-1">
-                          Consistent, white-label delivery for a growing agency
-                          partner.
-                        </p>
-                      </div>
-                    </div>
-
-                    <ul className="space-y-2.5 text-gray-100/95 mb-5">
-                      {featuredClient.achievements.map((achievement, index) => (
-                        <li
-                          key={index}
-                          className="flex items-start gap-2.5"
-                        >
-                          <CheckCircle className="w-5 h-5 mt-0.5 flex-shrink-0 text-white" />
-                          <span className="text-sm sm:text-base leading-relaxed">
-                            {achievement}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* Bottom meta strip */}
-                    <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
-                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
-                        <div className="text-gray-200/90">Tech Stack</div>
-                        <div className="font-semibold">
-                          {"WordPress & Custom"}
-                        </div>
-                      </div>
-                      <div className="rounded-lg bg-white/10 border border-white/15 px-3 py-2">
-                        <div className="text-gray-200/90">Region</div>
-                        <div className="font-semibold">
-                          {"US & UK"}
-                        </div>
-                      </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/h2P606wR_Jk"
+                        title="Website Design & Development for Agencies | BrandingBeez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
                     </div>
                   </div>
                 </div>
@@ -512,7 +477,7 @@ export default function WebDevelopment() {
           </section>
 
           {/* Process Section */}
-          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 via-white to-white">
+          <section className="py-10 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 via-white to-white">
             <div className="max-w-6xl mx-auto">
               <PhaseSliderSection
                 sectionId="web-development-process"
@@ -531,9 +496,9 @@ export default function WebDevelopment() {
           <section id="case-studies" className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-10 sm:mb-12">
-                <h2 className="bg-brand-coral text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
+                {/* <h2 className="bg-brand-coral text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
                   🎯 Success Stories
-                </h2>
+                </h2> */}
                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-4 sm:mb-6">
                   White-Label Website Case Studies &amp; Portfolio
                 </h3>
@@ -593,7 +558,7 @@ export default function WebDevelopment() {
                       {/* Button pinned to bottom */}
                       <div className="mt-auto pt-2">
                         <Button
-                          className="w-full bg-brand-coral hover:bg-brand-coral/90 text-white border-0"
+                          className="w-full bg-brand-coral hover:bg-brand-purple text-white border-0"
                           asChild
                         >
                           <Link href={study.link || "/case-studies"}>
@@ -613,9 +578,9 @@ export default function WebDevelopment() {
           <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-10 sm:mb-12">
-                <h2 className="bg-brand-purple text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
+                {/* <h2 className="bg-brand-purple text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
                   White-Label Website Packages
-                </h2>
+                </h2> */}
                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-4 sm:mb-6">
                   Choose Your White-Label Website Development Package
                 </h3>
@@ -818,7 +783,7 @@ export default function WebDevelopment() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
                   size="lg"
-                  className="bg-white text-brand-coral hover:bg-gray-100 hover:text-brand-coral"
+                  className="bg-white text-brand-coral hover:bg-brand-purple hover:text-white"
                   onClick={() => navigate("/#newsletter")}
                 >
                   Subscribe Now

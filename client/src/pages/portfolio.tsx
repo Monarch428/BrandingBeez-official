@@ -456,8 +456,7 @@ export default function PortfolioPage() {
             try {
               const contentData = await contentRes.json();
               setContent({
-                heroTitle:
-                  contentData.heroTitle || defaultContent.heroTitle,
+                heroTitle: contentData.heroTitle || defaultContent.heroTitle,
                 heroHighlight: contentData.heroHighlight || "",
                 heroSubtitle: contentData.heroSubtitle || "",
                 heroDescription: contentData.heroDescription || "",
@@ -487,10 +486,7 @@ export default function PortfolioPage() {
                   : [],
               });
             } catch (contentError) {
-              console.error(
-                "Failed to parse portfolio content",
-                contentError,
-              );
+              console.error("Failed to parse portfolio content", contentError);
               setContent(null);
             }
           } else {
@@ -524,6 +520,29 @@ export default function PortfolioPage() {
   );
   const gridItems = useMemo(() => items, [items]);
 
+  // ✅ Force section order (SEO 3rd, Google Ads 4th) — NO useMemo needed
+  const SERVICE_ORDER = [
+    "dedicated-resources",
+    "web-development",
+    "seo", 
+    "google-ads", 
+    "ai-development",
+    "custom-app-development",
+    "other",
+  ];
+
+  const orderedGroups = groupPortfolioItemsByService(gridItems)
+    .slice()
+    .sort((a, b) => {
+      const aId = a.category?.id ?? "other";
+      const bId = b.category?.id ?? "other";
+
+      const aIndex = SERVICE_ORDER.indexOf(aId);
+      const bIndex = SERVICE_ORDER.indexOf(bId);
+
+      return (aIndex === -1 ? 999 : aIndex) - (bIndex === -1 ? 999 : bIndex);
+    });
+
   useEffect(() => {
     // No longer need to reset featured expanded state
   }, [featured?.id]);
@@ -537,16 +556,11 @@ export default function PortfolioPage() {
   const testimonialsTitle =
     heroContent.testimonialsTitle || defaultContent.testimonialsTitle;
   const testimonialsSubtitle =
-    heroContent.testimonialsSubtitle ||
-    defaultContent.testimonialsSubtitle;
+    heroContent.testimonialsSubtitle || defaultContent.testimonialsSubtitle;
   const primaryCtaText =
-    heroContent.heroPrimaryCtaText ||
-    defaultContent.heroPrimaryCtaText ||
-    "";
+    heroContent.heroPrimaryCtaText || defaultContent.heroPrimaryCtaText || "";
   const primaryCtaHref =
-    heroContent.heroPrimaryCtaHref ||
-    defaultContent.heroPrimaryCtaHref ||
-    "/";
+    heroContent.heroPrimaryCtaHref || defaultContent.heroPrimaryCtaHref || "/";
   const secondaryCtaText =
     heroContent.heroSecondaryCtaText ||
     defaultContent.heroSecondaryCtaText ||
@@ -589,19 +603,19 @@ export default function PortfolioPage() {
   // 🔹 Map category → form "Services Interested In" value
   const mapCategoryToServiceLabel = (category?: string): string => {
     switch (category) {
-      case "seo":
-        return "SEO Services";
-      case "google-ads":
-        return "PPC/Google Ads";
       case "web-development":
         return "Website Development";
       case "dedicated-resources":
         return "Dedicated Resource";
+      case "seo":
+        return "SEO Services";
+      case "google-ads":
+        return "PPC/Google Ads";
       case "custom-app-development":
       case "ai-development":
         return "Custom Web & Mobile Application Development (AI-Powered)";
       default:
-        return "SEO Services";
+        return "Website Development";
     }
   };
 
@@ -686,7 +700,7 @@ export default function PortfolioPage() {
                   Browse by Service
                 </h3>
                 <div className="flex flex-wrap gap-3">
-                  {groupPortfolioItemsByService(gridItems)
+                  {orderedGroups
                     .filter((group) => group.category)
                     .map((group) => (
                       <a
@@ -726,7 +740,7 @@ export default function PortfolioPage() {
               <div className="text-center text-gray-600 py-8">Loading...</div>
             ) : (
               <div className="space-y-12">
-                {groupPortfolioItemsByService(gridItems).map((group) => (
+                {orderedGroups.map((group) => (
                   <div key={group.category?.id || "other"}>
                     {/* Section Header */}
                     {group.category && (
@@ -751,24 +765,22 @@ export default function PortfolioPage() {
                         </div>
 
                         {[
-                          "seo",
                           "dedicated-resources",
                           "web-development",
+                          "seo",
                           "google-ads",
                           "custom-app-development",
                         ].includes(group.category.id) && (
-                            <Button
-                              className="self-start md:self-auto"
-                              onClick={() =>
-                                openFormForCategory(group.category.id)
-                              }
-                            >
-                              {getCategoryCtaText(
-                                group.category.id,
-                                group.category.title,
-                              )}
-                            </Button>
-                          )}
+                          <Button
+                            className="self-start md:self-auto"
+                            onClick={() => openFormForCategory(group.category.id)}
+                          >
+                            {getCategoryCtaText(
+                              group.category.id,
+                              group.category.title,
+                            )}
+                          </Button>
+                        )}
                       </div>
                     )}
 
@@ -787,11 +799,9 @@ export default function PortfolioPage() {
                             item.description;
 
                           const seoStats = item.seoDetails?.stats || [];
-                          const googleAdsStats =
-                            item.googleAdsDetails?.stats || [];
+                          const googleAdsStats = item.googleAdsDetails?.stats || [];
 
-                          const isGoogleAds =
-                            item.serviceCategory === "google-ads";
+                          const isGoogleAds = item.serviceCategory === "google-ads";
 
                           return (
                             <div
@@ -834,10 +844,9 @@ export default function PortfolioPage() {
                                       {item.badge ||
                                         (item.serviceCategory === "seo"
                                           ? "SEO Case Study"
-                                          : item.serviceCategory ===
-                                            "google-ads"
-                                            ? "Google Ads Case Study"
-                                            : "Case Study")}
+                                          : item.serviceCategory === "google-ads"
+                                          ? "Google Ads Case Study"
+                                          : "Case Study")}
                                     </span>
 
                                     {item.projectUrl && (
@@ -847,8 +856,7 @@ export default function PortfolioPage() {
                                         rel="noopener noreferrer"
                                         className="flex items-center gap-1 text-sm font-bold text-brand-coral hover:underline"
                                       >
-                                        {item.projectUrlLabel ||
-                                          "View Website"}
+                                        {item.projectUrlLabel || "View Website"}
                                         <ArrowRight className="h-4 w-4" />
                                       </a>
                                     )}
@@ -870,8 +878,9 @@ export default function PortfolioPage() {
                                   {/* Short description */}
                                   {effectiveDescription && (
                                     <p
-                                      className={`text-gray-700 text-sm md:text-base leading-relaxed transition-all ${isExpanded ? "" : "line-clamp-2"
-                                        }`}
+                                      className={`text-gray-700 text-sm md:text-base leading-relaxed transition-all ${
+                                        isExpanded ? "" : "line-clamp-2"
+                                      }`}
                                     >
                                       {effectiveDescription}
                                     </p>
@@ -880,34 +889,32 @@ export default function PortfolioPage() {
                                   {/* KPI chips */}
                                   {(seoStats.length > 0 ||
                                     googleAdsStats.length > 0) && (
-                                      <div className="flex flex-wrap gap-2">
-                                        {(seoStats.length > 0
-                                          ? seoStats
-                                          : googleAdsStats
-                                        )
-                                          .slice(0, 3)
-                                          .map((stat, idx) => (
-                                            <span
-                                              key={`${stat.label}-${idx}`}
-                                              className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-xs md:text-sm font-medium text-gray-800 border border-gray-100"
-                                            >
-                                              <span className="mr-1 text-brand-purple font-semibold">
-                                                {stat.value}
-                                              </span>
-                                              <span className="text-gray-600">
-                                                {stat.label}
-                                              </span>
+                                    <div className="flex flex-wrap gap-2">
+                                      {(seoStats.length > 0 ? seoStats : googleAdsStats)
+                                        .slice(0, 3)
+                                        .map((stat, idx) => (
+                                          <span
+                                            key={`${stat.label}-${idx}`}
+                                            className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-xs md:text-sm font-medium text-gray-800 border border-gray-100"
+                                          >
+                                            <span className="mr-1 text-brand-purple font-semibold">
+                                              {stat.value}
                                             </span>
-                                          ))}
-                                      </div>
-                                    )}
+                                            <span className="text-gray-600">
+                                              {stat.label}
+                                            </span>
+                                          </span>
+                                        ))}
+                                    </div>
+                                  )}
 
                                   {/* Stats grid - full width, centered content */}
                                   <div
-                                    className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${isGoogleAds
-                                      ? "grid grid-cols-3 gap-3 justify-items-center text-center"
-                                      : "grid grid-cols-2 gap-3 justify-items-center text-center"
-                                      }`}
+                                    className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${
+                                      isGoogleAds
+                                        ? "grid grid-cols-3 gap-3 justify-items-center text-center"
+                                        : "grid grid-cols-2 gap-3 justify-items-center text-center"
+                                    }`}
                                   >
                                     {/* Investment */}
                                     <div className="text-center">
@@ -934,8 +941,7 @@ export default function PortfolioPage() {
                                       <div className="text-center">
                                         <div className="font-bold text-brand-coral text-base md:text-lg">
                                           {item.roi ||
-                                            item.googleAdsDetails
-                                              ?.monthlyAdSpend ||
+                                            item.googleAdsDetails?.monthlyAdSpend ||
                                             "-"}
                                         </div>
                                         <div className="text-gray-500 text-xs md:text-sm mt-0.5">
@@ -949,128 +955,99 @@ export default function PortfolioPage() {
                                   {isExpanded && (
                                     <div className="case-study-scroll mt-3 pt-3 border-t border-gray-200 space-y-4 bg-gray-50/60 rounded-md">
                                       {/* SEO Case Study – only for SEO service category */}
-                                      {item.serviceCategory === "seo" &&
-                                        item.seoDetails && (
-                                          <div className="space-y-3 px-2 pt-1">
-                                            <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide">
-                                              SEO Case Study Snapshot
-                                            </div>
-
-                                            {item.seoDetails
-                                              .clientChallenge && (
-                                                <p className="text-sm text-gray-600">
-                                                  <span className="font-bold">
-                                                    Client Challenge:
-                                                  </span>{" "}
-                                                  {
-                                                    item.seoDetails
-                                                      .clientChallenge
-                                                  }
-                                                </p>
-                                              )}
-
-                                            {item.seoDetails
-                                              .primarySeoGoal && (
-                                                <p className="text-sm text-gray-600">
-                                                  <span className="font-bold">
-                                                    Primary SEO Goal:
-                                                  </span>{" "}
-                                                  {
-                                                    item.seoDetails
-                                                      .primarySeoGoal
-                                                  }
-                                                </p>
-                                              )}
-
-                                            {item.seoDetails
-                                              .seoStrategySummary && (
-                                                <p className="text-sm text-gray-600">
-                                                  <span className="font-bold">
-                                                    Strategy:
-                                                  </span>{" "}
-                                                  {
-                                                    item.seoDetails
-                                                      .seoStrategySummary
-                                                  }
-                                                </p>
-                                              )}
-
-                                            {item.seoDetails
-                                              .seoFocusAreas &&
-                                              item.seoDetails.seoFocusAreas
-                                                .length > 0 && (
-                                                <div>
-                                                  <div className="text-sm font-bold text-gray-700 mb-1">
-                                                    SEO Focus Areas
-                                                  </div>
-                                                  <div className="flex flex-wrap gap-1.5">
-                                                    {item.seoDetails.seoFocusAreas.map(
-                                                      (fa, idx) => (
-                                                        <span
-                                                          key={idx}
-                                                          className="inline-flex items-center rounded-full bg-brand-purple/5 text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium"
-                                                        >
-                                                          {fa}
-                                                        </span>
-                                                      ),
-                                                    )}
-                                                  </div>
-                                                </div>
-                                              )}
+                                      {item.serviceCategory === "seo" && item.seoDetails && (
+                                        <div className="space-y-3 px-2 pt-1">
+                                          <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide">
+                                            SEO Case Study Snapshot
                                           </div>
-                                        )}
+
+                                          {item.seoDetails.clientChallenge && (
+                                            <p className="text-sm text-gray-600">
+                                              <span className="font-bold">
+                                                Client Challenge:
+                                              </span>{" "}
+                                              {item.seoDetails.clientChallenge}
+                                            </p>
+                                          )}
+
+                                          {item.seoDetails.primarySeoGoal && (
+                                            <p className="text-sm text-gray-600">
+                                              <span className="font-bold">
+                                                Primary SEO Goal:
+                                              </span>{" "}
+                                              {item.seoDetails.primarySeoGoal}
+                                            </p>
+                                          )}
+
+                                          {item.seoDetails.seoStrategySummary && (
+                                            <p className="text-sm text-gray-600">
+                                              <span className="font-bold">
+                                                Strategy:
+                                              </span>{" "}
+                                              {item.seoDetails.seoStrategySummary}
+                                            </p>
+                                          )}
+
+                                          {item.seoDetails.seoFocusAreas &&
+                                            item.seoDetails.seoFocusAreas.length > 0 && (
+                                              <div>
+                                                <div className="text-sm font-bold text-gray-700 mb-1">
+                                                  SEO Focus Areas
+                                                </div>
+                                                <div className="flex flex-wrap gap-1.5">
+                                                  {item.seoDetails.seoFocusAreas.map(
+                                                    (fa, idx) => (
+                                                      <span
+                                                        key={idx}
+                                                        className="inline-flex items-center rounded-full bg-brand-purple/5 text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium"
+                                                      >
+                                                        {fa}
+                                                      </span>
+                                                    ),
+                                                  )}
+                                                </div>
+                                              </div>
+                                            )}
+                                        </div>
+                                      )}
 
                                       {/* Google Ads Case Study – only for Google Ads service category */}
-                                      {item.serviceCategory ===
-                                        "google-ads" &&
+                                      {item.serviceCategory === "google-ads" &&
                                         item.googleAdsDetails && (
                                           <div className="space-y-3 px-2 pt-1">
                                             <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide">
                                               Google Ads Case Study Snapshot
                                             </div>
 
-                                            {item.googleAdsDetails
-                                              .googleAdsClientChallenge && (
-                                                <p className="text-sm text-gray-600">
-                                                  <span className="font-bold">
-                                                    Client Challenge:
-                                                  </span>{" "}
-                                                  {
-                                                    item.googleAdsDetails
-                                                      .googleAdsClientChallenge
-                                                  }
-                                                </p>
-                                              )}
+                                            {item.googleAdsDetails.googleAdsClientChallenge && (
+                                              <p className="text-sm text-gray-600">
+                                                <span className="font-bold">
+                                                  Client Challenge:
+                                                </span>{" "}
+                                                {item.googleAdsDetails.googleAdsClientChallenge}
+                                              </p>
+                                            )}
 
-                                            {item.googleAdsDetails
-                                              .primaryCampaignGoal && (
-                                                <p className="text-sm text-gray-600">
-                                                  <span className="font-bold">
-                                                    Primary Goal:
-                                                  </span>{" "}
-                                                  {
-                                                    item.googleAdsDetails
-                                                      .primaryCampaignGoal
-                                                  }
-                                                </p>
-                                              )}
+                                            {item.googleAdsDetails.primaryCampaignGoal && (
+                                              <p className="text-sm text-gray-600">
+                                                <span className="font-bold">
+                                                  Primary Goal:
+                                                </span>{" "}
+                                                {item.googleAdsDetails.primaryCampaignGoal}
+                                              </p>
+                                            )}
 
-                                            {item.googleAdsDetails
-                                              .campaignType && (
-                                                <p className="text-sm text-gray-600">
-                                                  <span className="font-bold">
-                                                    Campaign Type:
-                                                  </span>{" "}
-                                                  {
-                                                    item.googleAdsDetails
-                                                      .campaignType
-                                                  }
-                                                </p>
-                                              )}
+                                            {item.googleAdsDetails.campaignType && (
+                                              <p className="text-sm text-gray-600">
+                                                <span className="font-bold">
+                                                  Campaign Type:
+                                                </span>{" "}
+                                                {item.googleAdsDetails.campaignType}
+                                              </p>
+                                            )}
 
                                             {item.googleAdsDetails.platforms &&
-                                              item.googleAdsDetails.platforms
-                                                .length > 0 && (
+                                              item.googleAdsDetails.platforms.length > 0 && (
                                                 <div>
                                                   <div className="text-sm font-bold text-gray-700 mb-1">
                                                     Platforms
@@ -1093,26 +1070,23 @@ export default function PortfolioPage() {
                                         )}
 
                                       {/* Tech Stack */}
-                                      {item.techStack &&
-                                        item.techStack.length > 0 && (
-                                          <div className="px-2">
-                                            <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
-                                              Technology Stack
-                                            </div>
-                                            <div className="flex flex-wrap gap-1.5">
-                                              {item.techStack.map(
-                                                (tech, idx) => (
-                                                  <span
-                                                    key={idx}
-                                                    className="inline-flex items-center rounded-full bg-white text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium border border-brand-purple/20"
-                                                  >
-                                                    {tech}
-                                                  </span>
-                                                ),
-                                              )}
-                                            </div>
+                                      {item.techStack && item.techStack.length > 0 && (
+                                        <div className="px-2">
+                                          <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
+                                            Technology Stack
                                           </div>
-                                        )}
+                                          <div className="flex flex-wrap gap-1.5">
+                                            {item.techStack.map((tech, idx) => (
+                                              <span
+                                                key={idx}
+                                                className="inline-flex items-center rounded-full bg-white text-brand-purple px-2.5 py-0.5 text-xs md:text-sm font-medium border border-brand-purple/20"
+                                              >
+                                                {tech}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
 
                                       {/* Timeline */}
                                       {item.timeline && (
@@ -1127,27 +1101,24 @@ export default function PortfolioPage() {
                                       )}
 
                                       {/* Features */}
-                                      {item.features &&
-                                        item.features.length > 0 && (
-                                          <div className="px-2 pb-2">
-                                            <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
-                                              Key Features
-                                            </div>
-                                            <ul className="space-y-2">
-                                              {item.features.map(
-                                                (feature, idx) => (
-                                                  <li
-                                                    key={idx}
-                                                    className="flex items-start gap-2 text-sm md:text-base text-gray-700"
-                                                  >
-                                                    <CheckCircle className="h-4 w-4 text-brand-purple mt-1 flex-shrink-0" />
-                                                    <span>{feature}</span>
-                                                  </li>
-                                                ),
-                                              )}
-                                            </ul>
+                                      {item.features && item.features.length > 0 && (
+                                        <div className="px-2 pb-2">
+                                          <div className="font-bold text-sm md:text-base text-gray-900 uppercase tracking-wide mb-1">
+                                            Key Features
                                           </div>
-                                        )}
+                                          <ul className="space-y-2">
+                                            {item.features.map((feature, idx) => (
+                                              <li
+                                                key={idx}
+                                                className="flex items-start gap-2 text-sm md:text-base text-gray-700"
+                                              >
+                                                <CheckCircle className="h-4 w-4 text-brand-purple mt-1 flex-shrink-0" />
+                                                <span>{feature}</span>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
                                     </div>
                                   )}
 
@@ -1163,17 +1134,15 @@ export default function PortfolioPage() {
                                         );
 
                                         if (areAllExpanded) {
-                                          const collapsed: {
-                                            [key: number]: boolean;
-                                          } = {};
+                                          const collapsed: { [key: number]: boolean } =
+                                            {};
                                           group.items.forEach((i) => {
                                             collapsed[i.id] = false;
                                           });
                                           setExpandedItems(collapsed);
                                         } else {
-                                          const expanded: {
-                                            [key: number]: boolean;
-                                          } = {};
+                                          const expanded: { [key: number]: boolean } =
+                                            {};
                                           group.items.forEach((i) => {
                                             expanded[i.id] = true;
                                           });
@@ -1181,15 +1150,11 @@ export default function PortfolioPage() {
                                         }
                                       }}
                                     >
-                                      {group.items.every(
-                                        (i) => expandedItems[i.id],
-                                      )
+                                      {group.items.every((i) => expandedItems[i.id])
                                         ? "Close All Details"
                                         : "Show All Details"}
                                       <span className="ml-2">
-                                        {group.items.every(
-                                          (i) => expandedItems[i.id],
-                                        )
+                                        {group.items.every((i) => expandedItems[i.id])
                                           ? "▲"
                                           : "▼"}
                                       </span>
@@ -1249,41 +1214,13 @@ export default function PortfolioPage() {
         </section>
 
         {/* Testimonials – Card + Screenshot Style */}
-        {/* <section className="min-h-screen bg-gray-50 py-16 px-4">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg">
-                <span>What Our Clients Say</span>
-              </div>
-            </div>
-
-            <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
-              Agencies and brands trust BrandingBeez to deliver high-impact,
-              white-label solutions with care, speed, and attention to detail.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {testimonial_clients.map((testimonial) => (
-                <TestimonialCard
-                  key={testimonial.id}
-                  name={testimonial.name}
-                  company={testimonial.company}
-                  testimonial={testimonial.testimonial}
-                  imageUrl={testimonial.imageUrl}
-                  logoUrl={testimonial.logoUrl}
-                />
-              ))}
-            </div>
-          </div>
-        </section> */}
-        {/* Testimonials – Card + Screenshot Style */}
         <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
           <div className="max-w-7xl mx-auto">
             {/* Heading Button */}
             <div className="flex justify-center mb-6">
-              {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
-              <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">What Our Clients Say</span>
-              {/* </div> */}
+              <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">
+                What Our Clients Say
+              </span>
             </div>
 
             {/* Subheading */}
@@ -1324,17 +1261,14 @@ export default function PortfolioPage() {
         </section>
 
         {/* BOTTOM CTA */}
-        <section
-          id="estimate"
-          className="py-16 px-4 bg-brand-purple text-white"
-        >
+        <section id="estimate" className="py-16 px-4 bg-brand-purple text-white">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-5xl font-bold mb-4">
               Ready to Transform Your Business?
             </h2>
             <p className="text-xl mb-8 text-white/90">
-              Get transparent timelines, costs, and ROI projections no
-              surprises, no fluff.
+              Get transparent timelines, costs, and ROI projections no surprises,
+              no fluff.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
@@ -1376,3 +1310,4 @@ export default function PortfolioPage() {
     </>
   );
 }
+
