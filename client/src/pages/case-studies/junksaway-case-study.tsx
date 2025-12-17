@@ -63,30 +63,31 @@ export default function JunksAwayCaseStudy() {
           {/* Hero Section */}
           <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
             <div className="max-w-7xl mx-auto px-4">
-              <div className="max-w-4xl mx-auto text-center">
-                <div className="flex items-center justify-center">
-                  <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 rounded-full font-medium">
-                    Featured Google Ads Success Story
-                  </Badge>
-                </div>
-                <h1 className="text-4xl md:text-6xl font-bold mb-6">JunksAway</h1>
-                <p className="text-xl md:text-2xl mb-8 text-white-600">How we reduced CPA by 82% from $34 to $6.09 and generated 706 conversions in one month for a UK waste management company</p>
-                <div className="flex flex-wrap justify-center gap-6 text-lg">
-                  <div className="flex items-center gap-2">
-                    {/* <DollarSign className="w-5 h-5" /> */}
-                    <span>$ 6.09 CPA (82% Reduction)</span>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
+                <div className="max-w-4xl mx-auto text-left">
+                  <div className="flex items-center justify-center">
+                    <Badge className="bg-brand-coral text-white mb-6 text-md px-4 py-1 rounded-full font-medium">
+                      Featured Google Ads Success Story
+                    </Badge>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5" />
-                    <span>706 Total Conversions</span>
+                  <h1 className="text-4xl md:text-6xl font-bold mb-6">JunksAway</h1>
+                  <p className="text-xl md:text-2xl mb-8 text-white-600">How we reduced CPA by 82% from $34 to $6.09 and generated 706 conversions in one month for a UK waste management company</p>
+                  <div className="flex flex-wrap justify-left items-center gap-6 text-md">
+                    <div className="flex items-center gap-2">
+                      {/* <DollarSign className="w-5 h-5" /> */}
+                      <span>$ 6.09 CPA (82% Reduction)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Target className="w-5 h-5" />
+                      <span>706 Total Conversions</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MousePointer className="w-5 h-5" />
+                      <span>10,573+ Clicks</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <MousePointer className="w-5 h-5" />
-                    <span>10,573+ Clicks</span>
-                  </div>
-                </div>
-                <div className="mt-5 ">
-                  {/* <Button
+                  <div className="mt-5 ">
+                    {/* <Button
                     size="lg"
                     variant="outline"
                     className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
@@ -97,13 +98,28 @@ export default function JunksAwayCaseStudy() {
                   >
                     Start Your SEO Growth Today <ArrowRight className="w-4 h-4 mr-2" />
                   </Button> */}
-                  <BookCallButtonWithModal
-                    buttonLabel="Schedule a Free Consultation"
-                    className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
-                    buttonSize="lg"
-                    buttonVariant="outline"
-                    defaultServiceType="Google Ads"
-                  />
+                    <BookCallButtonWithModal
+                      buttonLabel="Schedule a Free Consultation"
+                      className="bg-transparent border-white text-white hover:bg-white hover:text-brand-coral"
+                      buttonSize="lg"
+                      buttonVariant="outline"
+                      defaultServiceType="Google Ads"
+                    />
+                  </div>
+                </div>
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/xs8de_OczQs"
+                        title="Junk Away Overview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
