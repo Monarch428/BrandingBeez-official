@@ -3,6 +3,29 @@
 
 <head>
 
+  <!-- Google Consent Mode v2 : Default Denied -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+  </script>
+  <!-- End Google Consent Mode -->
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "umfi093rcx");
+  </script>
+  <!-- End Microsoft Clarity -->
+
   <!-- LinkedIn Insight Tag -->
   <script type="text/javascript">
     _linkedin_partner_id = "8407852";
@@ -289,34 +312,117 @@
     }
 
     /* Common utilities (kept from your original) */
-    .mx-auto { margin-left: auto; margin-right: auto; }
-    .text-center { text-align: center; }
-    .relative { position: relative; }
-    .flex { display: flex; }
-    .items-center { align-items: center; }
-    .justify-center { justify-content: center; }
-    .gap-4 { gap: 1rem; }
-    .space-y-6 > * + * { margin-top: 1.5rem; }
-    .space-y-4 > * + * { margin-top: 1rem; }
+    .mx-auto {
+      margin-left: auto;
+      margin-right: auto;
+    }
 
-    .mb-4 { margin-bottom: 1rem; }
-    .mb-6 { margin-bottom: 1.5rem; }
-    .mb-8 { margin-bottom: 2rem; }
-    .px-4 { padding-left: 1rem; padding-right: 1rem; }
-    .pt-20 { padding-top: 5rem; }
-    .py-20 { padding-top: 5rem; padding-bottom: 5rem; }
-    .p-6 { padding: 1.5rem; }
+    .text-center {
+      text-align: center;
+    }
 
-    .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
-    .text-5xl { font-size: 3rem; line-height: 1; }
-    .text-6xl { font-size: 3.75rem; line-height: 1; }
-    .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
-    .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-    .font-bold { font-weight: 700; }
-    .font-semibold { font-weight: 600; }
-    .text-gray-600 { color: rgb(75 85 99); }
-    .text-gray-900 { color: rgb(17 24 39); }
-    .leading-tight { line-height: 1.25; }
+    .relative {
+      position: relative;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .gap-4 {
+      gap: 1rem;
+    }
+
+    .space-y-6>*+* {
+      margin-top: 1.5rem;
+    }
+
+    .space-y-4>*+* {
+      margin-top: 1rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mb-8 {
+      margin-bottom: 2rem;
+    }
+
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .pt-20 {
+      padding-top: 5rem;
+    }
+
+    .py-20 {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+
+    .p-6 {
+      padding: 1.5rem;
+    }
+
+    .text-4xl {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+
+    .text-5xl {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .text-6xl {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+
+    .text-lg {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+
+    .text-xl {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .font-semibold {
+      font-weight: 600;
+    }
+
+    .text-gray-600 {
+      color: rgb(75 85 99);
+    }
+
+    .text-gray-900 {
+      color: rgb(17 24 39);
+    }
+
+    .leading-tight {
+      line-height: 1.25;
+    }
 
     /* Loading states */
     .loading-skeleton {
@@ -326,12 +432,23 @@
     }
 
     @keyframes loading {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
     }
 
-    .preload-hidden { opacity: 0; }
-    .preload-visible { opacity: 1; transition: opacity 0.2s ease-in; }
+    .preload-hidden {
+      opacity: 0;
+    }
+
+    .preload-visible {
+      opacity: 1;
+      transition: opacity 0.2s ease-in;
+    }
 
     /* Reduce motion for accessibility */
     @media (prefers-reduced-motion: reduce) {
