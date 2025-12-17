@@ -12,4 +12,11 @@ export function toPlain<T>(doc: any): T {
   return obj as T;
 }
 
+export const numericIdField = {
+  type: Number,
+  required: true,
+  unique: true,
+  index: true,
+} as const;
+
 export const getNextSequence = baseGetNextSequence;

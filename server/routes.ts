@@ -64,6 +64,8 @@ import { z } from "zod";
 import { sendContactNotification, sendEmailViaGmail, sendQuestionnaireToAdmin } from "./email-service";
 import { notificationService } from "./notification-service";
 import { connectToDatabase, getMongooseConnection } from "./db";
+import { seoCaseStudyPublicRouter } from "./routes/seo-case-study-public";
+import { seoCaseStudyAdminRouter } from "./routes/seo-case-study";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
@@ -90,6 +92,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // -----------------------------
+  // PUBLIC ROUTES
+  // -----------------------------
+  app.use("/api", seoCaseStudyPublicRouter(publicContentRateLimit));
+
 
   // Apply security middleware
   app.use(hidePoweredBy);
@@ -148,6 +156,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/google", googleAuthRoutes);
 
   app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
+
+  // -----------------------------
+  // ADMIN ROUTES
+  // -----------------------------
+  app.use("/api/admin", seoCaseStudyAdminRouter(authenticateAdmin));
 
 
 

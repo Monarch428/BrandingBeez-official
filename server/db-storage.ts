@@ -16,6 +16,7 @@ import { blogStorage } from "./db-storage/db-blog";
 import { newsletterStorage } from "./db-storage/db-newsletter";
 import { portfolioStorage } from "./db-storage/db-portfolio";
 import { appointmentStorage } from "./db-storage/db-appointments";
+import { seoCaseStudyStorage } from "./db-storage/db-seo-case-study";
 
 export const storage: IStorage = {
   ...userStorage,
@@ -33,4 +34,5 @@ export const storage: IStorage = {
   ...newsletterStorage,
   ...portfolioStorage,
   ...appointmentStorage,
+  ...seoCaseStudyStorage,
 };

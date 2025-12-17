@@ -770,6 +770,7 @@ export const corsOptions = {
     const allowedOrigins = [
       // Local dev / admin UI
       "http://localhost:3000",
+      "https://localhost:3000",
       "http://localhost:5173",
       "http://localhost:8000",
       "https://localhost:8000",
@@ -809,7 +810,7 @@ export function securityLogger(req: Request, res: Response, next: NextFunction) 
     /\/wp-admin/i,
     /\/phpmyadmin/i,
     /\.php$/i,
-    /\/api\/.*\/.*\/.*/ // Deep API paths that might indicate probing
+    /\/api\/.*\/.*\/.*/ 
   ];
 
   if (suspiciousPatterns.some((pattern) => pattern.test(req.path))) {
