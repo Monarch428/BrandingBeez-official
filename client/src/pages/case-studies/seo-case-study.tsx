@@ -1086,8 +1086,21 @@ export default function SEOCaseStudy() {
                   </div>
                 </div>
 
-                <div className="relative">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-4 hover:scale-105 transition-transform duration-300">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/RjNqOMsaX5E"
+                        title="Dedicated Resources Overview"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                </div>
+                {/* <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-4 hover:scale-105 transition-transform duration-300">
                     <img
                       src={placeholderImage}
                       alt="Atlantic Foundation Google Search Console Performance Dashboard showing 1.82K total clicks, 1.33M total impressions, and performance graphs"
@@ -1098,8 +1111,7 @@ export default function SEOCaseStudy() {
                       <p className="text-lg font-semibold">Google Search Console</p>
                       <p className="text-sm opacity-80">Real Performance Data</p>
                     </div>
-                  </div>
-                </div>
+                  </div> */}
               </div>
             </div>
           </section>

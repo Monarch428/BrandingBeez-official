@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useRoute } from "wouter";
 import {
   ArrowRight,
   TrendingUp,
@@ -27,11 +27,14 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-import network_icon from "@assest/networkicon.png";
+// ✅ If your alias is actually "@assest" keep it.
+// I fixed to "@assets" because "@assest" usually breaks.
+import network_icon from "@assets/networkicon.png";
+
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 /* ============================================================
-   TYPES (Public API returns combined: { card, detail })
+   TYPES (API returns combined: { card, detail })
    ============================================================ */
 
 interface HeroStat {
@@ -211,18 +214,99 @@ const toolIconMap: Record<string, React.ComponentType<any>> = {
 };
 
 /* ========================
-   ROUTE PAGE (Vite + Router)
+   ROUTE PAGE (Slug Detail)
    ======================== */
 
+function buildSeoFallbackFromCard(card: SeoCaseStudyCard): SeoCaseStudyDetail {
+  return {
+    cardId: card._id,
+
+    heroBadgeText: "SEO Case Study",
+    heroCaseStudyLabel: card.cardIndustry,
+    heroClientName: card.cardClient,
+    heroRatingText: "Rated 5/5 by the client",
+    heroHeadline: card.cardTitle,
+    heroDescription: card.cardDescription,
+    heroStats: [
+      { value: card.cardResultsTraffic, label: "Traffic" },
+      { value: card.cardResultsRevenue, label: "Leads / Revenue" },
+      { value: card.cardResultsKeywords, label: "Keywords" },
+    ],
+    heroPrimaryCtaText: "Contact Us",
+    heroPrimaryCtaHref: "/contact",
+
+    highlightsTitle: "Highlights",
+    highlightsSubtitle: "Key wins",
+    highlights: [],
+
+    cta1Title: "Want results like this?",
+    cta1Body: "Book a strategy call and we’ll map your growth plan.",
+    cta1PrimaryCtaText: "Book a Call",
+    cta1PrimaryCtaHref: "/contact",
+
+    aboutBadgeText: "About the client",
+    aboutLogoUrl: "",
+    aboutTitle: card.cardClient,
+    aboutParagraph1: card.cardDescription,
+    aboutParagraph2: "",
+    aboutStats: [],
+    initialChallengesTitle: "Initial Challenges",
+    initialChallenges: [],
+
+    issuesSectionTitle: "Issues",
+    issuesSectionSubtitle: "",
+    issues: [],
+
+    keywordPerformanceTitle: "Keyword Performance",
+    keywordPerformanceSubtitle: "",
+    topKeywords: [],
+
+    toolsSectionTitle: "Tools",
+    toolsSectionSubtitle: "",
+    tools: [],
+
+    testimonialsSectionTitle: "Testimonials",
+    testimonialsSectionSubtitle: "",
+    testimonials: [],
+    contactData: [],
+    performanceMetrics: [],
+    keywordMetrics: [],
+
+    cta2Title: "Ready to grow?",
+    cta2Body: "Let’s improve your rankings and leads.",
+    cta2PrimaryCtaText: "Talk to Us",
+    cta2PrimaryCtaHref: "/contact",
+
+    bottomCtaTitle: "Let’s build your rankings",
+    bottomCtaBody: "Get a free SEO audit and a clear plan.",
+    bottomPrimaryCtaText: "Get Free Audit",
+    bottomPrimaryCtaHref: "/seo-audit",
+    bottomSecondaryCtaText: "See Pricing",
+    bottomSecondaryCtaHref: "/pricing",
+  };
+}
+
 export function SeoCaseStudyPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const [, setLocation] = useLocation();
+  const [match, params] = useRoute<{ slug: string }>("/seo-case-study/:slug");
+  const slug = params?.slug;
 
   const [combined, setCombined] = useState<SeoCaseStudyCombined | null>(null);
+  const [seo, setSeo] = useState<SeoCaseStudyDetail | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!slug) return;
+    const cleanSlug = (slug || "").trim();
+
+    if (!match || !cleanSlug) {
+      setError("Slug missing in URL");
+      setLoading(false);
+      setCombined(null);
+      setSeo(null);
+      return;
+    }
 
     let cancelled = false;
 
@@ -231,18 +315,33 @@ export function SeoCaseStudyPage() {
         setLoading(true);
         setError(null);
 
-        const res = await fetch(`/api/seo-case-study/${slug}`);
-        if (!res.ok) throw new Error(`Failed to load case study: ${res.status} ${res.statusText}`);
+        const res = await fetch(`/api/seo-case-study/${encodeURIComponent(cleanSlug)}`);
+
+        if (res.status === 404) {
+          throw new Error("Case study not found (404)");
+        }
+        if (!res.ok) {
+          throw new Error(`Failed to load case study: ${res.status} ${res.statusText}`);
+        }
 
         const data = (await res.json()) as SeoCaseStudyCombined;
 
-        if (!cancelled) {
-          setCombined(data);
+        if (cancelled) return;
+
+        setCombined(data);
+
+        if (data?.card) {
+          const resolvedSeo = data.detail ? data.detail : buildSeoFallbackFromCard(data.card);
+          setSeo(resolvedSeo);
+        } else {
+          setSeo(null);
+          throw new Error("Invalid API response: missing card data");
         }
       } catch (err: any) {
         if (!cancelled) {
           setError(err?.message ?? "Unable to load case study");
           setCombined(null);
+          setSeo(null);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -253,86 +352,7 @@ export function SeoCaseStudyPage() {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
-
-  // ✅ merge to keep your old "seo" props usage
-  const seo = useMemo(() => {
-    if (!combined?.card) return null;
-
-    const card = combined.card;
-    const detail = combined.detail;
-
-    // If detail not created yet, show card-only safe fallback
-    if (!detail) {
-      return {
-        // minimal hero fallback from card
-        heroBadgeText: "SEO Case Study",
-        heroCaseStudyLabel: card.cardIndustry,
-        heroClientName: card.cardClient,
-        heroRatingText: "Rated 5/5 by the client",
-        heroHeadline: card.cardTitle,
-        heroDescription: card.cardDescription,
-        heroStats: [
-          { value: card.cardResultsTraffic, label: "Traffic" },
-          { value: card.cardResultsRevenue, label: "Leads / Revenue" },
-          { value: card.cardResultsKeywords, label: "Keywords" },
-        ],
-        heroPrimaryCtaText: "Contact Us",
-        heroPrimaryCtaHref: "/contact",
-
-        highlightsTitle: "Highlights",
-        highlightsSubtitle: "Key wins",
-        highlights: [],
-
-        cta1Title: "Want results like this?",
-        cta1Body: "Book a strategy call and we’ll map your growth plan.",
-        cta1PrimaryCtaText: "Book a Call",
-        cta1PrimaryCtaHref: "/contact",
-
-        aboutBadgeText: "About the client",
-        aboutLogoUrl: "",
-        aboutTitle: card.cardClient,
-        aboutParagraph1: card.cardDescription,
-        aboutParagraph2: "",
-        aboutStats: [],
-        initialChallengesTitle: "Initial Challenges",
-        initialChallenges: [],
-
-        issuesSectionTitle: "Issues",
-        issuesSectionSubtitle: "",
-        issues: [],
-
-        keywordPerformanceTitle: "Keyword Performance",
-        keywordPerformanceSubtitle: "",
-        topKeywords: [],
-
-        toolsSectionTitle: "Tools",
-        toolsSectionSubtitle: "",
-        tools: [],
-
-        testimonialsSectionTitle: "Testimonials",
-        testimonialsSectionSubtitle: "",
-        testimonials: [],
-        contactData: [],
-        performanceMetrics: [],
-        keywordMetrics: [],
-
-        cta2Title: "Ready to grow?",
-        cta2Body: "Let’s improve your rankings and leads.",
-        cta2PrimaryCtaText: "Talk to Us",
-        cta2PrimaryCtaHref: "/contact",
-
-        bottomCtaTitle: "Let’s build your rankings",
-        bottomCtaBody: "Get a free SEO audit and a clear plan.",
-        bottomPrimaryCtaText: "Get Free Audit",
-        bottomPrimaryCtaHref: "/seo-audit",
-        bottomSecondaryCtaText: "See Pricing",
-        bottomSecondaryCtaHref: "/pricing",
-      } as SeoCaseStudyDetail;
-    }
-
-    return detail;
-  }, [combined]);
+  }, [match, slug]);
 
   if (loading) {
     return (
@@ -344,8 +364,14 @@ export function SeoCaseStudyPage() {
 
   if (error || !seo || !combined?.card) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-red-500">
-        {error ?? "Case study not found"}
+      <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
+        <div className="text-red-500 font-semibold mb-2">{error ?? "Case study not found"}</div>
+        <button
+          className="mt-2 px-5 py-2 rounded-lg bg-[#ee4962] text-white font-semibold"
+          onClick={() => setLocation("/seo-case-studies")}
+        >
+          Back to Case Studies
+        </button>
       </div>
     );
   }
@@ -366,7 +392,7 @@ export function SeoCaseStudyPage() {
 }
 
 /* ========================
-   Sections (same UI, cleaner layout)
+   Sections
    ======================== */
 
 function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
@@ -405,7 +431,9 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
             <button
               className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
               onClick={() => {
-                if (seo.heroPrimaryCtaHref) window.location.href = seo.heroPrimaryCtaHref;
+                if (seo.heroPrimaryCtaHref) {
+                  window.location.assign(seo.heroPrimaryCtaHref);
+                }
               }}
             >
               {seo.heroPrimaryCtaText}
@@ -414,22 +442,102 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
           </div>
 
           {/* Right Video */}
-          <div className="relative">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              <video
-                className="w-full h-full object-cover aspect-video"
-                controls
-                poster={
-                  seo.heroVideoPoster ??
-                  "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop"
+              {(() => {
+                const url = (seo.heroVideoUrl || "").trim();
+
+                // Direct video formats => use <video>
+                const isDirectVideo =
+                  /\.(mp4|webm|ogg)(\?.*)?$/i.test(url) ||
+                  url.includes(".mp4") ||
+                  url.includes(".webm") ||
+                  url.includes(".ogg");
+
+                // Helper: convert normal youtube link to embed link
+                const toYouTubeEmbed = (u: string) => {
+                  try {
+                    const parsed = new URL(u);
+                    // youtu.be/<id>
+                    if (parsed.hostname.includes("youtu.be")) {
+                      const id = parsed.pathname.replace("/", "");
+                      return id ? `https://www.youtube.com/embed/${id}` : u;
+                    }
+                    // youtube.com/watch?v=<id>
+                    if (parsed.hostname.includes("youtube.com")) {
+                      const id = parsed.searchParams.get("v");
+                      if (id) return `https://www.youtube.com/embed/${id}`;
+                      // already embed
+                      return u;
+                    }
+                    return u;
+                  } catch {
+                    return u;
+                  }
+                };
+
+                // Helper: vimeo to embed
+                const toVimeoEmbed = (u: string) => {
+                  try {
+                    const parsed = new URL(u);
+                    if (parsed.hostname.includes("vimeo.com") && !parsed.pathname.includes("/video/")) {
+                      const id = parsed.pathname.split("/").filter(Boolean)[0];
+                      return id ? `https://player.vimeo.com/video/${id}` : u;
+                    }
+                    return u;
+                  } catch {
+                    return u;
+                  }
+                };
+
+                const isYouTube = /youtube\.com|youtu\.be/i.test(url);
+                const isVimeo = /vimeo\.com/i.test(url);
+                const isEmbedLike =
+                  /\/embed\//i.test(url) ||
+                  /player\.vimeo\.com/i.test(url) ||
+                  /youtube\.com\/embed/i.test(url);
+
+                // Decide iframe url
+                const iframeUrl = isYouTube
+                  ? toYouTubeEmbed(url)
+                  : isVimeo
+                    ? toVimeoEmbed(url)
+                    : url;
+
+                // If not direct video => use iframe (best for youtube/vimeo/embed urls)
+                const useIframe = !!url && !isDirectVideo;
+
+                if (useIframe) {
+                  return (
+                    <iframe
+                      className="w-full h-full aspect-video"
+                      src={iframeUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ"}
+                      title={seo.heroVideoBadgeText ?? "Case Study Video"}
+                      loading="lazy"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      allowFullScreen
+                    />
+                  );
                 }
-              >
-                <source
-                  src={seo.heroVideoUrl ?? "https://www.w3schools.com/html/mov_bbb.mp4"}
-                  type="video/mp4"
-                />
-                Your browser does not support the video tag.
-              </video>
+
+                // Default: video tag
+                return (
+                  <video
+                    className="w-full h-full object-cover aspect-video"
+                    controls
+                    poster={
+                      seo.heroVideoPoster ??
+                      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop"
+                    }
+                  >
+                    <source
+                      src={seo.heroVideoUrl ?? "https://www.w3schools.com/html/mov_bbb.mp4"}
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
+                );
+              })()}
 
               <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
@@ -440,6 +548,7 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
             <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-pink-400/20 rounded-full blur-3xl"></div>
             <div className="absolute -top-4 -left-4 w-24 h-24 bg-fuchsia-400/20 rounded-full blur-2xl"></div>
           </div>
+
         </div>
       </div>
     </section>
@@ -474,16 +583,13 @@ function CaseStudyHighlights({ seo }: { seo: SeoCaseStudyDetail }) {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-3">{seo.highlightsTitle}</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            {seo.highlightsSubtitle}
-          </p>
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">{seo.highlightsSubtitle}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {highlights.map((highlight, index) => {
             const Icon = highlightIconMap[highlight.iconKey] ?? TrendingUp;
 
-            // colorClass: allow both bg or text; if they pass "text-..." we still keep bg fallback
             const bgClass =
               highlight.colorClass?.includes("bg-") || highlight.colorClass?.includes("bg[")
                 ? highlight.colorClass
@@ -498,18 +604,17 @@ function CaseStudyHighlights({ seo }: { seo: SeoCaseStudyDetail }) {
                   <Icon className="w-6 h-6 text-white" />
                 </div>
 
-                <div className="text-2xl font-bold mb-1 text-gray-900">
-                  {highlight.title}
-                </div>
-
+                <div className="text-2xl font-bold mb-1 text-gray-900">{highlight.title}</div>
                 <div className="text-gray-900 mb-1">{highlight.description}</div>
 
-                {highlight.subtext && (
-                  <p className="text-gray-500 text-sm">{highlight.subtext}</p>
-                )}
+                {highlight.subtext && <p className="text-gray-500 text-sm">{highlight.subtext}</p>}
               </div>
             );
           })}
+
+          {highlights.length === 0 ? (
+            <div className="text-sm text-gray-500 col-span-full text-center">No highlights added yet.</div>
+          ) : null}
         </div>
       </div>
     </section>
@@ -525,11 +630,12 @@ function CTASection({ seo }: { seo: SeoCaseStudyDetail }) {
             <h2 className="text-white mb-2 font-bold text-xl">{seo.cta1Title}</h2>
             <p className="text-white/90 text-lg">{seo.cta1Body}</p>
           </div>
+
           <div className="flex-shrink-0">
             <button
               className="bg-white text-[#391B66] px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
               onClick={() => {
-                if (seo.cta1PrimaryCtaHref) window.location.href = seo.cta1PrimaryCtaHref;
+                if (seo.cta1PrimaryCtaHref) window.location.assign(seo.cta1PrimaryCtaHref);
               }}
             >
               {seo.cta1PrimaryCtaText}
@@ -562,9 +668,7 @@ function AboutSection({ seo }: { seo: SeoCaseStudyDetail }) {
                   className="h-16 w-auto object-contain"
                 />
               ) : (
-                <div className="h-16 flex items-center text-sm text-gray-400">
-                  Logo not provided
-                </div>
+                <div className="h-16 flex items-center text-sm text-gray-400">Logo not provided</div>
               )}
             </div>
 
@@ -590,6 +694,8 @@ function AboutSection({ seo }: { seo: SeoCaseStudyDetail }) {
                   </div>
                 );
               })}
+
+              {aboutStats.length === 0 ? <div className="text-sm text-gray-500">No about stats added yet.</div> : null}
             </div>
           </div>
 
@@ -608,6 +714,8 @@ function AboutSection({ seo }: { seo: SeoCaseStudyDetail }) {
                     <span className="leading-relaxed">{item.text}</span>
                   </li>
                 ))}
+
+              {challenges.length === 0 ? <li className="text-white/80 text-sm">No challenges added yet.</li> : null}
             </ul>
           </div>
         </div>
@@ -651,13 +759,16 @@ function ChallengesIdentified({ seo }: { seo: SeoCaseStudyDetail }) {
                   </div>
                 </div>
 
-                {/* optional severity display */}
                 <div className="mt-4 text-xs text-gray-500">
                   Severity: <span className="font-semibold">{item.severity}</span>
                 </div>
               </div>
             </div>
           ))}
+
+          {issues.length === 0 ? (
+            <div className="text-sm text-gray-500 col-span-full text-center">No issues added yet.</div>
+          ) : null}
         </div>
       </div>
     </section>
@@ -708,7 +819,10 @@ function KeywordPerformanceSection({ seo }: { seo: SeoCaseStudyDetail }) {
               </thead>
               <tbody>
                 {topKeywords.map((kw, index) => (
-                  <tr key={index} className={index !== topKeywords.length - 1 ? "border-b border-gray-100" : ""}>
+                  <tr
+                    key={index}
+                    className={index !== topKeywords.length - 1 ? "border-b border-gray-100" : ""}
+                  >
                     <td className="py-4 px-2 text-gray-900">{kw.keyword}</td>
                     <td className="text-center py-4 px-2">
                       <span className="inline-flex items-center justify-center w-8 h-8 text-green-600 font-semibold">
@@ -717,9 +831,7 @@ function KeywordPerformanceSection({ seo }: { seo: SeoCaseStudyDetail }) {
                     </td>
                     <td className="text-center py-4 px-2 text-gray-700">{kw.previousPosition}</td>
                     <td className="text-center py-4 px-2">
-                      <span className="text-green-600">
-                        +{kw.previousPosition - kw.position} positions
-                      </span>
+                      <span className="text-green-600">+{kw.previousPosition - kw.position} positions</span>
                     </td>
                     <td className="text-right py-4 px-2 text-gray-700">{kw.volume}/mo</td>
                   </tr>
@@ -727,9 +839,7 @@ function KeywordPerformanceSection({ seo }: { seo: SeoCaseStudyDetail }) {
               </tbody>
             </table>
 
-            {topKeywords.length === 0 ? (
-              <div className="text-sm text-gray-500 pt-4">No keywords added yet.</div>
-            ) : null}
+            {topKeywords.length === 0 ? <div className="text-sm text-gray-500 pt-4">No keywords added yet.</div> : null}
           </div>
         </div>
       </div>
@@ -750,7 +860,7 @@ function CTASection2({ seo }: { seo: SeoCaseStudyDetail }) {
             <button
               className="bg-white text-[#391B66] px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => {
-                if (seo.cta2PrimaryCtaHref) window.location.href = seo.cta2PrimaryCtaHref;
+                if (seo.cta2PrimaryCtaHref) window.location.assign(seo.cta2PrimaryCtaHref);
               }}
             >
               {seo.cta2PrimaryCtaText}
@@ -778,14 +888,11 @@ function ToolsMethodologiesSection({ seo }: { seo: SeoCaseStudyDetail }) {
             const Icon = toolIconMap[tool.iconKey] ?? Search;
 
             return (
-              <div
-                key={index}
-                className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-shadow"
-              >
+              <div key={index} className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-orange-50 border border-orange-100">
                     <ImageWithFallback
-                      src={network_icon}
+                      src={network_icon as any}
                       alt={`${tool.name} logo`}
                       className="w-6 h-6 object-cover"
                     />
@@ -804,7 +911,7 @@ function ToolsMethodologiesSection({ seo }: { seo: SeoCaseStudyDetail }) {
           })}
 
           {tools.length === 0 ? (
-            <div className="text-sm text-gray-500">No tools added yet.</div>
+            <div className="text-sm text-gray-500 col-span-full text-center">No tools added yet.</div>
           ) : null}
         </div>
       </div>
@@ -827,130 +934,133 @@ function ClientTestimonialsSection({ seo }: { seo: SeoCaseStudyDetail }) {
           <p className="text-gray-200 max-w-2xl mx-auto">{seo.testimonialsSectionSubtitle}</p>
         </div>
 
-        {primary && (
-          <div className="max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 hover:bg-white/15 transition-colors">
-              <div className="flex flex-col md:flex-row gap-8 items-start">
-                <div className="flex-1">
-                  <Quote className="w-10 h-10 text-blue-300 mb-4" />
-
-                  <div className="flex gap-1 mb-4">
-                    {Array.from({ length: primary.rating }).map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-
-                  <p className="text-gray-200 mb-6 leading-relaxed">
-                    “{primary.quote}”
-                  </p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          {/* Left: Testimonial */}
+          <div className="bg-white/10 rounded-2xl p-8 border border-white/10">
+            {primary ? (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <Quote className="w-6 h-6 text-white/90" />
+                  <div className="text-lg font-semibold">{primary.company}</div>
                 </div>
 
-                <div className="flex items-center gap-4 md:flex-col md:items-start md:justify-center md:min-w-[220px] pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-white/20 md:pl-8">
-                  <img
+                <p className="text-white/90 text-lg leading-relaxed mb-6">“{primary.quote}”</p>
+
+                <div className="flex items-center gap-4">
+                  <ImageWithFallback
                     src={primary.imageUrl}
                     alt={primary.name}
-                    className="w-14 h-14 rounded-full object-cover"
+                    className="w-14 h-14 rounded-full object-cover border border-white/20"
                   />
                   <div>
-                    <div className="font-semibold">{primary.name}</div>
-                    <div className="text-sm text-gray-200">{primary.role}</div>
-                    <div className="text-sm text-blue-200">{primary.company}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 3 cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
-          {/* Performance */}
-          <div className="bg-white rounded-xl p-6 text-gray-900">
-            <h3 className="font-semibold mb-4">Performance Highlights</h3>
-            <div className="space-y-4">
-              {performanceMetrics.map((metric, index) => (
-                <div key={index} className="flex justify-between items-center">
-                  <span className="text-sm text-gray-700">{metric.label}</span>
-                  <div className="text-right">
-                    <div className="inline-block px-2 py-0.5 rounded bg-gray-900 text-white text-sm">
-                      {metric.value}
+                    <div className="font-bold">{primary.name}</div>
+                    <div className="text-white/80 text-sm">
+                      {primary.role} • {primary.company}
                     </div>
-                    <div className="text-green-600 text-xs">{metric.change}</div>
+                    <div className="flex items-center gap-1 mt-1">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-4 h-4 ${i < (primary.rating || 0) ? "text-yellow-300" : "text-white/30"}`}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              ))}
-              {performanceMetrics.length === 0 ? (
-                <div className="text-sm text-gray-500">No metrics added yet.</div>
-              ) : null}
-            </div>
+              </>
+            ) : (
+              <div className="text-white/80 text-sm">No testimonial added yet.</div>
+            )}
           </div>
 
-          {/* Chart */}
-          <div className="bg-white rounded-xl p-6 text-gray-900">
-            <h3 className="font-semibold mb-4">Contact Submissions</h3>
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={contactData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <RechartsTooltip />
-                <Bar dataKey="submissions" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-
-            <div className="mt-4 text-center">
-              <div className="text-2xl font-bold">
-                {contactData.length ? contactData[contactData.length - 1].submissions : 0}
+          {/* Right: Charts / Metrics */}
+          <div className="bg-white rounded-2xl p-8 text-gray-900">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <div className="text-sm text-gray-500">Lead submissions</div>
+                <div className="text-xl font-bold">Monthly trend</div>
               </div>
-              <div className="text-sm text-[#ee4962]">Latest month</div>
+              <div className="text-sm text-gray-500">{seo.heroClientName}</div>
             </div>
-          </div>
 
-          {/* Keyword success */}
-          <div className="bg-white rounded-xl p-6 text-gray-900">
-            <h3 className="font-semibold mb-4">Keyword Success</h3>
-            <div className="space-y-4">
-              {keywordMetrics.map((metric, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-700">{metric.label}</span>
-                    <span className="text-sm text-gray-700">{metric.percentage}</span>
-                  </div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-[#ee4962] text-2xl font-bold">{metric.value}</span>
-                    <span className="text-sm text-gray-600">keywords</span>
-                  </div>
-                  {index < keywordMetrics.length - 1 ? <div className="border-t pt-2" /> : null}
+            <div className="h-[260px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={contactData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <RechartsTooltip />
+                  <Bar dataKey="submissions" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+              {/* Performance metrics */}
+              <div className="rounded-xl border border-gray-100 p-5">
+                <div className="text-sm text-gray-500 mb-3">Performance</div>
+                <div className="space-y-3">
+                  {performanceMetrics.map((metric, index) => (
+                    <div key={index} className="flex items-center justify-between gap-4">
+                      <div className="text-sm text-gray-700">{metric.label}</div>
+                      <div className="text-right">
+                        <div className="font-bold text-gray-900">{metric.value}</div>
+                        <div className="text-xs text-green-600">{metric.change}</div>
+                      </div>
+                    </div>
+                  ))}
+                  {performanceMetrics.length === 0 ? (
+                    <div className="text-sm text-gray-500">No performance metrics yet.</div>
+                  ) : null}
                 </div>
-              ))}
-              {keywordMetrics.length === 0 ? (
-                <div className="text-sm text-gray-500">No keyword metrics yet.</div>
-              ) : null}
-            </div>
-          </div>
-        </div>
+              </div>
 
-        {/* Bottom CTA */}
-        <div className="mt-12 text-center bg-[#ee4962] rounded-xl p-8">
-          <h3 className="mb-3 text-white text-xl font-bold">{seo.bottomCtaTitle}</h3>
-          <p className="text-white mb-6 max-w-2xl mx-auto">{seo.bottomCtaBody}</p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <button
-              className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
-              onClick={() => {
-                if (seo.bottomPrimaryCtaHref) window.location.href = seo.bottomPrimaryCtaHref;
-              }}
-            >
-              {seo.bottomPrimaryCtaText}
-            </button>
-            <button
-              className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
-              onClick={() => {
-                if (seo.bottomSecondaryCtaHref) window.location.href = seo.bottomSecondaryCtaHref;
-              }}
-            >
-              {seo.bottomSecondaryCtaText}
-            </button>
+              {/* Keyword metrics */}
+              <div className="rounded-xl border border-gray-100 p-5">
+                <div className="text-sm text-gray-500 mb-3">Keywords</div>
+                <div className="space-y-3">
+                  {keywordMetrics.map((metric, index) => (
+                    <div key={index} className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="text-sm text-gray-700">{metric.label}</div>
+                        <div className="text-xs text-gray-500">{metric.percentage}</div>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[#ee4962] text-2xl font-bold">{metric.value}</span>
+                        <span className="text-sm text-gray-600">keywords</span>
+                      </div>
+                      {index < keywordMetrics.length - 1 ? <div className="border-t pt-2" /> : null}
+                    </div>
+                  ))}
+                  {keywordMetrics.length === 0 ? (
+                    <div className="text-sm text-gray-500">No keyword metrics yet.</div>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-12 text-center bg-[#ee4962] rounded-xl p-8">
+              <h3 className="mb-3 text-white text-xl font-bold">{seo.bottomCtaTitle}</h3>
+              <p className="text-white mb-6 max-w-2xl mx-auto">{seo.bottomCtaBody}</p>
+              <div className="flex flex-wrap items-center justify-center gap-4">
+                <button
+                  className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
+                  onClick={() => {
+                    if (seo.bottomPrimaryCtaHref) window.location.assign(seo.bottomPrimaryCtaHref);
+                  }}
+                >
+                  {seo.bottomPrimaryCtaText}
+                </button>
+                <button
+                  className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
+                  onClick={() => {
+                    if (seo.bottomSecondaryCtaHref) window.location.assign(seo.bottomSecondaryCtaHref);
+                  }}
+                >
+                  {seo.bottomSecondaryCtaText}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -566,11 +566,11 @@ export default function SEOServices() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
                 {/* Left: Main Copy */}
                 <div>
-                  <div className="flex items-center justify-center">
+                  {/* <div className="flex items-center justify-center">
                     <div className="inline-flex items-center gap-2 rounded-full bg-brand-coral px-4 py-2 text-xs sm:text-sm font-medium mb-4">
                       <span>White-Label SEO & AI Search for US Agencies</span>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* H1 */}
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 sm:mb-5 leading-tight">
@@ -694,9 +694,9 @@ export default function SEOServices() {
 
               {/* SECTION HEADER */}
               <div className="text-center mb-6">
-                <h2 className="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+                {/* <h2 className="inline-block bg-white/20 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
                   🚀 NEW: AI Search Optimization (AIO)
-                </h2>
+                </h2> */}
                 <h3 className="text-4xl font-bold mb-4">Rank Inside AI Search Results Not Just Google</h3>
                 <p className="text-xl text-white/80 max-w-3xl mx-auto">
                   We help agencies position their clients inside AI-generated answers across
@@ -799,9 +799,9 @@ export default function SEOServices() {
           <section id="case-studies" className="py-16 px-4 bg-gray-50">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-12">
-                <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
+                {/* <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
                   🎯 White-Label SEO Success Stories
-                </h2>
+                </h2> */}
                 <h3 className="text-4xl font-bold text-brand-purple mb-6">
                   {/* SEO Case Studies & Portfolio */} White-Label SEO Case Studies for Agency Partners
                 </h3>
@@ -1047,9 +1047,9 @@ export default function SEOServices() {
             <div className="max-w-7xl mx-auto">
               {/* Header */}
               <div className="text-center mb-12">
-                <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
+                {/* <h2 className="bg-brand-coral text-white mb-6 inline-block px-4 py-2 rounded-full text-sm font-medium">
                   💎 White-Label SEO Packages for Agencies
-                </h2>
+                </h2> */}
                 <h3 className="text-4xl font-bold text-brand-purple mb-4">
                   Choose Your White-Label SEO Package
                 </h3>

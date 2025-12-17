@@ -6,7 +6,11 @@ import type {
   AppointmentStatus,
 } from "@shared/schema";
 import { AppointmentModel, GoogleAuthModel } from "../models";
-import { ensureConnection, getNextSequence, toPlain } from "../helpers/db-helpers";
+import {
+  ensureConnection,
+  getNextSequence,
+  toPlain,
+} from "../helpers/db-helpers";
 
 export const appointmentStorage = {
   async createAppointment(
@@ -17,6 +21,8 @@ export const appointmentStorage = {
     const created = await AppointmentModel.create({
       id,
       status: "booked",
+      event: "booking_success",
+
       ...appointment,
     });
     return toPlain<Appointment>(created);
@@ -107,6 +113,18 @@ export const appointmentStorage = {
     return updated;
   },
 
+  // ✅ NEW: hard-delete an appointment
+  async deleteAppointment(id: number): Promise<Appointment | null> {
+    await ensureConnection();
+
+    const deleted = await AppointmentModel.findOneAndDelete({
+      id,
+    }).lean<Appointment>();
+
+    // Can be null if not found
+    return deleted ?? null;
+  },
+
   async saveGoogleAuthTokens(tokens: {
     accessToken: string;
     refreshToken: string;
@@ -147,6 +165,7 @@ export const appointmentStorage = {
   | "getAllAppointments"
   | "getAppointmentsFiltered"
   | "updateAppointmentStatus"
+  | "deleteAppointment"
   | "saveGoogleAuthTokens"
   | "getGoogleAuthTokens"
 >;

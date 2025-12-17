@@ -3,6 +3,29 @@
 
 <head>
 
+  <!-- Google Consent Mode v2 : Default Denied -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+  </script>
+  <!-- End Google Consent Mode -->
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "umfi093rcx");
+  </script>
+  <!-- End Microsoft Clarity -->
+
   <!-- LinkedIn Insight Tag -->
   <script type="text/javascript">
     _linkedin_partner_id = "8407852";
@@ -37,7 +60,6 @@
         j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
           'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
     })(window, document, 'script', 'dataLayer', 'GTM-KP5XRG5D');</script>
-
   <!-- End Google Tag Manager -->
 
   <!-- Google tag (gtag.js) -->
@@ -75,7 +97,7 @@
   <meta property="og:description"
     content="Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://brandingbeez.com" />
+  <meta property="og:url" content="https://brandingbeez.co.uk" />
 
   <!-- Twitter Card tags -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -89,8 +111,6 @@
   <link rel="preconnect" href="https://www.googletagmanager.com">
   <link rel="preconnect" href="https://www.google-analytics.com">
   <link rel="preconnect" href="https://assets.calendly.com">
-  <link rel="preconnect" href="https://www.clarity.ms">
-  <link rel="preconnect" href="https://replit.com">
 
   <!-- CRITICAL: Main resource preloads to break dependency chain -->
   <link rel="modulepreload" href="/src/main.tsx">
@@ -121,9 +141,8 @@
   <meta name="google-site-verification" content="xqlSp59sUF8tAYClepaa_ymf2QRwDXPBWbFryVEipMM" />
   <link rel="canonical" href="https://brandingbeez.co.uk">
 
-  <!-- Critical CSS inlined for instant rendering (no network request) -->
+  <!-- Critical CSS inlined for instant rendering (single consolidated block) -->
   <style>
-    /* Essential CSS variables for hero section */
     :root {
       --brand-coral: hsl(351, 83%, 61%);
       --brand-purple: hsl(259, 60%, 25%);
@@ -133,27 +152,44 @@
       --foreground: hsl(222, 84%, 4.9%);
     }
 
-    /* Critical font fallback to prevent layout shift */
     * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
 
-    /* Essential body and html styles */
+    html {
+      font-display: swap;
+    }
+
     html,
     body {
       margin: 0;
       padding: 0;
       background: white;
-      color: hsl(222, 84%, 4.9%);
-      font-display: swap;
+      color: var(--foreground);
       text-rendering: optimizeSpeed;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Critical layout for hero section */
+    body {
+      line-height: 1.5;
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    #root {
+      min-height: 100vh;
+      contain: layout style paint;
+    }
+
+    /* Containers */
     .container {
       width: 100%;
       margin: 0 auto;
       padding: 0 1rem;
+      max-width: 1200px;
     }
 
     @media (min-width: 640px) {
@@ -165,6 +201,7 @@
     @media (min-width: 768px) {
       .container {
         max-width: 768px;
+        padding: 0 2rem;
       }
     }
 
@@ -180,20 +217,19 @@
       }
     }
 
-    /* Essential button styles for hero CTA */
-    .btn-primary {
-      background: linear-gradient(to right, hsl(351, 83%, 61%), #ec4899);
-      color: white;
-      font-weight: 600;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      border: none;
-      cursor: pointer;
-      transition: transform 0.2s ease;
+    /* Hero / Background helpers */
+    .hero-bg {
+      background: linear-gradient(to bottom right, hsl(340, 50%, 94%), white, hsl(351, 83%, 61%, 0.05));
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
     }
 
-    /* Critical text styles for hero */
+    .hero-gradient {
+      background: linear-gradient(135deg, #fef7f7 0%, #fff 50%, #fdf2f8 100%);
+    }
+
+    /* Typography helpers */
     .text-hero-h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -206,131 +242,44 @@
       .text-hero-h1 {
         font-size: 3rem;
       }
+
+      .md\:text-5xl {
+        font-size: 3rem;
+        line-height: 1;
+      }
+
+      .md\:text-6xl {
+        font-size: 3.75rem;
+        line-height: 1;
+      }
+
+      .md\:py-32 {
+        padding-top: 8rem;
+        padding-bottom: 8rem;
+      }
     }
 
     @media (min-width: 1024px) {
       .text-hero-h1 {
         font-size: 4rem;
       }
+
+      .lg\:text-6xl {
+        font-size: 3.75rem;
+        line-height: 1;
+      }
+
+      .lg\:text-7xl {
+        font-size: 4.5rem;
+        line-height: 1;
+      }
     }
 
-    /* Critical gradient text for hero */
     .text-gradient {
-      background: linear-gradient(to right, hsl(351, 83%, 61%), hsl(259, 60%, 25%));
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-purple));
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
-    }
-
-    /* Critical hero background */
-    .hero-bg {
-      background: linear-gradient(to bottom right, hsl(340, 50%, 94%), white, hsl(351, 83%, 61%, 0.05));
-      min-height: 100vh;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Essential responsive utilities */
-    .mx-auto {
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .relative {
-      position: relative;
-    }
-
-    .flex {
-      display: flex;
-    }
-
-    .items-center {
-      align-items: center;
-    }
-
-    .justify-center {
-      justify-content: center;
-    }
-
-    .mb-4 {
-      margin-bottom: 1rem;
-    }
-
-    .mb-6 {
-      margin-bottom: 1.5rem;
-    }
-
-    .mb-8 {
-      margin-bottom: 2rem;
-    }
-
-    .px-4 {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-
-    .pt-20 {
-      padding-top: 5rem;
-    }
-
-    /* Reduce motion for accessibility */
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-  </style>
-
-  <!-- Main CSS bundle -->
-  <link rel="stylesheet" href="/src/index.css">
-
-  <!-- Resource optimization will be handled via external script -->
-
-
-  <!-- Critical CSS inline for instant render -->
-  <style>
-    :root {
-      --brand-coral: hsl(351, 83%, 61%);
-      --brand-purple: hsl(259, 60%, 25%);
-      --brand-yellow: hsl(51, 100%, 50%);
-      --background: hsl(0, 0%, 100%);
-      --foreground: hsl(222, 84%, 4.9%);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      font-display: swap;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      line-height: 1.5;
-      text-rendering: optimizeSpeed;
-      -webkit-font-smoothing: antialiased;
-      background-color: var(--background);
-      color: var(--foreground);
-    }
-
-    #root {
-      min-height: 100vh;
-      contain: layout style paint;
-    }
-
-    /* Critical hero section styles */
-    .hero-gradient {
-      background: linear-gradient(135deg, #fef7f7 0%, #fff 50%, #fdf2f8 100%);
     }
 
     .brand-coral {
@@ -341,14 +290,7 @@
       background-color: var(--brand-coral);
     }
 
-    .text-gradient {
-      background: linear-gradient(135deg, var(--brand-coral), var(--brand-purple));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    /* Critical button styles */
+    /* Buttons */
     .btn-primary {
       background: linear-gradient(135deg, var(--brand-coral), #f472b6);
       color: white;
@@ -362,21 +304,25 @@
       gap: 0.5rem;
       transition: transform 0.2s ease;
       text-decoration: none;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
     }
 
-    /* Essential layout utilities */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1rem;
+    /* Common utilities (kept from your original) */
+    .mx-auto {
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .text-center {
       text-align: center;
+    }
+
+    .relative {
+      position: relative;
     }
 
     .flex {
@@ -403,7 +349,36 @@
       margin-top: 1rem;
     }
 
-    /* Critical text styles */
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mb-8 {
+      margin-bottom: 2rem;
+    }
+
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .pt-20 {
+      padding-top: 5rem;
+    }
+
+    .py-20 {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+
+    .p-6 {
+      padding: 1.5rem;
+    }
+
     .text-4xl {
       font-size: 2.25rem;
       line-height: 2.5rem;
@@ -449,24 +424,6 @@
       line-height: 1.25;
     }
 
-    /* Critical spacing */
-    .p-6 {
-      padding: 1.5rem;
-    }
-
-    .py-20 {
-      padding-top: 5rem;
-      padding-bottom: 5rem;
-    }
-
-    .mb-6 {
-      margin-bottom: 1.5rem;
-    }
-
-    .mb-8 {
-      margin-bottom: 2rem;
-    }
-
     /* Loading states */
     .loading-skeleton {
       background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -493,43 +450,21 @@
       transition: opacity 0.2s ease-in;
     }
 
-    /* Responsive utilities */
-    @media (min-width: 768px) {
-      .container {
-        padding: 0 2rem;
-      }
-
-      .md\:text-5xl {
-        font-size: 3rem;
-        line-height: 1;
-      }
-
-      .md\:text-6xl {
-        font-size: 3.75rem;
-        line-height: 1;
-      }
-
-      .md\:py-32 {
-        padding-top: 8rem;
-        padding-bottom: 8rem;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      .lg\:text-6xl {
-        font-size: 3.75rem;
-        line-height: 1;
-      }
-
-      .lg\:text-7xl {
-        font-size: 4.5rem;
-        line-height: 1;
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
       }
     }
   </style>
 
+  <!-- Main CSS bundle -->
+  <link rel="stylesheet" href="/src/index.css">
+
+  <!-- Resource optimization will be handled via external script -->
+
   <!-- Microsoft Clarity will be loaded via external script -->
-  <meta name="google-site-verification" content="xqlSp59sUF8tAYClepaa_ymf2QRwDXPBWbFryVEipMM" />
   <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -634,7 +569,7 @@
   <!-- Google Tag Manager (noscript) -->
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KP5XRG5D" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
-  <!-- End Google Tag Manager (noscript) -->
+  <!-- End Google Tag Manager (noscript) -->
 
   <div id="root"></div>
   <!-- Load main script with high priority and eliminate dependency chain -->

@@ -80,7 +80,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
   };
 
   const sectionClasses = [
-    "py-12 sm:py-16 lg:py-20",
+    "py-8 sm:py-8 lg:py-10",
     "px-4 sm:px-6 lg:px-8",
     sectionClassName,
   ]
@@ -98,9 +98,9 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
     "w-full max-w-5xl mx-auto",
     "bg-gradient-to-r from-brand-purple to-brand-coral",
     "text-white border-none shadow-lg",
-    "px-4 sm:px-8 md:px-10 py-6 sm:py-8",
+    "px-4 sm:px-8 md:px-10 py-6 sm:py-6",
     "rounded-2xl",
-    "flex flex-col", // make Card a flex column
+    "flex flex-col", 
     cardHeightClass || "min-h-[320px] sm:min-h-[360px] md:min-h-[380px]",
     cardClassName,
   ]
@@ -112,7 +112,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
       <div className={wrapperClasses}>
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-10">
-          {badgeLabel && (
+          {/* {badgeLabel && (
             <div className="flex items-center justify-center mb-4">
               <div
                 className={[
@@ -127,7 +127,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
                 <span>{badgeLabel}</span>
               </div>
             </div>
-          )}
+          )} */}
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-3">
             {heading}
