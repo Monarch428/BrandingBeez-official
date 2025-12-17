@@ -29,14 +29,14 @@ export default function Header() {
   // Desktop / mobile service links
   const serviceMenuItems = [
     {
-      label: "SEO Services",
+      label: "SEO Services (White-label)",
       href: "/services/seo",
       description: "White-label SEO for agencies managing multiple clients.",
       icon: Search,
       recommended: false,
     },
     {
-      label: "PPC Advertising",
+      label: "PPC Advertising (White-label)",
       href: "/services/google-ads",
       description: "Done-for-you Google Ads & PPC campaign management.",
       icon: MousePointerClick,
@@ -50,7 +50,7 @@ export default function Header() {
       recommended: true,
     },
     {
-      label: "Website Design & Development",
+      label: "Website Design & Development (White-label)",
       href: "/services/web-development",
       description: "High-converting sites built for your agency clients.",
       icon: MonitorSmartphone,

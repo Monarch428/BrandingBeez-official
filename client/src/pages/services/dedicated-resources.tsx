@@ -1132,7 +1132,8 @@ export default function DedicatedResources() {
                       <li className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-900 leading-relaxed">
-                          11 specialist roles available
+                          {/* 11 specialist roles available */}
+                          7 specialist roles available
                         </span>
                       </li>
                       <li className="flex items-start gap-2">

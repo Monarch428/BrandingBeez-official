@@ -1946,9 +1946,9 @@ export default function Home() {
           >
             <div className="max-w-6xl mx-auto space-y-6 md:space-y-8">
               <div className="text-center max-w-3xl mx-auto">
-                <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[11px] sm:text-xs md:text-sm uppercase tracking-[0.2em] mb-3 font-bold">
+                {/* <p className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-coral/10 text-brand-coral text-[11px] sm:text-xs md:text-sm uppercase tracking-[0.2em] mb-3 font-bold">
                   Book a free strategy call
-                </p>
+                </p> */}
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
                   Ready to see what BrandingBeez can do for you?
                 </h2>
