@@ -17,6 +17,9 @@ import { newsletterStorage } from "./db-storage/db-newsletter";
 import { portfolioStorage } from "./db-storage/db-portfolio";
 import { appointmentStorage } from "./db-storage/db-appointments";
 import { seoCaseStudyStorage } from "./db-storage/db-seo-case-study";
+import { ppcCaseStudyStorage } from "./db-storage/db-ppc-case-study";
+import { webCaseStudyStorage } from "./db-storage/db-web-case-study";
+import { dedicatedResourceCaseStudyStorage } from "./db-storage/db-dedicated-resource-case-study";
 
 export const storage: IStorage = {
   ...userStorage,
@@ -35,4 +38,7 @@ export const storage: IStorage = {
   ...portfolioStorage,
   ...appointmentStorage,
   ...seoCaseStudyStorage,
+  ...ppcCaseStudyStorage,
+  ...webCaseStudyStorage,
+  ...dedicatedResourceCaseStudyStorage,
 };

@@ -24,7 +24,10 @@ import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
 import BeeLoadingScreen from "./components/BeeLoadingScreen";
 import { ThankYouProvider } from "./context/thank-you-context";
 import { SeoCaseStudyPage } from "./pages/case-studies/seo-case-studies/[slug]";
-import { SeoCaseStudyCardsPage } from "./pages/case-studies/seo-case-studies/SeoCaseStudiesSection";
+import { CaseStudyCardsPage } from "./pages/case-studies/seo-case-studies/SeoCaseStudiesSection";
+import PpcCaseStudySlugPage from "./pages/case-studies/ppc-case-studies/[slug]";
+import WebCaseStudySlugPage from "./pages/case-studies/web-case-studies/[slug]";
+import DedicatedResourceCaseStudySlugPage from "./pages/case-studies/dr-case-studies/[slug]";
 
 // LAZY LOAD: All other pages split into separate bundles
 const Services = lazy(() => import("@/pages/services"));
@@ -127,13 +130,7 @@ const Newsletter = lazy(() => import("@/pages/newsletter"));
 const DynamicBlogPost = lazy(() => import("@/pages/blog/[slug]"));
 
 // Loading component for lazy routes
-// const PageLoader = () => (
-//   <div className="flex items-center justify-center min-h-screen">
-//     <div className="loading-skeleton w-full h-64 rounded-lg max-w-4xl mx-auto"></div>
-//   </div>
-// );
 const PageLoader = () => <BeeLoadingScreen />;
-
 
 // Wrap lazy components with Suspense
 const LazyRoute = ({
@@ -196,208 +193,71 @@ function Router() {
       />
       <Route path="/" component={Home} />
       <Route path="/loader" component={BeeLoadingScreen} />
-      <Route path="/seo-case-studies" component={SeoCaseStudyCardsPage} />
+      <Route path="/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
-
+      <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
+      <Route path="/web-case-study/:slug" component={WebCaseStudySlugPage} />
+      <Route path="/dedicated-resource-case-study/:slug" component={DedicatedResourceCaseStudySlugPage} />
 
       {/* LAZY: All other routes load on demand */}
-      <Route
-        path="/services"
-        component={() => <LazyRoute component={Services} />}
-      />
-      <Route
-        path="/services/seo"
-        component={() => <LazyRoute component={SEOServices} />}
-      />
-      <Route
-        path="/services/web-development"
-        component={() => <LazyRoute component={WebDevelopment} />}
-      />
-      <Route
-        path="/services/google-ads"
-        component={() => <LazyRoute component={GoogleAds} />}
-      />
-      <Route
-        path="/services/ai-development"
-        component={() => <LazyRoute component={AIDevelopment} />}
-      />
-      <Route
-        path="/services/dedicated-resources"
-        component={() => <LazyRoute component={DedicatedResources} />}
-      />
-      <Route
-        path="/services/n8n-automations"
-        component={() => <LazyRoute component={N8NAutomations} />}
-      />
-      <Route
-        path="/services/ai-search-optimization"
-        component={() => <LazyRoute component={AIO} />}
-      />
-      <Route
-        path="/services/custom-app-development"
-        component={() => <LazyRoute component={custApp} />}
-      />
+      <Route path="/services" component={() => <LazyRoute component={Services} />} />
+      <Route path="/services/seo" component={() => <LazyRoute component={SEOServices} />} />
+      <Route path="/services/web-development" component={() => <LazyRoute component={WebDevelopment} />} />
+      <Route path="/services/google-ads" component={() => <LazyRoute component={GoogleAds} />} />
+      <Route path="/services/ai-development" component={() => <LazyRoute component={AIDevelopment} />} />
+      <Route path="/services/dedicated-resources" component={() => <LazyRoute component={DedicatedResources} />} />
+      <Route path="/services/n8n-automations" component={() => <LazyRoute component={N8NAutomations} />} />
+      <Route path="/services/ai-search-optimization" component={() => <LazyRoute component={AIO} />} />
+      <Route path="/services/custom-app-development" component={() => <LazyRoute component={custApp} />} />
 
       <Route path="/blog" component={BlogPage} />
       <Route path="/blog/:slug" component={DynamicBlogPostPage} />
 
       {/* Case Studies */}
-      <Route
-        path="/case-studies"
-        component={() => <LazyRoute component={CaseStudies} />}
-      />
-      <Route
-        path="/case-studies/seo-case-study"
-        component={() => <LazyRoute component={SEOCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/scuba-diving-case-study"
-        component={() => <LazyRoute component={ScubaDivingCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/stat-planning-case-study"
-        component={() => <LazyRoute component={StatPlanningCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/ubu-design-case-study"
-        component={() => <LazyRoute component={UBUDesignCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/ubu-design"
-        component={() => <LazyRoute component={UBUDesignCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/citypat-case-study"
-        component={() => <LazyRoute component={CitypatCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/citypat"
-        component={() => <LazyRoute component={CitypatCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/griffin-group-case-study"
-        component={() => <LazyRoute component={GriffinGroupCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/arlingsworth-solicitors-case-study"
-        component={() => (
-          <LazyRoute component={ArlingsworthSolicitorsCaseStudy} />
-        )}
-      />
-      <Route
-        path="/case-studies/junksaway-case-study"
-        component={() => <LazyRoute component={JunksAwayCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/junksaway"
-        component={() => <LazyRoute component={JunksAwayCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/the-dog-guy-case-study"
-        component={() => <LazyRoute component={TheDogGuyCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/web-development"
-        component={() => <LazyRoute component={WebDevelopmentCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/google-ads"
-        component={() => <LazyRoute component={GoogleAdsCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/social-land"
-        component={() => <LazyRoute component={SocialLandCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/socialland-website"
-        component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/socialland-website-case-study"
-        component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/ts-landscaping-website"
-        component={() => (
-          <LazyRoute component={TSLandscapingWebsiteCaseStudy} />
-        )}
-      />
-      <Route
-        path="/case-studies/vellu-laser-landing-page"
-        component={() => (
-          <LazyRoute component={VelluLaserLandingPageCaseStudy} />
-        )}
-      />
-      <Route
-        path="/case-studies/green-paradise-branding-website"
-        component={() => (
-          <LazyRoute component={GreenParadiseBrandingWebsiteCaseStudy} />
-        )}
-      />
-      <Route
-        path="/case-studies/koala-digital"
-        component={() => <LazyRoute component={KoalaDigitalCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/website-architect"
-        component={() => <LazyRoute component={WebsiteArchitectCaseStudy} />}
-      />
-      <Route
-        path="/case-studies/payflow-systems"
-        component={() => (
-          <LazyRoute component={DedicatedResourcesFintechCaseStudy} />
-        )}
-      />
-      <Route
-        path="/case-studies/fse-digital"
-        component={() => <LazyRoute component={FSEDigital} />}
-      />
+      <Route path="/case-studies" component={() => <LazyRoute component={CaseStudies} />} />
+      <Route path="/case-studies/seo-case-study" component={() => <LazyRoute component={SEOCaseStudy} />} />
+      <Route path="/case-studies/scuba-diving-case-study" component={() => <LazyRoute component={ScubaDivingCaseStudy} />} />
+      <Route path="/case-studies/stat-planning-case-study" component={() => <LazyRoute component={StatPlanningCaseStudy} />} />
+      <Route path="/case-studies/ubu-design-case-study" component={() => <LazyRoute component={UBUDesignCaseStudy} />} />
+      <Route path="/case-studies/ubu-design" component={() => <LazyRoute component={UBUDesignCaseStudy} />} />
+      <Route path="/case-studies/citypat-case-study" component={() => <LazyRoute component={CitypatCaseStudy} />} />
+      <Route path="/case-studies/citypat" component={() => <LazyRoute component={CitypatCaseStudy} />} />
+      <Route path="/case-studies/griffin-group-case-study" component={() => <LazyRoute component={GriffinGroupCaseStudy} />} />
+      <Route path="/case-studies/arlingsworth-solicitors-case-study" component={() => (<LazyRoute component={ArlingsworthSolicitorsCaseStudy} />)} />
+      <Route path="/case-studies/junksaway-case-study" component={() => <LazyRoute component={JunksAwayCaseStudy} />} />
+      <Route path="/case-studies/junksaway" component={() => <LazyRoute component={JunksAwayCaseStudy} />} />
+      <Route path="/case-studies/the-dog-guy-case-study" component={() => <LazyRoute component={TheDogGuyCaseStudy} />} />
+      <Route path="/case-studies/web-development" component={() => <LazyRoute component={WebDevelopmentCaseStudy} />} />
+      <Route path="/case-studies/google-ads" component={() => <LazyRoute component={GoogleAdsCaseStudy} />} />
+      <Route path="/case-studies/social-land" component={() => <LazyRoute component={SocialLandCaseStudy} />} />
+      <Route path="/case-studies/socialland-website" component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />} />
+      <Route path="/case-studies/socialland-website-case-study" component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />} />
+      <Route path="/case-studies/ts-landscaping-website" component={() => (<LazyRoute component={TSLandscapingWebsiteCaseStudy} />)} />
+      <Route path="/case-studies/vellu-laser-landing-page" component={() => (<LazyRoute component={VelluLaserLandingPageCaseStudy} />)} />
+      <Route path="/case-studies/green-paradise-branding-website" component={() => (<LazyRoute component={GreenParadiseBrandingWebsiteCaseStudy} />)} />
+      <Route path="/case-studies/koala-digital" component={() => <LazyRoute component={KoalaDigitalCaseStudy} />} />
+      <Route path="/case-studies/website-architect" component={() => <LazyRoute component={WebsiteArchitectCaseStudy} />} />
+      <Route path="/case-studies/payflow-systems" component={() => (<LazyRoute component={DedicatedResourcesFintechCaseStudy} />)} />
+      <Route path="/case-studies/fse-digital" component={() => <LazyRoute component={FSEDigital} />} />
 
       {/* Tools and utilities */}
-      <Route
-        path="/seo-audit"
-        component={() => <LazyRoute component={SEOAudit} />}
-      />
-      <Route
-        path="/pricing-calculator"
-        component={() => <LazyRoute component={PricingCalculator} />}
-      />
-      <Route
-        path="/onboarding-wizard"
-        component={() => <LazyRoute component={OnboardingWizard} />}
-      />
+      <Route path="/seo-audit" component={() => <LazyRoute component={SEOAudit} />} />
+      <Route path="/pricing-calculator" component={() => <LazyRoute component={PricingCalculator} />} />
+      <Route path="/onboarding-wizard" component={() => <LazyRoute component={OnboardingWizard} />} />
 
       {/* Admin - heavy component, separate bundle */}
       <Route path="/admin" component={() => <LazyRoute component={Admin} />} />
 
       {/* Other pages */}
       <Route path="/about" component={() => <LazyRoute component={About} />} />
-      <Route
-        path="/contact"
-        component={() => <LazyRoute component={Contact} />}
-      />
-      <Route
-        path="/newsletter"
-        component={() => <LazyRoute component={Newsletter} />}
-      />
-      <Route
-        path="/portfolio"
-        component={() => <LazyRoute component={Portfolio} />}
-      />
+      <Route path="/contact" component={() => <LazyRoute component={Contact} />} />
+      <Route path="/newsletter" component={() => <LazyRoute component={Newsletter} />} />
+      <Route path="/portfolio" component={() => <LazyRoute component={Portfolio} />} />
 
       {/* Legal pages */}
-      <Route
-        path="/privacy-policy"
-        component={() => <LazyRoute component={PrivacyPolicyPage} />}
-      />
-      <Route
-        path="/terms-of-service"
-        component={() => <LazyRoute component={TermsOfServicePage} />}
-      />
-      <Route
-        path="/security"
-        component={() => <LazyRoute component={SecurityPage} />}
-      />
+      <Route path="/privacy-policy" component={() => <LazyRoute component={PrivacyPolicyPage} />} />
+      <Route path="/terms-of-service" component={() => <LazyRoute component={TermsOfServicePage} />} />
+      <Route path="/security" component={() => <LazyRoute component={SecurityPage} />} />
 
       {/* 404 - This catches all unmatched routes */}
       <Route component={NotFound} />
@@ -430,10 +290,7 @@ function App() {
     window.addEventListener("error", handleError);
 
     return () => {
-      window.removeEventListener(
-        "unhandledrejection",
-        handleUnhandledRejection,
-      );
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
       window.removeEventListener("error", handleError);
     };
   }, []);
@@ -445,19 +302,14 @@ function App() {
           <TooltipProvider>
             <AppToastProvider>
               <ThankYouProvider>
-
                 <CriticalPathOptimizer />
                 <PerformanceOptimizer />
+                <CookieConsent />
 
                 <Router />
-                {/* <AIChatbot /> */}
-                <CookieConsent />
-                {/* <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
-              <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} /> */}
-                <MobilePopup
-                  isOpen={mobilePopupOpen}
-                  onClose={closeMobilePopup}
-                />
+                <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
+                <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
+                <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
               </ThankYouProvider>
             </AppToastProvider>
           </TooltipProvider>
