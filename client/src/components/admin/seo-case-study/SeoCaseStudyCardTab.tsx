@@ -24,6 +24,16 @@ export type SeoCaseStudyCardTabValues = {
   cardCoverImagePublicId?: string;
 };
 
+// ✅ Required label helper (adds * visually)
+function RequiredLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <Label>
+      {children}
+      <span className="text-red-500 ml-1">*</span>
+    </Label>
+  );
+}
+
 export function SeoCaseStudyCardTab({
   form,
   onChange,
@@ -51,7 +61,7 @@ export function SeoCaseStudyCardTab({
       </div>
 
       <div>
-        <Label>Card Client</Label>
+        <RequiredLabel>Card Client</RequiredLabel>
         <Input
           value={form.cardClient || ""}
           onChange={(e) => onChange("cardClient", e.target.value)}
@@ -61,7 +71,7 @@ export function SeoCaseStudyCardTab({
       </div>
 
       <div>
-        <Label>Card Industry</Label>
+        <RequiredLabel>Card Industry</RequiredLabel>
         <Input
           value={form.cardIndustry || ""}
           onChange={(e) => onChange("cardIndustry", e.target.value)}
@@ -71,18 +81,19 @@ export function SeoCaseStudyCardTab({
       </div>
 
       <div>
-        <Label>Card Description</Label>
+        <RequiredLabel>Card Description</RequiredLabel>
         <textarea
           value={form.cardDescription || ""}
           onChange={(e) => onChange("cardDescription", e.target.value)}
           placeholder="Short summary shown on the SEO grid card..."
           className="w-full border rounded-md p-2 mt-1 min-h-[84px]"
+          required
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
-          <Label>Organic Traffic</Label>
+          <RequiredLabel>Organic Traffic</RequiredLabel>
           <Input
             value={form.cardResultsTraffic || ""}
             onChange={(e) => onChange("cardResultsTraffic", e.target.value)}
@@ -91,7 +102,7 @@ export function SeoCaseStudyCardTab({
           />
         </div>
         <div>
-          <Label>Keywords Ranking</Label>
+          <RequiredLabel>Keywords Ranking</RequiredLabel>
           <Input
             value={form.cardResultsKeywords || ""}
             onChange={(e) => onChange("cardResultsKeywords", e.target.value)}
@@ -100,7 +111,7 @@ export function SeoCaseStudyCardTab({
           />
         </div>
         <div>
-          <Label>Revenue Impact</Label>
+          <RequiredLabel>Revenue Impact</RequiredLabel>
           <Input
             value={form.cardResultsRevenue || ""}
             onChange={(e) => onChange("cardResultsRevenue", e.target.value)}

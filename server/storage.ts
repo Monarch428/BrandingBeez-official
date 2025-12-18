@@ -17,6 +17,9 @@ import type { PortfolioStorage } from "./Istorage/storage-portfolio";
 import type { AppointmentStorage } from "./Istorage/storage-appointments";
 import type { GoogleAuthStorage } from "./Istorage/storage-google-auth";
 import type { SeoCaseStudyStorage } from "./Istorage/storage-seo-case-study";
+import { PpcCaseStudyStorage } from "./Istorage/storage-ppc-case-study";
+import { WebCaseStudyStorage } from "./Istorage/storage-web-case-study";
+import { DedicatedResourceCaseStudyStorage } from "./Istorage/dedicated-resource-case-study-storage";
 
 export interface IStorage
   extends UserStorage,
@@ -35,6 +38,9 @@ export interface IStorage
     PortfolioStorage,
     AppointmentStorage,
     SeoCaseStudyStorage,
+    PpcCaseStudyStorage,
+    WebCaseStudyStorage,
+    DedicatedResourceCaseStudyStorage,
     GoogleAuthStorage {}  
 
 // Hook the composed db-storage into this module

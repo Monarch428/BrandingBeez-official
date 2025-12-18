@@ -1,22 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useRoute } from "wouter";
-import {
-  ArrowRight,
-  TrendingUp,
-  DollarSign,
-  Award,
-  Users,
-  Target,
-  Building2,
-  Calendar,
-  MapPin,
-  Globe,
-  Search,
-  BarChart3,
-  Code,
-  Quote,
-  Star,
-} from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import {
   BarChart,
   Bar,
@@ -32,6 +16,7 @@ import {
 import network_icon from "@assets/networkicon.png";
 
 import { ImageWithFallback } from "@/components/ImageWithFallback";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 /* ============================================================
    TYPES (API returns combined: { card, detail })
@@ -40,6 +25,7 @@ import { ImageWithFallback } from "@/components/ImageWithFallback";
 interface HeroStat {
   value: string;
   label: string;
+  iconKey?: string; // ✅ add for dynamic icon support (optional)
 }
 interface Highlight {
   iconKey: string;
@@ -189,29 +175,36 @@ export type SeoCaseStudyCombined = {
 };
 
 /* ========================
-   Icon Helpers
+   Dynamic Lucide Icon Helper
    ======================== */
 
-const highlightIconMap: Record<string, React.ComponentType<any>> = {
-  users: Users,
-  trendingUp: TrendingUp,
-  target: Target,
-};
+function IconByKey({
+  iconKey,
+  className,
+  size = 20,
+  fallbackKey = "CircleHelp",
+}: {
+  iconKey?: string;
+  className?: string;
+  size?: number;
+  fallbackKey?: keyof typeof LucideIcons;
+}) {
+  const key = String(iconKey || "").trim();
 
-const aboutIconMap: Record<string, React.ComponentType<any>> = {
-  building2: Building2,
-  calendar: Calendar,
-  mapPin: MapPin,
-  users: Users,
-  dollarSign: DollarSign,
-  globe: Globe,
-};
+  if (!key) {
+    const Fallback = LucideIcons[fallbackKey] as any;
+    return Fallback ? <Fallback className={className} size={size} /> : null;
+  }
 
-const toolIconMap: Record<string, React.ComponentType<any>> = {
-  search: Search,
-  barChart3: BarChart3,
-  code: Code,
-};
+  const Comp = (LucideIcons as any)[key] as React.ComponentType<any> | undefined;
+
+  if (!Comp) {
+    const Fallback = LucideIcons[fallbackKey] as any;
+    return Fallback ? <Fallback className={className} size={size} /> : null;
+  }
+
+  return <Comp className={className} size={size} />;
+}
 
 /* ========================
    ROUTE PAGE (Slug Detail)
@@ -228,9 +221,9 @@ function buildSeoFallbackFromCard(card: SeoCaseStudyCard): SeoCaseStudyDetail {
     heroHeadline: card.cardTitle,
     heroDescription: card.cardDescription,
     heroStats: [
-      { value: card.cardResultsTraffic, label: "Traffic" },
-      { value: card.cardResultsRevenue, label: "Leads / Revenue" },
-      { value: card.cardResultsKeywords, label: "Keywords" },
+      { value: card.cardResultsTraffic, label: "Traffic", iconKey: "TrendingUp" },
+      { value: card.cardResultsRevenue, label: "Leads / Revenue", iconKey: "DollarSign" },
+      { value: card.cardResultsKeywords, label: "Keywords", iconKey: "Award" },
     ],
     heroPrimaryCtaText: "Contact Us",
     heroPrimaryCtaHref: "/contact",
@@ -397,9 +390,9 @@ export function SeoCaseStudyPage() {
 
 function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
   const stats = seo.heroStats ?? [];
-  const stat1 = stats[0] ?? { value: "340%", label: "Traffic Increase" };
-  const stat2 = stats[1] ?? { value: "$152K", label: "Revenue Growth" };
-  const stat3 = stats[2] ?? { value: "#1", label: "Ranking Keywords" };
+  const stat1 = stats[0] ?? { value: "340%", label: "Traffic Increase", iconKey: "TrendingUp" };
+  const stat2 = stats[1] ?? { value: "$152K", label: "Revenue Growth", iconKey: "DollarSign" };
+  const stat3 = stats[2] ?? { value: "#1", label: "Ranking Keywords", iconKey: "Award" };
 
   return (
     <section className="relative bg-gradient-to-r from-[#391B66] to-[#E64761] text-white py-20 px-4 sm:px-6 lg:px-8">
@@ -408,7 +401,7 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
           {/* Left */}
           <div>
             <div className="inline-flex items-center gap-2 bg-[#ee4962] text-white px-4 py-2 rounded-full mb-6">
-              <TrendingUp className="w-4 h-4" />
+              <IconByKey iconKey="TrendingUp" className="w-4 h-4" size={16} />
               <span className="text-sm">{seo.heroBadgeText}</span>
             </div>
 
@@ -423,12 +416,12 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
             <p className="text-lg sm:text-xl text-white/90 mb-8">{seo.heroDescription}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-              <StatCard icon={TrendingUp} value={stat1.value} label={stat1.label} />
-              <StatCard icon={DollarSign} value={stat2.value} label={stat2.label} />
-              <StatCard icon={Award} value={stat3.value} label={stat3.label} />
+              <StatCard iconKey={stat1.iconKey || "TrendingUp"} value={stat1.value} label={stat1.label} />
+              <StatCard iconKey={stat2.iconKey || "DollarSign"} value={stat2.value} label={stat2.label} />
+              <StatCard iconKey={stat3.iconKey || "Award"} value={stat3.value} label={stat3.label} />
             </div>
 
-            <button
+            {/* <button
               className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
               onClick={() => {
                 if (seo.heroPrimaryCtaHref) {
@@ -437,8 +430,13 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
               }}
             >
               {seo.heroPrimaryCtaText}
-              <ArrowRight className="w-5 h-5" />
-            </button>
+              <IconByKey iconKey="ArrowRight" className="w-5 h-5" size={20} />
+            </button> */}
+            <BookCallButtonWithModal
+              buttonLabel={seo?.heroPrimaryCtaText ?? "Book Your Strategy Call"}
+              className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
+              buttonSize="lg"
+            />
           </div>
 
           {/* Right Video */}
@@ -492,17 +490,8 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
 
                 const isYouTube = /youtube\.com|youtu\.be/i.test(url);
                 const isVimeo = /vimeo\.com/i.test(url);
-                const isEmbedLike =
-                  /\/embed\//i.test(url) ||
-                  /player\.vimeo\.com/i.test(url) ||
-                  /youtube\.com\/embed/i.test(url);
 
-                // Decide iframe url
-                const iframeUrl = isYouTube
-                  ? toYouTubeEmbed(url)
-                  : isVimeo
-                    ? toVimeoEmbed(url)
-                    : url;
+                const iframeUrl = isYouTube ? toYouTubeEmbed(url) : isVimeo ? toVimeoEmbed(url) : url;
 
                 // If not direct video => use iframe (best for youtube/vimeo/embed urls)
                 const useIframe = !!url && !isDirectVideo;
@@ -530,10 +519,7 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
                       "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop"
                     }
                   >
-                    <source
-                      src={seo.heroVideoUrl ?? "https://www.w3schools.com/html/mov_bbb.mp4"}
-                      type="video/mp4"
-                    />
+                    <source src={seo.heroVideoUrl ?? "https://www.w3schools.com/html/mov_bbb.mp4"} type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
                 );
@@ -548,7 +534,6 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
             <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-pink-400/20 rounded-full blur-3xl"></div>
             <div className="absolute -top-4 -left-4 w-24 h-24 bg-fuchsia-400/20 rounded-full blur-2xl"></div>
           </div>
-
         </div>
       </div>
     </section>
@@ -556,18 +541,18 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
 }
 
 function StatCard({
-  icon: Icon,
+  iconKey,
   value,
   label,
 }: {
-  icon: React.ComponentType<any>;
+  iconKey: string;
   value: string;
   label: string;
 }) {
   return (
     <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-5">
       <div className="flex items-center justify-between mb-2">
-        <Icon className="w-5 h-5 text-[#ee4962]" />
+        <IconByKey iconKey={iconKey} className="w-5 h-5 text-[#ee4962]" size={20} />
       </div>
       <div className="text-3xl text-gray-900 mb-1">{value}</div>
       <div className="text-sm text-gray-600">{label}</div>
@@ -588,8 +573,6 @@ function CaseStudyHighlights({ seo }: { seo: SeoCaseStudyDetail }) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {highlights.map((highlight, index) => {
-            const Icon = highlightIconMap[highlight.iconKey] ?? TrendingUp;
-
             const bgClass =
               highlight.colorClass?.includes("bg-") || highlight.colorClass?.includes("bg[")
                 ? highlight.colorClass
@@ -601,7 +584,7 @@ function CaseStudyHighlights({ seo }: { seo: SeoCaseStudyDetail }) {
                 className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100 text-center flex flex-col items-center"
               >
                 <div className={`flex p-4 rounded-full ${bgClass} mb-3`}>
-                  <Icon className="w-6 h-6 text-white" />
+                  <IconByKey iconKey={highlight.iconKey} className="w-6 h-6 text-white" size={24} />
                 </div>
 
                 <div className="text-2xl font-bold mb-1 text-gray-900">{highlight.title}</div>
@@ -677,23 +660,20 @@ function AboutSection({ seo }: { seo: SeoCaseStudyDetail }) {
             <p className="text-gray-600 mb-8">{seo.aboutParagraph2}</p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {aboutStats.map((stat, index) => {
-                const Icon = aboutIconMap[stat.iconKey] ?? Building2;
-                return (
-                  <div
-                    key={index}
-                    className="flex items-start gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-100"
-                  >
-                    <div className="bg-blue-50 p-2 rounded-lg">
-                      <Icon className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <div className="text-gray-900 font-medium">{stat.label}</div>
-                      <div className="text-gray-600 text-sm">{stat.value}</div>
-                    </div>
+              {aboutStats.map((stat, index) => (
+                <div
+                  key={index}
+                  className="flex items-start gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-100"
+                >
+                  <div className="bg-blue-50 p-2 rounded-lg">
+                    <IconByKey iconKey={stat.iconKey} className="w-5 h-5 text-blue-600" size={20} />
                   </div>
-                );
-              })}
+                  <div>
+                    <div className="text-gray-900 font-medium">{stat.label}</div>
+                    <div className="text-gray-600 text-sm">{stat.value}</div>
+                  </div>
+                </div>
+              ))}
 
               {aboutStats.length === 0 ? <div className="text-sm text-gray-500">No about stats added yet.</div> : null}
             </div>
@@ -778,13 +758,7 @@ function ChallengesIdentified({ seo }: { seo: SeoCaseStudyDetail }) {
 function CheckIcon() {
   return (
     <svg className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M5 13l4 4L19 7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -802,7 +776,7 @@ function KeywordPerformanceSection({ seo }: { seo: SeoCaseStudyDetail }) {
 
         <div className="bg-white rounded-xl p-8">
           <div className="flex items-center gap-3 mb-6">
-            <Award className="w-6 h-6 text-[#EE4962]" />
+            <IconByKey iconKey="Award" className="w-6 h-6 text-[#EE4962]" size={24} />
             <h3 className="text-gray-900 font-bold text-base">Top Performing Keywords</h3>
           </div>
 
@@ -819,10 +793,7 @@ function KeywordPerformanceSection({ seo }: { seo: SeoCaseStudyDetail }) {
               </thead>
               <tbody>
                 {topKeywords.map((kw, index) => (
-                  <tr
-                    key={index}
-                    className={index !== topKeywords.length - 1 ? "border-b border-gray-100" : ""}
-                  >
+                  <tr key={index} className={index !== topKeywords.length - 1 ? "border-b border-gray-100" : ""}>
                     <td className="py-4 px-2 text-gray-900">{kw.keyword}</td>
                     <td className="text-center py-4 px-2">
                       <span className="inline-flex items-center justify-center w-8 h-8 text-green-600 font-semibold">
@@ -857,14 +828,19 @@ function CTASection2({ seo }: { seo: SeoCaseStudyDetail }) {
             <p className="text-white/90 text-base">{seo.cta2Body}</p>
           </div>
           <div className="flex-shrink-0">
-            <button
+            {/* <button
               className="bg-white text-[#391B66] px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
               onClick={() => {
                 if (seo.cta2PrimaryCtaHref) window.location.assign(seo.cta2PrimaryCtaHref);
               }}
             >
               {seo.cta2PrimaryCtaText}
-            </button>
+            </button> */}
+            <BookCallButtonWithModal
+              buttonLabel={seo?.cta2PrimaryCtaText ?? "Book Your Strategy Call"}
+              className="bg-white text-[#391B66] font-bold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
+              buttonSize="lg"
+            />
           </div>
         </div>
       </div>
@@ -884,31 +860,27 @@ function ToolsMethodologiesSection({ seo }: { seo: SeoCaseStudyDetail }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tools.map((tool, index) => {
-            const Icon = toolIconMap[tool.iconKey] ?? Search;
-
-            return (
-              <div key={index} className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 rounded-lg bg-orange-50 border border-orange-100">
-                    <ImageWithFallback
-                      src={network_icon as any}
-                      alt={`${tool.name} logo`}
-                      className="w-6 h-6 object-cover"
-                    />
-                  </div>
-
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 mb-1">{tool.name}</h4>
-                    <div className="text-sm text-gray-500 mb-2">{tool.category}</div>
-                    <p className="text-sm text-gray-600">{tool.usage}</p>
-                  </div>
-
-                  <Icon className="w-5 h-5 opacity-60 text-gray-500" />
+          {tools.map((tool, index) => (
+            <div key={index} className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
+              <div className="flex items-start gap-4">
+                <div className="p-3 rounded-lg bg-orange-50 border border-orange-100">
+                  <ImageWithFallback
+                    src={network_icon as any}
+                    alt={`${tool.name} logo`}
+                    className="w-6 h-6 object-cover"
+                  />
                 </div>
+
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 mb-1">{tool.name}</h4>
+                  <div className="text-sm text-gray-500 mb-2">{tool.category}</div>
+                  <p className="text-sm text-gray-600">{tool.usage}</p>
+                </div>
+
+                <IconByKey iconKey={tool.iconKey} className="w-5 h-5 opacity-60 text-gray-500" size={20} />
               </div>
-            );
-          })}
+            </div>
+          ))}
 
           {tools.length === 0 ? (
             <div className="text-sm text-gray-500 col-span-full text-center">No tools added yet.</div>
@@ -940,7 +912,7 @@ function ClientTestimonialsSection({ seo }: { seo: SeoCaseStudyDetail }) {
             {primary ? (
               <>
                 <div className="flex items-center gap-3 mb-4">
-                  <Quote className="w-6 h-6 text-white/90" />
+                  <IconByKey iconKey="Quote" className="w-6 h-6 text-white/90" size={24} />
                   <div className="text-lg font-semibold">{primary.company}</div>
                 </div>
 
@@ -959,9 +931,11 @@ function ClientTestimonialsSection({ seo }: { seo: SeoCaseStudyDetail }) {
                     </div>
                     <div className="flex items-center gap-1 mt-1">
                       {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
+                        <IconByKey
                           key={i}
+                          iconKey="Star"
                           className={`w-4 h-4 ${i < (primary.rating || 0) ? "text-yellow-300" : "text-white/30"}`}
+                          size={16}
                         />
                       ))}
                     </div>

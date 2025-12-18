@@ -18,3 +18,6 @@ export * from "./schemavalidate/blog-posts";
 export * from "./schemavalidate/newsletter";
 export * from "./schemavalidate/appointments";
 export * from "./schemavalidate/seo-case-study";
+export * from "./schemavalidate/ppc-case-study";
+export * from "./schemavalidate/web-case-study";
+export * from "./schemavalidate/dedicated-resource-case-study";

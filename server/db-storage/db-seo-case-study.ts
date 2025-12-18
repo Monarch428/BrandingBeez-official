@@ -1,11 +1,11 @@
 import type { IStorage } from "../storage";
 import { ensureConnection, getNextSequence, toPlain } from "../helpers/db-helpers";
 
-import { SeoCaseStudyCardModel } from "../model/casestudy/seo-case-study-card";
-import { SeoCaseStudyDetailModel } from "../model/casestudy/seo-case-study-detail";
+import { SeoCaseStudyCardModel } from "../model/casestudy/seo/seo-case-study-card";
+import { SeoCaseStudyDetailModel } from "../model/casestudy/seo/seo-case-study-detail";
 
-import type { SeoCaseStudyCard } from "../model/casestudy/seo-case-study-card";
-import type { SeoCaseStudyDetail } from "../model/casestudy/seo-case-study-detail";
+import type { SeoCaseStudyCard } from "../model/casestudy/seo/seo-case-study-card";
+import type { SeoCaseStudyDetail } from "../model/casestudy/seo/seo-case-study-detail";
 
 export type InsertSeoCaseStudyCard = Omit<SeoCaseStudyCard, "id" | "createdAt" | "updatedAt">;
 export type InsertSeoCaseStudyDetail = Omit<SeoCaseStudyDetail, "createdAt" | "updatedAt">;
