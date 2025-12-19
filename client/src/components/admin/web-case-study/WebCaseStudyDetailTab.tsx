@@ -169,6 +169,67 @@ function SectionTitle({ title, subtitle }: { title: string; subtitle?: string })
   );
 }
 
+// Small helper for bullets editor (used by overview + strategy)
+function BulletEditor({
+  bullets,
+  onChange,
+  addDefault = { iconKey: "CheckCircle2", text: "" },
+}: {
+  bullets: { iconKey: string; text: string }[];
+  onChange: (next: { iconKey: string; text: string }[]) => void;
+  addDefault?: { iconKey: string; text: string };
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label className="font-semibold">Bullets</Label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onChange([...(bullets || []), { ...addDefault }])}
+        >
+          Add Bullet
+        </Button>
+      </div>
+
+      {(bullets || []).map((b, bi) => (
+        <div key={bi} className="grid grid-cols-1 md:grid-cols-12 gap-2">
+          <Input
+            className="md:col-span-3"
+            value={b.iconKey || ""}
+            onChange={(e) => {
+              const next = [...(bullets || [])];
+              next[bi] = { ...next[bi], iconKey: e.target.value };
+              onChange(next);
+            }}
+            placeholder="iconKey"
+          />
+          <Input
+            className="md:col-span-7"
+            value={b.text || ""}
+            onChange={(e) => {
+              const next = [...(bullets || [])];
+              next[bi] = { ...next[bi], text: e.target.value };
+              onChange(next);
+            }}
+            placeholder="Bullet text..."
+          />
+          <Button
+            className="md:col-span-2"
+            type="button"
+            variant="destructive"
+            size="sm"
+            onClick={() => onChange((bullets || []).filter((_, idx) => idx !== bi))}
+          >
+            Remove
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export function WebCaseStudyDetailTab({
   form,
   onChange,
@@ -272,7 +333,7 @@ export function WebCaseStudyDetailTab({
 
         <div>
           <ReqLabel>Hero Description</ReqLabel>
-          <TextArea value={String(form.heroDescription || "")} onChange={(v) => onChange("heroDescription", v)}/>
+          <TextArea value={String(form.heroDescription || "")} onChange={(v) => onChange("heroDescription", v)} />
         </div>
 
         {/* HERO STATS */}
@@ -309,7 +370,7 @@ export function WebCaseStudyDetailTab({
                   next[i] = { ...next[i], value: e.target.value };
                   onChange("heroStats", next);
                 }}
-                placeholder="48-hour delivery"
+                placeholder="48hrs"
               />
               <Input
                 className="md:col-span-4"
@@ -319,7 +380,7 @@ export function WebCaseStudyDetailTab({
                   next[i] = { ...next[i], label: e.target.value };
                   onChange("heroStats", next);
                 }}
-                placeholder="Turnaround"
+                placeholder="Delivery Time"
               />
               <Button
                 type="button"
@@ -516,7 +577,7 @@ export function WebCaseStudyDetailTab({
         </div>
       </div>
 
-      {/* Challenge Points quick editor */}
+      {/* Challenge */}
       <div className="border rounded-lg p-3 space-y-3">
         <SectionTitle title="Challenge" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -566,15 +627,733 @@ export function WebCaseStudyDetailTab({
         ))}
       </div>
 
-      {/* Note */}
-      <div className="border rounded-lg p-3 text-xs text-gray-500">
-        Note: The remaining sections (Before/After, Overview Columns, Strategy Columns, Features, Evaluation, Feedback, Final CTA)
-        are supported in payload and defaults, but you can expand the editor UI further exactly like PPC tab patterns.
+      {/* ✅ Before/After (was only “supported in payload” before) */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Before / After" subtitle="Editable comparison rows shown on detail page if your FE renders it." />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <ReqLabel>Before Title</ReqLabel>
+            <Input
+              value={beforeAfter.beforeTitle || ""}
+              onChange={(e) => onChange("beforeAfter", { ...beforeAfter, beforeTitle: e.target.value })}
+              required
+            />
+          </div>
+          <div>
+            <ReqLabel>After Title</ReqLabel>
+            <Input
+              value={beforeAfter.afterTitle || ""}
+              onChange={(e) => onChange("beforeAfter", { ...beforeAfter, afterTitle: e.target.value })}
+              required
+            />
+          </div>
+        </div>
+
+        {/* Before Items */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-semibold">Before Items</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onChange("beforeAfter", {
+                  ...beforeAfter,
+                  beforeItems: [...(beforeAfter.beforeItems || []), { label: "", value: "" }],
+                })
+              }
+            >
+              Add Before Item
+            </Button>
+          </div>
+
+          {(beforeAfter.beforeItems || []).map((it: any, i: number) => (
+            <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2">
+              <Input
+                className="md:col-span-5"
+                value={it.label || ""}
+                onChange={(e) => {
+                  const next = [...(beforeAfter.beforeItems || [])];
+                  next[i] = { ...next[i], label: e.target.value };
+                  onChange("beforeAfter", { ...beforeAfter, beforeItems: next });
+                }}
+                placeholder="Label (e.g., Website)"
+              />
+              <Input
+                className="md:col-span-5"
+                value={it.value || ""}
+                onChange={(e) => {
+                  const next = [...(beforeAfter.beforeItems || [])];
+                  next[i] = { ...next[i], value: e.target.value };
+                  onChange("beforeAfter", { ...beforeAfter, beforeItems: next });
+                }}
+                placeholder="Value (e.g., None)"
+              />
+              <Button
+                className="md:col-span-2"
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() =>
+                  onChange("beforeAfter", {
+                    ...beforeAfter,
+                    beforeItems: (beforeAfter.beforeItems || []).filter((_: any, idx: number) => idx !== i),
+                  })
+                }
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {/* After Items */}
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-semibold">After Items</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onChange("beforeAfter", {
+                  ...beforeAfter,
+                  afterItems: [...(beforeAfter.afterItems || []), { label: "", value: "" }],
+                })
+              }
+            >
+              Add After Item
+            </Button>
+          </div>
+
+          {(beforeAfter.afterItems || []).map((it: any, i: number) => (
+            <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2">
+              <Input
+                className="md:col-span-5"
+                value={it.label || ""}
+                onChange={(e) => {
+                  const next = [...(beforeAfter.afterItems || [])];
+                  next[i] = { ...next[i], label: e.target.value };
+                  onChange("beforeAfter", { ...beforeAfter, afterItems: next });
+                }}
+                placeholder="Label (e.g., Brand)"
+              />
+              <Input
+                className="md:col-span-5"
+                value={it.value || ""}
+                onChange={(e) => {
+                  const next = [...(beforeAfter.afterItems || [])];
+                  next[i] = { ...next[i], value: e.target.value };
+                  onChange("beforeAfter", { ...beforeAfter, afterItems: next });
+                }}
+                placeholder="Value (e.g., Professional)"
+              />
+              <Button
+                className="md:col-span-2"
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() =>
+                  onChange("beforeAfter", {
+                    ...beforeAfter,
+                    afterItems: (beforeAfter.afterItems || []).filter((_: any, idx: number) => idx !== i),
+                  })
+                }
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Final CTA quick */}
+      {/* ✅ Overview */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Overview" subtitle="Columns/cards section like PPC pattern." />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <ReqLabel>Overview Title</ReqLabel>
+            <Input value={form.overviewTitle || ""} onChange={(e) => onChange("overviewTitle", e.target.value)} required />
+          </div>
+          <div>
+            <Label>Overview Subtitle</Label>
+            <Input value={form.overviewSubtitle || ""} onChange={(e) => onChange("overviewSubtitle", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Label className="font-semibold">Overview Columns</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              onChange("overviewColumns", [
+                ...overviewColumns,
+                { iconKey: "Building2", title: "", dotColorClass: "bg-brand-coral", bullets: [{ iconKey: "CheckCircle2", text: "" }] },
+              ])
+            }
+          >
+            Add Column
+          </Button>
+        </div>
+
+        {overviewColumns.map((c, i) => (
+          <div key={i} className="border rounded-lg p-3 space-y-3 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold text-gray-800">Column #{i + 1}</div>
+              <Button type="button" variant="destructive" size="sm" onClick={() => onChange("overviewColumns", overviewColumns.filter((_, idx) => idx !== i))}>
+                Remove Column
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div>
+                <Label>iconKey</Label>
+                <Input
+                  value={c.iconKey || ""}
+                  onChange={(e) => {
+                    const next = [...overviewColumns];
+                    next[i] = { ...next[i], iconKey: e.target.value };
+                    onChange("overviewColumns", next);
+                  }}
+                />
+              </div>
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={c.title || ""}
+                  onChange={(e) => {
+                    const next = [...overviewColumns];
+                    next[i] = { ...next[i], title: e.target.value };
+                    onChange("overviewColumns", next);
+                  }}
+                />
+              </div>
+              <div>
+                <Label>dotColorClass</Label>
+                <Input
+                  value={c.dotColorClass || ""}
+                  onChange={(e) => {
+                    const next = [...overviewColumns];
+                    next[i] = { ...next[i], dotColorClass: e.target.value };
+                    onChange("overviewColumns", next);
+                  }}
+                  placeholder="bg-brand-coral"
+                />
+              </div>
+            </div>
+
+            <BulletEditor
+              bullets={c.bullets || []}
+              onChange={(bul) => {
+                const next = [...overviewColumns];
+                next[i] = { ...next[i], bullets: bul };
+                onChange("overviewColumns", next);
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* ✅ Strategy */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Strategy" subtitle="3-column strategy section (with order + tagText) like PPC." />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <ReqLabel>Strategy Title</ReqLabel>
+            <Input value={form.strategyTitle || ""} onChange={(e) => onChange("strategyTitle", e.target.value)} required />
+          </div>
+          <div>
+            <Label>Strategy Subtitle</Label>
+            <Input value={form.strategySubtitle || ""} onChange={(e) => onChange("strategySubtitle", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Label className="font-semibold">Strategy Columns</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              onChange("strategyColumns", [
+                ...strategyColumns,
+                { order: strategyColumns.length + 1, title: "", tagText: "", bullets: [{ iconKey: "CheckCircle2", text: "" }] },
+              ])
+            }
+          >
+            Add Strategy Column
+          </Button>
+        </div>
+
+        {strategyColumns.map((c, i) => (
+          <div key={i} className="border rounded-lg p-3 space-y-3 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold text-gray-800">Strategy #{i + 1}</div>
+              <Button type="button" variant="destructive" size="sm" onClick={() => onChange("strategyColumns", strategyColumns.filter((_, idx) => idx !== i))}>
+                Remove
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div>
+                <Label>order</Label>
+                <Input
+                  type="number"
+                  value={String(c.order ?? i + 1)}
+                  onChange={(e) => {
+                    const next = [...strategyColumns];
+                    next[i] = { ...next[i], order: Number(e.target.value || 0) };
+                    onChange("strategyColumns", next);
+                  }}
+                />
+              </div>
+              <div>
+                <Label>title</Label>
+                <Input
+                  value={c.title || ""}
+                  onChange={(e) => {
+                    const next = [...strategyColumns];
+                    next[i] = { ...next[i], title: e.target.value };
+                    onChange("strategyColumns", next);
+                  }}
+                />
+              </div>
+              <div>
+                <Label>tagText</Label>
+                <Input
+                  value={c.tagText || ""}
+                  onChange={(e) => {
+                    const next = [...strategyColumns];
+                    next[i] = { ...next[i], tagText: e.target.value };
+                    onChange("strategyColumns", next);
+                  }}
+                  placeholder="Speed & Quality"
+                />
+              </div>
+            </div>
+
+            <BulletEditor
+              bullets={c.bullets || []}
+              onChange={(bul) => {
+                const next = [...strategyColumns];
+                next[i] = { ...next[i], bullets: bul };
+                onChange("strategyColumns", next);
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* ✅ Features */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Features" subtitle="Core Features + Technical Excellence lists." />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <ReqLabel>Features Title</ReqLabel>
+            <Input value={form.featuresTitle || ""} onChange={(e) => onChange("featuresTitle", e.target.value)} required />
+          </div>
+          <div>
+            <Label>Features Subtitle</Label>
+            <Input value={form.featuresSubtitle || ""} onChange={(e) => onChange("featuresSubtitle", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <Label>Core Features Title</Label>
+            <Input value={form.coreFeaturesTitle || ""} onChange={(e) => onChange("coreFeaturesTitle", e.target.value)} placeholder="Core Features" />
+          </div>
+          <div>
+            <Label>Technical Excellence Title</Label>
+            <Input value={form.technicalExcellenceTitle || ""} onChange={(e) => onChange("technicalExcellenceTitle", e.target.value)} placeholder="Technical Excellence" />
+          </div>
+        </div>
+
+        {/* Core Features */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-semibold">Core Features</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onChange("coreFeatures", [...coreFeatures, { iconKey: "Palette", title: "", description: "", color: "#ee4962" }])}
+            >
+              Add Core Feature
+            </Button>
+          </div>
+
+          {coreFeatures.map((f, i) => (
+            <div key={i} className="border rounded-lg p-3 space-y-2 bg-white">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-gray-800">Core Feature #{i + 1}</div>
+                <Button type="button" variant="destructive" size="sm" onClick={() => onChange("coreFeatures", coreFeatures.filter((_, idx) => idx !== i))}>
+                  Remove
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div>
+                  <Label>iconKey</Label>
+                  <Input
+                    value={f.iconKey || ""}
+                    onChange={(e) => {
+                      const next = [...coreFeatures];
+                      next[i] = { ...next[i], iconKey: e.target.value };
+                      onChange("coreFeatures", next);
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>title</Label>
+                  <Input
+                    value={f.title || ""}
+                    onChange={(e) => {
+                      const next = [...coreFeatures];
+                      next[i] = { ...next[i], title: e.target.value };
+                      onChange("coreFeatures", next);
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>color (optional)</Label>
+                  <Input
+                    value={f.color || ""}
+                    onChange={(e) => {
+                      const next = [...coreFeatures];
+                      next[i] = { ...next[i], color: e.target.value };
+                      onChange("coreFeatures", next);
+                    }}
+                    placeholder="#ee4962"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>description</Label>
+                <TextArea
+                  value={f.description || ""}
+                  onChange={(v) => {
+                    const next = [...coreFeatures];
+                    next[i] = { ...next[i], description: v };
+                    onChange("coreFeatures", next);
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Technical Excellence */}
+        <div className="space-y-2 pt-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-semibold">Technical Excellence</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                onChange("technicalExcellence", [...technicalExcellence, { iconKey: "Code", title: "", description: "", color: "#321a66" }])
+              }
+            >
+              Add Technical Feature
+            </Button>
+          </div>
+
+          {technicalExcellence.map((f, i) => (
+            <div key={i} className="border rounded-lg p-3 space-y-2 bg-white">
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-semibold text-gray-800">Technical Feature #{i + 1}</div>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => onChange("technicalExcellence", technicalExcellence.filter((_, idx) => idx !== i))}
+                >
+                  Remove
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div>
+                  <Label>iconKey</Label>
+                  <Input
+                    value={f.iconKey || ""}
+                    onChange={(e) => {
+                      const next = [...technicalExcellence];
+                      next[i] = { ...next[i], iconKey: e.target.value };
+                      onChange("technicalExcellence", next);
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>title</Label>
+                  <Input
+                    value={f.title || ""}
+                    onChange={(e) => {
+                      const next = [...technicalExcellence];
+                      next[i] = { ...next[i], title: e.target.value };
+                      onChange("technicalExcellence", next);
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label>color (optional)</Label>
+                  <Input
+                    value={f.color || ""}
+                    onChange={(e) => {
+                      const next = [...technicalExcellence];
+                      next[i] = { ...next[i], color: e.target.value };
+                      onChange("technicalExcellence", next);
+                    }}
+                    placeholder="#321a66"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>description</Label>
+                <TextArea
+                  value={f.description || ""}
+                  onChange={(v) => {
+                    const next = [...technicalExcellence];
+                    next[i] = { ...next[i], description: v };
+                    onChange("technicalExcellence", next);
+                  }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ✅ Mid CTA */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Mid CTA" subtitle="CTA between Strategy/Features and Results." />
+
+        <div>
+          <ReqLabel>Title</ReqLabel>
+          <Input value={ctaMid.title || ""} onChange={(e) => onChange("ctaMid", { ...ctaMid, title: e.target.value })} required />
+        </div>
+
+        <div>
+          <ReqLabel>Body</ReqLabel>
+          <TextArea value={ctaMid.body || ""} onChange={(v) => onChange("ctaMid", { ...ctaMid, body: v })} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <ReqLabel>Primary Text</ReqLabel>
+            <Input value={ctaMid.primaryText || ""} onChange={(e) => onChange("ctaMid", { ...ctaMid, primaryText: e.target.value })} required />
+          </div>
+          <div>
+            <Label>Primary Href</Label>
+            <Input value={ctaMid.primaryHref || ""} onChange={(e) => onChange("ctaMid", { ...ctaMid, primaryHref: e.target.value })} />
+          </div>
+          <div>
+            <Label>Secondary Text</Label>
+            <Input value={ctaMid.secondaryText || ""} onChange={(e) => onChange("ctaMid", { ...ctaMid, secondaryText: e.target.value })} />
+          </div>
+          <div>
+            <Label>Secondary Href</Label>
+            <Input value={ctaMid.secondaryHref || ""} onChange={(e) => onChange("ctaMid", { ...ctaMid, secondaryHref: e.target.value })} />
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ Evaluation */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Evaluation / Results" subtitle="Cards shown in Results section." />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <Label>Evaluation Kicker</Label>
+            <Input value={form.evaluationKicker || ""} onChange={(e) => onChange("evaluationKicker", e.target.value)} />
+          </div>
+          <div>
+            <ReqLabel>Evaluation Title</ReqLabel>
+            <Input value={form.evaluationTitle || ""} onChange={(e) => onChange("evaluationTitle", e.target.value)} required />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <Label className="font-semibold">Evaluation Cards</Label>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onChange("evaluationCards", [...evaluationCards, { iconKey: "CheckCircle2", title: "", description: "" }])}
+          >
+            Add Card
+          </Button>
+        </div>
+
+        {evaluationCards.map((c, i) => (
+          <div key={i} className="border rounded-lg p-3 space-y-2 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold text-gray-800">Card #{i + 1}</div>
+              <Button type="button" variant="destructive" size="sm" onClick={() => onChange("evaluationCards", evaluationCards.filter((_, idx) => idx !== i))}>
+                Remove
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+              <div>
+                <Label>iconKey</Label>
+                <Input
+                  value={c.iconKey || ""}
+                  onChange={(e) => {
+                    const next = [...evaluationCards];
+                    next[i] = { ...next[i], iconKey: e.target.value };
+                    onChange("evaluationCards", next);
+                  }}
+                />
+              </div>
+              <div>
+                <Label>title</Label>
+                <Input
+                  value={c.title || ""}
+                  onChange={(e) => {
+                    const next = [...evaluationCards];
+                    next[i] = { ...next[i], title: e.target.value };
+                    onChange("evaluationCards", next);
+                  }}
+                />
+              </div>
+              <div className="md:col-span-3">
+                <Label>description</Label>
+                <TextArea
+                  value={c.description || ""}
+                  onChange={(v) => {
+                    const next = [...evaluationCards];
+                    next[i] = { ...next[i], description: v };
+                    onChange("evaluationCards", next);
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ✅ Feedback */}
+      <div className="border rounded-lg p-3 space-y-3">
+        <SectionTitle title="Feedback" subtitle="Testimonial + partnership metrics + CTA." />
+
+        <div>
+          <Label>Feedback Kicker</Label>
+          <Input value={form.feedbackKicker || ""} onChange={(e) => onChange("feedbackKicker", e.target.value)} />
+        </div>
+
+        <div className="border rounded-lg p-3 bg-white space-y-2">
+          <div className="text-sm font-semibold text-gray-800">Testimonial</div>
+
+          <div>
+            <ReqLabel>Quote</ReqLabel>
+            <TextArea value={testimonial.quote || ""} onChange={(v) => onChange("testimonial", { ...testimonial, quote: v })} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            <div>
+              <ReqLabel>Author Name</ReqLabel>
+              <Input value={testimonial.authorName || ""} onChange={(e) => onChange("testimonial", { ...testimonial, authorName: e.target.value })} required />
+            </div>
+            <div>
+              <Label>Author Role</Label>
+              <Input value={testimonial.authorRole || ""} onChange={(e) => onChange("testimonial", { ...testimonial, authorRole: e.target.value })} />
+            </div>
+            <div>
+              <Label>Rating Text</Label>
+              <Input value={testimonial.ratingText || ""} onChange={(e) => onChange("testimonial", { ...testimonial, ratingText: e.target.value })} placeholder="⭐⭐⭐⭐⭐" />
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div>
+            <Label>Partnership Metrics Title</Label>
+            <Input value={form.partnershipMetricsTitle || ""} onChange={(e) => onChange("partnershipMetricsTitle", e.target.value)} />
+          </div>
+          <div>
+            <Label>Feedback Primary CTA Text</Label>
+            <Input value={form.feedbackPrimaryCtaText || ""} onChange={(e) => onChange("feedbackPrimaryCtaText", e.target.value)} />
+          </div>
+          <div>
+            <Label>Feedback Primary CTA Href</Label>
+            <Input value={form.feedbackPrimaryCtaHref || ""} onChange={(e) => onChange("feedbackPrimaryCtaHref", e.target.value)} />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="font-semibold">Partnership Metrics</Label>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => onChange("partnershipMetrics", [...partnershipMetrics, { iconKey: "Users", label: "", value: "" }])}
+            >
+              Add Metric
+            </Button>
+          </div>
+
+          {partnershipMetrics.map((m, i) => (
+            <div key={i} className="grid grid-cols-1 md:grid-cols-12 gap-2">
+              <Input
+                className="md:col-span-3"
+                value={m.iconKey || ""}
+                onChange={(e) => {
+                  const next = [...partnershipMetrics];
+                  next[i] = { ...next[i], iconKey: e.target.value };
+                  onChange("partnershipMetrics", next);
+                }}
+                placeholder="iconKey"
+              />
+              <Input
+                className="md:col-span-4"
+                value={m.label || ""}
+                onChange={(e) => {
+                  const next = [...partnershipMetrics];
+                  next[i] = { ...next[i], label: e.target.value };
+                  onChange("partnershipMetrics", next);
+                }}
+                placeholder="Label"
+              />
+              <Input
+                className="md:col-span-3"
+                value={m.value || ""}
+                onChange={(e) => {
+                  const next = [...partnershipMetrics];
+                  next[i] = { ...next[i], value: e.target.value };
+                  onChange("partnershipMetrics", next);
+                }}
+                placeholder="Value"
+              />
+              <Button
+                className="md:col-span-2"
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={() => onChange("partnershipMetrics", partnershipMetrics.filter((_, idx) => idx !== i))}
+              >
+                Remove
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ✅ Final CTA */}
       <div className="border rounded-lg p-3 space-y-3">
         <SectionTitle title="Final CTA" />
+
         <div>
           <ReqLabel>Title</ReqLabel>
           <Input value={finalCta.title || ""} onChange={(e) => onChange("finalCta", { ...finalCta, title: e.target.value })} required />

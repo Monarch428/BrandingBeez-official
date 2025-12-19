@@ -451,10 +451,10 @@ export default function WebCaseStudySlugPage(props: any) {
                                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                 allowFullScreen
                                             />
-                                            <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                                            {/* <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
                                                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                                                 {detail?.heroVideoBadgeText ?? "Case Study Video"}
-                                            </div>
+                                            </div> */}
                                         </div>
                                     ) : card.imageUrl ? (
                                         <img

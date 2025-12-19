@@ -179,6 +179,27 @@ export function DedicatedResourceCaseStudyDetailTab({
   const ctaPrimary = form.ctaPrimary || ({ title: "", body: "", primaryButtonText: "" } as any);
   const ctaSecondary = form.ctaSecondary || ({ title: "", body: "" } as any);
 
+  const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
+
+  async function uploadDetailImage(
+    token: string,
+    endpoint: string,
+    file: File
+  ): Promise<{ imageUrl: string; publicId?: string; originalName?: string }> {
+    const fd = new FormData();
+    fd.append("image", file);
+
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd,
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.message || "Image upload failed");
+    return data;
+  }
+
   return (
     <div className="space-y-5 mt-4">
       <SectionTitle title="Detail Page Fields" subtitle="Controls the full Dedicated Resources detail page sections." />
@@ -381,16 +402,44 @@ export function DedicatedResourceCaseStudyDetailTab({
                 }}
                 placeholder="Role"
               />
-              <Input
-                className="md:col-span-3"
-                value={m.imageUrl || ""}
-                onChange={(e) => {
-                  const next = [...teamMembers];
-                  next[i] = { ...next[i], imageUrl: e.target.value };
-                  onChange("teamMembers", next);
-                }}
-                placeholder="Image URL (optional)"
-              />
+              <div className="md:col-span-3 space-y-2">
+                <Input
+                  value={m.imageUrl || ""}
+                  onChange={(e) => {
+                    const next = [...teamMembers];
+                    next[i] = { ...next[i], imageUrl: e.target.value };
+                    onChange("teamMembers", next);
+                  }}
+                  placeholder="Image URL (optional)"
+                />
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    if (!token) return alert("Admin token missing. Please login again.");
+
+                    try {
+                      const up = await uploadDetailImage(
+                        token,
+                        "/api/admin/dedicated-resource-case-study/upload-team-member-image",
+                        file
+                      );
+
+                      const next = [...teamMembers];
+                      next[i] = { ...next[i], imageUrl: up.imageUrl };
+                      onChange("teamMembers", next);
+                    } catch (err: any) {
+                      alert(err?.message || "Failed to upload image");
+                    } finally {
+                      e.currentTarget.value = "";
+                    }
+                  }}
+                  className="block w-full text-sm"
+                />
+              </div>
               <Button type="button" variant="destructive" size="sm" className="md:col-span-1" onClick={() => onChange("teamMembers", teamMembers.filter((_, idx) => idx !== i))}>
                 X
               </Button>
@@ -908,7 +957,7 @@ export function DedicatedResourceCaseStudyDetailTab({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <div>
+              {/* <div>
                 <Label>Image URL</Label>
                 <Input
                   value={t.imageUrl || ""}
@@ -918,7 +967,33 @@ export function DedicatedResourceCaseStudyDetailTab({
                     onChange("testimonials", next);
                   }}
                 />
-              </div>
+              </div> */}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (!token) return alert("Admin token missing. Please login again.");
+
+                  try {
+                    const up = await uploadDetailImage(
+                      token,
+                      "/api/admin/dedicated-resource-case-study/upload-testimonial-image",
+                      file
+                    );
+
+                    const next = [...testimonials];
+                    next[i] = { ...next[i], imageUrl: up.imageUrl };
+                    onChange("testimonials", next);
+                  } catch (err: any) {
+                    alert(err?.message || "Failed to upload image");
+                  } finally {
+                    e.currentTarget.value = "";
+                  }
+                }}
+                className="block w-full text-sm mt-2"
+              />
               <div>
                 <Label>Rating</Label>
                 <Input

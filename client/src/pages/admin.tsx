@@ -504,112 +504,123 @@ export default function Admin() {
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            {/* ✅ UPDATED: Horizontal scroll tabs */}
-            <TabsList
+            {/* ✅ FIXED: Scrollable tabs (overflow-x) */}
+            <div
               className="
-          flex w-full gap-2
-          p-3
-        "
+    w-full overflow-x-auto overflow-y-hidden
+    scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100
+    [&::-webkit-scrollbar]:h-[4px]
+    [&::-webkit-scrollbar-thumb]:rounded-full
+    [&::-webkit-scrollbar-track]:rounded-full
+  "
             >
-              <TabsTrigger
-                value="overview"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+              <TabsList
+                className="
+                  inline-flex w-max max-w-none
+                  flex-nowrap justify-start gap-2
+                  p-3
+                "
               >
-                Overview
-              </TabsTrigger>
+                <TabsTrigger
+                  value="overview"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Overview
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="contacts"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Contacts
-              </TabsTrigger>
+                <TabsTrigger
+                  value="contacts"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Contacts
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="newsletter"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Newsletter
-              </TabsTrigger>
+                <TabsTrigger
+                  value="newsletter"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Newsletter
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="featured-clients"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Featured Clients
-              </TabsTrigger>
+                <TabsTrigger
+                  value="featured-clients"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Featured Clients
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="case-studies"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Case Studies
-              </TabsTrigger>
+                <TabsTrigger
+                  value="case-studies"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Case Studies
+                </TabsTrigger>
 
-              {/* ✅ NEW TAB */}
-              <TabsTrigger
-                value="seo-case-studies"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                SEO Studies
-              </TabsTrigger>
+                {/* ✅ NEW TAB */}
+                <TabsTrigger
+                  value="seo-case-studies"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  SEO Studies
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="ppc-case-studies"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                PPC Studies
-              </TabsTrigger>
+                <TabsTrigger
+                  value="ppc-case-studies"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  PPC Studies
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="web-case-studies"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Web Studies
-              </TabsTrigger>
+                <TabsTrigger
+                  value="web-case-studies"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Web Studies
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="dr-case-studies"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Dedicated Resources Studies
-              </TabsTrigger>
+                <TabsTrigger
+                  value="dr-case-studies"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Dedicated Resources Studies
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="pricing"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Pricing
-              </TabsTrigger>
+                <TabsTrigger
+                  value="pricing"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Pricing
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="service-pages"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Service Pages
-              </TabsTrigger>
+                <TabsTrigger
+                  value="service-pages"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Service Pages
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="blog-posts"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Blog Posts
-              </TabsTrigger>
+                <TabsTrigger
+                  value="blog-posts"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Blog Posts
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="portfolio-items"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Portfolio
-              </TabsTrigger>
+                <TabsTrigger
+                  value="portfolio-items"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Portfolio
+                </TabsTrigger>
 
-              <TabsTrigger
-                value="appointments"
-                className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
-              >
-                Appointments
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger
+                  value="appointments"
+                  className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                >
+                  Appointments
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
@@ -928,4 +939,3 @@ export default function Admin() {
     </div>
   );
 }
-

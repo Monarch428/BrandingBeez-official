@@ -197,7 +197,10 @@ function Router() {
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
       <Route path="/web-case-study/:slug" component={WebCaseStudySlugPage} />
-      <Route path="/dedicated-resource-case-study/:slug" component={DedicatedResourceCaseStudySlugPage} />
+      <Route
+        path="/dedicated-resource-case-study/:slug"
+        component={DedicatedResourceCaseStudySlugPage}
+      />
 
       {/* LAZY: All other routes load on demand */}
       <Route path="/services" component={() => <LazyRoute component={Services} />} />
@@ -304,9 +307,10 @@ function App() {
               <ThankYouProvider>
                 <CriticalPathOptimizer />
                 <PerformanceOptimizer />
-                <CookieConsent />
 
                 <Router />
+                <CookieConsent />
+
                 <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
                 <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
                 <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />

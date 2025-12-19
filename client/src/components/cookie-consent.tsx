@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -51,7 +52,7 @@ export function CookieConsent() {
         localStorage.removeItem("cookie-consent");
         localStorage.removeItem("cookie-consent-date");
       }
-      const timer = setTimeout(() => setShowBanner(true), 1500);
+      const timer = setTimeout(() => setShowBanner(true), 1200);
       return () => clearTimeout(timer);
     } else {
       try {
@@ -62,30 +63,17 @@ export function CookieConsent() {
         console.error("Error parsing cookie consent:", error);
         localStorage.removeItem("cookie-consent");
         localStorage.removeItem("cookie-consent-date");
-        const timer = setTimeout(() => setShowBanner(true), 1500);
+        const timer = setTimeout(() => setShowBanner(true), 1200);
         return () => clearTimeout(timer);
       }
     }
   }, []);
 
   const applyConsentSettings = (prefs: CookiePreferences) => {
-    if (prefs.analytics && (window as any).gtag) {
+    if ((window as any).gtag) {
       (window as any).gtag("consent", "update", {
-        analytics_storage: "granted",
-      });
-    } else if ((window as any).gtag) {
-      (window as any).gtag("consent", "update", {
-        analytics_storage: "denied",
-      });
-    }
-
-    if (prefs.marketing && (window as any).gtag) {
-      (window as any).gtag("consent", "update", {
-        ad_storage: "granted",
-      });
-    } else if ((window as any).gtag) {
-      (window as any).gtag("consent", "update", {
-        ad_storage: "denied",
+        analytics_storage: prefs.analytics ? "granted" : "denied",
+        ad_storage: prefs.marketing ? "granted" : "denied",
       });
     }
 
@@ -191,19 +179,31 @@ export function CookieConsent() {
 
   if (!showBanner) return null;
 
-  return (
+  return createPortal(
     <>
-      {/* Cookie Consent Banner (TOP of site) */}
+      {/* Cookie Consent Banner (BOTTOM-RIGHT on desktop, FULL-WIDTH on mobile) */}
       <div
         className="
-          fixed z-50
-          top-[700px] right-0
-          px-4 pt-4
+          fixed z-[9999]
+          left-0 right-0 bottom-0
+          sm:left-auto sm:right-4 sm:bottom-4
+          px-3 pb-3 sm:px-0 sm:pb-0
+          pointer-events-none
         "
       >
-        <div className="mx-auto w-full max-w-5xl">
+        <div
+          className="
+            pointer-events-auto
+            w-full sm:w-[440px]
+            sm:max-w-[440px]
+            animate-[bbSlideUp_220ms_ease-out]
+          "
+          style={{
+            paddingBottom: "env(safe-area-inset-bottom)",
+          }}
+        >
           <Card className="border bg-white shadow-2xl rounded-2xl overflow-hidden">
-            <CardContent className="p-5 sm:p-6">
+            <CardContent className="p-4 sm:p-5">
               <div className="flex flex-col gap-4">
                 <div className="flex items-start gap-3">
                   <div className="p-2 bg-brand-coral/10 rounded-full shrink-0">
@@ -222,7 +222,7 @@ export function CookieConsent() {
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Button
                     variant="outline"
                     onClick={() => setShowSettings(true)}
@@ -238,7 +238,7 @@ export function CookieConsent() {
 
                   <Button
                     onClick={handleAcceptAll}
-                    className="bg-brand-coral rand-coral-dark text-white"
+                    className="bg-brand-coral text-white hover:bg-brand-coral-dark"
                   >
                     Accept All
                   </Button>
@@ -377,7 +377,7 @@ export function CookieConsent() {
               </Button>
               <Button
                 onClick={handleSavePreferences}
-                className="bg-brand-coral rand-coral-dark text-white"
+                className="bg-brand-coral text-white hover:bg-brand-coral-dark"
               >
                 Save Preferences
               </Button>
@@ -385,7 +385,15 @@ export function CookieConsent() {
           </div>
         </DialogContent>
       </Dialog>
-    </>
+
+      <style>{`
+        @keyframes bbSlideUp {
+          from { transform: translateY(10px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
+    </>,
+    document.body
   );
 }
 
