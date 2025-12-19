@@ -66,6 +66,12 @@ import { notificationService } from "./notification-service";
 import { connectToDatabase, getMongooseConnection } from "./db";
 import { seoCaseStudyPublicRouter } from "./routes/seo-case-study-public";
 import { seoCaseStudyAdminRouter } from "./routes/seo-case-study";
+import { ppcCaseStudyPublicRouter } from "./routes/ppc-case-study-public-router";
+import { ppcCaseStudyAdminRouter } from "./routes/ppc-case-study-admin-router";
+import { webCaseStudyPublicRouter } from "./routes/web-case-study-public-router";
+import { webCaseStudyAdminRouter } from "./routes/web-case-study-admin-router";
+import { dedicatedResourceCaseStudyAdminRouter } from "./routes/dedicated-resource-case-study-admin-router";
+import { dedicatedResourceCaseStudyPublicRouter } from "./routes/dedicated-resource-case-study-public-router";
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
@@ -97,6 +103,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // PUBLIC ROUTES
   // -----------------------------
   app.use("/api", seoCaseStudyPublicRouter(publicContentRateLimit));
+  app.use("/api", ppcCaseStudyPublicRouter(publicContentRateLimit));
+  app.use("/api", webCaseStudyPublicRouter(publicContentRateLimit));
+  app.use("/api", dedicatedResourceCaseStudyPublicRouter(publicContentRateLimit));
 
 
   // Apply security middleware
@@ -161,6 +170,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ADMIN ROUTES
   // -----------------------------
   app.use("/api/admin", seoCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api/admin", ppcCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api/admin", webCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api/admin", dedicatedResourceCaseStudyAdminRouter(authenticateAdmin));
 
 
 

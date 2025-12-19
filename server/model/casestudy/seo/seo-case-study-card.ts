@@ -1,6 +1,6 @@
 import mongoose, { Schema, Model } from "mongoose";
 import type { Document } from "mongoose";
-import { numericIdField } from "../../helpers/db-helpers";
+import { numericIdField } from "../../../helpers/db-helpers";
 
 // ------------------- Types -------------------
 export interface SeoCaseStudyCard {

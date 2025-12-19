@@ -1249,7 +1249,7 @@ export default function About() {
                     </div>
                     <div className="text-center p-4 bg-brand-wings/50 rounded-lg">
                       <div className="text-2xl font-bold text-brand-coral">
-                        5 Years
+                        6 Years
                       </div>
                       <div className="text-sm text-gray-600">
                         Market Experience
@@ -1259,10 +1259,10 @@ export default function About() {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl p-4 text-white text-center shadow-2xl w-full max-w-md">
+                  <div className="bg-gradient-to-br from-brand-purple to-brand-coral   rounded-2xl p-3 md:p-4 text-white text-center shadow-2xl w-full max-w-2xl">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
-                      <div className="w-full h-52 md:h-64 rounded-xl overflow-hidden shadow-lg">
+                      <div className="w-full h-64 md:h-[380px] lg:h-[350px]  rounded-xl overflow-hidden shadow-lg">
                         <iframe
                           className="w-full h-full"
                           src="https://www.youtube.com/embed/J4RRz15Q73s?autoplay=0&mute=1"
