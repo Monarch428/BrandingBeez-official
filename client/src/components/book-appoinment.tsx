@@ -49,6 +49,34 @@ import {
 // ✅ Global thank-you hook
 import { useThankYou } from "@/context/thank-you-context";
 
+/* ============================================================================
+   ✅ Google Ads Conversion Tracking Helper
+   Fires only after successful booking (no false conversions on validation fail)
+============================================================================ */
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+function gtag_report_conversion(url?: string) {
+  if (typeof window === "undefined" || typeof window.gtag !== "function") {
+    return;
+  }
+
+  const callback = function () {
+    if (typeof url !== "undefined") {
+      window.location.href = url;
+    }
+  };
+
+  window.gtag("event", "conversion", {
+    send_to: "AW-17781107849/GLDBCNrH6dEbEInZ2J5C",
+    event_callback: callback,
+  });
+}
+
 interface AppointmentCalendarProps {
   defaultServiceType?: string;
   consultantName?: string;
@@ -394,6 +422,9 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
       );
       setTimeout(() => setStatusMessage(null), 6000);
 
+      // ✅ Google Ads conversion tracking (fires ONLY on successful booking)
+      gtag_report_conversion();
+
       // ✅ Global thank-you popup
       const attendeeName = name.trim() || "there";
       const dateLabel = formattedSelectedDate || selectedDateKey;
@@ -406,9 +437,7 @@ Your meeting with ${safeConsultantName} (${safeConsultantTitle}) is confirmed.
 
 📅 Date: ${dateLabel}
 ⏰ Time: ${timeLabel}
-${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""}${result?.meetingLink
-            ? `🔗 Google Meet link: ${result.meetingLink}\n`
-            : ""
+${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""}${result?.meetingLink ? `🔗 Google Meet link: ${result.meetingLink}\n` : ""
           }
 
 We’ve emailed you the confirmation and calendar invite. Looking forward to speaking with you!`,
@@ -1258,9 +1287,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
   );
 };
 
-/**
- * 🧩 Modal wrapper: use this if you already manage open state.
- */
 interface AppointmentCalendarModalProps extends AppointmentCalendarProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -1293,18 +1319,9 @@ export const AppointmentCalendarModal: React.FC<
   );
 };
 
-/**
- * 🔘 Convenience component:
- *  - Renders a “Book a call” button
- *  - Opens the appointment modal on click
- *
- * Use this anywhere you have a CTA.
- */
 interface BookCallButtonWithModalProps extends AppointmentCalendarProps {
   buttonLabel?: string;
-  /** Prefer this or className for styling the trigger button */
   buttonClassName?: string;
-  /** Alias for buttonClassName so usage feels like a normal Button */
   className?: string;
   buttonVariant?: "default" | "outline" | "secondary" | "ghost" | "link";
   buttonSize?: "default" | "sm" | "lg" | "icon";

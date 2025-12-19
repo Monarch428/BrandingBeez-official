@@ -45,7 +45,7 @@ export function CookieConsent() {
     const isExpired =
       consentDate &&
       Date.now() - new Date(consentDate).getTime() >
-        365 * 24 * 60 * 60 * 1000;
+      365 * 24 * 60 * 60 * 1000;
 
     if (!consent || isExpired) {
       if (isExpired) {
@@ -59,6 +59,7 @@ export function CookieConsent() {
         const savedPreferences = JSON.parse(consent);
         setPreferences(savedPreferences);
         applyConsentSettings(savedPreferences);
+        setShowBanner(false);
       } catch (error) {
         console.error("Error parsing cookie consent:", error);
         localStorage.removeItem("cookie-consent");
@@ -82,7 +83,7 @@ export function CookieConsent() {
   };
 
   const handleAcceptAll = () => {
-    const allAccepted = {
+    const allAccepted: CookiePreferences = {
       essential: true,
       analytics: true,
       marketing: true,
@@ -90,11 +91,12 @@ export function CookieConsent() {
     };
     setPreferences(allAccepted);
     applyConsentSettings(allAccepted);
+    setShowSettings(false);
     setShowBanner(false);
   };
 
   const handleRejectAll = () => {
-    const essentialOnly = {
+    const essentialOnly: CookiePreferences = {
       essential: true,
       analytics: false,
       marketing: false,
@@ -102,13 +104,35 @@ export function CookieConsent() {
     };
     setPreferences(essentialOnly);
     applyConsentSettings(essentialOnly);
+    setShowSettings(false);
     setShowBanner(false);
   };
 
   const handleSavePreferences = () => {
     applyConsentSettings(preferences);
-    setShowBanner(false);
     setShowSettings(false);
+    setShowBanner(false);
+  };
+
+  const handleOpenSettings = () => {
+    // ✅ When Customize opens, hide banner behind (no footer-like behavior)
+    setShowBanner(false);
+    setShowSettings(true);
+  };
+
+  const handleSettingsOpenChange = (open: boolean) => {
+    if (open) {
+      setShowSettings(true);
+      return;
+    }
+
+    // ✅ If user closes settings without saving (cancel / X / outside click)
+    // bring banner back only if consent is still not set
+    setShowSettings(false);
+    const consent = localStorage.getItem("cookie-consent");
+    if (!consent) {
+      setShowBanner(true);
+    }
   };
 
   const updatePreference = (key: keyof CookiePreferences, value: boolean) => {
@@ -177,101 +201,104 @@ export function CookieConsent() {
     },
   ];
 
-  if (!showBanner) return null;
+  // ✅ Render if either banner OR settings is open
+  if (!showBanner && !showSettings) return null;
 
   return createPortal(
     <>
-      {/* Cookie Consent Banner (BOTTOM-RIGHT on desktop, FULL-WIDTH on mobile) */}
-      <div
-        className="
-          fixed z-[9999]
-          left-0 right-0 bottom-0
-          sm:left-auto sm:right-4 sm:bottom-4
-          px-3 pb-3 sm:px-0 sm:pb-0
-          pointer-events-none
-        "
-      >
+      {/* Cookie Consent Banner */}
+      {showBanner && (
         <div
           className="
-            pointer-events-auto
-            w-full sm:w-[440px]
-            sm:max-w-[440px]
-            animate-[bbSlideUp_220ms_ease-out]
+            fixed z-[9999]
+            left-0 right-0 bottom-0
+            sm:left-auto sm:right-4 sm:bottom-4
+            px-3 pb-3 sm:px-0 sm:pb-0
+            pointer-events-none
           "
-          style={{
-            paddingBottom: "env(safe-area-inset-bottom)",
-          }}
         >
-          <Card className="border bg-white shadow-2xl rounded-2xl overflow-hidden">
-            <CardContent className="p-4 sm:p-5">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-brand-coral/10 rounded-full shrink-0">
-                    <Cookie className="w-6 h-6 text-brand-coral" />
+          <div
+            className="
+              pointer-events-auto
+              w-full sm:w-[440px]
+              sm:max-w-[440px]
+              animate-[bbSlideUp_220ms_ease-out]
+            "
+            style={{
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
+          >
+            <Card className="border bg-white shadow-2xl rounded-2xl overflow-hidden">
+              <CardContent className="p-4 sm:p-5">
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-brand-coral/10 rounded-full shrink-0">
+                      <Cookie className="w-6 h-6 text-brand-coral" />
+                    </div>
+
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900 mb-1">
+                        We Use Cookies
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        We use cookies to enhance your experience, analyze site
+                        traffic, and for marketing purposes. You can customize
+                        your preferences or accept all cookies.
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      We Use Cookies
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      We use cookies to enhance your experience, analyze site
-                      traffic, and for marketing purposes. You can customize your
-                      preferences or accept all cookies.
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={handleOpenSettings}
+                      className="flex items-center gap-2"
+                    >
+                      <Settings className="w-4 h-4" />
+                      Customize
+                    </Button>
+
+                    <Button variant="outline" onClick={handleRejectAll}>
+                      Reject All
+                    </Button>
+
+                    <Button
+                      onClick={handleAcceptAll}
+                      className="bg-brand-coral text-white hover:bg-brand-coral-dark"
+                    >
+                      Accept All
+                    </Button>
+                  </div>
+
+                  <div className="pt-3 border-t">
+                    <p className="text-xs text-gray-500">
+                      By clicking "Accept All", you agree to our use of cookies.
+                      Learn more in our{" "}
+                      <a
+                        href="/privacy-policy"
+                        className="text-brand-coral-darker hover:text-brand-coral-dark font-medium underline decoration-brand-coral-darker hover:decoration-brand-coral-dark"
+                      >
+                        Privacy Policy
+                      </a>{" "}
+                      and{" "}
+                      <a
+                        href="/cookie-policy"
+                        className="text-brand-coral-darker hover:text-brand-coral-dark font-medium underline decoration-brand-coral-darker hover:decoration-brand-coral-dark"
+                      >
+                        Cookie Policy
+                      </a>
+                      .
                     </p>
                   </div>
                 </div>
-
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowSettings(true)}
-                    className="flex items-center gap-2"
-                  >
-                    <Settings className="w-4 h-4" />
-                    Customize
-                  </Button>
-
-                  <Button variant="outline" onClick={handleRejectAll}>
-                    Reject All
-                  </Button>
-
-                  <Button
-                    onClick={handleAcceptAll}
-                    className="bg-brand-coral text-white hover:bg-brand-coral-dark"
-                  >
-                    Accept All
-                  </Button>
-                </div>
-
-                <div className="pt-3 border-t">
-                  <p className="text-xs text-gray-500">
-                    By clicking "Accept All", you agree to our use of cookies.
-                    Learn more in our{" "}
-                    <a
-                      href="/privacy-policy"
-                      className="text-brand-coral-darker hover:text-brand-coral-dark font-medium underline decoration-brand-coral-darker hover:decoration-brand-coral-dark"
-                    >
-                      Privacy Policy
-                    </a>{" "}
-                    and{" "}
-                    <a
-                      href="/cookie-policy"
-                      className="text-brand-coral-darker hover:text-brand-coral-dark font-medium underline decoration-brand-coral-darker hover:decoration-brand-coral-dark"
-                    >
-                      Cookie Policy
-                    </a>
-                    .
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Cookie Settings Modal */}
-      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+      <Dialog open={showSettings} onOpenChange={handleSettingsOpenChange}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -369,7 +396,10 @@ export function CookieConsent() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => setShowSettings(false)}>
+              <Button
+                variant="outline"
+                onClick={() => handleSettingsOpenChange(false)}
+              >
                 Cancel
               </Button>
               <Button variant="outline" onClick={handleRejectAll}>
@@ -379,7 +409,7 @@ export function CookieConsent() {
                 onClick={handleSavePreferences}
                 className="bg-brand-coral text-white hover:bg-brand-coral-dark"
               >
-                Save Preferences
+                {/* Save Preferences */} Accept Selected
               </Button>
             </div>
           </div>
