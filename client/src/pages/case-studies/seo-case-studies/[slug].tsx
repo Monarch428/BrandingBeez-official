@@ -615,14 +615,19 @@ function CTASection({ seo }: { seo: SeoCaseStudyDetail }) {
           </div>
 
           <div className="flex-shrink-0">
-            <button
+            {/* <button
               className="bg-white text-[#391B66] px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
               onClick={() => {
                 if (seo.cta1PrimaryCtaHref) window.location.assign(seo.cta1PrimaryCtaHref);
               }}
             >
               {seo.cta1PrimaryCtaText}
-            </button>
+            </button> */}
+            <BookCallButtonWithModal
+              buttonLabel={seo?.cta1PrimaryCtaText ?? "Request a Consultation Call"}
+              className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
+              buttonSize="lg"
+            />
           </div>
         </div>
       </div>
