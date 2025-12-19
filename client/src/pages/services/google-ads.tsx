@@ -928,6 +928,7 @@ export default function GoogleAds() {
                   buttonLabel=" Book a Free White-Label PPC Strategy Call"
                   className="bg-brand-purple text-brand-white hover:bg-gray-100 hover:text-brand-purple flex items-center gap-2"
                   buttonSize="lg"
+                  defaultServiceType="Google Ads"
                 />
               </div>
             </div>
@@ -1236,10 +1237,11 @@ export default function GoogleAds() {
                     <Calendar className="w-4 h-4 ml-2" />
                   </Button> */}
                   <BookCallButtonWithModal
-                    buttonLabel="Book a quick call with our team"
+                    buttonLabel="Talk to our PPC team"
                     className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                     buttonSize="lg"
                     buttonVariant="outline"
+                    defaultServiceType="Google Ads"
                   />
                 </div>
               </div>

@@ -4,7 +4,7 @@
 <head>
 
   <!-- Google Consent Mode v2 : Default Denied -->
-  <script>
+  <!-- <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('consent', 'default', {
@@ -13,7 +13,23 @@
       ad_user_data: 'denied',
       ad_personalization: 'denied'
     });
+  </script> -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      functionality_storage: 'denied',
+
+      // ✅ only here
+      wait_for_update: 500
+    });
   </script>
+
   <!-- End Google Consent Mode -->
 
   <!-- Microsoft Clarity -->

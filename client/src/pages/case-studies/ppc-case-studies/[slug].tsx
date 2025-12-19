@@ -306,7 +306,7 @@ export default function PpcCaseStudySlugPage(props: any) {
     const hasDetail = Boolean(detail);
 
     const heroCtaClass =
-  "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2";
+        "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2";
 
 
     return (
@@ -378,6 +378,7 @@ export default function PpcCaseStudySlugPage(props: any) {
                                 buttonLabel={detail?.heroPrimaryCtaText ?? "Book a Free Strategy Call"}
                                 className={heroCtaClass ?? "bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"}
                                 buttonSize="lg"
+                                defaultServiceType="Google Ads"
                             />
                         </div>
 
@@ -544,6 +545,7 @@ export default function PpcCaseStudySlugPage(props: any) {
                             buttonLabel={detail?.heroPrimaryCtaText ?? "Book Your Strategy Call"}
                             className="bg-white hover:bg-white/30 text-brand-coral border border-white/30 px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base"
                             buttonSize="lg"
+                            defaultServiceType="Google Ads"
                         />
                         {detail?.bottomSecondaryCtaText ? (
                             <CtaButton

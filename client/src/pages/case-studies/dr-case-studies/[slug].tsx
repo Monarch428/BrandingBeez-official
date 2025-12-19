@@ -253,8 +253,8 @@ function CtaButton({
     variant === "hero"
       ? "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
       : variant === "secondary"
-      ? "px-6 py-3 border border-white rounded-md text-white hover:bg-white/10 transition-colors inline-flex items-center gap-2"
-      : "px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors inline-flex items-center gap-2";
+        ? "px-6 py-3 border border-white rounded-md text-white hover:bg-white/10 transition-colors inline-flex items-center gap-2"
+        : "px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors inline-flex items-center gap-2";
 
   return (
     <button
@@ -295,11 +295,11 @@ function mapApiToCombined(api: any): DedicatedResourceCombined | null {
 
     results: Array.isArray(c.results)
       ? c.results.map((r: any) => ({
-          key: String(r.key ?? ""),
-          label: String(r.label ?? ""),
-          value: String(r.value ?? ""),
-          colorClass: typeof r.valueClass === "string" ? r.valueClass : undefined,
-        }))
+        key: String(r.key ?? ""),
+        label: String(r.label ?? ""),
+        value: String(r.value ?? ""),
+        colorClass: typeof r.valueClass === "string" ? r.valueClass : undefined,
+      }))
       : [],
 
     coverImageUrl: typeof c.coverImageUrl === "string" ? c.coverImageUrl : undefined,
@@ -314,33 +314,33 @@ function mapApiToCombined(api: any): DedicatedResourceCombined | null {
 
   const heroStats: HeroStat[] = Array.isArray(d.heroStats)
     ? d.heroStats.map((s: any, idx: number) => ({
-        value: String(s.value ?? ""),
-        label: String(s.label ?? ""),
-        iconKey: idx === 0 ? "TrendingUp" : idx === 1 ? "PiggyBank" : "Users",
-      }))
+      value: String(s.value ?? ""),
+      label: String(s.label ?? ""),
+      iconKey: idx === 0 ? "TrendingUp" : idx === 1 ? "PiggyBank" : "Users",
+    }))
     : [];
 
   const challengePoints: ChallengePoint[] = Array.isArray(d.challengeImpactBullets)
     ? d.challengeImpactBullets.map((b: any) => ({
-        iconKey: "AlertCircle",
-        text: String(b?.text ?? ""),
-      }))
+      iconKey: "AlertCircle",
+      text: String(b?.text ?? ""),
+    }))
     : [];
 
   const strategyColumns: StrategyColumn[] = Array.isArray(d.evolutionSteps)
     ? d.evolutionSteps.map((s: any) => ({
-        order: Number(s.order ?? 0) || 0,
-        title: String(s.title ?? ""),
-        bullets: Array.isArray(s.features) ? s.features.map((f: any) => ({ iconKey: "CheckCircle2", text: String(f ?? "") })) : [],
-      }))
+      order: Number(s.order ?? 0) || 0,
+      title: String(s.title ?? ""),
+      bullets: Array.isArray(s.features) ? s.features.map((f: any) => ({ iconKey: "CheckCircle2", text: String(f ?? "") })) : [],
+    }))
     : [];
 
   const coreFeatures: FeatureItem[] = Array.isArray(d.successFactors)
     ? d.successFactors.map((f: any, idx: number) => ({
-        iconKey: idx % 2 === 0 ? "Sparkles" : "ShieldCheck",
-        title: String(f.title ?? ""),
-        description: String(f.description ?? ""),
-      }))
+      iconKey: idx % 2 === 0 ? "Sparkles" : "ShieldCheck",
+      title: String(f.title ?? ""),
+      description: String(f.description ?? ""),
+    }))
     : [];
 
   const firstT = Array.isArray(d.testimonials) ? d.testimonials[0] : undefined;
@@ -352,32 +352,32 @@ function mapApiToCombined(api: any): DedicatedResourceCombined | null {
       typeof firstT?.rating === "number"
         ? starsFromRating(firstT.rating)
         : typeof d.heroRatingText === "string"
-        ? d.heroRatingText
-        : undefined,
+          ? d.heroRatingText
+          : undefined,
   };
 
   const partnershipMetrics: PartnershipMetric[] = Array.isArray(d.teamStats)
     ? d.teamStats.map((m: any, idx: number) => ({
-        iconKey: idx === 0 ? "TrendingUp" : idx === 1 ? "Clock" : idx === 2 ? "PiggyBank" : "BarChart3",
-        label: String(m.label ?? ""),
-        value: String(m.value ?? ""),
-      }))
+      iconKey: idx === 0 ? "TrendingUp" : idx === 1 ? "Clock" : idx === 2 ? "PiggyBank" : "BarChart3",
+      label: String(m.label ?? ""),
+      value: String(m.value ?? ""),
+    }))
     : [];
 
   // ---- Team Involved (correct mapping) ----
   const teamMembers: TeamMember[] = Array.isArray(d.teamMembers)
     ? d.teamMembers.map((m: any) => ({
-        name: String(m?.name ?? ""),
-        role: String(m?.role ?? ""),
-        imageUrl: typeof m?.imageUrl === "string" ? m.imageUrl : undefined,
-      }))
+      name: String(m?.name ?? ""),
+      role: String(m?.role ?? ""),
+      imageUrl: typeof m?.imageUrl === "string" ? m.imageUrl : undefined,
+    }))
     : [];
 
   const teamStats: TeamStat[] = Array.isArray(d.teamStats)
     ? d.teamStats.map((s: any) => ({
-        label: String(s?.label ?? ""),
-        value: String(s?.value ?? ""),
-      }))
+      label: String(s?.label ?? ""),
+      value: String(s?.value ?? ""),
+    }))
     : [];
 
   const ctaTop: CtaBlock = {
@@ -619,6 +619,7 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
                   buttonLabel={detail?.heroPrimaryCtaText ?? "Hire Your Team"}
                   className="px-8 py-6 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
                   buttonSize="lg"
+                  defaultServiceType="Dedicated Resources"
                 />
                 <CtaButton
                   variant="secondary"
@@ -799,18 +800,16 @@ function WebsiteShowcaseSection({
             <div className="inline-flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1 shadow-sm">
               <button
                 onClick={() => setViewMode("desktop")}
-                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md transition-all ${
-                  viewMode === "desktop" ? "bg-gradient-to-r from-[#321a66] to-[#ee4962] text-white" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md transition-all ${viewMode === "desktop" ? "bg-gradient-to-r from-[#321a66] to-[#ee4962] text-white" : "text-gray-600 hover:text-gray-900"
+                  }`}
               >
                 <IconByKey iconKey="Monitor" className="w-4 h-4" size={16} />
                 Desktop
               </button>
               <button
                 onClick={() => setViewMode("mobile")}
-                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md transition-all ${
-                  viewMode === "mobile" ? "bg-gradient-to-r from-[#321a66] to-[#ee4962] text-white" : "text-gray-600 hover:text-gray-900"
-                }`}
+                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md transition-all ${viewMode === "mobile" ? "bg-gradient-to-r from-[#321a66] to-[#ee4962] text-white" : "text-gray-600 hover:text-gray-900"
+                  }`}
               >
                 <IconByKey iconKey="Smartphone" className="w-4 h-4" size={16} />
                 Mobile
@@ -823,9 +822,8 @@ function WebsiteShowcaseSection({
           </p>
 
           <div
-            className={`bg-gray-100 border-2 border-gray-200 rounded-xl overflow-hidden shadow-xl transition-all duration-300 ${
-              viewMode === "mobile" ? "max-w-sm mx-auto" : ""
-            }`}
+            className={`bg-gray-100 border-2 border-gray-200 rounded-xl overflow-hidden shadow-xl transition-all duration-300 ${viewMode === "mobile" ? "max-w-sm mx-auto" : ""
+              }`}
           >
             {imgUrl ? (
               <img src={imgUrl} alt={imgAlt} className="w-full h-auto" loading="lazy" />
@@ -866,6 +864,7 @@ function InlineCtaBand({ title, body, buttonText }: { title: string; body: strin
               buttonLabel={buttonText ?? "Book Free Consultation"}
               className="w-full md:w-auto px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors"
               buttonSize="lg"
+              defaultServiceType="Dedicated Resources"
             />
           </div>
         </div>
@@ -1031,9 +1030,8 @@ function FeaturesSection({
             {(core || []).map((f, idx) => (
               <div
                 key={idx}
-                className={`border border-gray-200 rounded-lg shadow-sm p-6 ${
-                  idx % 2 === 0 ? "bg-gradient-to-br from-[#ee4962]/5 to-white" : "bg-gradient-to-br from-[#321a66]/5 to-white"
-                }`}
+                className={`border border-gray-200 rounded-lg shadow-sm p-6 ${idx % 2 === 0 ? "bg-gradient-to-br from-[#ee4962]/5 to-white" : "bg-gradient-to-br from-[#321a66]/5 to-white"
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   <div
@@ -1058,9 +1056,8 @@ function FeaturesSection({
             {(tech || []).map((f, idx) => (
               <div
                 key={idx}
-                className={`border border-gray-200 rounded-lg shadow-sm p-6 ${
-                  idx % 2 === 0 ? "bg-gradient-to-br from-[#ee4962]/5 to-white" : "bg-gradient-to-br from-[#321a66]/5 to-white"
-                }`}
+                className={`border border-gray-200 rounded-lg shadow-sm p-6 ${idx % 2 === 0 ? "bg-gradient-to-br from-[#ee4962]/5 to-white" : "bg-gradient-to-br from-[#321a66]/5 to-white"
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   <div
@@ -1226,6 +1223,7 @@ function FinalCtaSection({
             buttonLabel={primaryText ?? "Book Your Strategy Call"}
             className="px-6 py-6 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors min-w-[254px]"
             buttonSize="lg"
+            defaultServiceType="Dedicated Resources"
           />
 
           <button

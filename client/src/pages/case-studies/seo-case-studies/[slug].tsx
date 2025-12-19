@@ -436,6 +436,7 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
               buttonLabel={seo?.heroPrimaryCtaText ?? "Book Your Strategy Call"}
               className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
               buttonSize="lg"
+              defaultServiceType="SEO / AIO Services"
             />
           </div>
 
@@ -627,6 +628,7 @@ function CTASection({ seo }: { seo: SeoCaseStudyDetail }) {
               buttonLabel={seo?.cta1PrimaryCtaText ?? "Request a Consultation Call"}
               className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
               buttonSize="lg"
+              defaultServiceType="SEO / AIO Services"
             />
           </div>
         </div>
@@ -845,6 +847,7 @@ function CTASection2({ seo }: { seo: SeoCaseStudyDetail }) {
               buttonLabel={seo?.cta2PrimaryCtaText ?? "Book Your Strategy Call"}
               className="bg-white text-[#391B66] font-bold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
               buttonSize="lg"
+              defaultServiceType="SEO / AIO Services"
             />
           </div>
         </div>

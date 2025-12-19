@@ -71,11 +71,26 @@ export function CookieConsent() {
   }, []);
 
   const applyConsentSettings = (prefs: CookiePreferences) => {
-    if ((window as any).gtag) {
-      (window as any).gtag("consent", "update", {
-        analytics_storage: prefs.analytics ? "granted" : "denied",
-        ad_storage: prefs.marketing ? "granted" : "denied",
-      });
+    const consentPayload = {
+      analytics_storage: prefs.analytics ? "granted" : "denied",
+      ad_storage: prefs.marketing ? "granted" : "denied",
+      ad_user_data: prefs.marketing ? "granted" : "denied",
+      ad_personalization: prefs.marketing ? "granted" : "denied",
+      functionality_storage: prefs.functional ? "granted" : "denied",
+    } as const;
+
+    (window as any).gtag?.("consent", "update", consentPayload);
+
+    try {
+      // Preferred: use gtag if available (you define gtag() in <head>)
+      if (typeof (window as any).gtag === "function") {
+        (window as any).gtag("consent", "update", consentPayload);
+      } else if (Array.isArray((window as any).dataLayer)) {
+        // Fallback: push to dataLayer (GTM will process it)
+        (window as any).dataLayer.push(["consent", "update", consentPayload]);
+      }
+    } catch (e) {
+      console.error("Failed to apply consent settings:", e);
     }
 
     localStorage.setItem("cookie-consent", JSON.stringify(prefs));
@@ -409,7 +424,7 @@ export function CookieConsent() {
                 onClick={handleSavePreferences}
                 className="bg-brand-coral text-white hover:bg-brand-coral-dark"
               >
-                {/* Save Preferences */} Accept Selected
+                Accept Selected
               </Button>
             </div>
           </div>
