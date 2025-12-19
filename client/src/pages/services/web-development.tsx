@@ -443,7 +443,7 @@ export default function WebDevelopment() {
                       buttonLabel="Schedule Consultation"
                       className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple font-semibold px-6 py-3 rounded-lg shadow-md w-full sm:w-auto justify-center"
                       buttonSize="lg"
-                      defaultServiceType="Web Development"
+                      defaultServiceType="Website Development"
                     />
                     {/* Secondary CTA */}
                     <Button
@@ -663,7 +663,7 @@ export default function WebDevelopment() {
                           className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                           buttonSize="lg"
                           buttonVariant="outline"
-                          defaultServiceType="Web Development"
+                          defaultServiceType="Website Development"
                         />
                       </div>
                     </CardContent>
@@ -759,11 +759,11 @@ export default function WebDevelopment() {
                 <div className="pt-2 flex items-center justify-between text-sm text-gray-600">
                   <span>Still have a question?{" "}</span>
                   <BookCallButtonWithModal
-                    buttonLabel="Talk to Our SEO Team"
+                    buttonLabel="Talk to Our Development Team"
                     className="w-fit h-10px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                     buttonSize="lg"
                     buttonVariant="outline"
-                    defaultServiceType="SEO / AIO Services"
+                    defaultServiceType="Website Development"
                   />
                 </div>
               </div>

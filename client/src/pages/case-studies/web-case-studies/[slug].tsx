@@ -420,6 +420,7 @@ export default function WebCaseStudySlugPage(props: any) {
                                     buttonLabel={detail?.heroPrimaryCtaText ?? "Book Free Consultation"}
                                     className="px-8 py-6 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
                                     buttonSize="lg"
+                                    defaultServiceType="Website Development"
                                 />
                                 <CtaButton
                                     variant="secondary"
@@ -727,6 +728,7 @@ function InlineCtaBand({
                             buttonLabel={buttonText ?? "Book Free Consultation"}
                             className="w-full md:w-auto px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors"
                             buttonSize="lg"
+                            defaultServiceType="Website Development"
                         />
                     </div>
                 </div>
@@ -1172,6 +1174,7 @@ function FinalCtaSection({
                         buttonLabel={primaryText ?? "Book Your Strategy Call"}
                         className="px-6 py-6 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors min-w-[254px]"
                         buttonSize="lg"
+                        defaultServiceType="Website Development"
                     />
 
                     <button

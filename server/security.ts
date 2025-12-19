@@ -22,11 +22,11 @@ export function securityHeaders() {
           "https://googletagmanager.com",
           "https://www.google-analytics.com",
 
-          // ✅ Tag Assistant static assets (needed for preview UI/handshake)
+          // Tag Assistant static assets
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // ✅ Google Ads / DoubleClick
+          // Google Ads / DoubleClick
           "https://googleads.g.doubleclick.net",
           "https://www.googleadservices.com",
           "https://stats.g.doubleclick.net",
@@ -50,7 +50,7 @@ export function securityHeaders() {
           "https://replit.com",
           "https://*.replit.com",
 
-          // LinkedIn Insight Tag scripts
+          // LinkedIn Insight Tag
           "https://snap.licdn.com",
           "https://*.licdn.com"
         ],
@@ -68,11 +68,11 @@ export function securityHeaders() {
           "https://googletagmanager.com",
           "https://www.google-analytics.com",
 
-          // ✅ Tag Assistant static assets (needed for preview UI/handshake)
+          // Tag Assistant static assets
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // ✅ Google Ads / DoubleClick
+          // Google Ads / DoubleClick
           "https://googleads.g.doubleclick.net",
           "https://www.googleadservices.com",
           "https://stats.g.doubleclick.net",
@@ -96,9 +96,42 @@ export function securityHeaders() {
           "https://replit.com",
           "https://*.replit.com",
 
-          // LinkedIn Insight Tag scripts
+          // LinkedIn Insight Tag
           "https://snap.licdn.com",
           "https://*.licdn.com"
+        ],
+
+        /* ✅ ADD THIS BLOCK (CRITICAL FIX) */
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+
+          // Google / GA / GTM
+          "https://www.googletagmanager.com",
+          "https://*.googletagmanager.com",
+          "https://www.google-analytics.com",
+          "https://stats.g.doubleclick.net",
+          "https://googleads.g.doubleclick.net",
+          "https://www.googleadservices.com",
+          "https://*.googleusercontent.com",
+
+          // Tag Assistant static assets
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+
+          // Microsoft Clarity
+          "https://www.clarity.ms",
+          "https://c.clarity.ms",
+
+          // LinkedIn Insight Tag
+          "https://px.ads.linkedin.com",
+          "https://*.linkedin.com",
+
+          // ✅ Cloudinary (FIX)
+          "https://res.cloudinary.com",
+          "https://*.res.cloudinary.com",
+
         ],
 
         connectSrc: [
@@ -118,11 +151,9 @@ export function securityHeaders() {
           "https://*.doubleclick.net",
           "https://region1.google-analytics.com",
           "https://www.googleadservices.com",
-
-          // ✅ FIX: Google Ads collect endpoint (was blocked)
           "https://pagead2.googlesyndication.com",
 
-          // ✅ Tag Assistant / Preview handshake helpers
+          // GTM / Tag Assistant
           "https://www.googletagmanager.com",
           "https://googletagmanager.com",
           "https://*.googletagmanager.com",
@@ -138,15 +169,13 @@ export function securityHeaders() {
           "https://k.clarity.ms",
           "https://o.clarity.ms",
           "https://s.clarity.ms",
-
-          // ✅ FIX: Clarity collect endpoint (was blocked)
           "https://q.clarity.ms",
 
           // Calendly
           "https://calendly.com",
           "https://*.calendly.com",
 
-          // ✅ LinkedIn Insight Tag
+          // LinkedIn Insight Tag
           "https://px.ads.linkedin.com",
           "https://snap.licdn.com",
           "https://*.linkedin.com",
@@ -156,7 +185,7 @@ export function securityHeaders() {
         frameSrc: [
           "'self'",
 
-          // Calendly embeds
+          // Calendly
           "https://calendly.com",
           "https://*.calendly.com",
 
@@ -167,16 +196,14 @@ export function securityHeaders() {
           "https://youtu.be",
           "https://www.youtube-nocookie.com",
 
-          // ✅ Tag Assistant + GTM iframe
+          // GTM / Tag Assistant
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
           "https://www.googletagmanager.com",
           "https://googletagmanager.com",
-
-          // ✅ Tag Assistant sometimes uses googleusercontent for preview frames
           "https://*.googleusercontent.com",
 
-          // ✅ Tag Assistant static assets
+          // Static assets
           "https://www.gstatic.com",
           "https://*.gstatic.com"
         ],
@@ -186,7 +213,6 @@ export function securityHeaders() {
       }
     },
 
-    // 🔐 Security headers
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
