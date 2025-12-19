@@ -80,12 +80,12 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   });
 
   const interests = [
+    { id: "development", name: "Web Development", icon: "💻" },
     { id: "scale-agency", name: "Scale My Agency", icon: "📈" },
     { id: "white-label", name: "White-Label Services", icon: "🏷️" },
-    { id: "seo-services", name: "SEO & Marketing", icon: "🎯" },
-    { id: "development", name: "Web Development", icon: "💻" },
-    { id: "dedicated-team", name: "Dedicated Team", icon: "👥" },
-    { id: "ai-solutions", name: "AI Integration", icon: "🤖" },
+    { id: "seo-services", name: "SEO / AIO Services", icon: "🎯" },
+    { id: "dedicated-team", name: "Dedicated Resources", icon: "👥" },
+    { id: "ai-solutions", name: "App Development (AI Powered)", icon: "🤖" },
   ];
 
   const handleSubmit = () => {
@@ -229,11 +229,10 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                     <button
                       key={item.id}
                       onClick={() => setInterest(item.id)}
-                      className={`p-3 rounded-lg border-2 text-center transition-all ${
-                        interest === item.id
+                      className={`p-3 rounded-lg border-2 text-center transition-all ${interest === item.id
                           ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
                           : "border-gray-200 dark:border-gray-600 hover:border-orange-300"
-                      }`}
+                        }`}
                     >
                       <div className="text-lg mb-1">{item.icon}</div>
                       <span className="text-xs font-medium text-gray-900 dark:text-white">
@@ -323,9 +322,8 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${
-                      i <= step ? "bg-orange-500" : "bg-gray-300 dark:bg-gray-500"
-                    }`}
+                    className={`w-2 h-2 rounded-full ${i <= step ? "bg-orange-500" : "bg-gray-300 dark:bg-gray-500"
+                      }`}
                   />
                 ))}
               </div>

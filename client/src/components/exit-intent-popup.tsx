@@ -65,10 +65,10 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
   });
 
   const services = [
-    { id: "seo", name: "SEO Services", discount: "30%" },
     { id: "web-dev", name: "Web Development", discount: "25%" },
+    { id: "seo", name: "SEO Services", discount: "30%" },
     { id: "google-ads", name: "Google Ads Management", discount: "35%" },
-    { id: "dedicated-team", name: "Dedicated Team", discount: "20%" },
+    { id: "dedicated-team", name: "Dedicated Resources", discount: "20%" },
     { id: "ai-integration", name: "AI Integration", discount: "40%" },
   ];
 
@@ -185,11 +185,10 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                     <button
                       key={service.id}
                       onClick={() => setSelectedService(service.id)}
-                      className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
-                        selectedService === service.id
+                      className={`w-full p-3 rounded-lg border-2 text-left transition-all ${selectedService === service.id
                           ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                           : "border-gray-200 dark:border-gray-600 hover:border-gray-300"
-                      }`}
+                        }`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-900 dark:text-white">
@@ -285,9 +284,8 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${
-                      i <= step ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"
-                    }`}
+                    className={`w-2 h-2 rounded-full ${i <= step ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"
+                      }`}
                   />
                 ))}
               </div>

@@ -107,31 +107,38 @@ export function securityHeaders() {
           "data:",
           "blob:",
 
-          // Google / GA / GTM
-          "https://www.googletagmanager.com",
-          "https://*.googletagmanager.com",
-          "https://www.google-analytics.com",
-          "https://stats.g.doubleclick.net",
-          "https://googleads.g.doubleclick.net",
-          "https://www.googleadservices.com",
-          "https://*.googleusercontent.com",
-
-          // Tag Assistant static assets
-          "https://www.gstatic.com",
-          "https://*.gstatic.com",
-
-          // Microsoft Clarity
-          "https://www.clarity.ms",
-          "https://c.clarity.ms",
-
-          // LinkedIn Insight Tag
-          "https://px.ads.linkedin.com",
-          "https://*.linkedin.com",
-
-          // ✅ Cloudinary (FIX)
+          // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
 
+          // ✅ Google (FIX for /pagead/1p-user-list)
+          "https://www.google.com",
+          "https://www.google.co.in",
+          "https://*.google.com",
+
+          // GTM / GA
+          "https://www.googletagmanager.com",
+          "https://*.googletagmanager.com",
+          "https://www.google-analytics.com",
+          "https://*.googleusercontent.com",
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+
+          // Google Ads / DoubleClick
+          "https://googleads.g.doubleclick.net",
+          "https://stats.g.doubleclick.net",
+          "https://*.doubleclick.net",
+          "https://www.googleadservices.com",
+          "https://pagead2.googlesyndication.com",
+          "https://*.googlesyndication.com",
+
+          // Clarity
+          "https://www.clarity.ms",
+          "https://c.clarity.ms",
+
+          // LinkedIn
+          "https://px.ads.linkedin.com",
+          "https://*.linkedin.com"
         ],
 
         connectSrc: [
@@ -142,16 +149,22 @@ export function securityHeaders() {
           "https://*.res.cloudinary.com",
 
           // Google / GA / Ads
+          "https://www.google.com",
+          "https://google.com",
           "https://*.google.com",
           "https://*.googleapis.com",
           "https://www.google-analytics.com",
           "https://analytics.google.com",
           "https://*.google-analytics.com",
+          "https://region1.google-analytics.com",
+
+          // Ads endpoints
+          "https://www.googleadservices.com",
+          "https://googleads.g.doubleclick.net",
           "https://stats.g.doubleclick.net",
           "https://*.doubleclick.net",
-          "https://region1.google-analytics.com",
-          "https://www.googleadservices.com",
           "https://pagead2.googlesyndication.com",
+          "https://*.googlesyndication.com",
 
           // GTM / Tag Assistant
           "https://www.googletagmanager.com",
@@ -163,7 +176,7 @@ export function securityHeaders() {
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // Microsoft Clarity
+          // Clarity
           "https://www.clarity.ms",
           "https://c.clarity.ms",
           "https://k.clarity.ms",
@@ -175,7 +188,7 @@ export function securityHeaders() {
           "https://calendly.com",
           "https://*.calendly.com",
 
-          // LinkedIn Insight Tag
+          // LinkedIn
           "https://px.ads.linkedin.com",
           "https://snap.licdn.com",
           "https://*.linkedin.com",
