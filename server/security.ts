@@ -126,7 +126,12 @@ export function securityHeaders() {
 
           // LinkedIn Insight Tag
           "https://px.ads.linkedin.com",
-          "https://*.linkedin.com"
+          "https://*.linkedin.com",
+
+          // ✅ Cloudinary (FIX)
+          "https://res.cloudinary.com",
+          "https://*.res.cloudinary.com",
+
         ],
 
         connectSrc: [
@@ -223,7 +228,6 @@ export function securityHeaders() {
     }
   });
 }
-
 // Rate limiting for general API endpoints
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
