@@ -45,7 +45,7 @@ export function CookieConsent() {
     const isExpired =
       consentDate &&
       Date.now() - new Date(consentDate).getTime() >
-        365 * 24 * 60 * 60 * 1000;
+      365 * 24 * 60 * 60 * 1000;
 
     if (!consent || isExpired) {
       if (isExpired) {
@@ -72,20 +72,14 @@ export function CookieConsent() {
 
   const applyConsentSettings = (prefs: CookiePreferences) => {
     const consentPayload = {
-      // Analytics
       analytics_storage: prefs.analytics ? "granted" : "denied",
-
-      // Ads / Marketing
       ad_storage: prefs.marketing ? "granted" : "denied",
       ad_user_data: prefs.marketing ? "granted" : "denied",
       ad_personalization: prefs.marketing ? "granted" : "denied",
-
-      // Functional (optional, but good to include)
       functionality_storage: prefs.functional ? "granted" : "denied",
-
-      // Helps GTM/gtag wait a moment for consent update before firing tags
-      wait_for_update: 500,
     } as const;
+
+    (window as any).gtag?.("consent", "update", consentPayload);
 
     try {
       // Preferred: use gtag if available (you define gtag() in <head>)
