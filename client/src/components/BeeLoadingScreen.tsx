@@ -17,11 +17,11 @@ const BrandingBeezLoader: React.FC = () => {
           />
 
           {/* ZZZ floating above bee */}
-          <div className="absolute -top-7 right-5 flex flex-col items-center gap-[2px] pointer-events-none">
+          {/* <div className="absolute -top-7 right-5 flex flex-col items-center gap-[2px] pointer-events-none">
             <span className="zzz zzz-1">Z</span>
             <span className="zzz zzz-2">Z</span>
             <span className="zzz zzz-3">Z</span>
-          </div>
+          </div> */}
         </div>
 
         {/* Animated bars */}
