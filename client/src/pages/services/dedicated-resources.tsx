@@ -24,6 +24,8 @@ import {
   Calculator,
   Calendar,
   ExternalLink,
+  HelpCircle,
+  ChevronDown,
 } from "lucide-react";
 import socialLandLogo from "@assets/WhatsApp Image 2025-07-19 at 12.02.39_1754111968432.jpeg";
 import koalaDigitalLogo from "@assets/WhatsApp Image 2025-07-19 at 12.02.40_1754112106610.jpeg";
@@ -167,6 +169,71 @@ export default function DedicatedResources() {
   const handleHireClick = () => {
     navigate("/pricing-calculator?service=dedicated-resources");
   };
+
+  const faqs = [
+    {
+      id: "full-time-or-part-time",
+      question: "Are the resources full-time or part-time?",
+      answer:
+        "Dedicated resources work full-time (8 hours per day, 5 days per week) by default. Part-time or flexible engagement models can be discussed if required.",
+    },
+    {
+      id: "exclusive-work",
+      question: "Will the resource work exclusively on my projects?",
+      answer:
+        "Yes. Your dedicated resource works only on your projects and does not handle work for any other clients.",
+    },
+    {
+      id: "communication-reporting",
+      question: "How do communication and reporting work?",
+      answer:
+        "You can communicate directly with your resource via Slack, Microsoft Teams, Email, Zoom, or Google Meet. Regular reporting can be shared daily, weekly, or monthly—based on your preference.",
+    },
+    {
+      id: "project-management",
+      question: "Do you provide project management?",
+      answer:
+        "Yes. A project manager can be assigned at no extra cost for team-based engagements to ensure smooth delivery, timelines, and coordination.",
+    },
+    {
+      id: "pricing-structure",
+      question: "What is the pricing structure?",
+      answer:
+        "Pricing is monthly and predictable, with no hidden costs.",
+    },
+    {
+      id: "scaling-team",
+      question: "Can I scale the team up or down?",
+      answer:
+        "Absolutely. You can add or reduce resources based on your workload with minimal notice, making it highly flexible.",
+    },
+    {
+      id: "minimum-commitment",
+      question: "What is the minimum commitment?",
+      answer:
+        "The minimum engagement period is three months. Longer-term commitments come with better continuity and priority support.",
+    },
+    {
+      id: "getting-started",
+      question: "How quickly can we get started?",
+      answer:
+        "Typically, onboarding takes 2–3 weeks, depending on the role and complexity of your requirement.",
+    },
+    {
+      id: "quality-confidentiality",
+      question: "How do you ensure quality and confidentiality?",
+      answer:
+        "We ensure quality and confidentiality through pre-vetted experienced professionals, NDA and data confidentiality agreements, secure access protocols, and internal quality checks and reviews.",
+    },
+    {
+      id: "not-satisfied",
+      question: "What if I’m not satisfied with the resource?",
+      answer:
+        "If performance doesn’t meet expectations, we’ll replace the resource at no additional cost, subject to reasonable notice.",
+    },
+  ];
+
+  const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <>
@@ -1302,6 +1369,106 @@ export default function DedicatedResources() {
             contactFormType="service-dr-contact-form"
             submissionSourceLabel="Service Page Contact Form Submission"
           />
+
+          <section className="py-16 sm:py-20 bg-[#f7f6f3]">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:gap-12 lg:grid-cols-[1.1fr,1fr] items-start">
+              {/* Left – intro / highlight */}
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                  <HelpCircle className="w-4 h-4 text-brand-purple" />
+                  <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
+                    Dedicated Resources – FAQs
+                  </span>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-bold text-brand-purple mb-4">
+                  Dedicated Resources – Frequently Asked Questions
+                </h2>
+
+                <p className="text-base sm:text-lg text-gray-600 mb-6">
+                  Clear answers to help you understand how our dedicated resource model
+                  works, including engagement structure, communication, pricing, and
+                  scalability—so you can build reliable offshore teams with confidence.
+                </p>
+
+                <Card className="bg-gradient-to-r from-brand-purple to-brand-coral text-white border-none shadow-lg">
+                  <CardHeader className="pb-2">
+                    <p className="text-xs sm:text-sm font-medium text-white/80 uppercase tracking-[0.16em]">
+                      Why agencies choose BrandingBeez
+                    </p>
+                    <h3 className="text-lg sm:text-xl font-bold mt-1">
+                      Dedicated teams that work exclusively for you.
+                    </h3>
+                  </CardHeader>
+                  <CardContent className="pt-2 space-y-2 text-sm text-white/90">
+                    <p>✔ Full-time, pre-vetted professionals aligned to your projects.</p>
+                    <p>✔ Direct communication with complete project transparency.</p>
+                    <p>✔ Flexible scaling with predictable monthly pricing.</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right – FAQ accordion */}
+              <div className="space-y-4">
+                {faqs.length === 0 && (
+                  <div className="rounded-2xl bg-white border border-dashed border-gray-300 py-6 px-4 text-center text-sm text-gray-500">
+                    No questions match your search. Try a different keyword.
+                  </div>
+                )}
+
+                {faqs.map((item) => {
+                  const isOpen = openId === item.id;
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="bg-white/90 border border-brand-purple/10 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-200"
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setOpenId(isOpen ? null : item.id)}
+                        className="w-full text-left px-4 sm:px-5 py-4 flex items-center justify-between gap-4"
+                      >
+                        <span className="font-semibold text-sm sm:text-base text-brand-purple">
+                          {item.question}
+                        </span>
+                        <ChevronDown
+                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                            }`}
+                        />
+                      </button>
+
+                      {isOpen && (
+                        <div className="px-4 sm:px-5 pb-5 pt-3 text-sm sm:text-base text-gray-700 border-t border-gray-100">
+                          {item.answer}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* CTA under FAQ */}
+                <div className="pt-2 sm:pt-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+                    <p className="text-sm sm:text-base text-gray-700 text-center sm:text-left">
+                      Still have questions about hiring dedicated resources?{" "}
+                      <span className="font-semibold text-brand-purple">
+                        Our team is happy to guide you.
+                      </span>
+                    </p>
+
+                    <BookCallButtonWithModal
+                      buttonLabel="Talk to Our Team"
+                      className="inline-flex items-center justify-center rounded-md bg-brand-coral px-6 sm:px-8 py-3 text-sm sm:text-base font-semibold text-white shadow-md hover:bg-brand-purple hover:text-white transition-all duration-200 touch-manipulation"
+                      buttonSize="lg"
+                      defaultServiceType="Dedicated Resources"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
 
           {/* CTA Section */}
           <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-brand-purple text-white">

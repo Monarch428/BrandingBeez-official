@@ -69,7 +69,7 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
     { id: "seo", name: "SEO Services", discount: "30%" },
     { id: "google-ads", name: "Google Ads Management", discount: "35%" },
     { id: "dedicated-team", name: "Dedicated Resources", discount: "20%" },
-    { id: "ai-integration", name: "AI Integration", discount: "40%" },
+    { id: "ai-integration", name: "App Development (AI Powered)", discount: "40%" },
   ];
 
   const handleSubmit = () => {

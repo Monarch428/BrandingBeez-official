@@ -1205,7 +1205,6 @@
 
 
 
-
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -1267,10 +1266,28 @@ interface BlogPost {
 
 type SectionType = "content" | "process";
 
+type SectionLink = {
+  id: string;
+  label: string;
+  url: string;
+};
+
 type ProcessStep = {
   id: string;
   title: string;
   description: string;
+
+  /**
+   * ✅ IMPORTANT UPDATE (as per your request):
+   * Step "References" (list shown under step)
+   */
+  links?: SectionLink[];
+
+  /**
+   * ✅ IMPORTANT UPDATE:
+   * Step "Inline Word Links" (auto link inside step description)
+   */
+  inlineLinks?: SectionLink[];
 };
 
 type SectionCTA = {
@@ -1279,12 +1296,6 @@ type SectionCTA = {
   description?: string;
   buttonText?: string;
   buttonLink?: string;
-};
-
-type SectionLink = {
-  id: string;
-  label: string;
-  url: string;
 };
 
 type BlogSection = {
@@ -1296,7 +1307,19 @@ type BlogSection = {
   images: string[];
   steps: ProcessStep[];
   cta: SectionCTA;
+
+  /**
+   * ✅ IMPORTANT UPDATE (as per your request):
+   * Section "References" (shown as list under section)
+   */
   links: SectionLink[];
+
+  /**
+   * ✅ IMPORTANT UPDATE:
+   * Section "Inline Word Links" (auto link inside section content)
+   * This is SEPARATE from section links/references list.
+   */
+  inlineLinks: SectionLink[];
 };
 
 type TocItem = {
@@ -1338,6 +1361,71 @@ const isProbablyJson = (value: string) => {
 
 const isProbablyHtml = (value: string) => /<\/?[a-z][\s\S]*>/i.test(value || "");
 
+// "# Title ## Intro In the ... ### Tip 1 ..."
+function normalizeAiMarkdown(raw: string) {
+  let t = (raw || "").replace(/\r\n/g, "\n").trim();
+  if (!t) return "";
+
+  // Force headings to new lines when preceded by space
+  t = t
+    .replace(/(\s)(##\s+)/g, "\n## ")
+    .replace(/(\s)(###\s+)/g, "\n### ")
+    .replace(/(\s)(#\s+)/g, "\n# ");
+
+  t = t.replace(/^(#{2,3}\s+[^\n]+)\s+(?=\S)/gm, "$1\n");
+
+  // Normalize multiple blank lines
+  t = t.replace(/\n{3,}/g, "\n\n").trim();
+
+  return t;
+}
+
+function sanitizeUrl(u: string) {
+  const url = (u || "").trim();
+  if (!url) return "";
+  if (url.startsWith("/")) return url;
+  if (/^https?:\/\//i.test(url)) return url;
+  return "";
+}
+
+/**
+ * ✅ IMPORTANT UPDATE (as per your request):
+ * Extract markdown links + bare URLs into "INLINE WORD LINKS" (NOT references list)
+ * So inline linking is independent.
+ */
+function extractInlineLinksFromText(
+  text: string,
+): { cleaned: string; inlineLinks: SectionLink[] } {
+  let cleaned = text || "";
+  const links: SectionLink[] = [];
+
+  // Markdown links: [Label](https://url)
+  cleaned = cleaned.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) => {
+    const safe = sanitizeUrl(url);
+    if (safe) links.push({ id: uid(), label: String(label || "").trim(), url: safe });
+    return String(label || "").trim();
+  });
+
+  // Bare URLs
+  cleaned = cleaned.replace(/(^|\s)(https?:\/\/[^\s)]+)(?=\s|$)/g, (m, pre, url) => {
+    const safe = sanitizeUrl(url);
+    if (safe) links.push({ id: uid(), label: safe, url: safe });
+    return pre + safe;
+  });
+
+  // Unique
+  const key = (l: SectionLink) => `${(l.label || "").trim()}__${(l.url || "").trim()}`;
+  const seen = new Set<string>();
+  const unique = links.filter((l) => {
+    const k = key(l);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+
+  return { cleaned: cleaned.trim(), inlineLinks: unique };
+}
+
 function defaultSection(type: SectionType): BlogSection {
   return {
     id: uid(),
@@ -1346,7 +1434,18 @@ function defaultSection(type: SectionType): BlogSection {
     subHeading: "",
     content: "",
     images: [],
-    steps: type === "process" ? [{ id: uid(), title: "Step 1", description: "" }] : [],
+    steps:
+      type === "process"
+        ? [
+          {
+            id: uid(),
+            title: "Step 1",
+            description: "",
+            links: [],
+            inlineLinks: [],
+          },
+        ]
+        : [],
     cta: {
       enabled: false,
       heading: "",
@@ -1354,7 +1453,12 @@ function defaultSection(type: SectionType): BlogSection {
       buttonText: "",
       buttonLink: "",
     },
+
+    // ✅ separated: references list
     links: [],
+
+    // ✅ separated: inline word links
+    inlineLinks: [],
   };
 }
 
@@ -1410,21 +1514,115 @@ async function uploadImagesToCloudinary(files: File[], token: string): Promise<s
   return urls;
 }
 
-/**
- * ✅ AI content splitter
- * Handles content like:
- *  # Title
- *  ## Section
- *  ### Sub / Step / 1. Tip
- *
- * Rules:
- * - Split by "## " => sections
- * - Within a section, if it contains many "### " and they look like steps (1., Step, Tip),
- *   convert section to type "process" and map those as steps.
- * - Any remaining text becomes section.content
- */
+function tryParseStructuredContent(
+  raw: string,
+): { sections: BlogSection[]; tocOrder: string[] } | null {
+  if (!isProbablyJson(raw)) return null;
+
+  try {
+    const parsed = JSON.parse(raw);
+
+    if (parsed?.version === 1 && Array.isArray(parsed?.sections)) {
+      const safeSections: BlogSection[] = parsed.sections.map((s: any) => {
+        // Backward compatibility:
+        // Old data may have "links" only (used for both inline + references earlier).
+        // Now we keep both separated:
+        // - references = s.links (as-is)
+        // - inlineLinks = s.inlineLinks if exists else use s.links for inline also (so old posts still auto-link)
+        const parsedLinks: SectionLink[] = Array.isArray(s?.links)
+          ? s.links
+            .map((l: any) => ({
+              id: l?.id || uid(),
+              label: String(l?.label || ""),
+              url: String(l?.url || ""),
+            }))
+            .filter((l: any) => l.label.trim() || l.url.trim())
+          : [];
+
+        const parsedInlineLinks: SectionLink[] = Array.isArray(s?.inlineLinks)
+          ? s.inlineLinks
+            .map((l: any) => ({
+              id: l?.id || uid(),
+              label: String(l?.label || ""),
+              url: String(l?.url || ""),
+            }))
+            .filter((l: any) => l.label.trim() || l.url.trim())
+          : parsedLinks; // ✅ fallback for older saved content
+
+        const steps: ProcessStep[] = Array.isArray(s?.steps)
+          ? s.steps.map((st: any) => {
+            const stLinks: SectionLink[] = Array.isArray(st?.links)
+              ? st.links
+                .map((l: any) => ({
+                  id: l?.id || uid(),
+                  label: String(l?.label || ""),
+                  url: String(l?.url || ""),
+                }))
+                .filter((l: any) => l.label.trim() || l.url.trim())
+              : [];
+
+            const stInlineLinks: SectionLink[] = Array.isArray(st?.inlineLinks)
+              ? st.inlineLinks
+                .map((l: any) => ({
+                  id: l?.id || uid(),
+                  label: String(l?.label || ""),
+                  url: String(l?.url || ""),
+                }))
+                .filter((l: any) => l.label.trim() || l.url.trim())
+              : stLinks; // ✅ fallback for older saved content
+
+            return {
+              id: st?.id || uid(),
+              title: String(st?.title || ""),
+              description: String(st?.description || ""),
+              links: stLinks,
+              inlineLinks: stInlineLinks,
+            };
+          })
+          : [];
+
+        return {
+          id: s?.id || uid(),
+          type: s?.type === "process" ? "process" : "content",
+          heading: String(s?.heading || ""),
+          subHeading: String(s?.subHeading || ""),
+          content: String(s?.content || ""),
+          images: Array.isArray(s?.images) ? s.images.filter(Boolean) : [],
+
+          // ✅ separated
+          links: parsedLinks,
+          inlineLinks: parsedInlineLinks,
+
+          steps,
+          cta: {
+            enabled: !!s?.cta?.enabled,
+            heading: String(s?.cta?.heading || ""),
+            description: String(s?.cta?.description || ""),
+            buttonText: String(s?.cta?.buttonText || ""),
+            buttonLink: String(s?.cta?.buttonLink || ""),
+          },
+        };
+      });
+
+      return {
+        sections: safeSections.length ? safeSections : [defaultSection("content")],
+        tocOrder: Array.isArray(parsed?.tocOrder) ? parsed.tocOrder : [],
+      };
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
+
+// ✅ AI content splitter (Markdown -> sections/process)
 function splitAiContentToSections(raw: string): BlogSection[] {
-  const text = (raw || "").replace(/\r\n/g, "\n").trim();
+  // ✅ IMPORTANT: if it’s structured JSON, parse it instead of splitting as markdown
+  const structured = tryParseStructuredContent(raw);
+  if (structured?.sections?.length) return structured.sections;
+
+  const text = normalizeAiMarkdown(raw);
   if (!text) return [defaultSection("content")];
 
   // remove leading "# Title" line if present (we already store blog title separately)
@@ -1433,6 +1631,7 @@ function splitAiContentToSections(raw: string): BlogSection[] {
     lines.shift();
   }
   const cleaned = lines.join("\n").trim();
+  if (!cleaned) return [defaultSection("content")];
 
   // Split into blocks by "## "
   const parts: { heading: string; body: string }[] = [];
@@ -1448,7 +1647,9 @@ function splitAiContentToSections(raw: string): BlogSection[] {
   if (!first) {
     // no "##" — keep as single section content
     const s = defaultSection("content");
-    s.content = cleaned;
+    const ex = extractInlineLinksFromText(cleaned);
+    s.content = ex.cleaned;
+    s.inlineLinks = ex.inlineLinks; // ✅ inline only
     return [s];
   }
 
@@ -1472,35 +1673,32 @@ function splitAiContentToSections(raw: string): BlogSection[] {
   parts.push({ heading: lastHeading, body: lastBody });
 
   const sections: BlogSection[] = parts.map((p) => {
-    const sec = defaultSection("content");
-    sec.heading = p.heading;
+    const secBase = defaultSection("content");
+    secBase.heading = p.heading;
 
     // Try to extract a first sentence/short line as subHeading if body begins with something short
     const bodyLines = (p.body || "").split("\n").map((l) => l.trim());
     const firstNonEmptyIdx = bodyLines.findIndex((l) => !!l);
     if (firstNonEmptyIdx >= 0) {
       const firstLine = bodyLines[firstNonEmptyIdx];
-      // if it looks like a short subtitle and NOT a list or markdown heading
       if (
         firstLine.length > 0 &&
-        firstLine.length <= 120 &&
+        firstLine.length <= 140 &&
         !firstLine.startsWith("###") &&
         !firstLine.startsWith("-") &&
         !/^\d+\./.test(firstLine)
       ) {
-        // keep it as subHeading and remove from content
-        sec.subHeading = firstLine;
+        secBase.subHeading = firstLine;
         bodyLines.splice(firstNonEmptyIdx, 1);
       }
     }
     let body = bodyLines.join("\n").trim();
 
     // Detect "###" blocks (candidates for steps)
-    const stepBlocks: { title: string; desc: string }[] = [];
     const stepRe = /^###\s+(.+)$/gm;
-
     const stepMatches: { title: string; start: number; after: number }[] = [];
     let sm: RegExpExecArray | null;
+
     while ((sm = stepRe.exec(body))) {
       const title = (sm[1] || "").trim();
       const start = sm.index;
@@ -1510,42 +1708,133 @@ function splitAiContentToSections(raw: string): BlogSection[] {
     }
 
     if (stepMatches.length >= 2) {
-      // classify as "process" if step titles look like tips/steps/numbered
-      const looksLikeStep = (t: string) =>
-        /^(\d+[\.\)]\s*|step\s*\d+|tip\s*\d+|actionable|checklist)/i.test(t);
+      const intro = body.slice(0, stepMatches[0].start).trim();
 
-      const score = stepMatches.reduce((acc, s) => acc + (looksLikeStep(s.title) ? 1 : 0), 0);
-      if (score >= 1) {
-        // build step blocks
-        for (let i = 0; i < stepMatches.length; i++) {
-          const cur = stepMatches[i];
-          const next = stepMatches[i + 1];
-          const desc = body.slice(cur.after, next ? next.start : body.length).trim();
-          stepBlocks.push({ title: cur.title, desc });
-        }
+      const processSec = defaultSection("process");
+      processSec.heading = secBase.heading;
+      processSec.subHeading = secBase.subHeading;
 
-        // remove all step content from body (keep intro before first step)
-        const intro = body.slice(0, stepMatches[0].start).trim();
+      const introEx = extractInlineLinksFromText(intro);
+      processSec.content = introEx.cleaned;
+      processSec.inlineLinks = introEx.inlineLinks; // ✅ inline only
+      processSec.links = []; // ✅ references empty by default
 
-        const processSec = defaultSection("process");
-        processSec.heading = sec.heading;
-        processSec.subHeading = sec.subHeading;
-        processSec.content = intro; // optional intro above steps
-        processSec.steps = stepBlocks.map((b, i) => ({
+      processSec.steps = stepMatches.map((cur, i) => {
+        const next = stepMatches[i + 1];
+        const rawDesc = body.slice(cur.after, next ? next.start : body.length).trim();
+        const ex = extractInlineLinksFromText(rawDesc);
+
+        return {
           id: uid(),
-          title: b.title || `Step ${i + 1}`,
-          description: b.desc,
-        }));
-        return processSec;
-      }
+          title: cur.title || `Step ${i + 1}`,
+          description: ex.cleaned,
+          inlineLinks: ex.inlineLinks, // ✅ inline only
+          links: [], // ✅ references empty by default
+        };
+      });
+
+      return processSec;
     }
 
     // normal section
-    sec.content = body;
-    return sec;
+    const ex = extractInlineLinksFromText(body);
+    secBase.content = ex.cleaned;
+    secBase.inlineLinks = ex.inlineLinks; // ✅ inline only
+    secBase.links = []; // ✅ references empty by default
+
+    return secBase;
   });
 
   return sections.length ? sections : [defaultSection("content")];
+}
+
+/**
+ * ✅ Inline hyperlink feature (label -> url) inside the actual content text.
+ * NOTE (your update):
+ * - INLINE WORD LINKS use `inlineLinks`
+ * - REFERENCES LIST uses `links`
+ */
+function escapeHtml(text: string) {
+  return (text || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function escapeRegExp(text: string) {
+  return (text || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function applyInlineLinksToHtml(html: string, links: SectionLink[]) {
+  if (!html || !Array.isArray(links) || links.length === 0) return html;
+
+  // Sort by label length desc, so "Facebook profile" matches before "Facebook"
+  const valid = links
+    .map((l) => ({
+      label: (l.label || "").trim(),
+      url: sanitizeUrl(l.url || ""),
+    }))
+    .filter((l) => l.label && l.url)
+    .sort((a, b) => b.label.length - a.label.length);
+
+  if (!valid.length) return html;
+
+  let out = html;
+
+  // ✅ Avoid linking inside existing anchor tags by splitting on <a ...>...</a>
+  const anchorRe = /<a\b[^>]*>[\s\S]*?<\/a>/gi;
+  const parts: { type: "anchor" | "text"; value: string }[] = [];
+  let last = 0;
+  let m: RegExpExecArray | null;
+
+  while ((m = anchorRe.exec(out))) {
+    if (m.index > last) parts.push({ type: "text", value: out.slice(last, m.index) });
+    parts.push({ type: "anchor", value: m[0] });
+    last = m.index + m[0].length;
+  }
+  if (last < out.length) parts.push({ type: "text", value: out.slice(last) });
+
+  const linkifyTextChunk = (chunk: string) => {
+    let c = chunk;
+    for (const l of valid) {
+      const label = l.label;
+      const url = l.url;
+
+      // Word boundary-ish matching that still works for multi-word labels:
+      // Use negative/positive "not a letter/number/underscore" boundaries.
+      const pattern = `(^|[^\\w])(${escapeRegExp(label)})(?=[^\\w]|$)`;
+      const re = new RegExp(pattern, "g");
+
+      const attrs = url.startsWith("/")
+        ? `href="${url}" class="text-blue-600 underline hover:opacity-80"`
+        : `href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:opacity-80"`;
+
+      c = c.replace(re, `$1<a ${attrs}>$2</a>`);
+    }
+    return c;
+  };
+
+  out = parts
+    .map((p) => (p.type === "anchor" ? p.value : linkifyTextChunk(p.value)))
+    .join("");
+
+  return out;
+}
+
+function renderTextWithInlineLinks(content: string, inlineLinks: SectionLink[]) {
+  const raw = content || "";
+  if (!raw.trim()) return "";
+
+  // If HTML, keep as HTML and inject inline links carefully (not inside existing <a>)
+  if (isProbablyHtml(raw)) {
+    return applyInlineLinksToHtml(raw, inlineLinks);
+  }
+
+  // Otherwise treat as plain text => escape and convert newlines to <br/>
+  const escaped = escapeHtml(raw).replace(/\n/g, "<br/>");
+  return applyInlineLinksToHtml(escaped, inlineLinks);
 }
 
 export function BlogPostsManager() {
@@ -1634,8 +1923,10 @@ export function BlogPostsManager() {
     setTocOrder((prev) => syncTocOrder(prev, tocItems));
   }, [tocItems]);
 
-  // Links handlers
-  const addSectionLink = (sectionId: string) => {
+  // =========================
+  // ✅ References (Section)
+  // =========================
+  const addSectionReference = (sectionId: string) => {
     setSections((prev) =>
       prev.map((s) =>
         s.id === sectionId
@@ -1645,7 +1936,7 @@ export function BlogPostsManager() {
     );
   };
 
-  const updateSectionLink = (sectionId: string, linkId: string, patch: Partial<SectionLink>) => {
+  const updateSectionReference = (sectionId: string, linkId: string, patch: Partial<SectionLink>) => {
     setSections((prev) =>
       prev.map((s) =>
         s.id !== sectionId
@@ -1655,10 +1946,52 @@ export function BlogPostsManager() {
     );
   };
 
-  const removeSectionLink = (sectionId: string, linkId: string) => {
+  const removeSectionReference = (sectionId: string, linkId: string) => {
     setSections((prev) =>
       prev.map((s) =>
         s.id !== sectionId ? s : { ...s, links: (s.links || []).filter((l) => l.id !== linkId) },
+      ),
+    );
+  };
+
+  // =========================
+  // ✅ Inline Word Links (Section)
+  // =========================
+  const addSectionInlineLink = (sectionId: string) => {
+    setSections((prev) =>
+      prev.map((s) =>
+        s.id === sectionId
+          ? { ...s, inlineLinks: [...(s.inlineLinks || []), { id: uid(), label: "", url: "" }] }
+          : s,
+      ),
+    );
+  };
+
+  const updateSectionInlineLink = (
+    sectionId: string,
+    linkId: string,
+    patch: Partial<SectionLink>,
+  ) => {
+    setSections((prev) =>
+      prev.map((s) =>
+        s.id !== sectionId
+          ? s
+          : {
+            ...s,
+            inlineLinks: (s.inlineLinks || []).map((l) =>
+              l.id === linkId ? { ...l, ...patch } : l,
+            ),
+          },
+      ),
+    );
+  };
+
+  const removeSectionInlineLink = (sectionId: string, linkId: string) => {
+    setSections((prev) =>
+      prev.map((s) =>
+        s.id !== sectionId
+          ? s
+          : { ...s, inlineLinks: (s.inlineLinks || []).filter((l) => l.id !== linkId) },
       ),
     );
   };
@@ -1699,27 +2032,33 @@ export function BlogPostsManager() {
       setGeneratedBlog(data.blog);
       setIsGenerateDialogOpen(false);
 
-      // ✅ Split AI content into builder sections (instead of 1 big textarea)
       const aiRaw = String(data?.blog?.content || "");
-      const aiSections = splitAiContentToSections(aiRaw);
 
-      // If AI returns "## Call to Action" block, make it CTA on last section automatically (nice UX)
-      // We'll only do a light auto-detect without forcing
-      const last = aiSections[aiSections.length - 1];
-      if (last?.heading?.toLowerCase().includes("call to action")) {
-        last.cta = {
-          enabled: true,
-          heading: last.heading || "Call to Action",
-          description: last.content?.slice(0, 400) || "",
-          buttonText: "Contact Us",
-          buttonLink: "/contact",
-        };
-        last.content = "";
-        last.heading = "Call to Action";
+      const structured = tryParseStructuredContent(aiRaw);
+
+      if (structured?.sections?.length) {
+        setSections(structured.sections);
+        setTocOrder(Array.isArray(structured.tocOrder) ? structured.tocOrder : []);
+      } else {
+        const aiSections = splitAiContentToSections(aiRaw);
+
+        // If AI returns "## Call to Action" block, make it CTA on last section automatically (nice UX)
+        const last = aiSections[aiSections.length - 1];
+        if (last?.heading?.toLowerCase().includes("call to action")) {
+          last.cta = {
+            enabled: true,
+            heading: last.heading || "Call to Action",
+            description: last.content?.slice(0, 400) || "",
+            buttonText: "Contact Us",
+            buttonLink: "/contact",
+          };
+          last.content = "";
+          last.heading = "Call to Action";
+        }
+
+        setSections(aiSections.length ? aiSections : [defaultSection("content")]);
+        setTocOrder([]);
       }
-
-      setSections(aiSections.length ? aiSections : [defaultSection("content")]);
-      setTocOrder([]);
 
       setFormData((prev) => ({
         ...prev,
@@ -1849,52 +2188,15 @@ export function BlogPostsManager() {
   };
 
   const parseContentToBuilder = (rawContent: string) => {
-    if (isProbablyJson(rawContent)) {
-      try {
-        const parsed = JSON.parse(rawContent);
-        if (parsed?.version === 1 && Array.isArray(parsed?.sections)) {
-          const safeSections: BlogSection[] = parsed.sections.map((s: any) => ({
-            id: s?.id || uid(),
-            type: s?.type === "process" ? "process" : "content",
-            heading: s?.heading || "",
-            subHeading: s?.subHeading || "",
-            content: s?.content || "",
-            images: Array.isArray(s?.images) ? s.images.filter(Boolean) : [],
-            steps: Array.isArray(s?.steps)
-              ? s.steps.map((st: any) => ({
-                id: st?.id || uid(),
-                title: st?.title || "",
-                description: st?.description || "",
-              }))
-              : [],
-            cta: {
-              enabled: !!s?.cta?.enabled,
-              heading: s?.cta?.heading || "",
-              description: s?.cta?.description || "",
-              buttonText: s?.cta?.buttonText || "",
-              buttonLink: s?.cta?.buttonLink || "",
-            },
-            links: Array.isArray(s?.links)
-              ? s.links
-                .map((l: any) => ({
-                  id: l?.id || uid(),
-                  label: String(l?.label || ""),
-                  url: String(l?.url || ""),
-                }))
-                .filter((l: any) => l.label.trim() || l.url.trim())
-              : [],
-          }));
-
-          setSections(safeSections.length ? safeSections : [defaultSection("content")]);
-          setTocOrder(Array.isArray(parsed?.tocOrder) ? parsed.tocOrder : []);
-          return;
-        }
-      } catch {
-        // fallthrough
-      }
+    // ✅ If JSON content is saved already, load it into builder
+    const structured = tryParseStructuredContent(rawContent);
+    if (structured?.sections?.length) {
+      setSections(structured.sections);
+      setTocOrder(Array.isArray(structured.tocOrder) ? structured.tocOrder : []);
+      return;
     }
 
-    // ✅ Legacy plain string => split it like AI content (best UX)
+    // ✅ Legacy/plain => split like AI markdown
     const legacySections = splitAiContentToSections(rawContent || "");
     setSections(legacySections.length ? legacySections : [defaultSection("content")]);
     setTocOrder([]);
@@ -1965,7 +2267,16 @@ export function BlogPostsManager() {
         const steps = Array.isArray(s.steps) ? s.steps : [];
         return {
           ...s,
-          steps: [...steps, { id: uid(), title: `Step ${steps.length + 1}`, description: "" }],
+          steps: [
+            ...steps,
+            {
+              id: uid(),
+              title: `Step ${steps.length + 1}`,
+              description: "",
+              links: [],
+              inlineLinks: [],
+            },
+          ],
         };
       }),
     );
@@ -1978,7 +2289,9 @@ export function BlogPostsManager() {
         const steps = (s.steps || []).filter((st) => st.id !== stepId);
         return {
           ...s,
-          steps: steps.length ? steps : [{ id: uid(), title: "Step 1", description: "" }],
+          steps: steps.length
+            ? steps
+            : [{ id: uid(), title: "Step 1", description: "", links: [], inlineLinks: [] }],
         };
       }),
     );
@@ -1998,7 +2311,9 @@ export function BlogPostsManager() {
 
   const removeSectionImage = (sectionId: string, url: string) => {
     setSections((prev) =>
-      prev.map((s) => (s.id === sectionId ? { ...s, images: s.images.filter((i) => i !== url) } : s)),
+      prev.map((s) =>
+        s.id === sectionId ? { ...s, images: s.images.filter((i) => i !== url) } : s,
+      ),
     );
   };
 
@@ -2017,7 +2332,9 @@ export function BlogPostsManager() {
 
       setSections((prev) =>
         prev.map((s) =>
-          s.id === sectionId ? { ...s, images: Array.from(new Set([...(s.images || []), ...urls])) } : s,
+          s.id === sectionId
+            ? { ...s, images: Array.from(new Set([...(s.images || []), ...urls])) }
+            : s,
         ),
       );
     } catch (e) {
@@ -2071,9 +2388,39 @@ export function BlogPostsManager() {
       if (s.subHeading.trim()) return true;
       if (s.content.trim()) return true;
       if (Array.isArray(s.images) && s.images.length) return true;
+
+      // references list
       if (Array.isArray(s.links) && s.links.some((l) => l.label.trim() || l.url.trim())) return true;
-      if (s.type === "process" && (s.steps || []).some((st) => st.title.trim() || st.description.trim()))
+
+      // inline links
+      if (
+        Array.isArray(s.inlineLinks) &&
+        s.inlineLinks.some((l) => l.label.trim() || l.url.trim())
+      )
         return true;
+
+      if (
+        s.type === "process" &&
+        (s.steps || []).some((st) => {
+          if (st.title.trim() || st.description.trim()) return true;
+
+          // step references list
+          if (Array.isArray(st.links) && st.links.some((l) => l.label.trim() || l.url.trim()))
+            return true;
+
+          // step inline links
+          if (
+            Array.isArray(st.inlineLinks) &&
+            st.inlineLinks.some((l) => l.label.trim() || l.url.trim())
+          )
+            return true;
+
+          return false;
+        })
+      ) {
+        return true;
+      }
+
       return false;
     });
 
@@ -2086,10 +2433,47 @@ export function BlogPostsManager() {
       version: 1,
       sections: sections.map((s) => ({
         ...s,
+
+        // ✅ references list
         links: Array.isArray(s.links)
           ? s.links
             .map((l) => ({ ...l, label: (l.label || "").trim(), url: (l.url || "").trim() }))
             .filter((l) => l.label || l.url)
+          : [],
+
+        // ✅ inline links
+        inlineLinks: Array.isArray(s.inlineLinks)
+          ? s.inlineLinks
+            .map((l) => ({ ...l, label: (l.label || "").trim(), url: (l.url || "").trim() }))
+            .filter((l) => l.label || l.url)
+          : [],
+
+        steps: Array.isArray(s.steps)
+          ? s.steps.map((st) => ({
+            ...st,
+
+            // ✅ step references list
+            links: Array.isArray(st.links)
+              ? st.links
+                .map((l) => ({
+                  ...l,
+                  label: (l.label || "").trim(),
+                  url: (l.url || "").trim(),
+                }))
+                .filter((l) => l.label || l.url)
+              : [],
+
+            // ✅ step inline links
+            inlineLinks: Array.isArray(st.inlineLinks)
+              ? st.inlineLinks
+                .map((l) => ({
+                  ...l,
+                  label: (l.label || "").trim(),
+                  url: (l.url || "").trim(),
+                }))
+                .filter((l) => l.label || l.url)
+              : [],
+          }))
           : [],
       })),
       tocOrder: syncTocOrder(tocOrder, tocItems),
@@ -2147,7 +2531,9 @@ export function BlogPostsManager() {
               )}
 
               {secs.map((sec, sIdx) => {
-                const secAnchor = sec.heading?.trim() ? `sec-${slugify(sec.heading)}-${sIdx + 1}` : undefined;
+                const secAnchor = sec.heading?.trim()
+                  ? `sec-${slugify(sec.heading)}-${sIdx + 1}`
+                  : undefined;
 
                 return (
                   <div key={sec.id} className="space-y-4">
@@ -2163,7 +2549,13 @@ export function BlogPostsManager() {
                     {sec.type === "process" ? (
                       <div className="space-y-3">
                         {sec.content?.trim() && (
-                          <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">{sec.content}</div>
+                          <div
+                            className="text-gray-700 leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                              // ✅ UPDATE: Use ONLY section inlineLinks for section content
+                              __html: renderTextWithInlineLinks(sec.content, sec.inlineLinks || []),
+                            }}
+                          />
                         )}
 
                         <div className="grid gap-3">
@@ -2185,8 +2577,39 @@ export function BlogPostsManager() {
                                       </div>
                                     )}
                                     {st.description?.trim() && (
-                                      <div className="text-gray-700 mt-1 whitespace-pre-wrap leading-relaxed">
-                                        {st.description}
+                                      <div
+                                        className="text-gray-700 mt-1 leading-relaxed"
+                                        dangerouslySetInnerHTML={{
+                                          // ✅ UPDATE: DO NOT MERGE section links + step links.
+                                          // Inline word links in step description use ONLY step.inlineLinks
+                                          __html: renderTextWithInlineLinks(
+                                            st.description,
+                                            st.inlineLinks || [],
+                                          ),
+                                        }}
+                                      />
+                                    )}
+
+                                    {Array.isArray(st.links) && st.links.length > 0 && (
+                                      <div className="mt-2 border rounded-xl p-3 bg-gray-50">
+                                        <div className="font-semibold mb-2 flex items-center gap-2">
+                                          <LinkIcon className="w-4 h-4" />
+                                          References
+                                        </div>
+                                        <ul className="list-disc pl-5 space-y-1">
+                                          {st.links.map((l: any) => (
+                                            <li key={l.id} className="text-sm">
+                                              <a
+                                                href={l.url}
+                                                target={l.url?.startsWith("/") ? "_self" : "_blank"}
+                                                rel="noreferrer noopener"
+                                                className="text-blue-600 hover:underline break-all"
+                                              >
+                                                {l.label?.trim() || l.url}
+                                              </a>
+                                            </li>
+                                          ))}
+                                        </ul>
                                       </div>
                                     )}
                                   </div>
@@ -2200,11 +2623,12 @@ export function BlogPostsManager() {
                       <>
                         {sec.content?.trim() && (
                           <div className="prose prose-lg max-w-none leading-relaxed">
-                            {isProbablyHtml(sec.content) ? (
-                              <div dangerouslySetInnerHTML={{ __html: sec.content }} />
-                            ) : (
-                              <div style={{ whiteSpace: "pre-wrap" }}>{sec.content}</div>
-                            )}
+                            <div
+                              dangerouslySetInnerHTML={{
+                                // ✅ UPDATE: Use ONLY section inlineLinks for content section
+                                __html: renderTextWithInlineLinks(sec.content, sec.inlineLinks || []),
+                              }}
+                            />
                           </div>
                         )}
                       </>
@@ -2367,7 +2791,9 @@ export function BlogPostsManager() {
                     <Label htmlFor="generate-audience">Target Audience</Label>
                     <Select
                       value={generateData.targetAudience}
-                      onValueChange={(value) => setGenerateData({ ...generateData, targetAudience: value })}
+                      onValueChange={(value) =>
+                        setGenerateData({ ...generateData, targetAudience: value })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -2425,7 +2851,11 @@ export function BlogPostsManager() {
             <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>
-                  {editingPost ? "Edit Blog Post" : generatedBlog ? "Review Generated Blog" : "Create New Blog Post"}
+                  {editingPost
+                    ? "Edit Blog Post"
+                    : generatedBlog
+                      ? "Review Generated Blog"
+                      : "Create New Blog Post"}
                 </DialogTitle>
               </DialogHeader>
 
@@ -2579,7 +3009,8 @@ export function BlogPostsManager() {
                           Blog Content Sections
                         </div>
                         <div className="text-sm text-gray-500">
-                          Add multiple content/process sections. Each section can have images, references, optional CTA.
+                          Add multiple content/process sections. Each section can have images, references, inline
+                          word-links, optional CTA.
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -2702,6 +3133,236 @@ export function BlogPostsManager() {
                                         />
                                       </div>
                                     </div>
+
+                                    {/* ✅ Step Inline Word Links (SEPARATE) */}
+                                    <div className="mt-2 border rounded-xl p-3 bg-gray-50 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <div className="font-semibold text-sm flex items-center gap-2">
+                                          <LinkIcon className="w-4 h-4" />
+                                          Step Inline Word Links (inside description)
+                                        </div>
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => {
+                                            setSections((prev) =>
+                                              prev.map((s) => {
+                                                if (s.id !== sec.id) return s;
+                                                return {
+                                                  ...s,
+                                                  steps: (s.steps || []).map((x) =>
+                                                    x.id !== st.id
+                                                      ? x
+                                                      : {
+                                                        ...x,
+                                                        inlineLinks: [
+                                                          ...(x.inlineLinks || []),
+                                                          { id: uid(), label: "", url: "" },
+                                                        ],
+                                                      },
+                                                  ),
+                                                };
+                                              }),
+                                            );
+                                          }}
+                                        >
+                                          + Add Word Link
+                                        </Button>
+                                      </div>
+
+                                      {Array.isArray(st.inlineLinks) &&
+                                        st.inlineLinks.map((l: any) => (
+                                          <div key={l.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                                            <Input
+                                              className="md:col-span-2"
+                                              placeholder="Word / Phrase (e.g., BrandingBeez)"
+                                              value={l.label}
+                                              onChange={(e) => {
+                                                const v = e.target.value;
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          inlineLinks: (x.inlineLinks || []).map((ln: any) =>
+                                                            ln.id === l.id ? { ...ln, label: v } : ln,
+                                                          ),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            />
+                                            <Input
+                                              className="md:col-span-2"
+                                              placeholder="https://... or /internal"
+                                              value={l.url}
+                                              onChange={(e) => {
+                                                const v = e.target.value;
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          inlineLinks: (x.inlineLinks || []).map((ln: any) =>
+                                                            ln.id === l.id ? { ...ln, url: v } : ln,
+                                                          ),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            />
+                                            <Button
+                                              type="button"
+                                              variant="destructive"
+                                              size="sm"
+                                              onClick={() => {
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          inlineLinks: (x.inlineLinks || []).filter((ln: any) => ln.id !== l.id),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            >
+                                              Remove
+                                            </Button>
+                                          </div>
+                                        ))}
+                                    </div>
+
+                                    {/* ✅ Step References (SEPARATE) */}
+                                    <div className="mt-2 border rounded-xl p-3 bg-gray-50 space-y-2">
+                                      <div className="flex items-center justify-between">
+                                        <div className="font-semibold text-sm flex items-center gap-2">
+                                          <LinkIcon className="w-4 h-4" />
+                                          Step References (list under step)
+                                        </div>
+                                        <Button
+                                          type="button"
+                                          size="sm"
+                                          variant="outline"
+                                          onClick={() => {
+                                            setSections((prev) =>
+                                              prev.map((s) => {
+                                                if (s.id !== sec.id) return s;
+                                                return {
+                                                  ...s,
+                                                  steps: (s.steps || []).map((x) =>
+                                                    x.id !== st.id
+                                                      ? x
+                                                      : { ...x, links: [...(x.links || []), { id: uid(), label: "", url: "" }] },
+                                                  ),
+                                                };
+                                              }),
+                                            );
+                                          }}
+                                        >
+                                          + Add Reference
+                                        </Button>
+                                      </div>
+
+                                      {Array.isArray(st.links) &&
+                                        st.links.map((l: any) => (
+                                          <div key={l.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                                            <Input
+                                              className="md:col-span-2"
+                                              placeholder="Label"
+                                              value={l.label}
+                                              onChange={(e) => {
+                                                const v = e.target.value;
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          links: (x.links || []).map((ln: any) =>
+                                                            ln.id === l.id ? { ...ln, label: v } : ln,
+                                                          ),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            />
+                                            <Input
+                                              className="md:col-span-2"
+                                              placeholder="https://..."
+                                              value={l.url}
+                                              onChange={(e) => {
+                                                const v = e.target.value;
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          links: (x.links || []).map((ln: any) =>
+                                                            ln.id === l.id ? { ...ln, url: v } : ln,
+                                                          ),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            />
+                                            <Button
+                                              type="button"
+                                              variant="destructive"
+                                              size="sm"
+                                              onClick={() => {
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          links: (x.links || []).filter((ln: any) => ln.id !== l.id),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            >
+                                              Remove
+                                            </Button>
+                                          </div>
+                                        ))}
+                                    </div>
                                   </div>
                                 ))}
                               </div>
@@ -2754,21 +3415,64 @@ export function BlogPostsManager() {
                             )}
                           </div>
 
-                          {/* References */}
+                          {/* ✅ Inline Word Links (Section) - SEPARATE */}
                           <div className="border rounded-xl p-4 bg-gray-50 space-y-3">
                             <div className="flex items-center justify-between">
                               <div className="font-semibold flex items-center gap-2">
                                 <LinkIcon className="w-4 h-4" />
-                                Hyperlinks / References (Optional)
+                                Inline Word Links (inside content)
                               </div>
-                              <Button type="button" size="sm" variant="outline" onClick={() => addSectionLink(sec.id)}>
-                                + Add Link
+                              <Button type="button" size="sm" variant="outline" onClick={() => addSectionInlineLink(sec.id)}>
+                                + Add Word Link
+                              </Button>
+                            </div>
+
+                            {(!sec.inlineLinks || sec.inlineLinks.length === 0) && (
+                              <p className="text-sm text-gray-500">
+                                Add inline word links (e.g., "Pradeep" → "/about-pradeep"). These will auto-link inside
+                                the content text.
+                              </p>
+                            )}
+
+                            <div className="space-y-2">
+                              {(sec.inlineLinks || []).map((link) => (
+                                <div key={link.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                                  <Input
+                                    className="md:col-span-2"
+                                    placeholder="Word / Phrase (e.g., Pradeep)"
+                                    value={link.label}
+                                    onChange={(e) => updateSectionInlineLink(sec.id, link.id, { label: e.target.value })}
+                                  />
+                                  <Input
+                                    className="md:col-span-2"
+                                    placeholder="https://... or /internal"
+                                    value={link.url}
+                                    onChange={(e) => updateSectionInlineLink(sec.id, link.id, { url: e.target.value })}
+                                  />
+                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionInlineLink(sec.id, link.id)}>
+                                    Remove
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* ✅ References (Section) - SEPARATE */}
+                          <div className="border rounded-xl p-4 bg-gray-50 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <div className="font-semibold flex items-center gap-2">
+                                <LinkIcon className="w-4 h-4" />
+                                Section References (list under section)
+                              </div>
+                              <Button type="button" size="sm" variant="outline" onClick={() => addSectionReference(sec.id)}>
+                                + Add Reference
                               </Button>
                             </div>
 
                             {(!sec.links || sec.links.length === 0) && (
                               <p className="text-sm text-gray-500">
-                                Add reference links for this section (sources, citations, internal pages).
+                                Add references for this section (sources, citations, external docs). These are shown as a
+                                list under the section.
                               </p>
                             )}
 
@@ -2779,15 +3483,15 @@ export function BlogPostsManager() {
                                     className="md:col-span-2"
                                     placeholder="Label (e.g., Google Search Central)"
                                     value={link.label}
-                                    onChange={(e) => updateSectionLink(sec.id, link.id, { label: e.target.value })}
+                                    onChange={(e) => updateSectionReference(sec.id, link.id, { label: e.target.value })}
                                   />
                                   <Input
                                     className="md:col-span-2"
                                     placeholder="https://example.com"
                                     value={link.url}
-                                    onChange={(e) => updateSectionLink(sec.id, link.id, { url: e.target.value })}
+                                    onChange={(e) => updateSectionReference(sec.id, link.id, { url: e.target.value })}
                                   />
-                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionLink(sec.id, link.id)}>
+                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionReference(sec.id, link.id)}>
                                     Remove
                                   </Button>
                                 </div>
@@ -2802,7 +3506,9 @@ export function BlogPostsManager() {
                               <div className="flex items-center gap-2">
                                 <Switch
                                   checked={sec.cta.enabled}
-                                  onCheckedChange={(checked) => updateSection(sec.id, { cta: { ...sec.cta, enabled: checked } })}
+                                  onCheckedChange={(checked) =>
+                                    updateSection(sec.id, { cta: { ...sec.cta, enabled: checked } })
+                                  }
                                 />
                                 <span className="text-sm text-gray-600">{sec.cta.enabled ? "Enabled" : "Disabled"}</span>
                               </div>
@@ -2814,7 +3520,11 @@ export function BlogPostsManager() {
                                   <Label>CTA Heading</Label>
                                   <Input
                                     value={sec.cta.heading || ""}
-                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, heading: e.target.value } })}
+                                    onChange={(e) =>
+                                      updateSection(sec.id, {
+                                        cta: { ...sec.cta, heading: e.target.value },
+                                      })
+                                    }
                                     placeholder="e.g., Want us to do this for you?"
                                   />
                                 </div>
@@ -2822,7 +3532,11 @@ export function BlogPostsManager() {
                                   <Label>CTA Button Text</Label>
                                   <Input
                                     value={sec.cta.buttonText || ""}
-                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, buttonText: e.target.value } })}
+                                    onChange={(e) =>
+                                      updateSection(sec.id, {
+                                        cta: { ...sec.cta, buttonText: e.target.value },
+                                      })
+                                    }
                                     placeholder="e.g., Book a Call"
                                   />
                                 </div>
@@ -2830,7 +3544,11 @@ export function BlogPostsManager() {
                                   <Label>CTA Description</Label>
                                   <Textarea
                                     value={sec.cta.description || ""}
-                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, description: e.target.value } })}
+                                    onChange={(e) =>
+                                      updateSection(sec.id, {
+                                        cta: { ...sec.cta, description: e.target.value },
+                                      })
+                                    }
                                     rows={2}
                                     placeholder="Short supporting text..."
                                   />
@@ -2839,7 +3557,11 @@ export function BlogPostsManager() {
                                   <Label>CTA Button Link</Label>
                                   <Input
                                     value={sec.cta.buttonLink || ""}
-                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, buttonLink: e.target.value } })}
+                                    onChange={(e) =>
+                                      updateSection(sec.id, {
+                                        cta: { ...sec.cta, buttonLink: e.target.value },
+                                      })
+                                    }
                                     placeholder="https://... or /contact"
                                   />
                                 </div>
@@ -2891,7 +3613,9 @@ export function BlogPostsManager() {
                         <CardTitle className="text-base">Save Format</CardTitle>
                       </CardHeader>
                       <CardContent className="text-xs text-gray-600">
-                        Content is saved as JSON in the <b>content</b> field (no DB/model changes). Legacy text posts are auto-split into sections when you edit.
+                        Content is saved as JSON in the <b>content</b> field (no DB/model changes).
+                        <br />
+                        ✅ Inline word links and References are saved separately.
                       </CardContent>
                     </Card>
                   </div>
@@ -2910,7 +3634,11 @@ export function BlogPostsManager() {
                   </div>
                   <div>
                     <Label htmlFor="author">Author</Label>
-                    <Input id="author" value={formData.author} onChange={(e) => setFormData({ ...formData, author: e.target.value })} />
+                    <Input
+                      id="author"
+                      value={formData.author}
+                      onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+                    />
                   </div>
                 </div>
 
@@ -3015,9 +3743,7 @@ export function BlogPostsManager() {
                     /{post.slug} • {post.author} • {post.readTime} min read
                   </p>
 
-                  {post.subtitle && (
-                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.subtitle}</p>
-                  )}
+                  {post.subtitle && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.subtitle}</p>}
                 </div>
 
                 <div className="flex gap-2">
@@ -3102,7 +3828,8 @@ export function BlogPostsManager() {
                     {viewingPostData.isFeatured && <Badge variant="secondary">Featured</Badge>}
                   </div>
                   <div>
-                    <span className="font-semibold">Created:</span> {new Date(viewingPostData.createdAt).toLocaleDateString()}
+                    <span className="font-semibold">Created:</span>{" "}
+                    {new Date(viewingPostData.createdAt).toLocaleDateString()}
                   </div>
                 </div>
               </div>
@@ -3179,4 +3906,3 @@ export function BlogPostsManager() {
     </div>
   );
 }
-

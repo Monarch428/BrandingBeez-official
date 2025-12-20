@@ -368,7 +368,7 @@
 
 //                           <ul className="space-y-2 flex-1">
 //                             {service.features.map((feature, index) => (
-//                               <li key={index} className="flex items-start gap-2 text-sm">
+//                               <li key={index} className="flex items-center gap-2 text-sm">
 //                                 <CheckCircle className="w-4 h-4 text-brand-coral-darker mt-0.5 flex-shrink-0" />
 //                                 <span>{feature}</span>
 //                               </li>
@@ -1845,12 +1845,15 @@ export default function Home() {
               </p>
 
               <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-2 text-yellow-200">
+
+                {/* PRICING */}
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
                   </span>
                   $1,199/month
                 </div>
+
                 <p className="mb-1 font-medium">
                   Cancel anytime | No long-term contracts | Fully white-label
                 </p>
@@ -1863,13 +1866,12 @@ export default function Home() {
                   Average 60% cost savings vs. in-house team
                 </div>
 
+                {/* ROLES */}
                 <div className="flex items-center justify-center">
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-left text-gray-100 mb-6 sm:mb-8">
+                  {/* <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-left text-gray-100 mb-6 sm:mb-8">
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">
-                        Graphic Designers
-                      </span>
+                      <span className="text-sm sm:text-base">Graphic Designers</span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
@@ -1879,33 +1881,71 @@ export default function Home() {
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">
-                        SEO Specialists
-                      </span>
+                      <span className="text-sm sm:text-base">SEO Specialists</span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">
-                        Google Ads Experts
-                      </span>
+                      <span className="text-sm sm:text-base">Google Ads Experts</span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-                      <span className="text-sm sm:text-base">
-                        Web Developers
-                      </span>
+                      <span className="text-sm sm:text-base">Web Developers</span>
                     </li>
 
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
+                      <span className="text-sm sm:text-base">Full-Stack Developers</span>
+                    </li>
+                  </ul> */}
+                  {/* NEW VALUE POINTS SECTION */}
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-left text-gray-100 mb-6 sm:mb-8">
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
                       <span className="text-sm sm:text-base">
-                        Full-Stack Developers
+                        Direct communication & full-time project transparency
+                      </span>
+                    </li>
+                    
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base">
+                        Fluent in English with good communication
+                      </span>
+                    </li>
+
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base">
+                        160+ dedicated hours to your projects
+                      </span>
+                    </li>
+
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base">
+                        Specialists experienced in US projects & clients
+                      </span>
+                    </li>
+
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base">
+                        Team discount of up to 20% when you hire 5+ resources
+                      </span>
+                    </li>
+
+                    <li className="flex items-center gap-2 sm:gap-3">
+                      <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm sm:text-base">
+                        Save $60,000+ a year on every resource
                       </span>
                     </li>
                   </ul>
                 </div>
+
+                {/* CTA */}
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center">
                   <Button
                     className="bg-brand-coral hover:bg-white hover:text-brand-purple text-white text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 font-semibold touch-manipulation group"
@@ -1926,6 +1966,7 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
+
             </div>
           </section>
 
@@ -1977,7 +2018,7 @@ export default function Home() {
               {/* Heading Button */}
               <div className="flex justify-center mb-6">
                 {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
-                  <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">What Our Clients Say</span>
+                <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">What Our Clients Say</span>
                 {/* </div> */}
               </div>
 

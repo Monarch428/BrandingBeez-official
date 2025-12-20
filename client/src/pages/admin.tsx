@@ -542,19 +542,19 @@ export default function Admin() {
                   Newsletter
                 </TabsTrigger>
 
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="featured-clients"
                   className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
                 >
                   Featured Clients
-                </TabsTrigger>
+                </TabsTrigger> */}
 
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="case-studies"
                   className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
                 >
                   Case Studies
-                </TabsTrigger>
+                </TabsTrigger> */}
 
                 {/* ✅ NEW TAB */}
                 <TabsTrigger
@@ -585,19 +585,19 @@ export default function Admin() {
                   Dedicated Resources Studies
                 </TabsTrigger>
 
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="pricing"
                   className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
                 >
                   Pricing
-                </TabsTrigger>
+                </TabsTrigger> */}
 
-                <TabsTrigger
+                {/* <TabsTrigger
                   value="service-pages"
                   className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
                 >
                   Service Pages
-                </TabsTrigger>
+                </TabsTrigger> */}
 
                 <TabsTrigger
                   value="blog-posts"
@@ -887,13 +887,13 @@ export default function Admin() {
               <NewsletterSubscribersManager />
             </TabsContent>
 
-            <TabsContent value="featured-clients">
+            {/* <TabsContent value="featured-clients">
               <FeaturedClientsManager />
-            </TabsContent>
+            </TabsContent> */}
 
-            <TabsContent value="case-studies">
+            {/* <TabsContent value="case-studies">
               <CaseStudiesManager />
-            </TabsContent>
+            </TabsContent> */}
 
             {/* ✅ NEW TAB CONTENT */}
             <TabsContent value="seo-case-studies">
@@ -912,9 +912,9 @@ export default function Admin() {
               <DedicatedResourceCaseStudiesManager />
             </TabsContent>
 
-            <TabsContent value="pricing">
+            {/* <TabsContent value="pricing">
               <PricingPackagesManager />
-            </TabsContent>
+            </TabsContent> */}
 
             <TabsContent value="service-pages">
               <ServicePagesManager />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Star, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,22 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
+
+  // ✅ NEW: 5s delay gate
+  const [canShowAfterDelay, setCanShowAfterDelay] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setCanShowAfterDelay(false);
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setCanShowAfterDelay(true);
+    }, 5000);
+
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
 
   const leadCaptureMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -82,7 +98,7 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   const interests = [
     { id: "development", name: "Web Development", icon: "💻" },
     { id: "scale-agency", name: "Scale My Agency", icon: "📈" },
-    { id: "white-label", name: "White-Label Services", icon: "🏷️" },
+    { id: "white-label", name: "White-Label PPC Services", icon: "🏷️" },
     { id: "seo-services", name: "SEO / AIO Services", icon: "🎯" },
     { id: "dedicated-team", name: "Dedicated Resources", icon: "👥" },
     { id: "ai-solutions", name: "App Development (AI Powered)", icon: "🤖" },
@@ -111,6 +127,10 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
 
   // ✅ Guard render
   if (!isOpen) return null;
+
+  // ✅ NEW: wait 5s after open trigger
+  if (!canShowAfterDelay) return null;
+
   if (hasEntrySubmitted()) return null;
   if (hasEntryClosedThisSession()) return null;
 
@@ -322,7 +342,9 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${i <= step ? "bg-orange-500" : "bg-gray-300 dark:bg-gray-500"
+                    className={`w-2 h-2 rounded-full ${i <= step
+                        ? "bg-orange-500"
+                        : "bg-gray-300 dark:bg-gray-500"
                       }`}
                   />
                 ))}
