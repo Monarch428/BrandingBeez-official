@@ -1,22 +1,25 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Mail, 
-  Phone, 
-  Building, 
-  Calendar, 
-  Search, 
-  Filter,
-  ExternalLink,
-  MessageCircle,
-  Trash2
-} from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
+import { Mail, Phone, Building, Calendar, Search, ExternalLink, MessageCircle, Trash2 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import { useAppToast } from "../ui/toaster";
+
 
 interface Contact {
   id: number;
@@ -33,6 +36,7 @@ interface Contact {
   topPriority: string;
   couponCode?: string;
   createdAt: string;
+
   // Enhanced service details
   servicesSelected?: string[];
   budget?: string;
@@ -48,59 +52,92 @@ interface Contact {
 export function ContactsManager() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+
+  // ✅ Custom confirm dialog state (no window.confirm)
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+
   const queryClient = useQueryClient();
-  
-  const { data: contacts = [], isLoading, refetch } = useQuery({
+
+  // ✅ Your toast hook
+  const appToast = useAppToast();
+
+  const {
+    data: contacts = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["/api/contacts"],
     queryFn: async () => {
-      return apiRequest('/api/contacts', 'GET');
-    }
+      return apiRequest("/api/contacts", "GET");
+    },
   });
 
-  const filteredContacts = (contacts as Contact[]).filter((contact: Contact) => {
-    const matchesSearch = contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contact.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contact.message.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesType = filterType === "all" || contact.contactFormType === filterType;
-    
-    return matchesSearch && matchesType;
-  });
+  const filteredContacts = useMemo(() => {
+    return (contacts as Contact[]).filter((contact: Contact) => {
+      const matchesSearch =
+        contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        contact.message.toLowerCase().includes(searchTerm.toLowerCase());
 
-  const uniqueContactFormTypes = [...new Set((contacts as Contact[]).map((c: Contact) => c.contactFormType || 'contact-form'))];
+      const matchesType = filterType === "all" || (contact.contactFormType || "contact-form") === filterType;
+
+      return matchesSearch && matchesType;
+    });
+  }, [contacts, searchTerm, filterType]);
+
+  // ✅ Fix Set iteration issue (no [...new Set()])
+  const uniqueContactFormTypes = useMemo(() => {
+    const map = (contacts as Contact[]).reduce((acc, c) => {
+      const key = c.contactFormType || "contact-form";
+      acc[key] = true;
+      return acc;
+    }, {} as Record<string, true>);
+
+    return Object.keys(map);
+  }, [contacts]);
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: number) => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-      
-      const response = await fetch(`/api/contacts/${id}`, {
-        method: 'DELETE',
+    mutationFn: async (payload: { id: number; name: string; email: string }) => {
+      const token = localStorage.getItem("adminToken");
+      if (!token) throw new Error("No authentication token found");
+
+      const response = await fetch(`/api/contacts/${payload.id}`, {
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to delete contact');
+        throw new Error(errorData.message || "Failed to delete contact");
       }
-      
+
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
-      refetch(); // Refresh the contacts list
-      alert('Contact deleted successfully!');
+
+    onSuccess: (_data, variables) => {
+      // ✅ After successful action, show contact infos
+      appToast.success(`${variables.name} • ${variables.email}`, "Contact deleted");
+
+      // ✅ Refresh list
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
+      refetch();
+
+      // Close dialog
+      setConfirmOpen(false);
+      setSelectedContact(null);
     },
-    onError: (error) => {
-      console.error('Delete contact error:', error);
-      alert('Failed to delete contact. Please try again.');
-    }
+
+    onError: (error: any) => {
+      console.error("Delete contact error:", error);
+
+      // ✅ Custom toast (no window.alert)
+      appToast.error(error?.message || "Failed to delete contact. Please try again.", "Delete failed");
+    },
   });
 
   const handleEmailContact = (email: string, name: string) => {
@@ -111,17 +148,31 @@ export function ContactsManager() {
 
   const getContactFormTypeLabel = (type?: string) => {
     const labels: Record<string, string> = {
-      'home-contact-form': 'Home Page Contact Form',
-      'service-page-contact-form': 'Service Page Contact Form',
-      'dedicated-resource-contact-form': 'Dedicated Resource Contact Form',
-      'pricing-calculator': 'Pricing Calculator Contact Form',
-      'entry-popup-contact-form': 'Entry Pop-up Contact Form',
-      'exit-popup-contact-form': 'Exit Pop-up Contact Form',
-      'contact-us-page-contact-form': 'Contact Us Page Contact Form',
-      'newsletter-contact-form': 'Newsletter Contact Form',
-      'contact-form': 'General Contact Form'
+      "home-contact-form": "Home Page Contact Form",
+      "service-page-contact-form": "Service Page Contact Form",
+      "dedicated-resource-contact-form": "Dedicated Resource Contact Form",
+      "pricing-calculator": "Pricing Calculator Contact Form",
+      "entry-popup-contact-form": "Entry Pop-up Contact Form",
+      "exit-popup-contact-form": "Exit Pop-up Contact Form",
+      "contact-us-page-contact-form": "Contact Us Page Contact Form",
+      "newsletter-contact-form": "Newsletter Contact Form",
+      "contact-form": "General Contact Form",
     };
-    return labels[type || 'contact-form'] || 'General Contact Form';
+    return labels[type || "contact-form"] || "General Contact Form";
+  };
+
+  const openDeleteConfirm = (contact: Contact) => {
+    setSelectedContact(contact);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!selectedContact) return;
+    deleteMutation.mutate({
+      id: selectedContact.id,
+      name: selectedContact.name,
+      email: selectedContact.email,
+    });
   };
 
   if (isLoading) {
@@ -146,6 +197,7 @@ export function ContactsManager() {
             Contact Submissions ({(contacts as Contact[]).length})
           </CardTitle>
         </CardHeader>
+
         <CardContent>
           {/* Filters */}
           <div className="flex gap-4 mb-6">
@@ -160,6 +212,7 @@ export function ContactsManager() {
                 />
               </div>
             </div>
+
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger className="w-64">
                 <SelectValue placeholder="Filter by contact form type" />
@@ -189,33 +242,43 @@ export function ContactsManager() {
                       {/* Contact Info */}
                       <div className="lg:col-span-1">
                         <h3 className="font-semibold text-lg mb-2">{contact.name}</h3>
+
                         <div className="space-y-1 text-sm text-gray-600">
                           <div className="flex items-center gap-2">
                             <Mail className="w-4 h-4" />
                             <span>{contact.email}</span>
                           </div>
+
                           {contact.phone && (
                             <div className="flex items-center gap-2">
                               <Phone className="w-4 h-4" />
                               <span>{contact.phone}</span>
                             </div>
                           )}
+
                           {contact.company && (
                             <div className="flex items-center gap-2">
                               <Building className="w-4 h-4" />
                               <span>{contact.company}</span>
                             </div>
                           )}
+
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
                             <span>{new Date(contact.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
+
                         {contact.attachmentFilename && (
                           <div className="mt-2">
-                            <a href={`/uploads/contact_files/${encodeURIComponent(contact.attachmentFilename)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 inline-flex items-center gap-2">
+                            <a
+                              href={`/uploads/contact_files/${encodeURIComponent(contact.attachmentFilename)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm text-blue-600 inline-flex items-center gap-2"
+                            >
                               <ExternalLink className="w-4 h-4" />
-                              Download attachment {contact.attachmentOriginalName ? `(${contact.attachmentOriginalName})` : ''}
+                              Download attachment {contact.attachmentOriginalName ? `(${contact.attachmentOriginalName})` : ""}
                             </a>
                           </div>
                         )}
@@ -225,41 +288,48 @@ export function ContactsManager() {
                       <div className="lg:col-span-1">
                         <div className="mb-3">
                           <Badge variant="outline" className="mb-2">
-                            {contact.inquiry_type.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            {contact.inquiry_type.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                           </Badge>
+
                           {contact.couponCode && (
                             <Badge variant="secondary" className="ml-2">
                               Coupon: {contact.couponCode}
                             </Badge>
                           )}
                         </div>
+
                         <div className="text-sm text-gray-700">
                           <div className="max-h-32 overflow-y-auto">
-                            {contact.message.split('\n').map((line, index) => {
-                              if (line.startsWith('📋') || line.startsWith('👥') || line.startsWith('🔍') || 
-                                  line.startsWith('🎯') || line.startsWith('⚙️') || line.startsWith('🤖') ||
-                                  line.startsWith('💰') || line.startsWith('⏰') || line.startsWith('📢')) {
+                            {contact.message.split("\n").map((line, index) => {
+                              if (
+                                line.startsWith("📋") ||
+                                line.startsWith("👥") ||
+                                line.startsWith("🔍") ||
+                                line.startsWith("🎯") ||
+                                line.startsWith("⚙️") ||
+                                line.startsWith("🤖") ||
+                                line.startsWith("💰") ||
+                                line.startsWith("⏰") ||
+                                line.startsWith("📢")
+                              ) {
                                 return (
                                   <div key={index} className="font-semibold text-blue-600 mt-2">
                                     {line}
                                   </div>
                                 );
-                              } else if (line.startsWith('•')) {
+                              } else if (line.startsWith("•")) {
                                 return (
                                   <div key={index} className="ml-4 text-gray-600">
                                     {line}
                                   </div>
                                 );
                               } else {
-                                return (
-                                  <div key={index}>
-                                    {line}
-                                  </div>
-                                );
+                                return <div key={index}>{line}</div>;
                               }
                             })}
                           </div>
                         </div>
+
                         {contact.topPriority && (
                           <p className="text-sm text-blue-600 mt-2">
                             <strong>Priority:</strong> {contact.topPriority}
@@ -274,34 +344,25 @@ export function ContactsManager() {
                             {getContactFormTypeLabel(contact.contactFormType)}
                           </Badge>
                         </div>
-                        <Button
-                          onClick={() => handleEmailContact(contact.email, contact.name)}
-                          size="sm"
-                          className="w-full"
-                        >
+
+                        <Button onClick={() => handleEmailContact(contact.email, contact.name)} size="sm" className="w-full">
                           <Mail className="w-4 h-4 mr-2" />
                           Reply via Email
                         </Button>
+
                         <Button
-                          onClick={() => {
-                            if (window.confirm(`Are you sure you want to delete the contact from ${contact.name}? This action cannot be undone.`)) {
-                              deleteMutation.mutate(contact.id);
-                            }
-                          }}
+                          onClick={() => openDeleteConfirm(contact)}
                           size="sm"
                           variant="destructive"
                           className="w-full"
                           disabled={deleteMutation.isPending}
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          {deleteMutation.isPending ? 'Deleting...' : 'Delete Contact'}
+                          {deleteMutation.isPending ? "Deleting..." : "Delete Contact"}
                         </Button>
-                        <div className="text-xs text-gray-500 text-center">
-                          Preferred contact: {contact.preferred_contact}
-                        </div>
-                        <div className="text-xs text-gray-500 text-center">
-                          Location: {contact.country}
-                        </div>
+
+                        <div className="text-xs text-gray-500 text-center">Preferred contact: {contact.preferred_contact}</div>
+                        <div className="text-xs text-gray-500 text-center">Location: {contact.country}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -311,6 +372,39 @@ export function ContactsManager() {
           </div>
         </CardContent>
       </Card>
+
+      {/* ✅ Custom Confirm Dialog (no window.confirm) */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this contact?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone.
+              {selectedContact ? (
+                <div className="mt-2 text-sm">
+                  <div className="font-medium text-foreground">{selectedContact.name}</div>
+                  <div className="text-muted-foreground">{selectedContact.email}</div>
+                </div>
+              ) : null}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                setSelectedContact(null);
+                setConfirmOpen(false);
+              }}
+            >
+              Cancel
+            </AlertDialogCancel>
+
+            <AlertDialogAction onClick={confirmDelete} disabled={deleteMutation.isPending || !selectedContact}>
+              {deleteMutation.isPending ? "Deleting..." : "Yes, delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

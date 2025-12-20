@@ -576,9 +576,9 @@ export function CaseStudyCardsPage() {
 
                         {/* Results (fixed 3 fields) */}
                         <div className="grid grid-cols-3 gap-3 mt-6">
-                          <ResultChip label="Performance" value={card.results?.performance || "-"} />
-                          <ResultChip label="Conversions" value={card.results?.conversions || "-"} />
-                          <ResultChip label="Scale" value={card.results?.users || "-"} />
+                          <ResultChip label="Industry" value={card.results?.performance || "-"} />
+                          <ResultChip label="Website Type" value={card.results?.conversions || "-"} />
+                          <ResultChip label="Delivery Type" value={card.results?.users || "-"} />
                         </div>
 
                         <div className="mt-6 inline-flex items-center gap-2 text-[#ee4962] font-semibold">
