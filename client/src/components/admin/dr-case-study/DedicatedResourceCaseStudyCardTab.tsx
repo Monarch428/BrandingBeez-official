@@ -105,7 +105,7 @@ export function DedicatedResourceCaseStudyCardTab({
       </div>
 
       <div>
-        <RequiredLabel>Client</RequiredLabel>
+        <RequiredLabel>White Label Partner</RequiredLabel>
         <Input value={form.client || ""} onChange={(e) => onChange("client", e.target.value)} placeholder="SocialLand Digital" required />
       </div>
 

@@ -95,7 +95,7 @@ export function WebCaseStudyCardTab({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <div>
-            <ReqLabel>Performance</ReqLabel>
+            <ReqLabel>Industry</ReqLabel>
             <Input
               value={results.performance || ""}
               onChange={(e) =>
@@ -107,7 +107,7 @@ export function WebCaseStudyCardTab({
           </div>
 
           <div>
-            <ReqLabel>Conversions</ReqLabel>
+            <ReqLabel>Website Type</ReqLabel>
             <Input
               value={results.conversions || ""}
               onChange={(e) =>
@@ -119,7 +119,7 @@ export function WebCaseStudyCardTab({
           </div>
 
           <div>
-            <ReqLabel>Scale</ReqLabel>
+            <ReqLabel>Delivery Type</ReqLabel>
             <Input
               value={results.users || ""}
               onChange={(e) =>

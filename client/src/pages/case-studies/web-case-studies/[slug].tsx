@@ -392,9 +392,9 @@ export default function WebCaseStudySlugPage(props: any) {
                                 {(heroStats.length
                                     ? heroStats
                                     : [
-                                        { value: card.results?.performance, label: "Performance", iconKey: "Building2" },
-                                        { value: card.results?.conversions, label: "Conversions", iconKey: "Calendar" },
-                                        { value: card.results?.users, label: "Scale", iconKey: "Award" },
+                                        { value: card.results?.performance, label: "Industry", iconKey: "Building2" },
+                                        { value: card.results?.conversions, label: "Website Type", iconKey: "Calendar" },
+                                        { value: card.results?.users, label: "Delivery Type", iconKey: "Award" },
                                     ]
                                 )
                                     .slice(0, 3)
