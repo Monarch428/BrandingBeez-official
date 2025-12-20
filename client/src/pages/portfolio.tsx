@@ -524,8 +524,8 @@ export default function PortfolioPage() {
   const SERVICE_ORDER = [
     "dedicated-resources",
     "web-development",
-    "seo", 
-    "google-ads", 
+    "seo",
+    "google-ads",
     "ai-development",
     "custom-app-development",
     "other",
@@ -771,16 +771,16 @@ export default function PortfolioPage() {
                           "google-ads",
                           "custom-app-development",
                         ].includes(group.category.id) && (
-                          <Button
-                            className="self-start md:self-auto"
-                            onClick={() => openFormForCategory(group.category.id)}
-                          >
-                            {getCategoryCtaText(
-                              group.category.id,
-                              group.category.title,
-                            )}
-                          </Button>
-                        )}
+                            <Button
+                              className="self-start md:self-auto"
+                              onClick={() => openFormForCategory(group.category.id)}
+                            >
+                              {getCategoryCtaText(
+                                group.category.id,
+                                group.category.title,
+                              )}
+                            </Button>
+                          )}
                       </div>
                     )}
 
@@ -840,13 +840,23 @@ export default function PortfolioPage() {
                                 <div className="flex flex-col flex-1 p-5 sm:p-6 gap-4">
                                   {/* Badge + external link */}
                                   <div className="flex items-center justify-between gap-3">
-                                    <span className="inline-flex items-center rounded-full px-3 py-1 text-xs md:text-sm font-bold bg-brand-purple/10 text-brand-purple">
+                                    <span
+                                      className="
+  inline-flex items-center
+  px-3 py-1.5
+  text-xs md:text-sm
+  font-bold
+  text-brand-purple
+  bg-brand-purple/10
+  border border-brand-coral
+  border-l-4 border-l-brand-coral
+  rounded-md ">
                                       {item.badge ||
                                         (item.serviceCategory === "seo"
                                           ? "SEO Case Study"
                                           : item.serviceCategory === "google-ads"
-                                          ? "Google Ads Case Study"
-                                          : "Case Study")}
+                                            ? "Google Ads Case Study"
+                                            : "Case Study")}
                                     </span>
 
                                     {item.projectUrl && (
@@ -878,9 +888,8 @@ export default function PortfolioPage() {
                                   {/* Short description */}
                                   {effectiveDescription && (
                                     <p
-                                      className={`text-gray-700 text-sm md:text-base leading-relaxed transition-all ${
-                                        isExpanded ? "" : "line-clamp-2"
-                                      }`}
+                                      className={`text-gray-700 text-sm md:text-base leading-relaxed transition-all ${isExpanded ? "" : "line-clamp-2"
+                                        }`}
                                     >
                                       {effectiveDescription}
                                     </p>
@@ -889,32 +898,31 @@ export default function PortfolioPage() {
                                   {/* KPI chips */}
                                   {(seoStats.length > 0 ||
                                     googleAdsStats.length > 0) && (
-                                    <div className="flex flex-wrap gap-2">
-                                      {(seoStats.length > 0 ? seoStats : googleAdsStats)
-                                        .slice(0, 3)
-                                        .map((stat, idx) => (
-                                          <span
-                                            key={`${stat.label}-${idx}`}
-                                            className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-xs md:text-sm font-medium text-gray-800 border border-gray-100"
-                                          >
-                                            <span className="mr-1 text-brand-purple font-semibold">
-                                              {stat.value}
+                                      <div className="flex flex-wrap gap-2">
+                                        {(seoStats.length > 0 ? seoStats : googleAdsStats)
+                                          .slice(0, 3)
+                                          .map((stat, idx) => (
+                                            <span
+                                              key={`${stat.label}-${idx}`}
+                                              className="inline-flex items-center rounded-full bg-gray-50 px-3 py-1 text-xs md:text-sm font-medium text-gray-800 border border-gray-100"
+                                            >
+                                              <span className="mr-1 text-brand-purple font-semibold">
+                                                {stat.value}
+                                              </span>
+                                              <span className="text-gray-600">
+                                                {stat.label}
+                                              </span>
                                             </span>
-                                            <span className="text-gray-600">
-                                              {stat.label}
-                                            </span>
-                                          </span>
-                                        ))}
-                                    </div>
-                                  )}
+                                          ))}
+                                      </div>
+                                    )}
 
                                   {/* Stats grid - full width, centered content */}
                                   <div
-                                    className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${
-                                      isGoogleAds
-                                        ? "grid grid-cols-3 gap-3 justify-items-center text-center"
-                                        : "grid grid-cols-2 gap-3 justify-items-center text-center"
-                                    }`}
+                                    className={`w-full p-4 bg-gray-50 rounded-lg border border-gray-100 ${isGoogleAds
+                                      ? "grid grid-cols-3 gap-3 justify-items-center text-center"
+                                      : "grid grid-cols-2 gap-3 justify-items-center text-center"
+                                      }`}
                                   >
                                     {/* Investment */}
                                     <div className="text-center">

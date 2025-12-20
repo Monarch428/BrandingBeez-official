@@ -136,7 +136,7 @@ export function AppToastProvider({ children }: { children: React.ReactNode }) {
             }}
             variant={t.variant}
           >
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 z-50">
               {t.title && <ToastTitle>{t.title}</ToastTitle>}
               {t.description && (
                 <ToastDescription>{t.description}</ToastDescription>

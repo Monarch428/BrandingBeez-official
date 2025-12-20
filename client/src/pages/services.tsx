@@ -441,7 +441,7 @@ export default function Services() {
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 mb-8 border border-white/20">
                     <div className="text-2xl font-bold mb-2 text-yellow-200">
-                      <span className="text-white text-2xl">Starting at</span> $1,199/month<span className="text-white text-xl"> per dedicated resource</span>
+                      <span className="text-white text-2xl">Starting at</span> $1,199/month<span className="text-white text-xl"> Resource</span>
                     </div>
                     <div className="text-md font-medium text-gray-200 mb-4">
                       No recruitment fees | No long-term contracts | Team discounts available
@@ -451,31 +451,37 @@ export default function Services() {
                       <li className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
                         <span>
-                          <strong>160+ Hours per Month of Dedicated Time</strong>
+                          <strong>160+ dedicated hours to your projects</strong>
                         </span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
                         <span>
-                          Team discounts up to 20% when you hire 8+ people
+                          ⁠Fluent in English with good communication
                         </span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
                         <span>
-                          Direct communication and full project transparency
+                          Direct communication & Full-time project transparency
                         </span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
                         <span>
-                          Specialists experienced in working with US agencies and clients
+                          ⁠Specialists experienced in US Projects & clients
                         </span>
                       </li>
                       <li className="flex items-start gap-3">
                         <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
                         <span>
-                          Up to 60% more cost-effective than in-house hiring
+                          ⁠Team discount of up to 20% when you hire 5 resources or more
+                        </span>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-white mt-0.5 flex-shrink-0" />
+                        <span>
+                          ⁠Save 60,000$+ a year on every resource
                         </span>
                       </li>
                     </ul>
@@ -496,7 +502,7 @@ export default function Services() {
 
                 {/* Right Side - Call Booking Form */}
                 <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-8 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)]">
-                  <h3 className="text-2xl font-bold mb-6 text-white">
+                  <h3 className="text-2xl font-bold mb-6 text-yellow-200">
                     {/* Subscribe Free */} Book Your Dedicated Resource
                   </h3>
                   <form onSubmit={handleSubmitLead} className="space-y-4 flex flex-col h-full">

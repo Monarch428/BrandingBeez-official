@@ -41,7 +41,7 @@ export async function fetchSlots(date: string): Promise<SlotsResponse> {
 
   const res = await fetch(`/api/appointments/slots?date=${date}`);
 
-  console.log("Slots response HTTP status:", res.status);
+  // console.log("Slots response HTTP status:", res.status);
 
   if (!res.ok) {
     const errBody = await res.json().catch(() => null);
@@ -56,7 +56,7 @@ export async function fetchSlots(date: string): Promise<SlotsResponse> {
 }
 
 export async function createAppointment(payload: CreateAppointmentPayload) {
-  console.log("Creating appointment with payload:", payload);
+  // console.log("Creating appointment with payload:", payload);
 
   const res = await fetch("/api/appointments", {
     method: "POST",
@@ -64,7 +64,7 @@ export async function createAppointment(payload: CreateAppointmentPayload) {
     body: JSON.stringify(payload),
   });
 
-  console.log("Create appointment HTTP status:", res.status);
+  // console.log("Create appointment HTTP status:", res.status);
 
   const data = await res.json().catch(() => ({} as any));
 

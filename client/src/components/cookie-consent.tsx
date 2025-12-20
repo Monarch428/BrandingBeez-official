@@ -1,3 +1,532 @@
+// import { useState, useEffect } from "react";
+// import { createPortal } from "react-dom";
+// import { Card, CardContent } from "@/components/ui/card";
+// import { Button } from "@/components/ui/button";
+// import { Badge } from "@/components/ui/badge";
+// import {
+//   Dialog,
+//   DialogContent,
+//   DialogHeader,
+//   DialogTitle,
+// } from "@/components/ui/dialog";
+// import { Switch } from "@/components/ui/switch";
+// import { Separator } from "@/components/ui/separator";
+// import {
+//   Cookie,
+//   Settings,
+//   Shield,
+//   BarChart3,
+//   Target,
+//   CheckCircle,
+//   Info,
+// } from "lucide-react";
+
+// interface CookiePreferences {
+//   essential: boolean;
+//   analytics: boolean;
+//   marketing: boolean;
+//   functional: boolean;
+// }
+
+// export function CookieConsent() {
+//   const [showBanner, setShowBanner] = useState(false);
+//   const [showSettings, setShowSettings] = useState(false);
+//   const [preferences, setPreferences] = useState<CookiePreferences>({
+//     essential: true,
+//     analytics: false,
+//     marketing: false,
+//     functional: false,
+//   });
+
+//   // useEffect(() => {
+//   //   const consent = localStorage.getItem("cookie-consent");
+//   //   const consentDate = localStorage.getItem("cookie-consent-date");
+
+//   //   const isExpired =
+//   //     consentDate &&
+//   //     Date.now() - new Date(consentDate).getTime() >
+//   //     365 * 24 * 60 * 60 * 1000;
+
+//   //   if (!consent || isExpired) {
+//   //     if (isExpired) {
+//   //       localStorage.removeItem("cookie-consent");
+//   //       localStorage.removeItem("cookie-consent-date");
+//   //     }
+//   //     // const timer = setTimeout(() => setShowBanner(true), 1200);
+//   //     // return () => clearTimeout(timer);
+//   //     setShowBanner(true);
+//   //   } else {
+//   //     try {
+//   //       const savedPreferences = JSON.parse(consent);
+//   //       setPreferences(savedPreferences);
+//   //       applyConsentSettings(savedPreferences);
+//   //       setShowBanner(false);
+//   //     } catch (error) {
+//   //       console.error("Error parsing cookie consent:", error);
+//   //       localStorage.removeItem("cookie-consent");
+//   //       localStorage.removeItem("cookie-consent-date");
+//   //       const timer = setTimeout(() => setShowBanner(true), 1200);
+//   //       return () => clearTimeout(timer);
+//   //     }
+//   //   }
+//   // }, []);
+
+//   useEffect(() => {
+//     const consent = localStorage.getItem("cookie-consent");
+//     const consentDate = localStorage.getItem("cookie-consent-date");
+
+//     const isExpired =
+//       consentDate &&
+//       Date.now() - new Date(consentDate).getTime() >
+//       365 * 24 * 60 * 60 * 1000;
+
+//     if (!consent || isExpired) {
+//       if (isExpired) {
+//         localStorage.removeItem("cookie-consent");
+//         localStorage.removeItem("cookie-consent-date");
+//       }
+
+//       // ✅ SHOW IMMEDIATELY
+//       setShowBanner(true);
+//     } else {
+//       try {
+//         const savedPreferences = JSON.parse(consent);
+//         setPreferences(savedPreferences);
+//         applyConsentSettings(savedPreferences);
+//         setShowBanner(false);
+//       } catch (error) {
+//         console.error("Error parsing cookie consent:", error);
+//         localStorage.removeItem("cookie-consent");
+//         localStorage.removeItem("cookie-consent-date");
+
+//         // ✅ SHOW IMMEDIATELY ON ERROR
+//         setShowBanner(true);
+//       }
+//     }
+//   }, []);
+
+//   const applyConsentSettings = (prefs: CookiePreferences) => {
+//     const consentPayload = {
+//       analytics_storage: prefs.analytics ? "granted" : "denied",
+//       ad_storage: prefs.marketing ? "granted" : "denied",
+//       ad_user_data: prefs.marketing ? "granted" : "denied",
+//       ad_personalization: prefs.marketing ? "granted" : "denied",
+//       functionality_storage: prefs.functional ? "granted" : "denied",
+//     } as const;
+
+//     (window as any).gtag?.("consent", "update", consentPayload);
+
+//     try {
+//       // Preferred: use gtag if available (you define gtag() in <head>)
+//       if (typeof (window as any).gtag === "function") {
+//         (window as any).gtag("consent", "update", consentPayload);
+//       } else if (Array.isArray((window as any).dataLayer)) {
+//         // Fallback: push to dataLayer (GTM will process it)
+//         (window as any).dataLayer.push(["consent", "update", consentPayload]);
+//       }
+//     } catch (e) {
+//       console.error("Failed to apply consent settings:", e);
+//     }
+
+//     localStorage.setItem("cookie-consent", JSON.stringify(prefs));
+//     localStorage.setItem("cookie-consent-date", new Date().toISOString());
+//   };
+
+//   const handleAcceptAll = () => {
+//     const allAccepted: CookiePreferences = {
+//       essential: true,
+//       analytics: true,
+//       marketing: true,
+//       functional: true,
+//     };
+//     setPreferences(allAccepted);
+//     applyConsentSettings(allAccepted);
+//     setShowSettings(false);
+//     setShowBanner(false);
+//   };
+
+//   const handleRejectAll = () => {
+//     const essentialOnly: CookiePreferences = {
+//       essential: true,
+//       analytics: false,
+//       marketing: false,
+//       functional: false,
+//     };
+//     setPreferences(essentialOnly);
+//     applyConsentSettings(essentialOnly);
+//     setShowSettings(false);
+//     setShowBanner(false);
+//   };
+
+//   const handleSavePreferences = () => {
+//     applyConsentSettings(preferences);
+//     setShowSettings(false);
+//     setShowBanner(false);
+//   };
+
+//   const handleOpenSettings = () => {
+//     // ✅ When Customize opens, hide banner behind (no footer-like behavior)
+//     setShowBanner(false);
+//     setShowSettings(true);
+//   };
+
+//   const handleSettingsOpenChange = (open: boolean) => {
+//     if (open) {
+//       setShowSettings(true);
+//       return;
+//     }
+
+//     // ✅ If user closes settings without saving (cancel / X / outside click)
+//     // bring banner back only if consent is still not set
+//     setShowSettings(false);
+//     const consent = localStorage.getItem("cookie-consent");
+//     if (!consent) {
+//       setShowBanner(true);
+//     }
+//   };
+
+//   const updatePreference = (key: keyof CookiePreferences, value: boolean) => {
+//     if (key === "essential") return;
+//     setPreferences((prev) => ({ ...prev, [key]: value }));
+//   };
+
+//   const cookieCategories = [
+//     {
+//       key: "essential" as keyof CookiePreferences,
+//       title: "Essential Cookies",
+//       description:
+//         "Required for the website to function properly. These cannot be disabled.",
+//       icon: <Shield className="w-5 h-5 text-green-600" />,
+//       color: "green",
+//       examples: [
+//         "Session management",
+//         "Security tokens",
+//         "Load balancing",
+//         "CSRF protection",
+//       ],
+//       always: true,
+//     },
+//     {
+//       key: "analytics" as keyof CookiePreferences,
+//       title: "Analytics Cookies",
+//       description: "Help us understand how visitors interact with our website.",
+//       icon: <BarChart3 className="w-5 h-5 text-blue-600" />,
+//       color: "blue",
+//       examples: [
+//         "Google Analytics",
+//         "Page view tracking",
+//         "User behavior",
+//         "Performance metrics",
+//       ],
+//       always: false,
+//     },
+//     {
+//       key: "marketing" as keyof CookiePreferences,
+//       title: "Marketing Cookies",
+//       description:
+//         "Used to deliver personalized advertisements and track campaigns.",
+//       icon: <Target className="w-5 h-5 text-purple-600" />,
+//       color: "purple",
+//       examples: [
+//         "Retargeting ads",
+//         "Conversion tracking",
+//         "Social media",
+//         "A/B testing",
+//       ],
+//       always: false,
+//     },
+//     {
+//       key: "functional" as keyof CookiePreferences,
+//       title: "Functional Cookies",
+//       description: "Enable enhanced functionality and personalization.",
+//       icon: <Settings className="w-5 h-5 text-orange-600" />,
+//       color: "orange",
+//       examples: [
+//         "User preferences",
+//         "Chat widgets",
+//         "Video players",
+//         "Maps integration",
+//       ],
+//       always: false,
+//     },
+//   ];
+
+//   // ✅ Render if either banner OR settings is open
+//   if (!showBanner && !showSettings) return null;
+
+//   return createPortal(
+//     <>
+//       {/* Cookie Consent Banner */}
+//       {showBanner && (
+//         <div
+//           className="
+//             fixed z-[9999]
+//             left-0 right-0 bottom-0
+//             sm:left-auto sm:right-4 sm:bottom-4
+//             px-3 pb-3 sm:px-0 sm:pb-0
+//             pointer-events-none
+//           "
+//         >
+//           <div
+//             className="
+//               pointer-events-auto
+//               w-full sm:w-[440px]
+//               sm:max-w-[440px]
+//               animate-[bbSlideUp_220ms_ease-out]
+//             "
+//             style={{
+//               paddingBottom: "env(safe-area-inset-bottom)",
+//             }}
+//           >
+//             <Card className="border bg-white shadow-2xl rounded-2xl overflow-hidden">
+//               <CardContent className="p-4 sm:p-5">
+//                 <div className="flex flex-col gap-4">
+//                   <div className="flex items-start gap-3">
+//                     <div className="p-2 bg-brand-coral/10 rounded-full shrink-0">
+//                       <Cookie className="w-6 h-6 text-brand-coral" />
+//                     </div>
+
+//                     <div className="flex-1">
+//                       <h3 className="font-semibold text-gray-900 mb-1">
+//                         We Use Cookies
+//                       </h3>
+//                       <p className="text-sm text-gray-600">
+//                         We use cookies to enhance your experience, analyze site
+//                         traffic, and for marketing purposes. You can customize
+//                         your preferences or accept all cookies.
+//                       </p>
+//                     </div>
+//                   </div>
+
+//                   <div className="flex flex-col sm:flex-row gap-2">
+//                     <Button
+//                       variant="outline"
+//                       onClick={handleOpenSettings}
+//                       className="flex items-center gap-2"
+//                     >
+//                       <Settings className="w-4 h-4" />
+//                       Customize
+//                     </Button>
+
+//                     <Button variant="outline" onClick={handleRejectAll}>
+//                       Reject All
+//                     </Button>
+
+//                     <Button
+//                       onClick={handleAcceptAll}
+//                       className="bg-brand-coral text-white hover:bg-brand-coral-dark"
+//                     >
+//                       Accept All
+//                     </Button>
+//                   </div>
+
+//                   <div className="pt-3 border-t">
+//                     <p className="text-xs text-gray-500">
+//                       By clicking "Accept All", you agree to our use of cookies.
+//                       Learn more in our{" "}
+//                       <a
+//                         href="/privacy-policy"
+//                         className="text-brand-coral-darker hover:text-brand-coral-dark font-medium underline decoration-brand-coral-darker hover:decoration-brand-coral-dark"
+//                       >
+//                         Privacy Policy
+//                       </a>{" "}
+//                       and{" "}
+//                       <a
+//                         href="/cookie-policy"
+//                         className="text-brand-coral-darker hover:text-brand-coral-dark font-medium underline decoration-brand-coral-darker hover:decoration-brand-coral-dark"
+//                       >
+//                         Cookie Policy
+//                       </a>
+//                       .
+//                     </p>
+//                   </div>
+//                 </div>
+//               </CardContent>
+//             </Card>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Cookie Settings Modal */}
+//       <Dialog open={showSettings} onOpenChange={handleSettingsOpenChange}>
+//         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+//           <DialogHeader>
+//             <DialogTitle className="flex items-center gap-2">
+//               <Settings className="w-5 h-5" />
+//               Cookie Settings
+//             </DialogTitle>
+//           </DialogHeader>
+
+//           <div className="space-y-6">
+//             <div className="bg-blue-50 p-4 rounded-lg">
+//               <div className="flex items-start gap-3">
+//                 <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+//                 <div>
+//                   <h4 className="font-semibold text-blue-900 mb-1">
+//                     About Cookies
+//                   </h4>
+//                   <p className="text-sm text-blue-800">
+//                     Cookies are small text files stored on your device that help
+//                     websites function and provide a better user experience. You
+//                     can control which types of cookies you allow.
+//                   </p>
+//                 </div>
+//               </div>
+//             </div>
+
+//             <div className="space-y-4">
+//               {cookieCategories.map((category) => (
+//                 <Card
+//                   key={category.key}
+//                   className={`border-${category.color}-200`}
+//                 >
+//                   <CardContent className="p-6">
+//                     <div className="flex items-start justify-between gap-4">
+//                       <div className="flex items-start gap-3 flex-1">
+//                         {category.icon}
+//                         <div className="flex-1">
+//                           <div className="flex items-center gap-2 mb-2">
+//                             <h4 className="font-semibold">{category.title}</h4>
+//                             {category.always && (
+//                               <Badge className="bg-green-100 text-green-800 text-xs">
+//                                 Always Active
+//                               </Badge>
+//                             )}
+//                           </div>
+//                           <p className="text-sm text-gray-600 mb-3">
+//                             {category.description}
+//                           </p>
+//                           <div>
+//                             <p className="text-xs font-medium text-gray-700 mb-1">
+//                               Examples:
+//                             </p>
+//                             <div className="flex flex-wrap gap-1">
+//                               {category.examples.map((example, index) => (
+//                                 <Badge
+//                                   key={index}
+//                                   variant="outline"
+//                                   className="text-xs"
+//                                 >
+//                                   {example}
+//                                 </Badge>
+//                               ))}
+//                             </div>
+//                           </div>
+//                         </div>
+//                       </div>
+
+//                       <div className="flex items-center gap-2">
+//                         {category.always ? (
+//                           <CheckCircle className="w-5 h-5 text-green-500" />
+//                         ) : (
+//                           <Switch
+//                             checked={preferences[category.key]}
+//                             onCheckedChange={(value) =>
+//                               updatePreference(category.key, value)
+//                             }
+//                           />
+//                         )}
+//                       </div>
+//                     </div>
+//                   </CardContent>
+//                 </Card>
+//               ))}
+//             </div>
+
+//             <Separator />
+
+//             <div className="bg-gray-50 p-4 rounded-lg">
+//               <h4 className="font-semibold mb-2">Your Choices</h4>
+//               <div className="text-sm text-gray-600 space-y-1">
+//                 <p>• You can change these preferences at any time</p>
+//                 <p>• Essential cookies cannot be disabled</p>
+//                 <p>• Some features may not work if you disable certain cookies</p>
+//                 <p>• Your preferences will be remembered for 1 year</p>
+//               </div>
+//             </div>
+
+//             <div className="flex justify-end gap-3">
+//               <Button
+//                 variant="outline"
+//                 onClick={() => handleSettingsOpenChange(false)}
+//               >
+//                 Cancel
+//               </Button>
+//               <Button variant="outline" onClick={handleRejectAll}>
+//                 Reject All
+//               </Button>
+//               <Button
+//                 onClick={handleSavePreferences}
+//                 className="bg-brand-coral text-white hover:bg-brand-coral-dark"
+//               >
+//                 Accept Selected
+//               </Button>
+//             </div>
+//           </div>
+//         </DialogContent>
+//       </Dialog>
+
+//       <style>{`
+//         @keyframes bbSlideUp {
+//           from { transform: translateY(10px); opacity: 0; }
+//           to { transform: translateY(0); opacity: 1; }
+//         }
+//       `}</style>
+//     </>,
+//     document.body
+//   );
+// }
+
+// export function useCookieConsent() {
+//   const [hasConsent, setHasConsent] = useState(false);
+//   const [preferences, setPreferences] = useState<CookiePreferences>({
+//     essential: true,
+//     analytics: false,
+//     marketing: false,
+//     functional: false,
+//   });
+
+//   useEffect(() => {
+//     const consent = localStorage.getItem("cookie-consent");
+//     if (consent) {
+//       const prefs = JSON.parse(consent);
+//       setPreferences(prefs);
+//       setHasConsent(true);
+//     }
+//   }, []);
+
+//   const updateConsent = (newPreferences: CookiePreferences) => {
+//     localStorage.setItem("cookie-consent", JSON.stringify(newPreferences));
+//     localStorage.setItem("cookie-consent-date", new Date().toISOString());
+//     setPreferences(newPreferences);
+//     setHasConsent(true);
+//   };
+
+//   const canUseAnalytics = hasConsent && preferences.analytics;
+//   const canUseMarketing = hasConsent && preferences.marketing;
+//   const canUseFunctional = hasConsent && preferences.functional;
+
+//   return {
+//     hasConsent,
+//     preferences,
+//     updateConsent,
+//     canUseAnalytics,
+//     canUseMarketing,
+//     canUseFunctional,
+//   };
+// }
+
+
+
+
+
+
+
+
+
+
+
+
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,6 +560,8 @@ interface CookiePreferences {
 export function CookieConsent() {
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isRejected, setIsRejected] = useState(false);
+
   const [preferences, setPreferences] = useState<CookiePreferences>({
     essential: true,
     analytics: false,
@@ -39,35 +570,55 @@ export function CookieConsent() {
   });
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookie-consent");
+    const localConsent = localStorage.getItem("cookie-consent");
     const consentDate = localStorage.getItem("cookie-consent-date");
 
     const isExpired =
       consentDate &&
       Date.now() - new Date(consentDate).getTime() >
-      365 * 24 * 60 * 60 * 1000;
+        365 * 24 * 60 * 60 * 1000;
 
-    if (!consent || isExpired) {
-      if (isExpired) {
-        localStorage.removeItem("cookie-consent");
-        localStorage.removeItem("cookie-consent-date");
-      }
-      const timer = setTimeout(() => setShowBanner(true), 1200);
-      return () => clearTimeout(timer);
-    } else {
+    // ✅ If accepted consent expired, clear it
+    if (isExpired) {
+      localStorage.removeItem("cookie-consent");
+      localStorage.removeItem("cookie-consent-date");
+    }
+
+    // ✅ Priority 1: Accepted consent (localStorage) if exists and not expired
+    if (localConsent && !isExpired) {
       try {
-        const savedPreferences = JSON.parse(consent);
+        const savedPreferences = JSON.parse(localConsent);
         setPreferences(savedPreferences);
         applyConsentSettings(savedPreferences);
         setShowBanner(false);
+        setIsRejected(false);
+        return;
       } catch (error) {
         console.error("Error parsing cookie consent:", error);
         localStorage.removeItem("cookie-consent");
         localStorage.removeItem("cookie-consent-date");
-        const timer = setTimeout(() => setShowBanner(true), 1200);
-        return () => clearTimeout(timer);
       }
     }
+
+    // ✅ Priority 2: Rejected consent (sessionStorage) — show icon only
+    const sessionConsent = sessionStorage.getItem("cookie-consent");
+    if (sessionConsent) {
+      try {
+        const savedPreferences = JSON.parse(sessionConsent);
+        setPreferences(savedPreferences);
+        applyConsentSettings(savedPreferences);
+        setShowBanner(false);
+        setIsRejected(true);
+        return;
+      } catch (error) {
+        console.error("Error parsing session cookie consent:", error);
+        sessionStorage.removeItem("cookie-consent");
+      }
+    }
+
+    // ✅ No decision yet → show banner immediately
+    setIsRejected(false);
+    setShowBanner(true);
   }, []);
 
   const applyConsentSettings = (prefs: CookiePreferences) => {
@@ -78,8 +629,6 @@ export function CookieConsent() {
       ad_personalization: prefs.marketing ? "granted" : "denied",
       functionality_storage: prefs.functional ? "granted" : "denied",
     } as const;
-
-    (window as any).gtag?.("consent", "update", consentPayload);
 
     try {
       // Preferred: use gtag if available (you define gtag() in <head>)
@@ -92,9 +641,6 @@ export function CookieConsent() {
     } catch (e) {
       console.error("Failed to apply consent settings:", e);
     }
-
-    localStorage.setItem("cookie-consent", JSON.stringify(prefs));
-    localStorage.setItem("cookie-consent-date", new Date().toISOString());
   };
 
   const handleAcceptAll = () => {
@@ -104,8 +650,18 @@ export function CookieConsent() {
       marketing: true,
       functional: true,
     };
+
     setPreferences(allAccepted);
     applyConsentSettings(allAccepted);
+
+    // ✅ Accept => remember for 1 year in localStorage
+    localStorage.setItem("cookie-consent", JSON.stringify(allAccepted));
+    localStorage.setItem("cookie-consent-date", new Date().toISOString());
+
+    // ✅ Clear session reject if any
+    sessionStorage.removeItem("cookie-consent");
+
+    setIsRejected(false);
     setShowSettings(false);
     setShowBanner(false);
   };
@@ -117,14 +673,42 @@ export function CookieConsent() {
       marketing: false,
       functional: false,
     };
+
     setPreferences(essentialOnly);
     applyConsentSettings(essentialOnly);
+
+    // ✅ Reject => store only in sessionStorage
+    sessionStorage.setItem("cookie-consent", JSON.stringify(essentialOnly));
+
+    // ✅ Clear accepted consent if existed
+    localStorage.removeItem("cookie-consent");
+    localStorage.removeItem("cookie-consent-date");
+
+    setIsRejected(true);
     setShowSettings(false);
     setShowBanner(false);
   };
 
   const handleSavePreferences = () => {
     applyConsentSettings(preferences);
+
+    const isEssentialOnly =
+      !preferences.analytics && !preferences.marketing && !preferences.functional;
+
+    if (isEssentialOnly) {
+      // ✅ Treat as reject (session only)
+      sessionStorage.setItem("cookie-consent", JSON.stringify(preferences));
+      localStorage.removeItem("cookie-consent");
+      localStorage.removeItem("cookie-consent-date");
+      setIsRejected(true);
+    } else {
+      // ✅ Treat as accept (local, 1 year)
+      localStorage.setItem("cookie-consent", JSON.stringify(preferences));
+      localStorage.setItem("cookie-consent-date", new Date().toISOString());
+      sessionStorage.removeItem("cookie-consent");
+      setIsRejected(false);
+    }
+
     setShowSettings(false);
     setShowBanner(false);
   };
@@ -141,12 +725,22 @@ export function CookieConsent() {
       return;
     }
 
-    // ✅ If user closes settings without saving (cancel / X / outside click)
-    // bring banner back only if consent is still not set
     setShowSettings(false);
-    const consent = localStorage.getItem("cookie-consent");
-    if (!consent) {
+
+    // ✅ If user closes settings without saving (cancel / X / outside click),
+    // bring banner back only if consent is still not set anywhere
+    const localConsent = localStorage.getItem("cookie-consent");
+    const sessionConsent = sessionStorage.getItem("cookie-consent");
+
+    if (!localConsent && !sessionConsent) {
+      setIsRejected(false);
       setShowBanner(true);
+      return;
+    }
+
+    // If session reject exists, keep icon
+    if (sessionConsent && !localConsent) {
+      setIsRejected(true);
     }
   };
 
@@ -216,11 +810,34 @@ export function CookieConsent() {
     },
   ];
 
-  // ✅ Render if either banner OR settings is open
-  if (!showBanner && !showSettings) return null;
+  // ✅ Render if banner OR settings OR rejected-icon is needed
+  if (!showBanner && !showSettings && !isRejected) return null;
 
   return createPortal(
     <>
+      {/* ✅ Re-open icon ONLY if rejected */}
+      {isRejected && !showSettings && (
+        <button
+          onClick={() => setShowSettings(true)}
+          className="
+            fixed z-[9999]
+            bottom-4 left-4
+            w-11 h-11
+            rounded-full
+            bg-brand-coral
+            border border-gray-200
+            shadow-lg
+            flex items-center justify-center
+            hover:bg-gray-50 hover:text-brand-coral
+            pointer-events-auto
+          "
+          aria-label="Manage cookie preferences"
+          title="Cookie settings"
+        >
+          <Cookie className="w-5 h-5 text-white hover:text-brand-coral" />
+        </button>
+      )}
+
       {/* Cookie Consent Banner */}
       {showBanner && (
         <div
@@ -452,7 +1069,11 @@ export function useCookieConsent() {
   });
 
   useEffect(() => {
-    const consent = localStorage.getItem("cookie-consent");
+    const localConsent = localStorage.getItem("cookie-consent");
+    const sessionConsent = sessionStorage.getItem("cookie-consent");
+
+    const consent = localConsent || sessionConsent;
+
     if (consent) {
       const prefs = JSON.parse(consent);
       setPreferences(prefs);
@@ -461,8 +1082,23 @@ export function useCookieConsent() {
   }, []);
 
   const updateConsent = (newPreferences: CookiePreferences) => {
-    localStorage.setItem("cookie-consent", JSON.stringify(newPreferences));
-    localStorage.setItem("cookie-consent-date", new Date().toISOString());
+    const isEssentialOnly =
+      !newPreferences.analytics &&
+      !newPreferences.marketing &&
+      !newPreferences.functional;
+
+    if (isEssentialOnly) {
+      // Reject => session only
+      sessionStorage.setItem("cookie-consent", JSON.stringify(newPreferences));
+      localStorage.removeItem("cookie-consent");
+      localStorage.removeItem("cookie-consent-date");
+    } else {
+      // Accept => local + date
+      localStorage.setItem("cookie-consent", JSON.stringify(newPreferences));
+      localStorage.setItem("cookie-consent-date", new Date().toISOString());
+      sessionStorage.removeItem("cookie-consent");
+    }
+
     setPreferences(newPreferences);
     setHasConsent(true);
   };

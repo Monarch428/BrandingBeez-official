@@ -1172,7 +1172,7 @@ function FinalCtaSection({
           </button> */}
                     <BookCallButtonWithModal
                         buttonLabel={primaryText ?? "Book Your Strategy Call"}
-                        className="px-6 py-6 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors min-w-[254px]"
+                        className="px-6 py-6 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors max-w-content"
                         buttonSize="lg"
                         defaultServiceType="Website Development"
                     />

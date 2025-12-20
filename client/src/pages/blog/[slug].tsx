@@ -421,10 +421,24 @@ interface BlogPost {
 
 type SectionType = "content" | "process";
 
+type SectionLink = {
+  id: string;
+  label: string;
+  url: string;
+};
+
 type ProcessStep = {
   id: string;
   title: string;
   description: string;
+
+  // ✅ NEW (Separated)
+  // References list shown under the step
+  links?: SectionLink[];
+
+  // ✅ NEW (Separated)
+  // Inline word links applied only inside this step description
+  inlineLinks?: SectionLink[];
 };
 
 type SectionCTA = {
@@ -433,12 +447,6 @@ type SectionCTA = {
   description?: string;
   buttonText?: string;
   buttonLink?: string;
-};
-
-type SectionLink = {
-  id: string;
-  label: string;
-  url: string;
 };
 
 type BlogSection = {
@@ -451,8 +459,13 @@ type BlogSection = {
   steps: ProcessStep[];
   cta: SectionCTA;
 
-  // ✅ NEW
+  // ✅ NEW (Separated)
+  // References list shown under the section
   links?: SectionLink[];
+
+  // ✅ NEW (Separated)
+  // Inline word links applied only inside section content
+  inlineLinks?: SectionLink[];
 };
 
 type StructuredBlogContentV1 = {
@@ -693,9 +706,7 @@ export default function DynamicBlogPost() {
         <Header />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">Blog Post Not Found</h1>
-          <p className="text-xl text-gray-600 mb-8">
-            The blog post you're looking for doesn't exist or has been moved.
-          </p>
+          <p className="text-xl text-gray-600 mb-8">The blog post you're looking for doesn't exist or has been moved.</p>
           <Button onClick={() => (window.location.href = "/blog")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Blog
@@ -716,6 +727,84 @@ export default function DynamicBlogPost() {
   };
 
   const summaryText = blogPost.excerpt?.trim() || deriveExcerptFromContent(blogPost.content || "");
+
+  function escapeHtml(text: string) {
+    return (text || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function escapeRegExp(text: string) {
+    return (text || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  function sanitizeUrl(url: string) {
+    const u = (url || "").trim();
+    if (!u) return "";
+    if (u.startsWith("/")) return u;
+    if (/^https?:\/\//i.test(u)) return u;
+    return "";
+  }
+
+  /**
+   * Apply inline word → href replacement (NO MERGE)
+   * - Section content uses sec.inlineLinks only
+   * - Step description uses st.inlineLinks only
+   */
+  function applyInlineLinks(html: string, links?: SectionLink[]) {
+    if (!html || !Array.isArray(links) || links.length === 0) return html;
+
+    const valid = links
+      .map((l) => ({
+        label: (l.label || "").trim(),
+        url: sanitizeUrl(l.url),
+      }))
+      .filter((l) => l.label && l.url)
+      .sort((a, b) => b.label.length - a.label.length);
+
+    if (!valid.length) return html;
+
+    // avoid touching existing <a> tags
+    const anchorRe = /<a\b[^>]*>[\s\S]*?<\/a>/gi;
+    const parts: { type: "a" | "t"; v: string }[] = [];
+    let last = 0;
+    let m: RegExpExecArray | null;
+
+    while ((m = anchorRe.exec(html))) {
+      if (m.index > last) parts.push({ type: "t", v: html.slice(last, m.index) });
+      parts.push({ type: "a", v: m[0] });
+      last = m.index + m[0].length;
+    }
+    if (last < html.length) parts.push({ type: "t", v: html.slice(last) });
+
+    const linkify = (txt: string) => {
+      let out = txt;
+      for (const l of valid) {
+        const re = new RegExp(`(^|[^\\w])(${escapeRegExp(l.label)})(?=[^\\w]|$)`, "g");
+        const attrs = l.url.startsWith("/")
+          ? `href="${l.url}"`
+          : `href="${l.url}" target="_blank" rel="noopener noreferrer"`;
+        out = out.replace(re, `$1<a ${attrs} class="text-brand-purple font-semibold underline">$2</a>`);
+      }
+      return out;
+    };
+
+    return parts.map((p) => (p.type === "a" ? p.v : linkify(p.v))).join("");
+  }
+
+  function renderTextWithInlineLinks(text: string, links?: SectionLink[]) {
+    if (!text?.trim()) return "";
+
+    if (hasHtmlTags(text)) {
+      return applyInlineLinks(text, links);
+    }
+
+    const escaped = escapeHtml(text).replace(/\n/g, "<br/>");
+    return applyInlineLinks(escaped, links);
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -745,15 +834,9 @@ export default function DynamicBlogPost() {
           </Button>
 
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
-              {blogPost.title}
-            </h1>
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">{blogPost.title}</h1>
 
-            {blogPost.subtitle && (
-              <p className="text-base md:text-xl text-white/90 max-w-3xl">
-                {blogPost.subtitle}
-              </p>
-            )}
+            {blogPost.subtitle && <p className="text-base md:text-xl text-white/90 max-w-3xl">{blogPost.subtitle}</p>}
 
             <div className="flex flex-wrap items-center gap-4 text-white/90">
               <div className="inline-flex items-center gap-2">
@@ -784,11 +867,7 @@ export default function DynamicBlogPost() {
             {Array.isArray(blogPost.tags) && blogPost.tags.length > 0 && (
               <div className="flex gap-2 flex-wrap pt-2">
                 {blogPost.tags.slice(0, 8).map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    className="bg-white/10 border-white/40 text-white"
-                  >
+                  <Badge key={index} variant="outline" className="bg-white/10 border-white/40 text-white">
                     {tag}
                   </Badge>
                 ))}
@@ -836,6 +915,12 @@ export default function DynamicBlogPost() {
                       ? `sec-${slugify(sec.heading)}-${sIdx + 1}`
                       : undefined;
 
+                    // ✅ NO MERGE:
+                    // - Inline word links use inlineLinks only
+                    // - Reference list uses links only
+                    const sectionInlineLinks = sec.inlineLinks || [];
+                    const sectionReferences = sec.links || [];
+
                     return (
                       <section key={sec.id} className="scroll-mt-24">
                         {sec.heading?.trim() && (
@@ -848,9 +933,7 @@ export default function DynamicBlogPost() {
                         )}
 
                         {sec.subHeading?.trim() && (
-                          <p className="text-gray-600 text-lg leading-relaxed mb-5">
-                            {sec.subHeading}
-                          </p>
+                          <p className="text-gray-600 text-lg leading-relaxed mb-5">{sec.subHeading}</p>
                         )}
 
                         {sec.type === "content" ? (
@@ -865,11 +948,12 @@ export default function DynamicBlogPost() {
                               "prose-li:leading-8",
                             ].join(" ")}
                           >
-                            {hasHtmlTags(sec.content) ? (
-                              <div dangerouslySetInnerHTML={{ __html: sec.content }} />
-                            ) : (
-                              <div style={{ whiteSpace: "pre-wrap" }}>{sec.content}</div>
-                            )}
+                            <div
+                              dangerouslySetInnerHTML={{
+                                // ✅ CHANGE: section content uses ONLY sec.inlineLinks
+                                __html: renderTextWithInlineLinks(sec.content, sectionInlineLinks),
+                              }}
+                            />
                           </div>
                         ) : (
                           <div className="space-y-4">
@@ -878,16 +962,19 @@ export default function DynamicBlogPost() {
                                 ? `step-${slugify(st.title)}-${sIdx + 1}-${stIdx + 1}`
                                 : undefined;
 
+                              // ✅ NO MERGE:
+                              // Step inline links only from st.inlineLinks
+                              // Step references only from st.links
+                              const stepInlineLinks = st.inlineLinks || [];
+                              const stepReferences = st.links || [];
+
                               return (
-                                <div
-                                  key={st.id}
-                                  className="rounded-2xl border bg-white shadow-sm p-5 md:p-6"
-                                >
+                                <div key={st.id} className="rounded-2xl border bg-white shadow-sm p-5 md:p-6">
                                   <div className="flex items-start gap-3">
                                     <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-gray-100 text-gray-900 font-bold flex items-center justify-center">
                                       {stIdx + 1}
                                     </div>
-                                    <div className="min-w-0">
+                                    <div className="min-w-0 w-full">
                                       {st.title?.trim() && (
                                         <h3
                                           id={stepAnchor}
@@ -896,10 +983,40 @@ export default function DynamicBlogPost() {
                                           {st.title}
                                         </h3>
                                       )}
+
                                       {st.description?.trim() && (
-                                        <p className="text-gray-700 leading-8">
-                                          {st.description}
-                                        </p>
+                                        <div
+                                          className="text-gray-700 leading-8"
+                                          dangerouslySetInnerHTML={{
+                                            // ✅ CHANGE: step description uses ONLY st.inlineLinks
+                                            __html: renderTextWithInlineLinks(st.description, stepInlineLinks),
+                                          }}
+                                        />
+                                      )}
+
+                                      {/* ✅ NEW: Step References block (separate from inline links) */}
+                                      {Array.isArray(stepReferences) && stepReferences.length > 0 && (
+                                        <div className="mt-4 rounded-2xl border bg-gray-50 p-4">
+                                          <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
+                                            <LinkIcon className="w-4 h-4 text-gray-500" />
+                                            Step References
+                                          </div>
+                                          <ul className="space-y-2">
+                                            {stepReferences.map((link) => (
+                                              <li key={link.id} className="flex items-start gap-2">
+                                                <span className="text-brand-purple font-bold">•</span>
+                                                <a
+                                                  href={link.url}
+                                                  target={link.url?.startsWith("/") ? "_self" : "_blank"}
+                                                  rel="noreferrer noopener"
+                                                  className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                                >
+                                                  {link.label?.trim() || link.url}
+                                                </a>
+                                              </li>
+                                            ))}
+                                          </ul>
+                                        </div>
                                       )}
                                     </div>
                                   </div>
@@ -931,8 +1048,8 @@ export default function DynamicBlogPost() {
                           </div>
                         )}
 
-                        {/* ✅ NEW: References block */}
-                        {Array.isArray(sec.links) && sec.links.length > 0 && (
+                        {/* ✅ Section References block (separate from inline links) */}
+                        {Array.isArray(sectionReferences) && sectionReferences.length > 0 && (
                           <div className="mt-6 rounded-2xl border bg-gray-50 p-5">
                             <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
                               <LinkIcon className="w-4 h-4 text-gray-500" />
@@ -940,7 +1057,7 @@ export default function DynamicBlogPost() {
                             </div>
 
                             <ul className="space-y-2">
-                              {sec.links.map((link) => (
+                              {sectionReferences.map((link) => (
                                 <li key={link.id} className="flex items-start gap-2">
                                   <span className="text-brand-purple font-bold">•</span>
                                   <a
@@ -961,9 +1078,7 @@ export default function DynamicBlogPost() {
                           <div className="mt-8 rounded-2xl overflow-hidden border shadow-sm">
                             <div className="bg-gradient-to-r from-brand-purple to-brand-coral text-white p-6 md:p-8 text-center">
                               {sec.cta.heading?.trim() && (
-                                <div className="text-xl md:text-2xl font-extrabold mb-2">
-                                  {sec.cta.heading}
-                                </div>
+                                <div className="text-xl md:text-2xl font-extrabold mb-2">{sec.cta.heading}</div>
                               )}
                               {sec.cta.description?.trim() && (
                                 <p className="text-white/90 text-base md:text-lg leading-relaxed mb-5">
@@ -991,7 +1106,8 @@ export default function DynamicBlogPost() {
                   <div className="mt-12 p-8 bg-gradient-to-r from-brand-purple to-brand-coral rounded-2xl text-white text-center">
                     <h2 className="text-2xl font-extrabold mb-3">Ready to Get Started?</h2>
                     <p className="text-lg mb-6 opacity-90 leading-relaxed">
-                      Contact our expert team to discuss how we can help grow your business with proven digital marketing strategies.
+                      Contact our expert team to discuss how we can help grow your business with proven digital marketing
+                      strategies.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                       <BookCallButtonWithModal
@@ -999,12 +1115,12 @@ export default function DynamicBlogPost() {
                         className="bg-white text-brand-purple hover:bg-gray-100"
                         buttonSize="lg"
                       />
-                      <p className="text-lg">
+                      {/* <p className="text-lg">
                         📞 Call us at{" "}
                         <a href="tel:+917871990263" className="text-white underline font-semibold">
                           +91 78719 90263
                         </a>
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>
@@ -1026,7 +1142,8 @@ export default function DynamicBlogPost() {
                   <div className="mt-12 p-8 bg-gradient-to-r from-brand-purple to-brand-coral rounded-2xl text-white text-center">
                     <h2 className="text-2xl font-extrabold mb-3">Ready to Get Started?</h2>
                     <p className="text-lg mb-6 opacity-90 leading-relaxed">
-                      Contact our expert team to discuss how we can help grow your business with proven digital marketing strategies.
+                      Contact our expert team to discuss how we can help grow your business with proven digital marketing
+                      strategies.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                       <BookCallButtonWithModal
@@ -1034,12 +1151,12 @@ export default function DynamicBlogPost() {
                         className="bg-white text-brand-purple hover:bg-gray-100"
                         buttonSize="lg"
                       />
-                      <p className="text-lg">
+                      {/* <p className="text-lg">
                         📞 Call us at{" "}
                         <a href="tel:+917871990263" className="text-white underline font-semibold">
                           +91 78719 90263
                         </a>
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>
@@ -1065,9 +1182,7 @@ export default function DynamicBlogPost() {
                           className="w-full text-left rounded-xl px-3 py-2 hover:bg-gray-50 transition flex items-start gap-2"
                         >
                           <LinkIcon className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
-                          <span className="text-sm font-medium text-gray-800 leading-6">
-                            {item.label}
-                          </span>
+                          <span className="text-sm font-medium text-gray-800 leading-6">{item.label}</span>
                         </button>
                       ))}
                     </div>
@@ -1087,11 +1202,7 @@ export default function DynamicBlogPost() {
                   </div>
 
                   <div className="mt-5">
-                    <Button
-                      onClick={shareArticle}
-                      variant="outline"
-                      className="w-full"
-                    >
+                    <Button onClick={shareArticle} variant="outline" className="w-full">
                       <Share2 className="w-4 h-4 mr-2" />
                       Share Article
                     </Button>
@@ -1103,11 +1214,7 @@ export default function DynamicBlogPost() {
                     <div className="font-extrabold text-gray-900 mb-3">Topics</div>
                     <div className="flex gap-2 flex-wrap">
                       {blogPost.tags.map((tag, idx) => (
-                        <Badge
-                          key={idx}
-                          variant="outline"
-                          className="border-brand-coral text-brand-coral"
-                        >
+                        <Badge key={idx} variant="outline" className="border-brand-coral text-brand-coral">
                           {tag}
                         </Badge>
                       ))}
