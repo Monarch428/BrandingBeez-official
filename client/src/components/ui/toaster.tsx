@@ -16,8 +16,7 @@ import {
   type ToastProps,
 } from "@/components/ui/toast";
 
-type ToastVariant = ToastProps["variant"];  // "default" | "destructive"
-
+type ToastVariant = ToastProps["variant"]; // "default" | "destructive"
 type AppToastKind = "success" | "error" | "info";
 
 export interface AppToastOptions {
@@ -126,7 +125,7 @@ export function AppToastProvider({ children }: { children: React.ReactNode }) {
       <RadixToastProvider swipeDirection="right">
         {children}
 
-        {/* Actual toasts */}
+        {/* Render toasts */}
         {toasts.map((t) => (
           <Toast
             key={t.id}
@@ -136,7 +135,7 @@ export function AppToastProvider({ children }: { children: React.ReactNode }) {
             }}
             variant={t.variant}
           >
-            <div className="flex flex-col gap-1 z-50">
+            <div className="flex flex-col gap-1">
               {t.title && <ToastTitle>{t.title}</ToastTitle>}
               {t.description && (
                 <ToastDescription>{t.description}</ToastDescription>

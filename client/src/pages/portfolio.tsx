@@ -841,16 +841,30 @@ export default function PortfolioPage() {
                                   {/* Badge + external link */}
                                   <div className="flex items-center justify-between gap-3">
                                     <span
-                                      className="
-  inline-flex items-center
-  px-3 py-1.5
-  text-xs md:text-sm
-  font-bold
-  text-brand-purple
-  bg-brand-purple/10
-  border border-brand-coral
-  border-l-4 border-l-brand-coral
-  rounded-md ">
+                                      className={`
+    inline-flex items-center
+    px-3 py-1.5
+    text-xs md:text-sm
+    font-bold
+    rounded-md
+    border-l-4
+    ${item.badge === "Featured Case Study"
+                                          ? `
+          text-yellow-900
+          bg-gradient-to-r from-yellow-300 via-yellow-200 to-yellow-100
+          border border-yellow-400
+          border-l-yellow-500
+          shadow-sm
+        `
+                                          : `
+          text-brand-purple
+          bg-brand-purple/10
+          border border-brand-coral
+          border-l-brand-coral
+        `
+                                        }
+  `}
+                                    >
                                       {item.badge ||
                                         (item.serviceCategory === "seo"
                                           ? "SEO Case Study"
@@ -858,6 +872,7 @@ export default function PortfolioPage() {
                                             ? "Google Ads Case Study"
                                             : "Case Study")}
                                     </span>
+
 
                                     {item.projectUrl && (
                                       <a
@@ -930,7 +945,7 @@ export default function PortfolioPage() {
                                         {item.investment || "-"}
                                       </div>
                                       <div className="text-gray-500 text-xs md:text-sm mt-0.5">
-                                        Investment
+                                        White Label Cost
                                       </div>
                                     </div>
 
@@ -940,7 +955,7 @@ export default function PortfolioPage() {
                                         {item.totalValue || "-"}
                                       </div>
                                       <div className="text-gray-500 text-xs md:text-sm mt-0.5">
-                                        Value
+                                        Selling Price
                                       </div>
                                     </div>
 

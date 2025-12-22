@@ -441,7 +441,7 @@ export default function Services() {
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 mb-8 border border-white/20">
                     <div className="text-2xl font-bold mb-2 text-yellow-200">
-                      <span className="text-white text-2xl">Starting at</span> $1,199/month<span className="text-white text-xl"> Resource</span>
+                      <span className="text-white text-2xl">Starting</span> @1,199$ a /month<span className="text-white text-xl"> Resource</span>
                     </div>
                     <div className="text-md font-medium text-gray-200 mb-4">
                       No recruitment fees | No long-term contracts | Team discounts available
