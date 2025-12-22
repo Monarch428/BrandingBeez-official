@@ -359,7 +359,8 @@ export function WebCaseStudyCardTab({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <div>
-            <ReqLabel>Industry</ReqLabel>
+            {/* <ReqLabel>Industry</ReqLabel> */}
+            <ReqLabel>Cost</ReqLabel>
             <Input
               data-field="results.performance"
               className={errClass("results.performance")}
@@ -372,7 +373,8 @@ export function WebCaseStudyCardTab({
           </div>
 
           <div>
-            <ReqLabel>Website Type</ReqLabel>
+            {/* <ReqLabel>Website Type</ReqLabel> */}
+            <ReqLabel>Delivery Time</ReqLabel>
             <Input
               data-field="results.conversions"
               className={errClass("results.conversions")}
@@ -385,7 +387,8 @@ export function WebCaseStudyCardTab({
           </div>
 
           <div>
-            <ReqLabel>Delivery Type</ReqLabel>
+            {/* <ReqLabel>Delivery Type</ReqLabel> */}
+            <ReqLabel>Industry</ReqLabel>
             <Input
               data-field="results.users"
               className={errClass("results.users")}

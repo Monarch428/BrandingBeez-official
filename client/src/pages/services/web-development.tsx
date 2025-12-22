@@ -1321,7 +1321,7 @@ export default function WebDevelopment() {
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
-                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
                     <div className="flex justify-end">
                       <img
                         src={Whitelabel_Image}
@@ -1345,7 +1345,7 @@ export default function WebDevelopment() {
                         className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
                     </div>
-                  </div> */}
+                  </div>
                 </div>
 
                 {/* Right: Achievements Card */}
