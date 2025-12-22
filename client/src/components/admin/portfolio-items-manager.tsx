@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,8 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAppToast } from "@/components/ui/toaster";
+import { GripVertical } from "lucide-react";
 
 // ---------- Helpers ----------
 
@@ -24,6 +31,13 @@ const slugifyTitle = (title: string) =>
     .replace(/[^a-z0-9-]/g, "") // remove non-alphanumeric except -
     .replace(/-+/g, "-") // collapse multiple -
     .replace(/^-|-$/g, ""); // trim - from ends
+
+const moveItem = <T,>(arr: T[], from: number, to: number) => {
+  const copy = [...arr];
+  const [removed] = copy.splice(from, 1);
+  copy.splice(to, 0, removed);
+  return copy;
+};
 
 // ---------- Types for SEO & Google Ads details ----------
 
@@ -227,6 +241,19 @@ export function PortfolioItemsManager() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [slugTouched, setSlugTouched] = useState(false); // ✅ track manual slug edit
 
+  // ✅ Service tabs filter
+  const [activeServiceTab, setActiveServiceTab] = useState<string>("all");
+  const normalizeCategory = (v?: string) => (v || "").trim().toLowerCase();
+  const getCountForCategory = (catId: string, list: PortfolioItem[]) => {
+    if (catId === "all") return list.length;
+    return list.filter((x) => normalizeCategory(x.serviceCategory) === catId)
+      .length;
+  };
+
+  // ✅ Drag & drop ordering state
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+  const dragFromIdRef = useRef<number | null>(null);
+
   const { success, error: toastError } = useAppToast();
   const queryClient = useQueryClient();
 
@@ -264,6 +291,18 @@ export function PortfolioItemsManager() {
     },
     enabled: Boolean(token),
   });
+
+  // ✅ Always show sorted by orderIndex (stable)
+  const sortedItems = useMemo(() => {
+    const copy = [...items];
+    copy.sort((a, b) => {
+      const ao = Number.isFinite(a.orderIndex) ? a.orderIndex : 0;
+      const bo = Number.isFinite(b.orderIndex) ? b.orderIndex : 0;
+      if (ao !== bo) return ao - bo;
+      return a.id - b.id;
+    });
+    return copy;
+  }, [items]);
 
   useEffect(() => {
     if (!editingId) return;
@@ -417,60 +456,60 @@ export function PortfolioItemsManager() {
 
       const seoDetailsPayload = isSeo
         ? {
-          seoOverview: rawSeo.seoOverview || "",
-          clientChallenge: rawSeo.clientChallenge || "",
-          primarySeoGoal: rawSeo.primarySeoGoal || "",
-          seoSummaryImage: rawSeo.seoSummaryImage || "",
-          seoFocusAreas: Array.isArray(rawSeo.seoFocusAreas)
-            ? rawSeo.seoFocusAreas
-            : [],
-          seoStrategySummary: rawSeo.seoStrategySummary || "",
-          seoToolsUsed: Array.isArray(rawSeo.seoToolsUsed)
-            ? rawSeo.seoToolsUsed
-            : [],
-          seoDeliverables: Array.isArray(rawSeo.seoDeliverables)
-            ? rawSeo.seoDeliverables
-            : [],
-          stats: (rawSeo.stats || [])
-            .map((s) => ({
-              label: s.label?.trim() || "",
-              value: s.value?.trim() || "",
-            }))
-            .filter((s) => s.label || s.value),
-        }
+            seoOverview: rawSeo.seoOverview || "",
+            clientChallenge: rawSeo.clientChallenge || "",
+            primarySeoGoal: rawSeo.primarySeoGoal || "",
+            seoSummaryImage: rawSeo.seoSummaryImage || "",
+            seoFocusAreas: Array.isArray(rawSeo.seoFocusAreas)
+              ? rawSeo.seoFocusAreas
+              : [],
+            seoStrategySummary: rawSeo.seoStrategySummary || "",
+            seoToolsUsed: Array.isArray(rawSeo.seoToolsUsed)
+              ? rawSeo.seoToolsUsed
+              : [],
+            seoDeliverables: Array.isArray(rawSeo.seoDeliverables)
+              ? rawSeo.seoDeliverables
+              : [],
+            stats: (rawSeo.stats || [])
+              .map((s) => ({
+                label: s.label?.trim() || "",
+                value: s.value?.trim() || "",
+              }))
+              .filter((s) => s.label || s.value),
+          }
         : undefined;
 
       const googleAdsDetailsPayload = isGoogleAds
         ? {
-          googleAdsSummaryImage: rawGoogleAds.googleAdsSummaryImage || "",
-          industry: rawGoogleAds.industry || "",
-          timeline: rawGoogleAds.timeline || "",
-          campaignOverview: rawGoogleAds.campaignOverview || "",
-          googleAdsClientChallenge:
-            rawGoogleAds.googleAdsClientChallenge || "",
-          primaryCampaignGoal: rawGoogleAds.primaryCampaignGoal || "",
-          campaignType: rawGoogleAds.campaignType || "",
-          platforms: Array.isArray(rawGoogleAds.platforms)
-            ? rawGoogleAds.platforms
-            : [],
-          monthlyAdSpend: rawGoogleAds.monthlyAdSpend || "",
-          googleAdsStrategySummary:
-            rawGoogleAds.googleAdsStrategySummary || "",
-          targetLocations: Array.isArray(rawGoogleAds.targetLocations)
-            ? rawGoogleAds.targetLocations
-            : [],
-          trackingAndAnalytics: Array.isArray(
-            rawGoogleAds.trackingAndAnalytics,
-          )
-            ? rawGoogleAds.trackingAndAnalytics
-            : [],
-          stats: (rawGoogleAds.stats || [])
-            .map((s) => ({
-              label: s.label?.trim() || "",
-              value: s.value?.trim() || "",
-            }))
-            .filter((s) => s.label || s.value),
-        }
+            googleAdsSummaryImage: rawGoogleAds.googleAdsSummaryImage || "",
+            industry: rawGoogleAds.industry || "",
+            timeline: rawGoogleAds.timeline || "",
+            campaignOverview: rawGoogleAds.campaignOverview || "",
+            googleAdsClientChallenge:
+              rawGoogleAds.googleAdsClientChallenge || "",
+            primaryCampaignGoal: rawGoogleAds.primaryCampaignGoal || "",
+            campaignType: rawGoogleAds.campaignType || "",
+            platforms: Array.isArray(rawGoogleAds.platforms)
+              ? rawGoogleAds.platforms
+              : [],
+            monthlyAdSpend: rawGoogleAds.monthlyAdSpend || "",
+            googleAdsStrategySummary:
+              rawGoogleAds.googleAdsStrategySummary || "",
+            targetLocations: Array.isArray(rawGoogleAds.targetLocations)
+              ? rawGoogleAds.targetLocations
+              : [],
+            trackingAndAnalytics: Array.isArray(
+              rawGoogleAds.trackingAndAnalytics,
+            )
+              ? rawGoogleAds.trackingAndAnalytics
+              : [],
+            stats: (rawGoogleAds.stats || [])
+              .map((s) => ({
+                label: s.label?.trim() || "",
+                value: s.value?.trim() || "",
+              }))
+              .filter((s) => s.label || s.value),
+          }
         : undefined;
 
       const payload: any = {
@@ -487,15 +526,15 @@ export function PortfolioItemsManager() {
         features: Array.isArray(form.features)
           ? form.features
           : String(form.features || "")
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean),
         techStack: Array.isArray(form.techStack)
           ? form.techStack
           : String(form.techStack || "")
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean),
         timeline: form.timeline,
         imageUrl: form.imageUrl,
         image: form.image || form.imageUrl,
@@ -507,12 +546,8 @@ export function PortfolioItemsManager() {
         projectUrlLabel: form.projectUrlLabel || "",
       };
 
-      if (seoDetailsPayload) {
-        payload.seoDetails = seoDetailsPayload;
-      }
-      if (googleAdsDetailsPayload) {
-        payload.googleAdsDetails = googleAdsDetailsPayload;
-      }
+      if (seoDetailsPayload) payload.seoDetails = seoDetailsPayload;
+      if (googleAdsDetailsPayload) payload.googleAdsDetails = googleAdsDetailsPayload;
 
       const url = editingId
         ? `/api/admin/portfolio-items/${editingId}`
@@ -538,7 +573,6 @@ export function PortfolioItemsManager() {
       setEditingId(null);
       setSlugTouched(false);
 
-      // ✅ success toast
       success("Portfolio item saved successfully.", "Success");
     } catch (err) {
       console.error(err);
@@ -615,9 +649,7 @@ export function PortfolioItemsManager() {
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(
-          data?.message || "Failed to update portfolio content",
-        );
+        throw new Error(data?.message || "Failed to update portfolio content");
       }
       await queryClient.invalidateQueries({
         queryKey: ["/api/admin/portfolio-content"],
@@ -634,9 +666,7 @@ export function PortfolioItemsManager() {
         heroSecondaryCtaHref: data.heroSecondaryCtaHref || "",
         testimonialsTitle: data.testimonialsTitle || "",
         testimonialsSubtitle: data.testimonialsSubtitle || "",
-        testimonials: Array.isArray(data.testimonials)
-          ? data.testimonials
-          : [],
+        testimonials: Array.isArray(data.testimonials) ? data.testimonials : [],
       });
       setContentDialogOpen(false);
 
@@ -665,13 +695,161 @@ export function PortfolioItemsManager() {
   const seo = form.seoDetails || emptySeoDetails;
   const googleAds = form.googleAdsDetails || emptyGoogleAdsDetails;
 
+  // ✅ Filtered list for tabs (sorted)
+  const filteredItems =
+    activeServiceTab === "all"
+      ? sortedItems
+      : sortedItems.filter(
+          (x) => normalizeCategory(x.serviceCategory) === activeServiceTab,
+        );
+
+  // ✅ Save orderIndex to server using existing PUT endpoint
+  const persistOrder = async (updatedAllItems: PortfolioItem[]) => {
+    setIsSavingOrder(true);
+    try {
+      // Only send updates where orderIndex changed
+      const originalMap = new Map(items.map((x) => [x.id, x.orderIndex]));
+      const changed = updatedAllItems.filter(
+        (x) => originalMap.get(x.id) !== x.orderIndex,
+      );
+
+      // If nothing changed, skip
+      if (changed.length === 0) {
+        setIsSavingOrder(false);
+        return;
+      }
+
+      // Update sequentially (safe)
+      for (const it of changed) {
+        const res = await fetch(`/api/admin/portfolio-items/${it.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          // send full object (most compatible with strict PUT backends)
+          body: JSON.stringify({
+            slug: it.slug,
+            title: it.title,
+            subTitle: it.subTitle,
+            industry: it.industry,
+            client: it.client,
+            badge: it.badge,
+            investment: it.investment,
+            totalValue: it.totalValue,
+            roi: it.roi,
+            description: it.description,
+            features: it.features || [],
+            techStack: it.techStack || [],
+            timeline: it.timeline,
+            imageUrl: it.imageUrl,
+            image: it.image || it.imageUrl,
+            isFeatured: Boolean(it.isFeatured),
+            orderIndex: Number(it.orderIndex || 0),
+            isActive: it.isActive !== false,
+            serviceCategory: it.serviceCategory || undefined,
+            projectUrl: it.projectUrl || "",
+            projectUrlLabel: it.projectUrlLabel || "",
+            seoDetails: it.seoDetails,
+            googleAdsDetails: it.googleAdsDetails,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || "Failed to update order");
+        }
+      }
+
+      await queryClient.invalidateQueries({
+        queryKey: ["/api/admin/portfolio-items"],
+      });
+
+      success("Portfolio order updated successfully.", "Saved");
+    } catch (err) {
+      console.error(err);
+      toastError(
+        (err as Error).message || "Failed to save portfolio order.",
+        "Error",
+      );
+    } finally {
+      setIsSavingOrder(false);
+    }
+  };
+
+  // ✅ Handle DnD reorder inside current tab (HTML5 drag and drop)
+  const handleDropReorder = async (toId: number) => {
+    const fromId = dragFromIdRef.current;
+    dragFromIdRef.current = null;
+
+    if (!fromId || fromId === toId) return;
+
+    const fromIndex = filteredItems.findIndex((x) => x.id === fromId);
+    const toIndex = filteredItems.findIndex((x) => x.id === toId);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const reorderedFiltered = moveItem(filteredItems, fromIndex, toIndex);
+
+    // Build updated ALL items list with updated orderIndex
+    const updatedAll = [...sortedItems];
+
+    if (activeServiceTab === "all") {
+      // Global reorder: reassign orderIndex for all in the new order
+      const newAll = reorderedFiltered.map((x, idx) => ({
+        ...x,
+        orderIndex: idx + 1,
+      }));
+
+      // Merge back into updatedAll
+      const map = new Map(newAll.map((x) => [x.id, x]));
+      for (let i = 0; i < updatedAll.length; i++) {
+        const found = map.get(updatedAll[i].id);
+        if (found) updatedAll[i] = found;
+      }
+
+      await persistOrder(updatedAll);
+      return;
+    }
+
+    // Category reorder: only update orderIndex within that category
+    const categoryId = activeServiceTab;
+    const categorySet = new Set(
+      updatedAll
+        .filter((x) => normalizeCategory(x.serviceCategory) === categoryId)
+        .map((x) => x.id),
+    );
+
+    // Assign 1..N within this category based on new filtered order
+    const newCategory = reorderedFiltered.map((x, idx) => ({
+      ...x,
+      orderIndex: idx + 1,
+    }));
+    const newMap = new Map(newCategory.map((x) => [x.id, x.orderIndex]));
+
+    // Apply only to items in this category
+    const finalAll = updatedAll.map((x) => {
+      if (categorySet.has(x.id)) {
+        const nextOrder = newMap.get(x.id);
+        return nextOrder != null ? { ...x, orderIndex: nextOrder } : x;
+      }
+      return x;
+    });
+
+    await persistOrder(finalAll);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl font-bold text-brand-purple">
           Portfolio Items
         </h2>
-        <Badge>{items.length} items</Badge>
+        <div className="flex items-center gap-2">
+          {isSavingOrder && (
+            <Badge className="bg-brand-purple text-white">Saving Order…</Badge>
+          )}
+          <Badge>{items.length} items</Badge>
+        </div>
       </div>
 
       <Card>
@@ -1184,9 +1362,7 @@ export function PortfolioItemsManager() {
 
               {/* NEW: Project URL / CTA */}
               <div>
-                <Label>
-                  Project URL (site / app / download link)
-                </Label>
+                <Label>Project URL (site / app / download link)</Label>
                 <Input
                   value={form.projectUrl || ""}
                   onChange={(e) => handleChange("projectUrl", e.target.value)}
@@ -1248,19 +1424,7 @@ export function PortfolioItemsManager() {
                       placeholder="Increase organic traffic and rank top keywords on Page 1"
                     />
                   </div>
-                  {/* <div>
-                    <Label>SEO Summary Image URL</Label>
-                    <Input
-                      value={seo.seoSummaryImage || ""}
-                      onChange={(e) =>
-                        handleSeoDetailsChange(
-                          "seoSummaryImage",
-                          e.target.value,
-                        )
-                      }
-                      placeholder="SEO dashboard / hero image URL"
-                    />
-                  </div> */}
+
                   <div>
                     <Label>SEO Focus Areas (comma separated)</Label>
                     <Input
@@ -1332,10 +1496,10 @@ export function PortfolioItemsManager() {
                         size="sm"
                         variant="outline"
                         onClick={() =>
-                          handleSeoDetailsChange(
-                            "stats",
-                            [...(seo.stats || []), { label: "", value: "" }],
-                          )
+                          handleSeoDetailsChange("stats", [
+                            ...(seo.stats || []),
+                            { label: "", value: "" },
+                          ])
                         }
                         disabled={(seo.stats || []).length >= 4}
                       >
@@ -1578,13 +1742,10 @@ export function PortfolioItemsManager() {
                         size="sm"
                         variant="outline"
                         onClick={() =>
-                          handleGoogleAdsDetailsChange(
-                            "stats",
-                            [
-                              ...(googleAds.stats || []),
-                              { label: "", value: "" },
-                            ],
-                          )
+                          handleGoogleAdsDetailsChange("stats", [
+                            ...(googleAds.stats || []),
+                            { label: "", value: "" },
+                          ])
                         }
                         disabled={(googleAds.stats || []).length >= 4}
                       >
@@ -1739,81 +1900,193 @@ export function PortfolioItemsManager() {
                 Failed to load items
               </CardContent>
             </Card>
-          ) : items.length === 0 ? (
+          ) : sortedItems.length === 0 ? (
             <Card>
               <CardContent className="p-6 text-gray-600">
                 No portfolio items yet.
               </CardContent>
             </Card>
           ) : (
-            items.map((it) => (
-              <Card
-                key={it.id}
-                className="hover:shadow-sm transition-shadow"
+            <Tabs
+              value={activeServiceTab}
+              onValueChange={setActiveServiceTab}
+              className="space-y-4"
+            >
+              {/* ✅ Scroll wrapper — SAME AS REFERENCE (no overflow-y) */}
+              <div
+                className="
+                  w-full overflow-x-auto overflow-y-hidden
+                  scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100
+                  [&::-webkit-scrollbar]:h-[4px]
+                  [&::-webkit-scrollbar-thumb]:rounded-full
+                  [&::-webkit-scrollbar-track]:rounded-full
+                "
               >
-                <CardContent className="p-4 flex gap-4 items-center">
-                  <div className="w-24 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
-                    {it.imageUrl ? (
-                      <img
-                        src={it.imageUrl}
-                        alt={it.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-xs text-gray-400">No Image</div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <div className="font-semibold text-brand-purple">
-                        {it.title}
-                      </div>
-                      {it.isFeatured && (
-                        <Badge className="bg-yellow-500">Featured</Badge>
-                      )}
-                      {it.isActive ? (
-                        <Badge className="bg-green-600">Active</Badge>
-                      ) : (
-                        <Badge variant="secondary">Inactive</Badge>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-600">
-                      /portfolio/{it.slug} • {it.industry} • Order{" "}
-                      {it.orderIndex}
-                    </div>
-                    {it.projectUrl && (
-                      <div className="mt-1">
-                        <a
-                          href={it.projectUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-brand-purple underline"
-                        >
-                          {it.projectUrlLabel || "Open project"}
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setEditingId(it.id);
-                        setSlugTouched(true);
+                <TabsList
+                  className="
+                    inline-flex w-max max-w-none
+                    flex-nowrap justify-start gap-2
+                    p-2
+                  "
+                >
+                  <TabsTrigger
+                    value="all"
+                    className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                  >
+                    All ({getCountForCategory("all", sortedItems)})
+                  </TabsTrigger>
+
+                  {serviceCategories.map((c) => (
+                    <TabsTrigger
+                      key={c.id}
+                      value={c.id}
+                      className="shrink-0 data-[state=active]:bg-brand-purple data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      {c.title} ({getCountForCategory(c.id, sortedItems)})
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              {/* ✅ Content — NO overflow-y */}
+              <TabsContent value={activeServiceTab} className="space-y-4">
+                <div className="text-xs text-gray-500">
+                  Tip: Drag cards using the handle to re-order. This updates{" "}
+                  <span className="font-semibold">orderIndex</span> and saves
+                  automatically.
+                </div>
+
+                {filteredItems.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-6 text-gray-600">
+                      No portfolio items found for this category.
+                    </CardContent>
+                  </Card>
+                ) : (
+                  filteredItems.map((it) => (
+                    <Card
+                      key={it.id}
+                      className="hover:shadow-sm transition-shadow"
+                      draggable={!isSavingOrder}
+                      onDragStart={() => {
+                        dragFromIdRef.current = it.id;
+                      }}
+                      onDragOver={(e) => {
+                        // allow drop
+                        e.preventDefault();
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (isSavingOrder) return;
+                        handleDropReorder(it.id);
                       }}
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => handleDelete(it.id)}
-                    >
-                      Delete
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                      <CardContent className="p-4 flex gap-4 items-center">
+                        {/* Drag handle */}
+                        <div
+                          className="
+                            flex items-center justify-center
+                            w-8 h-10
+                            rounded-md
+                            text-gray-400
+                            cursor-grab active:cursor-grabbing
+                            select-none
+                          "
+                          title="Drag to reorder"
+                          onMouseDown={() => {
+                            // make it feel like drag starts from handle
+                            dragFromIdRef.current = it.id;
+                          }}
+                        >
+                          <GripVertical className="w-5 h-5" />
+                        </div>
+
+                        <div className="w-24 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+                          {it.imageUrl ? (
+                            <img
+                              src={it.imageUrl}
+                              alt={it.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="text-xs text-gray-400">
+                              No Image
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <div className="font-semibold text-brand-purple">
+                              {it.title}
+                            </div>
+
+                            <Badge variant="secondary">
+                              Order {it.orderIndex}
+                            </Badge>
+
+                            {it.isFeatured && (
+                              <Badge className="bg-yellow-500">
+                                Featured
+                              </Badge>
+                            )}
+
+                            {it.isActive ? (
+                              <Badge className="bg-green-600">Active</Badge>
+                            ) : (
+                              <Badge variant="secondary">Inactive</Badge>
+                            )}
+
+                            {it.serviceCategory && (
+                              <Badge variant="secondary">
+                                {serviceCategories.find(
+                                  (x) => x.id === it.serviceCategory,
+                                )?.title || it.serviceCategory}
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="text-sm text-gray-600">
+                            /portfolio/{it.slug} • {it.industry}
+                          </div>
+
+                          {it.projectUrl && (
+                            <div className="mt-1">
+                              <a
+                                href={it.projectUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-brand-purple underline"
+                              >
+                                {it.projectUrlLabel || "Open project"}
+                              </a>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => {
+                              setEditingId(it.id);
+                              setSlugTouched(true);
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleDelete(it.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </div>

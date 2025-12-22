@@ -576,7 +576,7 @@ export function CookieConsent() {
     const isExpired =
       consentDate &&
       Date.now() - new Date(consentDate).getTime() >
-        365 * 24 * 60 * 60 * 1000;
+      365 * 24 * 60 * 60 * 1000;
 
     // ✅ If accepted consent expired, clear it
     if (isExpired) {
@@ -819,22 +819,18 @@ export function CookieConsent() {
       {isRejected && !showSettings && (
         <button
           onClick={() => setShowSettings(true)}
-          className="
-            fixed z-[9999]
-            bottom-4 left-4
-            w-11 h-11
-            rounded-full
-            bg-brand-coral
-            border border-gray-200
-            shadow-lg
-            flex items-center justify-center
-            hover:bg-gray-50 hover:text-brand-coral
-            pointer-events-auto
-          "
+          className="group fixed z-[9999] bottom-4 left-4 w-11 h-11 rounded-full
+      bg-brand-coral
+      border border-gray-200
+      shadow-lg
+      flex items-center justify-center
+      pointer-events-auto
+      transition-colors duration-200 hover:bg-gray-50"
           aria-label="Manage cookie preferences"
-          title="Cookie settings"
-        >
-          <Cookie className="w-5 h-5 text-white hover:text-brand-coral" />
+          title="Cookie settings">
+          <Cookie className="w-5 h-5 text-white
+        transition-colors duration-200
+        group-hover:text-brand-coral"/>
         </button>
       )}
 

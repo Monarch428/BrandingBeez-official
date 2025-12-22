@@ -4,7 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,10 +22,18 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-import { Mail, Phone, Building, Calendar, Search, ExternalLink, MessageCircle, Trash2 } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import {
+  Mail,
+  Phone,
+  Building,
+  Calendar,
+  Search,
+  ExternalLink,
+  MessageCircle,
+  Trash2,
+} from "lucide-react";
 import { useAppToast } from "../ui/toaster";
-
+import { adminApiRequest } from "@/lib/adminApi";
 
 interface Contact {
   id: number;
@@ -69,7 +83,8 @@ export function ContactsManager() {
   } = useQuery({
     queryKey: ["/api/contacts"],
     queryFn: async () => {
-      return apiRequest("/api/contacts", "GET");
+      // ✅ Token used here as well
+      return adminApiRequest<Contact[]>("/api/contacts", "GET");
     },
   });
 
@@ -81,7 +96,9 @@ export function ContactsManager() {
         contact.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         contact.message.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesType = filterType === "all" || (contact.contactFormType || "contact-form") === filterType;
+      const matchesType =
+        filterType === "all" ||
+        (contact.contactFormType || "contact-form") === filterType;
 
       return matchesSearch && matchesType;
     });
@@ -100,23 +117,8 @@ export function ContactsManager() {
 
   const deleteMutation = useMutation({
     mutationFn: async (payload: { id: number; name: string; email: string }) => {
-      const token = localStorage.getItem("adminToken");
-      if (!token) throw new Error("No authentication token found");
-
-      const response = await fetch(`/api/contacts/${payload.id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to delete contact");
-      }
-
-      return response.json();
+      // ✅ Token enforced for delete too (central helper)
+      return adminApiRequest(`/api/contacts/${payload.id}`, "DELETE");
     },
 
     onSuccess: (_data, variables) => {
@@ -136,14 +138,19 @@ export function ContactsManager() {
       console.error("Delete contact error:", error);
 
       // ✅ Custom toast (no window.alert)
-      appToast.error(error?.message || "Failed to delete contact. Please try again.", "Delete failed");
+      appToast.error(
+        error?.message || "Failed to delete contact. Please try again.",
+        "Delete failed"
+      );
     },
   });
 
   const handleEmailContact = (email: string, name: string) => {
     const subject = `Re: Your inquiry from BrandingBeez`;
     const body = `Hi ${name},\n\nThank you for reaching out to BrandingBeez. We received your inquiry and would love to discuss your project further.\n\nBest regards,\nBrandingBeez Team`;
-    window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    window.open(
+      `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    );
   };
 
   const getContactFormTypeLabel = (type?: string) => {
@@ -232,7 +239,9 @@ export function ContactsManager() {
           <div className="space-y-4">
             {filteredContacts.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
-                {searchTerm || filterType !== "all" ? "No contacts match your filters" : "No contact submissions yet"}
+                {searchTerm || filterType !== "all"
+                  ? "No contacts match your filters"
+                  : "No contact submissions yet"}
               </div>
             ) : (
               filteredContacts.map((contact: Contact) => (
@@ -272,13 +281,18 @@ export function ContactsManager() {
                         {contact.attachmentFilename && (
                           <div className="mt-2">
                             <a
-                              href={`/uploads/contact_files/${encodeURIComponent(contact.attachmentFilename)}`}
+                              href={`/uploads/contact_files/${encodeURIComponent(
+                                contact.attachmentFilename
+                              )}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-sm text-blue-600 inline-flex items-center gap-2"
                             >
                               <ExternalLink className="w-4 h-4" />
-                              Download attachment {contact.attachmentOriginalName ? `(${contact.attachmentOriginalName})` : ""}
+                              Download attachment{" "}
+                              {contact.attachmentOriginalName
+                                ? `(${contact.attachmentOriginalName})`
+                                : ""}
                             </a>
                           </div>
                         )}
@@ -288,7 +302,9 @@ export function ContactsManager() {
                       <div className="lg:col-span-1">
                         <div className="mb-3">
                           <Badge variant="outline" className="mb-2">
-                            {contact.inquiry_type.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                            {contact.inquiry_type
+                              .replace(/-/g, " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}
                           </Badge>
 
                           {contact.couponCode && (
@@ -313,7 +329,10 @@ export function ContactsManager() {
                                 line.startsWith("📢")
                               ) {
                                 return (
-                                  <div key={index} className="font-semibold text-blue-600 mt-2">
+                                  <div
+                                    key={index}
+                                    className="font-semibold text-blue-600 mt-2"
+                                  >
                                     {line}
                                   </div>
                                 );
@@ -345,7 +364,11 @@ export function ContactsManager() {
                           </Badge>
                         </div>
 
-                        <Button onClick={() => handleEmailContact(contact.email, contact.name)} size="sm" className="w-full">
+                        <Button
+                          onClick={() => handleEmailContact(contact.email, contact.name)}
+                          size="sm"
+                          className="w-full"
+                        >
                           <Mail className="w-4 h-4 mr-2" />
                           Reply via Email
                         </Button>
@@ -361,8 +384,12 @@ export function ContactsManager() {
                           {deleteMutation.isPending ? "Deleting..." : "Delete Contact"}
                         </Button>
 
-                        <div className="text-xs text-gray-500 text-center">Preferred contact: {contact.preferred_contact}</div>
-                        <div className="text-xs text-gray-500 text-center">Location: {contact.country}</div>
+                        <div className="text-xs text-gray-500 text-center">
+                          Preferred contact: {contact.preferred_contact}
+                        </div>
+                        <div className="text-xs text-gray-500 text-center">
+                          Location: {contact.country}
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -382,7 +409,9 @@ export function ContactsManager() {
               This action cannot be undone.
               {selectedContact ? (
                 <div className="mt-2 text-sm">
-                  <div className="font-medium text-foreground">{selectedContact.name}</div>
+                  <div className="font-medium text-foreground">
+                    {selectedContact.name}
+                  </div>
                   <div className="text-muted-foreground">{selectedContact.email}</div>
                 </div>
               ) : null}
@@ -399,7 +428,10 @@ export function ContactsManager() {
               Cancel
             </AlertDialogCancel>
 
-            <AlertDialogAction onClick={confirmDelete} disabled={deleteMutation.isPending || !selectedContact}>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteMutation.isPending || !selectedContact}
+            >
               {deleteMutation.isPending ? "Deleting..." : "Yes, delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
