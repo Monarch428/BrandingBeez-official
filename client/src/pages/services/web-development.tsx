@@ -1445,7 +1445,7 @@ export default function WebDevelopment() {
                           </div>
 
                           {/* Button pinned to bottom */}
-                          <div className="mt-auto pt-2">
+                          {/* <div className="mt-auto pt-2">
                             <Button
                               className="w-full bg-brand-coral hover:bg-brand-purple text-white border-0"
                               asChild
@@ -1455,7 +1455,7 @@ export default function WebDevelopment() {
                                 <ArrowRight className="w-4 h-4 ml-2" />
                               </Link>
                             </Button>
-                          </div>
+                          </div> */}
                         </CardContent>
                       </Card>
                     ))}
