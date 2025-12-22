@@ -53,6 +53,7 @@ const custApp = lazy(() => import("@/pages/services/custom-app-development"));
 const SEOAudit = lazy(() => import("@/pages/seo-audit"));
 const PricingCalculator = lazy(() => import("@/pages/pricing-calculator"));
 const OnboardingWizard = lazy(() => import("@/pages/onboarding-wizard"));
+const AIBusinessGrowthAnalyzer = lazy(() => import("@/pages/ai-business-growth-analyzer"));
 
 // Admin - separate bundle (heavy component)
 const Admin = lazy(() => import("@/pages/admin"));
@@ -247,6 +248,10 @@ function Router() {
       <Route path="/seo-audit" component={() => <LazyRoute component={SEOAudit} />} />
       <Route path="/pricing-calculator" component={() => <LazyRoute component={PricingCalculator} />} />
       <Route path="/onboarding-wizard" component={() => <LazyRoute component={OnboardingWizard} />} />
+      <Route
+        path="/ai-business-growth-analyzer"
+        component={() => <LazyRoute component={AIBusinessGrowthAnalyzer} />}
+      />
 
       {/* Admin - heavy component, separate bundle */}
       <Route path="/admin" component={() => <LazyRoute component={Admin} />} />
