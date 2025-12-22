@@ -34,6 +34,10 @@ import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-section";
+import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
+import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+import PPC_Image from "../../../public/images/DEDICATED PPC SPECIALIST.png"
+
 
 // Featured Google Ads client data
 const featuredClient = {
@@ -444,6 +448,34 @@ export default function GoogleAds() {
                       No Direct Client Contact
                     </span>
                   </div> */}
+                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                    {/* Left */}
+                    <div className="flex justify-end">
+                      <img
+                        src={Whitelabel_Image}
+                        alt="White Label Delivery"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+
+                    {/* Center (slightly bigger) */}
+                    <div className="flex justify-center px-0">
+                      <img
+                        src={Hours_24_Image}
+                        alt="24 Hours Start Time"
+                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                      />
+                    </div>
+
+                    {/* Right */}
+                    <div className="flex justify-start">
+                      <img
+                        src={PPC_Image}
+                        alt="Dedicated SEO Resource"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right: Results Card */}

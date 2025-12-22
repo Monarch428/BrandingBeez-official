@@ -605,7 +605,7 @@ export default function SEOServices() {
                     <Button
                       variant="outline"
                       onClick={handleScrollToCaseStudies}
-                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
+                      className="border-white/70 text-white font-medium hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
                     >
                       View SEO Case Studies
                       <ExternalLink className="w-4 h-4" />
@@ -627,31 +627,34 @@ export default function SEOServices() {
                       <span>AI-Ready Search Optimization</span>
                     </div>
                   </div> */}
-                  {/* <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-center gap-8 sm:gap-12 text-xl text-white">
-                    <div className="flex items-center gap-3">
+                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                    {/* Left */}
+                    <div className="flex justify-end">
                       <img
                         src={Whitelabel_Image}
                         alt="White Label Delivery"
-                        className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    {/* Center (slightly bigger) */}
+                    <div className="flex justify-center px-0">
                       <img
                         src={Hours_24_Image}
                         alt="24 Hours Start Time"
-                        className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain"
+                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
                       />
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    {/* Right */}
+                    <div className="flex justify-start">
                       <img
                         src={SEO_Image}
                         alt="Dedicated SEO Resource"
-                        className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
                     </div>
-                  </div> */}
+                  </div>
 
                 </div>
 

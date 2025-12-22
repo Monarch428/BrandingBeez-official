@@ -862,6 +862,10 @@ import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-section";
+import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
+import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+import WEB_Image from "../../../public/images/Dedicated Website Developer.png"
+
 
 // ======================
 // ✅ Types for API data
@@ -1316,6 +1320,31 @@ export default function WebDevelopment() {
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
+                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                    <div className="flex justify-end">
+                      <img
+                        src={Whitelabel_Image}
+                        alt="White Label Delivery"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="flex justify-center px-0">
+                      <img
+                        src={Hours_24_Image}
+                        alt="24 Hours Start Time"
+                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="flex justify-start">
+                      <img
+                        src={WEB_Image}
+                        alt="Dedicated SEO Resource"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right: Achievements Card */}
@@ -1425,19 +1454,22 @@ export default function WebDevelopment() {
 
                           <div className="space-y-2 mb-6 text-sm">
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Performance</span>
+                              {/* <span className="text-gray-600">Industry</span> */}
+                              <span className="text-gray-600">Cost</span>
                               <span className="font-bold text-green-600">
                                 {study.results?.performance}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Conversions</span>
+                              {/* <span className="text-gray-600">Website Type</span> */}
+                              <span className="text-gray-600">Delivery Time</span>
                               <span className="font-bold text-blue-600">
                                 {study.results?.conversions}
                               </span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-gray-600">Scale</span>
+                              {/* <span className="text-gray-600">Delivery Type</span> */}
+                              <span className="text-gray-600">Industry</span>
                               <span className="font-bold text-brand-coral">
                                 {study.results?.users}
                               </span>
@@ -1499,11 +1531,10 @@ export default function WebDevelopment() {
                 {pricingPackages.map((pkg) => (
                   <Card
                     key={pkg.id}
-                    className={`relative flex flex-col h-full ${
-                      pkg.popular
+                    className={`relative flex flex-col h-full ${pkg.popular
                         ? "border-2 border-brand-coral md:scale-105"
                         : "border border-gray-200 hover:border-brand-coral/50"
-                    } transition-all duration-300`}
+                      } transition-all duration-300`}
                   >
                     {pkg.popular && (
                       <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
@@ -1546,11 +1577,10 @@ export default function WebDevelopment() {
                           className="w-full"
                         >
                           <Button
-                            className={`w-full py-3 sm:py-4 px-6 sm:px-8 font-medium text-sm sm:text-md transition-all duration-300 ${
-                              pkg.popular
+                            className={`w-full py-3 sm:py-4 px-6 sm:px-8 font-medium text-sm sm:text-md transition-all duration-300 ${pkg.popular
                                 ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
                                 : "bg-brand-purple hover:bg-brand-purple/90 text-white"
-                            }`}
+                              }`}
                           >
                             {pkg.id === 1
                               ? "Start Your Website"
@@ -1643,9 +1673,8 @@ export default function WebDevelopment() {
                           {faq.question}
                         </span>
                         <ChevronDown
-                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
+                          className={`w-5 h-5 text-brand-purple flex-shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""
+                            }`}
                         />
                       </button>
                       {isOpen && (
