@@ -26,9 +26,11 @@ app.use(compression({
 
 
 if (process.env.NODE_ENV === 'production') {
+  // ✅ Production behind a proxy (Render/Nginx/etc.) - usually 1 hop
   app.set('trust proxy', 1);
 } else {
-  app.set('trust proxy', true);
+  // ✅ Local dev: DO NOT use true (express-rate-limit blocks it)
+  app.set('trust proxy', false);
 }
 
 // Security and performance headers
@@ -492,5 +494,5 @@ app.use((req, res, next) => {
   });
   // https.createServer(httpsOptions, app).listen(port, () => {
   //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
-  // });
+//   // });
 })();

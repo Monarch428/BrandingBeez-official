@@ -939,3 +939,186 @@ export default function Admin() {
     </div>
   );
 }
+
+
+
+// pages/admin.tsx
+// import { useState } from "react";
+// // import { AdminLayout } from "@/components/admin/AdminLayout";
+// // import { AdminSidebar } from "@/components/admin/AdminSidebar";
+// // import { AdminHeader } from "@/components/admin/AdminHeader";
+
+// import { ContactsManager } from "@/components/admin/contacts-manager";
+// import { NewsletterSubscribersManager } from "@/components/admin/newsletter-subscribers-manager";
+// import { BlogPostsManager } from "@/components/admin/blog-posts-manager";
+// import { PortfolioItemsManager } from "@/components/admin/portfolio-items-manager";
+// import { AppointmentsManager } from "@/components/admin/appointments-manager";
+// import { SeoCaseStudiesManager } from "@/components/admin/seo-case-study/SeoCaseStudiesManager";
+// import { PpcCaseStudiesManager } from "@/components/admin/ppc-case-study/PpcCaseStudiesManager";
+// import { WebCaseStudiesManager } from "@/components/admin/web-case-study/WebCaseStudiesManager";
+// import { DedicatedResourceCaseStudiesManager } from "@/components/admin/dr-case-study/DedicatedResourceCaseStudiesManager";
+
+// import { AdminLayout } from "@/components/admin/common/AdminLayout";
+// import { AdminSidebar } from "@/components/admin/common/AdminSidebar";
+// import { AdminHeader } from "@/components/admin/common/AdminHeader";
+// import { AdminOverview } from "@/components/admin/common/AdminOverview";
+
+// // Icons for overview stats (same pattern you used before)
+// import {
+//   CalendarClock,
+//   Star,
+//   FileText,
+//   DollarSign,
+//   Briefcase,
+//   MessageCircle,
+//   Mail,
+//   ImageIcon,
+// } from "lucide-react";
+
+// export default function Admin() {
+//   const [activeTab, setActiveTab] = useState("overview");
+
+//   // TODO: Replace with your real google status from query
+//   const googleStatus: "Connected" | "Not connected" = "Connected";
+
+//   // TODO: Replace these with real query values like you had before
+//   // Keeping structure exactly like your previous stats array.
+//   const featuredClients: any[] = [];
+//   const caseStudies: any[] = [];
+//   const pricingPackages: any[] = [];
+//   const servicePages: any[] = [];
+//   const contacts: any[] = [];
+//   const newsletterSubscribers: any[] = [];
+//   const portfolioItems: any[] = [];
+
+//   const stats = [
+//     {
+//       title: "Featured Clients",
+//       value: featuredClients.length || 0,
+//       icon: Star,
+//       color: "text-yellow-600",
+//       bgColor: "bg-yellow-50",
+//     },
+//     {
+//       title: "Case Studies",
+//       value: caseStudies.length || 0,
+//       icon: FileText,
+//       color: "text-blue-600",
+//       bgColor: "bg-blue-50",
+//     },
+//     {
+//       title: "Pricing Packages",
+//       value: pricingPackages.length || 0,
+//       icon: DollarSign,
+//       color: "text-green-600",
+//       bgColor: "bg-green-50",
+//     },
+//     {
+//       title: "Service Pages",
+//       value: servicePages.length || 0,
+//       icon: Briefcase,
+//       color: "text-purple-600",
+//       bgColor: "bg-purple-50",
+//     },
+//     {
+//       title: "Contact Submissions",
+//       value: contacts.length || 0,
+//       icon: MessageCircle,
+//       color: "text-indigo-600",
+//       bgColor: "bg-indigo-50",
+//     },
+//     {
+//       title: "Newsletter Subscribers",
+//       value: newsletterSubscribers.length || 0,
+//       icon: Mail,
+//       color: "text-pink-600",
+//       bgColor: "bg-pink-50",
+//     },
+//     {
+//       title: "Portfolio Items",
+//       value: portfolioItems.length || 0,
+//       icon: ImageIcon,
+//       color: "text-orange-600",
+//       bgColor: "bg-orange-50",
+//     },
+//     {
+//       title: "Appointments",
+//       value: 0,
+//       icon: CalendarClock,
+//       color: "text-teal-600",
+//       bgColor: "bg-teal-50",
+//     },
+//   ];
+
+//   const handleConnectGoogle = () => {
+//     window.open("/api/google/oauth/login", "_blank", "noopener,noreferrer");
+//   };
+
+//   const renderContent = () => {
+//     switch (activeTab) {
+//       case "overview":
+//         return (
+//           <AdminOverview
+//             stats={stats}
+//             googleStatus={googleStatus}
+//             featuredClients={featuredClients}
+//             onNavigate={setActiveTab}
+//             onConnectGoogle={handleConnectGoogle}
+//           />
+//         );
+
+//       case "contacts":
+//         return <ContactsManager />;
+
+//       case "newsletter":
+//         return <NewsletterSubscribersManager />;
+
+//       case "seo-case-studies":
+//         return <SeoCaseStudiesManager />;
+
+//       case "ppc-case-studies":
+//         return <PpcCaseStudiesManager />;
+
+//       case "web-case-studies":
+//         return <WebCaseStudiesManager />;
+
+//       case "dr-case-studies":
+//         return <DedicatedResourceCaseStudiesManager />;
+
+//       case "blog-posts":
+//         return <BlogPostsManager />;
+
+//       case "portfolio-items":
+//         return <PortfolioItemsManager />;
+
+//       case "appointments":
+//         return <AppointmentsManager />;
+
+//       default:
+//         return (
+//           <AdminOverview
+//             stats={stats}
+//             googleStatus={googleStatus}
+//             featuredClients={featuredClients}
+//             onNavigate={setActiveTab}
+//             onConnectGoogle={handleConnectGoogle}
+//           />
+//         );
+//     }
+//   };
+
+//   return (
+//     <AdminLayout
+//       sidebar={<AdminSidebar active={activeTab} onChange={setActiveTab} />}
+//       header={
+//         <AdminHeader
+//           email="admin@brandingbeez.com"
+//           googleStatus={googleStatus}
+//           onLogout={() => console.log("logout")}
+//         />
+//       }
+//     >
+//       {renderContent()}
+//     </AdminLayout>
+//   );
+// }

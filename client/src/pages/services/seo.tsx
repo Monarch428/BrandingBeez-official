@@ -156,9 +156,9 @@ import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { useState } from "react";
 import { PhaseSliderSection, type PhaseItem, } from "@/components/phase-slider-section";
-import Whitelabel_Image from "../../../public/images/100__White_label_delivery.png";
-import Hours_24_Image from "../../../public/images/24_hours_Start_time.png";
-import SEO_Image from "../../../public/images/Dedicated_SEO_resource.png"
+import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
+import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+import SEO_Image from "../../../public/images/DEDICATED SEO RESOURCE.png"
 
 const seoAioPhases: PhaseItem[] = [
   {
@@ -627,13 +627,12 @@ export default function SEOServices() {
                       <span>AI-Ready Search Optimization</span>
                     </div>
                   </div> */}
-                  {/* <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-center gap-8 sm:gap-10 text-xl sm:text-xl text-white">
-
+                  {/* <div className="mt-8 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-center gap-8 sm:gap-12 text-xl text-white">
                     <div className="flex items-center gap-3">
                       <img
                         src={Whitelabel_Image}
                         alt="White Label Delivery"
-                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                        className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain"
                       />
                     </div>
 
@@ -641,7 +640,7 @@ export default function SEOServices() {
                       <img
                         src={Hours_24_Image}
                         alt="24 Hours Start Time"
-                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                        className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain"
                       />
                     </div>
 
@@ -649,11 +648,11 @@ export default function SEOServices() {
                       <img
                         src={SEO_Image}
                         alt="Dedicated SEO Resource"
-                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                        className="h-24 sm:h-28 md:h-32 lg:h-36 w-auto object-contain"
                       />
                     </div>
-
                   </div> */}
+
                 </div>
 
                 {/* Right: Includes card */}

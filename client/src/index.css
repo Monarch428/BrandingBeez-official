@@ -3,6 +3,19 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/* 🔥 Force toast above Radix Dialog overlay */
+[data-radix-portal] ~ .react-hot-toast {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Radix dialog overlay fix (keep below toast) */
+[data-radix-dialog-overlay] {
+  z-index: 1000 !important;
+}
+
+
 :root {
   --background: hsl(0, 0%, 100%);
   --foreground: hsl(222, 84%, 4.9%);
