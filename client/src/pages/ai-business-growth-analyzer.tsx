@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface FormState {
   firstName: string;
@@ -29,7 +30,20 @@ interface FormErrors {
   website?: string;
 }
 
-type Step = "capture" | "analysis" | "summary";
+// type Step = "capture" | "analysis" | "summary";
+interface LeadFormState {
+  email: string;
+  phone: string;
+  consent: boolean;
+}
+
+interface LeadFormErrors {
+  email?: string;
+  phone?: string;
+  consent?: string;
+}
+
+type Step = "capture" | "analysis" | "summary" | "lead" | "success";
 
 type StageState = "pending" | "active" | "complete";
 
@@ -51,6 +65,22 @@ const teaserMessages = [
   "We found $42K in potential cost savings...",
   "Your reputation score is strong, but 6 reviews need replies...",
 ];
+
+const disposableEmailDomains = [
+  "mailinator.com",
+  "guerrillamail.com",
+  "10minutemail.com",
+  "tempmail.com",
+  "trashmail.com",
+];
+
+const domainSuggestions: Record<string, string> = {
+  "gmial.com": "gmail.com",
+  "gamil.com": "gmail.com",
+  "hotnail.com": "hotmail.com",
+  "hotmal.com": "hotmail.com",
+  "yaho.com": "yahoo.com",
+};
 
 const strengths = [
   "Strong SEO momentum (87/100)",
@@ -91,6 +121,39 @@ function normalizeWebsiteUrl(url: string) {
   const hasProtocol = /^https?:\/\//i.test(trimmed);
   const withProtocol = hasProtocol ? trimmed : `https://${trimmed}`;
   return withProtocol.replace(/\/$/, "");
+}
+
+function validateEmail(email: string) {
+  if (!email.trim()) return "Please enter your email address";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.trim())) return "Please enter a valid email address";
+  const domain = email.split("@")[1]?.toLowerCase();
+  if (domain && disposableEmailDomains.includes(domain)) return "Please use a business or personal email";
+  return undefined;
+}
+
+function getEmailSuggestion(email: string) {
+  const domain = email.split("@")[1]?.toLowerCase();
+  if (domain && domainSuggestions[domain]) {
+    return `${email.split("@")[0]}@${domainSuggestions[domain]}`;
+  }
+  return "";
+}
+
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}${digits.length > 11 ? ` ${digits.slice(11)}` : ""}`;
+}
+
+function validatePhone(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (!digits) return "Please enter your phone number";
+  if (digits.length < 10) return "Phone number must be at least 10 digits";
+  if (!/^\+?[0-9\s().-]{10,}$/.test(phone)) return "Please enter a valid phone number";
+  return undefined;
 }
 
 function validateName(name: string, field: "firstName" | "lastName"): string | undefined {
@@ -192,17 +255,29 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [step, setStep] = useState<Step>("capture");
   const [formState, setFormState] = useState<FormState>({ firstName: "", lastName: "", website: "" });
   const [errors, setErrors] = useState<FormErrors>({});
+  const [leadForm, setLeadForm] = useState<LeadFormState>({ email: "", phone: "", consent: false });
+  const [leadErrors, setLeadErrors] = useState<LeadFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLeadSubmitting, setIsLeadSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
   const [stageStates, setStageStates] = useState<StageState[]>(analysisStages.map((_, idx) => (idx === 0 ? "active" : "pending")));
   const [statusMessage, setStatusMessage] = useState(analysisStages[0].message);
   const [teaserIndex, setTeaserIndex] = useState(0);
+  const [emailSuggestion, setEmailSuggestion] = useState("");
+  const [leadId, setLeadId] = useState("demo-lead-123");
+  const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     firstNameRef.current?.focus();
   }, []);
+
+    useEffect(() => {
+    if (step === "lead") {
+      emailRef.current?.focus();
+    }
+  }, [step]);
 
   useEffect(() => {
     if (step !== "analysis") return;
@@ -292,6 +367,35 @@ export default function AIBusinessGrowthAnalyzerPage() {
     setStep("analysis");
   };
 
+    const handleLeadChange = (field: keyof LeadFormState, value: string | boolean) => {
+    const nextValue = field === "phone" && typeof value === "string" ? formatPhone(value) : value;
+    setLeadForm((prev) => ({ ...prev, [field]: nextValue } as LeadFormState));
+    setLeadErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (field === "email" && typeof value === "string") {
+      setEmailSuggestion(getEmailSuggestion(value));
+    }
+  };
+
+  const handleLeadSubmit = (event?: React.FormEvent) => {
+    event?.preventDefault();
+    const leadFormErrors: LeadFormErrors = {
+      email: validateEmail(leadForm.email),
+      phone: validatePhone(leadForm.phone),
+      consent: leadForm.consent ? undefined : "Please agree to our privacy policy to continue",
+    };
+
+    const hasLeadErrors = Object.values(leadFormErrors).some(Boolean);
+    setLeadErrors(leadFormErrors);
+    if (hasLeadErrors) return;
+
+    setIsLeadSubmitting(true);
+    setTimeout(() => {
+      setIsLeadSubmitting(false);
+      setLeadId("lead-" + Math.random().toString(36).slice(2, 8));
+      setStep("success");
+    }, 1200);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-rose-50 text-gray-900">
       <div className="max-w-6xl mx-auto px-4 py-10 lg:py-16">
@@ -318,8 +422,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
               </CardTitle>
               <CardDescription>Low-friction entry, guided progress, and instant value delivery.</CardDescription>
               <div className="flex items-center gap-4 text-sm font-semibold text-gray-700">
-                {["Initial Data", "Analysis", "Summary"].map((label, index) => {
-                  const stepOrder: Step[] = ["capture", "analysis", "summary"];
+               {["Initial Data", "Analysis", "Summary", "Lead Capture", "Success"].map((label, index) => {
+                  const stepOrder: Step[] = ["capture", "analysis", "summary", "lead", "success"];
                   const currentIndex = stepOrder.indexOf(step);
                   const positionState = index < currentIndex ? "complete" : index === currentIndex ? "active" : "upcoming";
                   return (
@@ -412,7 +516,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     </Button>
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <Badge variant="secondary" className="bg-emerald-50 text-emerald-600 border-emerald-100">
-                        ��� 100% Free. No credit card.
+                        ��� 100% Free. No credit card.
                       </Badge>
                       <span>Auto-focus enabled • Enter key submits</span>
                     </div>
@@ -533,7 +637,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     </div>
 
                     <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
-                      <p className="text-sm font-semibold text-amber-700">��� Biggest Opportunity</p>
+                      <p className="text-sm font-semibold text-amber-700">��� Biggest Opportunity</p>
                       <h3 className="text-xl font-bold text-gray-900 mt-1">Add Clutch/DesignRush = +$42K ARR</h3>
                       <p className="text-sm text-gray-700 mt-1">Simple profile claim to unlock new high-intent leads.</p>
                     </div>
@@ -563,10 +667,239 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         ))}
                         <div className="text-sm text-gray-600">+ 5 more detailed sections...</div>
                       </div>
-                      <Button className="w-full h-12 text-base font-semibold">Unlock Full 28-Page Report</Button>
-                      <Button variant="ghost" className="w-full h-12 text-base font-semibold text-primary">
+                     <Button className="w-full h-12 text-base font-semibold" onClick={() => setStep("lead")}>
+                        Unlock Full 28-Page Report
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="w-full h-12 text-base font-semibold text-primary"
+                        onClick={() => setStep("lead")}
+                      >
                         Book Your Strategy Call
                       </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {step === "lead" && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
+                      <div className="flex items-start justify-between gap-4 flex-col md:flex-row">
+                        <div>
+                          <p className="text-sm uppercase tracking-wider text-primary font-semibold">Get Your Complete Business Growth Analysis</p>
+                          <h2 className="text-2xl font-bold mt-2">Unlock your 28-page report instantly</h2>
+                          <p className="text-gray-600 max-w-2xl mt-2">
+                            Revenue growth opportunities, cost savings, and a 90-day plan tailored to your agency. Join 2,000+ agencies who already use this report.
+                          </p>
+                        </div>
+                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100">This analysis expires in 24 hours</Badge>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        {["Complete SEO gap analysis", "Competitor benchmarking", "$42K in identified cost savings", "90-day action plan", "Revenue growth opportunities", "Join 2,000+ agencies"].map((benefit) => (
+                          <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
+                            <span>{benefit}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <form className="mt-6 space-y-4" onSubmit={handleLeadSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-800">Email Address</label>
+                            <Input
+                              ref={emailRef}
+                              placeholder="you@company.com"
+                              value={leadForm.email}
+                              onChange={(e) => handleLeadChange("email", e.target.value)}
+                              aria-invalid={Boolean(leadErrors.email)}
+                              aria-describedby="emailError"
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleLeadSubmit();
+                              }}
+                            />
+                            {emailSuggestion && !leadErrors.email && (
+                              <p className="text-xs text-amber-600">
+                                Did you mean
+                                <button
+                                  type="button"
+                                  className="underline font-semibold ml-1"
+                                  onClick={() => setLeadForm((prev) => ({ ...prev, email: emailSuggestion }))}
+                                >
+                                  {emailSuggestion}
+                                </button>
+                                ?
+                              </p>
+                            )}
+                            {leadErrors.email && (
+                              <p id="emailError" className="text-sm text-red-500">{leadErrors.email}</p>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-800">Phone Number</label>
+                            <Input
+                              placeholder="(555) 123-4567"
+                              value={leadForm.phone}
+                              onChange={(e) => handleLeadChange("phone", e.target.value)}
+                              aria-invalid={Boolean(leadErrors.phone)}
+                              aria-describedby="phoneError"
+                              inputMode="tel"
+                            />
+                            {leadErrors.phone && (
+                              <p id="phoneError" className="text-sm text-red-500">{leadErrors.phone}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            id="privacy"
+                            checked={leadForm.consent}
+                            onCheckedChange={(checked) => handleLeadChange("consent", Boolean(checked))}
+                          />
+                          <label htmlFor="privacy" className="text-sm text-gray-700 leading-tight">
+                            I agree to the
+                            <a href="/privacy-policy" target="_blank" rel="noreferrer" className="underline text-primary ml-1">
+                              privacy policy
+                            </a>
+                          </label>
+                        </div>
+                        {leadErrors.consent && <p className="text-sm text-red-500">{leadErrors.consent}</p>}
+
+                        <div className="flex flex-col gap-3">
+                          <Button type="submit" className="h-12 text-base font-semibold" disabled={isLeadSubmitting}>
+                            {isLeadSubmitting ? (
+                              <span className="flex items-center gap-2">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Preparing Your Report...
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-2">Get My Free Report <ArrowRight className="w-4 h-4" /></span>
+                            )}
+                          </Button>
+                          <p className="text-xs text-gray-600 flex items-center gap-2">
+                            <Lock className="w-4 h-4" /> We'll never spam you.
+                          </p>
+                          <p className="text-sm text-gray-700">⚡ Instant download + emailed copy</p>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-white to-emerald-50 border border-primary/20 shadow-sm space-y-3">
+                      <p className="text-sm font-semibold text-gray-800">Report value recap</p>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-primary" /> Your score: 73/100
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-primary" /> Potential revenue increase: $42K
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-primary" /> Cost savings identified: $35K
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-primary" /> Implementation time: 90 days
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="p-5 rounded-2xl bg-white border shadow-sm space-y-2 text-sm text-gray-700">
+                      <p className="font-semibold text-gray-900">Why we ask for this</p>
+                      <p>We email your PDF and personalize your booking link. No spam. Opt-out anytime.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {step === "success" && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 space-y-6">
+                    <div className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
+                      <div className="flex items-center gap-3 text-emerald-600 font-semibold text-lg">
+                        <CheckCircle2 className="w-6 h-6" /> Success! Your report is ready
+                      </div>
+                      <p className="text-gray-800 mt-2 text-lg">Hi {formState.firstName || "there"},</p>
+                      <p className="text-gray-600 mt-1">Your complete Business Growth Analysis has been sent to:</p>
+                      <p className="font-semibold text-gray-900">{leadForm.email || "your email"}</p>
+
+                      <div className="mt-6 p-5 rounded-xl border bg-gradient-to-r from-primary/10 to-emerald-50">
+                        <Button
+                          className="w-full h-12 text-base font-semibold"
+                          onClick={() => window.open("https://storage.example.com/report.pdf", "_blank")}
+                        >
+                          📥 Download Report (PDF)
+                        </Button>
+                        <p className="text-xs text-gray-600 mt-2">Download event tracked for CRM • Lead ID: {leadId}</p>
+                      </div>
+
+                      <div className="mt-6 space-y-2">
+                        <p className="font-semibold text-gray-900">Quick Recap:</p>
+                        <ul className="text-sm text-gray-700 space-y-1">
+                          <li>• Your score: 73/100</li>
+                          <li>• Potential revenue increase: $42K</li>
+                          <li>• Cost savings identified: $35K</li>
+                          <li>• Implementation time: 90 days</li>
+                        </ul>
+                      </div>
+
+                      <div className="mt-6 pt-6 border-t space-y-4">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-gray-900">READY TO IMPLEMENT THIS PLAN?</p>
+                          <p className="text-gray-700">Book a free 30-minute strategy call and we'll help you execute these opportunities.</p>
+                        </div>
+                        <Button
+                          className="w-full h-12 text-base font-semibold"
+                          onClick={() => {
+                            const params = new URLSearchParams({
+                              name: `${formState.firstName} ${formState.lastName}`.trim() || "Guest",
+                              email: leadForm.email,
+                              phone: leadForm.phone,
+                              source: "ai-analyzer",
+                              score: "73",
+                              lead_id: leadId,
+                              utm_source: "tool",
+                              utm_medium: "ai-report",
+                              utm_campaign: "lead-gen",
+                            });
+                            window.open(`https://brandingbeez.co.uk/book-call?${params.toString()}`, "_blank");
+                          }}
+                        >
+                          📞 Book Your Strategy Call
+                        </Button>
+                        <div className="flex items-center justify-between text-sm text-gray-700">
+                          <span>Limited slots available</span>
+                          <span>⭐⭐⭐⭐⭐ Rated 4.9/5</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="text-sm text-gray-500 underline"
+                          onClick={() => alert("No problem! We'll send you a reminder in 3 days.")}
+                        >
+                          Maybe Later
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-5 rounded-2xl bg-white border shadow-sm space-y-3 text-sm text-gray-700">
+                      <p className="font-semibold text-gray-900">Next steps</p>
+                      <p>We've sent a confirmation email with your download link. Re-open anytime from your inbox.</p>
+                      <p>Want SMS copy? Reply to the email, and we'll text you the link.</p>
+                    </div>
+
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-white to-emerald-50 border border-primary/20 space-y-3 text-sm text-gray-700">
+                      <p className="font-semibold text-gray-900">Tracking events</p>
+                      <ul className="space-y-1 list-disc pl-4">
+                        <li>Report download logged</li>
+                        <li>Booking intent tracked</li>
+                        <li>Lead added to nurture sequence</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
