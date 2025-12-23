@@ -2107,6 +2107,7 @@ import { registerChatRoutes } from "./routes/chat";
 import { blogAdminRouter } from "./routes/blog-admin";
 import { blogPublicRouter } from "./routes/blog-public";
 import { registerBusinessGrowthRoutes } from "./routes/ai-business-growth";
+import { registerWebsiteReachableRoutes } from "./routes/website-reachable";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ✅ Admin auth (login + authenticateAdmin middleware)
@@ -2160,6 +2161,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerAuditRoutes(app);
   registerChatRoutes(app);
   registerBusinessGrowthRoutes(app);
+  registerWebsiteReachableRoutes(app);
   registerStaticRoutes(app);
 
   // Route logging middleware (same as your current file, kept near end)

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
   CheckCircle2,
@@ -30,7 +30,6 @@ interface FormErrors {
   website?: string;
 }
 
-// type Step = "capture" | "analysis" | "summary";
 interface LeadFormState {
   email: string;
   phone: string;
@@ -44,7 +43,6 @@ interface LeadFormErrors {
 }
 
 type Step = "capture" | "analysis" | "summary" | "lead" | "success";
-
 type StageState = "pending" | "active" | "complete";
 
 interface QuickWin {
@@ -131,16 +129,8 @@ const fallbackReport: BusinessGrowthReport = {
     },
   },
   executiveSummary: {
-    strengths: [
-      "Strong SEO momentum (87/100)",
-      "Great reputation score (4.7★)",
-      "Solid client retention signals",
-    ],
-    weaknesses: [
-      "Limited lead gen diversity (3/10)",
-      "High cost structure vs. peers",
-      "Missing key directory coverage",
-    ],
+    strengths: ["Strong SEO momentum (87/100)", "Great reputation score (4.7★)", "Solid client retention signals"],
+    weaknesses: ["Limited lead gen diversity (3/10)", "High cost structure vs. peers", "Missing key directory coverage"],
     biggestOpportunity: "Claim Clutch & DesignRush listings to unlock ~$42K ARR within 90 days.",
     quickWins: [
       {
@@ -204,7 +194,9 @@ function formatPhone(value: string) {
   if (digits.length <= 3) return digits;
   if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
   if (digits.length <= 10) return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}${digits.length > 11 ? ` ${digits.slice(11)}` : ""}`;
+  return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}${
+    digits.length > 11 ? ` ${digits.slice(11)}` : ""
+  }`;
 }
 
 function validatePhone(phone: string) {
@@ -230,27 +222,28 @@ function validateWebsite(url: string): string | undefined {
   return undefined;
 }
 
-async function checkWebsiteReachable(url: string) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 6000);
+async function checkWebsiteReachableViaBackend(website: string): Promise<boolean> {
   try {
-    const response = await fetch(url, {
-      method: "HEAD",
-      mode: "no-cors",
-      signal: controller.signal,
+    const res = await fetch("/api/utils/website-reachable", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ website }),
     });
-    clearTimeout(timeout);
-    return response.ok || response.type === "opaque";
-  } catch (error) {
-    clearTimeout(timeout);
-    console.error("Website reachability check failed", error);
+
+    if (!res.ok) return false;
+
+    const data = await res.json();
+    return Boolean(data?.reachable);
+  } catch (err) {
+    console.error("Website reachability check failed:", err);
     return false;
   }
 }
 
 function ScoreGauge({ score }: { score: number }) {
   const clampedScore = Math.max(0, Math.min(100, score));
-  const color = clampedScore <= 40 ? "#ef4444" : clampedScore <= 65 ? "#f59e0b" : clampedScore <= 85 ? "#2563eb" : "#10b981";
+  const color =
+    clampedScore <= 40 ? "#ef4444" : clampedScore <= 65 ? "#f59e0b" : clampedScore <= 85 ? "#2563eb" : "#10b981";
   const gradient = `conic-gradient(${color} ${clampedScore * 3.6}deg, #e5e7eb 0deg)`;
 
   return (
@@ -275,7 +268,13 @@ function StageItem({ label, state, message }: { label: string; state: StageState
           state === "pending" && "border-dashed border-gray-200 text-gray-400",
         )}
       >
-        {state === "complete" ? <CheckCircle2 className="w-5 h-5" /> : state === "active" ? <Loader2 className="w-5 h-5 animate-spin" /> : <Clock4 className="w-5 h-5" />}
+        {state === "complete" ? (
+          <CheckCircle2 className="w-5 h-5" />
+        ) : state === "active" ? (
+          <Loader2 className="w-5 h-5 animate-spin" />
+        ) : (
+          <Clock4 className="w-5 h-5" />
+        )}
       </div>
       <div className="flex-1">
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
@@ -321,7 +320,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [isLeadSubmitting, setIsLeadSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
-  const [stageStates, setStageStates] = useState<StageState[]>(analysisStages.map((_, idx) => (idx === 0 ? "active" : "pending")));
+  const [stageStates, setStageStates] = useState<StageState[]>(
+    analysisStages.map((_, idx) => (idx === 0 ? "active" : "pending")),
+  );
   const [statusMessage, setStatusMessage] = useState(analysisStages[0].message);
   const [teaserIndex, setTeaserIndex] = useState(0);
   const [emailSuggestion, setEmailSuggestion] = useState("");
@@ -331,22 +332,11 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
   const [lastAnalyzedWebsite, setLastAnalyzedWebsite] = useState<string>("");
   const [analysisSource, setAnalysisSource] = useState<string | null>(null);
+
   const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
 
-  useEffect(() => {
-    firstNameRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (step === "lead") {
-      emailRef.current?.focus();
-    }
-  }, [step]);
-
-  useEffect(() => {
-    if (step !== "analysis") return;
-
+  // ✅ Read URL params ONCE at mount (NOT inside another hook)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -362,6 +352,20 @@ export default function AIBusinessGrowthAnalyzerPage() {
       setAnalysisSource(sourceParam);
     }
   }, []);
+
+  useEffect(() => {
+    firstNameRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (step === "lead") {
+      emailRef.current?.focus();
+    }
+  }, [step]);
+
+  // ✅ Start analysis stage animation when step becomes "analysis"
+  useEffect(() => {
+    if (step !== "analysis") return;
 
     setProgress(analysisStages[0].progress);
     setCurrentStage(0);
@@ -390,6 +394,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
       accumulated += stage.duration;
     });
 
+    // Mark complete at end of animation
     timers.push(
       setTimeout(() => {
         setStageStates(Array(analysisStages.length).fill("complete"));
@@ -398,15 +403,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
       }, accumulated * 1000),
     );
 
-    timers.push(
-      setTimeout(() => {
-        setStep("summary");
-      }, (accumulated + 1) * 1000),
-    );
-
     return () => timers.forEach(clearTimeout);
   }, [step]);
 
+  // ✅ Teaser rotation only in analysis step
   useEffect(() => {
     if (step !== "analysis") return;
     const interval = setInterval(() => {
@@ -415,7 +415,21 @@ export default function AIBusinessGrowthAnalyzerPage() {
     return () => clearInterval(interval);
   }, [step]);
 
-  const progressPercentage = useMemo(() => Math.min(100, Math.max(progress, (currentStage / (analysisStages.length - 1)) * 100)), [progress, currentStage]);
+  // ✅ Move to summary ONLY when:
+  // - progress animation completed, AND
+  // - backend analysis is finished (success OR error)
+  useEffect(() => {
+    if (step !== "analysis") return;
+    if (progress < 100) return;
+    if (isAnalyzingBackend) return;
+
+    setStep("summary");
+  }, [step, progress, isAnalyzingBackend]);
+
+  const progressPercentage = useMemo(
+    () => Math.min(100, Math.max(progress, (currentStage / (analysisStages.length - 1)) * 100)),
+    [progress, currentStage],
+  );
 
   const report = analysisData || fallbackReport;
   const summaryStrengths = report.executiveSummary.strengths;
@@ -463,7 +477,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
     }
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     const nameErrors: FormErrors = {
       firstName: validateName(formState.firstName, "firstName"),
@@ -477,8 +491,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
     setIsSubmitting(true);
     const normalizedUrl = normalizeWebsiteUrl(formState.website);
-    const reachable = await checkWebsiteReachable(normalizedUrl);
 
+    const reachable = await checkWebsiteReachableViaBackend(normalizedUrl);
     if (!reachable) {
       setErrors((prev) => ({ ...prev, website: "We couldn't reach this website. Please check the URL." }));
       setIsSubmitting(false);
@@ -499,7 +513,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
     }
   };
 
-  // const handleLeadSubmit = (event?: React.FormEvent) => {
   const submitLeadToBackend = async (websiteUrl: string) => {
     const normalizedWebsite = normalizeWebsiteUrl(websiteUrl);
     const response = await fetch("/api/ai-business-growth/analyze", {
@@ -527,7 +540,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
     }
   };
 
-  const handleLeadSubmit = async (event?: React.FormEvent) => {
+  const handleLeadSubmit = async (event?: FormEvent) => {
     event?.preventDefault();
     const leadFormErrors: LeadFormErrors = {
       email: validateEmail(leadForm.email),
@@ -540,8 +553,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
     if (hasLeadErrors) return;
 
     setIsLeadSubmitting(true);
-    // setTimeout(() => {
-    //   setIsLeadSubmitting(false);
     setLeadSubmitError(null);
 
     const websiteForSubmission = lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
@@ -550,7 +561,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
       await submitLeadToBackend(websiteForSubmission);
       setLeadId("lead-" + Math.random().toString(36).slice(2, 8));
       setStep("success");
-    // }, 1200);
     } catch (error) {
       console.error("Failed to submit lead to backend", error);
       setLeadSubmitError("We couldn't sync with the AI engine right now. Our team will follow up manually.");
@@ -686,7 +696,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     </Button>
                     <div className="flex items-center gap-3 text-sm text-gray-600">
                       <Badge variant="secondary" className="bg-emerald-50 text-emerald-600 border-emerald-100">
-                        ��� 100% Free. No credit card.
+                        ✅ 100% Free. No credit card.
                       </Badge>
                       <span>Auto-focus enabled • Enter key submits</span>
                     </div>
@@ -726,19 +736,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       {isAnalyzingBackend && (
                         <p className="text-xs text-gray-500 mt-1">AI agent is generating your tailored business growth report...</p>
                       )}
-                      {analysisError && (
-                        <p className="text-xs text-red-500 mt-1">{analysisError}</p>
-                      )}
+                      {analysisError && <p className="text-xs text-red-500 mt-1">{analysisError}</p>}
                     </div>
 
                     <div className="space-y-3">
                       {analysisStages.map((stage, idx) => (
-                        <StageItem
-                          key={stage.label}
-                          label={stage.label}
-                          message={stage.message}
-                          state={stageStates[idx]}
-                        />
+                        <StageItem key={stage.label} label={stage.label} message={stage.message} state={stageStates[idx]} />
                       ))}
                     </div>
                   </div>
@@ -749,9 +752,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         <Globe2 className="w-4 h-4 text-primary" />
                         <p className="text-sm font-semibold text-gray-800">Live findings</p>
                       </div>
-                      <p className="text-base text-gray-700 min-h-[48px] transition-opacity">
-                        {teaserMessages[teaserIndex]}
-                      </p>
+                      <p className="text-base text-gray-700 min-h-[48px] transition-opacity">{teaserMessages[teaserIndex]}</p>
                       <p className="text-xs text-gray-500 mt-2">This usually takes 60-90 seconds...</p>
                     </div>
 
@@ -780,7 +781,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100">Strengths surfaced</Badge>
                           <Badge className="bg-amber-50 text-amber-700 border-amber-100">Weak spots flagged</Badge>
                         </div>
-                        <p className="text-sm text-gray-500">Report ID: {report.reportMetadata.reportId} • Generated {analysisDate}</p>
+                        <p className="text-sm text-gray-500">
+                          Report ID: {report.reportMetadata.reportId} • Generated {analysisDate}
+                        </p>
                       </div>
                     </div>
 
@@ -814,7 +817,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     </div>
 
                     <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
-                      <p className="text-sm font-semibold text-amber-700">��� Biggest Opportunity</p>
+                      <p className="text-sm font-semibold text-amber-700">🚀 Biggest Opportunity</p>
                       <h3 className="text-xl font-bold text-gray-900 mt-1">{biggestOpportunity}</h3>
                       <p className="text-sm text-gray-700 mt-1">Pulled directly from the AI business growth agent.</p>
                     </div>
@@ -830,7 +833,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                             <p className="font-semibold text-gray-900">{action.title}</p>
                             <p className="text-sm text-gray-600">{action.details}</p>
                             <div className="text-xs text-gray-500">Impact: {action.impact}</div>
-                            <div className="text-xs text-gray-500">Time: {action.time} • Cost: {action.cost}</div>
+                            <div className="text-xs text-gray-500">
+                              Time: {action.time} • Cost: {action.cost}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -846,7 +851,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         ))}
                         <div className="text-sm text-gray-600">+ 5 more detailed sections...</div>
                       </div>
-                     <Button className="w-full h-12 text-base font-semibold" onClick={() => setStep("lead")}>
+                      <Button className="w-full h-12 text-base font-semibold" onClick={() => setStep("lead")}>
                         Unlock Full 28-Page Report
                       </Button>
                       <Button
@@ -860,24 +865,36 @@ export default function AIBusinessGrowthAnalyzerPage() {
                   </div>
                 </div>
               )}
-              
+
               {step === "lead" && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                   <div className="lg:col-span-2 space-y-6">
                     <div className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
                       <div className="flex items-start justify-between gap-4 flex-col md:flex-row">
                         <div>
-                          <p className="text-sm uppercase tracking-wider text-primary font-semibold">Get Your Complete Business Growth Analysis</p>
+                          <p className="text-sm uppercase tracking-wider text-primary font-semibold">
+                            Get Your Complete Business Growth Analysis
+                          </p>
                           <h2 className="text-2xl font-bold mt-2">Unlock your 28-page report instantly</h2>
                           <p className="text-gray-600 max-w-2xl mt-2">
-                            Revenue growth opportunities, cost savings, and a 90-day plan tailored to your agency. Join 2,000+ agencies who already use this report.
+                            Revenue growth opportunities, cost savings, and a 90-day plan tailored to your agency. Join 2,000+
+                            agencies who already use this report.
                           </p>
                         </div>
-                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100">This analysis expires in 24 hours</Badge>
+                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100">
+                          This analysis expires in 24 hours
+                        </Badge>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                        {["Complete SEO gap analysis", "Competitor benchmarking", "$42K in identified cost savings", "90-day action plan", "Revenue growth opportunities", "Join 2,000+ agencies"].map((benefit) => (
+                        {[
+                          "Complete SEO gap analysis",
+                          "Competitor benchmarking",
+                          "$42K in identified cost savings",
+                          "90-day action plan",
+                          "Revenue growth opportunities",
+                          "Join 2,000+ agencies",
+                        ].map((benefit) => (
                           <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
                             <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
                             <span>{benefit}</span>
@@ -914,7 +931,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                               </p>
                             )}
                             {leadErrors.email && (
-                              <p id="emailError" className="text-sm text-red-500">{leadErrors.email}</p>
+                              <p id="emailError" className="text-sm text-red-500">
+                                {leadErrors.email}
+                              </p>
                             )}
                           </div>
 
@@ -929,7 +948,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                               inputMode="tel"
                             />
                             {leadErrors.phone && (
-                              <p id="phoneError" className="text-sm text-red-500">{leadErrors.phone}</p>
+                              <p id="phoneError" className="text-sm text-red-500">
+                                {leadErrors.phone}
+                              </p>
                             )}
                           </div>
                         </div>
@@ -947,6 +968,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                             </a>
                           </label>
                         </div>
+
                         {leadErrors.consent && <p className="text-sm text-red-500">{leadErrors.consent}</p>}
                         {leadSubmitError && <p className="text-sm text-amber-600">{leadSubmitError}</p>}
 
@@ -957,7 +979,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                                 <Loader2 className="w-4 h-4 animate-spin" /> Preparing Your Report...
                               </span>
                             ) : (
-                              <span className="flex items-center gap-2">Get My Free Report <ArrowRight className="w-4 h-4" /></span>
+                              <span className="flex items-center gap-2">
+                                Get My Free Report <ArrowRight className="w-4 h-4" />
+                              </span>
                             )}
                           </Button>
                           <p className="text-xs text-gray-600 flex items-center gap-2">
@@ -1006,9 +1030,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       <p className="text-gray-800 mt-2 text-lg">Hi {formState.firstName || "there"},</p>
                       <p className="text-gray-600 mt-1">Your complete Business Growth Analysis has been sent to:</p>
                       <p className="font-semibold text-gray-900">{leadForm.email || "your email"}</p>
-                      {leadSubmitError && (
-                        <p className="text-sm text-amber-600 mt-2">{leadSubmitError}</p>
-                      )}
+                      {leadSubmitError && <p className="text-sm text-amber-600 mt-2">{leadSubmitError}</p>}
 
                       <div className="mt-6 p-5 rounded-xl border bg-gradient-to-r from-primary/10 to-emerald-50">
                         <Button
@@ -1033,7 +1055,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       <div className="mt-6 pt-6 border-t space-y-4">
                         <div className="space-y-1">
                           <p className="text-sm font-semibold text-gray-900">READY TO IMPLEMENT THIS PLAN?</p>
-                          <p className="text-gray-700">Book a free 30-minute strategy call and we'll help you execute these opportunities.</p>
+                          <p className="text-gray-700">
+                            Book a free 30-minute strategy call and we'll help you execute these opportunities.
+                          </p>
                         </div>
                         <Button
                           className="w-full h-12 text-base font-semibold"
@@ -1171,7 +1195,14 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
 function CalendarClockIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-4 h-4">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      className="w-4 h-4"
+    >
       <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
       <line x1="16" y1="2" x2="16" y2="6" />
       <line x1="8" y1="2" x2="8" y2="6" />
@@ -1180,4 +1211,3 @@ function CalendarClockIcon() {
     </svg>
   );
 }
-
