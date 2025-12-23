@@ -582,7 +582,7 @@ export default function GoogleAds() {
                         <li className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
                           <span>
-                            Direct access to PPC specialists — not account managers only
+                            Direct access to PPC specialists not account managers only
                           </span>
                         </li>
                       </ul>
