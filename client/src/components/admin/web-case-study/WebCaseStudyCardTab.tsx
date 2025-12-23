@@ -388,7 +388,7 @@ export function WebCaseStudyCardTab({
 
           <div>
             {/* <ReqLabel>Delivery Type</ReqLabel> */}
-            <ReqLabel>Industry</ReqLabel>
+            <ReqLabel>Delivery Type</ReqLabel>
             <Input
               data-field="results.users"
               className={errClass("results.users")}

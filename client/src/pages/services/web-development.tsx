@@ -1472,7 +1472,7 @@ export default function WebDevelopment() {
                               {/* <span className="text-gray-600">Delivery Type</span> */}
                               <span className="text-gray-600">Industry</span>
                               <span className="font-bold text-brand-coral">
-                                {study.results?.users}
+                                {study.industry}
                               </span>
                             </div>
                           </div>
