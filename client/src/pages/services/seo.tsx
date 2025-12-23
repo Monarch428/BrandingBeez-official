@@ -591,6 +591,28 @@ export default function SEOServices() {
                     Trusted by agencies across the US and UK to scale SEO delivery without hiring, freelancers, or quality risk.
                   </p>
 
+                  {/* Key Benefits */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        100% White-Label Delivery
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        24 Hours Start Time
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        Dedicated SEO Resource
+                      </span>
+                    </div>
+                  </div>
+
                   {/* CTAs */}
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center">
                     {/* Primary CTA */}
@@ -627,8 +649,7 @@ export default function SEOServices() {
                       <span>AI-Ready Search Optimization</span>
                     </div>
                   </div> */}
-                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
-                    {/* Left */}
+                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
                     <div className="flex justify-end">
                       <img
                         src={Whitelabel_Image}
@@ -636,8 +657,6 @@ export default function SEOServices() {
                         className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
                     </div>
-
-                    {/* Center (slightly bigger) */}
                     <div className="flex justify-center px-0">
                       <img
                         src={Hours_24_Image}
@@ -646,7 +665,6 @@ export default function SEOServices() {
                       />
                     </div>
 
-                    {/* Right */}
                     <div className="flex justify-start">
                       <img
                         src={SEO_Image}
@@ -654,7 +672,7 @@ export default function SEOServices() {
                         className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
                     </div>
-                  </div>
+                  </div> */}
 
                 </div>
 

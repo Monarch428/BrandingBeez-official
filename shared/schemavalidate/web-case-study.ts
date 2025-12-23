@@ -8,6 +8,17 @@ const resultItemSchema = z.object({
     colorClass: z.string().optional(),
 });
 
+export const reorderWebCaseStudiesSchema = z.object({
+    items: z
+        .array(
+            z.object({
+                id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid Mongo ObjectId"),
+                order: z.number().int().min(0),
+            })
+        )
+        .min(1),
+});
+
 export const insertWebCaseStudyCardSchema = z.object({
     slug: z.string().min(1),
 
@@ -19,7 +30,7 @@ export const insertWebCaseStudyCardSchema = z.object({
     results: z.object({
         performance: z.string().min(1),
         conversions: z.string().min(1),
-        users: z.string().min(1),
+        users: z.string().min(1).optional(),
     }),
 
     imageUrl: z.string().optional(),
@@ -27,6 +38,7 @@ export const insertWebCaseStudyCardSchema = z.object({
     imageFit: z.enum(["cover", "contain"]).optional(),
 
     link: z.string().optional(),
+    order: z.number().int().min(0),
 });
 
 // ----- Detail -----

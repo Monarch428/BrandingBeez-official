@@ -51,7 +51,15 @@ export const webCaseStudyStorage = {
 
     async listWebCaseStudyCards(): Promise<WebCaseStudyCard[]> {
         await ensureConnection();
-        const docs = await WebCaseStudyCardModel.find({}).sort({ id: 1 }).lean<WebCaseStudyCard[]>();
+
+        const docs = await WebCaseStudyCardModel
+            .find({})
+            .sort({
+                order: 1,
+                createdAt: -1,
+            })
+            .lean<WebCaseStudyCard[]>();
+
         return docs ?? [];
     },
 

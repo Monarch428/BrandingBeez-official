@@ -1303,6 +1303,28 @@ export default function WebDevelopment() {
                     fully white-labeled execution.
                   </p>
 
+                  {/* Key Benefits */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        100% White-Label Delivery
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        24 Hours Start Time
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        Dedicated Website Developer
+                      </span>
+                    </div>
+                  </div>
+
                   {/* CTA */}
                   <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                     <BookCallButtonWithModal
@@ -1321,7 +1343,7 @@ export default function WebDevelopment() {
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
                     <div className="flex justify-end">
                       <img
                         src={Whitelabel_Image}
@@ -1345,7 +1367,7 @@ export default function WebDevelopment() {
                         className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
                     </div>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Right: Achievements Card */}
@@ -1457,21 +1479,21 @@ export default function WebDevelopment() {
                             <div className="flex justify-between">
                               {/* <span className="text-gray-600">Industry</span> */}
                               <span className="text-gray-600">Cost</span>
-                              <span className="font-bold text-green-600">
+                              <span className="font-bold text-brand-coral">
                                 {study.results?.performance}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               {/* <span className="text-gray-600">Website Type</span> */}
                               <span className="text-gray-600">Delivery Time</span>
-                              <span className="font-bold text-blue-600">
+                              <span className="font-bold text-green-600">
                                 {study.results?.conversions}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               {/* <span className="text-gray-600">Delivery Type</span> */}
                               <span className="text-gray-600">Industry</span>
-                              <span className="font-bold text-brand-coral">
+                              <span className="font-bold text-blue-600 ">
                                 {study.industry}
                               </span>
                             </div>
@@ -1533,8 +1555,8 @@ export default function WebDevelopment() {
                   <Card
                     key={pkg.id}
                     className={`relative flex flex-col h-full ${pkg.popular
-                        ? "border-2 border-brand-coral md:scale-105"
-                        : "border border-gray-200 hover:border-brand-coral/50"
+                      ? "border-2 border-brand-coral md:scale-105"
+                      : "border border-gray-200 hover:border-brand-coral/50"
                       } transition-all duration-300`}
                   >
                     {pkg.popular && (
@@ -1579,8 +1601,8 @@ export default function WebDevelopment() {
                         >
                           <Button
                             className={`w-full py-3 sm:py-4 px-6 sm:px-8 font-medium text-sm sm:text-md transition-all duration-300 ${pkg.popular
-                                ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
-                                : "bg-brand-purple hover:bg-brand-purple/90 text-white"
+                              ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                              : "bg-brand-purple hover:bg-brand-purple/90 text-white"
                               }`}
                           >
                             {pkg.id === 1

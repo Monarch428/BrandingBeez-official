@@ -28,5 +28,15 @@ export function webCaseStudyPublicRouter(publicContentRateLimit: RequestHandler)
     }
   });
 
+  router.get("/web-case-studies", publicContentRateLimit, async (_req, res) => {
+    try {
+      const items = await storage.listWebCaseStudyCards();
+      res.json(items);
+    } catch (error) {
+      console.error("Error fetching Website case studies list:", error);
+      res.status(500).json({ message: "Failed to fetch Website case studies list" });
+    }
+  });
+
   return router;
 }
