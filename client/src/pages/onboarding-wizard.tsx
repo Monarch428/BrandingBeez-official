@@ -12,6 +12,7 @@ import {
   Building,
   TrendingUp,
   Globe,
+  Sparkles,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Header } from "@/components/header";
@@ -788,6 +789,28 @@ export default function OnboardingWizard() {
               </div>
             </div>
 
+            <Card className="mt-6 border-dashed border-2 border-brand-coral/40 bg-white/70">
+              <CardContent className="p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-full bg-brand-coral/10 text-brand-coral">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Explore our AI Business Growth Analyzer</p>
+                    <p className="text-sm text-gray-600 max-w-2xl">
+                      Send your recommended service stack straight into our AI workflow to get live scoring, executive summaries,
+                      and a ready-to-share action plan.
+                    </p>
+                  </div>
+                </div>
+                <Link href="/ai-business-growth-analyzer?source=service-wizard">
+                  <Button className="w-full md:w-auto">
+                    Continue in AI Analyzer <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
             <div className="text-center mt-6 sm:mt-8 space-y-3 sm:space-y-4 px-4">
               <Button
                 onClick={resetWizard}
@@ -879,6 +902,27 @@ export default function OnboardingWizard() {
               </div>
               <Progress value={progress} className="h-2" />
             </div>
+
+            <Card className="border border-blue-100 bg-blue-50/50 shadow-sm mx-2 sm:mx-0 mb-4">
+              <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-full bg-white shadow-sm">
+                    <Sparkles className="w-5 h-5 text-brand-coral" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900">Need an instant diagnostic?</p>
+                    <p className="text-sm text-gray-600">
+                      Jump into our AI Business Growth Analysis to scan your website and generate a tailored playbook.
+                    </p>
+                  </div>
+                </div>
+                <Link href="/ai-business-growth-analyzer?source=service-wizard">
+                  <Button className="w-full sm:w-auto" variant="secondary">
+                    Launch AI Analysis <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
 
             <Card className="border-2 border-gray-200 shadow-lg mx-2 sm:mx-0">
               <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">

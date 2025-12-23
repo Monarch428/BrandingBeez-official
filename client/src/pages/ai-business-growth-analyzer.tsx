@@ -316,6 +316,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [leadForm, setLeadForm] = useState<LeadFormState>({ email: "", phone: "", consent: false });
   const [leadErrors, setLeadErrors] = useState<LeadFormErrors>({});
+  const [leadSubmitError, setLeadSubmitError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLeadSubmitting, setIsLeadSubmitting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -328,6 +329,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [analysisData, setAnalysisData] = useState<BusinessGrowthReport | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
+  const [lastAnalyzedWebsite, setLastAnalyzedWebsite] = useState<string>("");
+  const [analysisSource, setAnalysisSource] = useState<string | null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
 
@@ -335,7 +338,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
     firstNameRef.current?.focus();
   }, []);
 
-    useEffect(() => {
+  useEffect(() => {
     if (step === "lead") {
       emailRef.current?.focus();
     }
@@ -343,6 +346,22 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
   useEffect(() => {
     if (step !== "analysis") return;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const websiteParam = params.get("website");
+    const sourceParam = params.get("source");
+
+    if (websiteParam) {
+      setFormState((prev) => ({ ...prev, website: normalizeWebsiteUrl(websiteParam) }));
+    }
+
+    if (sourceParam) {
+      setAnalysisSource(sourceParam);
+    }
+  }, []);
 
     setProgress(analysisStages[0].progress);
     setCurrentStage(0);
@@ -415,13 +434,16 @@ export default function AIBusinessGrowthAnalyzerPage() {
     setAnalysisError(null);
     setAnalysisData(null);
 
+    const normalizedWebsite = normalizeWebsiteUrl(websiteUrl);
+    setLastAnalyzedWebsite(normalizedWebsite);
+
     try {
       const response = await fetch("/api/ai-business-growth/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           companyName: `${formState.firstName} ${formState.lastName}`.trim() || "Marketing Agency",
-          website: websiteUrl,
+          website: normalizedWebsite,
         }),
       });
 
@@ -468,7 +490,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
     void runAnalysis(normalizedUrl);
   };
 
-    const handleLeadChange = (field: keyof LeadFormState, value: string | boolean) => {
+  const handleLeadChange = (field: keyof LeadFormState, value: string | boolean) => {
     const nextValue = field === "phone" && typeof value === "string" ? formatPhone(value) : value;
     setLeadForm((prev) => ({ ...prev, [field]: nextValue } as LeadFormState));
     setLeadErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -477,7 +499,35 @@ export default function AIBusinessGrowthAnalyzerPage() {
     }
   };
 
-  const handleLeadSubmit = (event?: React.FormEvent) => {
+  // const handleLeadSubmit = (event?: React.FormEvent) => {
+  const submitLeadToBackend = async (websiteUrl: string) => {
+    const normalizedWebsite = normalizeWebsiteUrl(websiteUrl);
+    const response = await fetch("/api/ai-business-growth/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        companyName: `${formState.firstName} ${formState.lastName}`.trim() || "Marketing Agency",
+        website: normalizedWebsite,
+        contact: {
+          name: `${formState.firstName} ${formState.lastName}`.trim() || undefined,
+          email: leadForm.email.trim(),
+          phone: leadForm.phone.trim() || undefined,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to submit lead to AI analyzer");
+    }
+
+    const payload = await response.json();
+    if (payload?.analysis && !analysisData) {
+      setAnalysisData(payload.analysis as BusinessGrowthReport);
+      setLastAnalyzedWebsite(payload.analysis.reportMetadata.website || normalizedWebsite);
+    }
+  };
+
+  const handleLeadSubmit = async (event?: React.FormEvent) => {
     event?.preventDefault();
     const leadFormErrors: LeadFormErrors = {
       email: validateEmail(leadForm.email),
@@ -490,11 +540,24 @@ export default function AIBusinessGrowthAnalyzerPage() {
     if (hasLeadErrors) return;
 
     setIsLeadSubmitting(true);
-    setTimeout(() => {
-      setIsLeadSubmitting(false);
+    // setTimeout(() => {
+    //   setIsLeadSubmitting(false);
+    setLeadSubmitError(null);
+
+    const websiteForSubmission = lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
+
+    try {
+      await submitLeadToBackend(websiteForSubmission);
       setLeadId("lead-" + Math.random().toString(36).slice(2, 8));
       setStep("success");
-    }, 1200);
+    // }, 1200);
+    } catch (error) {
+      console.error("Failed to submit lead to backend", error);
+      setLeadSubmitError("We couldn't sync with the AI engine right now. Our team will follow up manually.");
+      setStep("success");
+    } finally {
+      setIsLeadSubmitting(false);
+    }
   };
 
   return (
@@ -508,6 +571,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
               Get a comprehensive growth diagnosis for your digital marketing agency. Quick insights now, full report gated for
               qualified leads.
             </p>
+            {analysisSource === "service-wizard" && (
+              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-sm font-semibold mt-3">
+                <Sparkles className="w-4 h-4" />
+                <span>Came from Find Service wizard</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3 bg-white shadow-sm border rounded-full px-4 py-2">
             <ShieldCheck className="w-5 h-5 text-emerald-500" />
@@ -523,7 +592,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
               </CardTitle>
               <CardDescription>Low-friction entry, guided progress, and instant value delivery.</CardDescription>
               <div className="flex items-center gap-4 text-sm font-semibold text-gray-700">
-               {["Initial Data", "Analysis", "Summary", "Lead Capture", "Success"].map((label, index) => {
+                {["Initial Data", "Analysis", "Summary", "Lead Capture", "Success"].map((label, index) => {
                   const stepOrder: Step[] = ["capture", "analysis", "summary", "lead", "success"];
                   const currentIndex = stepOrder.indexOf(step);
                   const positionState = index < currentIndex ? "complete" : index === currentIndex ? "active" : "upcoming";
@@ -879,6 +948,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           </label>
                         </div>
                         {leadErrors.consent && <p className="text-sm text-red-500">{leadErrors.consent}</p>}
+                        {leadSubmitError && <p className="text-sm text-amber-600">{leadSubmitError}</p>}
 
                         <div className="flex flex-col gap-3">
                           <Button type="submit" className="h-12 text-base font-semibold" disabled={isLeadSubmitting}>
@@ -936,6 +1006,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       <p className="text-gray-800 mt-2 text-lg">Hi {formState.firstName || "there"},</p>
                       <p className="text-gray-600 mt-1">Your complete Business Growth Analysis has been sent to:</p>
                       <p className="font-semibold text-gray-900">{leadForm.email || "your email"}</p>
+                      {leadSubmitError && (
+                        <p className="text-sm text-amber-600 mt-2">{leadSubmitError}</p>
+                      )}
 
                       <div className="mt-6 p-5 rounded-xl border bg-gradient-to-r from-primary/10 to-emerald-50">
                         <Button
