@@ -47,6 +47,38 @@ type Step = "capture" | "analysis" | "summary" | "lead" | "success";
 
 type StageState = "pending" | "active" | "complete";
 
+interface QuickWin {
+  title: string;
+  impact: string;
+  time: string;
+  cost: string;
+  details: string;
+}
+
+interface BusinessGrowthReport {
+  reportMetadata: {
+    reportId: string;
+    companyName: string;
+    website: string;
+    analysisDate: string;
+    overallScore: number;
+    subScores?: {
+      website?: number;
+      seo?: number;
+      reputation?: number;
+      leadGen?: number;
+      services?: number;
+      costEfficiency?: number;
+    };
+  };
+  executiveSummary: {
+    strengths: string[];
+    weaknesses: string[];
+    biggestOpportunity: string;
+    quickWins: QuickWin[];
+  };
+}
+
 const analysisStages = [
   { label: "Initialization", duration: 2, progress: 5, message: "Connecting to your website..." },
   { label: "Website Crawl", duration: 15, progress: 15, message: "Scanning website structure..." },
@@ -82,32 +114,59 @@ const domainSuggestions: Record<string, string> = {
   "yaho.com": "yahoo.com",
 };
 
-const strengths = [
-  "Strong SEO momentum (87/100)",
-  "Great reputation score (4.7★)",
-  "Solid client retention signals",
-];
-
-const weaknesses = [
-  "Limited lead gen diversity (3/10)",
-  "High cost structure vs. peers",
-  "Missing key directory coverage",
-];
-
-const quickActions = [
-  {
-    title: "Claim Clutch profile",
-    detail: "2hrs, $0, 25-40 leads/yr",
+const fallbackReport: BusinessGrowthReport = {
+  reportMetadata: {
+    reportId: "BB-DEMO-0001",
+    companyName: "Demo Agency",
+    website: "https://example.com",
+    analysisDate: new Date().toISOString(),
+    overallScore: 73,
+    subScores: {
+      website: 76,
+      seo: 71,
+      reputation: 68,
+      leadGen: 64,
+      services: 72,
+      costEfficiency: 61,
+    },
   },
-  {
-    title: "Hire remote SDR in TX vs NYC",
-    detail: "Save ~$35K/year",
+  executiveSummary: {
+    strengths: [
+      "Strong SEO momentum (87/100)",
+      "Great reputation score (4.7★)",
+      "Solid client retention signals",
+    ],
+    weaknesses: [
+      "Limited lead gen diversity (3/10)",
+      "High cost structure vs. peers",
+      "Missing key directory coverage",
+    ],
+    biggestOpportunity: "Claim Clutch & DesignRush listings to unlock ~$42K ARR within 90 days.",
+    quickWins: [
+      {
+        title: "Claim and optimize Clutch profile with 5 proof points",
+        impact: "+$30K ARR",
+        time: "2 weeks",
+        cost: "$0",
+        details: "Set up category tags, upload 3 portfolio pieces, and request 5 client reviews to improve lead flow.",
+      },
+      {
+        title: "Launch ROI calculator lead magnet",
+        impact: "3x lead conversion",
+        time: "3 weeks",
+        cost: "$500",
+        details: "Use a simple form-based calculator for paid media ROI with automated email follow-up.",
+      },
+      {
+        title: "Reply to recent Google reviews and add schema",
+        impact: "+8% conversion",
+        time: "1 week",
+        cost: "$0",
+        details: "Respond to last 10 reviews, add FAQ + review schema, and push testimonials to key landing pages.",
+      },
+    ],
   },
-  {
-    title: "Launch free ROI calculator",
-    detail: "3x lead conversion potential",
-  },
-];
+};
 
 const reportPreview = [
   { title: "SEO Deep Dive", description: "Technical fixes + ranking roadmap" },
@@ -266,6 +325,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [teaserIndex, setTeaserIndex] = useState(0);
   const [emailSuggestion, setEmailSuggestion] = useState("");
   const [leadId, setLeadId] = useState("demo-lead-123");
+  const [analysisData, setAnalysisData] = useState<BusinessGrowthReport | null>(null);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
   const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
 
@@ -336,9 +398,47 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
   const progressPercentage = useMemo(() => Math.min(100, Math.max(progress, (currentStage / (analysisStages.length - 1)) * 100)), [progress, currentStage]);
 
+  const report = analysisData || fallbackReport;
+  const summaryStrengths = report.executiveSummary.strengths;
+  const summaryWeaknesses = report.executiveSummary.weaknesses;
+  const summaryQuickWins = report.executiveSummary.quickWins;
+  const biggestOpportunity = report.executiveSummary.biggestOpportunity;
+  const analysisDate = new Date(report.reportMetadata.analysisDate).toLocaleDateString();
+
   const handleInputChange = (field: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const runAnalysis = async (websiteUrl: string) => {
+    setIsAnalyzingBackend(true);
+    setAnalysisError(null);
+    setAnalysisData(null);
+
+    try {
+      const response = await fetch("/api/ai-business-growth/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          companyName: `${formState.firstName} ${formState.lastName}`.trim() || "Marketing Agency",
+          website: websiteUrl,
+        }),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok || !payload?.analysis) {
+        throw new Error(payload?.message || "Unable to generate analysis");
+      }
+
+      setAnalysisData(payload.analysis as BusinessGrowthReport);
+    } catch (error) {
+      console.error("Business growth analysis failed", error);
+      setAnalysisError("We couldn't fetch the live analysis. Showing the playbook template instead.");
+      setAnalysisData(null);
+    } finally {
+      setIsAnalyzingBackend(false);
+    }
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -365,6 +465,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
     setIsSubmitting(false);
     setStep("analysis");
+    void runAnalysis(normalizedUrl);
   };
 
     const handleLeadChange = (field: keyof LeadFormState, value: string | boolean) => {
@@ -553,6 +654,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       <p className="text-sm text-gray-600 mt-3 flex items-center gap-2">
                         <Loader2 className="w-4 h-4 animate-spin text-primary" /> {statusMessage}
                       </p>
+                      {isAnalyzingBackend && (
+                        <p className="text-xs text-gray-500 mt-1">AI agent is generating your tailored business growth report...</p>
+                      )}
+                      {analysisError && (
+                        <p className="text-xs text-red-500 mt-1">{analysisError}</p>
+                      )}
                     </div>
 
                     <div className="space-y-3">
@@ -593,7 +700,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
                   <div className="lg:col-span-2 space-y-4">
                     <div className="flex items-center gap-4 flex-wrap">
-                      <ScoreGauge score={73} />
+                      <ScoreGauge score={report.reportMetadata.overallScore} />
                       <div className="space-y-2">
                         <p className="text-sm text-emerald-600 font-semibold">✓ Analysis Complete</p>
                         <h2 className="text-2xl font-bold">Your Business Growth Score</h2>
@@ -604,6 +711,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100">Strengths surfaced</Badge>
                           <Badge className="bg-amber-50 text-amber-700 border-amber-100">Weak spots flagged</Badge>
                         </div>
+                        <p className="text-sm text-gray-500">Report ID: {report.reportMetadata.reportId} • Generated {analysisDate}</p>
                       </div>
                     </div>
 
@@ -613,7 +721,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           <ShieldCheck className="w-4 h-4 text-emerald-500" /> Strengths
                         </p>
                         <ul className="space-y-2 text-sm text-gray-700">
-                          {strengths.map((item) => (
+                          {summaryStrengths.map((item) => (
                             <li key={item} className="flex items-center gap-2">
                               <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                               {item}
@@ -626,7 +734,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           <Target className="w-4 h-4 text-amber-500" /> Weaknesses
                         </p>
                         <ul className="space-y-2 text-sm text-gray-700">
-                          {weaknesses.map((item) => (
+                          {summaryWeaknesses.map((item) => (
                             <li key={item} className="flex items-center gap-2">
                               <ArrowRight className="w-4 h-4 text-amber-500" />
                               {item}
@@ -638,20 +746,22 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                     <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
                       <p className="text-sm font-semibold text-amber-700">��� Biggest Opportunity</p>
-                      <h3 className="text-xl font-bold text-gray-900 mt-1">Add Clutch/DesignRush = +$42K ARR</h3>
-                      <p className="text-sm text-gray-700 mt-1">Simple profile claim to unlock new high-intent leads.</p>
+                      <h3 className="text-xl font-bold text-gray-900 mt-1">{biggestOpportunity}</h3>
+                      <p className="text-sm text-gray-700 mt-1">Pulled directly from the AI business growth agent.</p>
                     </div>
 
                     <div className="space-y-3">
                       <p className="text-base font-semibold text-gray-900">Top 3 Immediate Actions</p>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {quickActions.map((action, idx) => (
+                        {summaryQuickWins.map((action, idx) => (
                           <div key={action.title} className="p-4 rounded-xl bg-white border shadow-sm space-y-2">
                             <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold flex items-center justify-center">
                               {idx + 1}
                             </div>
                             <p className="font-semibold text-gray-900">{action.title}</p>
-                            <p className="text-sm text-gray-600">{action.detail}</p>
+                            <p className="text-sm text-gray-600">{action.details}</p>
+                            <div className="text-xs text-gray-500">Impact: {action.impact}</div>
+                            <div className="text-xs text-gray-500">Time: {action.time} • Cost: {action.cost}</div>
                           </div>
                         ))}
                       </div>
