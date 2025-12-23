@@ -1847,11 +1847,11 @@ export default function Home() {
               <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
 
                 {/* PRICING */}
-                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
+                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
-                  </span>Starting at $1,199 per resource / month
-                  $1,199 a /month <span className="text-lg sm:text-xl lg:text-2xl text-white">Resource</span>
+                  </span>$1,199 per
+                  <span className="text-lg sm:text-xl lg:text-2xl text-white"> resource / month</span>
                 </div>
 
                 <p className="mb-1 font-medium">
