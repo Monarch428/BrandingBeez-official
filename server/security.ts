@@ -101,7 +101,6 @@ export function securityHeaders() {
           "https://*.licdn.com"
         ],
 
-        /* ✅ ADD THIS BLOCK (CRITICAL FIX) */
         imgSrc: [
           "'self'",
           "data:",
@@ -111,7 +110,7 @@ export function securityHeaders() {
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
 
-          // ✅ Google (FIX for /pagead/1p-user-list)
+          // Google
           "https://www.google.com",
           "https://www.google.co.in",
           "https://*.google.com",
@@ -176,13 +175,14 @@ export function securityHeaders() {
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // Clarity
+          // Microsoft Clarity (✅ COMPLETE FIX)
           "https://www.clarity.ms",
           "https://c.clarity.ms",
           "https://k.clarity.ms",
           "https://o.clarity.ms",
           "https://s.clarity.ms",
           "https://q.clarity.ms",
+          "https://y.clarity.ms",
 
           // Calendly
           "https://calendly.com",
