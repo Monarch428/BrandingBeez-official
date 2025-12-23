@@ -1328,6 +1328,173 @@ export interface BusinessGrowthReport {
       recommendation: string;
     };
   };
+  costOptimization: {
+    estimatedCostStructure: {
+      category: string;
+      monthly: string;
+      annual: string;
+      percentOfTotal: string;
+    }[];
+    revenueEstimate: {
+      estimatedRange: string;
+      revenuePerEmployee: string;
+      industryBenchmark: string;
+      gapAnalysis: string;
+    };
+    costSavingOpportunities: {
+      opportunity: string;
+      currentCost: string;
+      potentialSavings: string;
+      implementationDifficulty: string;
+      details: string;
+    }[];
+    pricingAnalysis: {
+      positioning: string;
+      serviceComparisons: {
+        service: string;
+        yourPrice: string;
+        marketRange: string;
+        positioning: string;
+        recommendation: string;
+      }[];
+      overallRecommendation: string;
+      premiumTierOpportunity: string;
+      packagingOptimization: string;
+    };
+  };
+  targetMarket: {
+    currentClientProfile: {
+      geographicMix: {
+        us: string;
+        uk: string;
+        other: string;
+      };
+      clientSize: {
+        small: string;
+        medium: string;
+        large: string;
+      };
+      industries: {
+        industry: string;
+        concentration: string;
+      }[];
+    };
+    geographicExpansion: {
+      currentStrongPresence: string[];
+      underpenetratedMarkets: {
+        region: string;
+        reason: string;
+        estimatedOpportunity: string;
+        entryPlan: string;
+      }[];
+    };
+    idealClientProfile: {
+      industry: string;
+      companySize: string;
+      revenueRange: string;
+      budget: string;
+      painPoints: string[];
+      decisionMakers: string[];
+      whereToFind: string[];
+    };
+  };
+  financialImpact: {
+    revenueOpportunities: {
+      opportunity: string;
+      monthlyImpact: string;
+      annualImpact: string;
+      confidence: string;
+      effort: string;
+    }[];
+    costSavings: {
+      initiative: string;
+      annualSavings: string;
+      implementationCost: string;
+      netSavings: string;
+    }[];
+    netImpact: {
+      revenueGrowth: string;
+      costSavings: string;
+      totalImpact: string;
+      investmentNeeded: string;
+      expectedReturn: string;
+      roi: string;
+    };
+    scenarios: {
+      scenario: string;
+      implementationLevel: string;
+      impact: string;
+    }[];
+  };
+  actionPlan90Days: {
+    phase: string;
+    weeks: {
+      week: string;
+      tasks: string[];
+    }[];
+    expectedImpact: {
+      metric: string;
+      improvement: string;
+    }[];
+  }[];
+  competitiveAdvantages: {
+    hiddenStrengths: {
+      strength: string;
+      evidence: string;
+      whyItMatters: string;
+      howToLeverage: string;
+    }[];
+    prerequisites: string[];
+  };
+  riskAssessment: {
+    risks: {
+      name: string;
+      priority: string;
+      description: string;
+      impact: string;
+      likelihood: string;
+      mitigation: string[];
+      timeline: string;
+    }[];
+  };
+  appendices: {
+    keywords: {
+      tier: string;
+      keywords: {
+        keyword: string;
+        monthlySearches: string;
+        difficulty: string;
+        intent: string;
+        currentRank: string;
+      }[];
+    }[];
+    reviewTemplates: {
+      name: string;
+      subject: string;
+      body: string;
+    }[];
+    caseStudyTemplate: {
+      title: string;
+      industry: string;
+      services: string;
+      duration: string;
+      budget: string;
+      challenge: string;
+      solution: string;
+      results: string[];
+      clientQuote: string;
+      cta: string;
+    };
+    finalRecommendations: {
+      topActions: {
+        action: string;
+        impact: string;
+        effort: string;
+        rationale: string;
+      }[];
+      nextSteps: string[];
+    };
+  };
 }
 
 function buildBusinessGrowthFallback(input: { companyName: string; website: string; industry?: string; }): BusinessGrowthReport {
@@ -1565,6 +1732,328 @@ function buildBusinessGrowthFallback(input: { companyName: string; website: stri
         recommendation: "Narrow ICP, add proof assets, and dominate 2-3 directories for quick lift.",
       },
     },
+    costOptimization: {
+      estimatedCostStructure: [
+        { category: "Payroll", monthly: "$120K", annual: "$1.44M", percentOfTotal: "48%" },
+        { category: "Office/Overhead", monthly: "$24K", annual: "$288K", percentOfTotal: "10%" },
+        { category: "Tools/Software", monthly: "$18K", annual: "$216K", percentOfTotal: "7%" },
+        { category: "Marketing", monthly: "$40K", annual: "$480K", percentOfTotal: "16%" },
+        { category: "Other", monthly: "$48K", annual: "$576K", percentOfTotal: "19%" },
+      ],
+      revenueEstimate: {
+        estimatedRange: "$4.2M-$5.1M", // based on team size 24, $14-18K avg MRR
+        revenuePerEmployee: "$175K-$210K",
+        industryBenchmark: "$150K-$200K",
+        gapAnalysis: "On par with benchmarks; upside by lifting utilization and pricing on top 3 services.",
+      },
+      costSavingOpportunities: [
+        {
+          opportunity: "Consolidate SEO/PPC tooling",
+          currentCost: "$7.2K/mo",
+          potentialSavings: "$2.5K/mo",
+          implementationDifficulty: "Medium",
+          details: "Switch to bundled suite, remove duplicate rank trackers, and standardize reporting stack.",
+        },
+        {
+          opportunity: "Automate monthly reporting",
+          currentCost: "$6K/mo in hours",
+          potentialSavings: "$3.5K/mo",
+          implementationDifficulty: "Low",
+          details: "Use templates + API pulls for Google Ads/GA4, cutting 40-50 analyst hours monthly.",
+        },
+        {
+          opportunity: "Nearshore/offshore production",
+          currentCost: "$32K/mo",
+          potentialSavings: "$9-11K/mo",
+          implementationDifficulty: "Medium",
+          details: "Shift link-building and design support to vetted LATAM/APAC partners with QA checkpoints.",
+        },
+        {
+          opportunity: "Negotiate vendor contracts",
+          currentCost: "$12K/mo",
+          potentialSavings: "$2-3K/mo",
+          implementationDifficulty: "Low",
+          details: "Annualize core licenses and request multi-seat discounts tied to case study swaps.",
+        },
+        {
+          opportunity: "Standardize onboarding sprints",
+          currentCost: "$5K/mo in overruns",
+          potentialSavings: "$2K/mo",
+          implementationDifficulty: "Low",
+          details: "Fixed-scope 30-day onboarding with SOPs to reduce rework and engineer time.",
+        },
+      ],
+      pricingAnalysis: {
+        positioning: "Mid-market with premium proof gaps",
+        serviceComparisons: [
+          {
+            service: "SEO Growth Sprints",
+            yourPrice: "$2.5K/mo",
+            marketRange: "$2K-$4K",
+            positioning: "Mid",
+            recommendation: "Test $2.8K-$3.2K with added proof bar + quarterly roadmap review.",
+          },
+          {
+            service: "PPC Management",
+            yourPrice: "$1.8K/mo",
+            marketRange: "$1.5K-$3.5K",
+            positioning: "Value",
+            recommendation: "Add performance guardrails and move to $2.2K for B2B/SaaS accounts.",
+          },
+        ],
+        overallRecommendation: "Introduce tiered packaging with proof-led upsells to lift ARPA 8-12%.",
+        premiumTierOpportunity: "Launch 'Performance Plus' with CRO audit + quarterly experiments at +20% pricing.",
+        packagingOptimization: "Bundle SEO + CRO + reporting automation; add onboarding fee to protect margins.",
+      },
+    },
+    targetMarket: {
+      currentClientProfile: {
+        geographicMix: { us: "68%", uk: "12%", other: "20%" },
+        clientSize: { small: "46%", medium: "38%", large: "16%" },
+        industries: [
+          { industry: "Local services", concentration: "High (~40%)" },
+          { industry: "Ecommerce", concentration: "Moderate" },
+          { industry: "B2B SaaS", concentration: "Emerging" },
+        ],
+      },
+      geographicExpansion: {
+        currentStrongPresence: ["NYC", "Austin", "Chicago"],
+        underpenetratedMarkets: [
+          { region: "SF Bay Area", reason: "High-tech density + budgets", estimatedOpportunity: "$600K-$800K ARR", entryPlan: "Target SaaS directories + founder podcasts" },
+          { region: "Toronto", reason: "Growing SaaS/healthtech scene", estimatedOpportunity: "$300K-$450K ARR", entryPlan: "Partnerships with local incubators + Clutch reviews" },
+        ],
+      },
+      idealClientProfile: {
+        industry: "B2B SaaS / regulated healthcare",
+        companySize: "25-150 employees",
+        revenueRange: "$5M-$40M",
+        budget: "$6K-$12K/mo",
+        painPoints: ["Need predictable pipeline", "Slow in-house execution", "Proof gaps in paid/SEO"],
+        decisionMakers: ["VP Marketing", "Head of Demand Gen", "Founder"],
+        whereToFind: ["LinkedIn groups", "SaaS podcasts", "Clutch", "Category-specific newsletters"],
+      },
+    },
+    financialImpact: {
+      revenueOpportunities: [
+        {
+          opportunity: "Clutch + directory optimization",
+          monthlyImpact: "$35K-$45K",
+          annualImpact: "$420K-$540K",
+          confidence: "High",
+          effort: "Low",
+        },
+        {
+          opportunity: "Pricing uplift on top 20% accounts",
+          monthlyImpact: "$22K-$30K",
+          annualImpact: "$264K-$360K",
+          confidence: "Medium",
+          effort: "Medium",
+        },
+        {
+          opportunity: "Conversion lift via CRO quick wins",
+          monthlyImpact: "$18K-$24K",
+          annualImpact: "$216K-$288K",
+          confidence: "Medium",
+          effort: "Low",
+        },
+      ],
+      costSavings: [
+        { initiative: "Tool consolidation", annualSavings: "$30K", implementationCost: "$5K", netSavings: "$25K" },
+        { initiative: "Automation of reporting", annualSavings: "$42K", implementationCost: "$8K", netSavings: "$34K" },
+        { initiative: "Vendor negotiations", annualSavings: "$24K-$36K", implementationCost: "$0", netSavings: "$24K-$36K" },
+      ],
+      netImpact: {
+        revenueGrowth: "+$900K-$1.2M",
+        costSavings: "+$80K-$95K",
+        totalImpact: "+$980K-$1.3M/year",
+        investmentNeeded: "$60K-$90K",
+        expectedReturn: "$980K-$1.3M",
+        roi: "11-16x",
+      },
+      scenarios: [
+        { scenario: "Conservative (30%)", implementationLevel: "Implement 30%", impact: "$290K-$380K" },
+        { scenario: "Moderate (60%)", implementationLevel: "Implement 60%", impact: "$620K-$820K" },
+        { scenario: "Aggressive (90%)", implementationLevel: "Implement 90%", impact: "$1.0M-$1.3M" },
+      ],
+    },
+    actionPlan90Days: [
+      {
+        phase: "Quick Wins (Days 1-30)",
+        weeks: [
+          { week: "Week 1", tasks: ["Claim/optimize Clutch", "Implement CRO proof bar", "Set up review replies"] },
+          { week: "Week 2", tasks: ["Launch ROI calculator", "Retargeting + LinkedIn lead form", "Publish FAQ schema"] },
+          { week: "Week 3", tasks: ["Tool consolidation audit", "Negotiate top 3 vendors", "Add onboarding SOPs"] },
+          { week: "Week 4", tasks: ["Ship 2 industry landing pages", "Add review/request automation", "Finalize pricing tests"] },
+        ],
+        expectedImpact: [
+          { metric: "MRR", improvement: "+$40K-$60K run-rate" },
+          { metric: "Lead volume", improvement: "+12-18/mo" },
+        ],
+      },
+      {
+        phase: "Foundation Building (Days 31-60)",
+        weeks: [
+          { week: "Week 5", tasks: ["Roll out reporting automation", "QA nearshore vendors", "Publish case study template"] },
+          { week: "Week 6", tasks: ["Scale directory reviews", "Test pricing uplifts", "Launch 1 webinar"] },
+          { week: "Week 7", tasks: ["Add CRO experiments", "Publish comparison content", "Improve onboarding training"] },
+          { week: "Week 8", tasks: ["Finalize premium tier", "Automate intake forms", "SEO internal linking sprint"] },
+        ],
+        expectedImpact: [
+          { metric: "Gross margin", improvement: "+4-6 pts" },
+          { metric: "Win rate", improvement: "+5-8%" },
+        ],
+      },
+      {
+        phase: "Scaling Systems (Days 61-90)",
+        weeks: [
+          { week: "Week 9", tasks: ["Roll pricing to all ICP accounts", "Add quarterly QBR cadence", "Publish 3 proof assets"] },
+          { week: "Week 10", tasks: ["Expand to Toronto/SF pilots", "Launch partner co-marketing", "Add call tracking QA"] },
+          { week: "Week 11", tasks: ["Optimize lead scoring", "Automate nurture sequences", "Benchmark ops KPIs"] },
+          { week: "Week 12", tasks: ["Review ROI vs plan", "Plan next 90-day experiments", "Lock in vendor discounts"] },
+        ],
+        expectedImpact: [
+          { metric: "ARPA", improvement: "+8-12%" },
+          { metric: "Churn", improvement: "-1-2 pts" },
+        ],
+      },
+    ],
+    competitiveAdvantages: {
+      hiddenStrengths: [
+        {
+          strength: "Automation capability",
+          evidence: "Existing ROI calculator + internal scripts",
+          whyItMatters: "Reduces delivery hours and improves margins",
+          howToLeverage: "Productize automation layer in premium tier",
+        },
+        {
+          strength: "Fast onboarding",
+          evidence: "14-day sprint structure",
+          whyItMatters: "Shortens time-to-value vs. competitors",
+          howToLeverage: "Market the 30-day launch guarantee with case metrics",
+        },
+        {
+          strength: "Proof assets in local services",
+          evidence: "High review counts + local wins",
+          whyItMatters: "Trust driver for SMB + healthcare",
+          howToLeverage: "Promote review velocity and niche case studies on landing pages",
+        },
+      ],
+      prerequisites: [
+        "Document onboarding SLA (<7 days to kickoff)",
+        "Set review response SLA (<48 hours)",
+        "Implement QA checklist for offshore tasks",
+      ],
+    },
+    riskAssessment: {
+      risks: [
+        {
+          name: "Review gap on Clutch",
+          priority: "High",
+          description: "Low proof on key discovery platform",
+          impact: "Missed high-intent leads",
+          likelihood: "High",
+          mitigation: ["Request 5 reviews", "Feature badges on site", "Add Q&A"],
+          timeline: "0-30 days",
+        },
+        {
+          name: "Single-channel lead dependency",
+          priority: "Medium",
+          description: "Organic drives majority of pipeline",
+          impact: "Volatility if rankings dip",
+          likelihood: "Medium",
+          mitigation: ["Build paid retargeting", "Launch webinars", "Directory optimization"],
+          timeline: "0-60 days",
+        },
+        {
+          name: "Margin compression",
+          priority: "High",
+          description: "Rising tool and payroll costs",
+          impact: "Reduced profitability",
+          likelihood: "High",
+          mitigation: ["Consolidate tools", "Nearshore shift", "Pricing uplift"],
+          timeline: "30-90 days",
+        },
+        {
+          name: "Proof gap in enterprise",
+          priority: "Medium",
+          description: "Limited enterprise case studies",
+          impact: "Slower upmarket wins",
+          likelihood: "Medium",
+          mitigation: ["Publish 2 enterprise-style case studies", "Collect video testimonials", "Add compliance FAQ"],
+          timeline: "30-75 days",
+        },
+      ],
+    },
+    appendices: {
+      keywords: [
+        {
+          tier: "Tier 1: High Priority",
+          keywords: [
+            { keyword: "b2b saas seo agency", monthlySearches: "700", difficulty: "38", intent: "Commercial", currentRank: "N/A" },
+            { keyword: "healthcare ppc agency", monthlySearches: "450", difficulty: "32", intent: "Transactional", currentRank: "N/A" },
+          ],
+        },
+        {
+          tier: "Tier 2: Medium Priority",
+          keywords: [
+            { keyword: "local service seo sprints", monthlySearches: "250", difficulty: "28", intent: "Commercial", currentRank: "18" },
+            { keyword: "b2b content refresh", monthlySearches: "320", difficulty: "30", intent: "Informational", currentRank: "22" },
+          ],
+        },
+        {
+          tier: "Tier 3: Quick Wins",
+          keywords: [
+            { keyword: "clutch review template", monthlySearches: "150", difficulty: "18", intent: "Informational", currentRank: "-" },
+            { keyword: "seo onboarding checklist", monthlySearches: "210", difficulty: "21", intent: "Informational", currentRank: "14" },
+          ],
+        },
+      ],
+      reviewTemplates: [
+        {
+          name: "Initial Request",
+          subject: "Quick favor? 60 seconds to share your experience",
+          body: "Hi [Name], thanks for partnering with us on [project]. Could you share a quick review here [link]? It takes under a minute and helps us continue supporting you."
+            + " We'll gladly feature your logo/case study if helpful. - [Signature]",
+        },
+        {
+          name: "Follow-Up",
+          subject: "Bumping this — your feedback helps a ton",
+          body: "Hi [Name], just checking if you could drop a short review here [link]. Happy to draft bullet points you can paste. Appreciate you!",
+        },
+        {
+          name: "Video Testimonial Request",
+          subject: "Would you record a 60-second testimonial?",
+          body: "Hi [Name], we’re compiling quick video testimonials. A 60-second Loom on results achieved (traffic, CPL, ROAS) would be amazing. We’ll send prompts + handle editing. Interested?",
+        },
+      ],
+      caseStudyTemplate: {
+        title: "How [Client Name] Achieved [Result] in [Timeframe]",
+        industry: "[Industry]",
+        services: "[Services]",
+        duration: "[Timeframe]",
+        budget: "[Budget]",
+        challenge: "Summarize 2-3 pain points and starting metrics.",
+        solution: "List key tactics, timelines, and owners.",
+        results: ["Metric 1", "Metric 2", "Metric 3"],
+        clientQuote: "\"[Quote]\"",
+        cta: "Want similar results? Book a strategy call.",
+      },
+      finalRecommendations: {
+        topActions: [
+          { action: "Claim Clutch + gather 5 reviews", impact: "$30K-$50K ARR", effort: "Low", rationale: "High-intent leads + social proof" },
+          { action: "Launch ROI calculator + nurture", impact: "+3-5 SQLs/mo", effort: "Medium", rationale: "Captures mid-funnel demand" },
+          { action: "Pricing uplift on ICP accounts", impact: "+8-12% ARPA", effort: "Medium", rationale: "Aligns value with outcomes" },
+          { action: "Automate reporting + consolidate tools", impact: "$60K-$70K annual savings", effort: "Low", rationale: "Protects margins" },
+          { action: "Nearshore production for delivery", impact: "-8-12% COGS", effort: "Medium", rationale: "Scalable capacity with QA" },
+        ],
+        nextSteps: [
+          "Schedule vendor consolidation workshop",
+          "Assign review owner + targets",
+          "Pilot pricing uplift on 5 accounts",
+          "Stand up ROI calculator + email sequences",
+        ],
+      },
+    },
   };
 }
 
@@ -1640,6 +2129,58 @@ Use the exact JSON shape below. Keep values concise but specific. Ensure bullet 
     "competitors": [{"name": "", "location": "", "teamSize": "", "yearsInBusiness": "", "services": [], "strengthsVsYou": [], "yourAdvantages": [], "marketOverlap": ""}],
     "competitiveMatrix": [{"factor": "", "you": "", "compA": "", "compB": "", "compC": "", "winner": ""}],
     "positioningGap": {"pricePositioning": "", "qualityPositioning": "", "visibility": "", "differentiation": "", "recommendation": ""}
+  },
+  "costOptimization": {
+    "estimatedCostStructure": [{"category": "", "monthly": "", "annual": "", "percentOfTotal": ""}],
+    "revenueEstimate": {"estimatedRange": "", "revenuePerEmployee": "", "industryBenchmark": "", "gapAnalysis": ""},
+    "costSavingOpportunities": [{"opportunity": "", "currentCost": "", "potentialSavings": "", "implementationDifficulty": "", "details": ""}],
+    "pricingAnalysis": {
+      "positioning": "",
+      "serviceComparisons": [{"service": "", "yourPrice": "", "marketRange": "", "positioning": "", "recommendation": ""}],
+      "overallRecommendation": "",
+      "premiumTierOpportunity": "",
+      "packagingOptimization": ""
+    }
+  },
+  "targetMarket": {
+    "currentClientProfile": {
+      "geographicMix": {"us": "", "uk": "", "other": ""},
+      "clientSize": {"small": "", "medium": "", "large": ""},
+      "industries": [{"industry": "", "concentration": ""}]
+    },
+    "geographicExpansion": {
+      "currentStrongPresence": [],
+      "underpenetratedMarkets": [{"region": "", "reason": "", "estimatedOpportunity": "", "entryPlan": ""}]
+    },
+    "idealClientProfile": {
+      "industry": "",
+      "companySize": "",
+      "revenueRange": "",
+      "budget": "",
+      "painPoints": [],
+      "decisionMakers": [],
+      "whereToFind": []
+    }
+  },
+  "financialImpact": {
+    "revenueOpportunities": [{"opportunity": "", "monthlyImpact": "", "annualImpact": "", "confidence": "", "effort": ""}],
+    "costSavings": [{"initiative": "", "annualSavings": "", "implementationCost": "", "netSavings": ""}],
+    "netImpact": {"revenueGrowth": "", "costSavings": "", "totalImpact": "", "investmentNeeded": "", "expectedReturn": "", "roi": ""},
+    "scenarios": [{"scenario": "", "implementationLevel": "", "impact": ""}]
+  },
+  "actionPlan90Days": [{"phase": "", "weeks": [{"week": "", "tasks": []}], "expectedImpact": [{"metric": "", "improvement": ""}]}],
+  "competitiveAdvantages": {
+    "hiddenStrengths": [{"strength": "", "evidence": "", "whyItMatters": "", "howToLeverage": ""}],
+    "prerequisites": []
+  },
+  "riskAssessment": {
+    "risks": [{"name": "", "priority": "", "description": "", "impact": "", "likelihood": "", "mitigation": [], "timeline": ""}]
+  },
+  "appendices": {
+    "keywords": [{"tier": "", "keywords": [{"keyword": "", "monthlySearches": "", "difficulty": "", "intent": "", "currentRank": ""}]}],
+    "reviewTemplates": [{"name": "", "subject": "", "body": ""}],
+    "caseStudyTemplate": {"title": "", "industry": "", "services": "", "duration": "", "budget": "", "challenge": "", "solution": "", "results": [], "clientQuote": "", "cta": ""},
+    "finalRecommendations": {"topActions": [{"action": "", "impact": "", "effort": "", "rationale": ""}], "nextSteps": []}
   }
 }
 
