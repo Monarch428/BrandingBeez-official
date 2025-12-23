@@ -1849,9 +1849,9 @@ export default function Home() {
                 {/* PRICING */}
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
-                    Starting @{" "}
-                  </span>
-                  1,199$ a /month <span className="text-lg sm:text-xl lg:text-2xl text-white">Resource</span>
+                    Starting at{" "}
+                  </span>Starting at $1,199 per resource / month
+                  $1,199 a /month <span className="text-lg sm:text-xl lg:text-2xl text-white">Resource</span>
                 </div>
 
                 <p className="mb-1 font-medium">

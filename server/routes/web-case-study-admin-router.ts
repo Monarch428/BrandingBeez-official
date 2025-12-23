@@ -2,8 +2,14 @@ import express, { Request, Response, RequestHandler } from "express";
 import { z } from "zod";
 import { storage } from "../storage";
 import { upload } from "../middleware/cloudinaryUpload";
-import { insertWebCaseStudyCardSchema, insertWebCaseStudyDetailSchema } from "@shared/schema";
-import { WebCaseStudyDetailModel } from "server/models";
+import {
+    insertWebCaseStudyCardSchema,
+    insertWebCaseStudyDetailSchema,
+    reorderWebCaseStudiesSchema,
+} from "@shared/schema";
+import { WebCaseStudyCardModel, WebCaseStudyDetailModel } from "server/models";
+import mongoose from "mongoose";
+
 
 export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
     const router = express.Router();
@@ -68,7 +74,8 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
             const created = await storage.createWebCaseStudyCard(validated as any);
             res.json(created);
         } catch (error) {
-            if (error instanceof z.ZodError) return res.status(400).json({ message: "Validation error", errors: error.errors });
+            if (error instanceof z.ZodError)
+                return res.status(400).json({ message: "Validation error", errors: error.errors });
             console.error("Failed to create Website case study card:", error);
             res.status(500).json({ message: "Failed to create Website case study card" });
         }
@@ -81,21 +88,19 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
             const updated = await storage.updateWebCaseStudyCardBySlug(slug, validated as any);
             res.json(updated);
         } catch (error) {
-            if (error instanceof z.ZodError) return res.status(400).json({ message: "Validation error", errors: error.errors });
+            if (error instanceof z.ZodError)
+                return res.status(400).json({ message: "Validation error", errors: error.errors });
             console.error("Failed to update Website case study card:", error);
             res.status(500).json({ message: "Failed to update Website case study card" });
         }
     });
 
-    // edit detail by detailId (same style as your PPC router)
     router.post(
         "/web-case-study/upload-showcase-image",
         authenticateAdmin,
         (req, res, next) => {
             upload.single("image")(req as any, res as any, (err: any) => {
-                if (err) {
-                    return res.status(400).json({ message: err.message });
-                }
+                if (err) return res.status(400).json({ message: err.message });
                 next();
             });
         },
@@ -105,8 +110,8 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
                 if (!file) return res.status(400).json({ message: "No image uploaded" });
 
                 return res.json({
-                    imageUrl: file.path,        // Cloudinary URL
-                    publicId: file.filename,    // Cloudinary public_id
+                    imageUrl: file.path,
+                    publicId: file.filename,
                     originalName: file.originalname,
                 });
             } catch (e) {
@@ -141,7 +146,8 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
             const upserted = await storage.upsertWebCaseStudyDetail(validated as any);
             res.json(upserted);
         } catch (error) {
-            if (error instanceof z.ZodError) return res.status(400).json({ message: "Validation error", errors: error.errors });
+            if (error instanceof z.ZodError)
+                return res.status(400).json({ message: "Validation error", errors: error.errors });
             console.error("Failed to upsert Website case study detail:", error);
             res.status(500).json({ message: "Failed to save Website case study detail" });
         }
@@ -158,5 +164,27 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
         }
     });
 
+    router.patch("/web-case-studies/reorder", authenticateAdmin, async (req, res) => {
+        try {
+            const validated = reorderWebCaseStudiesSchema.parse(req.body);
+
+            const ops = validated.items.map((it) => ({
+                updateOne: {
+                    filter: { _id: new mongoose.Types.ObjectId(it.id) },
+                    update: { $set: { order: it.order } },
+                },
+            }));
+
+            await WebCaseStudyCardModel.bulkWrite(ops, { ordered: false });
+
+            return res.json({ success: true });
+        } catch (error: any) {
+            if (error instanceof z.ZodError) {
+                return res.status(400).json({ message: "Validation error", errors: error.errors });
+            }
+            console.error("Failed to reorder web case studies:", error);
+            return res.status(500).json({ message: "Failed to reorder web case studies" });
+        }
+    });
     return router;
 }

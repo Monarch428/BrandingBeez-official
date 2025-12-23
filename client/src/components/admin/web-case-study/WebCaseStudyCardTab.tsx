@@ -295,7 +295,7 @@ export type WebCaseStudyCardTabValues = {
   results?: {
     performance?: string;
     conversions?: string;
-    users?: string;
+    users?: string | null;
   };
 
   imageUrl?: string;
@@ -305,6 +305,9 @@ export type WebCaseStudyCardTabValues = {
   imagePublicId?: string;
 
   link?: string;
+
+  /** ✅ NEW */
+  order?: number;
 };
 
 export function WebCaseStudyCardTab({
@@ -333,6 +336,30 @@ export function WebCaseStudyCardTab({
         <div className="text-xs text-gray-500">This section controls what shows in the Website case studies grid.</div>
       </div>
 
+      {/* ✅ NEW: Order */}
+      <div>
+        <ReqLabel>Order</ReqLabel>
+        <Input
+          data-field="order"
+          type="number"
+          min={0}
+          step={1}
+          className={errClass("order")}
+          value={Number.isFinite(form.order as any) ? String(form.order) : "0"}
+          onChange={(e) => {
+            const raw = e.target.value;
+            const n = raw === "" ? 0 : Number(raw);
+            onChange("order", Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0);
+          }}
+          placeholder="0"
+          required
+        />
+        <div className="text-[11px] text-gray-500 mt-1">
+          Lower number shows first (0 = top). If same order, latest created shows first.
+        </div>
+        {errText("order")}
+      </div>
+
       <div>
         <ReqLabel>Client</ReqLabel>
         <Input data-field="client" className={errClass("client")} value={form.client || ""} onChange={(e) => onChange("client", e.target.value)} placeholder="SocialLand Digital" required />
@@ -340,12 +367,6 @@ export function WebCaseStudyCardTab({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <ReqLabel>Industry</ReqLabel>
-          <Input data-field="industry" className={errClass("industry")} value={form.industry || ""} onChange={(e) => onChange("industry", e.target.value)} placeholder="Digital Marketing Agency" required />
-          {errText("industry")}
-        </div>
-
         <div>
           <ReqLabel>Short Description</ReqLabel>
           <Input data-field="description" className={errClass("description")} value={form.description || ""} onChange={(e) => onChange("description", e.target.value)} placeholder="Short summary shown on the Web grid card..." required />
@@ -359,7 +380,6 @@ export function WebCaseStudyCardTab({
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <div>
-            {/* <ReqLabel>Industry</ReqLabel> */}
             <ReqLabel>Cost</ReqLabel>
             <Input
               data-field="results.performance"
@@ -373,7 +393,6 @@ export function WebCaseStudyCardTab({
           </div>
 
           <div>
-            {/* <ReqLabel>Website Type</ReqLabel> */}
             <ReqLabel>Delivery Time</ReqLabel>
             <Input
               data-field="results.conversions"
@@ -387,17 +406,16 @@ export function WebCaseStudyCardTab({
           </div>
 
           <div>
-            {/* <ReqLabel>Delivery Type</ReqLabel> */}
-            <ReqLabel>Delivery Type</ReqLabel>
+            <ReqLabel>Industry</ReqLabel>
             <Input
-              data-field="results.users"
-              className={errClass("results.users")}
-              value={results.users || ""}
-              onChange={(e) => onChange("results", { ...results, users: e.target.value })}
-              placeholder="Dedicated resource team"
+              data-field="industry"
+              className={errClass("industry")}
+              value={form.industry || ""}
+              onChange={(e) => onChange("industry", e.target.value)}
+              placeholder="Digital Marketing Agency"
               required
             />
-            {errText("results.users")}
+            {errText("industry")}
           </div>
         </div>
       </div>

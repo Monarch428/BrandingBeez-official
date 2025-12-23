@@ -5,12 +5,12 @@ import { numericIdField } from "../../../helpers/db-helpers";
 export interface WebCaseStudyCardResults {
   performance: string;
   conversions: string;
-  users: string; 
+  users: string | null;
 }
 
 export interface WebCaseStudyCard {
   id: number;
-  slug: string; 
+  slug: string;
 
   title: string;
   client: string;
@@ -26,12 +26,13 @@ export interface WebCaseStudyCard {
   imageFit?: "cover" | "contain";
 
   link?: string;
-
+  order: number;
+  
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface WebCaseStudyCardDocument extends Document, WebCaseStudyCard {}
+export interface WebCaseStudyCardDocument extends Document, WebCaseStudyCard { }
 
 const resultsSchema = new Schema<WebCaseStudyCardResults>(
   {
@@ -59,6 +60,8 @@ const webCaseStudyCardSchema = new Schema<WebCaseStudyCardDocument>(
     imageFit: { type: String, enum: ["cover", "contain"], default: "cover" },
 
     link: String,
+
+    order: { type: Number, required: true, default: 0 },
   },
   {
     collection: "web_case_study_cards",

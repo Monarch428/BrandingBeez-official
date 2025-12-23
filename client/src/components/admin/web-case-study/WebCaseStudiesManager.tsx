@@ -917,7 +917,7 @@
 
 
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -927,6 +927,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAppToast } from "@/components/ui/toaster";
+import { GripVertical } from "lucide-react";
 
 import { WebCaseStudyCardTab } from "./WebCaseStudyCardTab";
 import {
@@ -967,12 +968,12 @@ function ReqLabel({ children }: { children: React.ReactNode }) {
 export type WebCaseStudyCardResults = {
   performance: string;
   conversions: string;
-  users: string;
+  users: string | null;
 };
 
 export type WebCaseStudyCard = {
-  _id: string; // Mongo id (FK for detail)
-  id: number; // numeric sequence (if you keep it)
+  _id: string;
+  id: number;
   slug: string;
 
   title: string;
@@ -981,19 +982,18 @@ export type WebCaseStudyCard = {
 
   description: string;
 
-  // ✅ matches your current UI (results.performance / conversions / users)
   results: WebCaseStudyCardResults;
 
-  // ✅ image shown on card
   imageUrl?: string;
   imageAlt?: string;
   imageFit?: "contain" | "cover";
 
-  // optional
   imagePublicId?: string;
 
-  // optional (FE can build from slug too)
   link?: string;
+
+  /** ✅ NEW */
+  order: number;
 
   createdAt: string;
   updatedAt: string;
@@ -1084,12 +1084,10 @@ const zodPathToKey = (path: Array<string | number> | undefined) => {
 const scrollToField = (fieldKey: string) => {
   if (!fieldKey) return;
 
-  // We mark inputs/selects/textarea with data-field="heroStats.0.value"
   const el = document.querySelector<HTMLElement>(`[data-field="${CSS.escape(fieldKey)}"]`);
   if (!el) return;
 
   el.scrollIntoView({ behavior: "smooth", block: "center" });
-  // focus after a tiny tick so scroll completes
   window.setTimeout(() => {
     try {
       (el as any).focus?.();
@@ -1113,6 +1111,9 @@ const emptyForm: FormState = {
   imageFit: "cover",
   imagePublicId: "",
   link: "",
+
+  /** ✅ NEW */
+  order: 0,
 
   // Detail FK
   cardId: "",
@@ -1305,6 +1306,12 @@ const validateCardForm = (form: FormState): FieldErrors => {
   if (isBlank(form.industry)) setIfBlank(errs, "industry");
   if (isBlank(form.description)) setIfBlank(errs, "description");
 
+  // ✅ order required and must be >= 0
+  const ord = Number((form as any).order);
+  if (!Number.isFinite(ord) || ord < 0) {
+    errs["order"] = "Order must be a number (0 or greater)";
+  }
+
   const r: any = form.results || {};
   if (isBlank(r.performance)) setIfBlank(errs, "results.performance");
   if (isBlank(r.conversions)) setIfBlank(errs, "results.conversions");
@@ -1316,10 +1323,8 @@ const validateCardForm = (form: FormState): FieldErrors => {
 const validateDetailForm = (form: FormState): FieldErrors => {
   const errs: FieldErrors = {};
 
-  // FK
   if (isBlank(String(form.cardId || form.cardMongoId || ""))) setIfBlank(errs, "cardId", "Please select a card");
 
-  // top-level strings
   if (isBlank(form.heroBadgeText)) setIfBlank(errs, "heroBadgeText");
   if (isBlank(form.heroTitle)) setIfBlank(errs, "heroTitle");
   if (isBlank(form.heroDescription)) setIfBlank(errs, "heroDescription");
@@ -1332,105 +1337,6 @@ const validateDetailForm = (form: FormState): FieldErrors => {
   if (isBlank(form.strategyTitle)) setIfBlank(errs, "strategyTitle");
   if (isBlank(form.featuresTitle)) setIfBlank(errs, "featuresTitle");
   if (isBlank(form.evaluationTitle)) setIfBlank(errs, "evaluationTitle");
-
-  // heroStats: require value+label for each row (backend)
-  const heroStats: any[] = Array.isArray(form.heroStats) ? form.heroStats : [];
-  heroStats.forEach((s, i) => {
-    if (isBlank(s?.value)) setIfBlank(errs, `heroStats.${i}.value`);
-    if (isBlank(s?.label)) setIfBlank(errs, `heroStats.${i}.label`);
-  });
-
-  // ctaTop body required (backend shows ctaTop.body)
-  const ctaTop: any = form.ctaTop || {};
-  if (isBlank(ctaTop?.title)) setIfBlank(errs, "ctaTop.title");
-  if (isBlank(ctaTop?.body)) setIfBlank(errs, "ctaTop.body");
-  if (isBlank(ctaTop?.primaryText)) setIfBlank(errs, "ctaTop.primaryText");
-
-  // challengePoints[i].text required
-  const cps: any[] = Array.isArray(form.challengePoints) ? form.challengePoints : [];
-  cps.forEach((p, i) => {
-    if (isBlank(p?.text)) setIfBlank(errs, `challengePoints.${i}.text`);
-  });
-
-  // beforeAfter.beforeItems/afterItems require label+value
-  const ba: any = form.beforeAfter || {};
-  if (isBlank(ba?.beforeTitle)) setIfBlank(errs, "beforeAfter.beforeTitle");
-  if (isBlank(ba?.afterTitle)) setIfBlank(errs, "beforeAfter.afterTitle");
-
-  const beforeItems: any[] = Array.isArray(ba?.beforeItems) ? ba.beforeItems : [];
-  beforeItems.forEach((it, i) => {
-    if (isBlank(it?.label)) setIfBlank(errs, `beforeAfter.beforeItems.${i}.label`);
-    if (isBlank(it?.value)) setIfBlank(errs, `beforeAfter.beforeItems.${i}.value`);
-  });
-
-  const afterItems: any[] = Array.isArray(ba?.afterItems) ? ba.afterItems : [];
-  afterItems.forEach((it, i) => {
-    if (isBlank(it?.label)) setIfBlank(errs, `beforeAfter.afterItems.${i}.label`);
-    if (isBlank(it?.value)) setIfBlank(errs, `beforeAfter.afterItems.${i}.value`);
-  });
-
-  // overviewColumns[].bullets[].text required
-  const ovs: any[] = Array.isArray(form.overviewColumns) ? form.overviewColumns : [];
-  ovs.forEach((c, ci) => {
-    const bullets: any[] = Array.isArray(c?.bullets) ? c.bullets : [];
-    bullets.forEach((b, bi) => {
-      if (isBlank(b?.text)) setIfBlank(errs, `overviewColumns.${ci}.bullets.${bi}.text`);
-    });
-  });
-
-  // strategyColumns[].bullets[].text required
-  const scs: any[] = Array.isArray(form.strategyColumns) ? form.strategyColumns : [];
-  scs.forEach((c, ci) => {
-    const bullets: any[] = Array.isArray(c?.bullets) ? c.bullets : [];
-    bullets.forEach((b, bi) => {
-      if (isBlank(b?.text)) setIfBlank(errs, `strategyColumns.${ci}.bullets.${bi}.text`);
-    });
-  });
-
-  // coreFeatures title/description required
-  const core: any[] = Array.isArray(form.coreFeatures) ? form.coreFeatures : [];
-  core.forEach((f, i) => {
-    if (isBlank(f?.title)) setIfBlank(errs, `coreFeatures.${i}.title`);
-    if (isBlank(f?.description)) setIfBlank(errs, `coreFeatures.${i}.description`);
-  });
-
-  // technicalExcellence title/description required
-  const tech: any[] = Array.isArray(form.technicalExcellence) ? form.technicalExcellence : [];
-  tech.forEach((f, i) => {
-    if (isBlank(f?.title)) setIfBlank(errs, `technicalExcellence.${i}.title`);
-    if (isBlank(f?.description)) setIfBlank(errs, `technicalExcellence.${i}.description`);
-  });
-
-  // evaluationCards title/description required
-  const evs: any[] = Array.isArray(form.evaluationCards) ? form.evaluationCards : [];
-  evs.forEach((c, i) => {
-    if (isBlank(c?.title)) setIfBlank(errs, `evaluationCards.${i}.title`);
-    if (isBlank(c?.description)) setIfBlank(errs, `evaluationCards.${i}.description`);
-  });
-
-  // testimonial quote + authorName required (you already mark them required)
-  const t: any = form.testimonial || {};
-  if (isBlank(t?.quote)) setIfBlank(errs, "testimonial.quote");
-  if (isBlank(t?.authorName)) setIfBlank(errs, "testimonial.authorName");
-
-  // partnershipMetrics label/value required
-  const pms: any[] = Array.isArray(form.partnershipMetrics) ? form.partnershipMetrics : [];
-  pms.forEach((m, i) => {
-    if (isBlank(m?.label)) setIfBlank(errs, `partnershipMetrics.${i}.label`);
-    if (isBlank(m?.value)) setIfBlank(errs, `partnershipMetrics.${i}.value`);
-  });
-
-  // ctaMid body required (it is marked required in UI)
-  const ctaMid: any = form.ctaMid || {};
-  if (isBlank(ctaMid?.title)) setIfBlank(errs, "ctaMid.title");
-  if (isBlank(ctaMid?.body)) setIfBlank(errs, "ctaMid.body");
-  if (isBlank(ctaMid?.primaryText)) setIfBlank(errs, "ctaMid.primaryText");
-
-  // finalCta body required
-  const fcta: any = form.finalCta || {};
-  if (isBlank(fcta?.title)) setIfBlank(errs, "finalCta.title");
-  if (isBlank(fcta?.body)) setIfBlank(errs, "finalCta.body");
-  if (isBlank(fcta?.primaryText)) setIfBlank(errs, "finalCta.primaryText");
 
   return errs;
 };
@@ -1446,6 +1352,14 @@ const mapBackendErrorsToFieldErrors = (data: any): FieldErrors => {
   return errs;
 };
 
+// ---------- DND helpers ----------
+const moveItem = <T,>(arr: T[], from: number, to: number) => {
+  const next = [...arr];
+  const [item] = next.splice(from, 1);
+  next.splice(to, 0, item);
+  return next;
+};
+
 export function WebCaseStudiesManager() {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [editingSlug, setEditingSlug] = useState<string | null>(null);
@@ -1456,14 +1370,17 @@ export function WebCaseStudiesManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"card" | "detail">("card");
 
-  // ✅ single error store for both tabs (keys include nested paths)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+
+  // ✅ Always-on drag reorder states
+  const [draftOrders, setDraftOrders] = useState<WebCaseStudyCard[]>([]);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
 
   const { success, error: toastError } = useAppToast();
   const queryClient = useQueryClient();
   const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
 
-  // ✅ LIST cards for admin
   const { data: cards = [], isLoading, error } = useQuery<WebCaseStudyCard[]>({
     queryKey: ["/api/admin/web-case-studies"],
     queryFn: async () => {
@@ -1475,6 +1392,16 @@ export function WebCaseStudiesManager() {
     },
     enabled: Boolean(token),
   });
+
+  // ✅ Always keep local list sorted by order
+  useEffect(() => {
+    const sorted = [...cards].sort(
+      (a, b) =>
+        (a?.order ?? 0) - (b?.order ?? 0) ||
+        (b?.createdAt || "").localeCompare(a?.createdAt || "")
+    );
+    setDraftOrders(sorted);
+  }, [cards]);
 
   const cardOptions = useMemo(() => {
     return (cards || []).map((c: any) => ({
@@ -1497,7 +1424,6 @@ export function WebCaseStudiesManager() {
     setFieldErrors({});
   };
 
-  // ✅ detail fetch by cardId (try multiple endpoint styles)
   const fetchDetailByCardId = async (cardId: string): Promise<WebCaseStudyDetailDoc | null> => {
     if (!token) throw new Error("Admin token missing. Please login again.");
     if (!cardId) return null;
@@ -1544,16 +1470,15 @@ export function WebCaseStudiesManager() {
     setDialogOpen(true);
     setFieldErrors({});
 
-    // 1) load card immediately
     setForm({
       ...emptyForm,
       ...it,
       cardMongoId: it._id,
       cardId: it._id,
       detailMongoId: "",
+      order: Number.isFinite(it?.order) ? it.order : 0,
     });
 
-    // 2) fetch detail and merge
     try {
       setDetailLoading(true);
       const detail = await fetchDetailByCardId(String(it._id));
@@ -1576,7 +1501,6 @@ export function WebCaseStudiesManager() {
     try {
       if (!token) throw new Error("Admin token missing. Please login again.");
 
-      // ✅ client-side validation first
       const localErrs = validateCardForm(form);
       if (Object.keys(localErrs).length) {
         setFieldErrors(localErrs);
@@ -1608,6 +1532,8 @@ export function WebCaseStudiesManager() {
         imagePublicId: form.imagePublicId || undefined,
 
         link: form.link || undefined,
+
+        order: Math.max(0, Math.floor(Number(form.order ?? 0))),
       };
 
       const url = editingSlug
@@ -1643,8 +1569,6 @@ export function WebCaseStudiesManager() {
       if (!editingSlug) setEditingSlug(slug);
 
       success("Card saved successfully.", "Card");
-
-      // ✅ close popup after successful submission
       closeDialog();
     } catch (err: any) {
       console.error(err);
@@ -1660,7 +1584,6 @@ export function WebCaseStudiesManager() {
     try {
       if (!token) throw new Error("Admin token missing. Please login again.");
 
-      // ✅ client-side validation first (matches backend nested required)
       const localErrs = validateDetailForm(form);
       if (Object.keys(localErrs).length) {
         setFieldErrors(localErrs);
@@ -1750,7 +1673,6 @@ export function WebCaseStudiesManager() {
 
           const data = await res.json().catch(() => ({}));
           if (!res.ok) {
-            // ✅ map backend Zod errors to UI fields and scroll to first one
             const backendErrs = mapBackendErrorsToFieldErrors(data);
             if (Object.keys(backendErrs).length) {
               setFieldErrors(backendErrs);
@@ -1773,20 +1695,7 @@ export function WebCaseStudiesManager() {
       if (!saved) throw lastErr || new Error("Failed to save detail");
 
       setFieldErrors({});
-
-      const newDetailId = saved?._id || saved?.detailId;
-      if (newDetailId) {
-        setForm((p) => ({ ...p, detailMongoId: String(newDetailId) }));
-      } else if (!form.detailMongoId) {
-        try {
-          const d = await fetchDetailByCardId(finalCardId);
-          if (d?._id) setForm((p) => ({ ...p, detailMongoId: String(d._id) }));
-        } catch { }
-      }
-
       success(isEdit ? "Detail updated successfully." : "Detail saved successfully.", "Detail");
-
-      // ✅ close popup after successful submission
       closeDialog();
     } catch (err: any) {
       console.error(err);
@@ -1816,12 +1725,10 @@ export function WebCaseStudiesManager() {
     }
   };
 
-  // ✅ when selecting cardId in detail tab, auto-load existing detail (if any)
   const handleDetailCardSelect = async (cardId: string) => {
     handleChange("cardId", cardId);
     handleChange("detailMongoId", "");
     setFieldErrors((p) => {
-      // clear cardId-related error on select
       const next = { ...p };
       delete next["cardId"];
       return next;
@@ -1837,7 +1744,6 @@ export function WebCaseStudiesManager() {
         setForm((p) => ({ ...p, ...normalizeDetailToForm(detail) }));
         success("Loaded existing detail for this card.", "Detail");
       } else {
-        // keep card fields, clear detail fields
         setForm((p) => ({
           ...emptyForm,
           ...p,
@@ -1855,6 +1761,7 @@ export function WebCaseStudiesManager() {
           imagePublicId: p.imagePublicId || "",
           link: p.link || "",
           detailMongoId: "",
+          order: Number.isFinite(p.order as any) ? (p.order as number) : 0,
         }));
       }
     } catch (err: any) {
@@ -1865,19 +1772,95 @@ export function WebCaseStudiesManager() {
     }
   };
 
+  // ✅ auto-save order after drop (no button)
+  const saveReorder = async (nextList: WebCaseStudyCard[]) => {
+    try {
+      if (!token) throw new Error("Admin token missing. Please login again.");
+      setSavingOrder(true);
+
+      const items = nextList.map((c, index) => ({
+        id: c._id, // backend converts to ObjectId
+        order: index,
+      }));
+
+      const res = await fetch("/api/admin/web-case-studies/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.message || "Failed to update order");
+
+      await queryClient.invalidateQueries({ queryKey: ["/api/admin/web-case-studies"] });
+      success("Order updated.", "Reorder");
+    } catch (err: any) {
+      console.error(err);
+      toastError(err?.message || "Failed to update order.", "Reorder");
+    } finally {
+      setSavingOrder(false);
+    }
+  };
+
+  // ✅ Always-on Drag handlers
+  const onDragStart = (id: string) => (e: React.DragEvent) => {
+    setDraggingId(id);
+    try {
+      e.dataTransfer.setData("text/plain", id);
+      e.dataTransfer.effectAllowed = "move";
+    } catch { }
+  };
+
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    try {
+      e.dataTransfer.dropEffect = "move";
+    } catch { }
+  };
+
+  const onDrop = (targetId: string) => async (e: React.DragEvent) => {
+    e.preventDefault();
+
+    const fromId =
+      draggingId ||
+      (() => {
+        try {
+          return e.dataTransfer.getData("text/plain");
+        } catch {
+          return "";
+        }
+      })();
+
+    if (!fromId || fromId === targetId) return;
+
+    const from = draftOrders.findIndex((x) => x._id === fromId);
+    const to = draftOrders.findIndex((x) => x._id === targetId);
+    if (from < 0 || to < 0) return;
+
+    const next = moveItem(draftOrders, from, to);
+    setDraftOrders(next);
+    setDraggingId(null);
+
+    await saveReorder(next); // ✅ auto save immediately
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <h2 className="text-2xl font-bold text-brand-purple">Website Design & Development Case Studies</h2>
+
         <div className="flex items-center gap-3">
           <Badge>{cards.length} items</Badge>
-          <Button className="bg-brand-purple" onClick={openAdd}>
+          {savingOrder ? <Badge variant="secondary">Saving order...</Badge> : null}
+
+          {/* ✅ Keep only Add button (no reorder button) */}
+          <Button className="bg-brand-purple" onClick={openAdd} disabled={savingOrder}>
             + Add Case Study
           </Button>
         </div>
       </div>
 
-      {/* LIST */}
+      {/* LIST (Always draggable) */}
       <div className="space-y-4">
         {isLoading ? (
           <Card>
@@ -1887,20 +1870,38 @@ export function WebCaseStudiesManager() {
           <Card>
             <CardContent className="p-6 text-red-600">Failed to load Web case studies</CardContent>
           </Card>
-        ) : cards.length === 0 ? (
+        ) : draftOrders.length === 0 ? (
           <Card>
             <CardContent className="p-6 text-gray-600">No Web case studies yet.</CardContent>
           </Card>
         ) : (
-          cards.map((it: any) => (
-            <Card key={it._id} className="hover:shadow-sm transition-shadow">
+          draftOrders.map((it: any, idx: number) => (
+            <Card
+              key={it._id}
+              className={`transition-shadow ${draggingId === it._id ? "ring-2 ring-brand-coral shadow-md" : "hover:shadow-sm"
+                } ${savingOrder ? "opacity-90" : ""}`}
+              draggable
+              onDragStart={onDragStart(it._id)}
+              onDragOver={onDragOver}
+              onDrop={onDrop(it._id)}
+            >
               <CardContent className="p-4 flex gap-4 items-center">
+                {/* ✅ Drag handle always */}
+                <div
+                  className="flex items-center gap-2 text-gray-500 select-none cursor-grab active:cursor-grabbing"
+                  title="Drag to reorder"
+                >
+                  <GripVertical className="h-5 w-5" />
+                  <Badge className="bg-gray-900 text-white">#{idx}</Badge>
+                </div>
+
                 <div className="w-24 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
                   {it.imageUrl ? (
                     <img
                       src={it.imageUrl}
                       alt={it.imageAlt || it.title}
-                      className={`w-full h-full ${(it.imageFit || "cover") === "cover" ? "object-cover" : "object-contain"}`}
+                      className={`w-full h-full ${(it.imageFit || "cover") === "cover" ? "object-cover" : "object-contain"
+                        }`}
                     />
                   ) : (
                     <div className="text-xs text-gray-400">No Image</div>
@@ -1911,6 +1912,7 @@ export function WebCaseStudiesManager() {
                   <div className="flex items-center gap-2">
                     <div className="font-semibold text-brand-purple">{it.title}</div>
                     <Badge variant="secondary">{it.industry}</Badge>
+                    <Badge className="bg-gray-900 text-white">Order: {Number.isFinite(it.order) ? it.order : 0}</Badge>
                   </div>
 
                   <div className="text-sm text-gray-600">
@@ -1918,15 +1920,16 @@ export function WebCaseStudiesManager() {
                   </div>
 
                   <div className="text-xs text-gray-500 mt-1">
-                    Industry: {it?.results?.performance} • Website Type: {it?.results?.conversions} • Delivery Type: {it?.results?.users}
+                    Industry: {it?.results?.performance} • Website Type: {it?.results?.conversions} • Delivery Type:{" "}
+                    {it?.results?.users}
                   </div>
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => openEdit(it.slug)}>
+                  <Button variant="outline" onClick={() => openEdit(it.slug)} disabled={savingOrder}>
                     Edit
                   </Button>
-                  <Button variant="destructive" onClick={() => handleDelete(it.slug)}>
+                  <Button variant="destructive" onClick={() => handleDelete(it.slug)} disabled={savingOrder}>
                     Delete
                   </Button>
                 </div>
@@ -2019,11 +2022,7 @@ export function WebCaseStudiesManager() {
               </TabsList>
 
               <TabsContent value="card">
-                <WebCaseStudyCardTab
-                  form={form}
-                  errors={fieldErrors}
-                  onChange={(field, value) => handleChange(field as any, value)}
-                />
+                <WebCaseStudyCardTab form={form} errors={fieldErrors} onChange={(field, value) => handleChange(field as any, value)} />
 
                 <div className="flex gap-3 pt-4">
                   <Button type="button" className="bg-brand-purple" disabled={loading} onClick={saveCard}>

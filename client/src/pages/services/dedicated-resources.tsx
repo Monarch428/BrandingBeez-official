@@ -294,6 +294,28 @@ export default function DedicatedResources() {
                     </div>
                   </div>
 
+                  {/* Key Benefits */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        100% White-Label Delivery
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        24 Hours Start Time
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        Dedicated Team Setup
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <Link href="/pricing-calculator?service=dedicated-resources">
                       <Button
@@ -315,8 +337,7 @@ export default function DedicatedResources() {
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
-                  <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
-                    {/* Left */}
+                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
                     <div className="flex justify-end">
                       <img
                         src={Whitelabel_Image}
@@ -325,7 +346,6 @@ export default function DedicatedResources() {
                       />
                     </div>
 
-                    {/* Center (slightly bigger) */}
                     <div className="flex justify-center px-0">
                       <img
                         src={Hours_24_Image}
@@ -334,15 +354,14 @@ export default function DedicatedResources() {
                       />
                     </div>
 
-                    {/* Right */}
-                    {/* <div className="flex justify-start">
+                     <div className="flex justify-start">
                       <img
                         src={WEB_Image}
                         alt="Dedicated SEO Resource"
                         className="h-16 sm:h-18 md:h-20 w-auto object-contain"
                       />
-                    </div> */}
-                  </div>
+                    </div> 
+                  </div> */}
                 </div>
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
