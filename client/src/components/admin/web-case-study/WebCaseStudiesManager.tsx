@@ -968,7 +968,7 @@ function ReqLabel({ children }: { children: React.ReactNode }) {
 export type WebCaseStudyCardResults = {
   performance: string;
   conversions: string;
-  users: string | null;
+  // users: string | null;
 };
 
 export type WebCaseStudyCard = {
@@ -993,7 +993,7 @@ export type WebCaseStudyCard = {
   link?: string;
 
   /** ✅ NEW */
-  order: number;
+  order?: number;
 
   createdAt: string;
   updatedAt: string;
@@ -1105,7 +1105,7 @@ const emptyForm: FormState = {
   client: "",
   industry: "",
   description: "",
-  results: { performance: "", conversions: "", users: "" },
+  results: { performance: "", conversions: ""}, //, users: "" 
   imageUrl: "",
   imageAlt: "",
   imageFit: "cover",
@@ -1315,7 +1315,7 @@ const validateCardForm = (form: FormState): FieldErrors => {
   const r: any = form.results || {};
   if (isBlank(r.performance)) setIfBlank(errs, "results.performance");
   if (isBlank(r.conversions)) setIfBlank(errs, "results.conversions");
-  if (isBlank(r.users)) setIfBlank(errs, "results.users");
+  // if (isBlank(r.users)) setIfBlank(errs, "results.users");
 
   return errs;
 };
@@ -1523,7 +1523,7 @@ export function WebCaseStudiesManager() {
         results: {
           performance: String(r.performance || "").trim(),
           conversions: String(r.conversions || "").trim(),
-          users: String(r.users || "").trim(),
+          // users: String(r.users || "").trim(),
         },
 
         imageUrl: form.imageUrl || undefined,
@@ -1754,7 +1754,7 @@ export function WebCaseStudiesManager() {
           client: p.client || "",
           industry: p.industry || "",
           description: p.description || "",
-          results: p.results || { performance: "", conversions: "", users: "" },
+          results: p.results || { performance: "", conversions: ""}, //, users: "" 
           imageUrl: p.imageUrl || "",
           imageAlt: p.imageAlt || "",
           imageFit: (p.imageFit || "cover") as any,
@@ -1841,7 +1841,7 @@ export function WebCaseStudiesManager() {
     setDraftOrders(next);
     setDraggingId(null);
 
-    await saveReorder(next); // ✅ auto save immediately
+    await saveReorder(next); 
   };
 
   return (
