@@ -295,7 +295,7 @@ export type WebCaseStudyCardTabValues = {
   results?: {
     performance?: string;
     conversions?: string;
-    users?: string | null;
+    // users?: string | null;
   };
 
   imageUrl?: string;
@@ -306,7 +306,6 @@ export type WebCaseStudyCardTabValues = {
 
   link?: string;
 
-  /** ✅ NEW */
   order?: number;
 };
 
@@ -345,18 +344,26 @@ export function WebCaseStudyCardTab({
           min={0}
           step={1}
           className={errClass("order")}
-          value={Number.isFinite(form.order as any) ? String(form.order) : "0"}
+          value={
+            form.order === undefined || form.order === null
+              ? ""
+              : String(form.order)
+          }
           onChange={(e) => {
             const raw = e.target.value;
-            const n = raw === "" ? 0 : Number(raw);
-            onChange("order", Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0);
+
+            // allow empty value
+            if (raw === "") {
+              onChange("order", undefined);
+              return;
+            }
+
+            const n = Number(raw);
+            onChange("order", Number.isFinite(n) ? Math.max(0, Math.floor(n)) : undefined);
           }}
-          placeholder="0"
-          required
+          placeholder="Optional"
         />
-        <div className="text-[11px] text-gray-500 mt-1">
-          Lower number shows first (0 = top). If same order, latest created shows first.
-        </div>
+
         {errText("order")}
       </div>
 

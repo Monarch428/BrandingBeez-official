@@ -38,7 +38,7 @@ export const insertWebCaseStudyCardSchema = z.object({
     imageFit: z.enum(["cover", "contain"]).optional(),
 
     link: z.string().optional(),
-    order: z.number().int().min(0),
+    order: z.number().int().min(0).optional().default(0),
 });
 
 // ----- Detail -----
