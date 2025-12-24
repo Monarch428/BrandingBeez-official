@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 interface FormState {
   firstName: string;
@@ -332,6 +333,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
   const [lastAnalyzedWebsite, setLastAnalyzedWebsite] = useState<string>("");
   const [analysisSource, setAnalysisSource] = useState<string | null>(null);
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
@@ -537,6 +540,72 @@ export default function AIBusinessGrowthAnalyzerPage() {
     if (payload?.analysis && !analysisData) {
       setAnalysisData(payload.analysis as BusinessGrowthReport);
       setLastAnalyzedWebsite(payload.analysis.reportMetadata.website || normalizedWebsite);
+    }
+  };
+
+  const buildReportPayload = () => {
+    const baseAnalysis = analysisData || fallbackReport;
+    const metadata = baseAnalysis.reportMetadata || fallbackReport.reportMetadata;
+    const normalizedWebsite = metadata.website || lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
+    const fullName = `${formState.firstName} ${formState.lastName}`.trim() || metadata.companyName || "Marketing Agency";
+
+    return {
+      analysis: {
+        ...baseAnalysis,
+        reportMetadata: {
+          ...metadata,
+          companyName: metadata.companyName || fullName,
+          website: normalizedWebsite || metadata.website || fallbackReport.reportMetadata.website,
+        },
+      },
+      contact: {
+        name: fullName,
+        email: leadForm.email,
+        phone: leadForm.phone,
+      },
+    };
+  };
+
+  const sanitizeFileName = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/https?:\/\//g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)+/g, "")
+      .replace(/--+/g, "-") || "ai-business-growth-report";
+
+  const handleDownloadReport = async () => {
+    setDownloadError(null);
+    setIsDownloadingReport(true);
+
+    try {
+      const payload = buildReportPayload();
+      const response = await fetch("/api/ai-business-growth/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Unable to generate PDF");
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      const filenameBase = sanitizeFileName(
+        payload.analysis.reportMetadata.website || payload.analysis.reportMetadata.companyName || "ai-business-growth-report",
+      );
+
+      anchor.href = url;
+      anchor.download = `${filenameBase}.pdf`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("PDF download failed", error);
+      setDownloadError("We couldn't generate the PDF right now. Please try again in a moment.");
+    } finally {
+      setIsDownloadingReport(false);
     }
   };
 
@@ -1035,11 +1104,21 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       <div className="mt-6 p-5 rounded-xl border bg-gradient-to-r from-primary/10 to-emerald-50">
                         <Button
                           className="w-full h-12 text-base font-semibold"
-                          onClick={() => window.open("https://storage.example.com/report.pdf", "_blank")}
+                          // onClick={() => window.open("https://storage.example.com/report.pdf", "_blank")}
+                          onClick={handleDownloadReport}
+                          disabled={isDownloadingReport}
                         >
-                          📥 Download Report (PDF)
+                          {/* 📥 Download Report (PDF) */}
+                          {isDownloadingReport ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" /> Preparing PDF...
+                            </span>
+                          ) : (
+                            "📥 Download Report (PDF)"
+                          )}
                         </Button>
                         <p className="text-xs text-gray-600 mt-2">Download event tracked for CRM • Lead ID: {leadId}</p>
+                        {downloadError && <p className="text-xs text-red-500 mt-2">{downloadError}</p>}
                       </div>
 
                       <div className="mt-6 space-y-2">
@@ -1059,7 +1138,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                             Book a free 30-minute strategy call and we'll help you execute these opportunities.
                           </p>
                         </div>
-                        <Button
+                        {/* <Button
                           className="w-full h-12 text-base font-semibold"
                           onClick={() => {
                             const params = new URLSearchParams({
@@ -1077,7 +1156,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           }}
                         >
                           📞 Book Your Strategy Call
-                        </Button>
+                        </Button> */}
+                        <BookCallButtonWithModal
+                          buttonLabel="📞 Book Your Strategy Call"
+                          buttonClassName="w-full h-12 text-base font-semibold justify-center"
+                          defaultServiceType="seo"
+                        />
                         <div className="flex items-center justify-between text-sm text-gray-700">
                           <span>Limited slots available</span>
                           <span>⭐⭐⭐⭐⭐ Rated 4.9/5</span>

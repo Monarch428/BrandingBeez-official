@@ -40,6 +40,15 @@ const FROM_NEWSLETTER = (email?: string) =>
 const FROM_QUESTIONNAIRE = (email?: string) =>
   `"BrandingBeez – Custom Apps" <${email || "info@brandingbeez.co.uk"}>`;
 
+const slugifyFilename = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/https?:\/\//g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)+/g, "")
+    .replace(/--+/g, "-")
+    .slice(0, 80) || "ai-business-growth-report";
+
 function getSmtpConfig() {
   let host = process.env.SMTP_HOST || "";
   let port = process.env.SMTP_PORT || "";
@@ -313,6 +322,86 @@ export async function sendEmailViaGmail(submission: {
     };
   } catch (error) {
     console.error("SMTP send failed:", error);
+    return { success: false, method: "failed" };
+  }
+}
+
+interface BusinessGrowthReportEmailPayload {
+  reportMetadata: {
+    companyName?: string;
+    website?: string;
+    overallScore?: number;
+    analysisDate?: string;
+  };
+  executiveSummary?: {
+    strengths?: string[];
+    weaknesses?: string[];
+    biggestOpportunity?: string;
+    quickWins?: { title: string; impact?: string; time?: string; cost?: string }[];
+  };
+}
+
+export async function sendBusinessGrowthReportEmail(params: {
+  toEmail: string;
+  toName?: string;
+  analysis: BusinessGrowthReportEmailPayload;
+  pdfBuffer?: Buffer;
+}) {
+  const { host, port, user, pass } = getSmtpConfig();
+
+  if (!user || !pass) {
+    console.log(
+      "SMTP credentials not configured (SMTP_USER / SMTP_PASSWORD). Skipping AI business growth report email.",
+    );
+    return { success: false, method: "missing_smtp" };
+  }
+
+  const metadata = params.analysis.reportMetadata || {};
+  const summary = params.analysis.executiveSummary || {};
+  const quickWins = summary.quickWins?.slice(0, 3) || [];
+  const quickWinsHtml = quickWins
+    .map((win) => `<li><strong>${win.title}</strong> — ${[win.impact, win.time].filter(Boolean).join(" • ")}</li>`)
+    .join("");
+
+  const attachments: { filename: string; content: Buffer; contentType: string }[] = [];
+  if (params.pdfBuffer) {
+    attachments.push({
+      filename: `${slugifyFilename(metadata.website || metadata.companyName || "ai-business-growth-report")}.pdf`,
+      content: params.pdfBuffer,
+      contentType: "application/pdf",
+    });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: true,
+      auth: { user, pass },
+    });
+
+    await transporter.sendMail({
+      from: FROM_APPOINTMENTS(user),
+      to: params.toEmail,
+      subject: "Your AI Business Growth Analyzer report",
+      html: `
+        <p>Hi ${params.toName || "there"},</p>
+        <p>Your AI Business Growth Analyzer report is ready. ${params.pdfBuffer ? "We've attached a PDF copy." : ""}</p>
+        <p><strong>Score:</strong> ${metadata.overallScore ?? "N/A"}/100<br />
+        <strong>Website:</strong> ${metadata.website || "Not provided"}<br />
+        <strong>Analysis date:</strong> ${
+          metadata.analysisDate ? new Date(metadata.analysisDate).toLocaleDateString("en-GB") : "Today"
+        }</p>
+        ${summary.biggestOpportunity ? `<p><strong>Biggest opportunity:</strong> ${summary.biggestOpportunity}</p>` : ""}
+        ${quickWinsHtml ? `<p><strong>Quick wins:</strong></p><ul>${quickWinsHtml}</ul>` : ""}
+        <p>If the attachment didn't come through, you can download it from the success page or reply to this email and we'll resend it.</p>
+      `,
+      attachments,
+    });
+
+    return { success: true, method: host.includes("gmail") ? "gmail_smtp" : "zoho_smtp" };
+  } catch (error) {
+    console.error("Failed to send AI business growth report email", error);
     return { success: false, method: "failed" };
   }
 }
