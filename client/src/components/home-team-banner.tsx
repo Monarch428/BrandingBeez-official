@@ -6,12 +6,12 @@ import VigneshStroke from "@assets/Vignesh Stroke_1753273695214.png";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import CharanStroke from "@assets/Charan Stroke_1753273701283.png";
 import PriyaStroke from "@assets/Priya Stroke_1753273695213.png";
-import Mathavan_Stroke from "../../public/images/Mathavan-team-member.png";
+// import Mathavan_Stroke from "../../public/images/Mathavan-team-member.png";
 import Logu_Stroke from "@assets/Logu_Stroke.png";
 import Sathish_Stroke from "@assets/Sathish_Stroke.png";
 import Azeez_Stroke from "@assets/Azeez_Stroke.png";
 import VishnuStroke from "@assets/Vishnu Stroke_1753273695214.png";
-import YuvaStroke from "@assets/Yuva Stroke_1753273695215.png";
+// import YuvaStroke from "@assets/Yuva Stroke_1753273695215.png";
 import GopalStroke from "@assets/Gopal Stroke_1753273701284.png";
 import AthiraStroke from "@assets/Athira Stroke_1753273701280.png";
 import Raja_Stroke from "../../public/images/Raja-team-member.png";
@@ -35,7 +35,7 @@ const teamMembers: TeamMember[] = [
 
   // Core specialists
   { name: "Vishnu", role: "WordPress Dev", image: VishnuStroke, position: { x: 30, y: 65, scale: 0.9, delay: 1.0 } },
-  { name: "Yuva", role: "SEO Expert", image: YuvaStroke, position: { x: 65, y: 70, scale: 0.8, delay: 1.2 } },
+  // { name: "Yuva", role: "SEO Expert", image: YuvaStroke, position: { x: 65, y: 70, scale: 0.8, delay: 1.2 } },
   { name: "Gopal", role: "Ads Expert", image: GopalStroke, position: { x: 40, y: 85, scale: 0.85, delay: 1.4 } },
   // { name: "Mathavan", role: "AI Developer", image: Mathavan_Stroke, position: { x: 10, y: 50, scale: 0.8, delay: 0.6 } },
   { name: "Logu", role: "Full-Stack Dev", image: Logu_Stroke, position: { x: 85, y: 55, scale: 0.85, delay: 0.8 } },

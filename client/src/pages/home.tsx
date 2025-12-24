@@ -1084,10 +1084,10 @@ import {
   X,
 } from "lucide-react";
 
-import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
-import bniLogo from "@assets/bni_1752907520728.jpg";
-import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
-import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
+// import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
+// import bniLogo from "@assets/bni_1752907520728.jpg";
+// import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
+// import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 import webArtLogo from "../../public/images/website-architect-logo.jpeg";
 import mdmLogo from "../../public/images/MDM Logo.png";
 import nvtLogo from "../../public/images/NVT Logo.png";
@@ -1098,19 +1098,19 @@ import carolinaWebLogo from "@assets/IMG-20250719-WA0270_1752907768835.jpg";
 import socialLandLogo from "@assets/IMG-20250719-WA0271_1752907768836.jpg";
 import focusEcommerceLogo from "@assets/IMG-20250719-WA0272_1752907768837.jpg";
 import smartConnectingLogo from "@assets/IMG-20250719-WA0273_1752907768839.jpg";
-import koalaDigitalLogo from "@assets/IMG-20250719-WA0274_1752907768841.jpg";
+// import koalaDigitalLogo from "@assets/IMG-20250719-WA0274_1752907768841.jpg";
 import websiteArchitectLogo from "@assets/IMG-20250719-WA0275_1752907768843.jpg";
 import intrinsicLogo from "@assets/IMG-20250719-WA0276_1752907768844.jpg";
 import socialBrainLogo from "@assets/IMG-20250719-WA0277_1752907768845.jpg";
-import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
-import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
+// import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
+// import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
 import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
 import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
-import ken from "../../public/images/Ken.png";
-import matt from "../../public/images/Matt.png";
-import phillip from "../../public/images/Phillip.png";
+// import ken from "../../public/images/Ken.png";
+// import matt from "../../public/images/Matt.png";
+// import phillip from "../../public/images/Phillip.png";
 import {
   AppointmentCalendar,
   BookCallButtonWithModal,
@@ -1121,9 +1121,9 @@ import Dani_Image from "../../public/images/Dani.png";
 import Gemma_Image from "../../public/images/Gemma.png";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
-import ChristmasEffects from "@/components/FestiveSnowOverlay";
+// import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
-import PortfolioCtaSection from "@/components/portfolioimagecta";
+// import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export default function Home() {
   useEffect(() => {
