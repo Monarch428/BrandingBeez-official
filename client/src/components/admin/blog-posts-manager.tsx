@@ -1269,7 +1269,7 @@ interface BlogPost {
   category: BlogCategory;
 }
 
-type SectionType = "content" | "process";
+type SectionType = "content" | "process" | "faq";
 
 type SectionLink = {
   id: string;
@@ -1287,17 +1287,15 @@ type ProcessStep = {
   title: string;
   description: string;
 
-  /**
-   * ✅ IMPORTANT UPDATE (as per your request):
-   * Step "References" (list shown under step)
-   */
   links?: SectionLink[];
 
-  /**
-   * ✅ IMPORTANT UPDATE:
-   * Step "Inline Word Links" (auto link inside step description)
-   */
   inlineLinks?: SectionLink[];
+};
+
+type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
 };
 
 type SectionCTA = {
@@ -1316,6 +1314,7 @@ type BlogSection = {
   content: string;
   images: string[];
   steps: ProcessStep[];
+  faqItems?: FaqItem[];
   cta: SectionCTA;
 
   /**
@@ -1398,11 +1397,6 @@ function sanitizeUrl(u: string) {
   return "";
 }
 
-/**
- * ✅ IMPORTANT UPDATE (as per your request):
- * Extract markdown links + bare URLs into "INLINE WORD LINKS" (NOT references list)
- * So inline linking is independent.
- */
 function extractInlineLinksFromText(
   text: string,
 ): { cleaned: string; inlineLinks: SectionLink[] } {
@@ -1476,6 +1470,7 @@ function defaultSection(type: SectionType): BlogSection {
           },
         ]
         : [],
+    faqItems: type === "faq" ? [{ id: uid(), question: "", answer: "" }] : [],
     cta: {
       enabled: false,
       heading: "",
@@ -1508,6 +1503,16 @@ function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
         if (t) {
           const anchor = `step-${slugify(t)}-${sIdx + 1}-${stIdx + 1}`;
           items.push({ id: `step:${sec.id}:${st.id}`, label: t, anchor });
+        }
+      });
+    }
+
+    if (sec.type === "faq" && Array.isArray(sec.faqItems)) {
+      sec.faqItems.forEach((f, fIdx) => {
+        const q = (f.question || "").trim();
+        if (q) {
+          const anchor = `faq-${slugify(q)}-${sIdx + 1}-${fIdx + 1}`;
+          items.push({ id: `faq:${sec.id}:${f.id}`, label: q, anchor });
         }
       });
     }
@@ -1606,9 +1611,13 @@ function tryParseStructuredContent(
           })
           : [];
 
+        const faqItems: FaqItem[] = Array.isArray(s?.faqItems)
+          ? s.faqItems.map((f: any) => ({ id: f?.id || uid(), question: String(f?.question || ""), answer: String(f?.answer || "") }))
+          : [];
+
         return {
           id: s?.id || uid(),
-          type: s?.type === "process" ? "process" : "content",
+          type: s?.type === "process" ? "process" : s?.type === "faq" ? "faq" : "content",
           heading: String(s?.heading || ""),
           subHeading: String(s?.subHeading || ""),
           content: String(s?.content || ""),
@@ -1619,6 +1628,7 @@ function tryParseStructuredContent(
           inlineLinks: parsedInlineLinks,
 
           steps,
+          faqItems,
           cta: {
             enabled: !!s?.cta?.enabled,
             heading: String(s?.cta?.heading || ""),
@@ -1773,12 +1783,6 @@ function splitAiContentToSections(raw: string): BlogSection[] {
   return sections.length ? sections : [defaultSection("content")];
 }
 
-/**
- * ✅ Inline hyperlink feature (label -> url) inside the actual content text.
- * NOTE (your update):
- * - INLINE WORD LINKS use `inlineLinks`
- * - REFERENCES LIST uses `links`
- */
 function escapeHtml(text: string) {
   return (text || "")
     .replace(/&/g, "&amp;")
@@ -1974,9 +1978,6 @@ export function BlogPostsManager() {
     setTocOrder((prev) => syncTocOrder(prev, tocItems));
   }, [tocItems]);
 
-  // =========================
-  // ✅ References (Section)
-  // =========================
   const addSectionReference = (sectionId: string) => {
     setSections((prev) =>
       prev.map((s) =>
@@ -2011,9 +2012,6 @@ export function BlogPostsManager() {
     );
   };
 
-  // =========================
-  // ✅ Inline Word Links (Section)
-  // =========================
   const addSectionInlineLink = (sectionId: string) => {
     setSections((prev) =>
       prev.map((s) =>
@@ -2354,6 +2352,51 @@ export function BlogPostsManager() {
     );
   };
 
+  const addFaqItem = (sectionId: string) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id !== sectionId) return s;
+        const items = Array.isArray(s.faqItems) ? s.faqItems : [];
+        return {
+          ...s,
+          faqItems: [
+            ...items,
+            {
+              id: uid(),
+              question: ``,
+              answer: ``,
+            },
+          ],
+        };
+      }),
+    );
+  };
+
+  const removeFaqItem = (sectionId: string, faqId: string) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id !== sectionId) return s;
+        const items = (s.faqItems || []).filter((f) => f.id !== faqId);
+        return {
+          ...s,
+          faqItems: items.length ? items : [{ id: uid(), question: "", answer: "" }],
+        };
+      }),
+    );
+  };
+
+  const updateFaqItem = (sectionId: string, faqId: string, patch: Partial<FaqItem>) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id !== sectionId) return s;
+        return {
+          ...s,
+          faqItems: (s.faqItems || []).map((f) => (f.id === faqId ? { ...f, ...patch } : f)),
+        };
+      }),
+    );
+  };
+
   const removeStep = (sectionId: string, stepId: string) => {
     setSections((prev) =>
       prev.map((s) => {
@@ -2493,6 +2536,16 @@ export function BlogPostsManager() {
         return true;
       }
 
+      if (
+        s.type === "faq" &&
+        (s.faqItems || []).some((f) => {
+          if ((f.question || "").trim() || (f.answer || "").trim()) return true;
+          return false;
+        })
+      ) {
+        return true;
+      }
+
       return false;
     });
 
@@ -2566,6 +2619,15 @@ export function BlogPostsManager() {
                 .filter((l) => l.label || l.url)
               : [],
           }))
+          : [],
+        faqItems: Array.isArray(s.faqItems)
+          ? s.faqItems
+            .map((f) => ({
+              id: f.id || uid(),
+              question: (f.question || "").trim(),
+              answer: (f.answer || "").trim(),
+            }))
+            .filter((f) => f.question || f.answer)
           : [],
       })),
       tocOrder: syncTocOrder(tocOrder, tocItems),
@@ -2644,7 +2706,6 @@ export function BlogPostsManager() {
                           <div
                             className="text-gray-700 leading-relaxed"
                             dangerouslySetInnerHTML={{
-                              // ✅ UPDATE: Use ONLY section inlineLinks for section content
                               __html: renderTextWithInlineLinks(sec.content, sec.inlineLinks || []),
                             }}
                           />
@@ -2672,12 +2733,7 @@ export function BlogPostsManager() {
                                       <div
                                         className="text-gray-700 mt-1 leading-relaxed"
                                         dangerouslySetInnerHTML={{
-                                          // ✅ UPDATE: DO NOT MERGE section links + step links.
-                                          // Inline word links in step description use ONLY step.inlineLinks
-                                          __html: renderTextWithInlineLinks(
-                                            st.description,
-                                            st.inlineLinks || [],
-                                          ),
+                                          __html: renderTextWithInlineLinks(st.description, st.inlineLinks || []),
                                         }}
                                       />
                                     )}
@@ -2711,13 +2767,26 @@ export function BlogPostsManager() {
                           })}
                         </div>
                       </div>
+                    ) : sec.type === "faq" ? (
+                      <div className="space-y-3">
+                        {(sec.faqItems || []).map((f, fi) => (
+                          <div key={f.id} className="border rounded-xl p-4 bg-white">
+                            <div className="font-semibold">Q: {f.question}</div>
+                            {f.answer?.trim() && (
+                              <div
+                                className="text-gray-700 mt-2 leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: renderTextWithInlineLinks(f.answer, sec.inlineLinks || []) }}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <>
                         {sec.content?.trim() && (
                           <div className="prose prose-lg max-w-none leading-relaxed">
                             <div
                               dangerouslySetInnerHTML={{
-                                // ✅ UPDATE: Use ONLY section inlineLinks for content section
                                 __html: renderTextWithInlineLinks(sec.content, sec.inlineLinks || []),
                               }}
                             />
@@ -2725,6 +2794,7 @@ export function BlogPostsManager() {
                         )}
                       </>
                     )}
+
 
                     {Array.isArray(sec.images) && sec.images.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -3130,8 +3200,8 @@ export function BlogPostsManager() {
                           Blog Content Sections
                         </div>
                         <div className="text-sm text-gray-500">
-                          Add multiple content/process sections. Each section can have images, references, inline
-                          word-links, optional CTA.
+                          Add multiple content/process sections. Each section can have images, references, inline word-links, optional
+                          CTA.
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -3143,6 +3213,10 @@ export function BlogPostsManager() {
                           <Plus className="w-4 h-4 mr-2" />
                           Process Section
                         </Button>
+                        <Button type="button" variant="outline" onClick={() => addSection("faq")}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          FAQ Section
+                        </Button>
                       </div>
                     </div>
 
@@ -3151,7 +3225,9 @@ export function BlogPostsManager() {
                         <CardHeader className="py-3">
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline">{sec.type === "process" ? "Process" : "Content"}</Badge>
+                              <Badge variant="outline">
+                                {sec.type === "process" ? "Process" : sec.type === "faq" ? "FAQ" : "Content"}
+                              </Badge>
                               <div className="font-semibold">
                                 Section {idx + 1}
                                 {sec.heading?.trim() ? ` — ${sec.heading}` : ""}
@@ -3204,7 +3280,10 @@ export function BlogPostsManager() {
                             </div>
                           </div>
 
-                          {sec.type === "content" ? (
+                          {/* ✅ UPDATED: removed ternary, using separate blocks to avoid ':' expected TS error */}
+
+                          {/* CONTENT */}
+                          {sec.type === "content" && (
                             <div>
                               <Label>Content</Label>
                               <Textarea
@@ -3217,7 +3296,10 @@ export function BlogPostsManager() {
                                 AI content with HTML is supported and will render in preview.
                               </p>
                             </div>
-                          ) : (
+                          )}
+
+                          {/* PROCESS */}
+                          {sec.type === "process" && (
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
                                 <Label>Process Steps</Label>
@@ -3232,7 +3314,12 @@ export function BlogPostsManager() {
                                   <div key={st.id} className="border rounded-xl p-3 space-y-2 bg-white">
                                     <div className="flex items-center justify-between">
                                       <div className="font-medium">Step {stIdx + 1}</div>
-                                      <Button type="button" variant="destructive" size="sm" onClick={() => removeStep(sec.id, st.id)}>
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => removeStep(sec.id, st.id)}
+                                      >
                                         <X className="w-4 h-4" />
                                       </Button>
                                     </div>
@@ -3601,6 +3688,54 @@ export function BlogPostsManager() {
                             </div>
                           )}
 
+                          {/* FAQ */}
+                          {sec.type === "faq" && (
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Label>FAQ Items</Label>
+                                <Button type="button" variant="outline" size="sm" onClick={() => addFaqItem(sec.id)}>
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  Add FAQ Item
+                                </Button>
+                              </div>
+
+                              <div className="space-y-3">
+                                {(sec.faqItems || []).map((f, fIdx) => (
+                                  <div key={f.id} className="border rounded-xl p-3 space-y-2 bg-white">
+                                    <div className="flex items-center justify-between">
+                                      <div className="font-medium">FAQ {fIdx + 1}</div>
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => removeFaqItem(sec.id, f.id)}
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+
+                                    <div>
+                                      <Label>Question</Label>
+                                      <Input
+                                        value={f.question}
+                                        onChange={(e) => updateFaqItem(sec.id, f.id, { question: e.target.value })}
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <Label>Answer</Label>
+                                      <Textarea
+                                        rows={3}
+                                        value={f.answer}
+                                        onChange={(e) => updateFaqItem(sec.id, f.id, { answer: e.target.value })}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {/* Images */}
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
@@ -3622,9 +3757,7 @@ export function BlogPostsManager() {
                                   e.currentTarget.value = "";
                                 }}
                               />
-                              {uploadingSectionImagesId === sec.id && (
-                                <span className="text-xs text-gray-500">Uploading...</span>
-                              )}
+                              {uploadingSectionImagesId === sec.id && <span className="text-xs text-gray-500">Uploading...</span>}
                             </div>
 
                             {sec.images?.length > 0 && (
@@ -3661,8 +3794,7 @@ export function BlogPostsManager() {
 
                             {(!sec.inlineLinks || sec.inlineLinks.length === 0) && (
                               <p className="text-sm text-gray-500">
-                                Add inline word links (e.g., "Pradeep" → "/about-pradeep"). These will auto-link inside
-                                the content text.
+                                Add inline word links (e.g., "Pradeep" → "/about-pradeep"). These will auto-link inside the content text.
                               </p>
                             )}
 
@@ -3715,7 +3847,12 @@ export function BlogPostsManager() {
                                     Italic
                                   </label>
 
-                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionInlineLink(sec.id, link.id)}>
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeSectionInlineLink(sec.id, link.id)}
+                                  >
                                     Remove
                                   </Button>
                                 </div>
@@ -3737,8 +3874,8 @@ export function BlogPostsManager() {
 
                             {(!sec.links || sec.links.length === 0) && (
                               <p className="text-sm text-gray-500">
-                                Add references for this section (sources, citations, external docs). These are shown as a
-                                list under the section.
+                                Add references for this section (sources, citations, external docs). These are shown as a list under the
+                                section.
                               </p>
                             )}
 
@@ -3757,7 +3894,12 @@ export function BlogPostsManager() {
                                     value={link.url}
                                     onChange={(e) => updateSectionReference(sec.id, link.id, { url: e.target.value })}
                                   />
-                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionReference(sec.id, link.id)}>
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeSectionReference(sec.id, link.id)}
+                                  >
                                     Remove
                                   </Button>
                                 </div>
@@ -3772,9 +3914,7 @@ export function BlogPostsManager() {
                               <div className="flex items-center gap-2">
                                 <Switch
                                   checked={sec.cta.enabled}
-                                  onCheckedChange={(checked) =>
-                                    updateSection(sec.id, { cta: { ...sec.cta, enabled: checked } })
-                                  }
+                                  onCheckedChange={(checked) => updateSection(sec.id, { cta: { ...sec.cta, enabled: checked } })}
                                 />
                                 <span className="text-sm text-gray-600">{sec.cta.enabled ? "Enabled" : "Disabled"}</span>
                               </div>
@@ -3786,11 +3926,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Heading</Label>
                                   <Input
                                     value={sec.cta.heading || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, heading: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, heading: e.target.value } })}
                                     placeholder="e.g., Want us to do this for you?"
                                   />
                                 </div>
@@ -3798,11 +3934,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Button Text</Label>
                                   <Input
                                     value={sec.cta.buttonText || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, buttonText: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, buttonText: e.target.value } })}
                                     placeholder="e.g., Book a Call"
                                   />
                                 </div>
@@ -3810,11 +3942,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Description</Label>
                                   <Textarea
                                     value={sec.cta.description || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, description: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, description: e.target.value } })}
                                     rows={2}
                                     placeholder="Short supporting text..."
                                   />
@@ -3823,11 +3951,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Button Link</Label>
                                   <Input
                                     value={sec.cta.buttonLink || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, buttonLink: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, buttonLink: e.target.value } })}
                                     placeholder="https://... or /contact"
                                   />
                                 </div>
@@ -3883,7 +4007,8 @@ export function BlogPostsManager() {
                         <br />
                         ✅ Inline word links and References are saved separately.
                         <br />
-                        ✅ Inline word links now support: <b>bold</b>, <i>italic</i>, and <span className="font-semibold">font size</span>.
+                        ✅ Inline word links now support: <b>bold</b>, <i>italic</i>, and{" "}
+                        <span className="font-semibold">font size</span>.
                       </CardContent>
                     </Card>
                   </div>
