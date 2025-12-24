@@ -1497,11 +1497,52 @@ export interface BusinessGrowthReport {
   };
 }
 
+function inferGeographicMix(website: string) {
+  const defaultMix = { us: "Insufficient data", uk: "Insufficient data", other: "Insufficient data" };
+  if (!website) return defaultMix;
+
+  const normalized = /^https?:\/\//i.test(website) ? website : `https://${website}`;
+  let hostname = website.toLowerCase();
+
+  try {
+    hostname = new URL(normalized).hostname.toLowerCase();
+  } catch {
+    hostname = website.toLowerCase();
+  }
+
+  const tldMatches = [
+    { suffix: ".co.uk", region: "United Kingdom" },
+    { suffix: ".uk", region: "United Kingdom" },
+    { suffix: ".co.in", region: "India" },
+    { suffix: ".in", region: "India" },
+    { suffix: ".us", region: "United States" },
+    { suffix: ".com.au", region: "Australia" },
+    { suffix: ".au", region: "Australia" },
+    { suffix: ".ca", region: "Canada" },
+  ];
+
+  const match = tldMatches.find((entry) => hostname.endsWith(entry.suffix));
+  if (!match) {
+    return defaultMix;
+  }
+
+  if (match.region === "United States") {
+    return { us: "Primary market (inferred from .us domain)", uk: "Unknown", other: "Unknown" };
+  }
+
+  if (match.region === "United Kingdom") {
+    return { us: "Unknown", uk: "Primary market (inferred from .uk domain)", other: "Unknown" };
+  }
+
+  return { us: "Unknown", uk: "Unknown", other: `${match.region} (inferred from domain)` };
+}
+
 function buildBusinessGrowthFallback(input: { companyName: string; website: string; industry?: string; }): BusinessGrowthReport {
   const now = new Date();
   const reportId = `BB-AI-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate()
     .toString()
     .padStart(2, "0")}-${Math.floor(Math.random() * 9000 + 1000)}`;
+  const geographicMix = inferGeographicMix(input.website);
 
   return {
     reportMetadata: {
@@ -1808,7 +1849,7 @@ function buildBusinessGrowthFallback(input: { companyName: string; website: stri
     },
     targetMarket: {
       currentClientProfile: {
-        geographicMix: { us: "68%", uk: "12%", other: "20%" },
+        geographicMix,
         clientSize: { small: "46%", medium: "38%", large: "16%" },
         industries: [
           { industry: "Local services", concentration: "High (~40%)" },
@@ -2059,6 +2100,7 @@ function buildBusinessGrowthFallback(input: { companyName: string; website: stri
 
 export async function generateBusinessGrowthAnalysis(input: { companyName: string; website: string; industry?: string; }): Promise<BusinessGrowthReport> {
   const fallback = buildBusinessGrowthFallback(input);
+  const geographicMix = inferGeographicMix(input.website);
 
   if (!process.env.OPENAI_API_KEY) {
     return fallback;
@@ -2188,6 +2230,7 @@ Company: ${input.companyName || "Marketing Agency"}
 Website: ${input.website}
 Industry: ${input.industry || "Agency"}
 Tone: brutally honest, specific, with metrics.
+Geographic mix must be evidence-based. If the website does not explicitly mention locations, set us/uk/other to "Insufficient data". If the ccTLD indicates a country, mark that as the primary market and explain it in the "other" field if needed.
 `;
 
   try {
@@ -2233,6 +2276,23 @@ Tone: brutally honest, specific, with metrics.
         quickWins: parsed.executiveSummary?.quickWins?.length
           ? parsed.executiveSummary.quickWins
           : fallback.executiveSummary.quickWins,
+      },
+      targetMarket: {
+        ...fallback.targetMarket,
+        ...parsed.targetMarket,
+        currentClientProfile: {
+          ...fallback.targetMarket.currentClientProfile,
+          ...parsed.targetMarket?.currentClientProfile,
+          geographicMix,
+        },
+        geographicExpansion: {
+          ...fallback.targetMarket.geographicExpansion,
+          ...parsed.targetMarket?.geographicExpansion,
+        },
+        idealClientProfile: {
+          ...fallback.targetMarket.idealClientProfile,
+          ...parsed.targetMarket?.idealClientProfile,
+        },
       },
     } as BusinessGrowthReport;
   } catch (error) {

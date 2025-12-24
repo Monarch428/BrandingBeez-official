@@ -76,6 +76,7 @@ interface BusinessGrowthReport {
     biggestOpportunity: string;
     quickWins: QuickWin[];
   };
+  // NOTE: your backend returns a lot more, but we only need these for UI
 }
 
 const analysisStages = [
@@ -90,20 +91,14 @@ const analysisStages = [
 ];
 
 const teaserMessages = [
-  "We found 47 keyword opportunities you're missing...",
-  "Your competitors are outranking you on 23 high-value terms...",
-  "We identified 3 untapped lead generation channels...",
-  "We found $42K in potential cost savings...",
-  "Your reputation score is strong, but 6 reviews need replies...",
+  "We found keyword opportunities you're missing...",
+  "Your competitors may be outranking you on high-value terms...",
+  "We identified untapped lead generation channels...",
+  "We found potential cost savings in your delivery process...",
+  "Your reputation score is strong, but review responses can improve trust...",
 ];
 
-const disposableEmailDomains = [
-  "mailinator.com",
-  "guerrillamail.com",
-  "10minutemail.com",
-  "tempmail.com",
-  "trashmail.com",
-];
+const disposableEmailDomains = ["mailinator.com", "guerrillamail.com", "10minutemail.com", "tempmail.com", "trashmail.com"];
 
 const domainSuggestions: Record<string, string> = {
   "gmial.com": "gmail.com",
@@ -112,58 +107,6 @@ const domainSuggestions: Record<string, string> = {
   "hotmal.com": "hotmail.com",
   "yaho.com": "yahoo.com",
 };
-
-const fallbackReport: BusinessGrowthReport = {
-  reportMetadata: {
-    reportId: "BB-DEMO-0001",
-    companyName: "Demo Agency",
-    website: "https://example.com",
-    analysisDate: new Date().toISOString(),
-    overallScore: 73,
-    subScores: {
-      website: 76,
-      seo: 71,
-      reputation: 68,
-      leadGen: 64,
-      services: 72,
-      costEfficiency: 61,
-    },
-  },
-  executiveSummary: {
-    strengths: ["Strong SEO momentum (87/100)", "Great reputation score (4.7★)", "Solid client retention signals"],
-    weaknesses: ["Limited lead gen diversity (3/10)", "High cost structure vs. peers", "Missing key directory coverage"],
-    biggestOpportunity: "Claim Clutch & DesignRush listings to unlock ~$42K ARR within 90 days.",
-    quickWins: [
-      {
-        title: "Claim and optimize Clutch profile with 5 proof points",
-        impact: "+$30K ARR",
-        time: "2 weeks",
-        cost: "$0",
-        details: "Set up category tags, upload 3 portfolio pieces, and request 5 client reviews to improve lead flow.",
-      },
-      {
-        title: "Launch ROI calculator lead magnet",
-        impact: "3x lead conversion",
-        time: "3 weeks",
-        cost: "$500",
-        details: "Use a simple form-based calculator for paid media ROI with automated email follow-up.",
-      },
-      {
-        title: "Reply to recent Google reviews and add schema",
-        impact: "+8% conversion",
-        time: "1 week",
-        cost: "$0",
-        details: "Respond to last 10 reviews, add FAQ + review schema, and push testimonials to key landing pages.",
-      },
-    ],
-  },
-};
-
-const reportPreview = [
-  { title: "SEO Deep Dive", description: "Technical fixes + ranking roadmap" },
-  { title: "Cost Savings Plan", description: "Margin unlocks & team efficiency" },
-  { title: "Lead Gen Audit", description: "Channel mix, funnels, CRO fixes" },
-];
 
 function normalizeWebsiteUrl(url: string) {
   const trimmed = url.trim();
@@ -223,21 +166,37 @@ function validateWebsite(url: string): string | undefined {
   return undefined;
 }
 
-async function checkWebsiteReachableViaBackend(website: string): Promise<boolean> {
+/**
+ * Reachability check should be "best effort", NOT a hard gate.
+ * - It can fail for valid sites (HEAD blocked, WAF, geo blocks, redirects, etc.)
+ * - Add a timeout so UI doesn't hang for ~16s.
+ */
+async function checkWebsiteReachableViaBackendBestEffort(website: string, timeoutMs = 6000): Promise<{
+  ok: boolean;
+  reachable?: boolean;
+  timedOut?: boolean;
+}> {
+  const controller = new AbortController();
+  const t = window.setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const res = await fetch("/api/utils/website-reachable", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ website }),
+      signal: controller.signal,
     });
 
-    if (!res.ok) return false;
+    if (!res.ok) return { ok: false };
 
     const data = await res.json();
-    return Boolean(data?.reachable);
+    return { ok: true, reachable: Boolean(data?.reachable) };
   } catch (err) {
-    console.error("Website reachability check failed:", err);
-    return false;
+    const aborted = err instanceof DOMException && err.name === "AbortError";
+    if (aborted) return { ok: true, timedOut: true };
+    return { ok: false };
+  } finally {
+    window.clearTimeout(t);
   }
 }
 
@@ -277,6 +236,7 @@ function StageItem({ label, state, message }: { label: string; state: StageState
           <Clock4 className="w-5 h-5" />
         )}
       </div>
+
       <div className="flex-1">
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
           {label}
@@ -317,29 +277,29 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [leadForm, setLeadForm] = useState<LeadFormState>({ email: "", phone: "", consent: false });
   const [leadErrors, setLeadErrors] = useState<LeadFormErrors>({});
   const [leadSubmitError, setLeadSubmitError] = useState<string | null>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLeadSubmitting, setIsLeadSubmitting] = useState(false);
+
   const [progress, setProgress] = useState(0);
   const [currentStage, setCurrentStage] = useState(0);
-  const [stageStates, setStageStates] = useState<StageState[]>(
-    analysisStages.map((_, idx) => (idx === 0 ? "active" : "pending")),
-  );
+  const [stageStates, setStageStates] = useState<StageState[]>(analysisStages.map((_, idx) => (idx === 0 ? "active" : "pending")));
   const [statusMessage, setStatusMessage] = useState(analysisStages[0].message);
   const [teaserIndex, setTeaserIndex] = useState(0);
+
   const [emailSuggestion, setEmailSuggestion] = useState("");
   const [leadId, setLeadId] = useState("demo-lead-123");
+
   const [analysisData, setAnalysisData] = useState<BusinessGrowthReport | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
+
   const [lastAnalyzedWebsite, setLastAnalyzedWebsite] = useState<string>("");
   const [analysisSource, setAnalysisSource] = useState<string | null>(null);
-  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
-  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
 
-  // ✅ Read URL params ONCE at mount (NOT inside another hook)
   useEffect(() => {
     if (typeof window === "undefined") return;
 
@@ -350,7 +310,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
     if (websiteParam) {
       setFormState((prev) => ({ ...prev, website: normalizeWebsiteUrl(websiteParam) }));
     }
-
     if (sourceParam) {
       setAnalysisSource(sourceParam);
     }
@@ -361,12 +320,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
   }, []);
 
   useEffect(() => {
-    if (step === "lead") {
-      emailRef.current?.focus();
-    }
+    if (step === "lead") emailRef.current?.focus();
   }, [step]);
 
-  // ✅ Start analysis stage animation when step becomes "analysis"
+  // analysis animation
   useEffect(() => {
     if (step !== "analysis") return;
 
@@ -375,13 +332,13 @@ export default function AIBusinessGrowthAnalyzerPage() {
     setStatusMessage(analysisStages[0].message);
     setStageStates(analysisStages.map((_, idx) => (idx === 0 ? "active" : "pending")));
 
-    const timers: NodeJS.Timeout[] = [];
+    const timers: number[] = [];
     let accumulated = 0;
 
     analysisStages.forEach((stage, index) => {
       const delay = accumulated * 1000;
       timers.push(
-        setTimeout(() => {
+        window.setTimeout(() => {
           setCurrentStage(index);
           setStatusMessage(stage.message);
           setProgress(stage.progress);
@@ -397,30 +354,24 @@ export default function AIBusinessGrowthAnalyzerPage() {
       accumulated += stage.duration;
     });
 
-    // Mark complete at end of animation
     timers.push(
-      setTimeout(() => {
+      window.setTimeout(() => {
         setStageStates(Array(analysisStages.length).fill("complete"));
         setStatusMessage("Analysis complete!");
         setProgress(100);
       }, accumulated * 1000),
     );
 
-    return () => timers.forEach(clearTimeout);
+    return () => timers.forEach((id) => window.clearTimeout(id));
   }, [step]);
 
-  // ✅ Teaser rotation only in analysis step
   useEffect(() => {
     if (step !== "analysis") return;
-    const interval = setInterval(() => {
-      setTeaserIndex((prev) => (prev + 1) % teaserMessages.length);
-    }, 9000);
-    return () => clearInterval(interval);
+    const interval = window.setInterval(() => setTeaserIndex((prev) => (prev + 1) % teaserMessages.length), 9000);
+    return () => window.clearInterval(interval);
   }, [step]);
 
-  // ✅ Move to summary ONLY when:
-  // - progress animation completed, AND
-  // - backend analysis is finished (success OR error)
+  // move to summary only when animation is complete AND backend is done
   useEffect(() => {
     if (step !== "analysis") return;
     if (progress < 100) return;
@@ -434,12 +385,26 @@ export default function AIBusinessGrowthAnalyzerPage() {
     [progress, currentStage],
   );
 
-  const report = analysisData || fallbackReport;
-  const summaryStrengths = report.executiveSummary.strengths;
-  const summaryWeaknesses = report.executiveSummary.weaknesses;
-  const summaryQuickWins = report.executiveSummary.quickWins;
-  const biggestOpportunity = report.executiveSummary.biggestOpportunity;
-  const analysisDate = new Date(report.reportMetadata.analysisDate).toLocaleDateString();
+  const report = analysisData;
+  const summaryStrengths = report?.executiveSummary.strengths ?? [];
+  const summaryWeaknesses = report?.executiveSummary.weaknesses ?? [];
+  const summaryQuickWins = report?.executiveSummary.quickWins ?? [];
+  const biggestOpportunity = report?.executiveSummary.biggestOpportunity ?? "";
+  const analysisDate = report?.reportMetadata.analysisDate ? new Date(report.reportMetadata.analysisDate).toLocaleDateString() : "N/A";
+  const score = report?.reportMetadata.overallScore ?? 0;
+
+  const reportPreview = useMemo(() => {
+    const subScores = report?.reportMetadata.subScores;
+    if (!subScores) return [];
+    const items: { title: string; description: string }[] = [];
+    if (subScores.website !== undefined) items.push({ title: "Website & UX", description: `Website score: ${subScores.website}/100` });
+    if (subScores.seo !== undefined) items.push({ title: "SEO Visibility", description: `SEO score: ${subScores.seo}/100` });
+    if (subScores.reputation !== undefined) items.push({ title: "Reputation", description: `Reputation score: ${subScores.reputation}/100` });
+    if (subScores.leadGen !== undefined) items.push({ title: "Lead Generation", description: `Lead gen score: ${subScores.leadGen}/100` });
+    if (subScores.services !== undefined) items.push({ title: "Services & Positioning", description: `Services score: ${subScores.services}/100` });
+    if (subScores.costEfficiency !== undefined) items.push({ title: "Cost Efficiency", description: `Efficiency score: ${subScores.costEfficiency}/100` });
+    return items;
+  }, [report]);
 
   const handleInputChange = (field: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
@@ -473,33 +438,53 @@ export default function AIBusinessGrowthAnalyzerPage() {
       setAnalysisData(payload.analysis as BusinessGrowthReport);
     } catch (error) {
       console.error("Business growth analysis failed", error);
-      setAnalysisError("We couldn't fetch the live analysis. Showing the playbook template instead.");
+      setAnalysisError("We couldn't generate the live analysis. Please try again.");
       setAnalysisData(null);
     } finally {
       setIsAnalyzingBackend(false);
     }
   };
 
+  /**
+   * ✅ FIX:
+   * Reachability check is now:
+   * - best-effort
+   * - timed out (6s)
+   * - never blocks the analysis (only shows a warning)
+   */
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    const nameErrors: FormErrors = {
+
+    const nextErrors: FormErrors = {
       firstName: validateName(formState.firstName, "firstName"),
       lastName: validateName(formState.lastName, "lastName"),
       website: validateWebsite(formState.website),
     };
 
-    const hasErrors = Object.values(nameErrors).some(Boolean);
-    setErrors(nameErrors);
+    const hasErrors = Object.values(nextErrors).some(Boolean);
+    setErrors(nextErrors);
     if (hasErrors) return;
 
     setIsSubmitting(true);
+
     const normalizedUrl = normalizeWebsiteUrl(formState.website);
 
-    const reachable = await checkWebsiteReachableViaBackend(normalizedUrl);
-    if (!reachable) {
-      setErrors((prev) => ({ ...prev, website: "We couldn't reach this website. Please check the URL." }));
-      setIsSubmitting(false);
-      return;
+    // best-effort check
+    const reachability = await checkWebsiteReachableViaBackendBestEffort(normalizedUrl, 6000);
+
+    // If backend explicitly says "reachable:false", show a warning,
+    // BUT DO NOT block. Many valid sites will be flagged false.
+    if (reachability.ok && reachability.reachable === false) {
+      setErrors((prev) => ({
+        ...prev,
+        website:
+          "We couldn't verify this website from the server (some sites block automated checks). We'll continue anyway.",
+      }));
+    } else if (reachability.ok && reachability.timedOut) {
+      setErrors((prev) => ({
+        ...prev,
+        website: "Website verification timed out. We'll continue anyway.",
+      }));
     }
 
     setIsSubmitting(false);
@@ -511,13 +496,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
     const nextValue = field === "phone" && typeof value === "string" ? formatPhone(value) : value;
     setLeadForm((prev) => ({ ...prev, [field]: nextValue } as LeadFormState));
     setLeadErrors((prev) => ({ ...prev, [field]: undefined }));
-    if (field === "email" && typeof value === "string") {
-      setEmailSuggestion(getEmailSuggestion(value));
-    }
+    if (field === "email" && typeof value === "string") setEmailSuggestion(getEmailSuggestion(value));
   };
 
   const submitLeadToBackend = async (websiteUrl: string) => {
     const normalizedWebsite = normalizeWebsiteUrl(websiteUrl);
+
     const response = await fetch("/api/ai-business-growth/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -527,14 +511,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
         contact: {
           name: `${formState.firstName} ${formState.lastName}`.trim() || undefined,
           email: leadForm.email.trim(),
-          phone: leadForm.phone.trim() || undefined,
+          phone: typeof leadForm.phone === "string" ? leadForm.phone.trim() : undefined,
         },
       }),
     });
 
-    if (!response.ok) {
-      throw new Error("Unable to submit lead to AI analyzer");
-    }
+    if (!response.ok) throw new Error("Unable to submit lead to AI analyzer");
 
     const payload = await response.json();
     if (payload?.analysis && !analysisData) {
@@ -543,82 +525,17 @@ export default function AIBusinessGrowthAnalyzerPage() {
     }
   };
 
-  const buildReportPayload = () => {
-    const baseAnalysis = analysisData || fallbackReport;
-    const metadata = baseAnalysis.reportMetadata || fallbackReport.reportMetadata;
-    const normalizedWebsite = metadata.website || lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
-    const fullName = `${formState.firstName} ${formState.lastName}`.trim() || metadata.companyName || "Marketing Agency";
-
-    return {
-      analysis: {
-        ...baseAnalysis,
-        reportMetadata: {
-          ...metadata,
-          companyName: metadata.companyName || fullName,
-          website: normalizedWebsite || metadata.website || fallbackReport.reportMetadata.website,
-        },
-      },
-      contact: {
-        name: fullName,
-        email: leadForm.email,
-        phone: leadForm.phone,
-      },
-    };
-  };
-
-  const sanitizeFileName = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/https?:\/\//g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "")
-      .replace(/--+/g, "-") || "ai-business-growth-report";
-
-  const handleDownloadReport = async () => {
-    setDownloadError(null);
-    setIsDownloadingReport(true);
-
-    try {
-      const payload = buildReportPayload();
-      const response = await fetch("/api/ai-business-growth/report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error("Unable to generate PDF");
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      const filenameBase = sanitizeFileName(
-        payload.analysis.reportMetadata.website || payload.analysis.reportMetadata.companyName || "ai-business-growth-report",
-      );
-
-      anchor.href = url;
-      anchor.download = `${filenameBase}.pdf`;
-      anchor.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("PDF download failed", error);
-      setDownloadError("We couldn't generate the PDF right now. Please try again in a moment.");
-    } finally {
-      setIsDownloadingReport(false);
-    }
-  };
-
   const handleLeadSubmit = async (event?: FormEvent) => {
     event?.preventDefault();
-    const leadFormErrors: LeadFormErrors = {
+
+    const nextLeadErrors: LeadFormErrors = {
       email: validateEmail(leadForm.email),
       phone: validatePhone(leadForm.phone),
       consent: leadForm.consent ? undefined : "Please agree to our privacy policy to continue",
     };
 
-    const hasLeadErrors = Object.values(leadFormErrors).some(Boolean);
-    setLeadErrors(leadFormErrors);
+    const hasLeadErrors = Object.values(nextLeadErrors).some(Boolean);
+    setLeadErrors(nextLeadErrors);
     if (hasLeadErrors) return;
 
     setIsLeadSubmitting(true);
@@ -647,9 +564,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
             <p className="text-sm uppercase tracking-widest text-primary font-semibold">BrandingBeez AI Agent</p>
             <h1 className="text-3xl lg:text-4xl font-bold mt-2">AI Business Growth Analyzer</h1>
             <p className="text-lg text-gray-600 mt-2 max-w-2xl">
-              Get a comprehensive growth diagnosis for your digital marketing agency. Quick insights now, full report gated for
-              qualified leads.
+              Get a growth diagnosis for your agency. Quick insights now, full playbook gated for qualified leads.
             </p>
+
             {analysisSource === "service-wizard" && (
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-sm font-semibold mt-3">
                 <Sparkles className="w-4 h-4" />
@@ -657,6 +574,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
               </div>
             )}
           </div>
+
           <div className="flex items-center gap-3 bg-white shadow-sm border rounded-full px-4 py-2">
             <ShieldCheck className="w-5 h-5 text-emerald-500" />
             <span className="text-sm font-semibold">100% Free. No credit card.</span>
@@ -670,6 +588,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                 <Sparkles className="w-5 h-5 text-primary" /> Start your analysis
               </CardTitle>
               <CardDescription>Low-friction entry, guided progress, and instant value delivery.</CardDescription>
+
               <div className="flex items-center gap-4 text-sm font-semibold text-gray-700">
                 {["Initial Data", "Analysis", "Summary", "Lead Capture", "Success"].map((label, index) => {
                   const stepOrder: Step[] = ["capture", "analysis", "summary", "lead", "success"];
@@ -743,9 +662,9 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       aria-invalid={Boolean(errors.website)}
                       aria-describedby="websiteError"
                     />
-                    <p className="text-xs text-gray-500">We'll analyze this and auto-fix prefixes.</p>
+                    <p className="text-xs text-gray-500">We’ll analyze this and auto-fix prefixes.</p>
                     {errors.website && (
-                      <p id="websiteError" className="text-sm text-red-500">
+                      <p id="websiteError" className={cn("text-sm", errors.website.includes("continue anyway") ? "text-amber-600" : "text-red-500")}>
                         {errors.website}
                       </p>
                     )}
@@ -763,24 +682,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         </span>
                       )}
                     </Button>
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <Badge variant="secondary" className="bg-emerald-50 text-emerald-600 border-emerald-100">
-                        ✅ 100% Free. No credit card.
-                      </Badge>
-                      <span>Auto-focus enabled • Enter key submits</span>
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-2 flex flex-wrap gap-2 text-xs text-gray-500">
-                    <Badge variant="outline" className="border-dashed border-gray-300">
-                      ⭐⭐⭐⭐⭐ 4.9/5 from 200+ agencies
-                    </Badge>
-                    <Badge variant="outline" className="border-dashed border-gray-300">
-                      Real-time validation
-                    </Badge>
-                    <Badge variant="outline" className="border-dashed border-gray-300">
-                      Privacy-first data handling
-                    </Badge>
                   </div>
                 </form>
               )}
@@ -793,405 +694,197 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         <p className="text-sm font-semibold text-gray-700">Analysis Progress</p>
                         <span className="text-sm font-bold text-primary">{Math.round(progressPercentage)}%</span>
                       </div>
+
                       <div className="w-full bg-gray-100 rounded-full h-3 mt-3 overflow-hidden">
-                        <div
-                          className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-primary to-emerald-500 transition-all duration-700"
-                          style={{ width: `${progressPercentage}%` }}
-                        />
+                        <div className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-primary to-emerald-500 transition-all duration-700" style={{ width: `${progressPercentage}%` }} />
                       </div>
-                      <p className="text-sm text-gray-600 mt-3 flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-primary" /> {statusMessage}
+
+                      <p className="mt-3 text-sm text-gray-700">
+                        <span className="font-semibold">{statusMessage}</span>
                       </p>
-                      {isAnalyzingBackend && (
-                        <p className="text-xs text-gray-500 mt-1">AI agent is generating your tailored business growth report...</p>
-                      )}
-                      {analysisError && <p className="text-xs text-red-500 mt-1">{analysisError}</p>}
+
+                      <div className="mt-3 text-xs text-gray-500 flex items-center gap-2">
+                        <Globe2 className="w-4 h-4" />
+                        <span>{normalizeWebsiteUrl(formState.website)}</span>
+                      </div>
                     </div>
 
                     <div className="space-y-3">
-                      {analysisStages.map((stage, idx) => (
-                        <StageItem key={stage.label} label={stage.label} message={stage.message} state={stageStates[idx]} />
+                      {analysisStages.slice(0, -1).map((stage, idx) => (
+                        <StageItem key={stage.label} label={stage.label} state={stageStates[idx] ?? "pending"} message={stage.message} />
                       ))}
                     </div>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-white border shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Globe2 className="w-4 h-4 text-primary" />
-                        <p className="text-sm font-semibold text-gray-800">Live findings</p>
+                      <p className="text-sm font-semibold text-gray-800">Live findings</p>
+                      <p className="mt-2 text-sm text-gray-600">{teaserMessages[teaserIndex]}</p>
+                      <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+                        <Target className="w-4 h-4" />
+                        <span>Updating every few seconds</span>
                       </div>
-                      <p className="text-base text-gray-700 min-h-[48px] transition-opacity">{teaserMessages[teaserIndex]}</p>
-                      <p className="text-xs text-gray-500 mt-2">This usually takes 60-90 seconds...</p>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-primary text-white shadow-md space-y-2">
-                      <p className="text-sm font-semibold">No back button during analysis</p>
-                      <p className="text-sm text-white/80">
-                        If you close the tab, we keep analyzing. Cached results for 24 hours when you return.
-                      </p>
-                    </div>
+                    <ReportCard title="Full SEO Deep Dive" description="Technical fixes + ranking roadmap" />
+                    <ReportCard title="Lead Gen Playbook" description="Funnels, CRO fixes, and channel expansion" />
+                    <ReportCard title="Cost Savings Plan" description="Margin unlocks & delivery efficiency" />
                   </div>
                 </div>
               )}
 
               {step === "summary" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-                  <div className="lg:col-span-2 space-y-4">
-                    <div className="flex items-center gap-4 flex-wrap">
-                      <ScoreGauge score={report.reportMetadata.overallScore} />
-                      <div className="space-y-2">
-                        <p className="text-sm text-emerald-600 font-semibold">✓ Analysis Complete</p>
-                        <h2 className="text-2xl font-bold">Your Business Growth Score</h2>
-                        <p className="text-gray-600 max-w-xl">
-                          A quick snapshot of where you stand before unlocking the full 28-page report.
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100">Strengths surfaced</Badge>
-                          <Badge className="bg-amber-50 text-amber-700 border-amber-100">Weak spots flagged</Badge>
+                <div className="space-y-5">
+                  {/* ✅ Hard-guard: if analysisData missing, show retry UI instead of crashing */}
+                  {!analysisData ? (
+                    <div className="p-5 rounded-xl border bg-white">
+                      <p className="font-semibold text-gray-900">Something went wrong</p>
+                      <p className="text-sm text-gray-600 mt-1">{analysisError ?? "We couldn't load your analysis result."}</p>
+                      <div className="mt-4 flex gap-2">
+                        <Button
+                          type="button"
+                          onClick={() => {
+                            setStep("analysis");
+                            void runAnalysis(lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website));
+                          }}
+                        >
+                          Retry analysis
+                        </Button>
+                        <Button type="button" variant="secondary" onClick={() => setStep("capture")}>
+                          Back
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-start justify-between gap-4 flex-col md:flex-row">
+                        <div>
+                          <p className="text-sm text-gray-500">Analysis date: {analysisDate}</p>
+                          <h2 className="text-2xl font-bold mt-1">Your Growth Snapshot</h2>
+                          <p className="text-gray-600 mt-2 max-w-2xl">
+                            We analyzed your website and generated an executive summary. The full report is available after a quick lead capture.
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          Report ID: {report.reportMetadata.reportId} • Generated {analysisDate}
-                        </p>
+                        <ScoreGauge score={score} />
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="p-4 rounded-xl bg-white border shadow-sm space-y-3">
-                        <p className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                          <ShieldCheck className="w-4 h-4 text-emerald-500" /> Strengths
-                        </p>
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          {summaryStrengths.map((item) => (
-                            <li key={item} className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-xl border bg-white">
+                          <p className="font-semibold text-gray-900">Strengths</p>
+                          <ul className="mt-2 space-y-2 text-sm text-gray-700 list-disc pl-5">
+                            {summaryStrengths.slice(0, 5).map((s, i) => (
+                              <li key={i}>{s}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="p-4 rounded-xl border bg-white">
+                          <p className="font-semibold text-gray-900">Risks / Weaknesses</p>
+                          <ul className="mt-2 space-y-2 text-sm text-gray-700 list-disc pl-5">
+                            {summaryWeaknesses.slice(0, 5).map((s, i) => (
+                              <li key={i}>{s}</li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                      <div className="p-4 rounded-xl bg-white border shadow-sm space-y-3">
-                        <p className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                          <Target className="w-4 h-4 text-amber-500" /> Weaknesses
-                        </p>
-                        <ul className="space-y-2 text-sm text-gray-700">
-                          {summaryWeaknesses.map((item) => (
-                            <li key={item} className="flex items-center gap-2">
-                              <ArrowRight className="w-4 h-4 text-amber-500" />
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+
+                      <div className="p-4 rounded-xl border bg-white">
+                        <p className="font-semibold text-gray-900">Biggest opportunity</p>
+                        <p className="mt-2 text-sm text-gray-700">{biggestOpportunity || "Opportunity insights are being finalized."}</p>
                       </div>
-                    </div>
 
-                    <div className="p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-100">
-                      <p className="text-sm font-semibold text-amber-700">🚀 Biggest Opportunity</p>
-                      <h3 className="text-xl font-bold text-gray-900 mt-1">{biggestOpportunity}</h3>
-                      <p className="text-sm text-gray-700 mt-1">Pulled directly from the AI business growth agent.</p>
-                    </div>
-
-                    <div className="space-y-3">
-                      <p className="text-base font-semibold text-gray-900">Top 3 Immediate Actions</p>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        {summaryQuickWins.map((action, idx) => (
-                          <div key={action.title} className="p-4 rounded-xl bg-white border shadow-sm space-y-2">
-                            <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary font-bold flex items-center justify-center">
-                              {idx + 1}
+                      <div className="p-4 rounded-xl border bg-white">
+                        <p className="font-semibold text-gray-900">Sub-score breakdown</p>
+                        <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {reportPreview.map((item) => (
+                            <div key={item.title} className="p-3 rounded-lg border bg-gray-50">
+                              <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                              <p className="text-sm text-gray-600 mt-1">{item.description}</p>
                             </div>
-                            <p className="font-semibold text-gray-900">{action.title}</p>
-                            <p className="text-sm text-gray-600">{action.details}</p>
-                            <div className="text-xs text-gray-500">Impact: {action.impact}</div>
-                            <div className="text-xs text-gray-500">
-                              Time: {action.time} • Cost: {action.cost}
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-white border shadow-sm space-y-3">
-                      <p className="text-sm font-semibold text-gray-900">Your Full Report Includes</p>
-                      <div className="space-y-3">
-                        {reportPreview.map((item) => (
-                          <ReportCard key={item.title} title={item.title} description={item.description} />
-                        ))}
-                        <div className="text-sm text-gray-600">+ 5 more detailed sections...</div>
+                      <div className="flex flex-col md:flex-row gap-3">
+                        <Button type="button" className="h-12 text-base font-semibold" onClick={() => setStep("lead")}>
+                          Unlock Full Report <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                        <BookCallButtonWithModal />
                       </div>
-                      <Button className="w-full h-12 text-base font-semibold" onClick={() => setStep("lead")}>
-                        Unlock Full 28-Page Report
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="w-full h-12 text-base font-semibold text-primary"
-                        onClick={() => setStep("lead")}
-                      >
-                        Book Your Strategy Call
-                      </Button>
-                    </div>
-                  </div>
+                    </>
+                  )}
                 </div>
               )}
 
               {step === "lead" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                  <div className="lg:col-span-2 space-y-6">
-                    <div className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
-                      <div className="flex items-start justify-between gap-4 flex-col md:flex-row">
-                        <div>
-                          <p className="text-sm uppercase tracking-wider text-primary font-semibold">
-                            Get Your Complete Business Growth Analysis
-                          </p>
-                          <h2 className="text-2xl font-bold mt-2">Unlock your 28-page report instantly</h2>
-                          <p className="text-gray-600 max-w-2xl mt-2">
-                            Revenue growth opportunities, cost savings, and a 90-day plan tailored to your agency. Join 2,000+
-                            agencies who already use this report.
-                          </p>
-                        </div>
-                        <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-100">
-                          This analysis expires in 24 hours
-                        </Badge>
-                      </div>
+                <form className="space-y-4" onSubmit={handleLeadSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-800">Email</label>
+                      <Input
+                        ref={emailRef}
+                        placeholder="you@company.com"
+                        value={leadForm.email}
+                        onChange={(e) => handleLeadChange("email", e.target.value)}
+                        aria-invalid={Boolean(leadErrors.email)}
+                      />
+                      {emailSuggestion && (
+                        <p className="text-xs text-amber-700">
+                          Did you mean <span className="font-semibold">{emailSuggestion}</span>?
+                        </p>
+                      )}
+                      {leadErrors.email && <p className="text-sm text-red-500">{leadErrors.email}</p>}
+                    </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                        {[
-                          "Complete SEO gap analysis",
-                          "Competitor benchmarking",
-                          "$42K in identified cost savings",
-                          "90-day action plan",
-                          "Revenue growth opportunities",
-                          "Join 2,000+ agencies",
-                        ].map((benefit) => (
-                          <div key={benefit} className="flex items-start gap-2 text-sm text-gray-700">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5" />
-                            <span>{benefit}</span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <form className="mt-6 space-y-4" onSubmit={handleLeadSubmit}>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-800">Email Address</label>
-                            <Input
-                              ref={emailRef}
-                              placeholder="you@company.com"
-                              value={leadForm.email}
-                              onChange={(e) => handleLeadChange("email", e.target.value)}
-                              aria-invalid={Boolean(leadErrors.email)}
-                              aria-describedby="emailError"
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleLeadSubmit();
-                              }}
-                            />
-                            {emailSuggestion && !leadErrors.email && (
-                              <p className="text-xs text-amber-600">
-                                Did you mean
-                                <button
-                                  type="button"
-                                  className="underline font-semibold ml-1"
-                                  onClick={() => setLeadForm((prev) => ({ ...prev, email: emailSuggestion }))}
-                                >
-                                  {emailSuggestion}
-                                </button>
-                                ?
-                              </p>
-                            )}
-                            {leadErrors.email && (
-                              <p id="emailError" className="text-sm text-red-500">
-                                {leadErrors.email}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-800">Phone Number</label>
-                            <Input
-                              placeholder="(555) 123-4567"
-                              value={leadForm.phone}
-                              onChange={(e) => handleLeadChange("phone", e.target.value)}
-                              aria-invalid={Boolean(leadErrors.phone)}
-                              aria-describedby="phoneError"
-                              inputMode="tel"
-                            />
-                            {leadErrors.phone && (
-                              <p id="phoneError" className="text-sm text-red-500">
-                                {leadErrors.phone}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-start gap-3">
-                          <Checkbox
-                            id="privacy"
-                            checked={leadForm.consent}
-                            onCheckedChange={(checked) => handleLeadChange("consent", Boolean(checked))}
-                          />
-                          <label htmlFor="privacy" className="text-sm text-gray-700 leading-tight">
-                            I agree to the
-                            <a href="/privacy-policy" target="_blank" rel="noreferrer" className="underline text-primary ml-1">
-                              privacy policy
-                            </a>
-                          </label>
-                        </div>
-
-                        {leadErrors.consent && <p className="text-sm text-red-500">{leadErrors.consent}</p>}
-                        {leadSubmitError && <p className="text-sm text-amber-600">{leadSubmitError}</p>}
-
-                        <div className="flex flex-col gap-3">
-                          <Button type="submit" className="h-12 text-base font-semibold" disabled={isLeadSubmitting}>
-                            {isLeadSubmitting ? (
-                              <span className="flex items-center gap-2">
-                                <Loader2 className="w-4 h-4 animate-spin" /> Preparing Your Report...
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-2">
-                                Get My Free Report <ArrowRight className="w-4 h-4" />
-                              </span>
-                            )}
-                          </Button>
-                          <p className="text-xs text-gray-600 flex items-center gap-2">
-                            <Lock className="w-4 h-4" /> We'll never spam you.
-                          </p>
-                          <p className="text-sm text-gray-700">⚡ Instant download + emailed copy</p>
-                        </div>
-                      </form>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-800">Phone</label>
+                      <Input
+                        placeholder="(987) 654-3210"
+                        value={leadForm.phone}
+                        onChange={(e) => handleLeadChange("phone", e.target.value)}
+                        aria-invalid={Boolean(leadErrors.phone)}
+                      />
+                      {leadErrors.phone && <p className="text-sm text-red-500">{leadErrors.phone}</p>}
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-white to-emerald-50 border border-primary/20 shadow-sm space-y-3">
-                      <p className="text-sm font-semibold text-gray-800">Report value recap</p>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-primary" /> Your score: 73/100
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-primary" /> Potential revenue increase: $42K
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-primary" /> Cost savings identified: $35K
-                        </li>
-                        <li className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-primary" /> Implementation time: 90 days
-                        </li>
-                      </ul>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-white border shadow-sm space-y-2 text-sm text-gray-700">
-                      <p className="font-semibold text-gray-900">Why we ask for this</p>
-                      <p>We email your PDF and personalize your booking link. No spam. Opt-out anytime.</p>
+                  <div className="flex items-start gap-3">
+                    <Checkbox checked={leadForm.consent} onCheckedChange={(v) => handleLeadChange("consent", Boolean(v))} />
+                    <div>
+                      <p className="text-sm text-gray-700">
+                        I agree to be contacted about my report and accept the privacy policy.
+                      </p>
+                      {leadErrors.consent && <p className="text-sm text-red-500 mt-1">{leadErrors.consent}</p>}
                     </div>
                   </div>
-                </div>
+
+                  {leadSubmitError && <p className="text-sm text-amber-700">{leadSubmitError}</p>}
+
+                  <Button type="submit" disabled={isLeadSubmitting} className="h-12 text-base font-semibold w-full md:w-auto">
+                    {isLeadSubmitting ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
+                      </span>
+                    ) : (
+                      "Unlock & Continue"
+                    )}
+                  </Button>
+                </form>
               )}
 
               {step === "success" && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  <div className="lg:col-span-2 space-y-6">
-                    <div className="p-6 rounded-2xl bg-white shadow-sm border border-gray-100">
-                      <div className="flex items-center gap-3 text-emerald-600 font-semibold text-lg">
-                        <CheckCircle2 className="w-6 h-6" /> Success! Your report is ready
-                      </div>
-                      <p className="text-gray-800 mt-2 text-lg">Hi {formState.firstName || "there"},</p>
-                      <p className="text-gray-600 mt-1">Your complete Business Growth Analysis has been sent to:</p>
-                      <p className="font-semibold text-gray-900">{leadForm.email || "your email"}</p>
-                      {leadSubmitError && <p className="text-sm text-amber-600 mt-2">{leadSubmitError}</p>}
+                <div className="p-6 rounded-xl border bg-white space-y-3">
+                  <p className="text-sm text-gray-500">Lead ID: {leadId}</p>
+                  <h3 className="text-2xl font-bold text-gray-900">Success! Your report is being prepared.</h3>
+                  <p className="text-gray-600">
+                    We’ve captured your details. Our team can follow up with the full playbook and next-step recommendations.
+                  </p>
 
-                      <div className="mt-6 p-5 rounded-xl border bg-gradient-to-r from-primary/10 to-emerald-50">
-                        <Button
-                          className="w-full h-12 text-base font-semibold"
-                          // onClick={() => window.open("https://storage.example.com/report.pdf", "_blank")}
-                          onClick={handleDownloadReport}
-                          disabled={isDownloadingReport}
-                        >
-                          {/* 📥 Download Report (PDF) */}
-                          {isDownloadingReport ? (
-                            <span className="flex items-center gap-2">
-                              <Loader2 className="w-4 h-4 animate-spin" /> Preparing PDF...
-                            </span>
-                          ) : (
-                            "📥 Download Report (PDF)"
-                          )}
-                        </Button>
-                        <p className="text-xs text-gray-600 mt-2">Download event tracked for CRM • Lead ID: {leadId}</p>
-                        {downloadError && <p className="text-xs text-red-500 mt-2">{downloadError}</p>}
-                      </div>
-
-                      <div className="mt-6 space-y-2">
-                        <p className="font-semibold text-gray-900">Quick Recap:</p>
-                        <ul className="text-sm text-gray-700 space-y-1">
-                          <li>• Your score: 73/100</li>
-                          <li>• Potential revenue increase: $42K</li>
-                          <li>• Cost savings identified: $35K</li>
-                          <li>• Implementation time: 90 days</li>
-                        </ul>
-                      </div>
-
-                      <div className="mt-6 pt-6 border-t space-y-4">
-                        <div className="space-y-1">
-                          <p className="text-sm font-semibold text-gray-900">READY TO IMPLEMENT THIS PLAN?</p>
-                          <p className="text-gray-700">
-                            Book a free 30-minute strategy call and we'll help you execute these opportunities.
-                          </p>
-                        </div>
-                        {/* <Button
-                          className="w-full h-12 text-base font-semibold"
-                          onClick={() => {
-                            const params = new URLSearchParams({
-                              name: `${formState.firstName} ${formState.lastName}`.trim() || "Guest",
-                              email: leadForm.email,
-                              phone: leadForm.phone,
-                              source: "ai-analyzer",
-                              score: "73",
-                              lead_id: leadId,
-                              utm_source: "tool",
-                              utm_medium: "ai-report",
-                              utm_campaign: "lead-gen",
-                            });
-                            window.open(`https://brandingbeez.co.uk/book-call?${params.toString()}`, "_blank");
-                          }}
-                        >
-                          📞 Book Your Strategy Call
-                        </Button> */}
-                        <BookCallButtonWithModal
-                          buttonLabel="📞 Book Your Strategy Call"
-                          buttonClassName="w-full h-12 text-base font-semibold justify-center"
-                          defaultServiceType="seo"
-                        />
-                        <div className="flex items-center justify-between text-sm text-gray-700">
-                          <span>Limited slots available</span>
-                          <span>⭐⭐⭐⭐⭐ Rated 4.9/5</span>
-                        </div>
-                        <button
-                          type="button"
-                          className="text-sm text-gray-500 underline"
-                          onClick={() => alert("No problem! We'll send you a reminder in 3 days.")}
-                        >
-                          Maybe Later
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="p-5 rounded-2xl bg-white border shadow-sm space-y-3 text-sm text-gray-700">
-                      <p className="font-semibold text-gray-900">Next steps</p>
-                      <p>We've sent a confirmation email with your download link. Re-open anytime from your inbox.</p>
-                      <p>Want SMS copy? Reply to the email, and we'll text you the link.</p>
-                    </div>
-
-                    <div className="p-5 rounded-2xl bg-gradient-to-br from-primary/10 via-white to-emerald-50 border border-primary/20 space-y-3 text-sm text-gray-700">
-                      <p className="font-semibold text-gray-900">Tracking events</p>
-                      <ul className="space-y-1 list-disc pl-4">
-                        <li>Report download logged</li>
-                        <li>Booking intent tracked</li>
-                        <li>Lead added to nurture sequence</li>
-                      </ul>
-                    </div>
+                  <div className="flex flex-col md:flex-row gap-3 pt-2">
+                    <BookCallButtonWithModal />
+                    <Button type="button" variant="secondary" onClick={() => setStep("capture")}>
+                      Run another analysis
+                    </Button>
                   </div>
                 </div>
               )}
@@ -1199,99 +892,40 @@ export default function AIBusinessGrowthAnalyzerPage() {
           </Card>
 
           <div className="space-y-4">
-            <Card className="border border-gray-100 shadow-sm">
+            <Card className="bg-white/90 border border-gray-100 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-lg">Why agencies love this flow</CardTitle>
-                <CardDescription>Real-time value with high-intent lead capture.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-gray-700">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-900">Entry friction: LOW</p>
-                    <p>Name + website only, instant validation.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-900">Value delivery: HIGH</p>
-                    <p>Real-time analysis status + teaser insights.</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 text-primary mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-gray-900">Conversion mechanism</p>
-                    <p>Summary upfront, gated report + strong CTA.</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-100 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Progress Stages</CardTitle>
-                <CardDescription>Transparent timing to set expectations.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm text-gray-700">
-                {analysisStages.map((stage) => (
-                  <div key={stage.label} className="flex items-center justify-between rounded-lg border border-gray-100 p-3">
-                    <div className="space-y-1">
-                      <p className="font-semibold text-gray-900">{stage.label}</p>
-                      <p className="text-xs text-gray-500">{stage.message}</p>
-                    </div>
-                    <div className="text-right text-sm">
-                      <p className="font-semibold">{stage.duration}s</p>
-                      <p className="text-xs text-gray-500">{stage.progress}%</p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            <Card className="border border-gray-100 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg">Lead Capture Ready</CardTitle>
-                <CardDescription>Design anticipates email/phone gate + booking CTA.</CardDescription>
+                <CardTitle className="text-base">What you get</CardTitle>
+                <CardDescription>Immediate value + full playbook after qualification</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-gray-700">
-                <div className="flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-gray-500" />
-                  <span>Full report gated behind email & phone</span>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5" />
+                  <span>Executive summary & quick wins</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CalendarClockIcon />
-                  <span>Hard CTA for strategy call booking</span>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5" />
+                  <span>Sub-score breakdown (SEO, reputation, lead gen)</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span>Prepared for PDF download confirmation flow</span>
+                <div className="flex items-start gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5" />
+                  <span>Optional call to review the report</span>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/90 border border-gray-100 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">Why reachability can be “false”</CardTitle>
+                <CardDescription>Even when the URL is correct</CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-gray-700 space-y-2">
+                <p>Some sites block automated checks (HEAD), use Cloudflare/WAF, or geo-restrict server probes.</p>
+                <p className="text-gray-500">We now treat verification as a warning and continue the analysis.</p>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function CalendarClockIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      className="w-4 h-4"
-    >
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-      <line x1="16" y1="2" x2="16" y2="6" />
-      <line x1="8" y1="2" x2="8" y2="6" />
-      <line x1="3" y1="10" x2="21" y2="10" />
-      <path d="M15 14.5 12.75 16 11 14" />
-    </svg>
   );
 }
