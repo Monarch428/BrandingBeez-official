@@ -961,7 +961,7 @@ import {
   Cpu,
   Dot,
 } from "lucide-react";
-import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.png";
+import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.webp";
 
 // ✅ Lazy-load the modal/button to reduce initial JS + improve LCP
 const BookCallButtonWithModal = lazy(() =>
@@ -975,7 +975,7 @@ export default function Header() {
   const [isDesktopServicesPinned, setIsDesktopServicesPinned] = useState(false);
   const servicesRef = useRef<HTMLDivElement | null>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
-  const [location, navigate] = useLocation(); // ✅ can navigate programmatically
+  const [location, navigate] = useLocation(); 
 
   // ✅ Set fetchpriority in a TS-safe way (avoids React warning + TS error)
   useEffect(() => {

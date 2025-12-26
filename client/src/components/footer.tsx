@@ -12,7 +12,8 @@ import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 
 import superbLogo from "../../public/images/superb.png";
 import semrushLogo from "../../public/images/Semrush.png";
-import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo_White.png";
+// import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo_White.png";
+import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo_White.webp";
 
 import { BookCallButtonWithModal } from "./book-appoinment";
 

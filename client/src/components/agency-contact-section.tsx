@@ -20,6 +20,36 @@ import { apiRequest } from "@/lib/queryClient";
 import PhoneInput, { CountryData } from "react-phone-input-2";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
+/* ===========================
+   ✅ Google Ads Conversion
+   - Fires ONLY after successful form submission (onSuccess)
+   - CSP-safe (no inline script)
+=========================== */
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+const triggerGoogleAdsConversion = (redirectUrl?: string) => {
+  if (typeof window === "undefined") return;
+
+  if (!window.gtag) {
+    console.warn("[Google Ads] gtag not loaded; conversion not sent yet.");
+    return;
+  }
+
+  const callback = () => {
+    if (redirectUrl) window.location.href = redirectUrl;
+  };
+
+  window.gtag("event", "conversion", {
+    send_to: "AW-17781107849/nR9PCImFxdcbEInZ2J5C",
+    event_callback: callback,
+  });
+};
+
 type FormState = {
   name: string;
   email: string;
@@ -171,6 +201,9 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       return await apiRequest("/api/contacts", "POST", data);
     },
     onSuccess: () => {
+      // ✅ Fire Google Ads conversion only after successful submission
+      triggerGoogleAdsConversion();
+
       setShowThankYouPopup(true);
       setFormData({
         name: "",
@@ -686,7 +719,9 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                     disabled={contactMutation.isPending}
                     className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
                   >
-                    {contactMutation.isPending ? "Submitting..." : "Schedule Strategy Call"}
+                    {contactMutation.isPending
+                      ? "Submitting..."
+                      : "Schedule Strategy Call"}
                   </Button>
                 </form>
               </CardContent>
