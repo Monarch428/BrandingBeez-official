@@ -85,8 +85,14 @@ function subTitle(doc: PDFKit.PDFDocument, text: string) {
     doc.moveDown(0.2);
 }
 
-function bulletList(doc: PDFKit.PDFDocument, items: string[], emptyMessage = "No data provided.") {
-    const cleaned = items.filter(Boolean);
+function normalizeStringList(value: unknown): string[] {
+    if (Array.isArray(value)) return value.map((item) => safeText(item)).filter(Boolean);
+    if (typeof value === "string") return value ? [value] : [];
+    return [];
+}
+
+function bulletList(doc: PDFKit.PDFDocument, items: unknown, emptyMessage = "No data provided.") {
+    const cleaned = normalizeStringList(items);
     doc.fontSize(11).fillColor("#111827").font("Helvetica");
     //   for (const item of items.filter(Boolean)) {
     if (!cleaned.length) {
@@ -113,11 +119,12 @@ function renderListSection<T>(
     emptyMessage = "No data provided.",
 ) {
     subTitle(doc, heading);
-    if (!list || list.length === 0) {
+    const normalizedList = Array.isArray(list) ? list : [];
+    if (normalizedList.length === 0) {
         doc.font("Helvetica").fontSize(11).fillColor("#111827").text(emptyMessage);
         return;
     }
-    list.forEach((item, idx) => {
+    normalizedList.forEach((item, idx) => {
         renderItem(item, idx);
         doc.moveDown(0.4);
     });
