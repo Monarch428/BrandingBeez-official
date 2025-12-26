@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
       <Header />
-      
+
       <main className="pt-16 pb-16">
         <div className="min-h-[80vh] flex items-center justify-center px-4">
           <Card className="w-full max-w-2xl mx-auto shadow-xl border-0">
@@ -21,13 +21,13 @@ export default function NotFound() {
               <h1 className="text-4xl font-bold text-brand-purple mb-4">
                 Page Not Found
               </h1>
-              
+
               <h2 className="text-xl text-gray-600 mb-6">
                 We can't seem to find the page you're looking for
               </h2>
 
               <p className="text-gray-500 mb-8 max-w-md mx-auto">
-                The page you requested may have been moved, deleted, or doesn't exist. 
+                The page you requested may have been moved, deleted, or doesn't exist.
                 Let's get you back on track with our services.
               </p>
 
@@ -38,10 +38,10 @@ export default function NotFound() {
                     Go to Homepage
                   </Button>
                 </Link>
-                
-                <Button 
-                  size="lg" 
-                  variant="outline" 
+
+                <Button
+                  size="lg"
+                  variant="outline"
                   onClick={() => window.history.back()}
                   className="border-brand-purple text-brand-purple hover:bg-brand-purple hover:text-white"
                 >
@@ -53,7 +53,7 @@ export default function NotFound() {
               <div className="mt-12 pt-8 border-t border-gray-200">
                 <p className="text-sm text-gray-500 mb-4">Looking for something specific?</p>
                 <div className="flex flex-wrap gap-2 justify-center">
-                  <Link href="/services/website-development">
+                  <Link href="/services/web-development">
                     <Button variant="ghost" size="sm" className="text-brand-purple hover:bg-brand-wings">
                       Website Development
                     </Button>

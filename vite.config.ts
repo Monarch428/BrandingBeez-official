@@ -2,11 +2,28 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import compression from "vite-plugin-compression";
 
 export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
+
+    // ✅ Precompress assets during build (dist/public/assets/*)
+    // Gzip
+    compression({
+      algorithm: "gzip",
+      ext: ".gz",
+      threshold: 1024,
+    }),
+
+    // Brotli
+    compression({
+      algorithm: "brotliCompress",
+      ext: ".br",
+      threshold: 1024,
+    }),
+
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [
