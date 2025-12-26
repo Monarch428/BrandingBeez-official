@@ -49,6 +49,8 @@ interface LeadFormErrors {
 type Step = "capture" | "analysis" | "summary" | "lead" | "success";
 type StageState = "pending" | "active" | "complete";
 
+const stepOrder: Step[] = ["capture", "analysis", "summary", "lead", "success"];
+
 interface QuickWin {
   title: string;
   impact: string;
@@ -621,6 +623,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
   };
 
   const canDownload = Boolean(reportDownloadUrl);
+  const stepIndex = stepOrder.indexOf(step);
+  const previousStep = stepIndex > 0 ? stepOrder[stepIndex - 1] : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-rose-50 text-gray-900">
@@ -681,6 +685,13 @@ export default function AIBusinessGrowthAnalyzerPage() {
             </CardHeader>
 
             <CardContent className="space-y-6">
+              {previousStep && (
+                <div>
+                  <Button type="button" variant="ghost" onClick={() => setStep(previousStep)} className="px-2">
+                    ← Back
+                  </Button>
+                </div>
+              )}
               {step === "capture" && (
                 <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
                   <div className="space-y-2">
