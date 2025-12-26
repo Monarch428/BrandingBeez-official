@@ -1537,7 +1537,7 @@ function inferGeographicMix(website: string) {
   return { us: "Unknown", uk: "Unknown", other: `${match.region} (inferred from domain)` };
 }
 
-function buildBusinessGrowthFallback(input: { companyName: string; website: string; industry?: string; }): BusinessGrowthReport {
+export function buildBusinessGrowthFallback(input: { companyName: string; website: string; industry?: string; }): BusinessGrowthReport {
   const now = new Date();
   const reportId = `BB-AI-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate()
     .toString()
@@ -2098,9 +2098,64 @@ function buildBusinessGrowthFallback(input: { companyName: string; website: stri
   };
 }
 
-export async function generateBusinessGrowthAnalysis(input: { companyName: string; website: string; industry?: string; }): Promise<BusinessGrowthReport> {
+export function mergeBusinessGrowthReport(
+  input: { companyName: string; website: string; industry?: string; },
+  report?: Partial<BusinessGrowthReport> | null,
+): BusinessGrowthReport {
   const fallback = buildBusinessGrowthFallback(input);
   const geographicMix = inferGeographicMix(input.website);
+  const parsed = report ?? {};
+
+  return {
+    ...fallback,
+    ...parsed,
+    reportMetadata: {
+      ...fallback.reportMetadata,
+      ...parsed.reportMetadata,
+      companyName: parsed.reportMetadata?.companyName || fallback.reportMetadata.companyName,
+      website: parsed.reportMetadata?.website || fallback.reportMetadata.website,
+      analysisDate: parsed.reportMetadata?.analysisDate || fallback.reportMetadata.analysisDate,
+      reportId: parsed.reportMetadata?.reportId || fallback.reportMetadata.reportId,
+      subScores: {
+        ...fallback.reportMetadata.subScores,
+        ...parsed.reportMetadata?.subScores,
+      },
+    },
+    executiveSummary: {
+      ...fallback.executiveSummary,
+      ...parsed.executiveSummary,
+      strengths: parsed.executiveSummary?.strengths?.length
+        ? parsed.executiveSummary.strengths
+        : fallback.executiveSummary.strengths,
+      weaknesses: parsed.executiveSummary?.weaknesses?.length
+        ? parsed.executiveSummary.weaknesses
+        : fallback.executiveSummary.weaknesses,
+      quickWins: parsed.executiveSummary?.quickWins?.length
+        ? parsed.executiveSummary.quickWins
+        : fallback.executiveSummary.quickWins,
+    },
+    targetMarket: {
+      ...fallback.targetMarket,
+      ...parsed.targetMarket,
+      currentClientProfile: {
+        ...fallback.targetMarket.currentClientProfile,
+        ...parsed.targetMarket?.currentClientProfile,
+        geographicMix,
+      },
+      geographicExpansion: {
+        ...fallback.targetMarket.geographicExpansion,
+        ...parsed.targetMarket?.geographicExpansion,
+      },
+      idealClientProfile: {
+        ...fallback.targetMarket.idealClientProfile,
+        ...parsed.targetMarket?.idealClientProfile,
+      },
+    },
+  } as BusinessGrowthReport;
+}
+
+export async function generateBusinessGrowthAnalysis(input: { companyName: string; website: string; industry?: string; }): Promise<BusinessGrowthReport> {
+  const fallback = buildBusinessGrowthFallback(input);
 
   if (!process.env.OPENAI_API_KEY) {
     return fallback;
@@ -2249,52 +2304,7 @@ Geographic mix must be evidence-based. If the website does not explicitly mentio
     });
 
     const parsed = JSON.parse(response.choices[0].message.content || "{}");
-    return {
-      ...fallback,
-      ...parsed,
-      reportMetadata: {
-        ...fallback.reportMetadata,
-        ...parsed.reportMetadata,
-        companyName: parsed.reportMetadata?.companyName || fallback.reportMetadata.companyName,
-        website: parsed.reportMetadata?.website || fallback.reportMetadata.website,
-        analysisDate: parsed.reportMetadata?.analysisDate || fallback.reportMetadata.analysisDate,
-        reportId: parsed.reportMetadata?.reportId || fallback.reportMetadata.reportId,
-        subScores: {
-          ...fallback.reportMetadata.subScores,
-          ...parsed.reportMetadata?.subScores,
-        },
-      },
-      executiveSummary: {
-        ...fallback.executiveSummary,
-        ...parsed.executiveSummary,
-        strengths: parsed.executiveSummary?.strengths?.length
-          ? parsed.executiveSummary.strengths
-          : fallback.executiveSummary.strengths,
-        weaknesses: parsed.executiveSummary?.weaknesses?.length
-          ? parsed.executiveSummary.weaknesses
-          : fallback.executiveSummary.weaknesses,
-        quickWins: parsed.executiveSummary?.quickWins?.length
-          ? parsed.executiveSummary.quickWins
-          : fallback.executiveSummary.quickWins,
-      },
-      targetMarket: {
-        ...fallback.targetMarket,
-        ...parsed.targetMarket,
-        currentClientProfile: {
-          ...fallback.targetMarket.currentClientProfile,
-          ...parsed.targetMarket?.currentClientProfile,
-          geographicMix,
-        },
-        geographicExpansion: {
-          ...fallback.targetMarket.geographicExpansion,
-          ...parsed.targetMarket?.geographicExpansion,
-        },
-        idealClientProfile: {
-          ...fallback.targetMarket.idealClientProfile,
-          ...parsed.targetMarket?.idealClientProfile,
-        },
-      },
-    } as BusinessGrowthReport;
+    return mergeBusinessGrowthReport(input, parsed);
   } catch (error) {
     console.error("Business growth analysis error:", error);
     return fallback;

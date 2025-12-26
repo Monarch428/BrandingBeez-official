@@ -564,6 +564,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
           analysis,
           email: leadForm.email.trim(),
           name: `${formState.firstName} ${formState.lastName}`.trim() || "there",
+          website: analysis?.reportMetadata?.website || normalizeWebsiteUrl(formState.website),
+          companyName: analysis?.reportMetadata?.companyName || `${formState.firstName} ${formState.lastName}`.trim(),
         }),
       });
 

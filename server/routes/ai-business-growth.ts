@@ -6,7 +6,7 @@ import crypto from "crypto";
 // import PDFDocument from "pdfkit";
 
 // import { generateBusinessGrowthAnalysis } from "../openai";
-import { generateBusinessGrowthAnalysis, type BusinessGrowthReport } from "../openai";
+import { generateBusinessGrowthAnalysis, mergeBusinessGrowthReport, type BusinessGrowthReport } from "../openai";
 import { sendBusinessGrowthReportEmailWithDownload, sendContactNotification } from "../email-service";
 
 // interface QuickWin {
@@ -273,10 +273,12 @@ export function registerBusinessGrowthRoutes(app: Express) {
    * Request: { analysis, email, name? }
    */
   app.post("/api/ai-business-growth/report", async (req, res) => {
-    const { analysis, email, name } = req.body || {};
+    const { analysis, email, name, website, companyName, industry } = req.body || {};
+    const reportMetadata = analysis?.reportMetadata;
+    const resolvedWebsite = reportMetadata?.website || website;
 
-    if (!analysis?.reportMetadata) {
-      return res.status(400).json({ success: false, message: "Analysis data is required for PDF generation" });
+    if (!resolvedWebsite || typeof resolvedWebsite !== "string") {
+      return res.status(400).json({ success: false, message: "Website is required for PDF generation" });
     }
     if (!email || typeof email !== "string") {
       return res.status(400).json({ success: false, message: "Email is required" });
@@ -285,8 +287,21 @@ export function registerBusinessGrowthRoutes(app: Express) {
     try {
       ensureReportDir();
 
+      const normalizedReport = mergeBusinessGrowthReport(
+        {
+          companyName:
+            reportMetadata?.companyName ||
+            companyName ||
+            name ||
+            "Marketing Agency",
+          website: resolvedWebsite,
+          industry,
+        },
+        analysis,
+      );
+
       // Generate PDF buffer
-      const pdfBuffer = await generateBusinessGrowthPdfBuffer(analysis as BusinessGrowthReport);
+      const pdfBuffer = await generateBusinessGrowthPdfBuffer(normalizedReport as BusinessGrowthReport);
 
       // Store with token
       const t = makeToken();
@@ -300,8 +315,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
       try {
         await sendBusinessGrowthReportEmailWithDownload({
           toEmail: email,
-          toName: name || analysis?.reportMetadata?.companyName || "there",
-          analysis: analysis as BusinessGrowthReport,
+          toName: name || normalizedReport?.reportMetadata?.companyName || "there",
+          analysis: normalizedReport as BusinessGrowthReport,
           pdfBuffer,
           downloadUrl: absoluteDownloadUrl,
         });
@@ -316,9 +331,9 @@ export function registerBusinessGrowthRoutes(app: Express) {
           await sendContactNotification({
             name,
             email,
-            company: analysis?.reportMetadata?.companyName || undefined,
+            company: normalizedReport?.reportMetadata?.companyName || undefined,
             phone: undefined,
-            message: `AI BUSINESS GROWTH ANALYZER: ${analysis?.reportMetadata?.website} | Score ${analysis?.reportMetadata?.overallScore}/100`,
+            message: `AI BUSINESS GROWTH ANALYZER: ${normalizedReport?.reportMetadata?.website} | Score ${normalizedReport?.reportMetadata?.overallScore}/100`,
             submittedAt: new Date(),
           });
         } catch (err) {
