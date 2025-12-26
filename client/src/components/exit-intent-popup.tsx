@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Gift, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,9 +43,8 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
-      setStep(4); // Success step
+      setStep(4);
 
-      // ✅ Submitted => persist forever (doesn't show again)
       if (typeof window !== "undefined") {
         window.localStorage.setItem(EXIT_SUBMITTED_KEY, "1");
         window.sessionStorage.removeItem(EXIT_CLOSED_KEY);
@@ -101,7 +101,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
   };
 
   const handleClose = () => {
-    // ✅ Closed => only hide for this tab session
     if (typeof window !== "undefined") {
       window.sessionStorage.setItem(EXIT_CLOSED_KEY, "1");
     }
@@ -110,25 +109,22 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
     onClose();
   };
 
-  // ✅ Guard render
   if (!isOpen) return null;
   if (hasExitSubmitted()) return null;
   if (hasExitClosedThisSession()) return null;
 
-  return (
-    /* ---------- Match EntryPopup layout: top-aligned modal with overlay ---------- */
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24">
-      {/* Overlay */}
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div
         className="absolute inset-0 z-40 bg-black/40"
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Modal shell, same max-width behavior as EntryPopup */}
       <div className="relative z-50 max-w-lg w-full mx-4">
         <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
-          {/* Close button */}
           <button
             onClick={handleClose}
             className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 z-50"
@@ -137,9 +133,7 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
             <X size={20} />
           </button>
 
-          {/* Scrollable content area */}
           <div className="modal-content max-h-[80vh] overflow-auto">
-            {/* Step 1: Attention Grabber */}
             {step === 1 && (
               <div className="p-6 text-center">
                 <div className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -167,7 +161,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
               </div>
             )}
 
-            {/* Step 2: Service Selection */}
             {step === 2 && (
               <div className="p-6">
                 <div className="text-center mb-4">
@@ -212,7 +205,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
               </div>
             )}
 
-            {/* Step 3: Email Capture */}
             {step === 3 && (
               <div className="p-6">
                 <div className="text-center mb-4">
@@ -261,7 +253,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
               </div>
             )}
 
-            {/* Step 4: Success */}
             {step === 4 && (
               <div className="p-6 text-center">
                 <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
@@ -278,7 +269,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
               </div>
             )}
 
-            {/* Progress indicator (like EntryPopup, but 4 steps) */}
             <div className="bg-gray-100 dark:bg-gray-700 px-6 py-2">
               <div className="flex justify-center space-x-2">
                 {[1, 2, 3, 4].map((i) => (
@@ -291,9 +281,9 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
               </div>
             </div>
           </div>
-          {/* end modal-content */}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

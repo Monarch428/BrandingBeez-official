@@ -98,7 +98,7 @@ export default function WebsiteArchitectCaseStudy() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+                {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-1">
                       <img
@@ -129,6 +129,20 @@ export default function WebsiteArchitectCaseStudy() {
                       <Target className="w-5 h-5 text-white/80" />
                       <span>Custom WordPress Websites</span>
                     </div>
+                  </div>
+                </div> */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/np23ndJoNro"
+                        title="Website Architect Case Study | Branding Beez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div> 
                   </div>
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Star, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,18 +135,19 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   if (hasEntrySubmitted()) return null;
   if (hasEntryClosedThisSession()) return null;
 
-  return (
-    /* ---------- Fixed fullscreen wrapper (overlay + top-aligned modal) ---------- */
-    // `items-start` anchors modal to top; `pt-24` nudges it down into the hero area
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24">
-      {/* Full-viewport overlay (below modal) */}
+  // ✅ Portal target
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      {/* Overlay */}
       <div
         className="absolute inset-0 z-40 bg-black/40"
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Modal shell (anchored near top) */}
+      {/* Modal shell (viewport centered) */}
       <div className="relative z-50 max-w-lg w-full mx-4">
         <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
           {/* Close button */}
@@ -157,9 +159,9 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
             <X size={20} />
           </button>
 
-          {/* Scrollable content area - important: max-h + overflow here */}
+          {/* Scrollable content area */}
           <div className="modal-content max-h-[80vh] overflow-auto">
-            {/* Step 1: Welcome & Value Proposition */}
+            {/* Step 1 */}
             {step === 1 && (
               <div className="p-6">
                 <div className="text-center mb-6">
@@ -232,7 +234,7 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
               </div>
             )}
 
-            {/* Step 2: Interest Selection & Email Capture */}
+            {/* Step 2 */}
             {step === 2 && (
               <div className="p-6">
                 <div className="text-center mb-4">
@@ -288,7 +290,7 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
               </div>
             )}
 
-            {/* Step 3: Success & Next Steps */}
+            {/* Step 3 */}
             {step === 3 && (
               <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -342,18 +344,16 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${i <= step
-                        ? "bg-orange-500"
-                        : "bg-gray-300 dark:bg-gray-500"
+                    className={`w-2 h-2 rounded-full ${i <= step ? "bg-orange-500" : "bg-gray-300 dark:bg-gray-500"
                       }`}
                   />
                 ))}
               </div>
             </div>
           </div>
-          {/* end modal-content */}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
