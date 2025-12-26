@@ -1,3 +1,4 @@
+// client/src/pages/ai-business-growth-analyzer.tsx
 import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import {
   ArrowRight,
@@ -10,6 +11,8 @@ import {
   ShieldCheck,
   Sparkles,
   Target,
+  Download,
+  RefreshCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -295,7 +298,13 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
 
   const [lastAnalyzedWebsite, setLastAnalyzedWebsite] = useState<string>("");
+
   const [analysisSource, setAnalysisSource] = useState<string | null>(null);
+
+  // ✅ NEW: report generation state
+  const [reportDownloadUrl, setReportDownloadUrl] = useState<string>("");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [reportError, setReportError] = useState<string | null>(null);
 
   const emailRef = useRef<HTMLInputElement | null>(null);
   const firstNameRef = useRef<HTMLInputElement | null>(null);
@@ -499,7 +508,11 @@ export default function AIBusinessGrowthAnalyzerPage() {
     if (field === "email" && typeof value === "string") setEmailSuggestion(getEmailSuggestion(value));
   };
 
-  const submitLeadToBackend = async (websiteUrl: string) => {
+  /**
+   * ✅ UPDATED:
+   * Return analysis from backend (so we can immediately generate PDF report)
+   */
+  const submitLeadToBackend = async (websiteUrl: string): Promise<BusinessGrowthReport | null> => {
     const normalizedWebsite = normalizeWebsiteUrl(websiteUrl);
 
     const response = await fetch("/api/ai-business-growth/analyze", {
@@ -516,12 +529,53 @@ export default function AIBusinessGrowthAnalyzerPage() {
       }),
     });
 
-    if (!response.ok) throw new Error("Unable to submit lead to AI analyzer");
+    const payload = await response.json().catch(() => ({}));
 
-    const payload = await response.json();
-    if (payload?.analysis && !analysisData) {
-      setAnalysisData(payload.analysis as BusinessGrowthReport);
-      setLastAnalyzedWebsite(payload.analysis.reportMetadata.website || normalizedWebsite);
+    if (!response.ok) {
+      throw new Error(payload?.message || "Unable to submit lead to AI analyzer");
+    }
+
+    if (payload?.analysis) {
+      const next = payload.analysis as BusinessGrowthReport;
+      setAnalysisData(next);
+      setLastAnalyzedWebsite(next.reportMetadata.website || normalizedWebsite);
+      return next;
+    }
+
+    return null;
+  };
+
+  /**
+   * ✅ NEW:
+   * Generate PDF + send email + return downloadUrl
+   */
+  const generateReport = async (analysis: BusinessGrowthReport) => {
+    setIsGeneratingReport(true);
+    setReportError(null);
+    setReportDownloadUrl("");
+
+    try {
+      const res = await fetch("/api/ai-business-growth/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          analysis,
+          email: leadForm.email.trim(),
+          name: `${formState.firstName} ${formState.lastName}`.trim() || "there",
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.success || !data?.downloadUrl) {
+        throw new Error(data?.message || "Failed to generate report");
+      }
+
+      setReportDownloadUrl(String(data.downloadUrl));
+    } catch (e) {
+      console.error("Report generation failed", e);
+      setReportError("Report generation failed. You can retry, or book a call and we’ll send it manually.");
+    } finally {
+      setIsGeneratingReport(false);
     }
   };
 
@@ -544,9 +598,19 @@ export default function AIBusinessGrowthAnalyzerPage() {
     const websiteForSubmission = lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
 
     try {
-      await submitLeadToBackend(websiteForSubmission);
+      // 1) Save lead + ensure analysis object exists
+      const returnedAnalysis = await submitLeadToBackend(websiteForSubmission);
+      const finalAnalysis = returnedAnalysis || analysisData;
+
       setLeadId("lead-" + Math.random().toString(36).slice(2, 8));
       setStep("success");
+
+      // 2) Generate report + email + get download URL (non-blocking UI)
+      if (finalAnalysis) {
+        void generateReport(finalAnalysis);
+      } else {
+        setReportError("We couldn't generate your report because analysis data was missing. Please retry.");
+      }
     } catch (error) {
       console.error("Failed to submit lead to backend", error);
       setLeadSubmitError("We couldn't sync with the AI engine right now. Our team will follow up manually.");
@@ -555,6 +619,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
       setIsLeadSubmitting(false);
     }
   };
+
+  const canDownload = Boolean(reportDownloadUrl);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-sky-50 to-rose-50 text-gray-900">
@@ -664,7 +730,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     />
                     <p className="text-xs text-gray-500">We’ll analyze this and auto-fix prefixes.</p>
                     {errors.website && (
-                      <p id="websiteError" className={cn("text-sm", errors.website.includes("continue anyway") ? "text-amber-600" : "text-red-500")}>
+                      <p
+                        id="websiteError"
+                        className={cn("text-sm", errors.website.includes("continue anyway") ? "text-amber-600" : "text-red-500")}
+                      >
                         {errors.website}
                       </p>
                     )}
@@ -696,7 +765,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       </div>
 
                       <div className="w-full bg-gray-100 rounded-full h-3 mt-3 overflow-hidden">
-                        <div className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-primary to-emerald-500 transition-all duration-700" style={{ width: `${progressPercentage}%` }} />
+                        <div
+                          className="h-3 rounded-full bg-gradient-to-r from-blue-500 via-primary to-emerald-500 transition-all duration-700"
+                          style={{ width: `${progressPercentage}%` }}
+                        />
                       </div>
 
                       <p className="mt-3 text-sm text-gray-700">
@@ -735,7 +807,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
               {step === "summary" && (
                 <div className="space-y-5">
-                  {/* ✅ Hard-guard: if analysisData missing, show retry UI instead of crashing */}
                   {!analysisData ? (
                     <div className="p-5 rounded-xl border bg-white">
                       <p className="font-semibold text-gray-900">Something went wrong</p>
@@ -875,17 +946,68 @@ export default function AIBusinessGrowthAnalyzerPage() {
               {step === "success" && (
                 <div className="p-6 rounded-xl border bg-white space-y-3">
                   <p className="text-sm text-gray-500">Lead ID: {leadId}</p>
-                  <h3 className="text-2xl font-bold text-gray-900">Success! Your report is being prepared.</h3>
+
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Success! Your report is being prepared.
+                  </h3>
+
                   <p className="text-gray-600">
-                    We’ve captured your details. Our team can follow up with the full playbook and next-step recommendations.
+                    We’ve captured your details. We’re generating your PDF report and sending it to <b>{leadForm.email}</b>.
                   </p>
 
+                  {isGeneratingReport && (
+                    <div className="flex items-center gap-2 text-sm text-primary">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Generating PDF + sending email…</span>
+                    </div>
+                  )}
+
+                  {reportError && (
+                    <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-sm">
+                      {reportError}
+                    </div>
+                  )}
+
                   <div className="flex flex-col md:flex-row gap-3 pt-2">
+                    <Button
+                      type="button"
+                      disabled={!canDownload}
+                      onClick={() => {
+                        if (!reportDownloadUrl) return;
+                        window.location.href = reportDownloadUrl;
+                      }}
+                      className="h-11"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={isGeneratingReport || !analysisData}
+                      onClick={() => {
+                        if (!analysisData) return;
+                        void generateReport(analysisData);
+                      }}
+                      className="h-11"
+                    >
+                      <RefreshCcw className="w-4 h-4 mr-2" />
+                      Retry report
+                    </Button>
+
                     <BookCallButtonWithModal />
-                    <Button type="button" variant="secondary" onClick={() => setStep("capture")}>
+
+                    <Button type="button" variant="secondary" onClick={() => setStep("capture")} className="h-11">
                       Run another analysis
                     </Button>
                   </div>
+
+                  {!canDownload && !isGeneratingReport && !reportError && (
+                    <p className="text-xs text-gray-500">
+                      If the download button is still disabled, the report endpoint might not be deployed yet.
+                    </p>
+                  )}
                 </div>
               )}
             </CardContent>
