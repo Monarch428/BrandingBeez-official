@@ -175,14 +175,17 @@ export function securityHeaders() {
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // Microsoft Clarity (✅ COMPLETE FIX)
+          // Microsoft Clarity 
           "https://www.clarity.ms",
+          "https://e.clarity.ms",
           "https://c.clarity.ms",
           "https://k.clarity.ms",
           "https://o.clarity.ms",
           "https://s.clarity.ms",
           "https://q.clarity.ms",
           "https://y.clarity.ms",
+          // optional but safe future-proof:
+          "https://*.clarity.ms",
 
           // Calendly
           "https://calendly.com",
