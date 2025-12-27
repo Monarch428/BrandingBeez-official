@@ -14,14 +14,42 @@ interface ExitIntentPopupProps {
 const EXIT_SUBMITTED_KEY = "exitPopup_submitted"; // localStorage
 const EXIT_CLOSED_KEY = "exitPopup_closed"; // sessionStorage
 
+// ✅ Safe storage helpers (prevents SecurityError -> white screen)
+function safeGet(storage: Storage | undefined, key: string) {
+  try {
+    if (!storage) return null;
+    return storage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(storage: Storage | undefined, key: string, value: string) {
+  try {
+    if (!storage) return;
+    storage.setItem(key, value);
+  } catch {
+    // ignore
+  }
+}
+
+function safeRemove(storage: Storage | undefined, key: string) {
+  try {
+    if (!storage) return;
+    storage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
 function hasExitSubmitted() {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(EXIT_SUBMITTED_KEY) === "1";
+  return safeGet(window.localStorage, EXIT_SUBMITTED_KEY) === "1";
 }
 
 function hasExitClosedThisSession() {
   if (typeof window === "undefined") return false;
-  return window.sessionStorage.getItem(EXIT_CLOSED_KEY) === "1";
+  return safeGet(window.sessionStorage, EXIT_CLOSED_KEY) === "1";
 }
 
 export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
@@ -46,8 +74,8 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
       setStep(4);
 
       if (typeof window !== "undefined") {
-        window.localStorage.setItem(EXIT_SUBMITTED_KEY, "1");
-        window.sessionStorage.removeItem(EXIT_CLOSED_KEY);
+        safeSet(window.localStorage, EXIT_SUBMITTED_KEY, "1");
+        safeRemove(window.sessionStorage, EXIT_CLOSED_KEY);
       }
 
       toast({
@@ -102,7 +130,7 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
 
   const handleClose = () => {
     if (typeof window !== "undefined") {
-      window.sessionStorage.setItem(EXIT_CLOSED_KEY, "1");
+      safeSet(window.sessionStorage, EXIT_CLOSED_KEY, "1");
     }
 
     resetPopup();
@@ -284,6 +312,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
         </div>
       </div>
     </div>,
-    document.body
+    (document.body || document.documentElement)
   );
 }

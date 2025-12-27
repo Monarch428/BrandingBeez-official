@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { createPortal } from "react-dom";
-import { X, Star, Users, TrendingUp, ArrowRight, Gift, Smartphone } from "lucide-react";
+import { X, Star, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { isMobileDeviceOrViewport, getDeviceInfo } from "@/utils/mobile-detection";
+import { getDeviceInfo } from "@/utils/mobile-detection";
 
 interface MobilePopupProps {
   isOpen: boolean;
@@ -22,41 +22,48 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
   const deviceInfo = useMemo(() => getDeviceInfo(), []);
 
   const isDevelopment = useMemo(() => {
-    return typeof window !== 'undefined' &&
-      (window.location.hostname === 'localhost' || window.location.hostname.includes('replit'));
+    return (
+      typeof window !== "undefined" &&
+      (window.location.hostname === "localhost" ||
+        window.location.hostname.includes("replit"))
+    );
   }, []);
 
+  // const shouldRender = useMemo(() => {
+  //   return deviceInfo.isMobileDevice || deviceInfo.isMobileViewport || isDevelopment;
+  // }, [deviceInfo.isMobileDevice, deviceInfo.isMobileViewport, isDevelopment]);
+
   const shouldRender = useMemo(() => {
-    return deviceInfo.isMobileDevice || deviceInfo.isMobileViewport || isDevelopment;
-  }, [deviceInfo.isMobileDevice, deviceInfo.isMobileViewport, isDevelopment]);
+    return deviceInfo.isMobileViewport;
+  }, [deviceInfo.isMobileViewport]);
 
   const leadCaptureMutation = useMutation({
     mutationFn: async (data: any) => {
-      const response = await fetch('/api/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: 'BrandingBeez Welcome Lead',
+          name: "BrandingBeez Welcome Lead",
           email: data.email,
-          company: 'Unknown',
+          company: "Unknown",
           service: data.interest,
           message: `Mobile popup submission - Selected Interest: ${data.interest} | Email: ${data.email} | Device: Mobile | Popup Type: Mobile Welcome Flow`,
-          source: 'mobile_popup',
-          region: 'US',
-          inquiry_type: 'mobile-popup-contact-form',
-          preferred_contact: 'email',
-          topPriority: 'mobile-popup-lead',
-          contactFormType: 'mobile-popup-contact-form'
-        })
+          source: "mobile_popup",
+          region: "US",
+          inquiry_type: "mobile-popup-contact-form",
+          preferred_contact: "email",
+          topPriority: "mobile-popup-lead",
+          contactFormType: "mobile-popup-contact-form",
+        }),
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to capture lead');
+        throw new Error(errorData.message || "Failed to capture lead");
       }
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/contacts'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/contacts"] });
       setStep(3);
       toast({
         title: "🎉 Welcome!",
@@ -66,19 +73,22 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
     onError: (error) => {
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to subscribe. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to subscribe. Please try again.",
         variant: "destructive",
       });
     },
   });
 
   const interests = [
-    { id: 'grow-agency', name: 'Grow My Agency', icon: '📈' },
-    { id: 'white-label', name: 'White-Label Solutions', icon: '🏷️' },
-    { id: 'seo-marketing', name: 'SEO & Marketing', icon: '🎯' },
-    { id: 'web-dev', name: 'Website Development', icon: '💻' },
-    { id: 'dedicated-team', name: 'Hire Remote Team', icon: '👥' },
-    { id: 'ai-automation', name: 'AI & Automation', icon: '🤖' },
+    { id: "grow-agency", name: "Grow My Agency", icon: "📈" },
+    { id: "white-label", name: "White-Label Solutions", icon: "🏷️" },
+    { id: "seo-marketing", name: "SEO & Marketing", icon: "🎯" },
+    { id: "web-dev", name: "Website Development", icon: "💻" },
+    { id: "dedicated-team", name: "Hire Remote Team", icon: "👥" },
+    { id: "ai-automation", name: "AI & Automation", icon: "🤖" },
   ];
 
   const handleSubmit = useCallback(() => {
@@ -99,38 +109,37 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
 
   useEffect(() => {
     if (!isOpen) return;
+    if (typeof document === "undefined") return;
+    if (!document.body) return;
 
-    const originalStyle = document.body.style.overflow;
-    const originalPosition = document.body.style.position;
+    const body = document.body;
 
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.height = '100%';
+    // save previous
+    const prevOverflow = body.style.overflow;
+    const prevPaddingRight = body.style.paddingRight;
 
-    const preventTouchMove = (e: TouchEvent) => {
-      if (e.target === document.body) {
-        e.preventDefault();
-      }
-    };
+    // avoid layout shift when scrollbar disappears (desktop mostly)
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbarWidth > 0) body.style.paddingRight = `${scrollbarWidth}px`;
 
-    document.addEventListener('touchmove', preventTouchMove, { passive: false });
+    body.style.overflow = "hidden";
 
     return () => {
-      document.body.style.overflow = originalStyle;
-      document.body.style.position = originalPosition;
-      document.body.style.width = '';
-      document.body.style.height = '';
-      document.removeEventListener('touchmove', preventTouchMove);
+      body.style.overflow = prevOverflow;
+      body.style.paddingRight = prevPaddingRight;
     };
   }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
+    if (typeof document === "undefined") return;
 
-    const popupElement = document.querySelector('.mobile-popup-modal');
+    const popupElement = document.querySelector(".mobile-popup-modal");
     if (popupElement) {
-      const focusableElement = popupElement.querySelector('button, input, [tabindex="0"]') as HTMLElement;
+      const focusableElement = popupElement.querySelector(
+        "button, input, [tabindex='0']"
+      ) as HTMLElement | null;
+
       if (focusableElement) {
         setTimeout(() => focusableElement.focus(), 100);
       }
@@ -176,10 +185,16 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
             {step === 1 && (
               <div className="p-4 sm:p-5">
                 <div className="text-center mb-4">
-                  <h2 id="mobile-popup-title" className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1 leading-tight">
+                  <h2
+                    id="mobile-popup-title"
+                    className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-1 leading-tight"
+                  >
                     Welcome to BrandingBeez
                   </h2>
-                  <p id="mobile-popup-description" className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  <p
+                    id="mobile-popup-description"
+                    className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"
+                  >
                     Your white-label growth engine trusted by agencies worldwide
                   </p>
                 </div>
@@ -187,30 +202,48 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
                 <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mb-4">
                   <div className="text-center p-2.5 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg touch-manipulation">
                     <div className="text-2xl mb-1">👥</div>
-                    <p className="text-xs font-medium text-gray-900 dark:text-white">25+</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Agencies</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Trust Us</p>
+                    <p className="text-xs font-medium text-gray-900 dark:text-white">
+                      25+
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      Agencies
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      Trust Us
+                    </p>
                   </div>
                   <div className="text-center p-2.5 sm:p-3 bg-green-50 dark:bg-green-900/20 rounded-lg touch-manipulation">
                     <div className="text-2xl mb-1">📈</div>
-                    <p className="text-xs font-medium text-gray-900 dark:text-white">3x</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Growth</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-300">Average Client</p>
+                    <p className="text-xs font-medium text-gray-900 dark:text-white">
+                      3x
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      Growth
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300">
+                      Average Client
+                    </p>
                   </div>
                 </div>
 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                    <span className="text-xs text-gray-700 dark:text-gray-300">White-label services under your brand</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300">
+                      White-label services under your brand
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                    <span className="text-xs text-gray-700 dark:text-gray-300">Expert teams for hire in India</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300">
+                      Expert teams for hire in India
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
-                    <span className="text-xs text-gray-700 dark:text-gray-300">Scale without hiring overhead</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300">
+                      Scale without hiring overhead
+                    </span>
                   </div>
                 </div>
 
@@ -249,8 +282,8 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
                       key={item.id}
                       onClick={() => setInterest(item.id)}
                       className={`p-2.5 sm:p-3 rounded-lg border-2 text-center transition-all duration-200 touch-manipulation ${interest === item.id
-                          ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                          : 'border-gray-200 dark:border-gray-600 hover:border-orange-300'
+                        ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
+                        : "border-gray-200 dark:border-gray-600 hover:border-orange-300"
                         }`}
                     >
                       <div className="text-sm mb-1">{item.icon}</div>
@@ -315,13 +348,13 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="flex items-center">
                     <div
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${i <= step ? 'bg-orange-500 shadow-sm' : 'bg-gray-300 dark:bg-gray-500'
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${i <= step ? "bg-orange-500 shadow-sm" : "bg-gray-300 dark:bg-gray-500"
                         }`}
-                      aria-label={`Step ${i} ${i <= step ? 'completed' : 'pending'}`}
+                      aria-label={`Step ${i} ${i <= step ? "completed" : "pending"}`}
                     />
                     {i < 3 && (
                       <div
-                        className={`w-4 h-0.5 mx-1 transition-colors duration-300 ${i < step ? 'bg-orange-500' : 'bg-gray-300 dark:bg-gray-500'
+                        className={`w-4 h-0.5 mx-1 transition-colors duration-300 ${i < step ? "bg-orange-500" : "bg-gray-300 dark:bg-gray-500"
                           }`}
                       />
                     )}
@@ -339,7 +372,7 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
         </div>
       </div>
     </>,
-    document.body
+    (document.body || document.documentElement)
   );
 }
 
