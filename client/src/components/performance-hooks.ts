@@ -95,7 +95,6 @@ export function usePerformanceOptimizations() {
             };
         };
 
-
         const optimizeScroll = () => {
             let ticking = false;
 
@@ -166,8 +165,8 @@ export function useConsoleErrorTracker() {
         const warnHandler = (message: any, ...args: any[]) => {
             if (process.env.NODE_ENV === "development") {
                 const messageStr = String(message);
-                const isDevelopmentWarning = ["browsers data (caniuse-lite)", "update-browserslist-db"].some(
-                    (warning) => messageStr.includes(warning),
+                const isDevelopmentWarning = ["browsers data (caniuse-lite)", "update-browserslist-db"].some((warning) =>
+                    messageStr.includes(warning),
                 );
 
                 if (!isDevelopmentWarning) {
@@ -182,12 +181,22 @@ export function useConsoleErrorTracker() {
         console.warn = warnHandler;
 
         const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            // ✅ Never preventDefault here — it can interfere with Vite HMR overlay / dev client
+            // event.preventDefault();
+
             const safeRejections = [
                 "Failed to fetch",
                 "NetworkError",
                 "TypeError: Failed to fetch",
                 "Load failed",
                 "AbortError",
+
+                // ✅ Vite dev overlay / websocket noise (avoid blank/overlay crashes)
+                "createErrorOverlay",
+                "Cannot read properties of null (reading 'appendChild')",
+                "WebSocket",
+                "vite",
+                "client:",
             ];
 
             const reasonStr = String(event.reason?.message || event.reason || "");
@@ -195,10 +204,9 @@ export function useConsoleErrorTracker() {
 
             if (!isSafeRejection) {
                 originalError("Unhandled promise rejection:", event.reason);
-            }
-
-            if (isSafeRejection) {
-                event.preventDefault();
+            } else {
+                // keep it as a warn (optional) so it doesn't look like app crash
+                originalWarn("Unhandled promise rejection (ignored):", event.reason);
             }
         };
 
@@ -235,9 +243,7 @@ export function usePerformanceMonitoring() {
                         entries.forEach((entry) => {
                             if (process.env.NODE_ENV === "development") {
                                 const fidEntry = entry as any;
-                                const fid = fidEntry.processingStart
-                                    ? fidEntry.processingStart - entry.startTime
-                                    : entry.duration || 0;
+                                const fid = fidEntry.processingStart ? fidEntry.processingStart - entry.startTime : entry.duration || 0;
                                 if (typeof fid === "number" && !isNaN(fid)) console.log("FID:", fid);
                             }
                         });
