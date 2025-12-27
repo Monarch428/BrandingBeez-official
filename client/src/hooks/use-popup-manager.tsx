@@ -71,7 +71,10 @@ export function usePopupManager() {
     const markReady = () => setDomReady(true);
 
     // If already interactive/complete, mark immediately
-    if (document.readyState === "interactive" || document.readyState === "complete") {
+    if (
+      document.readyState === "interactive" ||
+      document.readyState === "complete"
+    ) {
       markReady();
       return;
     }
@@ -87,6 +90,11 @@ export function usePopupManager() {
   const mobileTimerRef = useRef<number | null>(null);
   const devExitTimerRef = useRef<number | null>(null);
 
+  /**
+   * ✅ Hard guard to prevent MOBILE popup firing twice (StrictMode/dev)
+   */
+  const mobileTriggeredRef = useRef(false);
+
   const clearTimer = (ref: React.MutableRefObject<number | null>) => {
     if (ref.current != null && typeof window !== "undefined") {
       window.clearTimeout(ref.current);
@@ -94,7 +102,7 @@ export function usePopupManager() {
     }
   };
 
-  // ENTRY POPUP
+  // ✅ ENTRY POPUP — DESKTOP ONLY (>768px)
   useEffect(() => {
     if (!domReady) return;
 
@@ -104,10 +112,20 @@ export function usePopupManager() {
     const onHomePage =
       typeof window !== "undefined" && window.location?.pathname === "/";
 
+    const isMobile = isMobileDeviceOrViewport();
     const somethingOpen = popupState.exitPopup || popupState.mobilePopup;
 
     // Clear any previous timer before scheduling a new one
     clearTimer(entryTimerRef);
+
+    // ✅ If mobile, ensure entry popup never opens
+    if (isMobile) {
+      // If it was already opened somehow, close it
+      if (popupState.entryPopup) {
+        setPopupState((prev) => ({ ...prev, entryPopup: false }));
+      }
+      return;
+    }
 
     if (
       !entryShown &&
@@ -124,9 +142,15 @@ export function usePopupManager() {
     }
 
     return () => clearTimer(entryTimerRef);
-  }, [domReady, hasShownEntry, popupState.exitPopup, popupState.mobilePopup]);
+  }, [
+    domReady,
+    hasShownEntry,
+    popupState.exitPopup,
+    popupState.mobilePopup,
+    popupState.entryPopup,
+  ]);
 
-  // MOBILE POPUP — ONLY ≤768px
+  // ✅ MOBILE POPUP — ONLY ≤768px (FIXED: prevent double-open)
   useEffect(() => {
     if (!domReady) return;
 
@@ -139,15 +163,23 @@ export function usePopupManager() {
 
     if (!isMobile) return;
 
-    if (!popupShown && !popupDismissed && !hasShownMobile) {
-      mobileTimerRef.current = window.setTimeout(() => {
-        if (!popupState.entryPopup && !popupState.exitPopup) {
-          setPopupState((prev) => ({ ...prev, mobilePopup: true }));
-          setHasShownMobile(true);
-          setLS("brandingbeez_mobile_popup_shown", "true");
-        }
-      }, 1000);
-    }
+    // ✅ if already stored => never schedule
+    if (popupShown || popupDismissed) return;
+
+    // ✅ if already shown in this runtime => never schedule
+    if (hasShownMobile) return;
+
+    // ✅ StrictMode/dev guard: effect can run twice on mount
+    if (mobileTriggeredRef.current) return;
+    mobileTriggeredRef.current = true;
+
+    mobileTimerRef.current = window.setTimeout(() => {
+      if (!popupState.entryPopup && !popupState.exitPopup) {
+        setPopupState((prev) => ({ ...prev, mobilePopup: true }));
+        setHasShownMobile(true);
+        setLS("brandingbeez_mobile_popup_shown", "true");
+      }
+    }, 5000);
 
     return () => clearTimer(mobileTimerRef);
   }, [domReady, hasShownMobile, popupState.entryPopup, popupState.exitPopup]);
@@ -214,12 +246,18 @@ export function usePopupManager() {
       }
     };
 
-    document.documentElement.addEventListener("mouseleave", handleDocumentMouseLeave);
+    document.documentElement.addEventListener(
+      "mouseleave",
+      handleDocumentMouseLeave,
+    );
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseleave", handleMouseLeave);
 
     return () => {
-      document.documentElement.removeEventListener("mouseleave", handleDocumentMouseLeave);
+      document.documentElement.removeEventListener(
+        "mouseleave",
+        handleDocumentMouseLeave,
+      );
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseleave", handleMouseLeave);
     };
@@ -300,10 +338,16 @@ export function usePopupManager() {
     setHasShownExit(false);
     setHasShownMobile(false);
     setPopupState({ entryPopup: false, exitPopup: false, mobilePopup: false });
+
+    // ✅ allow mobile popup again after reset
+    mobileTriggeredRef.current = false;
   }, []);
 
   // Force show popups (for testing)
   const showEntryPopup = useCallback(() => {
+    const isMobile = isMobileDeviceOrViewport();
+    if (isMobile) return;
+
     if (!popupState.exitPopup && !popupState.mobilePopup) {
       setPopupState((prev) => ({ ...prev, entryPopup: true }));
     }
@@ -318,6 +362,9 @@ export function usePopupManager() {
   }, [popupState.entryPopup]);
 
   const showMobilePopup = useCallback(() => {
+    const isMobile = isMobileDeviceOrViewport();
+    if (!isMobile) return;
+
     if (!popupState.entryPopup && !popupState.exitPopup) {
       setPopupState((prev) => ({ ...prev, mobilePopup: true }));
       setHasShownMobile(true);
