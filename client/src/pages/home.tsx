@@ -1482,20 +1482,23 @@ export default function Home() {
                 {/* <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
                 </div> */}
-                <div>
-                  <h1 className="text-xl sm:text-lg md:text-xl lg:text-2xl text-center font-bold text-white mb-4 sm:mb-6 leading-tight">
-                    See How We Help 
-                    <span className="text-brand-yellow">
-                      {" "}
-                      Agencies Scale
-                    </span>
+                   <div className="w-full">
+                  <h1 className="text-center font-bold text-white leading-tight
+                 text-xl sm:text-2xl lg:text-3xl
+                 mb-4 sm:mb-6">
+                    See How We Help
+                    <span className="text-brand-yellow"> Agencies Scale</span>
                   </h1>
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl
+                  p-3 sm:p-4 lg:p-5
+                  mt-6 sm:mt-8 lg:mt-0">
                     {/* VIDEO ALWAYS SHOWN */}
-                    <div className="mb-0">
-                      <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                    <div className="rounded-xl overflow-hidden shadow-lg">
+                      {/* Responsive video wrapper (keeps perfect ratio) */}
+                      <div className="relative w-full aspect-video">
                         <iframe
-                          className="w-full h-full"
+                          className="absolute inset-0 w-full h-full"
                           src="https://www.youtube.com/embed/BMcrZHzRaeg"
                           title="Website Architect Case Study | Branding Beez"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
