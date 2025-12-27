@@ -85,10 +85,27 @@ function subTitle(doc: PDFKit.PDFDocument, text: string) {
     doc.moveDown(0.2);
 }
 
+// function normalizeStringList(value: unknown): string[] {
+//     if (Array.isArray(value)) return value.map((item) => safeText(item)).filter(Boolean);
+//     if (typeof value === "string") return value ? [value] : [];
+//     return [];
+// }
+
+// function bulletList(doc: PDFKit.PDFDocument, items: unknown, emptyMessage = "No data provided.") {
+//     const cleaned = normalizeStringList(items);
 function normalizeStringList(value: unknown): string[] {
     if (Array.isArray(value)) return value.map((item) => safeText(item)).filter(Boolean);
     if (typeof value === "string") return value ? [value] : [];
     return [];
+}
+
+function normalizeArray<T>(value: unknown): T[] {
+    return Array.isArray(value) ? (value as T[]) : [];
+}
+
+function safeJoin(value: unknown, fallback = "N/A"): string {
+    const items = normalizeStringList(value);
+    return items.length ? items.join(", ") : fallback;
 }
 
 function bulletList(doc: PDFKit.PDFDocument, items: unknown, emptyMessage = "No data provided.") {
@@ -246,7 +263,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
             if (report.executiveSummary?.biggestOpportunity) {
                 doc.moveDown(0.4);
                 // doc.font("Helvetica-Bold").fontSize(12).fillColor("#111827").text("🚀 BIGGEST OPPORTUNITY:");
-                doc.font("Helvetica").fontSize(11).fillColor("#111827").text();
+                doc.font("Helvetica").fontSize(11).fillColor("#111827")
                 subTitle(doc, "Biggest Opportunity");
                 doc.font("Helvetica").fontSize(11).fillColor("#111827").text(safeText(report.executiveSummary.biggestOpportunity));
             }
@@ -400,12 +417,13 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                 "Content Recommendations",
                 report.seoVisibility?.contentRecommendations,
                 (item, idx) => {
-                    doc.font("Helvetica-Bold").fontSize(11).text(`${idx + 1}. ${safeText(item.keyword)}`);
-                    doc.font("Helvetica").fontSize(11);
-                    doc.text(`Content Type: ${safeText(item.contentType)}`);
-                    doc.text(`Target Word Count: ${safeNumber(item.targetWordCount)}`);
-                    doc.text(`Subtopics: ${(item.subtopics ?? []).join(", ") || "N/A"}`);
-                    doc.text(`Traffic Potential: ${safeText(item.trafficPotential)}`);
+                doc.font("Helvetica-Bold").fontSize(11).text(`${idx + 1}. ${safeText(item.keyword)}`);
+                doc.font("Helvetica").fontSize(11);
+                doc.text(`Content Type: ${safeText(item.contentType)}`);
+                doc.text(`Target Word Count: ${safeNumber(item.targetWordCount)}`);
+                // doc.text(`Subtopics: ${(item.subtopics ?? []).join(", ") || "N/A"}`);
+                doc.text(`Subtopics: ${safeJoin(item.subtopics)}`);
+                doc.text(`Traffic Potential: ${safeText(item.trafficPotential)}`);
                 },
             );
 
@@ -568,15 +586,15 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                 "Key Competitors",
                 report.competitiveAnalysis?.competitors,
                 (item) => {
-                    doc.font("Helvetica-Bold").fontSize(11).text(`${safeText(item.name)}`);
-                    doc.font("Helvetica").fontSize(11);
-                    doc.text(`Location: ${safeText(item.location)}`);
-                    doc.text(`Team Size: ${safeText(item.teamSize)}`);
-                    doc.text(`Years in Business: ${safeText(item.yearsInBusiness)}`);
-                    doc.text(`Services: ${(item.services ?? []).join(", ") || "N/A"}`);
-                    doc.text(`Strengths vs You: ${(item.strengthsVsYou ?? []).join(", ") || "N/A"}`);
-                    doc.text(`Your Advantages: ${(item.yourAdvantages ?? []).join(", ") || "N/A"}`);
-                    doc.text(`Market Overlap: ${safeText(item.marketOverlap)}`);
+                doc.font("Helvetica-Bold").fontSize(11).text(`${safeText(item.name)}`);
+                doc.font("Helvetica").fontSize(11);
+                doc.text(`Location: ${safeText(item.location)}`);
+                doc.text(`Team Size: ${safeText(item.teamSize)}`);
+                doc.text(`Years in Business: ${safeText(item.yearsInBusiness)}`);
+                doc.text(`Services: ${safeJoin(item.services)}`);
+                doc.text(`Strengths vs You: ${safeJoin(item.strengthsVsYou)}`);
+                doc.text(`Your Advantages: ${safeJoin(item.yourAdvantages)}`);
+                doc.text(`Market Overlap: ${safeText(item.marketOverlap)}`);
                 },
             );
             renderListSection(
@@ -774,19 +792,21 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                90-DAY ACTION PLAN
             ========================= */
             newSectionPage("90-DAY ACTION PLAN");
-            const actionPlan = report.actionPlan90Days ?? [];
+            const actionPlan = normalizeArray<any>(report.actionPlan90Days);
             if (!actionPlan.length) {
                 doc.font("Helvetica").fontSize(11).fillColor("#111827").text("No action plan provided.");
             } else {
                 actionPlan.forEach((phase, idx) => {
                     subTitle(doc, `${idx + 1}. ${safeText(phase.phase)}`);
-                    phase.weeks?.forEach((week) => {
+                    normalizeArray<any>(phase.weeks).forEach((week) => {
                         doc.font("Helvetica-Bold").fontSize(11).text(`${safeText(week.week)}`);
                         bulletList(doc, week.tasks ?? [], "No tasks provided.");
                     });
-                    if (phase.expectedImpact?.length) {
+                    // if (phase.expectedImpact?.length) {
+                    const expectedImpact = normalizeArray<any>(phase.expectedImpact);
+                    if (expectedImpact.length) {
                         subTitle(doc, "Expected Impact");
-                        phase.expectedImpact.forEach((impact) => {
+                        expectedImpact.forEach((impact) => {
                             doc.font("Helvetica-Bold").fontSize(11).text(`${safeText(impact.metric)}`);
                             doc.font("Helvetica").fontSize(11).text(`Improvement: ${safeText(impact.improvement)}`);
                             doc.moveDown(0.2);
@@ -830,7 +850,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                     doc.text(`Description: ${safeText(item.description)}`);
                     doc.text(`Impact: ${safeText(item.impact)}`);
                     doc.text(`Likelihood: ${safeText(item.likelihood)}`);
-                    doc.text(`Mitigation: ${(item.mitigation ?? []).join(", ") || "N/A"}`);
+                    doc.text(`Mitigation: ${safeJoin(item.mitigation)}`);
                     doc.text(`Timeline: ${safeText(item.timeline)}`);
                 },
             );
@@ -845,7 +865,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                 report.appendices?.keywords,
                 (tier) => {
                     doc.font("Helvetica-Bold").fontSize(11).text(`${safeText(tier.tier)}`);
-                    tier.keywords?.forEach((keyword) => {
+                    normalizeArray<any>(tier.keywords).forEach((keyword) => {
                         doc.font("Helvetica").fontSize(11);
                         doc.text(
                             `${safeText(keyword.keyword)} | Searches: ${safeText(keyword.monthlySearches)} | Difficulty: ${safeText(

@@ -2105,6 +2105,12 @@ export function mergeBusinessGrowthReport(
   const fallback = buildBusinessGrowthFallback(input);
   const geographicMix = inferGeographicMix(input.website);
   const parsed = report ?? {};
+  const mergeArray = <T,>(fallbackList: T[], overrideList?: T[]) =>
+    Array.isArray(overrideList) && overrideList.length ? overrideList : fallbackList;
+  const mergeObject = <T extends Record<string, any>>(fallbackValue: T, overrideValue?: Partial<T>) => ({
+    ...fallbackValue,
+    ...(overrideValue ?? {}),
+  });
 
   return {
     ...fallback,
@@ -2130,9 +2136,158 @@ export function mergeBusinessGrowthReport(
       weaknesses: parsed.executiveSummary?.weaknesses?.length
         ? parsed.executiveSummary.weaknesses
         : fallback.executiveSummary.weaknesses,
+      biggestOpportunity: parsed.executiveSummary?.biggestOpportunity?.trim()
+        ? parsed.executiveSummary.biggestOpportunity
+        : fallback.executiveSummary.biggestOpportunity,
       quickWins: parsed.executiveSummary?.quickWins?.length
         ? parsed.executiveSummary.quickWins
         : fallback.executiveSummary.quickWins,
+    },
+    websiteDigitalPresence: {
+      technicalSEO: mergeObject(
+        fallback.websiteDigitalPresence.technicalSEO,
+        parsed.websiteDigitalPresence?.technicalSEO,
+      ),
+      contentQuality: mergeObject(
+        fallback.websiteDigitalPresence.contentQuality,
+        parsed.websiteDigitalPresence?.contentQuality,
+      ),
+      uxConversion: mergeObject(
+        fallback.websiteDigitalPresence.uxConversion,
+        parsed.websiteDigitalPresence?.uxConversion,
+      ),
+      contentGaps: mergeArray(fallback.websiteDigitalPresence.contentGaps, parsed.websiteDigitalPresence?.contentGaps),
+    },
+    seoVisibility: {
+      domainAuthority: {
+        ...fallback.seoVisibility.domainAuthority,
+        ...(parsed.seoVisibility?.domainAuthority ?? {}),
+        benchmark: {
+          ...fallback.seoVisibility.domainAuthority.benchmark,
+          ...(parsed.seoVisibility?.domainAuthority?.benchmark ?? {}),
+        },
+      },
+      backlinkProfile: mergeObject(
+        fallback.seoVisibility.backlinkProfile,
+        parsed.seoVisibility?.backlinkProfile,
+      ),
+      keywordRankings: mergeObject(
+        fallback.seoVisibility.keywordRankings,
+        parsed.seoVisibility?.keywordRankings,
+      ),
+      topPerformingKeywords: mergeArray(
+        fallback.seoVisibility.topPerformingKeywords,
+        parsed.seoVisibility?.topPerformingKeywords,
+      ),
+      keywordGapAnalysis: mergeArray(
+        fallback.seoVisibility.keywordGapAnalysis,
+        parsed.seoVisibility?.keywordGapAnalysis,
+      ),
+      contentRecommendations: mergeArray(
+        fallback.seoVisibility.contentRecommendations,
+        parsed.seoVisibility?.contentRecommendations,
+      ),
+    },
+    reputation: {
+      ...fallback.reputation,
+      ...(parsed.reputation ?? {}),
+      summaryTable: mergeArray(fallback.reputation.summaryTable, parsed.reputation?.summaryTable),
+      sentimentThemes: {
+        ...fallback.reputation.sentimentThemes,
+        ...(parsed.reputation?.sentimentThemes ?? {}),
+        positive: mergeArray(
+          fallback.reputation.sentimentThemes.positive,
+          parsed.reputation?.sentimentThemes?.positive,
+        ),
+        negative: mergeArray(
+          fallback.reputation.sentimentThemes.negative,
+          parsed.reputation?.sentimentThemes?.negative,
+        ),
+      },
+    },
+    servicesPositioning: {
+      ...fallback.servicesPositioning,
+      ...(parsed.servicesPositioning ?? {}),
+      services: mergeArray(fallback.servicesPositioning.services, parsed.servicesPositioning?.services),
+      serviceGaps: mergeArray(fallback.servicesPositioning.serviceGaps, parsed.servicesPositioning?.serviceGaps),
+      industriesServed: {
+        ...fallback.servicesPositioning.industriesServed,
+        ...(parsed.servicesPositioning?.industriesServed ?? {}),
+        current: mergeArray(
+          fallback.servicesPositioning.industriesServed.current,
+          parsed.servicesPositioning?.industriesServed?.current,
+        ),
+        highValueTargets: mergeArray(
+          fallback.servicesPositioning.industriesServed.highValueTargets,
+          parsed.servicesPositioning?.industriesServed?.highValueTargets,
+        ),
+      },
+      positioning: mergeObject(
+        fallback.servicesPositioning.positioning,
+        parsed.servicesPositioning?.positioning,
+      ),
+    },
+    leadGeneration: {
+      ...fallback.leadGeneration,
+      ...(parsed.leadGeneration ?? {}),
+      channels: mergeArray(fallback.leadGeneration.channels, parsed.leadGeneration?.channels),
+      missingHighROIChannels: mergeArray(
+        fallback.leadGeneration.missingHighROIChannels,
+        parsed.leadGeneration?.missingHighROIChannels,
+      ),
+      leadMagnets: {
+        ...fallback.leadGeneration.leadMagnets,
+        ...(parsed.leadGeneration?.leadMagnets ?? {}),
+        current: mergeArray(
+          fallback.leadGeneration.leadMagnets.current,
+          parsed.leadGeneration?.leadMagnets?.current,
+        ),
+        recommendations: mergeArray(
+          fallback.leadGeneration.leadMagnets.recommendations,
+          parsed.leadGeneration?.leadMagnets?.recommendations,
+        ),
+      },
+      directoryOptimization: mergeArray(
+        fallback.leadGeneration.directoryOptimization,
+        parsed.leadGeneration?.directoryOptimization,
+      ),
+    },
+    competitiveAnalysis: {
+      ...fallback.competitiveAnalysis,
+      ...(parsed.competitiveAnalysis ?? {}),
+      competitors: mergeArray(fallback.competitiveAnalysis.competitors, parsed.competitiveAnalysis?.competitors),
+      competitiveMatrix: mergeArray(
+        fallback.competitiveAnalysis.competitiveMatrix,
+        parsed.competitiveAnalysis?.competitiveMatrix,
+      ),
+      positioningGap: mergeObject(
+        fallback.competitiveAnalysis.positioningGap,
+        parsed.competitiveAnalysis?.positioningGap,
+      ),
+    },
+    costOptimization: {
+      ...fallback.costOptimization,
+      ...(parsed.costOptimization ?? {}),
+      estimatedCostStructure: mergeArray(
+        fallback.costOptimization.estimatedCostStructure,
+        parsed.costOptimization?.estimatedCostStructure,
+      ),
+      revenueEstimate: mergeObject(
+        fallback.costOptimization.revenueEstimate,
+        parsed.costOptimization?.revenueEstimate,
+      ),
+      costSavingOpportunities: mergeArray(
+        fallback.costOptimization.costSavingOpportunities,
+        parsed.costOptimization?.costSavingOpportunities,
+      ),
+      pricingAnalysis: {
+        ...fallback.costOptimization.pricingAnalysis,
+        ...(parsed.costOptimization?.pricingAnalysis ?? {}),
+        serviceComparisons: mergeArray(
+          fallback.costOptimization.pricingAnalysis.serviceComparisons,
+          parsed.costOptimization?.pricingAnalysis?.serviceComparisons,
+        ),
+      },
     },
     targetMarket: {
       ...fallback.targetMarket,
@@ -2140,15 +2295,107 @@ export function mergeBusinessGrowthReport(
       currentClientProfile: {
         ...fallback.targetMarket.currentClientProfile,
         ...parsed.targetMarket?.currentClientProfile,
-        geographicMix,
+        geographicMix: {
+          ...fallback.targetMarket.currentClientProfile.geographicMix,
+          ...(parsed.targetMarket?.currentClientProfile?.geographicMix ?? {}),
+          ...geographicMix,
+        },
+        clientSize: mergeObject(
+          fallback.targetMarket.currentClientProfile.clientSize,
+          parsed.targetMarket?.currentClientProfile?.clientSize,
+        ),
+        industries: mergeArray(
+          fallback.targetMarket.currentClientProfile.industries,
+          parsed.targetMarket?.currentClientProfile?.industries,
+        ),
       },
       geographicExpansion: {
         ...fallback.targetMarket.geographicExpansion,
         ...parsed.targetMarket?.geographicExpansion,
+        currentStrongPresence: mergeArray(
+          fallback.targetMarket.geographicExpansion.currentStrongPresence,
+          parsed.targetMarket?.geographicExpansion?.currentStrongPresence,
+        ),
+        underpenetratedMarkets: mergeArray(
+          fallback.targetMarket.geographicExpansion.underpenetratedMarkets,
+          parsed.targetMarket?.geographicExpansion?.underpenetratedMarkets,
+        ),
       },
       idealClientProfile: {
         ...fallback.targetMarket.idealClientProfile,
         ...parsed.targetMarket?.idealClientProfile,
+        painPoints: mergeArray(
+          fallback.targetMarket.idealClientProfile.painPoints,
+          parsed.targetMarket?.idealClientProfile?.painPoints,
+        ),
+        decisionMakers: mergeArray(
+          fallback.targetMarket.idealClientProfile.decisionMakers,
+          parsed.targetMarket?.idealClientProfile?.decisionMakers,
+        ),
+        whereToFind: mergeArray(
+          fallback.targetMarket.idealClientProfile.whereToFind,
+          parsed.targetMarket?.idealClientProfile?.whereToFind,
+        ),
+      },
+    },
+    financialImpact: {
+      ...fallback.financialImpact,
+      ...(parsed.financialImpact ?? {}),
+      revenueOpportunities: mergeArray(
+        fallback.financialImpact.revenueOpportunities,
+        parsed.financialImpact?.revenueOpportunities,
+      ),
+      costSavings: mergeArray(
+        fallback.financialImpact.costSavings,
+        parsed.financialImpact?.costSavings,
+      ),
+      netImpact: mergeObject(
+        fallback.financialImpact.netImpact,
+        parsed.financialImpact?.netImpact,
+      ),
+      scenarios: mergeArray(
+        fallback.financialImpact.scenarios,
+        parsed.financialImpact?.scenarios,
+      ),
+    },
+    actionPlan90Days: mergeArray(fallback.actionPlan90Days, parsed.actionPlan90Days),
+    competitiveAdvantages: {
+      ...fallback.competitiveAdvantages,
+      ...(parsed.competitiveAdvantages ?? {}),
+      hiddenStrengths: mergeArray(
+        fallback.competitiveAdvantages.hiddenStrengths,
+        parsed.competitiveAdvantages?.hiddenStrengths,
+      ),
+      prerequisites: mergeArray(
+        fallback.competitiveAdvantages.prerequisites,
+        parsed.competitiveAdvantages?.prerequisites,
+      ),
+    },
+    riskAssessment: {
+      ...fallback.riskAssessment,
+      ...(parsed.riskAssessment ?? {}),
+      risks: mergeArray(fallback.riskAssessment.risks, parsed.riskAssessment?.risks),
+    },
+    appendices: {
+      ...fallback.appendices,
+      ...(parsed.appendices ?? {}),
+      keywords: mergeArray(fallback.appendices.keywords, parsed.appendices?.keywords),
+      reviewTemplates: mergeArray(fallback.appendices.reviewTemplates, parsed.appendices?.reviewTemplates),
+      caseStudyTemplate: mergeObject(
+        fallback.appendices.caseStudyTemplate,
+        parsed.appendices?.caseStudyTemplate,
+      ),
+      finalRecommendations: {
+        ...fallback.appendices.finalRecommendations,
+        ...(parsed.appendices?.finalRecommendations ?? {}),
+        topActions: mergeArray(
+          fallback.appendices.finalRecommendations.topActions,
+          parsed.appendices?.finalRecommendations?.topActions,
+        ),
+        nextSteps: mergeArray(
+          fallback.appendices.finalRecommendations.nextSteps,
+          parsed.appendices?.finalRecommendations?.nextSteps,
+        ),
       },
     },
   } as BusinessGrowthReport;
