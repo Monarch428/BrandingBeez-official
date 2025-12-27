@@ -1061,7 +1061,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { HomeTeamBanner } from "@/components/home-team-banner";
+// import { HomeTeamBanner } from "@/components/home-team-banner";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { ThankYouPopup } from "@/components/thank-you-popup";
@@ -1084,10 +1084,10 @@ import {
   X,
 } from "lucide-react";
 
-import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
-import bniLogo from "@assets/bni_1752907520728.jpg";
-import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
-import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
+// import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
+// import bniLogo from "@assets/bni_1752907520728.jpg";
+// import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
+// import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 import webArtLogo from "../../public/images/website-architect-logo.jpeg";
 import mdmLogo from "../../public/images/MDM Logo.png";
 import nvtLogo from "../../public/images/NVT Logo.png";
@@ -1098,19 +1098,19 @@ import carolinaWebLogo from "@assets/IMG-20250719-WA0270_1752907768835.jpg";
 import socialLandLogo from "@assets/IMG-20250719-WA0271_1752907768836.jpg";
 import focusEcommerceLogo from "@assets/IMG-20250719-WA0272_1752907768837.jpg";
 import smartConnectingLogo from "@assets/IMG-20250719-WA0273_1752907768839.jpg";
-import koalaDigitalLogo from "@assets/IMG-20250719-WA0274_1752907768841.jpg";
+// import koalaDigitalLogo from "@assets/IMG-20250719-WA0274_1752907768841.jpg";
 import websiteArchitectLogo from "@assets/IMG-20250719-WA0275_1752907768843.jpg";
 import intrinsicLogo from "@assets/IMG-20250719-WA0276_1752907768844.jpg";
 import socialBrainLogo from "@assets/IMG-20250719-WA0277_1752907768845.jpg";
-import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
-import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
+// import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
+// import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
 import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
 import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
-import ken from "../../public/images/Ken.png";
-import matt from "../../public/images/Matt.png";
-import phillip from "../../public/images/Phillip.png";
+// import ken from "../../public/images/Ken.png";
+// import matt from "../../public/images/Matt.png";
+// import phillip from "../../public/images/Phillip.png";
 import {
   AppointmentCalendar,
   BookCallButtonWithModal,
@@ -1121,9 +1121,9 @@ import Dani_Image from "../../public/images/Dani.png";
 import Gemma_Image from "../../public/images/Gemma.png";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
-import ChristmasEffects from "@/components/FestiveSnowOverlay";
+// import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
-import PortfolioCtaSection from "@/components/portfolioimagecta";
+// import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export default function Home() {
   useEffect(() => {
@@ -1479,8 +1479,31 @@ export default function Home() {
                 </div>
 
                 {/* Right: HomeTeamBanner (hidden <= 480px) */}
-                <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
+                {/* <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
+                </div> */}
+                <div>
+                  <h1 className="text-xl sm:text-lg md:text-xl lg:text-2xl text-center font-bold text-white mb-4 sm:mb-6 leading-tight">
+                    See How We Help 
+                    <span className="text-brand-yellow">
+                      {" "}
+                      Agencies Scale
+                    </span>
+                  </h1>
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                    {/* VIDEO ALWAYS SHOWN */}
+                    <div className="mb-0">
+                      <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                        <iframe
+                          className="w-full h-full"
+                          src="https://www.youtube.com/embed/BMcrZHzRaeg"
+                          title="Website Architect Case Study | Branding Beez"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1847,7 +1870,7 @@ export default function Home() {
               <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
 
                 {/* PRICING */}
-                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
                   </span>$1,199 per
@@ -2157,11 +2180,11 @@ export default function Home() {
           </section>
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px also hidden */}
-          <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
+          {/* <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <HomeTeamBanner />
             </div>
-          </section>
+          </section> */}
         </main>
 
         <Footer />

@@ -174,7 +174,7 @@ export function MobilePopup({ isOpen, onClose }: MobilePopupProps) {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 max-h-full overflow-y-auto scroll-smooth">
             <button
               onClick={handleClose}
-              className="absolute top-3 right-3 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 active:bg-gray-200 dark:active:bg-gray-600 transition-all duration-200 z-20 touch-manipulation"
+              className="absolute top-1 right-1 w-10 h-10 flex items-center justify-center rounded-full dark:bg-gray-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 active:bg-gray-200 dark:active:bg-gray-600 transition-all duration-200 z-20 touch-manipulation"
               aria-label="Close mobile popup"
               type="button"
               tabIndex={0}

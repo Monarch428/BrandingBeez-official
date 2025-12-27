@@ -425,7 +425,7 @@ export default function WebDevelopment() {
                       buttonSize="lg"
                       defaultServiceType="Website Development"
                     />
-                    {/* Secondary CTA */} 
+                    {/* Secondary CTA */}
                     <Button
                       variant="outline"
                       onClick={handleScrollToCaseStudies}
@@ -500,33 +500,48 @@ export default function WebDevelopment() {
           {/* Case Studies Section */}
           <section
             id="case-studies"
-            className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gray-50"
+            className="
+    bg-gray-50
+    px-4 sm:px-6 lg:px-8
+    py-12 sm:py-16 lg:py-20
+  "
           >
-            <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-10 sm:mb-12">
-                {/* <h2 className="bg-brand-coral text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
-                  🎯 Success Stories
-                </h2> */}
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-4 sm:mb-6">
+            <div className="mx-auto max-w-7xl">
+              {/* Header */}
+              <div className="mx-auto max-w-4xl text-center mb-8 sm:mb-10 lg:mb-12">
+                <h3
+                  className="
+          text-brand-purple font-bold
+          text-2xl sm:text-3xl lg:text-4xl
+          leading-tight sm:leading-tight
+          mb-3 sm:mb-4
+        "
+                >
                   White-Label Website Case Studies &amp; Portfolio
                 </h3>
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                  See how agencies use our white-label web development team to
-                  deliver fast, reliable websites for their clients without
-                  expanding internal teams.
+
+                <p
+                  className="
+          text-gray-600
+          text-sm sm:text-base lg:text-lg
+          leading-relaxed
+          mx-auto
+        "
+                >
+                  See how agencies use our white-label web development team to deliver fast,
+                  reliable websites for their clients without expanding internal teams.
                 </p>
               </div>
 
-              {/* ✅ Loading / Error */}
+              {/* ✅ Loading / Error / Empty */}
               {loadingWeb && (
-                <div className="flex items-center justify-center gap-2 text-gray-600 py-10">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Loading case studies…</span>
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="w-8 h-8 text-brand-purple animate-spin" />
                 </div>
               )}
 
               {!loadingWeb && webError && (
-                <div className="max-w-3xl mx-auto mb-8">
+                <div className="mx-auto max-w-3xl mb-8">
                   <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 text-sm">
                     {webError}
                   </div>
@@ -534,86 +549,133 @@ export default function WebDevelopment() {
               )}
 
               {!loadingWeb && !webError && webCards.length === 0 && (
-                <div className="text-center text-gray-600 py-10">
+                <div className="text-center text-gray-600 py-10 text-sm sm:text-base">
                   No case studies found.
                 </div>
               )}
 
-              {/* ✅ Render API cards (first 6, then next 6...) */}
+              {/* ✅ Cards */}
               {!loadingWeb && !webError && webCards.length > 0 && (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+                  <div
+                    className="
+            grid
+            grid-cols-1
+            sm:grid-cols-2
+            xl:grid-cols-3
+            gap-5 sm:gap-6 lg:gap-8
+            items-stretch
+          "
+                  >
                     {visibleWebCards.map((study) => (
                       <Card
                         key={study.id}
-                        className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col h-full"
+                        className="
+                h-full flex flex-col
+                overflow-hidden
+                rounded-md
+                shadow-md hover:shadow-xl
+                transition-shadow duration-300
+                bg-white
+              "
                       >
                         {/* Image */}
-                        <div className="aspect-video rounded-t-lg overflow-hidden bg-gray-100">
+                        <div className="relative aspect-[16/9] w-full bg-gray-100">
                           <img
                             src={study.imageUrl || ""}
                             alt={getCardAlt(study)}
-                            className={`w-full h-full ${getObjectFitClass(study.imageFit)}`}
+                            className={`absolute inset-0 w-full h-full ${getObjectFitClass(
+                              study.imageFit
+                            )}`}
                             loading="lazy"
                           />
                         </div>
 
-                        {/* Card Content */}
-                        <CardContent className="flex flex-col flex-grow p-5 sm:p-6">
-                          <h3 className="text-lg sm:text-xl font-bold text-brand-purple mb-2">
+                        {/* Content */}
+                        <CardContent
+                          className="
+                  flex flex-col flex-1
+                  p-4 sm:p-5 lg:p-6
+                "
+                        >
+                          <h3
+                            className="
+                    text-brand-purple font-bold
+                    text-base sm:text-lg lg:text-xl
+                    leading-snug
+                    mb-2
+                  "
+                          >
                             {study.title}
                           </h3>
-                          <p className="text-gray-600 mb-4 flex-grow text-sm sm:text-base">
+
+                          <p
+                            className="
+                    text-gray-600
+                    text-sm sm:text-[15px] lg:text-base
+                    leading-relaxed
+                    mb-4
+                    flex-1
+                  "
+                          >
                             {study.description}
                           </p>
 
-                          <div className="space-y-2 mb-6 text-sm">
-                            <div className="flex justify-between">
-                              {/* <span className="text-gray-600">Industry</span> */}
-                              <span className="text-gray-600">Cost</span>
-                              <span className="font-bold text-brand-coral">
+                          {/* Metrics */}
+                          <div className="space-y-2 mb-1 text-sm">
+                            <div className="flex items-start justify-between gap-4">
+                              <span className="text-gray-600 shrink-0">Cost</span>
+                              <span className="font-bold text-brand-coral text-right">
                                 {study.results?.performance}
                               </span>
                             </div>
-                            <div className="flex justify-between">
-                              {/* <span className="text-gray-600">Website Type</span> */}
-                              <span className="text-gray-600">Delivery Time</span>
-                              <span className="font-bold text-green-600">
+
+                            <div className="flex items-start justify-between gap-4">
+                              <span className="text-gray-600 shrink-0">Delivery Time</span>
+                              <span className="font-bold text-green-600 text-right">
                                 {study.results?.conversions}
                               </span>
                             </div>
-                            <div className="flex justify-between">
-                              {/* <span className="text-gray-600">Delivery Type</span> */}
-                              <span className="text-gray-600">Industry</span>
-                              <span className="font-bold text-blue-600 ">
+
+                            <div className="flex items-start justify-between gap-4">
+                              <span className="text-gray-600 shrink-0">Industry</span>
+                              <span className="font-bold text-blue-600 text-right">
                                 {study.industry}
                               </span>
                             </div>
                           </div>
 
-                          {/* Button pinned to bottom */}
-                          {/* <div className="mt-auto pt-2">
-                            <Button
-                              className="w-full bg-brand-coral hover:bg-brand-purple text-white border-0"
-                              asChild
-                            >
-                              <Link href={getCardLink(study)}>
-                                View Full Case Study
-                                <ArrowRight className="w-4 h-4 ml-2" />
-                              </Link>
-                            </Button>
-                          </div> */}
+                          {/* If you enable button later, it will always pin nicely */}
+                          {/* <div className="mt-5 pt-3 border-t border-gray-100">
+                  <Button
+                    className="w-full bg-brand-coral hover:bg-brand-purple text-white border-0 rounded-xl"
+                    asChild
+                  >
+                    <Link href={getCardLink(study)}>
+                      View Full Case Study
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  </Button>
+                </div> */}
                         </CardContent>
                       </Card>
                     ))}
                   </div>
 
-                  {/* ✅ Load More button */}
+                  {/* ✅ Load More */}
                   {canLoadMore && (
-                    <div className="flex justify-center mt-10">
+                    <div className="flex justify-center mt-8 sm:mt-10">
                       <Button
                         onClick={handleLoadMore}
-                        className="bg-brand-purple hover:bg-brand-purple/90 text-white px-8 py-6 rounded-xl shadow-md"
+                        className="
+                bg-brand-purple hover:bg-brand-purple/90
+                text-white
+                rounded-xl
+                px-6 sm:px-8
+                py-5 sm:py-6
+                text-sm sm:text-base
+                shadow-md
+              "
                       >
                         Load More
                         <ArrowRight className="w-4 h-4 ml-2" />

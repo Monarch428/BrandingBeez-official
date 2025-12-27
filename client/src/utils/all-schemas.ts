@@ -387,7 +387,7 @@ export const BlogSchema = {
           "datePublished": "2025-01-15",
           "dateModified": "2025-01-15",
           "author": { "@type": "Organization", "name": "Branding Beez" },
-          "image": "https://brandingbeez.co.uk/wp-content/uploads/ai-solutions-for-business-growth-2025.jpg",
+          // "image": "https://brandingbeez.co.uk/wp-content/uploads/ai-solutions-for-business-growth-2025.jpg",
           "description": "Discover 5 breakthrough reasons why AI adoption is transforming businesses in 2025. Learn how AI improves efficiency, personalization, and ROI.",
           "url": "https://brandingbeez.co.uk/blog/5-breakthrough-reasons-to-adopt-ai-solutions"
         }
