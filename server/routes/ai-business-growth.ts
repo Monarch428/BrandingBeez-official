@@ -343,7 +343,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
 
       return res.json({
         success: true,
-        downloadUrl,
+        downloadUrl: absoluteDownloadUrl,
       });
     } catch (error) {
       console.error("Business growth PDF/email failed", error);

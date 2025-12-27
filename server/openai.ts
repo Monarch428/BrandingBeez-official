@@ -2144,18 +2144,46 @@ export function mergeBusinessGrowthReport(
         : fallback.executiveSummary.quickWins,
     },
     websiteDigitalPresence: {
-      technicalSEO: mergeObject(
-        fallback.websiteDigitalPresence.technicalSEO,
-        parsed.websiteDigitalPresence?.technicalSEO,
-      ),
-      contentQuality: mergeObject(
-        fallback.websiteDigitalPresence.contentQuality,
-        parsed.websiteDigitalPresence?.contentQuality,
-      ),
-      uxConversion: mergeObject(
-        fallback.websiteDigitalPresence.uxConversion,
-        parsed.websiteDigitalPresence?.uxConversion,
-      ),
+      technicalSEO: {
+        ...fallback.websiteDigitalPresence.technicalSEO,
+        ...(parsed.websiteDigitalPresence?.technicalSEO ?? {}),
+        strengths: mergeArray(
+          fallback.websiteDigitalPresence.technicalSEO.strengths,
+          parsed.websiteDigitalPresence?.technicalSEO?.strengths,
+        ),
+        issues: mergeArray(
+          fallback.websiteDigitalPresence.technicalSEO.issues,
+          parsed.websiteDigitalPresence?.technicalSEO?.issues,
+        ),
+      },
+      contentQuality: {
+        ...fallback.websiteDigitalPresence.contentQuality,
+        ...(parsed.websiteDigitalPresence?.contentQuality ?? {}),
+        strengths: mergeArray(
+          fallback.websiteDigitalPresence.contentQuality.strengths,
+          parsed.websiteDigitalPresence?.contentQuality?.strengths,
+        ),
+        gaps: mergeArray(
+          fallback.websiteDigitalPresence.contentQuality.gaps,
+          parsed.websiteDigitalPresence?.contentQuality?.gaps,
+        ),
+        recommendations: mergeArray(
+          fallback.websiteDigitalPresence.contentQuality.recommendations,
+          parsed.websiteDigitalPresence?.contentQuality?.recommendations,
+        ),
+      },
+      uxConversion: {
+        ...fallback.websiteDigitalPresence.uxConversion,
+        ...(parsed.websiteDigitalPresence?.uxConversion ?? {}),
+        highlights: mergeArray(
+          fallback.websiteDigitalPresence.uxConversion.highlights,
+          parsed.websiteDigitalPresence?.uxConversion?.highlights,
+        ),
+        issues: mergeArray(
+          fallback.websiteDigitalPresence.uxConversion.issues,
+          parsed.websiteDigitalPresence?.uxConversion?.issues,
+        ),
+      },
       contentGaps: mergeArray(fallback.websiteDigitalPresence.contentGaps, parsed.websiteDigitalPresence?.contentGaps),
     },
     seoVisibility: {
