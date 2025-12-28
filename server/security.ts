@@ -45,6 +45,10 @@ export function securityHeaders() {
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
 
+          // Hotjar
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
@@ -91,6 +95,10 @@ export function securityHeaders() {
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
 
+          // Hotjar
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
@@ -109,6 +117,10 @@ export function securityHeaders() {
           // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
+
+          "https://static.hotjar.com",
+          "https://*.hotjar.com",
+          "https://*.hotjar.io",
 
           // Google
           "https://www.google.com",
@@ -146,6 +158,12 @@ export function securityHeaders() {
           // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
+
+          // Hotjar
+          "https://*.hotjar.com",
+          "https://*.hotjar.io",
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
 
           // Google / GA / Ads
           "https://www.google.com",

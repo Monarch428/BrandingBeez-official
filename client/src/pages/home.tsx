@@ -1482,7 +1482,7 @@ export default function Home() {
                 {/* <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
                 </div> */}
-                   <div className="w-full">
+                <div className="w-full">
                   <h1 className="text-center font-bold text-white leading-tight
                  text-xl sm:text-2xl lg:text-3xl
                  mb-4 sm:mb-6">
@@ -1499,10 +1499,11 @@ export default function Home() {
                       <div className="relative w-full aspect-video">
                         <iframe
                           className="absolute inset-0 w-full h-full"
-                          src="https://www.youtube.com/embed/BMcrZHzRaeg"
+                          src="https://www.youtube-nocookie.com/embed/BMcrZHzRaeg?rel=0&modestbranding=1&playsinline=1"
                           title="Website Architect Case Study | Branding Beez"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
+                          loading="lazy"
                         />
                       </div>
                     </div>

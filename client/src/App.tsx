@@ -314,23 +314,23 @@ function App() {
               <ThankYouProvider>
                 <CriticalPathOptimizer />
 
-                  <PerformanceOptimizer />
+                <PerformanceOptimizer />
 
                 <Router />
                 <CookieConsent />
 
                 {/* ✅ Isolated so popup crashes can't white-screen the site */}
-                <SafePopupBoundary name="EntryPopup">
+                {/* <SafePopupBoundary name="EntryPopup">
                   <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
-                </SafePopupBoundary>
+                </SafePopupBoundary> */}
 
                 <SafePopupBoundary name="ExitIntentPopup">
                   <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
                 </SafePopupBoundary>
 
-                <SafePopupBoundary name="MobilePopup">
+                {/* <SafePopupBoundary name="MobilePopup">
                   <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
-                </SafePopupBoundary>
+                </SafePopupBoundary> */}
               </ThankYouProvider>
             </AppToastProvider>
           </TooltipProvider>
