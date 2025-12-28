@@ -103,20 +103,29 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   const { regionConfig } = useRegion();
   const { toast } = useToast();
 
-  // 🌍 Auto-detect country for phone input
-  const [countryCode, setCountryCode] = useState<string>("us");
+  // ✅ Default country always US + persist user selection
+  const DEFAULT_COUNTRY = "us";
+  const COUNTRY_STORAGE_KEY = "bb_phone_country";
+
+  const [countryCode, setCountryCode] = useState<string>(DEFAULT_COUNTRY);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const locale = Intl.DateTimeFormat().resolvedOptions().locale;
-      const region = locale.split("-")[1]?.toLowerCase();
-      if (region) {
-        setCountryCode(region);
-      }
-    } catch {
+
+    const saved = localStorage.getItem(COUNTRY_STORAGE_KEY);
+    if (saved && typeof saved === "string") {
+      setCountryCode(saved);
+    } else {
+      setCountryCode(DEFAULT_COUNTRY);
     }
   }, []);
+
+  const setCountryPersisted = (cc: string) => {
+    setCountryCode(cc);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(COUNTRY_STORAGE_KEY, cc);
+    }
+  };
 
   const [showThankYouPopup, setShowThankYouPopup] = useState(false);
 
@@ -417,7 +426,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         onChange={(value, data: CountryData) => {
                           if (data?.countryCode) {
                             const cc = data.countryCode.toLowerCase();
-                            setCountryCode(cc);
+                            setCountryPersisted(cc);
                             handleInputChange("countryCode", cc);
                           }
                           handleInputChange("phone", value);
