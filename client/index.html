@@ -79,8 +79,13 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
 
-  <!-- ✅ ONLY Inter font (CSP-safe: NO inline onload handler) -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <!-- ✅ Fonts: KEEP as normal stylesheet for CSP safety.
+       (This is render-blocking, but the proper fix is self-host fonts.)
+       If you want the best score: self-host Inter woff2 + preload.
+  -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
 
   <!-- Performance optimizations -->
   <meta name="robots" content="index, follow">
@@ -107,8 +112,6 @@
       padding: 0;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
-
-    /* ❌ Removed: html { font-display: swap; } (invalid) */
 
     html,
     body {
@@ -406,8 +409,17 @@
     }
   </style>
 
-  <!-- ✅ Main CSS bundle (ONLY ONCE) -->
-  <link rel="stylesheet" href="/src/index.css">
+  <!-- ✅ IMPORTANT:
+       In production you must NOT load /src/index.css.
+       That blocks render and also may not be cached like /assets/*.css.
+
+       ✅ Use the built asset CSS: /assets/index-xxxx.css
+       Your Lighthouse already shows it exists: /assets/index-RXd548Om.css
+
+       👉 Replace this href with your actual built hash file.
+       (This is the REAL fix for render-blocking + caching.)
+  -->
+  <link rel="stylesheet" href="/assets/index-RXd548Om.css">
 
   <!-- ✅ CSP-safe: load trackers via external file (no inline event handlers) -->
   <script src="/third-party-loader.js" defer></script>
@@ -507,7 +519,6 @@
   <link rel="preconnect" href="https://www.youtube-nocookie.com">
   <link rel="preconnect" href="https://i.ytimg.com">
   <link rel="preconnect" href="https://www.google.com">
-
 
 </head>
 

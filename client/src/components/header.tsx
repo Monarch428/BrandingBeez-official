@@ -1072,11 +1072,12 @@ export default function Header() {
             <Link href="/">
               <div className="flex-shrink-0 cursor-pointer">
                 <img
+                  ref={logoImgRef}
                   src="/images/BB_Christmas_Logo.webp"
                   alt="BrandingBeez"
-                  className="block object-contain h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[72px] w-auto max-w-[160px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[280px] xl:max-w-[320px]"
-                  width="320"
-                  height="80"
+                  className="block object-contain h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[72px] w-auto max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px]"
+                  width="140"
+                  height="70"
                   decoding="async"
                   loading="eager"
                 />

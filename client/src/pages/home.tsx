@@ -1187,7 +1187,10 @@ export default function Home() {
     "Faster delivery without compromising quality",
     "Predictable, scalable fulfillment",
     "A white-label team they can trust long-term",
+    "Seamless collaboration that feels like an in-house team",
+    "Cost-efficient scaling without hiring overhead",
   ];
+
 
   // Newsletter CTA state (for home page CTA section)
   const [newsletterName, setNewsletterName] = useState("");
@@ -1668,7 +1671,7 @@ export default function Home() {
                 </div>
 
                 {/* Benefits Section */}
-                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[70px]">
+                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[30px]">
                   <h3 className="text-white mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
                   </h3>
@@ -1802,7 +1805,7 @@ export default function Home() {
                         key={index}
                         className="bg-white border border-gray-200 rounded-xl p-4 hover:border-red-300 transition-colors shadow-sm"
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
                           <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <X className="w-4 h-4 text-red-600" />
                           </div>
@@ -1834,7 +1837,7 @@ export default function Home() {
                         key={index}
                         className="bg-white border border-gray-200 rounded-xl p-4 hover:border-green-300 transition-colors shadow-sm"
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
                           <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <Zap className="w-4 h-4 text-green-600" />
                           </div>
@@ -1844,7 +1847,7 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mt-4">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl py-2 px-4 mt-4">
                     <p className="text-gray-700 text-sm">
                       You focus on sales, strategy, and client relationships. We
                       make sure delivery never slows you down.
@@ -2120,7 +2123,7 @@ export default function Home() {
                 </div>
 
                 {/* FORM */}
-                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
+                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-7 border border-white/10 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
                     Subscribe Free
                   </h3>
