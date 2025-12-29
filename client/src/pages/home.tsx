@@ -1123,6 +1123,7 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
+import PortfolioCtaSection from "@/components/portfolioimagecta";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export default function Home() {
@@ -1612,8 +1613,7 @@ export default function Home() {
                 <PortfolioCtaSection />
               </div>
             </div>
-          </section>
-
+          </section> */}
 
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
@@ -1672,7 +1672,7 @@ export default function Home() {
 
                 {/* Benefits Section */}
                 <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[30px]">
-                  <h3 className="text-white mb-5 sm:mb-8 uppercase font-medium tracking-wider">
+                  <h3 className="text-white mt-5 sm:mt-6 mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
                   </h3>
 
@@ -2123,7 +2123,7 @@ export default function Home() {
                 </div>
 
                 {/* FORM */}
-                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-7 border border-white/10 shadow-xl">
+                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
                     Subscribe Free
                   </h3>
