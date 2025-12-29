@@ -353,7 +353,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                 ))}
               </ul>
 
-              <div className="mt-8 pt-2 border-t border-purple-200">
+              <div className="mt-6 pt-2 border-t border-purple-200">
                 <p className="text-xs sm:text-sm text-gray-700 italic">
                   This call is a genuine B2B discussion focused on partnership and growth.
                 </p>
