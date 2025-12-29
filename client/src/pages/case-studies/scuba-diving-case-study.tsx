@@ -667,7 +667,7 @@ export default function ScubaDivingCaseStudy() {
                   </div>
                 </div>
 
-                <div className="relative group">
+                {/* <div className="relative group">
                   <div className="relative overflow-hidden rounded-2xl border-2 border-gray-200/50 shadow-2xl bg-gradient-to-br from-white to-gray-50 p-4">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none"></div>
                     <div className="relative aspect-[16/9] rounded-xl overflow-hidden bg-white shadow-lg">
@@ -687,6 +687,20 @@ export default function ScubaDivingCaseStudy() {
                       <p className="text-sm font-bold text-white">
                         411 Clicks • 103K Impressions
                       </p>
+                    </div>
+                  </div>
+                </div> */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/kisOHK7tsDI"
+                        title="Scuba Diving Case Study | Branding Beez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
                     </div>
                   </div>
                 </div>
