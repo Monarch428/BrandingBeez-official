@@ -272,6 +272,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/components/ui/toaster";
+import { Checkbox } from "@radix-ui/react-checkbox";
 
 // ✅ Required label helper (adds *)
 function ReqLabel({ children }: { children: React.ReactNode }) {
@@ -307,6 +308,7 @@ export type WebCaseStudyCardTabValues = {
   link?: string;
 
   order?: number;
+  status?: "draft" | "published";
 };
 
 export function WebCaseStudyCardTab({
@@ -531,6 +533,13 @@ export function WebCaseStudyCardTab({
           </div>
         </div>
       ) : null}
+
+      <div>
+        <Label>Status</Label>
+        <Checkbox checked={form.status === "published"} onCheckedChange={(checked) => onChange("status", checked ? "published" : "draft")}>
+          <div className="ml-2 select-none">{form.status === "published" ? "Published" : "Draft"}</div>
+        </Checkbox>
+      </div>
     </div>
   );
 }

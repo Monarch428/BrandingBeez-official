@@ -1,3 +1,4 @@
+import { stat } from "fs";
 import { z } from "zod";
 
 // ----- Card -----
@@ -39,6 +40,7 @@ export const insertWebCaseStudyCardSchema = z.object({
 
     link: z.string().optional(),
     order: z.number().int().min(0).optional().default(0),
+    status: z.enum(["draft", "published"]).optional().default("draft"),
 });
 
 // ----- Detail -----
