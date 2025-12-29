@@ -1672,7 +1672,7 @@ export default function Home() {
 
                 {/* Benefits Section */}
                 <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[30px]">
-                  <h3 className="text-white mb-5 sm:mb-8 uppercase font-medium tracking-wider">
+                  <h3 className="text-white mt-5 sm:mt-6 mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
                   </h3>
 
