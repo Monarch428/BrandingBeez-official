@@ -30,12 +30,13 @@ export interface WebCaseStudyCard {
 
   // ✅ ordering for drag/reorder
   order: number;
+  status?: "draft" | "published";
 
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface WebCaseStudyCardDocument extends Document, WebCaseStudyCard {}
+export interface WebCaseStudyCardDocument extends Document, WebCaseStudyCard { }
 
 const resultsSchema = new Schema<WebCaseStudyCardResults>(
   {
@@ -67,6 +68,7 @@ const webCaseStudyCardSchema = new Schema<WebCaseStudyCardDocument>(
 
     // ✅ default 0, always numeric
     order: { type: Number, default: 0, min: 0, index: true },
+    status: { type: String, enum: ["draft", "published"], default: "draft" },
   },
   {
     collection: "web_case_study_cards",

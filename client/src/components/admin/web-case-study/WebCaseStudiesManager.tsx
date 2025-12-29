@@ -994,6 +994,7 @@ export type WebCaseStudyCard = {
 
   /** ✅ NEW */
   order?: number;
+  status?: "draft" | "published";
 
   createdAt: string;
   updatedAt: string;
@@ -1105,7 +1106,7 @@ const emptyForm: FormState = {
   client: "",
   industry: "",
   description: "",
-  results: { performance: "", conversions: ""}, //, users: "" 
+  results: { performance: "", conversions: "" }, //, users: "" 
   imageUrl: "",
   imageAlt: "",
   imageFit: "cover",
@@ -1114,6 +1115,7 @@ const emptyForm: FormState = {
 
   /** ✅ NEW */
   order: 0,
+  status: "draft",
 
   // Detail FK
   cardId: "",
@@ -1534,6 +1536,7 @@ export function WebCaseStudiesManager() {
         link: form.link || undefined,
 
         order: Math.max(0, Math.floor(Number(form.order ?? 0))),
+        status: form.status === "published" ? "published" : "draft",
       };
 
       const url = editingSlug
@@ -1754,7 +1757,7 @@ export function WebCaseStudiesManager() {
           client: p.client || "",
           industry: p.industry || "",
           description: p.description || "",
-          results: p.results || { performance: "", conversions: ""}, //, users: "" 
+          results: p.results || { performance: "", conversions: "" }, //, users: "" 
           imageUrl: p.imageUrl || "",
           imageAlt: p.imageAlt || "",
           imageFit: (p.imageFit || "cover") as any,
@@ -1762,6 +1765,7 @@ export function WebCaseStudiesManager() {
           link: p.link || "",
           detailMongoId: "",
           order: Number.isFinite(p.order as any) ? (p.order as number) : 0,
+          status: p.status === "published" ? "published" : "draft",
         }));
       }
     } catch (err: any) {
@@ -1841,7 +1845,7 @@ export function WebCaseStudiesManager() {
     setDraftOrders(next);
     setDraggingId(null);
 
-    await saveReorder(next); 
+    await saveReorder(next);
   };
 
   return (

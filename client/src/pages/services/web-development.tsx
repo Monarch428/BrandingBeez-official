@@ -14,6 +14,7 @@ import {
   ChevronDown,
   HelpCircle,
   Loader2,
+  Lock,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -48,6 +49,7 @@ export interface WebCaseStudyCard {
   imageFit?: "cover" | "contain";
 
   link?: string;
+  status?: "draft" | "published";
 
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -318,8 +320,8 @@ export default function WebDevelopment() {
 
   const getCardLink = (card: WebCaseStudyCard) => {
     if (card.link) return card.link;
-    if (card.slug) return `/case-studies/${card.slug}`;
-    return "/case-studies";
+    if (card.slug) return `/web-case-study/${card.slug}`;
+    return "/web-development";
   };
 
   const getCardAlt = (card: WebCaseStudyCard) => {
@@ -645,18 +647,24 @@ export default function WebDevelopment() {
                             </div>
                           </div>
 
-                          {/* If you enable button later, it will always pin nicely */}
-                          {/* <div className="mt-5 pt-3 border-t border-gray-100">
-                  <Button
-                    className="w-full bg-brand-coral hover:bg-brand-purple text-white border-0 rounded-xl"
-                    asChild
-                  >
-                    <Link href={getCardLink(study)}>
-                      View Full Case Study
-                      <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
-                  </Button>
-                </div> */}
+                          <div className="mt-5 pt-3 border-t border-gray-100">
+                            {study.status === "published" ? (
+                              <Button
+                                className="w-full bg-brand-coral hover:bg-brand-purple text-white border-0 rounded-md"
+                                asChild
+                              >
+                                <Link href={getCardLink(study)}>
+                                  View Full Case Study
+                                  <ArrowRight className="w-4 h-4 ml-2" />
+                                </Link>
+                              </Button>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2 py-3 rounded-md bg-gray-50 text-gray-500 text-sm font-medium">
+                                <Lock className="w-4 h-4" />
+                                Coming Soon
+                              </div>
+                            )}
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
