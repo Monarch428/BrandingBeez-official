@@ -1123,6 +1123,7 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
+import PortfolioCtaSection from "@/components/portfolioimagecta";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export default function Home() {
@@ -1612,8 +1613,7 @@ export default function Home() {
                 <PortfolioCtaSection />
               </div>
             </div>
-          </section>
-
+          </section> */}
 
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
