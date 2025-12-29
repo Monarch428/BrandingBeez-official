@@ -1343,10 +1343,7 @@ type FaqItem = {
   question: string;
   answer: string;
 
-  // ✅ Separated
   links?: SectionLink[];
-
-  // ✅ Separated
   inlineLinks?: SectionLink[];
 };
 
@@ -1370,7 +1367,7 @@ type BlogSection = {
   steps: ProcessStep[];
 
   // ✅ NEW: faq
-  faqs?: FaqItem[];
+  faqItems?: FaqItem[];
 
   cta: SectionCTA;
 
@@ -1419,6 +1416,7 @@ const stripHtml = (html: string) =>
 
 const hasHtmlTags = (raw: string) => /<\/?[a-z][\s\S]*>/i.test(raw || "");
 
+
 function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
   const items: TocItem[] = [];
 
@@ -1446,8 +1444,8 @@ function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
     }
 
     // ✅ FAQ TOC
-    if (sec.type === "faq" && Array.isArray(sec.faqs)) {
-      sec.faqs.forEach((f, fIdx) => {
+    if (sec.type === "faq" && Array.isArray(sec.faqItems)) {
+      sec.faqItems.forEach((f, fIdx) => {
         const q = f.question?.trim();
         if (q) {
           items.push({
@@ -1458,6 +1456,7 @@ function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
         }
       });
     }
+
   });
 
   return items;
@@ -1495,11 +1494,15 @@ function deriveExcerptFromContent(content: string, maxLen = 185) {
 
       // ✅ FAQ excerpt fallback
       if (sec?.type === "faq") {
-        for (const f of sec.faqs || []) {
+        for (const f of sec.faqItems || []) {
           const a = (f?.answer || "").trim();
           if (a) {
             const text = stripHtml(a);
-            if (text) return text.length > maxLen ? text.slice(0, maxLen).trim() + "…" : text;
+            if (text) {
+              return text.length > maxLen
+                ? text.slice(0, maxLen).trim() + "…"
+                : text;
+            }
           }
         }
       }
@@ -1564,11 +1567,18 @@ export default function DynamicBlogPost() {
   }, [blogPost?.imageUrl]);
 
   const structured = useMemo(() => {
+    // ✅ 1) Prefer already-parsed structured content from API
+    const cs = (blogPost as any)?.contentStructured as StructuredBlogContentV1 | undefined;
+    if (cs?.version === 1 && Array.isArray(cs.sections)) return cs;
+
+    // ✅ 2) Fallback: parse stringified JSON in blogPost.content
     const raw = blogPost?.content?.trim() || "";
     const parsed = safeJsonParse<StructuredBlogContentV1>(raw);
     if (parsed?.version === 1 && Array.isArray(parsed.sections)) return parsed;
+
     return null;
-  }, [blogPost?.content]);
+  }, [blogPost?.content, (blogPost as any)?.contentStructured]);
+
 
   const toc = useMemo(() => {
     if (!structured) return [];
@@ -1697,12 +1707,6 @@ export default function DynamicBlogPost() {
       .join(" ");
   }
 
-  /**
-   * Apply inline word → href replacement (NO MERGE)
-   * - Section content uses sec.inlineLinks only
-   * - Step description uses st.inlineLinks only
-   * - FAQ answer uses faq.inlineLinks only
-   */
   function applyInlineLinks(html: string, links?: SectionLink[]) {
     if (!html || !Array.isArray(links) || links.length === 0) return html;
 
@@ -2020,90 +2024,73 @@ export default function DynamicBlogPost() {
                           </div>
                         )}
 
-                        {/* ✅ FAQ */}
-                        {sec.type === "faq" && (
-                          <div className="space-y-4">
-                            {sec.content?.trim() && (
-                              <div
-                                className="text-gray-700 leading-8"
-                                dangerouslySetInnerHTML={{
-                                  __html: renderTextWithInlineLinks(sec.content, sectionInlineLinks),
-                                }}
-                              />
-                            )}
+                        {(sec.faqItems || []).map((f, fIdx) => {
+                          const faqAnchor = f.question?.trim()
+                            ? `faq-${slugify(f.question)}-${sIdx + 1}-${fIdx + 1}`
+                            : undefined;
 
-                            <div className="space-y-3">
-                              {(sec.faqs || []).map((f, fIdx) => {
-                                const faqAnchor = f.question?.trim()
-                                  ? `faq-${slugify(f.question)}-${sIdx + 1}-${fIdx + 1}`
-                                  : undefined;
+                          const faqInlineLinks = f.inlineLinks || [];
+                          const faqReferences = f.links || [];
 
-                                const faqInlineLinks = f.inlineLinks || [];
-                                const faqReferences = f.links || [];
+                          return (
+                            <div
+                              key={f.id}
+                              className="bg-white p-1 sm:p-2"
+                            >
+                              {/* Question */}
+                              <div className="flex items-start gap-3">
+                                <div className="mt-0.5 flex-shrink-0">
+                                  <HelpCircle className="w-5 h-5 text-brand-purple" />
+                                </div>
 
-                                return (
-                                  <div key={f.id} className="rounded-2xl border bg-white shadow-sm overflow-hidden">
-                                    <details className="group">
-                                      <summary className="cursor-pointer select-none px-5 py-4 flex items-start gap-3">
-                                        <div className="mt-0.5">
-                                          <HelpCircle className="w-5 h-5 text-brand-purple" />
-                                        </div>
-                                        <div className="flex-1">
-                                          <div
-                                            id={faqAnchor}
-                                            className="font-extrabold text-gray-900 leading-7"
-                                          >
-                                            {f.question || `Question ${fIdx + 1}`}
-                                          </div>
-                                          <div className="text-sm text-gray-500 mt-1">
-                                            Tap to view answer
-                                          </div>
-                                        </div>
-                                        <ChevronDown className="w-5 h-5 text-gray-500 transition group-open:rotate-180" />
-                                      </summary>
+                                <div className="flex-1 min-w-0">
+                                  <h3
+                                    id={faqAnchor}
+                                    className="font-extrabold text-gray-900 leading-7 text-base sm:text-lg"
+                                  >
+                                    {f.question || `Question ${fIdx + 1}`}
+                                  </h3>
 
-                                      <div className="px-5 pb-5">
-                                        {f.answer?.trim() && (
-                                          <div
-                                            className="text-gray-700 leading-8"
-                                            dangerouslySetInnerHTML={{
-                                              __html: renderTextWithInlineLinks(f.answer, faqInlineLinks),
-                                            }}
-                                          />
-                                        )}
-
-                                        {Array.isArray(faqReferences) && faqReferences.length > 0 && (
-                                          <div className="mt-4 rounded-2xl border bg-gray-50 p-4">
-                                            <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
-                                              <LinkIcon className="w-4 h-4 text-gray-500" />
-                                              References
-                                            </div>
-
-                                            <ul className="space-y-2">
-                                              {faqReferences.map((link) => (
-                                                <li key={link.id} className="flex items-start gap-2">
-                                                  <span className="text-brand-purple font-bold">•</span>
-                                                  <a
-                                                    href={link.url}
-                                                    target={link.url?.startsWith("/") ? "_self" : "_blank"}
-                                                    rel="noreferrer noopener"
-                                                    className="text-sm font-semibold text-brand-purple hover:underline break-all"
-                                                  >
-                                                    {link.label?.trim() || link.url}
-                                                  </a>
-                                                </li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                        )}
+                                  {/* Answer */}
+                                  {f.answer?.trim() && (
+                                    <div
+                                      className="mt-3 text-gray-700 leading-8"
+                                      dangerouslySetInnerHTML={{
+                                        __html: renderTextWithInlineLinks(f.answer, faqInlineLinks),
+                                      }}
+                                    />
+                                  )}
+{/* rounded-2xl border bg-gray-50 */}
+                                  {/* References */}
+                                  {Array.isArray(faqReferences) && faqReferences.length > 0 && (
+                                    <div className="mt-4 p-4">
+                                      <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
+                                        <LinkIcon className="w-4 h-4 text-gray-500" />
+                                        References
                                       </div>
-                                    </details>
-                                  </div>
-                                );
-                              })}
+
+                                      <ul className="space-y-2">
+                                        {faqReferences.map((link) => (
+                                          <li key={link.id} className="flex items-start gap-2">
+                                            <span className="text-brand-purple font-bold">•</span>
+                                            <a
+                                              href={link.url}
+                                              target={link.url?.startsWith("/") ? "_self" : "_blank"}
+                                              rel="noreferrer noopener"
+                                              className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                            >
+                                              {link.label?.trim() || link.url}
+                                            </a>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })}
 
                         {/* ✅ Section images: single = full, multi = grid */}
                         {Array.isArray(sec.images) && sec.images.length > 0 && (
