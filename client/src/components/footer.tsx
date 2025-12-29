@@ -255,10 +255,10 @@ function FooterImpl() {
                 <li className="flex items-start gap-2">
                   <Phone className="w-4 h-4 text-brand-coral mt-0.5 flex-shrink-0" aria-hidden="true" />
                   <a
-                    href="tel:+917200626556"
+                    href="tel:+19792717552"
                     className="text-sm hover:text-white transition-colors touch-manipulation focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900"
                   >
-                    +91 72006 26556
+                    +1 979 271 7552
                   </a>
                 </li>
 
