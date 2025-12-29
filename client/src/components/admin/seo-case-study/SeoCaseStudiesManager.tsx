@@ -1225,6 +1225,7 @@ export type SeoCaseStudyCard = {
   cardCoverFit?: "contain" | "cover";
   cardCoverImagePublicId?: string;
 
+  status?: "draft" | "published";
   createdAt: string;
   updatedAt: string;
 };
@@ -1339,6 +1340,8 @@ const emptyForm: FormState = {
   cardCoverImageAlt: "",
   cardCoverFit: "contain",
   cardCoverImagePublicId: "",
+
+  status: "draft",
 
   // Detail FK
   cardId: "",
@@ -2011,6 +2014,7 @@ export function SeoCaseStudiesManager() {
         cardCoverImageAlt: form.cardCoverImageAlt || undefined,
         cardCoverFit: (form.cardCoverFit || "contain") as "contain" | "cover",
         cardCoverImagePublicId: form.cardCoverImagePublicId || undefined,
+        status: form.status || "draft"
       };
 
       const url = editingSlug
@@ -2306,6 +2310,7 @@ export function SeoCaseStudiesManager() {
           cardCoverFit: (p.cardCoverFit || "contain") as any,
           cardCoverImagePublicId: p.cardCoverImagePublicId || "",
           detailMongoId: "",
+          status: p.status || "draft",
         }));
       }
     } catch (err: any) {

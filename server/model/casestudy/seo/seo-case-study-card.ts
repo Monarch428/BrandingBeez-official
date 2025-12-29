@@ -20,11 +20,13 @@ export interface SeoCaseStudyCard {
   cardCoverImageAlt?: string;
   cardCoverFit?: "contain" | "cover";
 
+  status?: "draft" | "published";
+
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface SeoCaseStudyCardDocument extends Document, SeoCaseStudyCard {}
+export interface SeoCaseStudyCardDocument extends Document, SeoCaseStudyCard { }
 
 // ------------------- Schema -------------------
 const seoCaseStudyCardSchema = new Schema<SeoCaseStudyCardDocument>(
@@ -48,6 +50,7 @@ const seoCaseStudyCardSchema = new Schema<SeoCaseStudyCardDocument>(
       enum: ["contain", "cover"],
       default: "contain",
     },
+    status: { type: String, enum: ["draft", "published"], default: "draft" },
   },
   {
     collection: "seo_case_study_cards",

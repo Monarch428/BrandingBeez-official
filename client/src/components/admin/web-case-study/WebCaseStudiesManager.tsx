@@ -945,7 +945,6 @@ import {
   WebCtaBlock,
 } from "./WebCaseStudyDetailTab";
 
-// ---------- Helper ----------
 const slugifyTitle = (title: string) =>
   title
     .toLowerCase()
@@ -964,7 +963,6 @@ function ReqLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-// ---------- Types ----------
 export type WebCaseStudyCardResults = {
   performance: string;
   conversions: string;
@@ -1654,14 +1652,15 @@ export function WebCaseStudiesManager() {
       };
 
       const isEdit = Boolean(String(form.detailMongoId || "").trim());
+      const cardId = String(form.cardId || form.cardMongoId).trim();
+      if (!cardId) throw new Error("cardId missing");
+
       const endpoints = isEdit
-        ? [
-          `/api/admin/web-case-study/detail/${encodeURIComponent(String(form.detailMongoId))}`,
-          `/api/admin/web-case-study/detail?detailId=${encodeURIComponent(String(form.detailMongoId))}`,
-        ]
+        ? [`/api/admin/web-case-study/detail/${encodeURIComponent(String(finalCardId))}`]
         : ["/api/admin/web-case-study/detail"];
 
       const method = isEdit ? "PUT" : "POST";
+
 
       let saved: any = null;
       let lastErr: any = null;
@@ -1783,7 +1782,7 @@ export function WebCaseStudiesManager() {
       setSavingOrder(true);
 
       const items = nextList.map((c, index) => ({
-        id: c._id, // backend converts to ObjectId
+        id: c._id,
         order: index,
       }));
 

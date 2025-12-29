@@ -3,9 +3,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
 
 /* 🔥 Force toast above Radix Dialog overlay */
-[data-radix-portal] ~ .react-hot-toast {
+[data-radix-portal]~.react-hot-toast {
   z-index: 2147483647 !important;
   position: fixed !important;
 }

@@ -233,10 +233,10 @@ function CtaButton({
 
     const cls =
         variant === "hero"
-            ? "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
+            ? "w-full sm:w-auto px-6 sm:px-8 py-3.5 sm:py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
             : variant === "secondary"
-                ? "px-6 py-3 border border-white rounded-md text-white hover:bg-white/10 transition-colors inline-flex items-center gap-2"
-                : "px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors inline-flex items-center gap-2";
+                ? "w-full sm:w-auto px-5 sm:px-6 py-2 border border-white rounded-md text-white hover:bg-white/10 transition-colors inline-flex items-center justify-center gap-2"
+                : "w-full sm:w-auto px-5 sm:px-6 py-2 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors inline-flex items-center justify-center gap-2";
 
     return (
         <button
@@ -311,7 +311,10 @@ export default function WebCaseStudySlugPage(props: any) {
     const heroStats = useMemo<HeroStat[]>(() => detail?.heroStats ?? [], [detail]);
     const challengePoints = useMemo(() => detail?.challengePoints ?? [], [detail]);
     const overviewColumns = useMemo(() => detail?.overviewColumns ?? [], [detail]);
-    const strategyColumns = useMemo(() => (detail?.strategyColumns ?? []).slice().sort((a, b) => a.order - b.order), [detail]);
+    const strategyColumns = useMemo(
+        () => (detail?.strategyColumns ?? []).slice().sort((a, b) => a.order - b.order),
+        [detail],
+    );
     const coreFeatures = useMemo(() => detail?.coreFeatures ?? [], [detail]);
     const technicalExcellence = useMemo(() => detail?.technicalExcellence ?? [], [detail]);
     const evaluationCards = useMemo(() => detail?.evaluationCards ?? [], [detail]);
@@ -322,7 +325,7 @@ export default function WebCaseStudySlugPage(props: any) {
 
     if (loading) {
         return (
-            <div className="min-h-[70vh] flex items-center justify-center text-gray-500">
+            <div className="min-h-[70vh] flex items-center justify-center text-gray-500 px-4 text-center">
                 Loading Web case study…
             </div>
         );
@@ -333,7 +336,7 @@ export default function WebCaseStudySlugPage(props: any) {
             <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
                 <div className="text-red-500 font-semibold mb-2">{error ?? "Unable to load Web case study"}</div>
                 <button
-                    className="mt-2 px-5 py-2 rounded-lg bg-[#ee4962] text-white font-semibold"
+                    className="mt-2 w-full max-w-xs px-5 py-2 rounded-lg bg-[#ee4962] text-white font-semibold"
                     onClick={() => setLocation("/")}
                 >
                     Go Home
@@ -346,49 +349,92 @@ export default function WebCaseStudySlugPage(props: any) {
 
     return (
         <div className="min-h-screen bg-white">
-            {/* ================= HERO (matches your web Hero UI) ================= */}
-            <section className="relative bg-gradient-to-r from-[#321a66]/90 to-[#ee4962]/90 text-white overflow-hidden">
-                {/* background blobs */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-20 left-20 w-80 h-80 bg-[#ee4962]/10 rounded-full blur-3xl"></div>
-                </div>
+            {/* ================= HERO ================= */}
+            <section className="relative overflow-hidden text-white">
+                {/* gradient bg */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#321a66]/90 to-[#ee4962]/90" />
 
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 relative z-10">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center">
-                        {/* Left */}
-                        <div>
-                            {/* badge */}
-                            <div className="flex mb-6">
-                                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
-                                    <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
-                                        <IconByKey iconKey="Award" className="w-3.5 h-3.5 text-white" size={14} />
-                                    </div>
-                                    <span className="text-white text-sm font-medium">
-                                        {detail?.heroBadgeText ?? "Website Development Success Story"}
-                                    </span>
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16 lg:py-20">
+                    {/* ✅ centered content wrapper */}
+                    <div className="max-w-6xl mx-auto text-center">
+                        {/* badge */}
+                        <div className="flex justify-center mb-5 sm:mb-8">
+                            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
+                                <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
+                                    <IconByKey
+                                        iconKey="Award"
+                                        className="w-3.5 h-3.5 text-white"
+                                        size={14}
+                                    />
                                 </div>
-                            </div>
-
-                            {/* title */}
-                            <h1 className="text-white mb-4 font-bold text-[42px] md:text-[56px] leading-tight">
-                                {detail?.heroTitle ?? card.title ?? card.client}
-                            </h1>
-
-                            {/* rating */}
-                            <div className="flex items-center gap-2 mb-6">
-                                <span className="text-white/90">
-                                    {detail?.heroRatingText ?? "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}
+                                <span className="text-white text-xs sm:text-sm font-medium">
+                                    {detail?.heroBadgeText ?? "Website Development Success Story"}
                                 </span>
                             </div>
+                        </div>
 
-                            {/* desc */}
-                            <p className="text-white/90 mb-12">
+                        {/* title */}
+                        <h1 className="text-white mb-3 sm:mb-6 font-bold text-3xl sm:text-4xl md:text-5xl xl:text-[56px] leading-tight break-words">
+                            {detail?.heroTitle ?? card.title ?? card.client}
+                        </h1>
+
+                        {/* rating */}
+                        <div className="flex justify-center items-center gap-2 mb-6 sm:mb-8">
+                            <span className="text-white/90 text-sm sm:text-base">
+                                {detail?.heroRatingText ??
+                                    "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}
+                            </span>
+                        </div>
+
+                        {/* CTA buttons */}
+                        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                            <BookCallButtonWithModal
+                                buttonLabel={
+                                    detail?.heroPrimaryCtaText ?? "Book Free Consultation"
+                                }
+                                className="w-full sm:w-auto px-6 sm:px-8 py-6 sm:py-5 bg-[#ee4b64] text-white font-bold rounded-[10px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
+                                buttonSize="lg"
+                                defaultServiceType="Website Development"
+                            />
+                            <CtaButton
+                                variant="secondary"
+                                text={detail?.heroSecondaryCtaText ?? "Visit Live Website"}
+                                href={
+                                    detail?.heroSecondaryCtaHref ??
+                                    showcase?.liveUrl ??
+                                    card.link
+                                }
+                                rightIconKey="ExternalLink"
+                            />
+                        </div>
+
+                        {!hasDetail && (
+                            <div className="mt-8 sm:mt-10 bg-white/10 border border-white/20 text-white rounded-xl p-4 text-sm sm:text-base">
+                                Detail content not added yet for this Web case study. (Card data
+                                loaded ✅)
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            <section className="bg-gray-50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+                    {/* ✅ SECTION HEADING ONLY */}
+                    <div className="mb-12 sm:mb-16">
+                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                            Project Overview & Key Results
+                        </h2>
+                    </div>
+
+                    <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+                        {/* LEFT CONTENT */}
+                        <div className="lg:col-span-6 min-w-0">
+                            <p className="text-gray-700 text-sm sm:text-base md:text-[17px] leading-relaxed mb-10 max-w-2xl">
                                 {detail?.heroDescription ?? card.description}
                             </p>
 
-                            {/* stat cards (3) */}
-                            <div className="grid grid-cols-3 gap-4 mb-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
                                 {(heroStats.length
                                     ? heroStats
                                     : [
@@ -399,85 +445,58 @@ export default function WebCaseStudySlugPage(props: any) {
                                 )
                                     .slice(0, 3)
                                     .map((s, idx) => (
-                                        <div key={`${s.label}-${idx}`} className="backdrop-blur-[2px] bg-white rounded-lg p-4 text-center">
-                                            <div className="inline-flex items-center justify-center w-10 h-10 bg-[#EE4962] rounded-lg mb-3">
-                                                <IconByKey iconKey={s.iconKey ?? "CheckCircle2"} className="w-5 h-5 text-white" size={20} />
+                                        <div
+                                            key={`${s.label}-${idx}`}
+                                            className="bg-white rounded-2xl border border-gray-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow"
+                                        >
+                                            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#EE4962] rounded-xl mb-4">
+                                                <IconByKey
+                                                    iconKey={s.iconKey ?? "CheckCircle2"}
+                                                    className="w-5 h-5 text-white"
+                                                    size={20}
+                                                />
                                             </div>
-                                            <div className="text-sm mb-1 text-black font-semibold">{s.value}</div>
-                                            <p className="text-xs text-black/80">{s.label}</p>
+                                            <div className="text-sm sm:text-base font-semibold text-gray-900 mb-1 break-words">
+                                                {s.value}
+                                            </div>
+                                            <p className="text-xs sm:text-sm text-gray-600">{s.label}</p>
                                         </div>
                                     ))}
                             </div>
-
-                            {/* CTA buttons */}
-                            <div className="flex flex-col sm:flex-row gap-4">
-                                {/* <CtaButton
-                                    variant="hero"
-                                    text={detail?.heroPrimaryCtaText ?? "Book Free Consultation"}
-                                    href={detail?.heroPrimaryCtaHref ?? "/contact"}
-                                /> */}
-                                <BookCallButtonWithModal
-                                    buttonLabel={detail?.heroPrimaryCtaText ?? "Book Free Consultation"}
-                                    className="px-8 py-6 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
-                                    buttonSize="lg"
-                                    defaultServiceType="Website Development"
-                                />
-                                <CtaButton
-                                    variant="secondary"
-                                    text={detail?.heroSecondaryCtaText ?? "Visit Live Website"}
-                                    href={
-                                        detail?.heroSecondaryCtaHref ??
-                                        showcase?.liveUrl ??
-                                        card.link
-                                    }
-                                    rightIconKey="ExternalLink"
-                                />
-                            </div>
                         </div>
 
-                        {/* Right: video or fallback image */}
-                        <div className="relative">
-                            <div className="absolute -inset-4 bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20 rounded-2xl blur-2xl"></div>
-                            <div className="absolute top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-[#ee4962]/20 rounded-full blur-2xl"></div>
-
-                            <div className="relative rounded-xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-                                <div className="aspect-video bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20">
-                                    {detail?.heroVideoUrl ? (
-                                        <div className="relative w-full h-full">
+                        {/* ✅ BIGGER VIDEO */}
+                        <div className="lg:col-span-6">
+                            <div className="rounded-[28px] border border-gray-100 bg-gradient-to-br from-gray-50 to-white shadow-md p-5 sm:p-6">
+                                <div className="rounded-2xl overflow-hidden">
+                                    <div className="relative w-full aspect-[16/9] sm:aspect-[16/10] bg-black/5">
+                                        {detail?.heroVideoUrl ? (
                                             <iframe
-                                                className="w-full h-full"
+                                                className="absolute inset-0 w-full h-full"
                                                 src={toEmbedUrl(detail.heroVideoUrl)}
-                                                title={detail?.heroVideoBadgeText ?? "Case Study Video"}
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                title={
+                                                    detail?.heroVideoBadgeText ??
+                                                    "Case Study Video | Branding Beez"
+                                                }
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                                 allowFullScreen
+                                                loading="lazy"
                                             />
-                                            {/* <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                                                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                                                {detail?.heroVideoBadgeText ?? "Case Study Video"}
-                                            </div> */}
-                                        </div>
-                                    ) : card.imageUrl ? (
-                                        <img
-                                            src={card.imageUrl}
-                                            alt={card.imageAlt || card.title}
-                                            className={`w-full h-full ${(card.imageFit || "cover") === "cover" ? "object-cover" : "object-contain"}`}
-                                        />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-white/80 text-sm">
-                                            Video / image not provided
-                                        </div>
-                                    )}
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center text-center px-6 py-20">
+                                                <div className="text-gray-900 font-semibold text-lg sm:text-xl">
+                                                    Video Coming Soon
+                                                </div>
+                                                <div className="text-gray-600 text-sm mt-2 max-w-md">
+                                                    We’re currently preparing the full case study walkthrough video.
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    {!hasDetail ? (
-                        <div className="mt-10 bg-white/10 border border-white/20 text-white rounded-xl p-4">
-                            Detail content not added yet for this Web case study. (Card data loaded ✅)
-                        </div>
-                    ) : null}
                 </div>
             </section>
 
@@ -488,7 +507,7 @@ export default function WebCaseStudySlugPage(props: any) {
                 fallbackSubtitle={`Live snapshots of the ${card.client} website we built`}
             />
 
-            {/* ================= CTA 1 (CallToActionFirst) ================= */}
+            {/* ================= CTA 1 ================= */}
             <InlineCtaBand
                 title={detail?.ctaTop?.title ?? "Not sure where to start?"}
                 body={
@@ -531,12 +550,9 @@ export default function WebCaseStudySlugPage(props: any) {
                 tech={technicalExcellence}
             />
 
-            {/* ================= CTA 2 (CallToAction) ================= */}
+            {/* ================= CTA 2 ================= */}
             <InlineCtaBand
-                title={
-                    detail?.ctaMid?.title ??
-                    "Want similar results for your agency or business website?"
-                }
+                title={detail?.ctaMid?.title ?? "Want similar results for your agency or business website?"}
                 body={
                     detail?.ctaMid?.body ??
                     "Share your current website and goals, and we'll tell you if this white-label build model fits your niche, timeline, and tech stack."
@@ -610,31 +626,47 @@ function WebsiteShowcaseSection({
             : (showcase?.mobileImageAlt ?? "Mobile website screenshot");
 
     return (
-        <section className="bg-gray-50 py-16 md:py-20">
+        <section className="bg-white py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 {/* header */}
-                <div className="text-center mb-12">
-                    <h2 className="text-gray-900 mb-4 font-bold text-[32px]">{title}</h2>
-                    <p className="text-gray-600 mb-4">{subtitle}</p>
-                    {body ? <p className="text-gray-700 max-w-3xl mx-auto">{body}</p> : null}
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-gray-900 mb-3 sm:mb-4 font-bold text-2xl sm:text-3xl md:text-[32px]">
+                        {title}
+                    </h2>
+                    <p className="text-gray-600 mb-3 sm:mb-4 text-sm sm:text-base">
+                        {subtitle}
+                    </p>
+                    {body ? (
+                        <p className="text-gray-700 max-w-3xl mx-auto text-sm sm:text-base">
+                            {body}
+                        </p>
+                    ) : null}
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-6 md:p-8">
+                <div className="bg-white border border-gray-200 rounded-xl shadow-lg p-4 sm:p-6 md:p-8">
                     {/* toggle */}
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5 sm:mb-6">
                         <div className="flex items-center gap-3">
                             <div className="flex items-center justify-center w-8 h-8 bg-[#ee4962] rounded-lg">
-                                <IconByKey iconKey={viewMode === "desktop" ? "Monitor" : "Smartphone"} className="w-5 h-5 text-white" size={20} />
+                                <IconByKey
+                                    iconKey={viewMode === "desktop" ? "Monitor" : "Smartphone"}
+                                    className="w-5 h-5 text-white"
+                                    size={20}
+                                />
                             </div>
                             <div>
-                                <h3 className="text-gray-900">{viewMode === "desktop" ? "Desktop Experience" : "Mobile Experience"}</h3>
+                                <h3 className="text-gray-900 font-bold text-sm sm:text-base">
+                                    {viewMode === "desktop"
+                                        ? "Desktop Experience"
+                                        : "Mobile Experience"}
+                                </h3>
                             </div>
                         </div>
 
-                        <div className="inline-flex items-center bg-gray-50 border border-gray-200 rounded-lg p-1 shadow-sm">
+                        <div className="inline-flex w-full sm:w-auto items-center bg-gray-50 border border-gray-200 rounded-lg p-1 shadow-sm">
                             <button
                                 onClick={() => setViewMode("desktop")}
-                                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md transition-all ${viewMode === "desktop"
+                                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2 rounded-md transition-all text-sm ${viewMode === "desktop"
                                     ? "bg-gradient-to-r from-[#321a66] to-[#ee4962] text-white"
                                     : "text-gray-600 hover:text-gray-900"
                                     }`}
@@ -644,43 +676,56 @@ function WebsiteShowcaseSection({
                             </button>
                             <button
                                 onClick={() => setViewMode("mobile")}
-                                className={`inline-flex items-center gap-2 px-6 py-2 rounded-md transition-all ${viewMode === "mobile"
+                                className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-2 rounded-md transition-all text-sm ${viewMode === "mobile"
                                     ? "bg-gradient-to-r from-[#321a66] to-[#ee4962] text-white"
                                     : "text-gray-600 hover:text-gray-900"
                                     }`}
                             >
-                                <IconByKey iconKey="Smartphone" className="w-4 h-4" size={16} />
+                                <IconByKey
+                                    iconKey="Smartphone"
+                                    className="w-4 h-4"
+                                    size={16}
+                                />
                                 Mobile
                             </button>
                         </div>
                     </div>
 
-                    <p className="text-gray-600 mb-6">
+                    <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
                         {viewMode === "desktop"
                             ? "Clean, professional layout optimized for desktop users"
                             : "Responsive design optimized for mobile devices"}
                     </p>
 
+                    {/* ✅ UPDATED: scroll image inside the container */}
                     <div
-                        className={`bg-gray-100 border-2 border-gray-200 rounded-xl overflow-hidden shadow-xl transition-all duration-300 ${viewMode === "mobile" ? "max-w-sm mx-auto" : ""
+                        className={`bg-gray-100 border-2 border-gray-200 rounded-xl shadow-xl transition-all duration-300 ${viewMode === "mobile" ? "max-w-sm mx-auto" : ""
                             }`}
                     >
-                        {imgUrl ? (
-                            <img src={imgUrl} alt={imgAlt} className="w-full h-auto" loading="lazy" />
-                        ) : (
-                            <div className="w-full aspect-video flex items-center justify-center text-gray-500 text-sm">
-                                Screenshot not provided
-                            </div>
-                        )}
+                        {/* Scroll viewport */}
+                        <div className="relative h-[420px] sm:h-[480px] md:h-[520px] overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hidden">
+                            {imgUrl ? (
+                                <img
+                                    src={imgUrl}
+                                    alt={imgAlt}
+                                    className="w-full h-auto block"
+                                    loading="lazy"
+                                />
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-500 text-sm px-4 text-center">
+                                    Screenshot not provided
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
                 {/* Live button */}
                 {liveUrl ? (
-                    <div className="flex justify-center mt-8">
+                    <div className="flex justify-center mt-6 sm:mt-8">
                         <button
                             onClick={() => window.open(liveUrl, "_blank", "noopener,noreferrer")}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-[#ee4962] text-white rounded-md hover:bg-[#d91045] transition-colors shadow-md hover:shadow-lg"
+                            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#ee4962] text-white rounded-md hover:bg-[#d91045] transition-colors shadow-md hover:shadow-lg"
                         >
                             <IconByKey iconKey="ExternalLink" className="w-4 h-4" size={16} />
                             {liveButtonText}
@@ -706,24 +751,15 @@ function InlineCtaBand({
     const [, setLocation] = useLocation();
 
     return (
-        <section className="bg-gradient-to-r from-[#391B66] to-[#E64761] py-10 md:py-16">
+        <section className="bg-gradient-to-r from-[#391B66] to-[#E64761] py-8 sm:py-10 md:py-14">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                    <div className="flex-1">
-                        <p className="text-white mb-3 text-[20px] font-bold">{title}</p>
-                        <p className="text-white">{body}</p>
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 sm:gap-6">
+                    <div className="flex-1 min-w-0">
+                        <p className="text-white mb-2 sm:mb-3 text-lg sm:text-xl font-bold">{title}</p>
+                        <p className="text-white/95 text-sm sm:text-base leading-relaxed">{body}</p>
                     </div>
+
                     <div className="md:flex-shrink-0">
-                        {/* <button
-                            className="w-full md:w-auto px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors"
-                            onClick={() => {
-                                if (!buttonHref) return;
-                                if (buttonHref.startsWith("/")) return setLocation(buttonHref);
-                                window.open(buttonHref, "_blank", "noopener,noreferrer");
-                            }}
-                        >
-                            {buttonText}
-                        </button> */}
                         <BookCallButtonWithModal
                             buttonLabel={buttonText ?? "Book Free Consultation"}
                             className="w-full md:w-auto px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors"
@@ -754,43 +790,63 @@ function ChallengeSection({
     const afterItems = beforeAfter?.afterItems ?? [];
 
     return (
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-white py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-gray-900 font-bold text-[32px] mb-4">{title}</h2>
-                    <p className="text-gray-600 max-w-3xl mx-auto">{subtitle}</p>
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-gray-900 font-bold text-2xl sm:text-3xl md:text-[32px] mb-3 sm:mb-4">{title}</h2>
+                    <p className="text-gray-600 max-w-3xl mx-auto text-sm sm:text-base">{subtitle}</p>
                 </div>
 
                 {/* points */}
                 {points.length ? (
-                    <div className="space-y-4 mb-12 max-w-2xl mx-auto">
+                    <div className="space-y-3 sm:space-y-4 mb-10 sm:mb-12 max-w-2xl mx-auto">
                         {points.map((p, idx) => (
-                            <div key={idx} className="flex items-center gap-3">
-                                <div className="flex items-center justify-center w-8 h-8 bg-[#ee4962] rounded-full">
+                            <div key={idx} className="flex items-start sm:items-center gap-3">
+                                <div className="flex items-center justify-center w-8 h-8 bg-[#ee4962] rounded-full flex-shrink-0 mt-0.5 sm:mt-0">
                                     <IconByKey iconKey={p.iconKey} className="w-5 h-5 text-white" size={20} />
                                 </div>
-                                <p className="text-gray-700">{p.text}</p>
+                                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{p.text}</p>
                             </div>
                         ))}
                     </div>
                 ) : null}
 
                 {/* before/after */}
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-8">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="flex items-center justify-center w-10 h-10 bg-red-500 rounded-full">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                    {/* BEFORE */}
+                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-5 sm:p-6 lg:p-8 min-w-0 overflow-hidden">
+                        <div className="flex items-center gap-3 mb-5 sm:mb-6">
+                            <div className="flex items-center justify-center w-10 h-10 bg-red-500 rounded-full shrink-0">
                                 <IconByKey iconKey="X" className="w-6 h-6 text-white" size={22} />
                             </div>
-                            <h3 className="text-gray-900 font-bold text-[24px]">{beforeTitle}</h3>
+                            <h3 className="text-gray-900 font-bold text-xl sm:text-2xl break-words">
+                                {beforeTitle}
+                            </h3>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             {beforeItems.length ? (
                                 beforeItems.map((x, i) => (
-                                    <div key={i} className={`flex items-center justify-between ${i !== beforeItems.length - 1 ? "pb-3 border-b border-red-200" : ""}`}>
-                                        <span className="text-gray-700">{x.label}</span>
-                                        <span className="text-red-600 font-semibold">{x.value}</span>
+                                    <div
+                                        key={i}
+                                        className={[
+                                            "p-3 sm:p-0",
+                                            i !== beforeItems.length - 1 ? "sm:pb-3 sm:border-b sm:border-red-200" : "",
+                                        ].join(" ")}
+                                    >
+                                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-1 lg:gap-4 min-w-0">
+                                            <span className="text-gray-700 text-sm sm:text-base font-bold leading-snug break-words min-w-0">
+                                                {x.label}
+                                            </span>
+
+                                            <span className="text-red-600 font-semibold text-sm sm:text-base break-words min-w-0 lg:text-right">
+                                                {x.value}
+                                            </span>
+                                        </div>
+
+                                        {i !== beforeItems.length - 1 ? (
+                                            <div className="sm:hidden mt-3 h-px bg-red-200" />
+                                        ) : null}
                                     </div>
                                 ))
                             ) : (
@@ -799,20 +855,40 @@ function ChallengeSection({
                         </div>
                     </div>
 
-                    <div className="bg-green-50 border-2 border-green-200 rounded-xl p-8">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full">
+                    {/* AFTER */}
+                    <div className="bg-green-50 border-2 border-green-200 rounded-xl p-5 sm:p-6 lg:p-8 min-w-0 overflow-hidden">
+                        <div className="flex items-center gap-3 mb-5 sm:mb-6">
+                            <div className="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full shrink-0">
                                 <IconByKey iconKey="Check" className="w-6 h-6 text-white" size={22} />
                             </div>
-                            <h3 className="text-gray-900 font-bold text-[24px]">{afterTitle}</h3>
+                            <h3 className="text-gray-900 font-bold text-xl sm:text-2xl break-words">
+                                {afterTitle}
+                            </h3>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                             {afterItems.length ? (
                                 afterItems.map((x, i) => (
-                                    <div key={i} className={`flex items-center justify-between ${i !== afterItems.length - 1 ? "pb-3 border-b border-green-200" : ""}`}>
-                                        <span className="text-gray-700">{x.label}</span>
-                                        <span className="text-green-600 font-semibold">{x.value}</span>
+                                    <div
+                                        key={i}
+                                        className={[
+                                            "p-3 sm:p-0",
+                                            i !== afterItems.length - 1 ? "sm:pb-3 sm:border-b sm:border-green-200" : "",
+                                        ].join(" ")}
+                                    >
+                                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-1 lg:gap-4 min-w-0">
+                                            <span className="text-gray-700 text-sm sm:text-base font-bold leading-snug break-words min-w-0">
+                                                {x.label}
+                                            </span>
+
+                                            <span className="text-green-600 font-semibold text-sm sm:text-base break-words min-w-0 lg:text-right">
+                                                {x.value}
+                                            </span>
+                                        </div>
+
+                                        {i !== afterItems.length - 1 ? (
+                                            <div className="sm:hidden mt-3 h-px bg-green-200" />
+                                        ) : null}
                                     </div>
                                 ))
                             ) : (
@@ -821,6 +897,7 @@ function ChallengeSection({
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
     );
@@ -836,36 +913,36 @@ function OverviewSection({
     columns: OverviewColumn[];
 }) {
     return (
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-white py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-[rgb(50,26,102)] mb-4 text-[32px] font-bold">{title}</h2>
-                    <p className="text-gray-600">{subtitle}</p>
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-[rgb(50,26,102)] mb-3 sm:mb-4 text-2xl sm:text-3xl md:text-[32px] font-bold">{title}</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">{subtitle}</p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6 relative">
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 relative">
                     <div className="hidden md:block absolute top-0 bottom-0 left-1/3 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
                     <div className="hidden md:block absolute top-0 bottom-0 left-2/3 w-px bg-gradient-to-b from-transparent via-gray-200 to-transparent"></div>
 
                     {(columns || []).map((col, idx) => (
                         <div
                             key={`${col.title}-${idx}`}
-                            className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 transition-transform duration-300 hover:scale-[1.02] hover:shadow-md relative"
+                            className="bg-white border border-gray-200 rounded-lg shadow-sm p-5 sm:p-6 transition-transform duration-300 hover:scale-[1.02] hover:shadow-md relative"
                         >
                             <div className={`absolute top-4 right-4 w-2 h-2 rounded-full ${col.dotColorClass || "bg-[#ee4962]"}`}></div>
 
-                            <div className="flex items-center gap-3 mb-6">
+                            <div className="flex items-center gap-3 mb-5 sm:mb-6">
                                 <div className="flex items-center justify-center w-8 h-8 bg-[#321a66] rounded-lg">
                                     <IconByKey iconKey={col.iconKey} className="w-5 h-5 text-white" size={20} />
                                 </div>
-                                <h3 className="text-gray-900 font-bold">{col.title}</h3>
+                                <h3 className="text-gray-900 font-bold text-sm sm:text-base">{col.title}</h3>
                             </div>
 
-                            <ul className="space-y-4">
+                            <ul className="space-y-3 sm:space-y-4">
                                 {(col.bullets || []).map((b, i) => (
                                     <li key={i} className="flex items-start gap-3">
                                         <IconByKey iconKey={b.iconKey} className="w-4 h-4 text-[#ee4962] flex-shrink-0 mt-1" size={16} />
-                                        <span className="text-gray-700">{b.text}</span>
+                                        <span className="text-gray-700 text-sm sm:text-base">{b.text}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -887,34 +964,34 @@ function StrategySection({
     columns: StrategyColumn[];
 }) {
     return (
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-white py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-gray-900 font-bold text-[32px] mb-4">{title}</h2>
-                    <p className="text-gray-700 max-w-3xl mx-auto">{subtitle}</p>
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-gray-900 font-bold text-2xl sm:text-3xl md:text-[32px] mb-3 sm:mb-4">{title}</h2>
+                    <p className="text-gray-700 max-w-3xl mx-auto text-sm sm:text-base">{subtitle}</p>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6 md:gap-8">
                     {(columns || []).map((col, idx) => (
-                        <div key={`${col.title}-${idx}`} className="relative border border-gray-200 rounded-lg p-6">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="flex items-center justify-center w-12 h-12 bg-[rgb(50,26,102)] rounded-full flex-shrink-0">
-                                    <span className="text-white font-bold text-[20px]">{col.order ?? idx + 1}</span>
+                        <div key={`${col.title}-${idx}`} className="relative border border-gray-200 rounded-lg p-5 sm:p-6">
+                            <div className="flex items-start gap-3 mb-3">
+                                <div className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 bg-[rgb(50,26,102)] rounded-full flex-shrink-0">
+                                    <span className="text-white font-bold text-base sm:text-[20px]">{col.order ?? idx + 1}</span>
                                 </div>
-                                <h3 className="text-gray-900 font-bold text-[20px]">{col.title}</h3>
+                                <h3 className="text-gray-900 font-bold text-base sm:text-[20px] leading-snug">{col.title}</h3>
                             </div>
 
                             {col.tagText ? (
-                                <div className="inline-block px-2 py-0.5 text-sm bg-gradient-to-r from-[#321A66]/10 to-[#ee4962]/10 text-[#321A66] rounded-[5px] border border-[#ee4962]/20 mb-6">
+                                <div className="inline-block px-2 py-0.5 text-xs sm:text-sm bg-gradient-to-r from-[#321A66]/10 to-[#ee4962]/10 text-[#321A66] rounded-[5px] border border-[#ee4962]/20 mb-5 sm:mb-6">
                                     {col.tagText}
                                 </div>
                             ) : null}
 
-                            <ul className="space-y-3">
+                            <ul className="space-y-2.5 sm:space-y-3">
                                 {(col.bullets || []).map((b, i) => (
                                     <li key={i} className="flex items-start gap-2">
                                         <IconByKey iconKey={b.iconKey} className="w-5 h-5 text-[#ee4962] flex-shrink-0 mt-0.5" size={18} />
-                                        <span className="text-gray-700">{b.text}</span>
+                                        <span className="text-gray-700 text-sm sm:text-base">{b.text}</span>
                                     </li>
                                 ))}
                             </ul>
@@ -942,21 +1019,25 @@ function FeaturesSection({
     tech: FeatureItem[];
 }) {
     return (
-        <section className="bg-gray-50 py-16 md:py-20">
+        <section className="bg-gray-50 py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <h2 className="text-gray-900 mb-4 text-[32px] font-bold">{title}</h2>
-                    <p className="text-gray-600">{subtitle}</p>
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <h2 className="text-gray-900 mb-3 sm:mb-4 text-2xl sm:text-3xl md:text-[32px] font-bold">{title}</h2>
+                    <p className="text-gray-600 text-sm sm:text-base">{subtitle}</p>
                 </div>
 
                 {/* core */}
-                <div className="mb-12">
-                    <h3 className="text-[rgb(50,26,102)] mb-6 text-center font-bold text-[20px]">{coreTitle}</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
+                <div className="mb-10 sm:mb-12">
+                    <h3 className="text-[rgb(50,26,102)] mb-5 sm:mb-6 text-center font-bold text-base sm:text-[20px]">
+                        {coreTitle}
+                    </h3>
+                    <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                         {(core || []).map((f, idx) => (
                             <div
                                 key={idx}
-                                className={`border border-gray-200 rounded-lg shadow-sm p-6 ${idx % 2 === 0 ? "bg-gradient-to-br from-[#ee4962]/5 to-white" : "bg-gradient-to-br from-[#321a66]/5 to-white"
+                                className={`border border-gray-200 rounded-lg shadow-sm p-5 sm:p-6 ${idx % 2 === 0
+                                    ? "bg-gradient-to-br from-[#ee4962]/5 to-white"
+                                    : "bg-gradient-to-br from-[#321a66]/5 to-white"
                                     }`}
                             >
                                 <div className="flex items-start gap-4">
@@ -966,9 +1047,11 @@ function FeaturesSection({
                                     >
                                         <IconByKey iconKey={f.iconKey} className="w-5 h-5 text-white" size={18} />
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="text-gray-900 mb-2 font-semibold">{f.title}</h4>
-                                        <p className="text-gray-600">{f.description}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-gray-900 mb-1.5 sm:mb-2 font-semibold text-sm sm:text-base break-words">
+                                            {f.title}
+                                        </h4>
+                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{f.description}</p>
                                     </div>
                                 </div>
                             </div>
@@ -978,12 +1061,16 @@ function FeaturesSection({
 
                 {/* tech */}
                 <div>
-                    <h3 className="text-[rgb(50,26,102)] mb-6 text-center text-[20px] font-bold">{techTitle}</h3>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <h3 className="text-[rgb(50,26,102)] mb-5 sm:mb-6 text-center text-base sm:text-[20px] font-bold">
+                        {techTitle}
+                    </h3>
+                    <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
                         {(tech || []).map((f, idx) => (
                             <div
                                 key={idx}
-                                className={`border border-gray-200 rounded-lg shadow-sm p-6 ${idx % 2 === 0 ? "bg-gradient-to-br from-[#ee4962]/5 to-white" : "bg-gradient-to-br from-[#321a66]/5 to-white"
+                                className={`border border-gray-200 rounded-lg shadow-sm p-5 sm:p-6 ${idx % 2 === 0
+                                    ? "bg-gradient-to-br from-[#ee4962]/5 to-white"
+                                    : "bg-gradient-to-br from-[#321a66]/5 to-white"
                                     }`}
                             >
                                 <div className="flex items-start gap-4">
@@ -993,9 +1080,11 @@ function FeaturesSection({
                                     >
                                         <IconByKey iconKey={f.iconKey} className="w-5 h-5 text-white" size={18} />
                                     </div>
-                                    <div className="flex-1">
-                                        <h4 className="text-gray-900 mb-2 font-semibold">{f.title}</h4>
-                                        <p className="text-gray-600">{f.description}</p>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-gray-900 mb-1.5 sm:mb-2 font-semibold text-sm sm:text-base break-words">
+                                            {f.title}
+                                        </h4>
+                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">{f.description}</p>
                                     </div>
                                 </div>
                             </div>
@@ -1017,21 +1106,21 @@ function EvaluationSection({
     cards: EvaluationCard[];
 }) {
     return (
-        <section className="bg-white py-16 md:py-20">
+        <section className="bg-white py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="mb-12">
-                    <p className="text-[#ee4962] mb-3 font-bold text-[24px]">{kicker}</p>
-                    <h2 className="text-gray-900 font-bold text-[28px]">{title}</h2>
+                <div className="mb-8 sm:mb-10 md:mb-12">
+                    <p className="text-[#ee4962] mb-2 sm:mb-3 font-bold text-lg sm:text-2xl">{kicker}</p>
+                    <h2 className="text-gray-900 font-bold text-xl sm:text-2xl md:text-[28px]">{title}</h2>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
                     {(cards || []).map((c, idx) => (
-                        <div key={idx} className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                        <div key={idx} className="bg-white border border-gray-200 rounded-lg shadow-sm p-5 sm:p-6">
                             <div className="flex items-center justify-center w-12 h-12 bg-[#321a66] rounded-lg mb-4">
                                 <IconByKey iconKey={c.iconKey} className="w-6 h-6 text-white" size={22} />
                             </div>
-                            <h3 className="text-gray-900 mb-3 font-semibold">{c.title}</h3>
-                            <p className="text-gray-700 leading-relaxed">{c.description}</p>
+                            <h3 className="text-gray-900 mb-2 sm:mb-3 font-semibold text-sm sm:text-base">{c.title}</h3>
+                            <p className="text-gray-700 leading-relaxed text-sm sm:text-base">{c.description}</p>
                         </div>
                     ))}
                 </div>
@@ -1064,26 +1153,28 @@ function FeedbackSection({
     const [, setLocation] = useLocation();
 
     return (
-        <section className="bg-gray-50 py-16 md:py-20">
+        <section className="bg-gray-50 py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="text-center mb-12">
-                    <p className="text-[#ee4962] mb-2 font-bold text-[20px]">{kicker}</p>
-                    <p className="text-gray-600 mt-3 max-w-2xl mx-auto">
+                <div className="text-center mb-8 sm:mb-10 md:mb-12">
+                    <p className="text-[#ee4962] mb-2 font-bold text-base sm:text-[20px]">{kicker}</p>
+                    <p className="text-gray-600 mt-2 sm:mt-3 max-w-2xl mx-auto text-sm sm:text-base">
                         See how this partnership created lasting value and set the foundation for continued success.
                     </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8">
+                <div className="grid lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
                     {/* testimonial */}
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-8 md:p-12 relative">
-                        <div className="absolute top-6 left-6">
-                            <div className="flex items-center justify-center w-14 h-14 bg-gradient-to-br from-[#321a66] to-[#ee4962] rounded-full">
-                                <IconByKey iconKey="Quote" className="w-7 h-7 text-white" size={26} />
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-6 sm:p-8 md:p-10 lg:p-12 relative">
+                        <div className="absolute top-4 sm:top-6 left-4 sm:left-6">
+                            <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#321a66] to-[#ee4962] rounded-full">
+                                <IconByKey iconKey="Quote" className="w-6 h-6 sm:w-7 sm:h-7 text-white" size={26} />
                             </div>
                         </div>
 
-                        <blockquote className="text-center mb-8 mt-8">
-                            <p className="text-gray-700 italic mb-4">{quote ? `"${quote}"` : "“Testimonial not provided yet.”"}</p>
+                        <blockquote className="text-center mb-7 sm:mb-8 mt-10 sm:mt-12">
+                            <p className="text-gray-700 italic mb-3 sm:mb-4 text-sm sm:text-base leading-relaxed">
+                                {quote ? `"${quote}"` : "“Testimonial not provided yet.”"}
+                            </p>
                             <div className="text-gray-500 text-sm">{ratingText}</div>
                         </blockquote>
 
@@ -1092,29 +1183,29 @@ function FeedbackSection({
                                 <IconByKey iconKey="MessageCircle" className="w-6 h-6 text-white" size={22} />
                             </div>
                             <div className="text-left">
-                                <div className="text-gray-900 font-semibold">{authorName || "Client"}</div>
-                                <p className="text-gray-600">{authorRole || "—"}</p>
+                                <div className="text-gray-900 font-semibold text-sm sm:text-base">{authorName || "Client"}</div>
+                                <p className="text-gray-600 text-sm">{authorRole || "—"}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* metrics */}
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-8 md:p-12">
-                        <h3 className="text-gray-900 mb-8 text-center font-bold text-[20px]">{metricsTitle}</h3>
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-6 sm:p-8 md:p-10 lg:p-12">
+                        <h3 className="text-gray-900 mb-6 sm:mb-8 text-center font-bold text-base sm:text-[20px]">
+                            {metricsTitle}
+                        </h3>
 
-                        <div className="space-y-6 mb-8">
+                        <div className="space-y-4 sm:space-y-6 mb-7 sm:mb-8">
                             {(metrics || []).map((m, idx) => (
-                                <div key={idx} className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <IconByKey iconKey={m.iconKey} className="w-5 h-5 text-[#321a66]" size={18} />
-                                        <span className="text-gray-700">{m.label}</span>
+                                <div key={idx} className="flex items-start sm:items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3 min-w-0">
+                                        <IconByKey iconKey={m.iconKey} className="w-5 h-5 text-[#321a66] flex-shrink-0" size={18} />
+                                        <span className="text-gray-700 text-sm sm:text-base break-words">{m.label}</span>
                                     </div>
-                                    <span className="text-gray-900 font-semibold">{m.value}</span>
+                                    <span className="text-gray-900 font-semibold text-sm sm:text-base whitespace-nowrap">{m.value}</span>
                                 </div>
                             ))}
-                            {!metrics?.length ? (
-                                <div className="text-sm text-gray-500 text-center">Metrics not provided yet.</div>
-                            ) : null}
+                            {!metrics?.length ? <div className="text-sm text-gray-500 text-center">Metrics not provided yet.</div> : null}
                         </div>
 
                         <div className="text-center">
@@ -1154,31 +1245,21 @@ function FinalCtaSection({
     const [, setLocation] = useLocation();
 
     return (
-        <section className="relative bg-gradient-to-r from-[#ee4962] to-[#321a66] text-white py-12 md:py-20">
+        <section className="relative bg-gradient-to-r from-[#ee4962] to-[#321a66] text-white py-10 sm:py-12 md:py-16 lg:py-20">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-                <h2 className="text-white mb-6 font-bold text-[20px]">{title}</h2>
-                <p className="text-white/90 mb-8 max-w-3xl mx-auto">{body}</p>
+                <h2 className="text-white mb-4 sm:mb-6 font-bold text-xl sm:text-2xl md:text-[28px]">{title}</h2>
+                <p className="text-white/90 mb-6 sm:mb-8 max-w-3xl mx-auto text-sm sm:text-base leading-relaxed">{body}</p>
 
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    {/* <button
-            className="px-6 py-3 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors min-w-[254px]"
-            onClick={() => {
-              if (!primaryHref) return;
-              if (primaryHref.startsWith("/")) return setLocation(primaryHref);
-              window.open(primaryHref, "_blank", "noopener,noreferrer");
-            }}
-          >
-            {primaryText}
-          </button> */}
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-stretch sm:items-center">
                     <BookCallButtonWithModal
                         buttonLabel={primaryText ?? "Book Your Strategy Call"}
-                        className="px-6 py-6 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors max-w-content"
+                        className="w-full sm:w-auto px-6 py-4 sm:py-5 bg-white text-[#ee4962] rounded-md hover:bg-gray-100 transition-colors"
                         buttonSize="lg"
                         defaultServiceType="Website Development"
                     />
 
                     <button
-                        className="px-6 py-3 border border-white text-white rounded-md hover:bg-white/10 transition-colors inline-flex items-center gap-2 min-w-[292px]"
+                        className="w-full sm:w-auto px-6 py-2 border border-white text-white rounded-md hover:bg-white/10 transition-colors inline-flex items-center justify-center gap-2"
                         onClick={() => {
                             if (!secondaryHref) return;
                             if (secondaryHref.startsWith("/")) return setLocation(secondaryHref);

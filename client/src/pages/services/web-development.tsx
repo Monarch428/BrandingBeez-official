@@ -661,7 +661,7 @@ export default function WebDevelopment() {
                             ) : (
                               <div className="flex items-center justify-center gap-2 py-3 rounded-md bg-gray-50 text-gray-500 text-sm font-medium">
                                 <Lock className="w-4 h-4" />
-                                Coming Soon
+                                Details will be available soon
                               </div>
                             )}
                           </div>
