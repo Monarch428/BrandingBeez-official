@@ -409,17 +409,7 @@
     }
   </style>
 
-  <!-- ✅ IMPORTANT:
-       In production you must NOT load /src/index.css.
-       That blocks render and also may not be cached like /assets/*.css.
-
-       ✅ Use the built asset CSS: /assets/index-xxxx.css
-       Your Lighthouse already shows it exists: /assets/index-RXd548Om.css
-
-       👉 Replace this href with your actual built hash file.
-       (This is the REAL fix for render-blocking + caching.)
-  -->
-  <link rel="stylesheet" href="/assets/index-RXd548Om.css">
+<link rel="stylesheet" href="/assets/index-RXd548Om.css">
 
   <!-- ✅ CSP-safe: load trackers via external file (no inline event handlers) -->
   <script src="/third-party-loader.js" defer></script>
