@@ -20,6 +20,36 @@ import { apiRequest } from "@/lib/queryClient";
 import PhoneInput, { CountryData } from "react-phone-input-2";
 import { parsePhoneNumberFromString } from "libphonenumber-js";
 
+/* ===========================
+   ✅ Google Ads Conversion
+   - Fires ONLY after successful form submission (onSuccess)
+   - CSP-safe (no inline script)
+=========================== */
+
+declare global {
+  interface Window {
+    gtag?: (...args: any[]) => void;
+  }
+}
+
+const triggerGoogleAdsConversion = (redirectUrl?: string) => {
+  if (typeof window === "undefined") return;
+
+  if (!window.gtag) {
+    console.warn("[Google Ads] gtag not loaded; conversion not sent yet.");
+    return;
+  }
+
+  const callback = () => {
+    if (redirectUrl) window.location.href = redirectUrl;
+  };
+
+  window.gtag("event", "conversion", {
+    send_to: "AW-17781107849/nR9PCImFxdcbEInZ2J5C",
+    event_callback: callback,
+  });
+};
+
 type FormState = {
   name: string;
   email: string;
@@ -73,20 +103,29 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   const { regionConfig } = useRegion();
   const { toast } = useToast();
 
-  // 🌍 Auto-detect country for phone input
-  const [countryCode, setCountryCode] = useState<string>("us");
+  // ✅ Default country always US + persist user selection
+  const DEFAULT_COUNTRY = "us";
+  const COUNTRY_STORAGE_KEY = "bb_phone_country";
+
+  const [countryCode, setCountryCode] = useState<string>(DEFAULT_COUNTRY);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const locale = Intl.DateTimeFormat().resolvedOptions().locale;
-      const region = locale.split("-")[1]?.toLowerCase();
-      if (region) {
-        setCountryCode(region);
-      }
-    } catch {
+
+    const saved = localStorage.getItem(COUNTRY_STORAGE_KEY);
+    if (saved && typeof saved === "string") {
+      setCountryCode(saved);
+    } else {
+      setCountryCode(DEFAULT_COUNTRY);
     }
   }, []);
+
+  const setCountryPersisted = (cc: string) => {
+    setCountryCode(cc);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(COUNTRY_STORAGE_KEY, cc);
+    }
+  };
 
   const [showThankYouPopup, setShowThankYouPopup] = useState(false);
 
@@ -171,6 +210,9 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       return await apiRequest("/api/contacts", "POST", data);
     },
     onSuccess: () => {
+      // ✅ Fire Google Ads conversion only after successful submission
+      triggerGoogleAdsConversion();
+
       setShowThankYouPopup(true);
       setFormData({
         name: "",
@@ -384,7 +426,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         onChange={(value, data: CountryData) => {
                           if (data?.countryCode) {
                             const cc = data.countryCode.toLowerCase();
-                            setCountryCode(cc);
+                            setCountryPersisted(cc);
                             handleInputChange("countryCode", cc);
                           }
                           handleInputChange("phone", value);
@@ -548,112 +590,112 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         {/* Website Development Options */}
                         {formData.servicesInterested ===
                           "Website Development" && (
-                            <>
-                              {[
-                                "WordPress",
-                                "Shopify",
-                                "BigCommerce",
-                                "Custom Coded",
-                              ].map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center space-x-2"
+                          <>
+                            {[
+                              "WordPress",
+                              "Shopify",
+                              "BigCommerce",
+                              "Custom Coded",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
                                 >
-                                  <Checkbox
-                                    id={option}
-                                    checked={formData.subServices.includes(
-                                      option
-                                    )}
-                                    onCheckedChange={(checked) =>
-                                      handleSubServiceChange(option, !!checked)
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={option}
-                                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                                  >
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
 
                         {/* Dedicated Resource Options */}
                         {formData.servicesInterested ===
                           "Dedicated Resource" && (
-                            <>
-                              {[
-                                "Graphic Designer",
-                                "Video Editor",
-                                "SEO Specialist",
-                                "Google Ads Expert",
-                                "Web Developer",
-                                "Full-Stack Developer",
-                                "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                              ].map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center space-x-2"
+                          <>
+                            {[
+                              "Graphic Designer",
+                              "Video Editor",
+                              "SEO Specialist",
+                              "Google Ads Expert",
+                              "Web Developer",
+                              "Full-Stack Developer",
+                              "Others (Data Entry/Virtual Assistants/Social Media Managers)",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
                                 >
-                                  <Checkbox
-                                    id={option}
-                                    checked={formData.subServices.includes(
-                                      option
-                                    )}
-                                    onCheckedChange={(checked) =>
-                                      handleSubServiceChange(option, !!checked)
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={option}
-                                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                                  >
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
 
                         {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
                         {formData.servicesInterested ===
                           "Custom Web & Mobile Application Development (AI-Powered)" && (
-                            <>
-                              {[
-                                "AI Powered web app/Mobile app development",
-                                "AI Agentic Platform development",
-                                "AI Integration into existing platforms",
-                                "Prototype / MVP Mobile App",
-                                "Full-Scale Production App",
-                                "iOS & Android App (Native/Hybrid)",
-                                "Web + Mobile App Bundle",
-                                "Redesign / Rebuild Existing App",
-                                "Ongoing Maintenance & Feature Updates",
-                              ].map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center space-x-2"
+                          <>
+                            {[
+                              "AI Powered web app/Mobile app development",
+                              "AI Agentic Platform development",
+                              "AI Integration into existing platforms",
+                              "Prototype / MVP Mobile App",
+                              "Full-Scale Production App",
+                              "iOS & Android App (Native/Hybrid)",
+                              "Web + Mobile App Bundle",
+                              "Redesign / Rebuild Existing App",
+                              "Ongoing Maintenance & Feature Updates",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(
+                                    option
+                                  )}
+                                  onCheckedChange={(checked) =>
+                                    handleSubServiceChange(option, !!checked)
+                                  }
+                                />
+                                <Label
+                                  htmlFor={option}
+                                  className="text-sm font-medium text-gray-700 cursor-pointer"
                                 >
-                                  <Checkbox
-                                    id={option}
-                                    checked={formData.subServices.includes(
-                                      option
-                                    )}
-                                    onCheckedChange={(checked) =>
-                                      handleSubServiceChange(option, !!checked)
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={option}
-                                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                                  >
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                          </>
+                        )}
                       </div>
                       {errors.subServices && (
                         <p className="text-xs text-red-500 mt-1">
@@ -686,7 +728,9 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                     disabled={contactMutation.isPending}
                     className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
                   >
-                    {contactMutation.isPending ? "Submitting..." : "Schedule Strategy Call"}
+                    {contactMutation.isPending
+                      ? "Submitting..."
+                      : "Schedule Strategy Call"}
                   </Button>
                 </form>
               </CardContent>

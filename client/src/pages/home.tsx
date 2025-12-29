@@ -1061,7 +1061,7 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { HomeTeamBanner } from "@/components/home-team-banner";
+// import { HomeTeamBanner } from "@/components/home-team-banner";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { ThankYouPopup } from "@/components/thank-you-popup";
@@ -1479,8 +1479,35 @@ export default function Home() {
                 </div>
 
                 {/* Right: HomeTeamBanner (hidden <= 480px) */}
-                <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
+                {/* <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
+                </div> */}
+                <div className="w-full">
+                  <h1 className="text-center font-bold text-white leading-tight
+                 text-xl sm:text-2xl lg:text-3xl
+                 mb-4 sm:mb-6">
+                    See How We Help
+                    <span className="text-brand-yellow"> Agencies Scale</span>
+                  </h1>
+
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl
+                  p-3 sm:p-4 lg:p-5
+                  mt-6 sm:mt-8 lg:mt-0">
+                    {/* VIDEO ALWAYS SHOWN */}
+                    <div className="rounded-xl overflow-hidden shadow-lg">
+                      {/* Responsive video wrapper (keeps perfect ratio) */}
+                      <div className="relative w-full aspect-video">
+                        <iframe
+                          className="absolute inset-0 w-full h-full"
+                          src="https://www.youtube-nocookie.com/embed/BMcrZHzRaeg?rel=0&modestbranding=1&playsinline=1"
+                          title="Website Architect Case Study | Branding Beez"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          loading="lazy"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1847,7 +1874,7 @@ export default function Home() {
               <div className="bg-[rgba(40,20,50,0.6)] backdrop-blur-xl rounded-2xl p-6 sm:p-8 lg:p-10 mb-8 sm:mb-10 lg:mb-12 border border-white/10 shadow-[0px_8px_32px_rgba(0,0,0,0.3)] max-w-3xl mx-auto">
 
                 {/* PRICING */}
-                                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
                   </span>$1,199 per
@@ -2157,11 +2184,11 @@ export default function Home() {
           </section>
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px also hidden */}
-          <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
+          {/* <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <HomeTeamBanner />
             </div>
-          </section>
+          </section> */}
         </main>
 
         <Footer />

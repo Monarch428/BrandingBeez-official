@@ -22,7 +22,7 @@ export const blogPostData = {
   title: "How To Hire a Dedicated Team And Build a High-Performing Workforce in 2025",
   subtitle: "Complete guide to building dedicated offshore teams",
   excerpt: "Learn how to hire a dedicated team — from software developers to SEO specialists — and build a high-performing workforce in 2025. Discover the benefits, hiring process, and success tips for businesses of all sizes.",
-  imageUrl: "/enhanced-operational-efficiency.webp",
+  imageUrl: "", ///enhanced-operational-efficiency.webp
   tags: ["Dedicated Teams", "Workforce Management", "Hiring", "Remote Teams"],
   author: "Workforce Strategy Team",
   readTime: 8,

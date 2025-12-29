@@ -45,6 +45,10 @@ export function securityHeaders() {
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
 
+          // Hotjar
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
@@ -91,6 +95,10 @@ export function securityHeaders() {
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
 
+          // Hotjar
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
@@ -109,6 +117,10 @@ export function securityHeaders() {
           // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
+
+          "https://static.hotjar.com",
+          "https://*.hotjar.com",
+          "https://*.hotjar.io",
 
           // Google
           "https://www.google.com",
@@ -147,6 +159,12 @@ export function securityHeaders() {
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
 
+          // Hotjar
+          "https://*.hotjar.com",
+          "https://*.hotjar.io",
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // Google / GA / Ads
           "https://www.google.com",
           "https://google.com",
@@ -175,14 +193,17 @@ export function securityHeaders() {
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // Microsoft Clarity (✅ COMPLETE FIX)
+          // Microsoft Clarity 
           "https://www.clarity.ms",
+          "https://e.clarity.ms",
           "https://c.clarity.ms",
           "https://k.clarity.ms",
           "https://o.clarity.ms",
           "https://s.clarity.ms",
           "https://q.clarity.ms",
           "https://y.clarity.ms",
+          // optional but safe future-proof:
+          "https://*.clarity.ms",
 
           // Calendly
           "https://calendly.com",

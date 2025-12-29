@@ -961,7 +961,7 @@ import {
   Cpu,
   Dot,
 } from "lucide-react";
-import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.png";
+import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.webp";
 
 // ✅ Lazy-load the modal/button to reduce initial JS + improve LCP
 const BookCallButtonWithModal = lazy(() =>
@@ -975,7 +975,7 @@ export default function Header() {
   const [isDesktopServicesPinned, setIsDesktopServicesPinned] = useState(false);
   const servicesRef = useRef<HTMLDivElement | null>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
-  const [location, navigate] = useLocation(); // ✅ can navigate programmatically
+  const [location, navigate] = useLocation();
 
   // ✅ Set fetchpriority in a TS-safe way (avoids React warning + TS error)
   useEffect(() => {
@@ -1072,10 +1072,9 @@ export default function Header() {
             <Link href="/">
               <div className="flex-shrink-0 cursor-pointer">
                 <img
-                  ref={logoImgRef}
-                  src={BB_Chris_Logo}
+                  src="/images/BB_Christmas_Logo.webp"
                   alt="BrandingBeez"
-                  className="h-16 w-auto object-contain"
+                  className="block object-contain h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[72px] w-auto max-w-[160px] sm:max-w-[200px] md:max-w-[240px] lg:max-w-[280px] xl:max-w-[320px]"
                   width="320"
                   height="80"
                   decoding="async"
@@ -1092,11 +1091,10 @@ export default function Header() {
           >
             <Link href="/">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Home
               </span>
@@ -1118,17 +1116,15 @@ export default function Header() {
               <button
                 type="button"
                 onClick={handleDesktopServicesClick}
-                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${
-                  location.startsWith("/services") || isDesktopServicesOpen
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${location.startsWith("/services") || isDesktopServicesOpen
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Services
                 <ChevronDown
-                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${
-                    isDesktopServicesOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${isDesktopServicesOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -1209,33 +1205,30 @@ export default function Header() {
 
             <Link href="/blog">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/blog"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/blog"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Blog
               </span>
             </Link>
             <Link href="/about">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/about"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/about"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 About
               </span>
             </Link>
             <Link href="/portfolio">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/portfolio"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/portfolio"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Portfolio
               </span>
@@ -1249,7 +1242,7 @@ export default function Header() {
                 buttonLabel="Book a call"
                 className="hidden sm:flex bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base touch-manipulation"
                 buttonSize="lg"
-                // defaultServiceType="Website Development"
+              // defaultServiceType="Website Development"
               />
             </Suspense>
 
@@ -1278,11 +1271,10 @@ export default function Header() {
             <div className="px-4 py-2 space-y-1">
               <Link href="/">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
@@ -1291,11 +1283,10 @@ export default function Header() {
 
               {/* SERVICES with mobile submenu */}
               <div
-                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                  location.startsWith("/services")
-                    ? "text-brand-coral-darker bg-brand-coral/10"
-                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                }`}
+                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location.startsWith("/services")
+                  ? "text-brand-coral-darker bg-brand-coral/10"
+                  : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                  }`}
               >
                 {/* ⭐ Click text -> navigate to /services */}
                 <button
@@ -1317,9 +1308,8 @@ export default function Header() {
                   }}
                 >
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      isServicesSubmenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isServicesSubmenuOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -1341,11 +1331,10 @@ export default function Header() {
 
               <Link href="/blog">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/blog"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/blog"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Blog
@@ -1353,11 +1342,10 @@ export default function Header() {
               </Link>
               <Link href="/about">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/about"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/about"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
@@ -1365,11 +1353,10 @@ export default function Header() {
               </Link>
               <Link href="/portfolio">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/portfolio"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Portfolio
@@ -1377,11 +1364,10 @@ export default function Header() {
               </Link>
               <Link href="/contact">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/contact"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/contact"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Contact
@@ -1394,7 +1380,7 @@ export default function Header() {
                     buttonLabel="Book a call"
                     className="w-full bg-brand-coral-darker hover:bg-brand-coral-dark text-white px-4 py-3 rounded-lg transition-colors font-medium text-base touch-manipulation"
                     buttonSize="lg"
-                    // defaultServiceType="Website Development"
+                  // defaultServiceType="Website Development"
                   />
                 </Suspense>
               </div>

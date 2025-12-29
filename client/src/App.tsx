@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect, Suspense, lazy } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import { apiRequest, queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { AppToastProvider } from "@/components/ui/toaster";
@@ -20,7 +20,6 @@ import ErrorBoundary from "@/components/error-boundary";
 // CRITICAL: Only import home page immediately (above the fold)
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
-import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
 import BeeLoadingScreen from "./components/BeeLoadingScreen";
 import { ThankYouProvider } from "./context/thank-you-context";
 import { SeoCaseStudyPage } from "./pages/case-studies/seo-case-studies/[slug]";
@@ -143,30 +142,31 @@ const LazyRoute = ({
   </Suspense>
 );
 
-// 🌨 Global snowfall overlay (for Christmas month)
-const SnowfallOverlay = () => {
-  const flakes = Array.from({ length: 80 });
+/**
+ * ✅ NEW: isolates popup layer so popup crash never white-screens the full site
+ */
+class SafePopupBoundary extends React.Component<
+  { children: React.ReactNode; name: string },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; name: string }) {
+    super(props);
+    this.state = { hasError: false };
+  }
 
-  return (
-    <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
-      {flakes.map((_, index) => (
-        <span
-          key={index}
-          className="snowflake select-none"
-          style={{
-            left: `${Math.random() * 100}%`,
-            animationDuration: `${10 + Math.random() * 20}s`,
-            animationDelay: `${Math.random() * -20}s`,
-            fontSize: `${12 + Math.random() * 24}px`,
-            opacity: 0.3 + Math.random() * 0.7,
-          }}
-        >
-          ❄
-        </span>
-      ))}
-    </div>
-  );
-};
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.warn(`[SafePopupBoundary] ${this.props.name} crashed (isolated).`, error);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 function Router() {
   const [location] = useLocation();
@@ -226,7 +226,10 @@ function Router() {
       <Route path="/case-studies/citypat-case-study" component={() => <LazyRoute component={CitypatCaseStudy} />} />
       <Route path="/case-studies/citypat" component={() => <LazyRoute component={CitypatCaseStudy} />} />
       <Route path="/case-studies/griffin-group-case-study" component={() => <LazyRoute component={GriffinGroupCaseStudy} />} />
-      <Route path="/case-studies/arlingsworth-solicitors-case-study" component={() => (<LazyRoute component={ArlingsworthSolicitorsCaseStudy} />)} />
+      <Route
+        path="/case-studies/arlingsworth-solicitors-case-study"
+        component={() => <LazyRoute component={ArlingsworthSolicitorsCaseStudy} />}
+      />
       <Route path="/case-studies/junksaway-case-study" component={() => <LazyRoute component={JunksAwayCaseStudy} />} />
       <Route path="/case-studies/junksaway" component={() => <LazyRoute component={JunksAwayCaseStudy} />} />
       <Route path="/case-studies/the-dog-guy-case-study" component={() => <LazyRoute component={TheDogGuyCaseStudy} />} />
@@ -235,12 +238,15 @@ function Router() {
       <Route path="/case-studies/social-land" component={() => <LazyRoute component={SocialLandCaseStudy} />} />
       <Route path="/case-studies/socialland-website" component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />} />
       <Route path="/case-studies/socialland-website-case-study" component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />} />
-      <Route path="/case-studies/ts-landscaping-website" component={() => (<LazyRoute component={TSLandscapingWebsiteCaseStudy} />)} />
-      <Route path="/case-studies/vellu-laser-landing-page" component={() => (<LazyRoute component={VelluLaserLandingPageCaseStudy} />)} />
-      <Route path="/case-studies/green-paradise-branding-website" component={() => (<LazyRoute component={GreenParadiseBrandingWebsiteCaseStudy} />)} />
+      <Route path="/case-studies/ts-landscaping-website" component={() => <LazyRoute component={TSLandscapingWebsiteCaseStudy} />} />
+      <Route path="/case-studies/vellu-laser-landing-page" component={() => <LazyRoute component={VelluLaserLandingPageCaseStudy} />} />
+      <Route
+        path="/case-studies/green-paradise-branding-website"
+        component={() => <LazyRoute component={GreenParadiseBrandingWebsiteCaseStudy} />}
+      />
       <Route path="/case-studies/koala-digital" component={() => <LazyRoute component={KoalaDigitalCaseStudy} />} />
       <Route path="/case-studies/website-architect" component={() => <LazyRoute component={WebsiteArchitectCaseStudy} />} />
-      <Route path="/case-studies/payflow-systems" component={() => (<LazyRoute component={DedicatedResourcesFintechCaseStudy} />)} />
+      <Route path="/case-studies/payflow-systems" component={() => <LazyRoute component={DedicatedResourcesFintechCaseStudy} />} />
       <Route path="/case-studies/fse-digital" component={() => <LazyRoute component={FSEDigital} />} />
 
       {/* Tools and utilities */}
@@ -282,7 +288,8 @@ function App() {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-      event.preventDefault();
+      // ✅ IMPORTANT: do NOT preventDefault here — it hides real runtime errors and chunk-load issues
+      // event.preventDefault();
     };
 
     const handleError = (event: ErrorEvent) => {
@@ -306,14 +313,24 @@ function App() {
             <AppToastProvider>
               <ThankYouProvider>
                 <CriticalPathOptimizer />
+
                 <PerformanceOptimizer />
 
                 <Router />
                 <CookieConsent />
 
-                <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
-                <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
-                <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+                {/* ✅ Isolated so popup crashes can't white-screen the site */}
+                {/* <SafePopupBoundary name="EntryPopup">
+                  <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
+                </SafePopupBoundary> */}
+
+                <SafePopupBoundary name="ExitIntentPopup">
+                  <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
+                </SafePopupBoundary>
+
+                {/* <SafePopupBoundary name="MobilePopup">
+                  <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+                </SafePopupBoundary> */}
               </ThankYouProvider>
             </AppToastProvider>
           </TooltipProvider>

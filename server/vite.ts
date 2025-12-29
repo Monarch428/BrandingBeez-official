@@ -6,6 +6,7 @@ import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
 import cors from "cors";
+import expressStaticGzip from "express-static-gzip";
 
 const viteLogger = createLogger();
 
@@ -24,7 +25,7 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true,
+    allowedHosts: true as const,
   };
 
   const vite = await createViteServer({
@@ -43,8 +44,8 @@ export async function setupVite(app: Express, server: Server) {
 
   app.use(cors({
     origin: [
-      "https://brandingbeez-official.onrender.com",  
-      "http://localhost:5173",                       
+      "https://brandingbeez-official.onrender.com",
+      "http://localhost:5173",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -90,7 +91,8 @@ export function serveStatic(app: Express) {
       `Could not find the build directory: ${distPath}, make sure to build the client first`,
     );
   }
-app.use(cors({
+
+  app.use(cors({
     origin: [
       "https://brandingbeez-official.onrender.com",
       "http://localhost:5173",
@@ -100,7 +102,35 @@ app.use(cors({
     credentials: true,
   }));
 
-  app.use(express.static(distPath));
+  // ✅ Serve precompressed files (.br then .gz) + correct caching rules
+  // - /assets/* (hashed) => 1 year immutable
+  // - index.html => no-cache
+  // - others => 1 hour
+  app.use(
+    "/",
+    expressStaticGzip(distPath, {
+      enableBrotli: true,
+      orderPreference: ["br", "gz"],
+      serveStatic: {
+        setHeaders: (res, filePath) => {
+          // Cache Vite hashed assets forever (safe)
+          if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+            res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+            return;
+          }
+
+          // Never cache index.html
+          if (filePath.endsWith(`${path.sep}index.html`)) {
+            res.setHeader("Cache-Control", "no-cache");
+            return;
+          }
+
+          // Reasonable cache for other files
+          res.setHeader("Cache-Control", "public, max-age=3600");
+        },
+      },
+    })
+  );
 
   app.use("*", (_req, res) => {
     res.sendFile(path.resolve(distPath, "index.html"));

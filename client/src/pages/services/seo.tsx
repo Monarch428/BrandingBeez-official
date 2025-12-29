@@ -1,116 +1,3 @@
-{/* Featured SEO Client Section (Case Study below Hero) */ }
-{/* <section className="py-12 sm:py-16 lg:py-20 px-4 bg-white">
-            <div className="max-w-7xl mx-auto">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <div>
-                  <Badge className="w-fit bg-brand-coral/10 text-brand-coral border border-brand-coral/30 text-xs sm:text-sm mb-4 px-4 py-1">
-                    Featured White-Label SEO Success via Social Land
-                  </Badge>
-
-                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-brand-purple mb-4">
-                    {featuredClient.name}
-                  </h2>
-
-                  <p className="text-sm sm:text-base text-gray-700 mb-6">
-                    {featuredClient.description}
-                  </p>
-
-                  <div className="bg-brand-purple/5 rounded-xl p-5 sm:p-6 mb-7 border border-brand-purple/15">
-                    <h3 className="text-lg sm:text-xl font-semibold text-brand-purple mb-3">
-                      SEO Achievements in Q2 2025
-                    </h3>
-                    <ul className="space-y-2 text-gray-800 text-sm sm:text-base">
-                      {featuredClient.achievements.map((achievement, index) => (
-                        <li key={index} className="flex items-center gap-2">
-                          <CheckCircle className="w-5 h-5 text-brand-coral" />
-                          <span>{achievement}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                    <Link href="/contact?service=seo#contact-form">
-                      <Button className="bg-brand-coral text-white hover:bg-brand-coral-dark">
-                        Get White-Label SEO for My Agency
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </Link>
-
-                    <Button
-                      asChild
-                      variant="outline"
-                      className="border-brand-purple/30 text-brand-purple hover:bg-brand-purple hover:text-white"
-                    >
-                      <a href={featuredClient.website} target="_blank" rel="noopener noreferrer">
-                        View SEO Case Study
-                        <ExternalLink className="w-4 h-4 ml-2" />
-                      </a>
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <div className="aspect-video bg-white rounded-2xl border-2 border-gray-200 shadow-xl overflow-hidden p-4">
-                    <img
-                      src={analyticsScreenshot}
-                      alt="SEO & organic performance analytics dashboard"
-                      className="w-full h-full object-contain bg-white rounded-lg"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
-                        const fallbackDiv = document.createElement("div");
-                        fallbackDiv.className =
-                          "w-full h-full bg-gradient-to-br from-brand-purple to-brand-coral rounded-2xl flex items-center justify-center";
-
-                        const textCenter = document.createElement("div");
-                        textCenter.className = "text-center text-white p-8";
-
-                        const iconDiv = document.createElement("div");
-                        iconDiv.className = "text-4xl font-bold mb-2";
-                        iconDiv.textContent = "📊";
-
-                        const titleDiv = document.createElement("div");
-                        titleDiv.className = "text-lg font-semibold mb-1";
-                        titleDiv.textContent = "Google Analytics Results";
-
-                        const sessionDiv = document.createElement("div");
-                        sessionDiv.className = "text-sm opacity-90";
-                        sessionDiv.textContent = "16% session growth";
-
-                        const userDiv = document.createElement("div");
-                        userDiv.className = "text-sm opacity-90";
-                        userDiv.textContent = "12% user growth";
-
-                        textCenter.appendChild(iconDiv);
-                        textCenter.appendChild(titleDiv);
-                        textCenter.appendChild(sessionDiv);
-                        textCenter.appendChild(userDiv);
-                        fallbackDiv.appendChild(textCenter);
-                        target.parentElement!.appendChild(fallbackDiv);
-                      }}
-                    />
-
-                    <div className="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-                      <p className="text-white font-semibold text-sm">
-                        {featuredClient.name}
-                      </p>
-                      <p className="text-white/90 text-xs">
-                        {featuredClient.industry}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full" />
-                        <p className="text-green-300 text-xs font-medium">
-                          Live Analytics Data
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-</section> */}
-
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SEOHead } from "@/components/seo-head";
@@ -156,9 +43,9 @@ import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { useState } from "react";
 import { PhaseSliderSection, type PhaseItem, } from "@/components/phase-slider-section";
-import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
-import Hours_24_Image from "../../../public/images/24 hour Start time.png";
-import SEO_Image from "../../../public/images/DEDICATED SEO RESOURCE.png"
+// import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
+// import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+// import SEO_Image from "../../../public/images/DEDICATED SEO RESOURCE.png"
 
 const seoAioPhases: PhaseItem[] = [
   {
@@ -325,66 +212,6 @@ const caseStudies = [
     slug: "griffin-group-case-study"
   }
 ];
-
-// const pricingPackages = [
-//   {
-//     id: 1,
-//     name: "Starter SEO",
-//     price: "$500",
-//     period: "/month",
-//     description: "Perfect for local businesses and startups",
-//     features: [
-//       "Basic audit + quick fixes",
-//       "10 primary keywords",
-//       "5 pages optimized",
-//       "Speed, mobile, meta fixes",
-//       "1 location GMB setup",
-//       "1 blog/month (1000 words)",
-//       "2 links/month (DA 30+)",
-//       "Basic competitor scan",
-//       "Monthly summary report"
-//     ],
-//     popular: false
-//   },
-//   {
-//     id: 2,
-//     name: "Growth SEO",
-//     price: "$650",
-//     period: "/month",
-//     description: "Ideal for growing companies",
-//     features: [
-//       "Full technical + on-page audit",
-//       "25 keywords + search intent grouping",
-//       "10 pages optimized",
-//       "Schema, redirects, crawl fixes",
-//       "3 locations + citation submission",
-//       "2 blogs/month (1000-1200 words)",
-//       "5 links/month (DA 40+)",
-//       "Deep 5-competitor analysis",
-//       "Monthly report + call"
-//     ],
-//     popular: true
-//   },
-//   {
-//     id: 3,
-//     name: "Pro SEO",
-//     price: "$1,200",
-//     period: "/month",
-//     description: "For e-commerce and enterprise websites",
-//     features: [
-//       "Deep crawl + custom technical plan",
-//       "50+ keywords + intent segmentation",
-//       "20 pages + conversion tracking",
-//       "Core Web Vitals, JavaScript SEO",
-//       "5+ locations, review strategy",
-//       "4 blogs/month (1500+ words)",
-//       "10 links/month (DA 50+)",
-//       "Full landscape + quarterly reports",
-//       "Dashboard + bi-weekly strategy calls"
-//     ],
-//     popular: false
-//   }
-// ];
 
 const pricingPackages = [
   {
@@ -677,7 +504,7 @@ export default function SEOServices() {
                 </div>
 
                 {/* Right: Includes card */}
-                <div className="lg:pl-4">
+                {/* <div className="lg:pl-4">
                   <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 sm:p-7 lg:p-8 shadow-[0_18px_60px_rgba(15,23,42,0.45)]">
                     <p className="text-sm font-bold uppercase tracking-wide text-brand-yellow mb-2">
                       Includes
@@ -711,10 +538,23 @@ export default function SEOServices() {
                     </div>
 
                   </div>
-                  {/* ⭐ NEW — AIO Clarification Line */}
                   <div className="mt-10 text-justify text-white/90 text-sm sm:text-base max-w-3xl mx-auto leading-relaxed">
                     <strong>AI Search Optimization (AIO)</strong> is the next evolution of SEO built to help brands and agency clients
                     appear inside AI-generated answers, not just blue links.
+                  </div>
+                </div> */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
+                      <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/dCpAoMPSHsE"
+                        title="Website Design & Development for Agencies | BrandingBeez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
