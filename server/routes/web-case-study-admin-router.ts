@@ -121,24 +121,26 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
         }
     );
 
-    router.put("/web-case-study/detail", authenticateAdmin, async (req, res) => {
-        try {
-            const { detailId } = req.query as { detailId?: string };
-            if (!detailId) return res.status(400).json({ message: "detailId is required" });
+    router.put(
+        "/web-case-study/detail/:cardId",
+        authenticateAdmin,
+        async (req: Request, res: Response) => {
+            try {
+                const { cardId } = req.params;
 
-            const updated = await WebCaseStudyDetailModel.findByIdAndUpdate(
-                detailId,
-                { $set: req.body },
-                { new: true }
-            ).lean();
+                const updated = await WebCaseStudyDetailModel.findOneAndUpdate(
+                    { cardId: cardId as any },
+                    { $set: { ...req.body, cardId } },
+                    { new: true, upsert: true }
+                ).lean();
 
-            if (!updated) return res.status(404).json({ message: "Website case study detail not found" });
-            return res.json(updated);
-        } catch (error) {
-            console.error("Failed to update Website case study detail by detailId:", error);
-            return res.status(500).json({ message: "Failed to update Website case study detail" });
+                return res.json(updated);
+            } catch (error) {
+                console.error("Failed to upsert Website case study detail by cardId:", error);
+                return res.status(500).json({ message: "Failed to save Website case study detail" });
+            }
         }
-    });
+    );
 
     router.post("/web-case-study/detail", authenticateAdmin, async (req, res) => {
         try {

@@ -266,10 +266,10 @@ export function securityHeaders() {
 // Rate limiting for general API endpoints
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100, 
   message: {
     error: "Too many requests from this IP, please try again later.",
-    retryAfter: 15 * 60 // 15 minutes in seconds
+    retryAfter: 15 * 60
   },
   standardHeaders: true,
   legacyHeaders: false,
