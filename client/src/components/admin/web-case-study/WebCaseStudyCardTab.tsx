@@ -272,7 +272,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useAppToast } from "@/components/ui/toaster";
-import { Checkbox } from "@radix-ui/react-checkbox";
+import * as SwitchPrimitive from "@radix-ui/react-switch";
 
 // ✅ Required label helper (adds *)
 function ReqLabel({ children }: { children: React.ReactNode }) {
@@ -534,12 +534,49 @@ export function WebCaseStudyCardTab({
         </div>
       ) : null}
 
-      <div>
-        <Label>Status</Label>
-        <Checkbox checked={form.status === "published"} onCheckedChange={(checked) => onChange("status", checked ? "published" : "draft")}>
-          <div className="ml-2 select-none">{form.status === "published" ? "Published" : "Draft"}</div>
-        </Checkbox>
+      {/* Status Toggle */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() =>
+          onChange("status", form.status === "published" ? "draft" : "published")
+        }
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onChange("status", form.status === "published" ? "draft" : "published");
+          }
+        }}
+        className="flex items-center gap-3 cursor-pointer select-none mt-4"
+      >
+        <SwitchPrimitive.Root
+          checked={form.status === "published"}
+          onCheckedChange={(checked: boolean) =>
+            onChange("status", checked ? "published" : "draft")
+          }
+          className="
+      relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full
+      border-2 border-transparent transition-colors
+      data-[state=checked]:bg-rose-500
+      data-[state=unchecked]:bg-slate-200
+      focus-visible:outline-none
+    "
+        >
+          <SwitchPrimitive.Thumb
+            className="
+        pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg
+        transition-transform
+        data-[state=checked]:translate-x-5
+        data-[state=unchecked]:translate-x-0
+      "
+          />
+        </SwitchPrimitive.Root>
+
+        <span className="text-sm font-semibold text-slate-900">
+          Published {form.status === "published" ? "✓" : "×"}
+        </span>
       </div>
+
     </div>
   );
 }

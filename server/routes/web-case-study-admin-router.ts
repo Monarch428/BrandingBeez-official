@@ -186,5 +186,20 @@ export function webCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
             return res.status(500).json({ message: "Failed to reorder web case studies" });
         }
     });
+
+    // Add this ABOVE the "/web-case-study/detail/:cardId" route (or anywhere, it won't conflict)
+    router.get("/web-case-study/detail", authenticateAdmin, async (req, res) => {
+        try {
+            const { cardId } = req.query as { cardId?: string };
+            if (!cardId) return res.status(400).json({ message: "cardId is required" });
+
+            const detail = await storage.getWebCaseStudyDetailByCardId(cardId);
+            return res.json(detail ?? null);
+        } catch (error) {
+            console.error("Failed to get Website case study detail:", error);
+            return res.status(500).json({ message: "Failed to get Website case study detail" });
+        }
+    });
+
     return router;
 }
