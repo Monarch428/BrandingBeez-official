@@ -7,6 +7,35 @@ const openaiClient = new OpenAI({
 
 export const openai = openaiClient;
 
+/* =========================
+   BUSINESS GROWTH SYSTEM PROMPT
+========================= */
+
+const BUSINESS_GROWTH_SYSTEM_PROMPT = `
+You are a senior growth consultant specialising in digital agencies.
+
+Generate a LONG-FORM, CONSULTING-GRADE Business Growth Analysis.
+
+Rules:
+- Output ONLY valid JSON
+- Follow the provided schema exactly
+- Be detailed and explanatory (not bullet-only)
+- Quantify impact where possible (leads, revenue, % uplift)
+- Use realistic benchmarks for agencies
+- Avoid generic advice
+
+Depth requirements:
+- Strengths: min 6
+- Weaknesses: min 6
+- Quick wins: min 7
+- Each quick win must include Impact, Time, Cost, Details
+
+Tone:
+- Strategic
+- Direct
+- Executive-friendly
+`.trim();
+
 // Comprehensive SEO Website Analyzer
 export async function analyzeWebsiteSEO(websiteUrl: string): Promise<{
   website: string;
@@ -2429,159 +2458,207 @@ export function mergeBusinessGrowthReport(
   } as BusinessGrowthReport;
 }
 
-export async function generateBusinessGrowthAnalysis(input: { companyName: string; website: string; industry?: string; }): Promise<BusinessGrowthReport> {
+// export async function generateBusinessGrowthAnalysis(input: { companyName: string; website: string; industry?: string; }): Promise<BusinessGrowthReport> {
+//   const fallback = buildBusinessGrowthFallback(input);
+
+//   if (!process.env.OPENAI_API_KEY) {
+//     return fallback;
+//   }
+
+//   const prompt = `You are building a 28-page AI Business Growth Analysis Report for a digital marketing agency.
+// Use the exact JSON shape below. Keep values concise but specific. Ensure bullet items include metrics/impacts.
+
+// {
+//   "reportMetadata": {
+//     "reportId": "unique id",
+//     "companyName": "",
+//     "website": "",
+//     "analysisDate": "ISO string",
+//     "overallScore": number,
+//     "subScores": {
+//       "website": number,
+//       "seo": number,
+//       "reputation": number,
+//       "leadGen": number,
+//       "services": number,
+//       "costEfficiency": number
+//     }
+//   },
+//   "executiveSummary": {
+//     "strengths": ["bullet with metric"],
+//     "weaknesses": ["bullet with impact"],
+//     "biggestOpportunity": "sentence with $ or % impact",
+//     "quickWins": [
+//       {"title": "", "impact": "", "time": "", "cost": "", "details": ""}
+//     ]
+//   },
+//   "websiteDigitalPresence": {
+//     "technicalSEO": {"score": number, "strengths": [], "issues": []},
+//     "contentQuality": {"score": number, "strengths": [], "gaps": [], "recommendations": []},
+//     "uxConversion": {"score": number, "highlights": [], "issues": [], "estimatedUplift": ""},
+//     "contentGaps": []
+//   },
+//   "seoVisibility": {
+//     "domainAuthority": {"score": number, "benchmark": {"you": number, "competitorA": number, "competitorB": number, "competitorC": number, "industryAverage": number}, "rationale": ""},
+//     "backlinkProfile": {"totalBacklinks": number, "referringDomains": number, "averageDA": number, "issues": []},
+//     "keywordRankings": {"total": number, "top10": number, "top50": number, "top100": number},
+//     "topPerformingKeywords": [{"keyword": "", "position": number, "monthlyVolume": number, "currentTraffic": ""}],
+//     "keywordGapAnalysis": [{"keyword": "", "monthlySearches": number, "yourRank": "", "topCompetitor": "", "opportunity": ""}],
+//     "contentRecommendations": [{"keyword": "", "contentType": "", "targetWordCount": number, "subtopics": [], "trafficPotential": ""}]
+//   },
+//   "reputation": {
+//     "reviewScore": number,
+//     "summaryTable": [{"platform": "", "reviews": number, "rating": "", "industryBenchmark": "", "gap": ""}],
+//     "totalReviews": number,
+//     "industryStandardRange": "",
+//     "yourGap": "",
+//     "sentimentThemes": {"positive": [], "negative": [], "responseRate": "", "averageResponseTime": ""}
+//   },
+//   "servicesPositioning": {
+//     "services": [{"name": "", "startingPrice": "", "description": "", "targetMarket": ""}],
+//     "serviceGaps": [{"service": "", "youOffer": "", "competitorA": "", "competitorB": "", "marketDemand": ""}],
+//     "industriesServed": {"current": [], "concentrationNote": "", "highValueTargets": [{"industry": "", "whyHighValue": "", "avgDealSize": "", "readiness": ""}]},
+//     "positioning": {"currentStatement": "", "competitorComparison": "", "differentiation": ""}
+//   },
+//   "leadGeneration": {
+//     "channels": [{"channel": "", "leadsPerMonth": "", "quality": "", "status": ""}],
+//     "missingHighROIChannels": [{"channel": "", "status": "", "estimatedLeads": "", "setupTime": "", "monthlyCost": "", "priority": ""}],
+//     "leadMagnets": {"current": [], "recommendations": [{"name": "", "format": "", "targetAudience": "", "estimatedConversion": ""}]},
+//     "directoryOptimization": [{"directory": "", "listed": "", "optimized": "", "reviews": 0, "actionNeeded": ""}]
+//   },
+//   "competitiveAnalysis": {
+//     "competitors": [{"name": "", "location": "", "teamSize": "", "yearsInBusiness": "", "services": [], "strengthsVsYou": [], "yourAdvantages": [], "marketOverlap": ""}],
+//     "competitiveMatrix": [{"factor": "", "you": "", "compA": "", "compB": "", "compC": "", "winner": ""}],
+//     "positioningGap": {"pricePositioning": "", "qualityPositioning": "", "visibility": "", "differentiation": "", "recommendation": ""}
+//   },
+//   "costOptimization": {
+//     "estimatedCostStructure": [{"category": "", "monthly": "", "annual": "", "percentOfTotal": ""}],
+//     "revenueEstimate": {"estimatedRange": "", "revenuePerEmployee": "", "industryBenchmark": "", "gapAnalysis": ""},
+//     "costSavingOpportunities": [{"opportunity": "", "currentCost": "", "potentialSavings": "", "implementationDifficulty": "", "details": ""}],
+//     "pricingAnalysis": {
+//       "positioning": "",
+//       "serviceComparisons": [{"service": "", "yourPrice": "", "marketRange": "", "positioning": "", "recommendation": ""}],
+//       "overallRecommendation": "",
+//       "premiumTierOpportunity": "",
+//       "packagingOptimization": ""
+//     }
+//   },
+//   "targetMarket": {
+//     "currentClientProfile": {
+//       "geographicMix": {"us": "", "uk": "", "other": ""},
+//       "clientSize": {"small": "", "medium": "", "large": ""},
+//       "industries": [{"industry": "", "concentration": ""}]
+//     },
+//     "geographicExpansion": {
+//       "currentStrongPresence": [],
+//       "underpenetratedMarkets": [{"region": "", "reason": "", "estimatedOpportunity": "", "entryPlan": ""}]
+//     },
+//     "idealClientProfile": {
+//       "industry": "",
+//       "companySize": "",
+//       "revenueRange": "",
+//       "budget": "",
+//       "painPoints": [],
+//       "decisionMakers": [],
+//       "whereToFind": []
+//     }
+//   },
+//   "financialImpact": {
+//     "revenueOpportunities": [{"opportunity": "", "monthlyImpact": "", "annualImpact": "", "confidence": "", "effort": ""}],
+//     "costSavings": [{"initiative": "", "annualSavings": "", "implementationCost": "", "netSavings": ""}],
+//     "netImpact": {"revenueGrowth": "", "costSavings": "", "totalImpact": "", "investmentNeeded": "", "expectedReturn": "", "roi": ""},
+//     "scenarios": [{"scenario": "", "implementationLevel": "", "impact": ""}]
+//   },
+//   "actionPlan90Days": [{"phase": "", "weeks": [{"week": "", "tasks": []}], "expectedImpact": [{"metric": "", "improvement": ""}]}],
+//   "competitiveAdvantages": {
+//     "hiddenStrengths": [{"strength": "", "evidence": "", "whyItMatters": "", "howToLeverage": ""}],
+//     "prerequisites": []
+//   },
+//   "riskAssessment": {
+//     "risks": [{"name": "", "priority": "", "description": "", "impact": "", "likelihood": "", "mitigation": [], "timeline": ""}]
+//   },
+//   "appendices": {
+//     "keywords": [{"tier": "", "keywords": [{"keyword": "", "monthlySearches": "", "difficulty": "", "intent": "", "currentRank": ""}]}],
+//     "reviewTemplates": [{"name": "", "subject": "", "body": ""}],
+//     "caseStudyTemplate": {"title": "", "industry": "", "services": "", "duration": "", "budget": "", "challenge": "", "solution": "", "results": [], "clientQuote": "", "cta": ""},
+//     "finalRecommendations": {"topActions": [{"action": "", "impact": "", "effort": "", "rationale": ""}], "nextSteps": []}
+//   }
+// }
+
+// Company: ${input.companyName || "Marketing Agency"}
+// Website: ${input.website}
+// Industry: ${input.industry || "Agency"}
+// Tone: brutally honest, specific, with metrics.
+// Geographic mix must be evidence-based. If the website does not explicitly mention locations, set us/uk/other to "Insufficient data". If the ccTLD indicates a country, mark that as the primary market and explain it in the "other" field if needed.
+// `;
+
+//   try {
+//     const response = await openai.chat.completions.create({
+//       model: "gpt-4o",
+//       messages: [
+//         {
+//           role: "system",
+//           content:
+//             "You are a senior growth consultant. Follow the requested JSON exactly. Keep bullets short, include numbers, and align with agency context.",
+//         },
+//         { role: "user", content: prompt },
+//       ],
+//       response_format: { type: "json_object" },
+//       temperature: 0.4,
+//     });
+
+//     const parsed = JSON.parse(response.choices[0].message.content || "{}");
+//     return mergeBusinessGrowthReport(input, parsed);
+//   } catch (error) {
+//     console.error("Business growth analysis error:", error);
+//     return fallback;
+//   }
+// }
+
+/* =========================
+   BUSINESS GROWTH ANALYSIS
+========================= */
+
+export async function generateBusinessGrowthAnalysis(input: {
+  companyName: string;
+  website: string;
+  industry?: string;
+}) {
   const fallback = buildBusinessGrowthFallback(input);
 
   if (!process.env.OPENAI_API_KEY) {
     return fallback;
   }
 
-  const prompt = `You are building a 28-page AI Business Growth Analysis Report for a digital marketing agency.
-Use the exact JSON shape below. Keep values concise but specific. Ensure bullet items include metrics/impacts.
+  const userPrompt = `
+Generate a Business Growth Analysis for:
 
-{
-  "reportMetadata": {
-    "reportId": "unique id",
-    "companyName": "",
-    "website": "",
-    "analysisDate": "ISO string",
-    "overallScore": number,
-    "subScores": {
-      "website": number,
-      "seo": number,
-      "reputation": number,
-      "leadGen": number,
-      "services": number,
-      "costEfficiency": number
-    }
-  },
-  "executiveSummary": {
-    "strengths": ["bullet with metric"],
-    "weaknesses": ["bullet with impact"],
-    "biggestOpportunity": "sentence with $ or % impact",
-    "quickWins": [
-      {"title": "", "impact": "", "time": "", "cost": "", "details": ""}
-    ]
-  },
-  "websiteDigitalPresence": {
-    "technicalSEO": {"score": number, "strengths": [], "issues": []},
-    "contentQuality": {"score": number, "strengths": [], "gaps": [], "recommendations": []},
-    "uxConversion": {"score": number, "highlights": [], "issues": [], "estimatedUplift": ""},
-    "contentGaps": []
-  },
-  "seoVisibility": {
-    "domainAuthority": {"score": number, "benchmark": {"you": number, "competitorA": number, "competitorB": number, "competitorC": number, "industryAverage": number}, "rationale": ""},
-    "backlinkProfile": {"totalBacklinks": number, "referringDomains": number, "averageDA": number, "issues": []},
-    "keywordRankings": {"total": number, "top10": number, "top50": number, "top100": number},
-    "topPerformingKeywords": [{"keyword": "", "position": number, "monthlyVolume": number, "currentTraffic": ""}],
-    "keywordGapAnalysis": [{"keyword": "", "monthlySearches": number, "yourRank": "", "topCompetitor": "", "opportunity": ""}],
-    "contentRecommendations": [{"keyword": "", "contentType": "", "targetWordCount": number, "subtopics": [], "trafficPotential": ""}]
-  },
-  "reputation": {
-    "reviewScore": number,
-    "summaryTable": [{"platform": "", "reviews": number, "rating": "", "industryBenchmark": "", "gap": ""}],
-    "totalReviews": number,
-    "industryStandardRange": "",
-    "yourGap": "",
-    "sentimentThemes": {"positive": [], "negative": [], "responseRate": "", "averageResponseTime": ""}
-  },
-  "servicesPositioning": {
-    "services": [{"name": "", "startingPrice": "", "description": "", "targetMarket": ""}],
-    "serviceGaps": [{"service": "", "youOffer": "", "competitorA": "", "competitorB": "", "marketDemand": ""}],
-    "industriesServed": {"current": [], "concentrationNote": "", "highValueTargets": [{"industry": "", "whyHighValue": "", "avgDealSize": "", "readiness": ""}]},
-    "positioning": {"currentStatement": "", "competitorComparison": "", "differentiation": ""}
-  },
-  "leadGeneration": {
-    "channels": [{"channel": "", "leadsPerMonth": "", "quality": "", "status": ""}],
-    "missingHighROIChannels": [{"channel": "", "status": "", "estimatedLeads": "", "setupTime": "", "monthlyCost": "", "priority": ""}],
-    "leadMagnets": {"current": [], "recommendations": [{"name": "", "format": "", "targetAudience": "", "estimatedConversion": ""}]},
-    "directoryOptimization": [{"directory": "", "listed": "", "optimized": "", "reviews": 0, "actionNeeded": ""}]
-  },
-  "competitiveAnalysis": {
-    "competitors": [{"name": "", "location": "", "teamSize": "", "yearsInBusiness": "", "services": [], "strengthsVsYou": [], "yourAdvantages": [], "marketOverlap": ""}],
-    "competitiveMatrix": [{"factor": "", "you": "", "compA": "", "compB": "", "compC": "", "winner": ""}],
-    "positioningGap": {"pricePositioning": "", "qualityPositioning": "", "visibility": "", "differentiation": "", "recommendation": ""}
-  },
-  "costOptimization": {
-    "estimatedCostStructure": [{"category": "", "monthly": "", "annual": "", "percentOfTotal": ""}],
-    "revenueEstimate": {"estimatedRange": "", "revenuePerEmployee": "", "industryBenchmark": "", "gapAnalysis": ""},
-    "costSavingOpportunities": [{"opportunity": "", "currentCost": "", "potentialSavings": "", "implementationDifficulty": "", "details": ""}],
-    "pricingAnalysis": {
-      "positioning": "",
-      "serviceComparisons": [{"service": "", "yourPrice": "", "marketRange": "", "positioning": "", "recommendation": ""}],
-      "overallRecommendation": "",
-      "premiumTierOpportunity": "",
-      "packagingOptimization": ""
-    }
-  },
-  "targetMarket": {
-    "currentClientProfile": {
-      "geographicMix": {"us": "", "uk": "", "other": ""},
-      "clientSize": {"small": "", "medium": "", "large": ""},
-      "industries": [{"industry": "", "concentration": ""}]
-    },
-    "geographicExpansion": {
-      "currentStrongPresence": [],
-      "underpenetratedMarkets": [{"region": "", "reason": "", "estimatedOpportunity": "", "entryPlan": ""}]
-    },
-    "idealClientProfile": {
-      "industry": "",
-      "companySize": "",
-      "revenueRange": "",
-      "budget": "",
-      "painPoints": [],
-      "decisionMakers": [],
-      "whereToFind": []
-    }
-  },
-  "financialImpact": {
-    "revenueOpportunities": [{"opportunity": "", "monthlyImpact": "", "annualImpact": "", "confidence": "", "effort": ""}],
-    "costSavings": [{"initiative": "", "annualSavings": "", "implementationCost": "", "netSavings": ""}],
-    "netImpact": {"revenueGrowth": "", "costSavings": "", "totalImpact": "", "investmentNeeded": "", "expectedReturn": "", "roi": ""},
-    "scenarios": [{"scenario": "", "implementationLevel": "", "impact": ""}]
-  },
-  "actionPlan90Days": [{"phase": "", "weeks": [{"week": "", "tasks": []}], "expectedImpact": [{"metric": "", "improvement": ""}]}],
-  "competitiveAdvantages": {
-    "hiddenStrengths": [{"strength": "", "evidence": "", "whyItMatters": "", "howToLeverage": ""}],
-    "prerequisites": []
-  },
-  "riskAssessment": {
-    "risks": [{"name": "", "priority": "", "description": "", "impact": "", "likelihood": "", "mitigation": [], "timeline": ""}]
-  },
-  "appendices": {
-    "keywords": [{"tier": "", "keywords": [{"keyword": "", "monthlySearches": "", "difficulty": "", "intent": "", "currentRank": ""}]}],
-    "reviewTemplates": [{"name": "", "subject": "", "body": ""}],
-    "caseStudyTemplate": {"title": "", "industry": "", "services": "", "duration": "", "budget": "", "challenge": "", "solution": "", "results": [], "clientQuote": "", "cta": ""},
-    "finalRecommendations": {"topActions": [{"action": "", "impact": "", "effort": "", "rationale": ""}], "nextSteps": []}
-  }
-}
-
-Company: ${input.companyName || "Marketing Agency"}
+Company: ${input.companyName}
 Website: ${input.website}
-Industry: ${input.industry || "Agency"}
-Tone: brutally honest, specific, with metrics.
-Geographic mix must be evidence-based. If the website does not explicitly mention locations, set us/uk/other to "Insufficient data". If the ccTLD indicates a country, mark that as the primary market and explain it in the "other" field if needed.
+Industry: ${input.industry || "Digital agency"}
+
+Return ONLY valid JSON in this exact schema:
+${JSON.stringify(fallback, null, 2)}
 `;
 
   try {
-    const response = await openai.chat.completions.create({
+    const res = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content:
-            "You are a senior growth consultant. Follow the requested JSON exactly. Keep bullets short, include numbers, and align with agency context.",
-        },
-        { role: "user", content: prompt },
+        { role: "system", content: BUSINESS_GROWTH_SYSTEM_PROMPT },
+        { role: "user", content: userPrompt },
       ],
+      temperature: 0.7,
+      max_tokens: 3500,
       response_format: { type: "json_object" },
-      temperature: 0.4,
     });
 
-    const parsed = JSON.parse(response.choices[0].message.content || "{}");
+    const content = res.choices[0]?.message?.content || "";
+    const parsed = JSON.parse(content);
+
     return mergeBusinessGrowthReport(input, parsed);
-  } catch (error) {
-    console.error("Business growth analysis error:", error);
+  } catch (err) {
+    console.error("Business growth analysis failed:", err);
     return fallback;
   }
 }

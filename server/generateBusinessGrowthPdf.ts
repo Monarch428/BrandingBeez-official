@@ -45,12 +45,15 @@ function safeNumber(value: unknown, fallback = "N/A"): string {
     return fallback;
 }
 
-function drawFooter(doc: PDFKit.PDFDocument, reportId: string) {
-    const page = doc.page;
-    const pageNum = doc.page.pageNumber;
+// function drawFooter(doc: PDFKit.PDFDocument, reportId: string) {
+    // const page = doc.page;
+    // const pageNum = doc.page.pageNumber;
+    // const pageNumber = (page as PDFKit.PDFPage & { number?: number; pageNumber?: number }).number
+        // ?? (page as PDFKit.PDFPage & { pageNumber?: number }).pageNumber
+        // ?? 1;
 
-    doc.save();
-    doc.fontSize(9).fillColor("#6b7280");
+    // doc.save();
+    // doc.fontSize(9).fillColor("#6b7280");
     //   doc.text(
     //     `Page ${pageNum} | Report ID: ${reportId} | CONFIDENTIAL`,
     //     page.margins.left,
@@ -60,12 +63,13 @@ function drawFooter(doc: PDFKit.PDFDocument, reportId: string) {
     //       align: "center",
     //     },
     //   );
-    doc.text(`Page ${pageNum} | Report ID: ${reportId} | CONFIDENTIAL`, page.margins.left, page.height - page.margins.bottom + 10, {
-        width: page.width - page.margins.left - page.margins.right,
-        align: "center",
-    });
-    doc.restore();
-}
+    // doc.text(`Page ${pageNum} | Report ID: ${reportId} | CONFIDENTIAL`, page.margins.left, page.height - page.margins.bottom + 10, {
+//     doc.text(`Page ${pageNumber} | Report ID: ${reportId} | CONFIDENTIAL`, page.margins.left, page.height - page.margins.bottom + 10, {
+//         width: page.width - page.margins.left - page.margins.right,
+//         align: "center",
+//     });
+//     doc.restore();
+// }
 
 function sectionTitle(doc: PDFKit.PDFDocument, text: string) {
     doc.moveDown(0.8);
@@ -173,12 +177,12 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                 : "N/A";
             const score = typeof report.reportMetadata?.overallScore === "number" ? report.reportMetadata.overallScore : 0;
 
-            let hasPage = true;
+            // let hasPage = true;
             const newSectionPage = (title: string) => {
-                if (hasPage) drawFooter(doc, reportId);
+                // if (hasPage) drawFooter(doc, reportId);
                 doc.addPage();
                 sectionTitle(doc, title);
-                hasPage = true;
+                // hasPage = true;
             };
 
             /* =========================
@@ -918,7 +922,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
                 bulletList(doc, report.appendices.finalRecommendations.nextSteps ?? [], "No next steps provided.");
             }
 
-            drawFooter(doc, reportId);
+            // drawFooter(doc, reportId);
             doc.end();
         } catch (error) {
             reject(error);

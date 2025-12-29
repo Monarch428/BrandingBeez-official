@@ -16,6 +16,16 @@ type EmailTransportMethod = "smtp" | "console_log";
    HELPERS
 ========================= */
 
+// ✅ Branded "From" helpers (this fixes the sender showing as just "info")
+const FROM_APPOINTMENTS = (email?: string) =>
+  `"BrandingBeez – Appointments" <${email || "info@brandingbeez.co.uk"}>`;
+
+const FROM_NEWSLETTER = (email?: string) =>
+  `"BrandingBeez Newsletter" <${email || "info@brandingbeez.co.uk"}>`;
+
+const FROM_QUESTIONNAIRE = (email?: string) =>
+  `"BrandingBeez – Custom Apps" <${email || "info@brandingbeez.co.uk"}>`;
+
 const slugifyFilename = (value: string) =>
   value
     .toLowerCase()
@@ -423,4 +433,223 @@ export async function sendBusinessGrowthReportEmailWithDownload({
   });
 
   return { success: true, method: "smtp" };
+}
+
+
+// NEW — GENERIC SMTP METHOD (Gmail OR Zoho)
+export async function sendEmailViaGmail(submission: {
+  name: string;
+  email: string;
+  message: string;
+  submittedAt: Date;
+}) {
+  const { host, port, user, pass } = getSmtpConfig();
+
+  if (!user || !pass) {
+    console.log(
+      "SMTP credentials not configured, falling back to console logging",
+    );
+    console.log("Submission:", submission);
+    return { success: true, method: "console_log" };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: true,
+      auth: {
+        user,
+        pass,
+      },
+    });
+
+    const mailOptions = {
+      from: FROM_NEWSLETTER(user),
+      to: submission.email,
+      subject: "Newsletter Subscription Confirmation",
+      html: `
+       <!DOCTYPE html>
+       <html lang="en">
+       <head>
+         <meta charset="UTF-8" />
+         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+         <title>Subscription Confirmation</title>
+       </head>
+       <body style="margin:0; padding:0; font-family: 'Inter', Arial, sans-serif; 
+         background: linear-gradient(to right, #CF4163, #552265); color:#fff;">
+         <table width="100%" cellspacing="0" cellpadding="0">
+           <tr>
+             <td align="center" style="padding: 40px 0;">
+               <table width="600" cellpadding="20" cellspacing="0" 
+                 style="background: rgba(255,255,255,0.1); border-radius:12px; 
+                 box-shadow:0 4px 12px rgba(0,0,0,0.2); backdrop-filter: blur(6px);">
+                 <tr>
+                   <td align="center" style="text-align:center;">
+                     <h1 style="color:#fff; margin-bottom:8px; font-size:24px;">
+                       Welcome to Our Newsletter 🎉
+                     </h1>
+                     <p style="color:#f3f3f3; font-size:16px; margin:0;">
+                       Hello <b>${submission.name}</b>, thanks for subscribing!
+                     </p>
+                     <p style="color:#ddd; font-size:14px; margin:16px 0;">
+                       You'll now receive short, practical tips and tools to grow your agency – 
+                       all in a quick 1-minute read.
+                     </p>
+                     <table cellpadding="8" cellspacing="0" width="100%" 
+                       style="margin:20px 0; text-align:left; font-size:14px; color:#fff;">
+                       <tr><td>✅ Fast client-winning strategies</td></tr>
+                       <tr><td>✅ Pricing & proposal hacks</td></tr>
+                       <tr><td>✅ AI & automation tips</td></tr>
+                       <tr><td>✅ Real stories from agencies like yours</td></tr>
+                     </table>
+                     <a href="#" 
+                       style="display:inline-block; background:#fff; color:#552265; 
+                       text-decoration:none; padding:12px 24px; border-radius:8px; 
+                       font-weight:bold; margin-top:16px;">
+                       Explore Resources
+                     </a>
+                     <p style="margin-top:24px; font-size:12px; color:#ccc;">
+                       Subscribed at: ${submission.submittedAt.toLocaleString()}
+                     </p>
+                   </td>
+                 </tr>
+               </table>
+             </td>
+           </tr>
+         </table>
+       </body>
+       </html>
+       `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log("Email sent via SMTP to", submission.email);
+    return {
+      success: true,
+      method: host.includes("gmail") ? "gmail_smtp" : "zoho_smtp",
+    };
+  } catch (error) {
+    console.error("SMTP send failed:", error);
+    return { success: false, method: "failed" };
+  }
+}
+
+// Send a full questionnaire to the admin email as a text attachment
+export async function sendQuestionnaireToAdmin(submission: {
+  name: string;
+  email: string;
+  company?: string;
+  phone?: string;
+  questionnaire: any;
+  submittedAt?: Date;
+  file?: { path: string; originalname?: string; mimetype?: string };
+}) {
+  notificationService.addNotification("custom_app_questionnaire", {
+    name: submission.name,
+    email: submission.email,
+    company: submission.company,
+    phone: submission.phone,
+    questionnaire: submission.questionnaire,
+    submittedAt: submission.submittedAt || new Date(),
+  });
+
+  const { host, port, user, pass } = getSmtpConfig();
+
+  const adminEmail = "info@brandingbeez.co.uk";
+
+  const lines: string[] = [];
+  lines.push("Custom App Questionnaire Submission");
+  lines.push(
+    "Submitted At: " + (submission.submittedAt || new Date()).toString(),
+  );
+  lines.push("");
+  lines.push(`Name: ${submission.name}`);
+  lines.push(`Email: ${submission.email}`);
+  lines.push(`Company: ${submission.company || "(not provided)"}`);
+  lines.push(`Phone: ${submission.phone || "(not provided)"}`);
+  lines.push("");
+  lines.push("--- Answers ---");
+
+  const q = submission.questionnaire || {};
+  try {
+    if (Array.isArray(q.applicationTypes)) {
+      lines.push(`Application Types: ${q.applicationTypes.join(", ")}`);
+    }
+    if (q.appDescription) lines.push(`App Description: ${q.appDescription}`);
+    if (Array.isArray(q.userTypes))
+      lines.push(`User Types: ${q.userTypes.join(", ")}`);
+    if (Array.isArray(q.mustHaveFeatures))
+      lines.push(`Must-Have Features: ${q.mustHaveFeatures.join(", ")}`);
+    if (q.customFeatureDetails)
+      lines.push(`Custom Feature Details: ${q.customFeatureDetails}`);
+    if (q.referenceApps) lines.push(`Reference Apps: ${q.referenceApps}`);
+    if (q.buildType) lines.push(`Build Type: ${q.buildType}`);
+    if (q.projectTimeline) lines.push(`Timeline: ${q.projectTimeline}`);
+    if (q.budgetRange) lines.push(`Budget: ${q.budgetRange}`);
+    if (Array.isArray(q.techPreferences))
+      lines.push(`Tech Preferences: ${q.techPreferences.join(", ")}`);
+  } catch (err) {
+    lines.push("(Error building questionnaire text)");
+    lines.push(JSON.stringify(q));
+  }
+
+  const attachmentContent = lines.join("\n");
+
+  if (!user || !pass) {
+    console.log(
+      "SMTP credentials not configured. Questionnaire content:\n",
+      attachmentContent,
+    );
+    return { success: true, method: "console_log" };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: true,
+      auth: {
+        user,
+        pass,
+      },
+    });
+
+    const filenameTxt = `custom-app-questionnaire-${Date.now()}.txt`;
+    const filenameDoc = filenameTxt.replace(/\.txt$/, ".doc");
+
+    const mailOptions: any = {
+      from: FROM_QUESTIONNAIRE(user),
+      to: adminEmail,
+      subject: `New Custom App Questionnaire from ${submission.name}`,
+      text: `New questionnaire submitted by ${submission.name} <${submission.email}>. See attached file for full answers.`,
+      attachments: [
+        {
+          filename: filenameTxt,
+          content: attachmentContent,
+        },
+        {
+          filename: filenameDoc,
+          content: attachmentContent,
+          contentType: "application/msword",
+        },
+      ],
+    };
+
+    if ((submission as any).file && (submission as any).file.path) {
+      const f: any = (submission as any).file;
+      mailOptions.attachments.push({
+        filename: f.originalname || path.basename(f.path),
+        path: f.path,
+        contentType: f.mimetype || undefined,
+      });
+    }
+
+    await transporter.sendMail(mailOptions);
+    console.log("Questionnaire emailed to", adminEmail);
+    return { success: true, method: "smtp" };
+  } catch (error) {
+    console.error("Failed to send questionnaire email:", error);
+    return { success: false, error };
+  }
 }

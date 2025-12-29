@@ -17,6 +17,7 @@ export * from "./model/portfolioItem.model";
 export * from "./model/portfolioContent.model";
 export * from "./model/appointment.model";
 export * from "./model/googleAuth.model";
+export * from "./model/aiReportGenerated.model";
 export * from "./model/casestudy/seo/seo-case-study-card";
 export * from "./model/casestudy/seo/seo-case-study-detail";
 export * from "./model/casestudy/ppc/ppc-case-study-card";

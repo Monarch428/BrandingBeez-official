@@ -7,6 +7,7 @@ import crypto from "crypto";
 
 // import { generateBusinessGrowthAnalysis } from "../openai";
 import { generateBusinessGrowthAnalysis, mergeBusinessGrowthReport, type BusinessGrowthReport } from "../openai";
+import { AiReportGeneratedModel } from "../models";
 import { sendBusinessGrowthReportEmailWithDownload, sendContactNotification } from "../email-service";
 
 // interface QuickWin {
@@ -261,7 +262,20 @@ export function registerBusinessGrowthRoutes(app: Express) {
         industry,
       });
 
-      res.json({ success: true, analysis });
+      const analysisToken = makeToken();
+      try {
+        await AiReportGeneratedModel.create({
+          token: analysisToken,
+          analysis,
+          website: analysis?.reportMetadata?.website || website,
+          companyName: analysis?.reportMetadata?.companyName || companyName,
+          industry,
+        });
+      } catch (dbError) {
+        console.error("Failed to persist AI growth analysis", dbError);
+      }
+
+      res.json({ success: true, analysis, analysisToken });
     } catch (error) {
       console.error("Business growth analysis route error:", error);
       res.status(500).json({ success: false, message: "Failed to generate analysis" });
@@ -273,12 +287,20 @@ export function registerBusinessGrowthRoutes(app: Express) {
    * Request: { analysis, email, name? }
    */
   app.post("/api/ai-business-growth/report", async (req, res) => {
-    const { analysis, email, name, website, companyName, industry } = req.body || {};
-    const reportMetadata = analysis?.reportMetadata;
-    const resolvedWebsite = reportMetadata?.website || website;
+    const { analysis, analysisToken, email, name, website, companyName, industry } = req.body || {};
+    const storedReport =
+      analysisToken && typeof analysisToken === "string"
+        ? await AiReportGeneratedModel.findOne({ token: analysisToken })
+        : null;
+    const analysisSource = storedReport?.analysis || analysis;
+    const reportMetadata = analysisSource?.reportMetadata;
+    const resolvedWebsite = reportMetadata?.website || storedReport?.website || website;
 
     if (!resolvedWebsite || typeof resolvedWebsite !== "string") {
       return res.status(400).json({ success: false, message: "Website is required for PDF generation" });
+    }
+    if (!analysisSource) {
+      return res.status(404).json({ success: false, message: "Analysis not found or expired" });
     }
     if (!email || typeof email !== "string") {
       return res.status(400).json({ success: false, message: "Email is required" });
@@ -291,13 +313,14 @@ export function registerBusinessGrowthRoutes(app: Express) {
         {
           companyName:
             reportMetadata?.companyName ||
+            storedReport?.companyName ||
             companyName ||
             name ||
             "Marketing Agency",
           website: resolvedWebsite,
           industry,
         },
-        analysis,
+        analysisSource,
       );
 
       // Generate PDF buffer
@@ -307,6 +330,13 @@ export function registerBusinessGrowthRoutes(app: Express) {
       const t = makeToken();
       const filePath = path.join(REPORT_DIR, `${t}.pdf`);
       fs.writeFileSync(filePath, pdfBuffer);
+      if (storedReport) {
+        storedReport.email = email;
+        storedReport.name = name;
+        storedReport.reportDownloadToken = t;
+        storedReport.reportGeneratedAt = new Date();
+        await storedReport.save();
+      }
 
       const downloadUrl = `/api/ai-business-growth/report/${t}.pdf`;
       const absoluteDownloadUrl = `${getBaseUrl(req)}${downloadUrl}`;
