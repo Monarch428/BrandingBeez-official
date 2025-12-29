@@ -2123,7 +2123,7 @@ export default function Home() {
                 </div>
 
                 {/* FORM */}
-                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-7 border border-white/10 shadow-xl">
+                <div className="w-full lg:w-[800px] bg-white/10 backdrop-blur-xl rounded-xl p-4 sm:p-5 border border-white/10 shadow-xl">
                   <h3 className="text-lg sm:text-xl font-bold text-center mb-1">
                     Subscribe Free
                   </h3>
