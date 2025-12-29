@@ -420,16 +420,13 @@ export default function WebCaseStudySlugPage(props: any) {
 
             <section className="bg-gray-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
-                    {/* ✅ SECTION HEADING ONLY */}
-                    <div className="mb-12 sm:mb-16">
-                        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
-                            Project Overview & Key Results
-                        </h2>
-                    </div>
 
                     <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
                         {/* LEFT CONTENT */}
                         <div className="lg:col-span-6 min-w-0">
+                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+                                Project Overview & Key Results
+                            </h2>
                             <p className="text-gray-700 text-sm sm:text-base md:text-[17px] leading-relaxed mb-10 max-w-2xl">
                                 {detail?.heroDescription ?? card.description}
                             </p>
@@ -467,9 +464,9 @@ export default function WebCaseStudySlugPage(props: any) {
 
                         {/* ✅ BIGGER VIDEO */}
                         <div className="lg:col-span-6">
-                            <div className="rounded-[28px] border border-gray-100 bg-gradient-to-br from-gray-50 to-white shadow-md p-5 sm:p-6">
+                            <div className="rounded-[28px] border border-gray-100 bg-gradient-to-br from-gray-50 to-white shadow-md p-3 sm:p-4">
                                 <div className="rounded-2xl overflow-hidden">
-                                    <div className="relative w-full aspect-[16/9] sm:aspect-[16/10] bg-black/5">
+                                    <div className="relative w-full aspect-[16/9] sm:aspect-[16/9.5] bg-black/5">
                                         {detail?.heroVideoUrl ? (
                                             <iframe
                                                 className="absolute inset-0 w-full h-full"
@@ -703,7 +700,7 @@ function WebsiteShowcaseSection({
                             }`}
                     >
                         {/* Scroll viewport */}
-                        <div className="relative h-[420px] sm:h-[480px] md:h-[520px] overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-hidden">
+                        <div className="relative h-[420px] sm:h-[480px] md:h-[520px] overflow-y-auto overflow-x-hidden scroll-smooth scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 rounded-xl">
                             {imgUrl ? (
                                 <img
                                     src={imgUrl}
