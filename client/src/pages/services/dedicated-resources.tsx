@@ -41,6 +41,7 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection } from "@/components/phase-slider-section";
 import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+import { LazyYouTube } from "@/components/LazyYouTube";
 // import DR_Image from "../../../public/images/D"
 
 
@@ -367,15 +368,16 @@ export default function DedicatedResources() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/o1pOaGyjVuQ"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="o1pOaGyjVuQ" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>

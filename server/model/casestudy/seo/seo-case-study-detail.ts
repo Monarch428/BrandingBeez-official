@@ -76,7 +76,7 @@ export interface SeoCaseStudyKeywordMetric {
 
 // --------- Main Detail Type ---------
 export interface SeoCaseStudyDetail {
-  cardId: Types.ObjectId; // ✅ FK to SeoCaseStudyCard
+  cardId: Types.ObjectId;
 
   // Hero
   heroBadgeText: string;

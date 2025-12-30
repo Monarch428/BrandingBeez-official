@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 type PpcResultItem = {
     key: string;
@@ -308,11 +309,29 @@ export default function PpcCaseStudySlugPage(props: any) {
     const heroCtaClass =
         "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2";
 
+    function extractYouTubeId(url?: string): string {
+        if (!url) return "";
+        try {
+            const u = new URL(url);
+
+            if (u.hostname.includes("youtu.be")) {
+                return u.pathname.replace("/", "");
+            }
+
+            if (u.hostname.includes("youtube.com")) {
+                return u.searchParams.get("v") || "";
+            }
+
+            return "";
+        } catch {
+            return "";
+        }
+    }
 
     return (
         <div className="min-h-screen bg-white">
             {/* Hero Section */}
-            <section className="relative bg-gradient-to-r from-[#321a66] to-[#ee4962] py-[113px] px-[32px]">
+            <section className="relative bg-gradient-to-r from-brand-purple to-brand-coral py-[113px] px-[32px]">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         {/* Left Content */}
@@ -385,25 +404,19 @@ export default function PpcCaseStudySlugPage(props: any) {
                         {/* Right Video */}
                         <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-2xl self-start -mt-8">
                             {detail?.heroVideoUrl ? (
-                                <div className="relative w-full h-full">
-                                    <iframe
-                                        className="w-full h-full"
-                                        src={toEmbedUrl(detail.heroVideoUrl)}
-                                        title={detail?.heroVideoBadgeText ?? "Case Study Video"}
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                        allowFullScreen
-                                    />
-                                    {/* <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
-                                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                                        {detail?.heroVideoBadgeText ?? "Case Study Video"}
-                                    </div> */}
-                                </div>
+                                <LazyYouTube
+                                    videoId={extractYouTubeId(detail.heroVideoUrl)}
+                                    className="w-full h-full"
+                                    thumbnailQuality="hqdefault"
+                                    aspectRatio="16/9"
+                                />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
                                     Video not provided
                                 </div>
                             )}
                         </div>
+
                     </div>
 
                     {!hasDetail ? (

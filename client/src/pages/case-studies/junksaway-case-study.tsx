@@ -25,6 +25,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 export default function JunksAwayCaseStudy() {
   return (
@@ -96,15 +97,16 @@ export default function JunksAwayCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/xs8de_OczQs"
                         title="Junk Away Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="xs8de_OczQs" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>

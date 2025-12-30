@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 // ---------------- Types (mirror Web Slug style) ----------------
 type ResultItem = {
@@ -566,10 +567,29 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
   const hasDetail = Boolean(detail);
   const cardTop3 = Array.isArray(card.results) ? card.results.slice(0, 3) : [];
 
+  function extractYouTubeId(url?: string): string {
+    if (!url) return "";
+    try {
+      const u = new URL(url);
+
+      if (u.hostname.includes("youtu.be")) {
+        return u.pathname.replace("/", "");
+      }
+
+      if (u.hostname.includes("youtube.com")) {
+        return u.searchParams.get("v") || "";
+      }
+
+      return "";
+    } catch {
+      return "";
+    }
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* ================= HERO (same as web) ================= */}
-      <section className="relative bg-gradient-to-r from-[#321a66]/90 to-[#ee4962]/90 text-white overflow-hidden">
+      <section className="relative bg-gradient-to-r from-brand-purple to-brand-coral text-white overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-20 left-20 w-80 h-80 bg-[#ee4962]/10 rounded-full blur-3xl"></div>
@@ -638,12 +658,11 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
                 <div className="aspect-video bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20">
                   {detail?.heroVideoUrl ? (
                     <div className="relative w-full h-full">
-                      <iframe
+                      <LazyYouTube
+                        videoId={extractYouTubeId(detail.heroVideoUrl)}
                         className="w-full h-full"
-                        src={toEmbedUrl(detail.heroVideoUrl)}
-                        title={detail?.heroVideoBadgeText ?? "Case Study Video"}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
+                        thumbnailQuality="hqdefault"
+                        aspectRatio="16/9"
                       />
                     </div>
                   ) : card.coverImageUrl ? (

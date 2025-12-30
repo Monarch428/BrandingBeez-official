@@ -37,6 +37,7 @@ import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-se
 import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 import Hours_24_Image from "../../../public/images/24 hour Start time.png";
 import PPC_Image from "../../../public/images/DEDICATED PPC SPECIALIST.png"
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 
 // Featured Google Ads client data
@@ -502,16 +503,17 @@ export default function GoogleAds() {
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
-                      <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                        <iframe
+                      {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[305px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                           className="w-full h-full"
                           src="https://www.youtube.com/embed/8CRaG4x_IXA?rel=0&modestbranding=1"
                           title="PPC / Google Ads Overview"
                           loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
-                        />
-                      </div>
+                        /> */}
+                      <LazyYouTube videoId="8CRaG4x_IXA" />
+                      {/* </div> */}
                     </div>
                   </div>
                 </div>
