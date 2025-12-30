@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,8 +17,9 @@ import { useRegion } from "@/hooks/use-region";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import PhoneInput, { CountryData } from "react-phone-input-2";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
+
+// ✅ Lazy-load heavy phone input library (reduces initial JS)
+const PhoneInput = lazy(() => import("react-phone-input-2"));
 
 /* ===========================
    ✅ Google Ads Conversion
@@ -163,7 +164,20 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     setErrors((prev) => ({ ...prev, subServices: undefined }));
   };
 
-  const validateForm = () => {
+  // ✅ Lazy-load libphonenumber-js only when needed (reduces initial JS)
+  const isValidPhone = async (phone: string) => {
+    if (!phone) return false;
+    try {
+      const { parsePhoneNumberFromString } = await import("libphonenumber-js");
+      const parsed = parsePhoneNumberFromString(`+${phone}`);
+      return parsed?.isValid() ?? false;
+    } catch {
+      // If the lib fails to load for some reason, be safe and treat as invalid
+      return false;
+    }
+  };
+
+  const validateForm = async () => {
     const newErrors: FormErrors = {};
 
     // Name
@@ -185,8 +199,8 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     if (!formData.phone) {
       newErrors.phone = "Phone number is required.";
     } else {
-      const phoneNumber = parsePhoneNumberFromString(`+${formData.phone}`);
-      if (!phoneNumber || !phoneNumber.isValid()) {
+      const ok = await isValidPhone(formData.phone);
+      if (!ok) {
         newErrors.phone = "Enter a valid phone number.";
       }
     }
@@ -236,10 +250,10 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!(await validateForm())) {
       toast({
         title: "Please fix the highlighted errors",
         description: "Some required fields are missing or invalid.",
@@ -254,7 +268,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       comprehensiveMessage += `\n\n📋 SERVICES REQUESTED:\n• Primary Service: ${formData.servicesInterested}`;
       if (formData.subServices.length > 0) {
         comprehensiveMessage += `\n• Sub-services: ${formData.subServices.join(
-          ", "
+          ", ",
         )}`;
       }
     }
@@ -287,10 +301,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   };
 
   return (
-    <section
-      id={sectionId}
-      className="py-14 sm:py-16 px-4 sm:px-6 bg-white"
-    >
+    <section id={sectionId} className="py-14 sm:py-16 px-4 sm:px-6 bg-white">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
@@ -355,7 +366,8 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
 
               <div className="mt-6 pt-2 border-t border-purple-200">
                 <p className="text-xs sm:text-sm text-gray-700 italic">
-                  This call is a genuine B2B discussion focused on partnership and growth.
+                  This call is a genuine B2B discussion focused on partnership
+                  and growth.
                 </p>
               </div>
             </div>
@@ -425,33 +437,34 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         Phone *
                       </Label>
 
-                      <PhoneInput
-                        country={countryCode as any}
-                        value={formData.phone}
-                        onChange={(value, data: CountryData) => {
-                          if (data?.countryCode) {
-                            const cc = data.countryCode.toLowerCase();
-                            setCountryPersisted(cc);
-                            handleInputChange("countryCode", cc);
-                          }
-                          handleInputChange("phone", value);
-                        }}
-                        inputProps={{
-                          name: "phone",
-                          className:
-                            "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
-                          placeholder:
-                            phonePlaceholders[countryCode] ||
-                            "Enter your phone number",
-                        }}
-                        containerClass="w-full"
-                        isValid={(value: string) => {
-                          if (!value) return true;
-                          const phoneNumber =
-                            parsePhoneNumberFromString(`+${value}`);
-                          return phoneNumber ? phoneNumber.isValid() : "";
-                        }}
-                      />
+                      <Suspense
+                        fallback={
+                          <div className="w-full h-10 rounded-md bg-gray-100 border border-gray-200" />
+                        }
+                      >
+                        <PhoneInput
+                          country={countryCode as any}
+                          value={formData.phone}
+                          onChange={(value: string, data: any) => {
+                            if (data?.countryCode) {
+                              const cc = String(data.countryCode).toLowerCase();
+                              setCountryPersisted(cc);
+                              handleInputChange("countryCode", cc);
+                            }
+                            handleInputChange("phone", value);
+                          }}
+                          inputProps={{
+                            name: "phone",
+                            className:
+                              "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+                            placeholder:
+                              phonePlaceholders[countryCode] ||
+                              "Enter your phone number",
+                          }}
+                          containerClass="w-full"
+                        />
+                      </Suspense>
+
                       {errors.phone && (
                         <p className="text-xs text-red-500 mt-1">
                           {errors.phone}
@@ -493,9 +506,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         <SelectValue placeholder="Select services" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="SEO Services">
-                          SEO/AIO Services
-                        </SelectItem>
+                        <SelectItem value="SEO Services">SEO/AIO Services</SelectItem>
                         <SelectItem value="PPC/Google Ads">
                           PPC/Google Ads
                         </SelectItem>
@@ -522,8 +533,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                     <div className="space-y-4">
                       <Label className="text-sm font-medium text-gray-700">
                         What are you specifically looking for in{" "}
-                        {formData.servicesInterested}
-                        ? *
+                        {formData.servicesInterested}? *
                       </Label>
                       <div className="grid grid-cols-1 gap-3">
                         {/* SEO Services Options */}
@@ -543,7 +553,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                                 <Checkbox
                                   id={option}
                                   checked={formData.subServices.includes(
-                                    option
+                                    option,
                                   )}
                                   onCheckedChange={(checked) =>
                                     handleSubServiceChange(option, !!checked)
@@ -563,10 +573,74 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                         {/* PPC/Google Ads Options */}
                         {formData.servicesInterested === "PPC/Google Ads" && (
                           <>
+                            {["Starter Package", "Growth Package", "Scale Package"].map(
+                              (option) => (
+                                <div
+                                  key={option}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <Checkbox
+                                    id={option}
+                                    checked={formData.subServices.includes(
+                                      option,
+                                    )}
+                                    onCheckedChange={(checked) =>
+                                      handleSubServiceChange(option, !!checked)
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={option}
+                                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                                  >
+                                    {option}
+                                  </Label>
+                                </div>
+                              ),
+                            )}
+                          </>
+                        )}
+
+                        {/* Website Development Options */}
+                        {formData.servicesInterested === "Website Development" && (
+                          <>
+                            {["WordPress", "Shopify", "BigCommerce", "Custom Coded"].map(
+                              (option) => (
+                                <div
+                                  key={option}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <Checkbox
+                                    id={option}
+                                    checked={formData.subServices.includes(
+                                      option,
+                                    )}
+                                    onCheckedChange={(checked) =>
+                                      handleSubServiceChange(option, !!checked)
+                                    }
+                                  />
+                                  <Label
+                                    htmlFor={option}
+                                    className="text-sm font-medium text-gray-700 cursor-pointer"
+                                  >
+                                    {option}
+                                  </Label>
+                                </div>
+                              ),
+                            )}
+                          </>
+                        )}
+
+                        {/* Dedicated Resource Options */}
+                        {formData.servicesInterested === "Dedicated Resource" && (
+                          <>
                             {[
-                              "Starter Package",
-                              "Growth Package",
-                              "Scale Package",
+                              "Graphic Designer",
+                              "Video Editor",
+                              "SEO Specialist",
+                              "Google Ads Expert",
+                              "Web Developer",
+                              "Full-Stack Developer",
+                              "Others (Data Entry/Virtual Assistants/Social Media Managers)",
                             ].map((option) => (
                               <div
                                 key={option}
@@ -575,7 +649,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                                 <Checkbox
                                   id={option}
                                   checked={formData.subServices.includes(
-                                    option
+                                    option,
                                   )}
                                   onCheckedChange={(checked) =>
                                     handleSubServiceChange(option, !!checked)
@@ -591,77 +665,6 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                             ))}
                           </>
                         )}
-
-                        {/* Website Development Options */}
-                        {formData.servicesInterested ===
-                          "Website Development" && (
-                            <>
-                              {[
-                                "WordPress",
-                                "Shopify",
-                                "BigCommerce",
-                                "Custom Coded",
-                              ].map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <Checkbox
-                                    id={option}
-                                    checked={formData.subServices.includes(
-                                      option
-                                    )}
-                                    onCheckedChange={(checked) =>
-                                      handleSubServiceChange(option, !!checked)
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={option}
-                                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                                  >
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
-
-                        {/* Dedicated Resource Options */}
-                        {formData.servicesInterested ===
-                          "Dedicated Resource" && (
-                            <>
-                              {[
-                                "Graphic Designer",
-                                "Video Editor",
-                                "SEO Specialist",
-                                "Google Ads Expert",
-                                "Web Developer",
-                                "Full-Stack Developer",
-                                "Others (Data Entry/Virtual Assistants/Social Media Managers)",
-                              ].map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <Checkbox
-                                    id={option}
-                                    checked={formData.subServices.includes(
-                                      option
-                                    )}
-                                    onCheckedChange={(checked) =>
-                                      handleSubServiceChange(option, !!checked)
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={option}
-                                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                                  >
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
 
                         {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
                         {formData.servicesInterested ===
@@ -685,7 +688,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                                   <Checkbox
                                     id={option}
                                     checked={formData.subServices.includes(
-                                      option
+                                      option,
                                     )}
                                     onCheckedChange={(checked) =>
                                       handleSubServiceChange(option, !!checked)
