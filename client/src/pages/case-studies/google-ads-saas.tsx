@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,17 +9,15 @@ import {
   TrendingUp, 
   DollarSign,
   Users,
-  Clock,
   CheckCircle,
   BarChart3,
   Zap,
-  Globe
 } from "lucide-react";
 
 export default function GoogleAdsSaaSCaseStudy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
       
       <main className="pt-20 pb-16">
         {/* Section 1: Hero with Client Overview */}
@@ -144,7 +142,7 @@ export default function GoogleAdsSaaSCaseStudy() {
         </section>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
@@ -427,7 +425,7 @@ export default function GoogleAdsSaaSCaseStudy() {
         </section>
       </main>
 
-      <Footer />
+      // <Footer />
     </div>
   );
 }

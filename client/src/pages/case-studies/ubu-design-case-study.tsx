@@ -857,35 +857,28 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  TrendingUp,
   Target,
   Search,
   BarChart3,
   CheckCircle,
   ArrowRight,
-  Star,
   Quote,
   Users,
   Calendar,
   Globe,
-  Zap,
   Settings,
   Eye,
   MousePointer,
   Award,
-  ExternalLink,
-  MapPin,
   Building,
   Clock,
-  Compass,
   PenTool,
-  Home,
 } from "lucide-react";
 import ubuDesignPerformanceImage from "@assets/ubu-design-seo-performance_1754120293127.png";
 import { Link } from "wouter";
@@ -919,7 +912,7 @@ export default function UBUDesignCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={UBUDesignSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -1198,7 +1191,7 @@ export default function UBUDesignCaseStudy() {
           {/* Mid-page CTA: Quick SEO Audit */}
           <section className="py-8 bg-brand-wings/40">
             <div className="max-w-4xl mx-auto px-4">
-              <div className="flex flex-col md:flex-row.items-center justify-between gap-4">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-semibold text-brand-coral uppercase tracking-wide">
                     Not sure where to start?
@@ -1793,7 +1786,7 @@ export default function UBUDesignCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

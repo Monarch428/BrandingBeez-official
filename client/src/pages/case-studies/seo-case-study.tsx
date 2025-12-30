@@ -1,6 +1,6 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,16 +15,10 @@ import {
   Users,
   Calendar,
   Globe,
-  Zap,
   Settings,
-  Eye,
-  MousePointer,
-  Award,
-  ExternalLink,
 } from "lucide-react";
-// Using direct paths to screenshots for SEO results demonstration
 // import atlanticFoundationImage from "@assets/atlantic-foundation-seo-portfolio_1754120022956.png";
-import placeholderImage from "@assets/Screenshot 2025-07-30 191221_1754117459762.png";
+// import placeholderImage from "@assets/Screenshot 2025-07-30 191221_1754117459762.png";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -57,7 +51,7 @@ export default function SEOCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={AtlanticFoundationSchema} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="pt-24 py-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1227,7 +1221,7 @@ export default function SEOCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

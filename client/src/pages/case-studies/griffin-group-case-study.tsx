@@ -1407,12 +1407,12 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useRegion } from "@/hooks/use-region";
+// import { useRegion } from "@/hooks/use-region";
 import griffinAnalyticsImage from "@assets/Screenshot 2025-07-30 191221_1754121534935.png";
 import { Link } from "wouter";
 import {
@@ -1422,18 +1422,13 @@ import {
   Users,
   CheckCircle,
   ArrowRight,
-  Star,
   Globe,
-  ExternalLink,
-  LineChart,
   Building,
   MapPin,
   Search,
   Calendar,
   Settings,
-  Eye,
   Quote,
-  Home,
   Award,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
@@ -1444,7 +1439,7 @@ import teamMem_2 from "../../../public/images/vishnu-team-member.png";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function GriffinGroupCaseStudy() {
-  const { regionConfig } = useRegion();
+  // const { regionConfig } = useRegion();
 
   return (
     <>
@@ -1469,7 +1464,7 @@ export default function GriffinGroupCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section */}
@@ -2545,7 +2540,7 @@ export default function GriffinGroupCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

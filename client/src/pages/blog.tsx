@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -113,7 +113,7 @@ export default function Blog() {
   if (isError) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        {/* <Header /> */}
         <div className="flex items-center justify-center py-20">
           <div className="text-center space-y-4">
             <div className="text-3xl">⚠️</div>
@@ -126,7 +126,7 @@ export default function Blog() {
             <Button onClick={() => window.location.reload()}>Retry</Button>
           </div>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     );
   }
@@ -151,7 +151,7 @@ export default function Blog() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={BlogSchema} />
-        <Header />
+        {/* <Header /> */}
 
         {/* Hero Section */}
         <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -366,7 +366,7 @@ export default function Blog() {
             </div>
           </div>
         </section>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

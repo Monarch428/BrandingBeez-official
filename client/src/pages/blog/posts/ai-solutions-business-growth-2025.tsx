@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRegion } from "@/hooks/use-region";
@@ -10,7 +10,6 @@ import {
   User,
   Clock,
   Share2,
-  BookOpen,
   Target,
   TrendingUp,
   Lightbulb,
@@ -47,7 +46,7 @@ export default function AIBusinessGrowthBlog() {
         content="Discover how AI applications and software development are transforming businesses in 2025. Learn the 5 key reasons to adopt AI solutions for enhanced efficiency, personalized experiences, and competitive advantage." 
       />
 
-      <Header />
+      {/* <Header /> */}
 
       {/* Article Header */}
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -192,7 +191,7 @@ export default function AIBusinessGrowthBlog() {
         </div>
       </article>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

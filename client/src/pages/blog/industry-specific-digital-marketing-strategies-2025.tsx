@@ -4,12 +4,12 @@ import React from "react";
 // import { Footer } from "@/components/footer";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
-import { OptimizedImage } from "@/components/optimized-image";
+// import { OptimizedImage } from "@/components/optimized-image";
 import { 
   ArrowLeft,
   Calendar,
@@ -17,10 +17,6 @@ import {
   Clock,
   Share2,
   Search,
-  Globe,
-  BarChart3,
-  Zap,
-  CheckCircle
 } from "lucide-react";
 const industryDigitalMarketingImage = "/images/Industry-Specific_Digital_Marketing_1.png";
 
@@ -58,7 +54,7 @@ export default function IndustrySpecificDigitalMarketingBlog() {
         image: "https://brandingbeez.com/images/Industry-Specific_Digital_Marketing_1.png"
       }} />
 
-      <Header />
+      {/* <Header /> */}
       {/* Article Header */}
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
         <div className="max-w-4xl mx-auto">
@@ -305,7 +301,7 @@ export default function IndustrySpecificDigitalMarketingBlog() {
           </div>
         </section>
       </article>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

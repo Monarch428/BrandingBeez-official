@@ -1,23 +1,20 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SEOHead } from "@/components/seo-head";
-import { Breadcrumbs } from "@/components/breadcrumbs";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Breadcrumbs } from "@/components/breadcrumbs";
+// import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ContactFormOptimized } from "@/components/contact-form-optimized";
 import { useRegion } from "@/hooks/use-region";
 import {
-  MapPin,
   Phone,
   Mail,
   Clock,
   MessageCircle,
   Headphones,
   Users,
-  Building,
   Calendar,
-  ExternalLink
 } from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
@@ -58,7 +55,7 @@ export default function Contact() {
         ]
       }} />
 
-      <Header />
+      {/* <Header /> */}
       <main>
         {/* Hero Section */}
         <section className="pt-16 pb-12 px-4 bg-white">
@@ -337,7 +334,7 @@ export default function Contact() {
           </div>
         </section>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

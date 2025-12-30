@@ -78,9 +78,9 @@
   -webkit-overflow-scrolling: touch;
 }
 
-* {
+/* * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
+} */
 
 /* Custom Scrollbar */
 .scrollbar-thin::-webkit-scrollbar {
@@ -307,6 +307,11 @@
   --ring: hsl(351, 83%, 61%);
 }
 
+html {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+
 @layer base {
   * {
     @apply border-border;
@@ -314,8 +319,7 @@
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    /* ✅ prefer system font for first paint (fast) */
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; */
     text-rendering: optimizeSpeed;
   }
 
@@ -415,7 +419,7 @@
 
 /* Performance optimizations */
 .optimize-animations {
-  contain: layout style paint;
+  contain: style paint;
   will-change: transform;
 }
 

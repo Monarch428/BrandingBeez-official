@@ -846,20 +846,12 @@ import {
   TrendingUp,
   Target,
   Search,
-  BarChart3,
   CheckCircle,
   ArrowRight,
-  Star,
-  Quote,
   Users,
   Calendar,
-  Globe,
-  Zap,
   Settings,
-  Eye,
-  MousePointer,
   Award,
-  ExternalLink,
   MapPin,
   Building,
   Clock,
@@ -870,7 +862,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { STATPlanningSchema } from "@/utils/all-schemas";
-import { Arrow } from "@radix-ui/react-tooltip";
+// import { Arrow } from "@radix-ui/react-tooltip";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function StatPlanningCaseStudy() {
@@ -897,7 +889,7 @@ export default function StatPlanningCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={STATPlanningSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -1741,7 +1733,7 @@ export default function StatPlanningCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

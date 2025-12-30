@@ -1,6 +1,6 @@
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRegion } from "@/hooks/use-region";
@@ -60,7 +60,7 @@ export default function DedicatedTeamHiringBlog() {
       <title>{blogPostData.metaTitle}</title>
       <meta name="description" content={blogPostData.metaDescription} />
       
-      <Header />
+      {/* <Header /> */}
       
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
         <div className="max-w-4xl mx-auto">
@@ -150,7 +150,7 @@ export default function DedicatedTeamHiringBlog() {
         </div>
       </article>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

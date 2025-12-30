@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,13 +11,10 @@ import {
   Target,
   CheckCircle,
   Clock,
-  Zap,
-  Building,
   Quote,
   MessageSquare,
   Calendar,
   DollarSign,
-  Monitor,
 } from "lucide-react";
 import Niji from "../../../public/images/niju-team-member.png";
 import { Helmet } from "react-helmet";
@@ -50,7 +47,7 @@ export default function KoalaDigitalCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={KoalaDigitalSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -1022,7 +1019,7 @@ export default function KoalaDigitalCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

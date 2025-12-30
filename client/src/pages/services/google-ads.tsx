@@ -376,7 +376,7 @@ export default function GoogleAds() {
             ]
           }
         }} />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
 
           {/* Featured Google Ads Client Section */}
@@ -1426,7 +1426,7 @@ export default function GoogleAds() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

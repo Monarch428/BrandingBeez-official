@@ -1,8 +1,8 @@
 // src/pages/AppointmentPage.tsx
 import React from "react";
 import { AppointmentCalendar } from "@/components/book-appoinment";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Helmet } from "react-helmet";
 import RajeImage from "../../public/images/raje-team-member.png"
 

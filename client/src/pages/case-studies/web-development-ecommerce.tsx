@@ -1,7 +1,7 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   ArrowRight, 
@@ -14,7 +14,7 @@ import {
 export default function WebDevelopmentEcommerceCaseStudy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
       
       <main className="pt-20 pb-16">
         {/* Hero Section */}
@@ -139,7 +139,7 @@ export default function WebDevelopmentEcommerceCaseStudy() {
         </section>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

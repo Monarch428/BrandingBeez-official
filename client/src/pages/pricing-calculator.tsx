@@ -6,17 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+// import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Calculator, Users, DollarSign, TrendingUp, CheckCircle, ArrowRight, Trophy, AlertCircle, Plus, Send } from 'lucide-react';
+import { Calculator, Users, DollarSign,  CheckCircle, Trophy, AlertCircle, Plus, } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// import { Header } from '@/components/header';
+// import { Footer } from '@/components/footer';
 import { SEOHead } from '@/components/seo-head';
 import { SchemaMarkup } from '@/components/schema-markup';
-import { Breadcrumbs } from '@/components/breadcrumbs';
+// import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Helmet } from 'react-helmet';
 
 interface PricingResult {
@@ -577,7 +577,7 @@ export default function PricingCalculator() {
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         <SEOHead title="Pricing Calculator | White-Label Services Cost Estimator | BrandingBeez" description="Calculate costs for white-label digital marketing services..." keywords="white label pricing calculator..." canonicalUrl="https://brandingbeez.com/pricing-calculator" ogType="webapp" />
         <SchemaMarkup type="service" data={{ name: "White-Label Services Pricing Calculator", description: "Interactive pricing calculator...", serviceType: "Pricing Calculator Tool", hasOfferCatalog: { name: "Service Pricing Options", itemListElement: [{ name: "SEO Services Pricing" }, { name: "Google Ads Management Pricing" }, { name: "Dedicated Resources Pricing" }] } }} />
-        <Header />
+        {/* <Header /> */}
 
         <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-4xl mx-auto text-center p-6">
@@ -1859,7 +1859,7 @@ export default function PricingCalculator() {
             </form>
           </DialogContent>
         </Dialog>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

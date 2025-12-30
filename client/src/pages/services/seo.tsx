@@ -387,7 +387,7 @@ export default function SEOServices() {
             ]
           }
         }} />
-        <Header />
+        {/* <Header /> */}
         <main>
 
           {/* SEO Hero Section */}
@@ -1190,7 +1190,7 @@ export default function SEOServices() {
           </section>
 
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div >
     </>
   );

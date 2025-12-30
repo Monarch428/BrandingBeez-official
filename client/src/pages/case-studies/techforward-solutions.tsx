@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,7 @@ import {
 export default function TechForwardSolutionsCaseStudy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
       
       <main>
         {/* Hero Section */}
@@ -471,7 +471,7 @@ export default function TechForwardSolutionsCaseStudy() {
         </section>
       </main>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

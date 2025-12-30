@@ -262,7 +262,7 @@ export default function DedicatedResources() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={DedicatedResourcesSchema} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="py-14 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1270,7 +1270,7 @@ export default function DedicatedResources() {
 
                     <div className="mt-auto pt-6 sm:pt-8 border-t border-brand-purple/10">
                       <div className="flex flex-col gap-3">
-                        <Link href="/pricing-calculator">
+                        <Link href="/pricing-calculator?service=dedicated-resources">
                           <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
                             Get Started
                           </Button>
@@ -1337,7 +1337,7 @@ export default function DedicatedResources() {
 
                     <div className="mt-auto pt-6 sm:pt-8 border-t border-brand-purple/10">
                       <div className="flex flex-col gap-3">
-                        <Link href="/pricing-calculator">
+                        <Link href="/pricing-calculator?service=dedicated-resources">
                           <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
                             Build Your Team
                           </Button>
@@ -1398,7 +1398,7 @@ export default function DedicatedResources() {
 
                     <div className="mt-auto pt-6 sm:pt-8 border-t border-brand-purple/10">
                       <div className="flex flex-col gap-3">
-                        <Link href="/pricing-calculator">
+                        <Link href="/pricing-calculator?service=dedicated-resources">
                           <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
                             Scale Your Team
                           </Button>
@@ -1543,7 +1543,7 @@ export default function DedicatedResources() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

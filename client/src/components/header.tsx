@@ -618,11 +618,10 @@ export default function Header() {
           >
             <Link href="/">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/"
+                className={`font-medium transition-colors cursor-pointer ${location === "/"
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 Home
               </span>
@@ -640,17 +639,15 @@ export default function Header() {
               <button
                 type="button"
                 onClick={handleDesktopServicesClick}
-                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${
-                  location.startsWith("/services") || isDesktopServicesOpen
+                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${location.startsWith("/services") || isDesktopServicesOpen
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 Services
                 <ChevronDown
-                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${
-                    isDesktopServicesOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${isDesktopServicesOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -729,11 +726,10 @@ export default function Header() {
 
             <Link href="/blog">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/blog"
+                className={`font-medium transition-colors cursor-pointer ${location === "/blog"
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 Blog
               </span>
@@ -741,11 +737,10 @@ export default function Header() {
 
             <Link href="/about">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/about"
+                className={`font-medium transition-colors cursor-pointer ${location === "/about"
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 About
               </span>
@@ -753,11 +748,10 @@ export default function Header() {
 
             <Link href="/portfolio">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/portfolio"
+                className={`font-medium transition-colors cursor-pointer ${location === "/portfolio"
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 Portfolio
               </span>
@@ -817,11 +811,10 @@ export default function Header() {
             <div className="px-4 py-2 space-y-1">
               <Link href="/">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/"
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/"
                       ? "text-brand-coral-darker bg-brand-coral/10"
                       : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
@@ -830,11 +823,10 @@ export default function Header() {
 
               {/* SERVICES with mobile submenu */}
               <div
-                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                  location.startsWith("/services")
+                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location.startsWith("/services")
                     ? "text-brand-coral-darker bg-brand-coral/10"
                     : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {/* Click text -> navigate to /services */}
                 <button
@@ -857,9 +849,8 @@ export default function Header() {
                   aria-label="Toggle services submenu"
                 >
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      isServicesSubmenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isServicesSubmenuOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -881,11 +872,10 @@ export default function Header() {
 
               <Link href="/blog">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/blog"
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/blog"
                       ? "text-brand-coral-darker bg-brand-coral/10"
                       : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Blog
@@ -894,11 +884,10 @@ export default function Header() {
 
               <Link href="/about">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/about"
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/about"
                       ? "text-brand-coral-darker bg-brand-coral/10"
                       : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
@@ -907,11 +896,10 @@ export default function Header() {
 
               <Link href="/portfolio">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/portfolio"
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio"
                       ? "text-brand-coral-darker bg-brand-coral/10"
                       : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Portfolio
@@ -920,11 +908,10 @@ export default function Header() {
 
               <Link href="/contact">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/contact"
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/contact"
                       ? "text-brand-coral-darker bg-brand-coral/10"
                       : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Contact
@@ -951,4 +938,3 @@ export default function Header() {
 }
 
 export { Header };
-

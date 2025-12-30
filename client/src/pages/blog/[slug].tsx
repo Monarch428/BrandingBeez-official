@@ -1270,8 +1270,8 @@
 import React, { useMemo } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
@@ -1623,14 +1623,14 @@ export default function DynamicBlogPost() {
   if (isError) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        {/* <Header /> */}
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <div className="text-4xl mb-4">⚠️</div>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Unable to load blog post</h1>
           <p className="text-base md:text-xl text-gray-600 mb-8">{(error as Error)?.message || "Please try again later."}</p>
           <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     );
   }
@@ -1638,7 +1638,7 @@ export default function DynamicBlogPost() {
   if (!blogPost) {
     return (
       <div className="min-h-screen bg-white">
-        <Header />
+        {/* <Header /> */}
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Blog Post Not Found</h1>
           <p className="text-base md:text-xl text-gray-600 mb-8">The blog post you're looking for doesn't exist or has been moved.</p>
@@ -1647,7 +1647,7 @@ export default function DynamicBlogPost() {
             Back to Blog
           </Button>
         </div>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     );
   }
@@ -1769,7 +1769,7 @@ export default function DynamicBlogPost() {
         <meta property="article:published_time" content={publishDate} />
       </Helmet>
 
-      <Header />
+      {/* <Header /> */}
 
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -2305,7 +2305,7 @@ export default function DynamicBlogPost() {
         </div>
       </article>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,32 +8,20 @@ import greenParadiseImage from "@assets/green-paradise-landscaping-updated.png";
 import {
   ArrowRight,
   CheckCircle,
-  Leaf,
   Palette,
   Globe,
   Target,
-  Clock,
-  TrendingUp,
   Users,
   Award,
   Building,
   Monitor,
-  Smartphone,
   Search,
   Code,
-  Star,
   Quote,
   ExternalLink,
   MessageSquare,
-  Video,
-  Zap,
-  Phone,
-  Mail,
   Eye,
-  Shield,
-  Camera,
   Sparkles,
-  Calendar,
 } from "lucide-react";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
@@ -66,7 +54,7 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={GreenParadiseSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -706,7 +694,7 @@ export default function GreenParadiseBrandingWebsiteCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

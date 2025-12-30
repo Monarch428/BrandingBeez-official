@@ -139,7 +139,7 @@ function FooterImpl() {
 
   const services = useMemo(
     () => [
-      { href: "https://brandingbeez.co.uk/services/ai-development", label: "AI Development", external: true },
+      { href: "/services/custom-app-development", label: "Custom App Development (AI Powered)", external: true },
       { href: "/services/web-development", label: "Web Development" },
       { href: "/services/seo", label: "SEO Services" },
       { href: "/services/google-ads", label: "Google Ads" },

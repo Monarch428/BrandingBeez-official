@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { FreeSEOAudit } from "@/components/free-seo-audit";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -61,7 +61,7 @@ const testimonials = [
 export default function SEOAudit() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
       
       <main className="pt-16 pb-16">
         {/* Hero Section */}
@@ -187,7 +187,7 @@ export default function SEOAudit() {
         </section>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

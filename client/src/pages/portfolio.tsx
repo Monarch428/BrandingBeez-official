@@ -1,5 +1,5 @@
-import Footer from "@/components/footer";
-import Header from "@/components/header";
+// import Footer from "@/components/footer";
+// import Header from "@/components/header";
 import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
@@ -645,7 +645,7 @@ export default function PortfolioPage() {
 
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         {/* HERO */}
         <section className="text-white py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral border-b border-white/10">
@@ -1329,7 +1329,7 @@ export default function PortfolioPage() {
         prefillService={selectedServiceForForm}
       />
 
-      <Footer />
+      {/* <Footer /> */}
     </>
   );
 }
