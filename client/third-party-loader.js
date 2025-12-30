@@ -14,38 +14,41 @@
 
   function onceUserIntent(cb) {
     let done = false;
+
+    // use a stable option so removeEventListener works reliably
+    const optsPassive = { passive: true };
+    const optsCapture = { capture: true };
+
     const run = () => {
       if (done) return;
       done = true;
       cleanup();
       cb();
     };
+
     const cleanup = () => {
-      window.removeEventListener("scroll", run, { passive: true });
-      window.removeEventListener("pointerdown", run);
-      window.removeEventListener("keydown", run);
-      window.removeEventListener("touchstart", run, { passive: true });
+      window.removeEventListener("scroll", run, optsCapture);
+      window.removeEventListener("pointerdown", run, optsCapture);
+      window.removeEventListener("keydown", run, optsCapture);
+      window.removeEventListener("touchstart", run, optsCapture);
     };
 
-    window.addEventListener("scroll", run, { passive: true });
-    window.addEventListener("pointerdown", run);
-    window.addEventListener("keydown", run);
-    window.addEventListener("touchstart", run, { passive: true });
+    // use capture so we catch early intent
+    window.addEventListener("scroll", run, { ...optsPassive, ...optsCapture });
+    window.addEventListener("pointerdown", run, optsCapture);
+    window.addEventListener("keydown", run, optsCapture);
+    window.addEventListener("touchstart", run, { ...optsPassive, ...optsCapture });
 
     // fallback: still run eventually
     afterDelay(12000, run);
   }
 
-  function loadScript(src) {
-    var s = document.createElement("script");
-    s.async = true;
-    s.src = src;
-    document.head.appendChild(s);
-    return s;
-  }
-
   // --- loaders ---
   function loadGTM() {
+    // prevent duplicate GTM
+    if (window.google_tag_manager || window._gtm_loaded) return;
+    window._gtm_loaded = true;
+
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
@@ -59,10 +62,15 @@
   }
 
   function loadLinkedInInsight() {
+    // prevent duplicate load (GTM may already load it)
+    if (window._linkedin_loaded || window.lintrk) return;
+    window._linkedin_loaded = true;
+
     window._linkedin_partner_id = "8407852";
-    window._linkedin_data_partner_ids =
-      window._linkedin_data_partner_ids || [];
-    window._linkedin_data_partner_ids.push(window._linkedin_partner_id);
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    if (!window._linkedin_data_partner_ids.includes(window._linkedin_partner_id)) {
+      window._linkedin_data_partner_ids.push(window._linkedin_partner_id);
+    }
 
     (function () {
       if (!window.lintrk) {
@@ -80,7 +88,36 @@
     })();
   }
 
+  function loadMetaPixel() {
+    // prevent duplicate load (GTM may already load it)
+    if (window._meta_pixel_loaded || window.fbq) return;
+    window._meta_pixel_loaded = true;
+
+    (function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = !0;
+      n.version = "2.0";
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = !0;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+
+    window.fbq("init", "1275266766876958");
+    window.fbq("track", "PageView");
+  }
+
   function loadClarity() {
+    if (window._clarity_loaded || window.clarity) return;
+    window._clarity_loaded = true;
+
     (function (c, l, a, r, i, t, y) {
       c[a] = c[a] || function () {
         (c[a].q = c[a].q || []).push(arguments);
@@ -94,6 +131,9 @@
   }
 
   function loadHotjar() {
+    if (window._hotjar_loaded || window.hj) return;
+    window._hotjar_loaded = true;
+
     (function (h, o, t, j, a, r) {
       h.hj =
         h.hj ||
@@ -110,17 +150,17 @@
   }
 
   // --- strategy ---
-  // Phase 1: GTM after first idle (keeps marketing tags working)
   onIdle(loadGTM, 2500);
 
-  // Phase 2: LinkedIn a bit later (not critical for first paint)
+  afterDelay(1500, function () {
+    onIdle(loadMetaPixel, 3000);
+  });
+
   afterDelay(4000, function () {
     onIdle(loadLinkedInInsight, 4000);
   });
 
-  // Phase 3: Heavy replay tools ONLY on user intent (or after 12s fallback)
   onceUserIntent(function () {
-    // space them out to avoid a CPU spike
     onIdle(loadClarity, 5000);
     afterDelay(2000, function () {
       onIdle(loadHotjar, 6000);

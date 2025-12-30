@@ -1,6 +1,6 @@
 // src/components/FlyingBeeLoader.tsx
 import React, { useMemo } from "react";
-import beeLogo from "../../public/images/Bee_Logo.png";
+const beeLogo = "/images/Bee_Logo.png";
 
 const BrandingBeezLoader: React.FC = () => {
   const bars = useMemo(() => [0, 1, 2, 3, 4, 5, 6], []);

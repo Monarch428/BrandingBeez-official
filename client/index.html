@@ -420,7 +420,6 @@
   <!-- ✅ CSP-safe: load trackers via external file (no inline event handlers) -->
   <script src="/js/third-party-loader.js" defer></script>
 
-  <!-- Microsoft Clarity will be loaded via external script -->
   <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -516,6 +515,8 @@
   <link rel="preconnect" href="https://i.ytimg.com">
   <link rel="preconnect" href="https://www.google.com">
 
+  <link rel="preconnect" href="https://connect.facebook.net">
+  <link rel="dns-prefetch" href="https://connect.facebook.net">
 </head>
 
 <body>
@@ -530,6 +531,12 @@
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KP5XRG5D" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
+
+  <!-- ✅ Meta Pixel noscript fallback (keep this OUTSIDE the script) -->
+  <noscript>
+    <img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1275266766876958&ev=PageView&noscript=1" />
+  </noscript>
 
   <div id="root"></div>
   <!-- Load main script -->
