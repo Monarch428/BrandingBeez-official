@@ -59,7 +59,6 @@ export default function Contact() {
       }} />
 
       <Header />
-
       <main>
         {/* Hero Section */}
         <section className="pt-16 pb-12 px-4 bg-white">
@@ -80,39 +79,47 @@ export default function Contact() {
                 buttonLabel="Book a strategy call"
                 className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
                 buttonSize="lg"
-              // defaultServiceType="Website Development"
               />
             </div>
 
             {/* Inline Quick Contact Bar */}
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm md:text-base">
-              <div className="flex items-center gap-2 text-gray-700">
+              <a
+                href="tel:+19792717552"
+                className="flex items-center gap-2 text-gray-700 hover:text-brand-coral transition-colors"
+              >
                 <Phone className="w-4 h-4 text-brand-coral" />
                 <span className="font-semibold">+1 979 271 7552</span>
-              </div>
+              </a>
+
               <div className="hidden md:block h-4 w-px bg-gray-300" />
-              <div className="flex items-center gap-2 text-gray-700">
+
+              <a
+                href={`mailto:${regionConfig.email}`}
+                className="flex items-center gap-2 text-gray-700 hover:text-brand-coral transition-colors"
+              >
                 <Mail className="w-4 h-4 text-brand-coral" />
                 <span className="font-semibold">{regionConfig.email}</span>
-              </div>
+              </a>
+
               <div className="hidden md:block h-4 w-px bg-gray-300" />
+
               <div className="flex items-center gap-2 text-gray-700">
                 <Clock className="w-4 h-4 text-brand-coral" />
-                <span className="font-semibold">Mon – Fri 9AM – 6PM EST</span>
+                <span className="font-semibold whitespace-nowrap">
+                  Mon – Fri 9AM – 6PM EST
+                </span>
               </div>
             </div>
           </div>
 
           {/* Cards Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mt-10">
-
             {/* Email Card */}
             <Card className="text-center h-full shadow-sm">
-              <CardContent className="p-6 h-full flex flex-col justify-center">
-
-                {/* ICON + TITLE INLINE */}
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-brand-coral/10 rounded-lg flex items-center justify-center">
+              <CardContent className="p-6 h-full flex flex-col items-center justify-center">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-brand-coral/10 rounded-lg flex items-center">
                     <Mail className="w-5 h-5 text-brand-coral" />
                   </div>
                   <h3 className="font-bold text-lg text-brand-purple">
@@ -120,8 +127,14 @@ export default function Contact() {
                   </h3>
                 </div>
 
-                <p className="text-gray-600 mb-3 text-base">{regionConfig.email}</p>
-                <p className="text-xs text-gray-500">
+                <a
+                  href={`mailto:${regionConfig.email}`}
+                  className="text-brand-purple font-semibold hover:text-brand-coral transition-colors mb-2"
+                >
+                  {regionConfig.email}
+                </a>
+
+                <p className="text-xs text-gray-500 text-center">
                   {regionConfig.code === "DE"
                     ? "Antwort innerhalb von 24 Stunden"
                     : "Response within 24 hours"}
@@ -131,11 +144,9 @@ export default function Contact() {
 
             {/* Book Call Card */}
             <Card className="text-center h-full shadow-sm">
-              <CardContent className="p-6 h-full flex flex-col justify-center">
-
-                {/* ICON + TITLE INLINE */}
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-brand-coral/10 rounded-lg flex items-center justify-center">
+              <CardContent className="p-6 h-full flex flex-col items-center justify-center">
+                <div className="flex items-center mb-4">
+                  <div className="w-10 h-10 bg-brand-coral/10 rounded-lg flex items-center">
                     <Calendar className="w-5 h-5 text-brand-coral" />
                   </div>
                   <h3 className="font-bold text-lg text-brand-purple">
@@ -143,48 +154,35 @@ export default function Contact() {
                   </h3>
                 </div>
 
-                <p className="text-gray-600 mb-4 text-base">
+                <p className="text-gray-600 mb-4 text-base text-center">
                   {regionConfig.code === "DE"
                     ? "Kostenloses Strategiegespräch"
                     : "Free strategy consultation"}
                 </p>
-                {/* <Button
-                  onClick={openCalendly}
-                  size="sm"
-                  className="bg-brand-coral hover:bg-brand-coral/90 text-white"
-                >
-                  {regionConfig.code === "DE" ? "Jetzt buchen" : "Book Now"}
-                </Button> */}
+
                 <BookCallButtonWithModal
                   buttonLabel="Book Now"
                   className="bg-brand-coral hover:bg-brand-coral/90 text-white"
                   buttonSize="lg"
-                // defaultServiceType="Website Development"
                 />
               </CardContent>
             </Card>
-
           </div>
         </section>
-
-        {/* Contact Methods */}
-        {/* <section className="py-16 px-4 bg-white">
-          <div className="max-w-7xl mx-auto">
-
-          </div>
-        </section> */}
 
         {/* Contact Form */}
         <section className="py-16 px-4 bg-gray-50">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold text-brand-purple mb-4">
-                {regionConfig.code === 'DE' ? 'Projekt starten' : 'Start Your Project Today'}
+                {regionConfig.code === "DE"
+                  ? "Projekt starten"
+                  : "Start Your Project Today"}
               </h2>
               <p className="text-xl text-gray-600">
-                {regionConfig.code === 'DE'
-                  ? 'Erzählen Sie uns von Ihrem Projekt und wir melden uns innerhalb von 4 Stunden'
-                  : 'Tell us about your project and we\'ll get back to you within 4 hours'}
+                {regionConfig.code === "DE"
+                  ? "Erzählen Sie uns von Ihrem Projekt und wir melden uns innerhalb von 4 Stunden"
+                  : "Tell us about your project and we'll get back to you within 4 hours"}
               </p>
             </div>
 
@@ -194,73 +192,144 @@ export default function Contact() {
           </div>
         </section>
 
-
-
         {/* Alternative Contact Methods */}
         <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-7xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">
-                {regionConfig.code === 'DE' ? 'Weitere Kontaktmöglichkeiten' : 'Other Ways to Reach Us'}
+                {regionConfig.code === "DE"
+                  ? "Weitere Kontaktmöglichkeiten"
+                  : "Other Ways to Reach Us"}
               </h2>
               <p className="text-xl text-white/90">
-                {regionConfig.code === 'DE'
-                  ? 'Wählen Sie die Methode, die am besten zu Ihnen passt'
-                  : 'Choose the method that works best for you'}
+                {regionConfig.code === "DE"
+                  ? "Wählen Sie die Methode, die am besten zu Ihnen passt"
+                  : "Choose the method that works best for you"}
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Sales */}
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Users className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="font-bold text-lg mb-2">
-                    {regionConfig.code === 'DE' ? 'Verkaufsanfragen' : 'Sales Inquiries'}
+                    {regionConfig.code === "DE" ? "Verkaufsanfragen" : "Sales Inquiries"}
                   </h3>
+
                   <div className="space-y-2 text-sm text-white/80">
-                    <p><strong>Email:</strong> raje@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +1 979 271 7552</p>
-                    <p><strong>
-                      {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
-                    </strong> {regionConfig.code === 'DE' ? 'Neue Projekte, Preisfragen' : 'New project discussions, pricing questions'}</p>
+                    <p>
+                      <strong>Email:</strong>{" "}
+                      <a
+                        href="mailto:raje@brandingbeez.co.uk"
+                        className="hover:text-white transition-colors"
+                      >
+                        raje@brandingbeez.co.uk
+                      </a>
+                    </p>
+                    <p>
+                      <strong>Phone:</strong>{" "}
+                      <a
+                        href="tel:+19792717552"
+                        className="hover:text-white transition-colors"
+                      >
+                        +1 979 271 7552
+                      </a>
+                    </p>
+                    <p>
+                      <strong>
+                        {regionConfig.code === "DE" ? "Ideal für:" : "Best for:"}
+                      </strong>{" "}
+                      {regionConfig.code === "DE"
+                        ? "Neue Projekte, Preisfragen"
+                        : "New project discussions, pricing questions"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Careers */}
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <Headphones className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="font-bold text-lg mb-2">
-                    {regionConfig.code === 'DE' ? 'Karriere' : 'Careers'}
+                    {regionConfig.code === "DE" ? "Karriere" : "Careers"}
                   </h3>
+
                   <div className="space-y-2 text-sm text-white/80">
-                    <p><strong>Email:</strong> hr@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +91 72006 26556</p>
-                    <p><strong>
-                      {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
-                    </strong> {regionConfig.code === 'DE' ? 'Stellenbewerbungen' : 'Job applications & career opportunities'}</p>
+                    <p>
+                      <strong>Email:</strong>{" "}
+                      <a
+                        href="mailto:hr@brandingbeez.co.uk"
+                        className="hover:text-white transition-colors"
+                      >
+                        hr@brandingbeez.co.uk
+                      </a>
+                    </p>
+                    <p>
+                      <strong>Phone:</strong>{" "}
+                      <a
+                        href="tel:+917200626556"
+                        className="hover:text-white transition-colors"
+                      >
+                        +91 72006 26556
+                      </a>
+                    </p>
+                    <p>
+                      <strong>
+                        {regionConfig.code === "DE" ? "Ideal für:" : "Best for:"}
+                      </strong>{" "}
+                      {regionConfig.code === "DE"
+                        ? "Stellenbewerbungen"
+                        : "Job applications & career opportunities"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
 
+              {/* Partnerships */}
               <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
                 <CardContent className="p-6 text-center">
                   <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center mx-auto mb-4">
                     <MessageCircle className="w-6 h-6 text-white" />
                   </div>
                   <h3 className="font-bold text-lg mb-2">
-                    {regionConfig.code === 'DE' ? 'Partnerschaften' : 'Partnerships'}
+                    {regionConfig.code === "DE"
+                      ? "Partnerschaften"
+                      : "Partnerships"}
                   </h3>
+
                   <div className="space-y-2 text-sm text-white/80">
-                    <p><strong>Email:</strong> info@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +1 979 271 7552</p>
-                    <p><strong>
-                      {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
-                    </strong> {regionConfig.code === 'DE' ? 'Agentur-Partnerschaften' : 'Agency partnerships'}</p>
+                    <p>
+                      <strong>Email:</strong>{" "}
+                      <a
+                        href="mailto:info@brandingbeez.co.uk"
+                        className="hover:text-white transition-colors"
+                      >
+                        info@brandingbeez.co.uk
+                      </a>
+                    </p>
+                    <p>
+                      <strong>Phone:</strong>{" "}
+                      <a
+                        href="tel:+19792717552"
+                        className="hover:text-white transition-colors"
+                      >
+                        +1 979 271 7552
+                      </a>
+                    </p>
+                    <p>
+                      <strong>
+                        {regionConfig.code === "DE" ? "Ideal für:" : "Best for:"}
+                      </strong>{" "}
+                      {regionConfig.code === "DE"
+                        ? "Agentur-Partnerschaften"
+                        : "Agency partnerships"}
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -268,7 +337,6 @@ export default function Contact() {
           </div>
         </section>
       </main>
-
       <Footer />
     </div>
   );
