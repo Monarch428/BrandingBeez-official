@@ -1059,8 +1059,8 @@
 
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 // import { HomeTeamBanner } from "@/components/home-team-banner";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
@@ -1123,7 +1123,6 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
-import PortfolioCtaSection from "@/components/portfolioimagecta";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export default function Home() {
@@ -1403,7 +1402,7 @@ export default function Home() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section */}
@@ -1412,24 +1411,27 @@ export default function Home() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
                 {/* Left: Copy */}
                 <div>
-                  <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-5 sm:mb-6">
-                    <span className="text-xs sm:text-sm font-semibold text-white">
-                      ✓ Trusted by 25+ Agencies Worldwide
-                    </span>
+                  {/* CLS FIX: reserve space for trust badge */}
+                  <div className="min-h-[40px] sm:min-h-[44px] flex items-center">
+                    <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full">
+                      <span className="text-xs sm:text-sm font-semibold text-white">
+                        ✓ Trusted by 25+ Agencies Worldwide
+                      </span>
+                    </div>
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                    Scale Your Agency
-                    <span className="text-brand-yellow">
-                      {" "}
-                      Without Hiring Full-Time Staff
-                    </span>
-                  </h1>
+                  {/* CLS FIX: reserve space for hero H1 */}
+                  <div className="min-h-[96px] sm:min-h-[112px] md:min-h-[128px] lg:min-h-[144px] flex items-center">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                      Scale Your Agency
+                      <span className="text-brand-yellow">{" "}Without Hiring Full-Time Staff</span>
+                    </h1>
+                  </div>
+
 
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 text-left leading-relaxed">
-                    White-label delivery teams for US digital agencies offering
-                    dedicated resources, websites, SEO, PPC, and AI-powered
-                    development under your brand.
+                    White-label delivery teams for US digital agencies offering dedicated resources, websites, SEO, PPC,
+                    and AI-powered development under your brand.
                   </p>
 
                   <h2 className="text-base sm:text-lg lg:text-xl font-medium text-white/90 mb-6 sm:mb-8 leading-snug">
@@ -1440,9 +1442,7 @@ export default function Home() {
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                      <span className="text-sm sm:text-base text-white">
-                        100% White-Label Delivery
-                      </span>
+                      <span className="text-sm sm:text-base text-white">100% White-Label Delivery</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
@@ -1453,7 +1453,7 @@ export default function Home() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        Save Up to $80k per Year vs In-House Hiring
+                        Save Up to $80k a Year vs In-House Hiring
                       </span>
                     </div>
                   </div>
@@ -1466,9 +1466,7 @@ export default function Home() {
                       asChild
                     >
                       <Link href="/pricing-calculator?service=dedicated-resources">
-                        <span className="hidden sm:inline">
-                          Hire Dedicated Resources
-                        </span>
+                        <span className="hidden sm:inline">Hire Dedicated Resources</span>
                         <span className="sm:hidden">Hire Resources</span>
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
@@ -1482,17 +1480,20 @@ export default function Home() {
                   </div>
                 </div>
 
+
                 {/* Right: HomeTeamBanner (hidden <= 480px) */}
                 {/* <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
                 </div> */}
                 <div className="w-full">
-                  <h1 className="text-center font-bold text-white leading-tight
-                 text-xl sm:text-2xl lg:text-3xl
-                 mb-4 sm:mb-6">
-                    See How We Help
-                    <span className="text-brand-yellow"> Agencies Scale</span>
-                  </h1>
+                  <div className="min-h-[56px] sm:min-h-[64px] lg:min-h-[72px] mb-4 sm:mb-6 flex items-center justify-center">
+                    <h1
+                      className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-3xl">
+                      See How We Help
+                      <span className="text-brand-yellow"> Agencies Scale</span>
+                    </h1>
+                  </div>
+
 
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl
                   p-3 sm:p-4 lg:p-5
@@ -1880,7 +1881,7 @@ export default function Home() {
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
-                  </span>$1,199 
+                  </span>$1,199
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">per resource / month</span>
                 </div>
 
@@ -2194,7 +2195,7 @@ export default function Home() {
           </section> */}
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

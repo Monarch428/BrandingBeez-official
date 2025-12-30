@@ -2,13 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Home, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
-import Header from "@/components/header";
-import Footer from "@/components/footer";
+// import Header from "@/components/header";
+// import Footer from "@/components/footer";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
 
       <main className="pt-16 pb-16">
         <div className="min-h-[80vh] flex items-center justify-center px-4">
@@ -80,7 +80,7 @@ export default function NotFound() {
         </div>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

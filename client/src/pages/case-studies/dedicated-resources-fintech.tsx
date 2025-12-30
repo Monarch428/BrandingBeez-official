@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -37,7 +37,7 @@ export default function DedicatedResourcesFintechCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-20 pb-16">
           {/* Section 1: Hero with Client Overview */}
@@ -579,7 +579,7 @@ export default function DedicatedResourcesFintechCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

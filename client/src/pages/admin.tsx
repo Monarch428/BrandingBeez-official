@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FeaturedClientsManager } from "@/components/admin/featured-clients-manager";
-import { CaseStudiesManager } from "@/components/admin/case-studies-manager";
-import { PricingPackagesManager } from "@/components/admin/pricing-packages-manager";
+// import { FeaturedClientsManager } from "@/components/admin/featured-clients-manager";
+// import { CaseStudiesManager } from "@/components/admin/case-studies-manager";
+// import { PricingPackagesManager } from "@/components/admin/pricing-packages-manager";
 import { ServicePagesManager } from "@/components/admin/service-pages-manager";
 import { ContactsManager } from "@/components/admin/contacts-manager";
 import { NewsletterSubscribersManager } from "@/components/admin/newsletter-subscribers-manager";
@@ -278,7 +278,7 @@ export default function Admin() {
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-16 pb-16">
           <div className="max-w-md mx-auto px-4">

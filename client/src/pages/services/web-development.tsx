@@ -368,7 +368,7 @@ export default function WebDevelopment() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={WebDevelopmentSchema} />
-        <Header />
+        {/* <Header /> */}
         <main className="pb-0">
           {/* Featured Web Development Client Section */}
           <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-brand-purple via-brand-purple/95 to-brand-coral text-white">
@@ -907,7 +907,7 @@ export default function WebDevelopment() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,20 +11,18 @@ import {
   Target,
   CheckCircle,
   Calendar,
-  Monitor,
   MessageSquare,
   Zap,
-  Building,
   Quote,
   Video,
   Clock,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
-import { SchemaMarkup } from "@/components/schema-markup";
+// import { SchemaMarkup } from "@/components/schema-markup";
 // TODO: create this schema in your all-schemas file
 // import { FSEDigitalPpcSchema } from "@/utils/all-schemas";
-import FSELogo from "../../../public/images/FSE-Digital-Logo.jpg";
+// import FSELogo from "../../../public/images/FSE-Digital-Logo.jpg";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function FSEDigitalPpcCaseStudy() {
@@ -53,7 +51,7 @@ export default function FSEDigitalPpcCaseStudy() {
         />
         {/* <SchemaMarkup type="custom" data={FSEDigitalPpcSchema} /> */}
 
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -813,7 +811,7 @@ export default function FSEDigitalPpcCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

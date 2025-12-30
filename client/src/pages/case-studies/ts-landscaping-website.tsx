@@ -1,39 +1,30 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import {
   ArrowRight,
-  CheckCircle,
   Leaf,
   Globe,
   Users,
   Target,
   Clock,
-  TrendingUp,
   Phone,
   Mail,
-  Building,
   Monitor,
-  Smartphone,
-  Search,
   Palette,
   Code,
   Star,
   Quote,
   ExternalLink,
-  MessageSquare,
-  Video,
-  Zap,
-  Calendar,
 } from "lucide-react";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { TSLandscapingSchema } from "@/utils/all-schemas";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
-import tsl_Logo from "../../../public/images/TSL_Logo.png";
+// import tsl_Logo from "../../../public/images/TSL_Logo.png";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 // Image imported directly in the component
 
@@ -61,7 +52,7 @@ export default function TSLandscapingCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={TSLandscapingSchema} />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -719,7 +710,7 @@ export default function TSLandscapingCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

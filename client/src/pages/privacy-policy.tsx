@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { PrivacyPolicy } from "@/components/privacy-policy";
 import { SecurityHeadersProvider } from "@/components/security-headers";
 import { SEOHead } from "@/components/seo-head";
@@ -25,9 +25,9 @@ export default function PrivacyPolicyPage() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={PrivacyPolicySchema} />
-        <Header />
+        {/* <Header /> */}
         <PrivacyPolicy />
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </SecurityHeadersProvider>
   );

@@ -1,12 +1,12 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
-import { Breadcrumbs } from "@/components/breadcrumbs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { Breadcrumbs } from "@/components/breadcrumbs";
+import { Card } from "@/components/ui/card";
+// import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 import { useRegion } from "@/hooks/use-region";
@@ -16,24 +16,11 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Search,
   Globe,
-  Zap,
   Users,
   TrendingUp,
-  Shield,
   ArrowRight,
   CheckCircle,
-  Star,
   Code,
-  Bot,
-  Monitor,
-  Building,
-  Calculator,
-  Scale,
-  Heart,
-  Target,
-  FileText,
-  Gift,
-  Copy,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import AgencyContactSection from "@/components/agency-contact-section";
@@ -403,7 +390,7 @@ export default function Services() {
             ]
           }
         }} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section with Dual Forms */}
           <section className="text-white py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral">
@@ -1614,7 +1601,7 @@ export default function Services() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -767,8 +767,8 @@
 // }
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { TeamCollageBanner } from "@/components/team-collage-banner";
 import { Button } from "@/components/ui/button";
@@ -783,7 +783,7 @@ import vigneshImage from "@assets/Vignesh Stroke_1753273695214.png";
 import rajeImage from "@assets/Raje Stroke_1753273695213.png";
 import charanImage from "@assets/Charan Stroke_1753273701283.png";
 import priyaImage from "@assets/Priya Stroke_1753273695213.png";
-import Mathavanimage from "../../public/images/Mathavan-team-member.png";
+// import Mathavanimage from "../../public/images/Mathavan-team-member.png";
 import loguImage from "@assets/Logu_Stroke.png";
 import SatheshImage from "@assets/Sathish_Stroke.png";
 import azeezImage from "@assets/Azeez_Stroke.png";
@@ -809,14 +809,13 @@ import {
   Heart,
   Linkedin,
   Globe,
-  Building,
   Target,
   Zap,
   Shield,
   Handshake,
   Calendar,
   BookOpen,
-  TrendingUp, // ✅ added for global partnership benefits
+  TrendingUp,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -1173,7 +1172,7 @@ export default function About() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={AboutPageSchema} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="py-16 px-4 bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral">
@@ -1895,7 +1894,7 @@ export default function About() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

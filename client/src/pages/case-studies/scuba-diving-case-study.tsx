@@ -527,15 +527,15 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useRegion } from "@/hooks/use-region";
+// import { useRegion } from "@/hooks/use-region";
 import { Link } from "wouter";
-import scubaCardImage from "@assets/targeted_element_1754118942775.png";
-import scubaPerformanceImage from "@assets/by-the-shore-scuba-seo-success_1754118940974.png";
+// import scubaCardImage from "@assets/targeted_element_1754118942775.png";
+// import scubaPerformanceImage from "@assets/by-the-shore-scuba-seo-success_1754118940974.png";
 import {
   Search,
   TrendingUp,
@@ -544,18 +544,11 @@ import {
   Users,
   CheckCircle,
   ArrowRight,
-  Star,
-  Award,
   Globe,
-  ExternalLink,
-  LineChart,
   Zap,
-  Shield,
   Eye,
   MousePointer,
-  Quote,
   Calendar,
-  Settings,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SchemaMarkup } from "@/components/schema-markup";
@@ -587,7 +580,7 @@ export default function ScubaDivingCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section */}
@@ -1235,7 +1228,7 @@ export default function ScubaDivingCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

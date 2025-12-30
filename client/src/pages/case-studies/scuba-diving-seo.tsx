@@ -1,6 +1,6 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
@@ -8,26 +8,19 @@ import {
   Target, 
   Search, 
   BarChart3, 
-  CheckCircle, 
   ArrowRight,
-  Star,
   Quote,
   Users,
-  Calendar,
   Globe,
-  Zap,
-  Settings,
   Eye,
   MousePointer,
-  Award,
-  ExternalLink
 } from "lucide-react";
 import { Link } from "wouter";
 
 export default function ScubaDivingSEOCaseStudy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
-      <Header />
+      {/* <Header /> */}
       
       <main className="pt-24">
         {/* Hero Section */}
@@ -307,7 +300,7 @@ export default function ScubaDivingSEOCaseStudy() {
         </section>
       </main>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

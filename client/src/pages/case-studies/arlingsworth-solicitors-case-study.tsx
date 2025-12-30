@@ -1,34 +1,25 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useRegion } from "@/hooks/use-region";
+// import { useRegion } from "@/hooks/use-region";
 import { OptimizedImage } from "@/components/optimized-image";
 import { Link } from "wouter";
 import {
   MousePointer,
-  TrendingUp,
   Target,
   BarChart3,
   Users,
-  CheckCircle,
   ArrowRight,
-  Star,
-  Award,
   Globe,
   ExternalLink,
-  LineChart,
   Zap,
-  Shield,
   Eye,
   Phone,
-  Quote,
-  Calendar,
   Settings,
   PoundSterling,
   Scale,
-  CalendarHeart,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -36,8 +27,8 @@ import { SchemaMarkup } from "@/components/schema-markup";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function ArlingsworthSolicitorsCaseStudy() {
-  const { regionConfig } = useRegion();
-  const getCalendlyUrl = () => regionConfig.calendlyUrl;
+  // const { regionConfig } = useRegion();
+  // const getCalendlyUrl = () => regionConfig.calendlyUrl;
 
   return (
     <>
@@ -56,7 +47,7 @@ export default function ArlingsworthSolicitorsCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section */}
@@ -520,7 +511,7 @@ export default function ArlingsworthSolicitorsCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -946,7 +946,6 @@
 
 
 
-
 import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
@@ -962,7 +961,6 @@ import {
   Dot,
   Phone,
 } from "lucide-react";
-import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.webp";
 
 // ✅ Lazy-load the modal/button to reduce initial JS + improve LCP
 const BookCallButtonWithModal = lazy(() =>
@@ -972,11 +970,18 @@ const BookCallButtonWithModal = lazy(() =>
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesSubmenuOpen, setIsServicesSubmenuOpen] = useState(false);
+
   const [isDesktopServicesOpen, setIsDesktopServicesOpen] = useState(false);
   const [isDesktopServicesPinned, setIsDesktopServicesPinned] = useState(false);
+
   const servicesRef = useRef<HTMLDivElement | null>(null);
   const logoImgRef = useRef<HTMLImageElement | null>(null);
   const [location, navigate] = useLocation();
+
+  const openCalendly = () => {
+    // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
+    window.open("/book-appointment", "_blank");
+  };
 
   // ✅ Set fetchpriority in a TS-safe way
   useEffect(() => {
@@ -1027,18 +1032,18 @@ export default function Header() {
     [],
   );
 
+  // ✅ CLICK HANDLER: toggle pin + open and navigate when opening (same behavior as old)
   const handleDesktopServicesClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!isDesktopServicesPinned) setIsDesktopServicesPinned(true);
-    if (!isDesktopServicesOpen) setIsDesktopServicesOpen(true);
+    setIsDesktopServicesPinned((prev) => {
+      const next = !prev;
+      setIsDesktopServicesOpen(next);
+      if (next) navigate("/services");
+      return next;
+    });
   };
 
-  useEffect(() => {
-    if (isDesktopServicesPinned) {
-      navigate("/services");
-    }
-  }, [isDesktopServicesPinned, navigate]);
-
+  // ✅ close when clicking outside if pinned
   useEffect(() => {
     if (!isDesktopServicesPinned) return;
 
@@ -1082,17 +1087,16 @@ export default function Header() {
           >
             <Link href="/">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/"
+                className={`font-medium transition-colors cursor-pointer ${location === "/"
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 Home
               </span>
             </Link>
 
-            {/* Services */}
+            {/* SERVICES MEGA MENU (Desktop) - restored */}
             <div
               className="relative"
               ref={servicesRef}
@@ -1104,24 +1108,123 @@ export default function Header() {
               <button
                 type="button"
                 onClick={handleDesktopServicesClick}
-                className={`inline-flex items-center gap-1 font-medium ${
-                  location.startsWith("/services") || isDesktopServicesOpen
+                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${location.startsWith("/services") || isDesktopServicesOpen
                     ? "text-brand-coral-darker"
                     : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                  }`}
               >
                 Services
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${
-                    isDesktopServicesOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${isDesktopServicesOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
+
+              {isDesktopServicesOpen && (
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 mt-3 w-[720px] lg:w-[880px] max-w-[calc(100vw-4rem)] z-40">
+                  <div className="rounded-2xl border border-gray-100 bg-white shadow-xl shadow-black/5 p-4 sm:p-6 ring-1 ring-black/5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                      {serviceMenuItems.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link key={item.href} href={item.href}>
+                            <a className="block relative group cursor-pointer rounded-xl px-3 py-3 border border-transparent hover:bg-brand-coral/10 hover:border-brand-coral hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150">
+                              <div className="flex items-center gap-3">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <div className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-brand-coral">
+                                    <Icon className="w-5 h-5 text-gray-700 group-hover:text-white" />
+                                  </div>
+                                </div>
+
+                                <div className="min-w-0 w-full">
+                                  <div className="flex items-center gap-3">
+                                    <div className="text-sm font-bold text-gray-900 group-hover:text-brand-coral-darker truncate">
+                                      {item.label}
+                                    </div>
+
+                                    {item.recommended && (
+                                      <div className="flex items-center group/recommended">
+                                        <span className="relative inline-flex items-center gap-1 text-[12px] font-bold px-3 py-[4px] rounded-full bg-brand-coral/10 text-brand-coral-darker">
+                                          <Dot className="w-4 h-4 text-brand-coral" />
+                                          <span>RECOMMENDED</span>
+                                          <span
+                                            className="absolute inset-0 rounded-full pointer-events-none animate-shimmer"
+                                            aria-hidden="true"
+                                            style={{
+                                              boxShadow: "0 0 18px rgba(255, 255, 255, 0.6)",
+                                              filter: "blur(8px)",
+                                            }}
+                                          />
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* (optional) keep description if you want later:
+                                  <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                                    {item.description}
+                                  </div> */}
+                                </div>
+
+                                <div className="ml-auto hidden sm:flex items-center">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 text-gray-400 group-hover:text-brand-coral-darker"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M9 5l7 7-7 7"
+                                    />
+                                  </svg>
+                                </div>
+                              </div>
+                            </a>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <Link href="/blog"><span className="font-medium text-gray-700 hover:text-brand-coral-darker">Blog</span></Link>
-            <Link href="/about"><span className="font-medium text-gray-700 hover:text-brand-coral-darker">About</span></Link>
-            <Link href="/portfolio"><span className="font-medium text-gray-700 hover:text-brand-coral-darker">Portfolio</span></Link>
+            <Link href="/blog">
+              <span
+                className={`font-medium transition-colors cursor-pointer ${location === "/blog"
+                    ? "text-brand-coral-darker"
+                    : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
+              >
+                Blog
+              </span>
+            </Link>
+
+            <Link href="/about">
+              <span
+                className={`font-medium transition-colors cursor-pointer ${location === "/about"
+                    ? "text-brand-coral-darker"
+                    : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
+              >
+                About
+              </span>
+            </Link>
+
+            <Link href="/portfolio">
+              <span
+                className={`font-medium transition-colors cursor-pointer ${location === "/portfolio"
+                    ? "text-brand-coral-darker"
+                    : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
+              >
+                Portfolio
+              </span>
+            </Link>
           </nav>
 
           {/* CTA */}
@@ -1139,6 +1242,7 @@ export default function Header() {
             <a
               href="tel:+19792717552"
               className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-brand-coral/10"
+              aria-label="Call BrandingBeez"
             >
               <Phone className="w-5 h-5 text-brand-coral" />
             </a>
@@ -1151,20 +1255,155 @@ export default function Header() {
               />
             </Suspense>
 
+            {/* Mobile Menu Button */}
             <Button
               variant="ghost"
               size="sm"
               className="md:hidden p-2 h-10 w-10"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              onClick={() => {
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+                if (!isMobileMenuOpen) setIsServicesSubmenuOpen(false);
+              }}
+              aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
             >
-              {isMobileMenuOpen ? <X /> : <Menu />}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              <span className="sr-only">
+                {isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
+              </span>
             </Button>
           </div>
         </div>
+
+        {/* Mobile Menu - restored */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200">
+            <div className="px-4 py-2 space-y-1">
+              <Link href="/">
+                <button
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/"
+                      ? "text-brand-coral-darker bg-brand-coral/10"
+                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Home
+                </button>
+              </Link>
+
+              {/* SERVICES with mobile submenu */}
+              <div
+                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location.startsWith("/services")
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                  }`}
+              >
+                {/* Click text -> navigate to /services */}
+                <button
+                  className="flex-1 text-left"
+                  onClick={() => {
+                    navigate("/services");
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Services
+                </button>
+
+                {/* Click chevron -> toggle dropdown only */}
+                <button
+                  className="ml-2 p-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsServicesSubmenuOpen((prev) => !prev);
+                  }}
+                  aria-label="Toggle services submenu"
+                >
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${isServicesSubmenuOpen ? "rotate-180" : ""
+                      }`}
+                  />
+                </button>
+              </div>
+
+              {isServicesSubmenuOpen && (
+                <div className="ml-3 mt-1 space-y-1 border-l border-gray-200 pl-3">
+                  {serviceMenuItems.map((item) => (
+                    <Link key={item.href} href={item.href}>
+                      <button
+                        className="block w-full text-left px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50 transition-colors touch-manipulation"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {item.label}
+                      </button>
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              <Link href="/blog">
+                <button
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/blog"
+                      ? "text-brand-coral-darker bg-brand-coral/10"
+                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Blog
+                </button>
+              </Link>
+
+              <Link href="/about">
+                <button
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/about"
+                      ? "text-brand-coral-darker bg-brand-coral/10"
+                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About
+                </button>
+              </Link>
+
+              <Link href="/portfolio">
+                <button
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio"
+                      ? "text-brand-coral-darker bg-brand-coral/10"
+                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Portfolio
+                </button>
+              </Link>
+
+              <Link href="/contact">
+                <button
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/contact"
+                      ? "text-brand-coral-darker bg-brand-coral/10"
+                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Contact
+                </button>
+              </Link>
+
+              <div className="pt-2 border-t border-gray-200">
+                <Button
+                  onClick={() => {
+                    openCalendly();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-brand-coral-darker hover:bg-brand-coral-dark text-white px-4 py-3 rounded-lg transition-colors font-medium text-base touch-manipulation"
+                >
+                  Book a Call
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );
 }
 
 export { Header };
-

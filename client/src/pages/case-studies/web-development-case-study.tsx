@@ -1,6 +1,6 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+import { Card} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +8,6 @@ import {
   Smartphone,
   Zap,
   ShoppingCart,
-  CheckCircle,
   ArrowRight,
   Star,
   Quote,
@@ -44,7 +43,7 @@ export default function WebDevelopmentCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0 pb-16">
           {/* Hero Section */}
@@ -830,7 +829,7 @@ export default function WebDevelopmentCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -1,8 +1,8 @@
 
 import React from "react";
 import { Link } from "wouter";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,6 @@ import {
   Clock,
   Share2,
   Scale,
-  Gavel,
   CheckCircle,
   Globe,
   Target,
@@ -103,7 +102,7 @@ export default function LawFirmDigitalMarketingBlog() {
         }}
       />
       
-      <Header />
+      {/* <Header /> */}
       
       {/* Article Header */}
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -370,7 +369,7 @@ export default function LawFirmDigitalMarketingBlog() {
           </div>
         </section>
       </article>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,22 +7,14 @@ import { useRegion } from "@/hooks/use-region";
 import { OptimizedImage } from "@/components/optimized-image";
 import { Link } from "wouter";
 import {
-  MousePointer,
   TrendingUp,
   Target,
   BarChart3,
   Users,
-  CheckCircle,
   ArrowRight,
-  Star,
-  Award,
   Globe,
-  ExternalLink,
-  LineChart,
   Zap,
-  Shield,
   Eye,
-  Phone,
   Quote,
   Calendar,
   Settings,
@@ -56,7 +48,7 @@ export default function TheDogGuyCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={DogGuySchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section */}
@@ -591,7 +583,7 @@ export default function TheDogGuyCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

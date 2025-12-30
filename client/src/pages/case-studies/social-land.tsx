@@ -847,8 +847,8 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -859,11 +859,8 @@ import {
   TrendingUp,
   Target,
   CheckCircle,
-  Calendar,
-  Monitor,
   MessageSquare,
   Zap,
-  Building,
   Quote,
   Video,
   Clock,
@@ -901,7 +898,7 @@ export default function SocialLandCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={SocialLandSchema} />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1675,7 +1672,7 @@ export default function SocialLandCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

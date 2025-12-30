@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,40 +7,26 @@ import { OptimizedImage } from "@/components/optimized-image";
 import { Link } from "wouter";
 import {
   MousePointer,
-  TrendingUp,
   Target,
   BarChart3,
   Users,
   CheckCircle,
   ArrowRight,
-  Star,
-  Award,
   Globe,
-  ExternalLink,
-  LineChart,
   Zap,
-  Shield,
   Eye,
-  Phone,
-  Quote,
-  Calendar,
   Settings,
   DollarSign,
-  Trash2,
   Building,
   Building2,
 } from "lucide-react";
-import { useRegion } from "@/hooks/use-region";
+// import { useRegion } from "@/hooks/use-region";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 export default function JunksAwayCaseStudy() {
-  const { regionConfig } = useRegion();
-  const getCalendlyUrl = () => regionConfig.calendlyUrl;
-
-
   return (
     <>
       <Helmet>
@@ -58,7 +44,7 @@ export default function JunksAwayCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="service" />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -613,7 +599,7 @@ export default function JunksAwayCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,32 +7,21 @@ import { Link } from "wouter";
 import {
   ArrowRight,
   CheckCircle,
-  Sparkles,
-  Zap,
   Clock,
   Target,
-  Globe,
   Users,
-  TrendingUp,
   Heart,
   Award,
   Timer,
   Building,
   Monitor,
-  Smartphone,
-  Search,
   Palette,
-  Code,
   Star,
   Quote,
   ExternalLink,
   MessageSquare,
-  Video,
-  Phone,
-  Mail,
   Loader2,
   AlertTriangle,
-  Calendar,
 } from "lucide-react";
 import { useState } from "react";
 // Import the Vellu Laser screenshot
@@ -147,7 +136,7 @@ export default function VelluLaserLandingPageCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={VelluLaserSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -779,7 +768,7 @@ export default function VelluLaserLandingPageCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

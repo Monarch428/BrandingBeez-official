@@ -168,23 +168,22 @@ class SafePopupBoundary extends React.Component<
   }
 }
 
+import Header from "@/components/header";
+import Footer from "@/components/footer";
+
 function Router() {
   const [location] = useLocation();
 
-  // Debug current route
-  useEffect(() => {
-    console.log("🚀 Current route:", location);
-    if (location === "/newsletter") {
-      console.log("📧 Newsletter route matched!");
-    }
-  }, [location]);
-
-  // Scroll to top whenever the route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
-  return (
+  // routes that should NOT show header/footer
+  const hideChrome =
+    location === "/loader" ||
+    location.startsWith("/admin"); // add more if needed
+
+  const Content = (
     <Switch>
       {/* CRITICAL: Home page loads immediately */}
       <Route
@@ -226,10 +225,7 @@ function Router() {
       <Route path="/case-studies/citypat-case-study" component={() => <LazyRoute component={CitypatCaseStudy} />} />
       <Route path="/case-studies/citypat" component={() => <LazyRoute component={CitypatCaseStudy} />} />
       <Route path="/case-studies/griffin-group-case-study" component={() => <LazyRoute component={GriffinGroupCaseStudy} />} />
-      <Route
-        path="/case-studies/arlingsworth-solicitors-case-study"
-        component={() => <LazyRoute component={ArlingsworthSolicitorsCaseStudy} />}
-      />
+      <Route path="/case-studies/arlingsworth-solicitors-case-study" component={() => (<LazyRoute component={ArlingsworthSolicitorsCaseStudy} />)} />
       <Route path="/case-studies/junksaway-case-study" component={() => <LazyRoute component={JunksAwayCaseStudy} />} />
       <Route path="/case-studies/junksaway" component={() => <LazyRoute component={JunksAwayCaseStudy} />} />
       <Route path="/case-studies/the-dog-guy-case-study" component={() => <LazyRoute component={TheDogGuyCaseStudy} />} />
@@ -238,15 +234,12 @@ function Router() {
       <Route path="/case-studies/social-land" component={() => <LazyRoute component={SocialLandCaseStudy} />} />
       <Route path="/case-studies/socialland-website" component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />} />
       <Route path="/case-studies/socialland-website-case-study" component={() => <LazyRoute component={SocialLandWebsiteCaseStudy} />} />
-      <Route path="/case-studies/ts-landscaping-website" component={() => <LazyRoute component={TSLandscapingWebsiteCaseStudy} />} />
-      <Route path="/case-studies/vellu-laser-landing-page" component={() => <LazyRoute component={VelluLaserLandingPageCaseStudy} />} />
-      <Route
-        path="/case-studies/green-paradise-branding-website"
-        component={() => <LazyRoute component={GreenParadiseBrandingWebsiteCaseStudy} />}
-      />
+      <Route path="/case-studies/ts-landscaping-website" component={() => (<LazyRoute component={TSLandscapingWebsiteCaseStudy} />)} />
+      <Route path="/case-studies/vellu-laser-landing-page" component={() => (<LazyRoute component={VelluLaserLandingPageCaseStudy} />)} />
+      <Route path="/case-studies/green-paradise-branding-website" component={() => (<LazyRoute component={GreenParadiseBrandingWebsiteCaseStudy} />)} />
       <Route path="/case-studies/koala-digital" component={() => <LazyRoute component={KoalaDigitalCaseStudy} />} />
       <Route path="/case-studies/website-architect" component={() => <LazyRoute component={WebsiteArchitectCaseStudy} />} />
-      <Route path="/case-studies/payflow-systems" component={() => <LazyRoute component={DedicatedResourcesFintechCaseStudy} />} />
+      <Route path="/case-studies/payflow-systems" component={() => (<LazyRoute component={DedicatedResourcesFintechCaseStudy} />)} />
       <Route path="/case-studies/fse-digital" component={() => <LazyRoute component={FSEDigital} />} />
 
       {/* Tools and utilities */}
@@ -272,7 +265,18 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
+
+  if (hideChrome) return Content;
+
+  return (
+    <>
+      <Header />
+      <main>{Content}</main>
+      <Footer />
+    </>
+  );
 }
+
 
 function App() {
   const {

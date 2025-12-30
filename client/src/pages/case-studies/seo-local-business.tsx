@@ -9,17 +9,14 @@ import {
   TrendingUp, 
   MapPin,
   Users,
-  Clock,
   CheckCircle,
-  BarChart3,
   Star,
-  Phone
 } from "lucide-react";
 
 export default function SEOLocalBusinessCaseStudy() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
       
       <main className="pt-20 pb-16">
         {/* Section 1: Hero with Client Overview */}
@@ -145,7 +142,7 @@ export default function SEOLocalBusinessCaseStudy() {
         </section>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

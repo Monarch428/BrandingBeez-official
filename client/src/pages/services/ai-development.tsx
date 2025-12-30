@@ -462,7 +462,7 @@ export default function AIDevelopment() {
         />
         <SchemaMarkup type="custom" data={AIDevelopmentSchema} />
         {/* <SchemaMarkup type="service" data={schemaData} /> */}
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1734,7 +1734,7 @@ export default function AIDevelopment() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );
