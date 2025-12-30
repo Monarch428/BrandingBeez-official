@@ -221,7 +221,7 @@ export default function Contact() {
                   </h3>
                   <div className="space-y-2 text-sm text-white/80">
                     <p><strong>Email:</strong> raje@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +91 78719 90263</p>
+                    <p><strong>Phone:</strong> +1 979 271 7552</p>
                     <p><strong>
                       {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
                     </strong> {regionConfig.code === 'DE' ? 'Neue Projekte, Preisfragen' : 'New project discussions, pricing questions'}</p>
