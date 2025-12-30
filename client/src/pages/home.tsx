@@ -1741,7 +1741,11 @@ export default function Home() {
                           <img
                             src={item.logo}
                             alt={item.name}
+                            width="180"
+                            height="64"
                             className="h-10 sm:h-12 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
+                            loading="lazy"
+                            decoding="async"
                           />
                           <p className="text-xs sm:text-sm font-medium text-gray-900">
                             {item.name}
