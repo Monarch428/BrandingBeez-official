@@ -1453,7 +1453,7 @@ export default function Home() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        Save Up to 60% vs In-House Hiring
+                        Save Up to $80k per Year vs In-House Hiring
                       </span>
                     </div>
                   </div>
@@ -1880,8 +1880,8 @@ export default function Home() {
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
                     Starting at{" "}
-                  </span>$1,199 per
-                  <span className="text-lg sm:text-xl lg:text-2xl text-white"> resource / month</span>
+                  </span>$1,199 
+                  <span className="text-lg sm:text-xl lg:text-2xl text-white">per resource / month</span>
                 </div>
 
                 <p className="mb-1 font-medium">
@@ -1982,7 +1982,7 @@ export default function Home() {
                     asChild
                   >
                     <Link href="/contact?service=dedicated-resources&#contact-form">
-                      Get Dedicated Resources
+                      Hire Dedicated Resources
                       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white group-hover:text-brand-purple transition-colors duration-300" />
                     </Link>
                   </Button>
