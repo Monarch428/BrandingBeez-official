@@ -1465,7 +1465,7 @@ export default function Home() {
                       className="bg-brand-coral hover:bg-brand-coral-dark text-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
                       asChild
                     >
-                      <Link href="/onboarding-wizard">
+                      <Link href="/pricing-calculator?service=dedicated-resources">
                         <span className="hidden sm:inline">
                           Hire Dedicated Resources
                         </span>

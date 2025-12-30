@@ -740,7 +740,7 @@ export default function Contact() {
               <div className="flex flex-wrap justify-center items-center gap-8 text-center">
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />
-                  <span className="font-semibold">+91 78719 90263</span>
+                  <span className="font-semibold"> +1 979 271 7552</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />

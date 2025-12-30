@@ -165,6 +165,10 @@ export function securityHeaders() {
           "https://static.hotjar.com",
           "https://script.hotjar.com",
 
+          // ✅ Hotjar WebSocket
+          "wss://ws.hotjar.com",
+          "wss://*.hotjar.com",
+
           // Google / GA / Ads
           "https://www.google.com",
           "https://google.com",
@@ -266,7 +270,7 @@ export function securityHeaders() {
 // Rate limiting for general API endpoints
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, 
+  max: 100,
   message: {
     error: "Too many requests from this IP, please try again later.",
     retryAfter: 15 * 60

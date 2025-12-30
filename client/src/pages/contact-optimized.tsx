@@ -88,7 +88,7 @@ export default function Contact() {
             <div className="flex flex-wrap justify-center items-center gap-4 md:gap-8 text-sm md:text-base">
               <div className="flex items-center gap-2 text-gray-700">
                 <Phone className="w-4 h-4 text-brand-coral" />
-                <span className="font-semibold">+91 78719 90263</span>
+                <span className="font-semibold">+1 979 271 7552</span>
               </div>
               <div className="hidden md:block h-4 w-px bg-gray-300" />
               <div className="flex items-center gap-2 text-gray-700">
@@ -148,13 +148,19 @@ export default function Contact() {
                     ? "Kostenloses Strategiegespräch"
                     : "Free strategy consultation"}
                 </p>
-                <Button
+                {/* <Button
                   onClick={openCalendly}
                   size="sm"
                   className="bg-brand-coral hover:bg-brand-coral/90 text-white"
                 >
                   {regionConfig.code === "DE" ? "Jetzt buchen" : "Book Now"}
-                </Button>
+                </Button> */}
+                <BookCallButtonWithModal
+                  buttonLabel="Book Now"
+                  className="bg-brand-coral hover:bg-brand-coral/90 text-white"
+                  buttonSize="lg"
+                // defaultServiceType="Website Development"
+                />
               </CardContent>
             </Card>
 
@@ -251,7 +257,7 @@ export default function Contact() {
                   </h3>
                   <div className="space-y-2 text-sm text-white/80">
                     <p><strong>Email:</strong> info@brandingbeez.co.uk</p>
-                    <p><strong>Phone:</strong> +91 78719 90263</p>
+                    <p><strong>Phone:</strong> +1 979 271 7552</p>
                     <p><strong>
                       {regionConfig.code === 'DE' ? 'Ideal für:' : 'Best for:'}
                     </strong> {regionConfig.code === 'DE' ? 'Agentur-Partnerschaften' : 'Agency partnerships'}</p>
