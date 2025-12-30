@@ -1089,20 +1089,6 @@ import {
 // import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
 // import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 
-// Partner Agency Logos
-import newVisionTechLogo from "@assets/IMG-20250719-WA0264_1752907768834.jpg";
-import carolinaWebLogo from "@assets/IMG-20250719-WA0270_1752907768835.jpg";
-import socialLandLogo from "@assets/IMG-20250719-WA0271_1752907768836.jpg";
-import focusEcommerceLogo from "@assets/IMG-20250719-WA0272_1752907768837.jpg";
-import smartConnectingLogo from "@assets/IMG-20250719-WA0273_1752907768839.jpg";
-// import koalaDigitalLogo from "@assets/IMG-20250719-WA0274_1752907768841.jpg";
-import websiteArchitectLogo from "@assets/IMG-20250719-WA0275_1752907768843.jpg";
-import intrinsicLogo from "@assets/IMG-20250719-WA0276_1752907768844.jpg";
-import socialBrainLogo from "@assets/IMG-20250719-WA0277_1752907768845.jpg";
-// import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
-// import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
-import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
-import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
 // import ken from "../../public/images/Ken.png";
@@ -1113,14 +1099,32 @@ import {
   BookCallButtonWithModal,
 } from "@/components/book-appoinment";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
-import Mark_Image from "../../public/images/Mark.png";
-import Dani_Image from "../../public/images/Dani.png";
-import Gemma_Image from "../../public/images/Gemma.png";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
+
+export const IMAGES = {
+  testimonials: {
+    mark: "/images/Mark.png",
+    dani: "/images/Dani.png",
+    gemma: "/images/Gemma.png",
+  },
+  logos: {
+    webArt: "/images/website-architect.webp",
+    muse: "/images/Muse_Logo_Blue.webp",
+    nvt: "/images/vision_tech.webp",
+    carolina: "/images/carolina_logo.webp",
+    socialLand: "/images/socialland-logo.webp",
+    focus: "/images/focus_logo.webp",
+    koala: "/images/koala-digital-logo.webp",
+    intrinsic: "/images/Intrinsic_logo.webp",
+    socialBrain: "/images/social_brain_logo.webp",
+    fse: "/images/FSE-Digital-Logo.webp",
+  },
+} as const;
+
 
 export default function Home() {
   useEffect(() => {
@@ -1333,10 +1337,6 @@ export default function Home() {
     "Consistent quality, on-time delivery, and strict confidentiality",
   ];
 
-  const webArtLogo = "/images/website-architect.webp";
-  const mdmLogo = "/images/Muse.webp";
-  const nvtLogo = "/images/vision_tech.webp";
-
   const testimonials = [
     {
       id: 1,
@@ -1344,8 +1344,8 @@ export default function Home() {
       company: "Founder, Muse Digital Media",
       testimonial:
         "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
-      imageUrl: Mark_Image,
-      logoUrl: mdmLogo,
+      imageUrl: IMAGES.testimonials.mark,
+      logoUrl: IMAGES.logos.muse,
     },
     {
       id: 2,
@@ -1353,8 +1353,8 @@ export default function Home() {
       company: "COO, New Vision Tech",
       testimonial:
         "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
-      imageUrl: Dani_Image,
-      logoUrl: nvtLogo,
+      imageUrl: IMAGES.testimonials.dani,
+      logoUrl: IMAGES.logos.nvt,
     },
     {
       id: 3,
@@ -1362,10 +1362,12 @@ export default function Home() {
       company: "Founder, Website Architect",
       testimonial:
         "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
-      imageUrl: Gemma_Image,
-      logoUrl: webArtLogo,
+      imageUrl: IMAGES.testimonials.gemma,
+      logoUrl: IMAGES.logos.webArt,
     },
   ];
+
+
 
   // 🎄 Only show snowfall in December (month index 11)
   // const isChristmasSeason = new Date().getMonth() === 11;
@@ -1721,22 +1723,16 @@ export default function Home() {
                   {[...Array(2)].map((_, i) => (
                     <div key={i} className="flex gap-4 sm:gap-6">
                       {[
-                        { logo: socialLandLogo, name: "Social Land" },
-                        {
-                          logo: websiteArchitectLogo,
-                          name: "Website Architect",
-                        },
-                        {
-                          logo: focusEcommerceLogo,
-                          name: "Focus E-commerce",
-                        },
-                        { logo: smartConnectingLogo, name: "Koala Digital" },
-                        { logo: newVisionTechLogo, name: "New Vision Tech" },
-                        { logo: carolinaWebLogo, name: "Carolina Web" },
-                        { logo: intrinsicLogo, name: "Intrinsic" },
-                        { logo: socialBrainLogo, name: "Social Brain" },
-                        { logo: fsbLogo, name: "FSE Digital" },
-                        { logo: museLogo, name: "MUSE Digital Media" },
+                        { logo: IMAGES.logos.socialLand, name: "Social Land" },
+                        { logo: IMAGES.logos.webArt, name: "Website Architect" },
+                        { logo: IMAGES.logos.focus, name: "Focus E-commerce" },
+                        { logo: IMAGES.logos.koala, name: "Koala Digital" },
+                        { logo: IMAGES.logos.nvt, name: "New Vision Tech" },
+                        { logo: IMAGES.logos.carolina, name: "Carolina Web" },
+                        { logo: IMAGES.logos.intrinsic, name: "Intrinsic" },
+                        { logo: IMAGES.logos.socialBrain, name: "Social Brain" },
+                        { logo: IMAGES.logos.fse, name: "FSE Digital" },
+                        { logo: IMAGES.logos.muse, name: "MUSE Digital Media" },
                       ].map((item, idx) => (
                         <div
                           key={idx}

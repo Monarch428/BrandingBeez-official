@@ -56,7 +56,12 @@ export function securityHeaders() {
 
           // LinkedIn Insight Tag
           "https://snap.licdn.com",
-          "https://*.licdn.com"
+          "https://*.licdn.com",
+
+          // Meta / Facebook Pixel
+          "https://connect.facebook.net",
+          "https://*.facebook.net",
+
         ],
 
         scriptSrcElem: [
@@ -106,7 +111,11 @@ export function securityHeaders() {
 
           // LinkedIn Insight Tag
           "https://snap.licdn.com",
-          "https://*.licdn.com"
+          "https://*.licdn.com",
+
+          // Meta / Facebook Pixel
+          "https://connect.facebook.net",
+          "https://*.facebook.net",
         ],
 
         imgSrc: [
@@ -149,7 +158,12 @@ export function securityHeaders() {
 
           // LinkedIn
           "https://px.ads.linkedin.com",
-          "https://*.linkedin.com"
+          "https://*.linkedin.com",
+
+          // Meta / Facebook Pixel
+          "https://www.facebook.com",
+          "https://*.facebook.com",
+          "https://*.fbcdn.net",
         ],
 
         connectSrc: [
@@ -217,7 +231,11 @@ export function securityHeaders() {
           "https://px.ads.linkedin.com",
           "https://snap.licdn.com",
           "https://*.linkedin.com",
-          "https://*.licdn.com"
+          "https://*.licdn.com",
+
+          // Meta / Facebook Pixel
+          "https://www.facebook.com",
+          "https://*.facebook.com",
         ],
 
         frameSrc: [
