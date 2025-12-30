@@ -60,6 +60,7 @@ const serviceCategories = [
     discount: "20% OFF",
     discountDescription: "your first service",
     ctaLabel: "SEO Services",
+    learnMoreText: "Learn about SEO Services",
   },
   {
     id: "dedicated-resources",
@@ -83,6 +84,7 @@ const serviceCategories = [
     // discount: undefined,
     // discountDescription: undefined,
     ctaLabel: "Dedicated Resources",
+    learnMoreText: "Learn about Dedicated Resources",
   },
   {
     id: "web-development",
@@ -97,6 +99,7 @@ const serviceCategories = [
     discount: "20% OFF",
     discountDescription: "your first website project",
     ctaLabel: "Website Development",
+    learnMoreText: "Learn about Website Development",
   },
   {
     id: "google-ads",
@@ -116,6 +119,7 @@ const serviceCategories = [
     discount: "20% OFF",
     discountDescription: "your first project",
     ctaLabel: "PPC/Google Ads",
+    learnMoreText: "Learn about PPC Services",
   },
   // {
   //   id: "ai-development",
@@ -179,28 +183,10 @@ const serviceCategories = [
     discount: "20% OFF",
     discountDescription: "your AI-powered app project",
     ctaLabel: "Custom Apps(AI Powered)",
+    learnMoreText: "Learn about Custom App Development",
   }
 ];
 
-
-// {
-//   id: "n8n-automations",
-//   title: "N8N Automations",
-//   description: "Streamline operations with intelligent automation solutions",
-//   icon: Zap,
-//   href: "/services/n8n-automations",
-//   pricing: "Coming Soon",
-//   features: [
-//     "HR workflows",
-//     "Email workflows",
-//     "Marketing Workflows",
-//     "Chat bot workflow & More coming soon..",
-//   ],
-//   metrics: "Coming Soon",
-//   couponCode: "",
-//   discount: "",
-//   discountDescription: "",
-// },
 
 const industriesWeServe = [
   {
@@ -1363,21 +1349,20 @@ export default function Services() {
           </section>
 
           {/* Services Grid Section */}
-          <section className="py-8 sm:py-12 md:py-16 px-4 bg-gray-100">
-            <div className="max-w-6xl xl:max-w-7xl mx-auto">
-
+          <section className="py-10 sm:py-14 md:py-16 lg:py-20 bg-gray-100">
+            <div className="max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               {/* Header Section */}
               <div className="text-center mb-8 sm:mb-10 md:mb-12">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
                   Complete Service Portfolio
                 </h2>
-                <p className="text-sm sm:text-base md:text-lg text-gray-700 mt-2">
+                <p className="text-sm sm:text-base md:text-lg text-gray-700 mt-2 max-w-2xl mx-auto">
                   Comprehensive digital solutions delivered under your brand
                 </p>
               </div>
 
               {/* Responsive Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 auto-rows-fr">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-6 lg:gap-7">
                 {serviceCategories.slice(0, 6).map((service) => {
                   const Icon = service.icon;
                   const hasCoupon = !!service.couponCode && service.id !== "dedicated-resources";
@@ -1391,110 +1376,109 @@ export default function Services() {
                       : null;
 
                   const discountedLabel =
-                    discountedPrice != null
-                      ? formatDiscountedLabel(service.pricing, discountedPrice)
-                      : null;
+                    discountedPrice != null ? formatDiscountedLabel(service.pricing, discountedPrice) : null;
 
                   return (
                     <Card
                       key={service.id}
                       className="
-          relative overflow-hidden flex flex-col h-full
-          p-4 sm:p-5 md:p-6 shadow-sm border rounded-xl 
-          hover:shadow-md transition-shadow 
-          max-w-[420px] w-full mx-auto
-        "
+              relative overflow-hidden flex flex-col h-full
+              rounded-2xl border bg-white
+              shadow-sm hover:shadow-md transition-shadow
+              p-4 sm:p-5 md:p-6
+            "
                     >
                       {/* 🔥 Badge - Only for Dedicated Resources */}
                       {service.id === "dedicated-resources" && (
                         <div className="absolute top-3 right-3">
-                          <span className="bg-brand-coral text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full shadow-md animate-shimmer">
+                          <span className="bg-brand-coral text-white text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-full shadow-md">
                             Recommended
                           </span>
                         </div>
                       )}
 
                       {/* Header */}
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 bg-brand-coral/10 rounded-lg flex items-center justify-center shrink-0">
-                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-brand-coral" />
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className="w-10 h-10 sm:w-11 sm:h-11 bg-brand-coral/10 rounded-xl flex items-center justify-center shrink-0">
+                          <Icon className="w-5 h-5 text-brand-coral" />
                         </div>
 
-                        <h3 className="text-base sm:text-lg font-bold text-brand-purple leading-snug line-clamp-2">
+                        <h3 className="text-base sm:text-lg md:text-lg font-bold text-brand-purple leading-snug line-clamp-2">
                           {service.title}
                         </h3>
                       </div>
 
                       {/* Description */}
-                      <p className="text-xs sm:text-sm text-gray-700 leading-snug line-clamp-2">
+                      <p className="text-xs sm:text-sm md:text-sm text-gray-700 leading-relaxed line-clamp-3">
                         {service.description}
                       </p>
-                      {/* <p className="text-xs sm:text-sm text-gray-700 mt-2 leading-snug line-clamp-2">
-                        {service.usDescription}
-                      </p> */}
 
                       {/* Content */}
-                      <div className="flex-1 flex flex-col mt-3">
+                      <div className="flex-1 flex flex-col mt-4">
                         {/* Pricing */}
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center justify-between gap-3">
-                            <div className="text-lg font-bold text-brand-purple">
-                              {service.pricing}
-                            </div>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="text-lg sm:text-xl font-extrabold text-brand-purple leading-tight">
+                            {service.pricing}
                           </div>
+
+                          {/* Optional: show discounted label (if you use it in UI) */}
+                          {/* {discountedLabel && (
+                            <span className="text-[11px] sm:text-xs font-bold text-brand-coral bg-brand-coral/10 px-2 py-1 rounded-full whitespace-nowrap">
+                              {discountedLabel}
+                            </span>
+                          )} */}
                         </div>
 
                         {/* Metrics / Savings */}
-                        <div className="text-xs text-brand-coral font-medium mt-2 leading-snug">
+                        <div className="text-xs sm:text-sm text-brand-coral font-semibold mt-2 leading-snug">
                           {service.id === "dedicated-resources"
                             ? "Average 60% cost savings vs. in-house team"
                             : service.metrics}
                         </div>
 
                         {/* Features */}
-                        <ul className="mt-3 space-y-1.5 sm:space-y-2">
+                        <ul className="mt-4 space-y-2">
                           {service.features.map((feature, index) => (
-                            <li
-                              key={index}
-                              className="flex items-start gap-2 text-xs sm:text-sm leading-tight"
-                            >
-                              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-coral mt-0.5 shrink-0" />
+                            <li key={index} className="flex items-start gap-2 text-xs sm:text-sm leading-snug">
+                              <CheckCircle className="w-4 h-4 text-brand-coral mt-0.5 shrink-0" />
                               <span className="line-clamp-2">{feature}</span>
                             </li>
                           ))}
                         </ul>
 
-                        {/* Actions – SAME for all services */}
-                        <div className="mt-auto pt-4 sm:pt-5">
+                        {/* Actions */}
+                        <div className="mt-auto pt-5">
                           <div className="flex flex-col gap-3">
                             {/* Primary CTA → Contact form */}
                             <Link href={`/contact?service=${service.id}#contact-form`}>
-                              <Button className="w-full h-10 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium">
-                                Get Started with {service.ctaLabel}
-                                <ArrowRight className="w-4 h-4 ml-2" />
+                              <Button className="w-full h-10 sm:h-11 bg-brand-coral hover:bg-brand-coral/90 text-white font-medium text-sm sm:text-base">
+                                <span className="truncate">Get Started with {service.ctaLabel}</span>
+                                <ArrowRight className="w-4 h-4 ml-2 shrink-0" />
                               </Button>
                             </Link>
 
-                            {/* Secondary CTA → Learn more */}
-                            <Link href={service.href}>
+                            {/* Secondary CTA → Learn more (short + accessible) */}
+                            <Link href={service.href} aria-label={`Learn more about ${service.title}`}>
                               <Button
                                 variant="outline"
-                                className="w-full h-10 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white"
+                                className="w-full h-10 sm:h-11 text-center border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white font-semibold text-sm sm:text-base"
                               >
-                                Learn More
-                                <ArrowRight className="w-4 h-4 ml-2" />
+                                <span className="min-w-0 flex-1 truncate text-center">
+                                  {service.learnMoreText}
+                                </span>
+                                <ArrowRight className="w-4 h-4 ml-2 shrink-0" />
                               </Button>
                             </Link>
                           </div>
                         </div>
                       </div>
-
                     </Card>
                   );
                 })}
               </div>
             </div>
           </section>
+
 
           {/* SEO Special Offer Section - Enhanced Design */}
           {/* <section className="relative overflow-hidden bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral py-20 px-4">
