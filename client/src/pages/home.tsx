@@ -1088,9 +1088,6 @@ import {
 // import bniLogo from "@assets/bni_1752907520728.jpg";
 // import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
 // import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
-import webArtLogo from "../../public/images/website-architect-logo.jpeg";
-import mdmLogo from "../../public/images/MDM Logo.png";
-import nvtLogo from "../../public/images/NVT Logo.png";
 
 // Partner Agency Logos
 import newVisionTechLogo from "@assets/IMG-20250719-WA0264_1752907768834.jpg";
@@ -1335,6 +1332,10 @@ export default function Home() {
     "Scalable capacity that grows or shrinks with client demand",
     "Consistent quality, on-time delivery, and strict confidentiality",
   ];
+
+  const webArtLogo = "/images/website-architect.webp";
+  const mdmLogo = "/images/Muse.webp";
+  const nvtLogo = "/images/vision_tech.webp";
 
   const testimonials = [
     {
