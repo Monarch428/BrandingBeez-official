@@ -43,6 +43,7 @@ import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { useState } from "react";
 import { PhaseSliderSection, type PhaseItem, } from "@/components/phase-slider-section";
+import { LazyYouTube } from "@/components/LazyYouTube";
 // import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 // import Hours_24_Image from "../../../public/images/24 hour Start time.png";
 // import SEO_Image from "../../../public/images/DEDICATED SEO RESOURCE.png"
@@ -546,15 +547,16 @@ export default function SEOServices() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[325px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/dCpAoMPSHsE"
                         title="Website Design & Development for Agencies | BrandingBeez"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="dCpAoMPSHsE" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>

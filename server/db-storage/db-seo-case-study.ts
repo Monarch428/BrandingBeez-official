@@ -7,6 +7,8 @@ import { SeoCaseStudyDetailModel } from "../model/casestudy/seo/seo-case-study-d
 import type { SeoCaseStudyCard } from "../model/casestudy/seo/seo-case-study-card";
 import type { SeoCaseStudyDetail } from "../model/casestudy/seo/seo-case-study-detail";
 
+import mongoose from "mongoose";
+
 export type InsertSeoCaseStudyCard = Omit<SeoCaseStudyCard, "id" | "createdAt" | "updatedAt">;
 export type InsertSeoCaseStudyDetail = Omit<SeoCaseStudyDetail, "createdAt" | "updatedAt">;
 
@@ -14,6 +16,11 @@ export type InsertSeoCaseStudyDetail = Omit<SeoCaseStudyDetail, "createdAt" | "u
 export type SeoCaseStudyCombined = {
   card: SeoCaseStudyCard;
   detail?: SeoCaseStudyDetail;
+};
+
+const toObjectId = (id: string | mongoose.Types.ObjectId) => {
+  if (id instanceof mongoose.Types.ObjectId) return id;
+  return new mongoose.Types.ObjectId(id);
 };
 
 export const seoCaseStudyStorage = {
@@ -67,9 +74,16 @@ export const seoCaseStudyStorage = {
   // ---------------- DETAIL ----------------
   async upsertSeoCaseStudyDetail(payload: InsertSeoCaseStudyDetail): Promise<SeoCaseStudyDetail> {
     await ensureConnection();
+
+    // ✅ Ensure cardId is always ObjectId in DB
+    const normalizedPayload: any = {
+      ...payload,
+      cardId: toObjectId((payload as any).cardId),
+    };
+
     const updated = await SeoCaseStudyDetailModel.findOneAndUpdate(
-      { cardId: payload.cardId },
-      { $set: payload },
+      { cardId: normalizedPayload.cardId },
+      { $set: normalizedPayload },
       { new: true, upsert: true }
     ).lean<SeoCaseStudyDetail>();
 
@@ -79,16 +93,19 @@ export const seoCaseStudyStorage = {
 
   async getSeoCaseStudyDetailByCardId(cardId: string): Promise<SeoCaseStudyDetail | undefined> {
     await ensureConnection();
-    const doc = await SeoCaseStudyDetailModel.findOne({ cardId }).lean<SeoCaseStudyDetail>();
+
+    const doc = await SeoCaseStudyDetailModel.findOne({ cardId: toObjectId(cardId) }).lean<SeoCaseStudyDetail>();
     return doc ?? undefined;
   },
 
   // ---------------- PUBLIC COMBINED ----------------
   async getSeoCaseStudyCombinedBySlug(slug: string): Promise<SeoCaseStudyCombined | undefined> {
     await ensureConnection();
+
     const card: any = await SeoCaseStudyCardModel.findOne({ slug }).lean<any>();
     if (!card) return undefined;
 
+    // ✅ card._id is ObjectId, match by ObjectId
     const detail = await SeoCaseStudyDetailModel.findOne({ cardId: card._id }).lean<any>();
 
     return {

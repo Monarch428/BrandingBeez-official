@@ -1103,6 +1103,7 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
+import { LazyYouTube } from "@/components/LazyYouTube";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export const IMAGES = {
@@ -1504,16 +1505,18 @@ export default function Home() {
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="rounded-xl overflow-hidden shadow-lg">
                       {/* Responsive video wrapper (keeps perfect ratio) */}
-                      <div className="relative w-full aspect-video">
-                        <iframe
+                      {/* <div className="relative w-full aspect-video"> */}
+                      {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                        {/* <iframe
                           className="absolute inset-0 w-full h-full"
                           src="https://www.youtube-nocookie.com/embed/BMcrZHzRaeg?rel=0&modestbranding=1&playsinline=1"
                           title="Website Architect Case Study | Branding Beez"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                           loading="lazy"
-                        />
-                      </div>
+                        /> */}
+                        <LazyYouTube videoId="BMcrZHzRaeg" />
+                      {/* </div> */}
                     </div>
                   </div>
                 </div>

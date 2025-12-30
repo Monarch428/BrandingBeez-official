@@ -86,11 +86,6 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
-/**
- * Minimal error handling for the critical path
- * - Keep this tiny so it doesn't add to main-thread work
- * - Avoid "reload loops" in production
- */
 const setupBasicErrorHandling = () => {
   // Minimal suppression for noisy non-actionable errors
   window.addEventListener("error", (e) => {

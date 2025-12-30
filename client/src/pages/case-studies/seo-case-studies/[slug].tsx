@@ -11,12 +11,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// ✅ If your alias is actually "@assest" keep it.
-// I fixed to "@assets" because "@assest" usually breaks.
 import network_icon from "@assets/networkicon.png";
 
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 /* ============================================================
    TYPES (API returns combined: { card, detail })
@@ -394,8 +393,41 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
   const stat2 = stats[1] ?? { value: "$152K", label: "Revenue Growth", iconKey: "DollarSign" };
   const stat3 = stats[2] ?? { value: "#1", label: "Ranking Keywords", iconKey: "Award" };
 
+  const extractYouTubeId = (input?: string) => {
+    const raw = (input || "").trim();
+    if (!raw) return "";
+
+    // already an ID
+    if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return raw;
+
+    try {
+      const u = new URL(raw);
+
+      // youtu.be/<id>
+      if (u.hostname.includes("youtu.be")) {
+        return u.pathname.replace("/", "");
+      }
+
+      // youtube.com/watch?v=<id>
+      if (u.searchParams.get("v")) {
+        return u.searchParams.get("v") || "";
+      }
+
+      // youtube.com/embed/<id>
+      if (u.pathname.startsWith("/embed/")) {
+        return u.pathname.split("/embed/")[1];
+      }
+    } catch {
+      return "";
+    }
+
+    return "";
+  };
+
+  const youTubeId = extractYouTubeId(seo.heroVideoUrl) || "";
+
   return (
-    <section className="relative bg-gradient-to-r from-[#391B66] to-[#E64761] text-white py-20 px-4 sm:px-6 lg:px-8">
+    <section className="relative bg-gradient-to-r from-brand-purple to-brand-coral text-white py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left */}
@@ -421,17 +453,6 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
               <StatCard iconKey={stat3.iconKey || "Award"} value={stat3.value} label={stat3.label} />
             </div>
 
-            {/* <button
-              className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
-              onClick={() => {
-                if (seo.heroPrimaryCtaHref) {
-                  window.location.assign(seo.heroPrimaryCtaHref);
-                }
-              }}
-            >
-              {seo.heroPrimaryCtaText}
-              <IconByKey iconKey="ArrowRight" className="w-5 h-5" size={20} />
-            </button> */}
             <BookCallButtonWithModal
               buttonLabel={seo?.heroPrimaryCtaText ?? "Book Your Strategy Call"}
               className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
@@ -440,96 +461,20 @@ function HeroSection({ seo }: { seo: SeoCaseStudyDetail }) {
             />
           </div>
 
-          {/* Right Video */}
+          {/* Right Video (LazyYouTube) */}
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-              {(() => {
-                const url = (seo.heroVideoUrl || "").trim();
+              <LazyYouTube
+                videoId={youTubeId}
+                aspectRatio="16/9"
+                thumbnailQuality="hqdefault"
+                className="w-full"
+              />
 
-                // Direct video formats => use <video>
-                const isDirectVideo =
-                  /\.(mp4|webm|ogg)(\?.*)?$/i.test(url) ||
-                  url.includes(".mp4") ||
-                  url.includes(".webm") ||
-                  url.includes(".ogg");
-
-                // Helper: convert normal youtube link to embed link
-                const toYouTubeEmbed = (u: string) => {
-                  try {
-                    const parsed = new URL(u);
-                    // youtu.be/<id>
-                    if (parsed.hostname.includes("youtu.be")) {
-                      const id = parsed.pathname.replace("/", "");
-                      return id ? `https://www.youtube.com/embed/${id}` : u;
-                    }
-                    // youtube.com/watch?v=<id>
-                    if (parsed.hostname.includes("youtube.com")) {
-                      const id = parsed.searchParams.get("v");
-                      if (id) return `https://www.youtube.com/embed/${id}`;
-                      // already embed
-                      return u;
-                    }
-                    return u;
-                  } catch {
-                    return u;
-                  }
-                };
-
-                // Helper: vimeo to embed
-                const toVimeoEmbed = (u: string) => {
-                  try {
-                    const parsed = new URL(u);
-                    if (parsed.hostname.includes("vimeo.com") && !parsed.pathname.includes("/video/")) {
-                      const id = parsed.pathname.split("/").filter(Boolean)[0];
-                      return id ? `https://player.vimeo.com/video/${id}` : u;
-                    }
-                    return u;
-                  } catch {
-                    return u;
-                  }
-                };
-
-                const isYouTube = /youtube\.com|youtu\.be/i.test(url);
-                const isVimeo = /vimeo\.com/i.test(url);
-
-                const iframeUrl = isYouTube ? toYouTubeEmbed(url) : isVimeo ? toVimeoEmbed(url) : url;
-
-                // If not direct video => use iframe (best for youtube/vimeo/embed urls)
-                const useIframe = !!url && !isDirectVideo;
-
-                if (useIframe) {
-                  return (
-                    <iframe
-                      className="w-full h-full aspect-video"
-                      src={iframeUrl || "https://www.youtube.com/embed/dQw4w9WgXcQ"}
-                      title={seo.heroVideoBadgeText ?? "Case Study Video"}
-                      loading="lazy"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                    />
-                  );
-                }
-
-                // Default: video tag
-                return (
-                  <video
-                    className="w-full h-full object-cover aspect-video"
-                    controls
-                    poster={
-                      seo.heroVideoPoster ??
-                      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=450&fit=crop"
-                    }
-                  >
-                    <source src={seo.heroVideoUrl ?? "https://www.w3schools.com/html/mov_bbb.mp4"} type="video/mp4" />
-                    Your browser does not support the video tag.
-                  </video>
-                );
-              })()}
-
-              <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1">
+              {/* <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-1 rounded-full text-sm flex items-center gap-1 z-10">
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                 {seo.heroVideoBadgeText ?? "Case Study Video"}
-              </div>
+              </div> */}
             </div>
 
             <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-pink-400/20 rounded-full blur-3xl"></div>
@@ -616,14 +561,6 @@ function CTASection({ seo }: { seo: SeoCaseStudyDetail }) {
           </div>
 
           <div className="flex-shrink-0">
-            {/* <button
-              className="bg-white text-[#391B66] px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors whitespace-nowrap"
-              onClick={() => {
-                if (seo.cta1PrimaryCtaHref) window.location.assign(seo.cta1PrimaryCtaHref);
-              }}
-            >
-              {seo.cta1PrimaryCtaText}
-            </button> */}
             <BookCallButtonWithModal
               buttonLabel={seo?.cta1PrimaryCtaText ?? "Request a Consultation Call"}
               className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
@@ -835,14 +772,6 @@ function CTASection2({ seo }: { seo: SeoCaseStudyDetail }) {
             <p className="text-white/90 text-base">{seo.cta2Body}</p>
           </div>
           <div className="flex-shrink-0">
-            {/* <button
-              className="bg-white text-[#391B66] px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
-              onClick={() => {
-                if (seo.cta2PrimaryCtaHref) window.location.assign(seo.cta2PrimaryCtaHref);
-              }}
-            >
-              {seo.cta2PrimaryCtaText}
-            </button> */}
             <BookCallButtonWithModal
               buttonLabel={seo?.cta2PrimaryCtaText ?? "Book Your Strategy Call"}
               className="bg-white text-[#391B66] font-bold px-8 py-4 rounded-lg hover:bg-gray-100 transition-colors"
@@ -902,150 +831,187 @@ function ToolsMethodologiesSection({ seo }: { seo: SeoCaseStudyDetail }) {
 function ClientTestimonialsSection({ seo }: { seo: SeoCaseStudyDetail }) {
   const testimonials = seo.testimonials ?? [];
   const primary = testimonials[0];
+
   const contactData = seo.contactData ?? [];
   const performanceMetrics = seo.performanceMetrics ?? [];
   const keywordMetrics = seo.keywordMetrics ?? [];
 
   return (
-    <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-[#391B66] to-[#E64761] text-white">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-[#391B66] to-[#E64761] text-white">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-10">
-          <h2 className="text-2xl font-bold mb-2">{seo.testimonialsSectionTitle}</h2>
-          <p className="text-gray-200 max-w-2xl mx-auto">{seo.testimonialsSectionSubtitle}</p>
+        {/* Heading */}
+        <div className="text-center mb-12">
+          <h2 className="mb-4 text-white text-2xl font-bold">
+            {seo.testimonialsSectionTitle}
+          </h2>
+          <p className="text-gray-300 max-w-2xl mx-auto text-base">
+            {seo.testimonialsSectionSubtitle}
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-          {/* Left: Testimonial */}
-          <div className="bg-white/10 rounded-2xl p-8 border border-white/10">
+        {/* Testimonial Card (Centered) */}
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 sm:p-8 hover:bg-white/15 transition-colors">
             {primary ? (
-              <>
-                <div className="flex items-center gap-3 mb-4">
-                  <IconByKey iconKey="Quote" className="w-6 h-6 text-white/90" size={24} />
-                  <div className="text-lg font-semibold">{primary.company}</div>
+              <div className="flex flex-col md:flex-row gap-8 items-start">
+                {/* Left quote */}
+                <div className="flex-1">
+                  <IconByKey iconKey="Quote" className="w-10 h-10 text-blue-400 mb-4" size={40} />
+
+                  {/* Stars */}
+                  <div className="flex gap-1 mb-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <IconByKey
+                        key={i}
+                        iconKey="Star"
+                        size={20}
+                        className={`w-5 h-5 ${i < (primary.rating || 0)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-white/25"
+                          }`}
+                      />
+                    ))}
+                  </div>
+
+                  <p className="text-gray-200 mb-6 leading-relaxed">
+                    &quot;{primary.quote}&quot;
+                  </p>
                 </div>
 
-                <p className="text-white/90 text-lg leading-relaxed mb-6">“{primary.quote}”</p>
-
-                <div className="flex items-center gap-4">
+                {/* Right author */}
+                <div className="flex items-center gap-4 md:flex-col md:items-start md:justify-center md:min-w-[220px] pt-6 md:pt-0 border-t md:border-t-0 md:border-l border-white/20 md:pl-8 w-full md:w-auto">
                   <ImageWithFallback
                     src={primary.imageUrl}
                     alt={primary.name}
                     className="w-14 h-14 rounded-full object-cover border border-white/20"
                   />
                   <div>
-                    <div className="font-bold">{primary.name}</div>
-                    <div className="text-white/80 text-sm">
-                      {primary.role} • {primary.company}
-                    </div>
-                    <div className="flex items-center gap-1 mt-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <IconByKey
-                          key={i}
-                          iconKey="Star"
-                          className={`w-4 h-4 ${i < (primary.rating || 0) ? "text-yellow-300" : "text-white/30"}`}
-                          size={16}
-                        />
-                      ))}
-                    </div>
+                    <div className="text-white font-semibold">{primary.name}</div>
+                    <div className="text-sm text-gray-300">{primary.role}</div>
+                    <div className="text-sm text-blue-400">{primary.company}</div>
                   </div>
                 </div>
-              </>
+              </div>
             ) : (
               <div className="text-white/80 text-sm">No testimonial added yet.</div>
             )}
           </div>
+        </div>
 
-          {/* Right: Charts / Metrics */}
-          <div className="bg-white rounded-2xl p-8 text-gray-900">
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <div className="text-sm text-gray-500">Lead submissions</div>
-                <div className="text-xl font-bold">Monthly trend</div>
-              </div>
-              <div className="text-sm text-gray-500">{seo.heroClientName}</div>
+        {/* Performance Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 max-w-7xl mx-auto">
+          {/* Performance Highlights */}
+          <div className="bg-white rounded-xl p-6 text-gray-900 hover:shadow-lg transition-shadow">
+            <h3 className="text-gray-900 font-semibold mb-6">
+              Q2 2025 Performance Highlights
+            </h3>
+
+            <div className="space-y-4">
+              {performanceMetrics.map((metric, index) => (
+                <div key={index} className="flex justify-between items-start gap-4">
+                  <span className="text-gray-700 text-sm">{metric.label}</span>
+                  <div className="text-right">
+                    <div className="font-bold text-gray-900">{metric.value}</div>
+                    <div className="text-green-600 text-xs">{metric.change}</div>
+                  </div>
+                </div>
+              ))}
+
+              {performanceMetrics.length === 0 ? (
+                <div className="text-sm text-gray-500">No performance metrics yet.</div>
+              ) : null}
             </div>
+          </div>
 
-            <div className="h-[260px] w-full">
+          {/* Contact Submissions Chart */}
+          <div className="bg-white rounded-xl p-6 text-gray-900 hover:shadow-lg transition-shadow">
+            <h3 className="text-gray-900 font-semibold mb-6">Contact Submissions</h3>
+
+            <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={contactData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Bar dataKey="submissions" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <RechartsTooltip
+                    contentStyle={{
+                      backgroundColor: "#111827",
+                      border: "1px solid #374151",
+                      borderRadius: "8px",
+                      color: "#fff",
+                    }}
+                  />
+                  <Bar dataKey="submissions" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
-              {/* Performance metrics */}
-              <div className="rounded-xl border border-gray-100 p-5">
-                <div className="text-sm text-gray-500 mb-3">Performance</div>
-                <div className="space-y-3">
-                  {performanceMetrics.map((metric, index) => (
-                    <div key={index} className="flex items-center justify-between gap-4">
-                      <div className="text-sm text-gray-700">{metric.label}</div>
-                      <div className="text-right">
-                        <div className="font-bold text-gray-900">{metric.value}</div>
-                        <div className="text-xs text-green-600">{metric.change}</div>
-                      </div>
-                    </div>
-                  ))}
-                  {performanceMetrics.length === 0 ? (
-                    <div className="text-sm text-gray-500">No performance metrics yet.</div>
+            {/* Optional summary (only if you have data) */}
+            <div className="mt-4 text-center">
+              <div className="text-2xl font-bold text-gray-900">
+                {contactData.reduce((sum, row) => sum + (row.submissions || 0), 0)}
+              </div>
+              <div className="text-sm text-[#ee4962]">total submissions</div>
+            </div>
+          </div>
+
+          {/* Keyword Success */}
+          <div className="bg-white rounded-xl p-6 text-gray-900 hover:shadow-lg transition-shadow">
+            <h3 className="text-gray-900 font-semibold mb-6">Keyword Success</h3>
+
+            <div className="space-y-4">
+              {keywordMetrics.map((metric, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-gray-700 text-sm">{metric.label}</span>
+                    <span className="text-gray-500 text-sm">{metric.percentage}</span>
+                  </div>
+
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-[#ee4962] text-2xl font-bold">{metric.value}</span>
+                    <span className="text-gray-600 text-sm">keywords</span>
+                  </div>
+
+                  {index < keywordMetrics.length - 1 ? (
+                    <div className="border-t border-gray-200 pt-2" />
                   ) : null}
                 </div>
-              </div>
+              ))}
 
-              {/* Keyword metrics */}
-              <div className="rounded-xl border border-gray-100 p-5">
-                <div className="text-sm text-gray-500 mb-3">Keywords</div>
-                <div className="space-y-3">
-                  {keywordMetrics.map((metric, index) => (
-                    <div key={index} className="flex items-center justify-between gap-4">
-                      <div>
-                        <div className="text-sm text-gray-700">{metric.label}</div>
-                        <div className="text-xs text-gray-500">{metric.percentage}</div>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[#ee4962] text-2xl font-bold">{metric.value}</span>
-                        <span className="text-sm text-gray-600">keywords</span>
-                      </div>
-                      {index < keywordMetrics.length - 1 ? <div className="border-t pt-2" /> : null}
-                    </div>
-                  ))}
-                  {keywordMetrics.length === 0 ? (
-                    <div className="text-sm text-gray-500">No keyword metrics yet.</div>
-                  ) : null}
-                </div>
-              </div>
+              {keywordMetrics.length === 0 ? (
+                <div className="text-sm text-gray-500">No keyword metrics yet.</div>
+              ) : null}
             </div>
+          </div>
+        </div>
 
-            <div className="mt-12 text-center bg-[#ee4962] rounded-xl p-8">
-              <h3 className="mb-3 text-white text-xl font-bold">{seo.bottomCtaTitle}</h3>
-              <p className="text-white mb-6 max-w-2xl mx-auto">{seo.bottomCtaBody}</p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
-                <button
-                  className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
-                  onClick={() => {
-                    if (seo.bottomPrimaryCtaHref) window.location.assign(seo.bottomPrimaryCtaHref);
-                  }}
-                >
-                  {seo.bottomPrimaryCtaText}
-                </button>
-                <button
-                  className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
-                  onClick={() => {
-                    if (seo.bottomSecondaryCtaHref) window.location.assign(seo.bottomSecondaryCtaHref);
-                  }}
-                >
-                  {seo.bottomSecondaryCtaText}
-                </button>
-              </div>
-            </div>
+        {/* Bottom CTA */}
+        <div className="mt-12 text-center bg-[#ee4962] rounded-xl p-8">
+          <h3 className="mb-4 text-white text-xl font-bold">{seo.bottomCtaTitle}</h3>
+          <p className="text-white mb-6 max-w-2xl mx-auto">{seo.bottomCtaBody}</p>
+
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <button
+              className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
+              onClick={() => {
+                if (seo.bottomPrimaryCtaHref) window.location.assign(seo.bottomPrimaryCtaHref);
+              }}
+            >
+              {seo.bottomPrimaryCtaText}
+            </button>
+
+            <button
+              className="bg-white text-[#ee4962] px-8 py-3 rounded-lg hover:bg-blue-50 transition-colors"
+              onClick={() => {
+                if (seo.bottomSecondaryCtaHref) window.location.assign(seo.bottomSecondaryCtaHref);
+              }}
+            >
+              {seo.bottomSecondaryCtaText}
+            </button>
           </div>
         </div>
       </div>
     </section>
   );
 }
+

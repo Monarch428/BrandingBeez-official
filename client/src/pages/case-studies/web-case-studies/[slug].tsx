@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLocation, useRoute } from "wouter";
 import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 // ---------------- Types ----------------
 type WebCardResults = {
@@ -347,12 +348,29 @@ export default function WebCaseStudySlugPage(props: any) {
 
     const hasDetail = Boolean(detail);
 
+    const extractYouTubeId = (input?: string) => {
+        const raw = (input || "").trim();
+        if (!raw) return "";
+
+        // already an ID
+        if (/^[a-zA-Z0-9_-]{11}$/.test(raw)) return raw;
+
+        try {
+            const u = new URL(raw);
+            if (u.hostname.includes("youtu.be")) return u.pathname.replace("/", "");
+            if (u.hostname.includes("youtube.com")) return u.searchParams.get("v") || "";
+        } catch {
+            return "";
+        }
+        return "";
+    };
+
     return (
         <div className="min-h-screen bg-white">
             {/* ================= HERO ================= */}
             <section className="relative overflow-hidden text-white">
                 {/* gradient bg */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#321a66]/90 to-[#ee4962]/90" />
+                <div className="absolute inset-0 bg-gradient-to-r from-brand-purple to-brand-coral" />
 
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16 lg:py-20">
                     {/* ✅ centered content wrapper */}
@@ -468,16 +486,11 @@ export default function WebCaseStudySlugPage(props: any) {
                                 <div className="rounded-2xl overflow-hidden">
                                     <div className="relative w-full aspect-[16/9] sm:aspect-[16/9.5] bg-black/5">
                                         {detail?.heroVideoUrl ? (
-                                            <iframe
+                                            <LazyYouTube
+                                                videoId={extractYouTubeId(detail.heroVideoUrl)}
+                                                aspectRatio="16/9"
+                                                thumbnailQuality="hqdefault"
                                                 className="absolute inset-0 w-full h-full"
-                                                src={toEmbedUrl(detail.heroVideoUrl)}
-                                                title={
-                                                    detail?.heroVideoBadgeText ??
-                                                    "Case Study Video | Branding Beez"
-                                                }
-                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                allowFullScreen
-                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className="flex flex-col items-center justify-center text-center px-6 py-20">
@@ -489,6 +502,7 @@ export default function WebCaseStudySlugPage(props: any) {
                                                 </div>
                                             </div>
                                         )}
+
                                     </div>
                                 </div>
                             </div>

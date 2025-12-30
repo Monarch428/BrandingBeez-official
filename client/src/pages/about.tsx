@@ -820,6 +820,7 @@ import {
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { AboutPageSchema } from "@/utils/all-schemas";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 const teamMembers = [
   {
@@ -1261,15 +1262,16 @@ export default function About() {
                   <div className="bg-gradient-to-br from-brand-purple to-brand-coral   rounded-2xl p-3 md:p-4 text-white text-center shadow-2xl w-full max-w-2xl">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
-                      <div className="w-full h-64 md:h-[380px] lg:h-[350px]  rounded-xl overflow-hidden shadow-lg">
-                        <iframe
+                    {/* <div className="w-full h-40 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                        {/* <iframe
                           className="w-full h-full"
                           src="https://www.youtube.com/embed/J4RRz15Q73s?autoplay=0&mute=1"
                           title="Founder Video — Our Story"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
-                        />
-                      </div>
+                        /> */}
+                        <LazyYouTube videoId="J4RRz15Q73s" />
+                      {/* </div> */}
                     </div>
                   </div>
                 </div>

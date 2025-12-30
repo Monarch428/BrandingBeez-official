@@ -123,6 +123,9 @@ export function securityHeaders() {
           "data:",
           "blob:",
 
+          "https://brandingbeez.co.uk",
+          "https://www.brandingbeez.co.uk",
+
           // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
@@ -164,6 +167,10 @@ export function securityHeaders() {
           "https://www.facebook.com",
           "https://*.facebook.com",
           "https://*.fbcdn.net",
+
+          // ✅ YouTube thumbnails (FIX)
+          "https://img.youtube.com",
+          "https://i.ytimg.com",
         ],
 
         connectSrc: [

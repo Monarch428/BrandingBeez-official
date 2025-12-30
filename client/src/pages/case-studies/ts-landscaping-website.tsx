@@ -26,6 +26,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
 // import tsl_Logo from "../../../public/images/TSL_Logo.png";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 // Image imported directly in the component
 
 export default function TSLandscapingCaseStudy() {
@@ -113,15 +114,16 @@ export default function TSLandscapingCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/k53Ua_qvWkc"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}                      
+                      <LazyYouTube videoId="k53Ua_qvWkc" />         
+                    {/* </div> */}
                   </div>
                 </div>
                 {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
