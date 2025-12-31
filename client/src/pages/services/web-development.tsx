@@ -96,7 +96,7 @@ const pricingPackages = [
   {
     id: 2,
     name: "WordPress Business",
-    price: "$1,200",
+    price: "$1,199",
     period: "— one-time",
     description: "Ideal for growing businesses",
     features: [
@@ -115,7 +115,7 @@ const pricingPackages = [
   {
     id: 3,
     name: "E-commerce Store (WooCommerce)",
-    price: "$1,500",
+    price: "$1,499",
     period: "— one-time",
     description: "For online stores and e-commerce brands",
     features: [
@@ -470,14 +470,14 @@ export default function WebDevelopment() {
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
                     {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[305px] rounded-xl overflow-hidden shadow-lg"> */}
-                      {/* <iframe
+                    {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/h2P606wR_Jk"
                         title="Website Design & Development for Agencies | BrandingBeez"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       /> */}
-                      <LazyYouTube videoId="h2P606wR_Jk" />
+                    <LazyYouTube videoId="h2P606wR_Jk" />
                     {/* </div> */}
                   </div>
                 </div>
@@ -490,7 +490,7 @@ export default function WebDevelopment() {
             <div className="max-w-6xl mx-auto">
               <PhaseSliderSection
                 sectionId="web-development-process"
-                heading="How the Web Development Process Works"
+                heading="How Our Web Development Process Works"
                 subheading="A simple, transparent process built for agencies."
                 phases={webDevelopmentPhases}
                 badgeLabel="White-Label Web Development Process"
@@ -521,7 +521,7 @@ export default function WebDevelopment() {
           mb-3 sm:mb-4
         "
                 >
-                  White-Label Website Case Studies &amp; Portfolio
+                  White-Label Website <span className="text-brand-coral">Case Studies &amp; Portfolio</span>
                 </h3>
 
                 <p
@@ -604,7 +604,7 @@ export default function WebDevelopment() {
                         >
                           <h3
                             className="
-                    text-brand-purple font-bold
+                    text-brand-coral font-bold
                     text-base sm:text-lg lg:text-xl
                     leading-snug
                     mb-2
@@ -698,34 +698,46 @@ export default function WebDevelopment() {
           </section>
 
           {/* Pricing Packages Section */}
-          <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+          {/* <section className="py-10 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-10 sm:mb-12">
-                {/* <h2 className="bg-brand-purple text-white mb-4 sm:mb-6 inline-block px-4 py-2 rounded-full text-xs sm:text-sm font-medium">
-                  White-Label Website Packages
-                </h2> */}
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-4 sm:mb-6">
-                  Choose Your White-Label Website Development Package
+              <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-3 sm:mb-5 leading-tight">
+                  Choose Your White-Label{" "}
+                  <span className="text-brand-coral">Website Development Packages</span>
                 </h3>
-                <p className="text-base sm:text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">
-                  Agency-ready website development packages you can resell under
-                  your brand. No BrandingBeez logos. No client exposure. Full
-                  delivery ownership stays with you.
+
+                <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  Agency-ready website development packages you can resell under your
+                  brand. No BrandingBeez logos. No client exposure. Full delivery
+                  ownership stays with you.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+              <div
+                className="
+        grid grid-cols-1 
+        md:grid-cols-2 lg:grid-cols-3
+        gap-5 sm:gap-6 lg:gap-8
+        sm:max-md:flex sm:max-md:overflow-x-auto sm:max-md:gap-4
+        sm:max-md:pb-4
+        sm:max-md:snap-x sm:max-md:snap-mandatory
+        sm:max-md:scroll-smooth
+      "
+              >
                 {pricingPackages.map((pkg) => (
                   <Card
                     key={pkg.id}
-                    className={`relative flex flex-col h-full ${pkg.popular
-                      ? "border-2 border-brand-coral md:scale-105"
-                      : "border border-gray-200 hover:border-brand-coral/50"
-                      } transition-all duration-300`}
+                    className={[
+                      "relative flex flex-col h-full transition-all duration-300",
+                      "sm:max-md:min-w-[85%] sm:max-md:snap-center",
+                      pkg.popular
+                        ? "border-2 border-brand-coral lg:scale-[1.03] lg:-translate-y-1"
+                        : "border border-gray-200 hover:border-brand-coral/50",
+                    ].join(" ")}
                   >
                     {pkg.popular && (
-                      <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                        <Badge className="bg-brand-coral text-white px-4 py-1 text-xs sm:text-sm">
+                      <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-10">
+                        <Badge className="bg-brand-coral text-white px-4 py-1 text-xs sm:text-sm whitespace-nowrap shadow-sm">
                           Most Popular
                         </Badge>
                       </div>
@@ -735,56 +747,275 @@ export default function WebDevelopment() {
                       <h4 className="text-xl sm:text-2xl font-bold text-brand-purple">
                         {pkg.name}
                       </h4>
-                      <div className="mt-4">
+
+                      <div className="mt-3 sm:mt-4">
                         <span className="text-3xl sm:text-4xl font-bold text-brand-coral">
                           {pkg.price}
                         </span>
-                        <span className="text-gray-600"> {pkg.period}</span>
+                        <span className="text-gray-600 text-sm sm:text-base">
+                          {" "}
+                          {pkg.period}
+                        </span>
                       </div>
-                      <p className="text-gray-600 mt-2 text-sm sm:text-base">
+
+                      <p className="text-gray-600 mt-2 text-sm sm:text-base leading-relaxed">
                         {pkg.description}
                       </p>
                     </CardHeader>
 
                     <CardContent className="flex flex-col flex-grow px-4 sm:px-6 pb-6 sm:pb-8">
-                      <ul className="space-y-3 mb-8 flex-grow">
+                      <ul className="space-y-3 sm:space-y-3.5 mb-7 sm:mb-8 flex-grow">
                         {pkg.features.map((feature, index) => (
                           <li key={index} className="flex items-start gap-3">
                             <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-                            <span className="text-gray-700 text-sm leading-relaxed">
+                            <span className="text-gray-700 text-sm sm:text-[15px] leading-relaxed">
                               {feature}
                             </span>
                           </li>
                         ))}
                       </ul>
 
-                      <div className="flex flex-col gap-2 mt-auto pt-6 border-t border-gray-100">
+                      <div className="flex flex-col gap-2 mt-auto pt-5 sm:pt-6 border-t border-gray-100">
                         <Link
                           href="/contact?service=website-development&/#contact-form"
                           className="w-full"
                         >
                           <Button
-                            className={`w-full py-3 sm:py-4 px-6 sm:px-8 font-medium text-sm sm:text-md transition-all duration-300 ${pkg.popular
-                              ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
-                              : "bg-brand-purple hover:bg-brand-purple/90 text-white"
-                              }`}
+                            className={[
+                              "w-full py-3 sm:py-4 px-5 sm:px-7",
+                              "font-medium text-sm sm:text-base transition-all duration-300",
+                              pkg.popular
+                                ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                                : "bg-brand-purple hover:bg-brand-purple/90 text-white",
+                            ].join(" ")}
                           >
                             {pkg.id === 1
                               ? "Start Your Website"
                               : pkg.id === 2
                                 ? "Get Business Website"
                                 : "Launch Your Store"}
-                            <Gift className="w-5 h-5 ml-3" />
+                            <Gift className="w-5 h-5 ml-3 flex-shrink-0" />
                           </Button>
                         </Link>
 
                         <BookCallButtonWithModal
                           buttonLabel="Schedule Consultation"
-                          className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                          className="w-full h-11 sm:h-12 px-4 font-medium text-sm sm:text-base border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
                           buttonSize="lg"
                           buttonVariant="outline"
                           defaultServiceType="Website Development"
                         />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </section> */}
+
+          {/* Pricing Packages Section */}
+          <section className="py-10 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-3 sm:mb-5 leading-tight">
+                  Choose Your White-Label{" "}
+                  <span className="text-brand-coral">Website Development Packages</span>
+                </h3>
+
+                <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+                  Agency-ready website development packages you can resell under your
+                  brand. No BrandingBeez logos. No client exposure. Full delivery
+                  ownership stays with you.
+                </p>
+              </div>
+
+              {/* --- SLIDER (480px to 767px ONLY) --- */}
+              <div className="pricing-slider-range hidden overflow-x-auto gap-4 snap-x snap-mandatory pt-4 pb-4">
+                {pricingPackages.map((pkg) => (
+                  <div key={pkg.id} className="min-w-[60%] snap-center">
+                    <Card
+                      className={[
+                        "relative flex flex-col h-full transition-all duration-300",
+                        pkg.popular
+                          ? "border-2 border-brand-coral"
+                          : "border border-gray-200 hover:border-brand-coral/50",
+                      ].join(" ")}
+                    >
+                      {pkg.popular && (
+                        <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-10">
+                          <Badge className="bg-brand-coral text-white px-4 py-1 text-xs whitespace-nowrap shadow-sm">
+                            Most Popular
+                          </Badge>
+                        </div>
+                      )}
+
+                      <CardHeader className="text-center pb-4 flex-shrink-0 px-4 pt-6">
+                        <h4 className="text-xl font-bold text-brand-purple">{pkg.name}</h4>
+
+                        <div className="mt-3">
+                          <span className="text-3xl font-bold text-brand-coral">
+                            {pkg.price}
+                          </span>
+                          <span className="text-gray-600 text-sm"> {pkg.period}</span>
+                        </div>
+
+                        <p className="text-gray-600 mt-2 text-sm leading-relaxed">
+                          {pkg.description}
+                        </p>
+                      </CardHeader>
+
+                      <CardContent className="flex flex-col flex-grow px-4 pb-6">
+                        <ul className="space-y-3 mb-7 flex-grow">
+                          {pkg.features.map((feature, index) => (
+                            <li key={index} className="flex items-center gap-3">
+                              <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-gray-700 text-sm leading-relaxed">
+                                {feature}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <div className="flex flex-col gap-2 mt-auto pt-5 border-t border-gray-100">
+                          <Link
+                            href="/contact?service=website-development&/#contact-form"
+                            className="w-full"
+                          >
+                            <Button
+                              className={[
+                                "w-full py-3 px-5 font-medium text-sm transition-all duration-300",
+                                pkg.popular
+                                  ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                                  : "bg-brand-purple hover:bg-brand-purple/90 text-white",
+                              ].join(" ")}
+                            >
+                              {pkg.id === 1
+                                ? "Start Your Website"
+                                : pkg.id === 2
+                                  ? "Get Business Website"
+                                  : "Launch Your Store"}
+                              <Gift className="w-5 h-5 ml-3 flex-shrink-0" />
+                            </Button>
+                          </Link>
+
+                          {/* <BookCallButtonWithModal
+                            buttonLabel="Schedule Consultation"
+                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                            buttonSize="lg"
+                            buttonVariant="outline"
+                            defaultServiceType="Website Development"
+                          /> */}
+                          <Link
+                            href="/pricing-calculator?service=web-development"
+                            className="w-full"
+                          >
+                            <Button
+                              className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                              variant="outline"
+                            >
+                              Get Custom Quotes
+                            </Button>
+                          </Link>
+
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ))}
+              </div>
+
+              {/* --- GRID ( <480px AND >=768px ) --- */}
+              <div className="pricing-grid-range grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8 items-stretch">
+                {pricingPackages.map((pkg) => (
+                  <Card
+                    key={pkg.id}
+                    className={[
+                      "relative flex flex-col h-full transition-all duration-300",
+                      pkg.popular
+                        ? "border-2 border-brand-coral lg:scale-[1.03] lg:-translate-y-1"
+                        : "border border-gray-200 hover:border-brand-coral/50",
+                    ].join(" ")}
+                  >
+                    {pkg.popular && (
+                      <div className="absolute -top-3 sm:-top-4 left-1/2 -translate-x-1/2 z-10">
+                        <Badge className="bg-brand-coral text-white px-4 py-1 text-xs sm:text-sm whitespace-nowrap shadow-sm">
+                          Most Popular
+                        </Badge>
+                      </div>
+                    )}
+
+                    <CardHeader className="text-center pb-4 flex-shrink-0 px-4 sm:px-6 pt-6 sm:pt-8">
+                      <h4 className="text-xl sm:text-2xl font-bold text-brand-purple">
+                        {pkg.name}
+                      </h4>
+
+                      <div className="mt-3 sm:mt-4">
+                        <span className="text-3xl sm:text-4xl font-bold text-brand-coral">
+                          {pkg.price}
+                        </span>
+                        <span className="text-gray-600 text-sm sm:text-base">
+                          {" "}
+                          {pkg.period}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-600 mt-2 text-sm sm:text-base leading-relaxed">
+                        {pkg.description}
+                      </p>
+                    </CardHeader>
+
+                    <CardContent className="flex flex-col flex-grow px-4 sm:px-6 pb-6 sm:pb-8">
+                      <ul className="space-y-3 sm:space-y-3.5 mb-7 sm:mb-8 flex-grow">
+                        {pkg.features.map((feature, index) => (
+                          <li key={index} className="flex items-center gap-3">
+                            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm sm:text-[15px] leading-relaxed">
+                              {feature}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="flex flex-col gap-2 mt-auto pt-5 sm:pt-6 border-t border-gray-100">
+                        <Link
+                          href="/contact?service=website-development&/#contact-form"
+                          className="w-full"
+                        >
+                          <Button
+                            className={[
+                              "w-full py-3 sm:py-4 px-5 sm:px-7 font-medium text-sm sm:text-base transition-all duration-300",
+                              pkg.popular
+                                ? "bg-brand-coral hover:bg-brand-coral/90 text-white"
+                                : "bg-brand-purple hover:bg-brand-purple/90 text-white",
+                            ].join(" ")}
+                          >
+                            {pkg.id === 1
+                              ? "Start Your Website"
+                              : pkg.id === 2
+                                ? "Get Business Website"
+                                : "Launch Your Store"}
+                            <Gift className="w-5 h-5 ml-3 flex-shrink-0" />
+                          </Button>
+                        </Link>
+
+                        {/* <BookCallButtonWithModal
+                          buttonLabel="Schedule Consultation"
+                          className="w-full h-11 sm:h-12 px-4 font-medium text-sm sm:text-base border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                          buttonSize="lg"
+                          buttonVariant="outline"
+                          defaultServiceType="Website Development"
+                        /> */}
+                        <Link
+                          href="/pricing-calculator?service=web-development"
+                          className="w-full"
+                        >
+                          <Button
+                            className="w-full h-11 px-4 font-medium text-sm border-2 border-brand-coral text-brand-coral hover:bg-brand-coral hover:text-white transition-all duration-300"
+                            variant="outline"
+                          >
+                            Get Custom Quotes
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>
@@ -808,7 +1039,7 @@ export default function WebDevelopment() {
             <div className="max-w-6xl mx-auto grid gap-10 lg:gap-12 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-0 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
                   <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
                     White-Label Web Development – FAQs
@@ -831,13 +1062,24 @@ export default function WebDevelopment() {
                       Reliable delivery without freelancer risk.
                     </h3>
                   </CardHeader>
-                  <CardContent className="pt-2 space-y-2 text-sm text-white/90">
-                    <p>✔ Fully white-label communication and branding.</p>
-                    <p>✔ Built for agencies handling multiple client projects.</p>
-                    <p>
-                      ✔ Flexible engagement — one-off builds, retainers, or
-                      long-term dedicated support.
-                    </p>
+                  <CardContent className="pt-2 space-y-2 text-[16px] text-white/90">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+                      <p>Fully white-label communication and branding.</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+                      <p>Built for agencies handling multiple client projects.</p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 shrink-0" />
+                      <p>
+                        Flexible engagement — one-off builds, retainers, or long-term dedicated
+                        support.
+                      </p>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
@@ -873,7 +1115,7 @@ export default function WebDevelopment() {
                   );
                 })}
 
-                <div className="pt-2 flex items-center justify-between text-sm text-gray-600">
+                <div className="pt-2 flex items-start md:items-center flex-col md:flex-row justify-between text-sm gap-2 text-gray-600">
                   <span>Still have a question?{" "}</span>
                   <BookCallButtonWithModal
                     buttonLabel="Talk to Our Development Team"

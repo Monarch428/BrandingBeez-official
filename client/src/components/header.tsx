@@ -619,8 +619,8 @@ export default function Header() {
             <Link href="/">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
                   }`}
               >
                 Home
@@ -640,8 +640,8 @@ export default function Header() {
                 type="button"
                 onClick={handleDesktopServicesClick}
                 className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${location.startsWith("/services") || isDesktopServicesOpen
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
                   }`}
               >
                 Services
@@ -727,8 +727,8 @@ export default function Header() {
             <Link href="/blog">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/blog"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
                   }`}
               >
                 Blog
@@ -738,8 +738,8 @@ export default function Header() {
             <Link href="/about">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/about"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
                   }`}
               >
                 About
@@ -749,8 +749,8 @@ export default function Header() {
             <Link href="/portfolio">
               <span
                 className={`font-medium transition-colors cursor-pointer ${location === "/portfolio"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
                   }`}
               >
                 Portfolio
@@ -759,38 +759,44 @@ export default function Header() {
           </nav>
 
           {/* CTA */}
-          <div className="flex items-center space-x-3 sm:space-x-4">
-            {/* 📞 Desktop Phone */}
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+            {/* 📞 Phone */}
             <a
               href="tel:+19792717552"
-              className="hidden md:flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-brand-coral-darker transition-colors"
+              className={[
+                "inline-flex items-center justify-center",
+                "h-10 w-10 lg:w-auto",
+                "rounded-lg border border-gray-200 lg:border-0",
+                "hover:bg-brand-coral/10 lg:hover:bg-transparent",
+                "text-gray-700 hover:text-brand-coral-darker transition-colors",
+                "shrink-0",
+              ].join(" ")}
+              aria-label="Call BrandingBeez: +1 979 271 7552"
             >
-              <Phone className="w-4 h-4 text-brand-coral" />
-              +1 979 271 7552
+              <Phone className="w-5 h-5 lg:w-4 lg:h-4 text-brand-coral" />
+
+              {/* 🔢 Number shows ONLY on lg+ */}
+              <span className="hidden lg:inline ml-2 text-sm font-semibold">
+                +1 979 271 7552
+              </span>
             </a>
 
-            {/* 📞 Mobile Phone */}
-            <a
-              href="tel:+19792717552"
-              className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg border border-gray-200 hover:bg-brand-coral/10"
-              aria-label="Call BrandingBeez"
-            >
-              <Phone className="w-5 h-5 text-brand-coral" />
-            </a>
-
+            {/* 📅 Book a call (sm+) */}
             <Suspense fallback={null}>
-              <BookCallButtonWithModal
-                buttonLabel="Book a call"
-                className="hidden sm:flex bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-lg"
-                buttonSize="lg"
-              />
+              <div className="hidden sm:block shrink-0">
+                <BookCallButtonWithModal
+                  buttonLabel="Book a call"
+                  className="h-10 bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 rounded-lg"
+                  buttonSize="lg"
+                />
+              </div>
             </Suspense>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu (<md) */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden p-2 h-10 w-10"
+              className="md:hidden p-2 h-10 w-10 shrink-0"
               onClick={() => {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
                 if (!isMobileMenuOpen) setIsServicesSubmenuOpen(false);
@@ -812,8 +818,8 @@ export default function Header() {
               <Link href="/">
                 <button
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -824,8 +830,8 @@ export default function Header() {
               {/* SERVICES with mobile submenu */}
               <div
                 className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location.startsWith("/services")
-                    ? "text-brand-coral-darker bg-brand-coral/10"
-                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                  ? "text-brand-coral-darker bg-brand-coral/10"
+                  : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
                   }`}
               >
                 {/* Click text -> navigate to /services */}
@@ -873,8 +879,8 @@ export default function Header() {
               <Link href="/blog">
                 <button
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/blog"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -885,8 +891,8 @@ export default function Header() {
               <Link href="/about">
                 <button
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/about"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -897,8 +903,8 @@ export default function Header() {
               <Link href="/portfolio">
                 <button
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -909,8 +915,8 @@ export default function Header() {
               <Link href="/contact">
                 <button
                   className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/contact"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
