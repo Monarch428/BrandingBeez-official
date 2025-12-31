@@ -39,9 +39,9 @@ function getSmtpConfig() {
   const host = process.env.SMTP_HOST || "";
   const port = Number(process.env.SMTP_PORT || 587);
   const user = process.env.SMTP_USER || "";
-  const pass = process.env.SMTP_PASS || "";
+  const pass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || "";
 
-  // ⚠️ Your existing code used secure: true (works only for 465 typically)
+  // ⚠️ Your existing code used secure: port === 465,(works only for 465 typically)
   // Keeping existing functions unchanged per your instruction.
   return { host, port, user, pass };
 }
@@ -70,12 +70,11 @@ export async function sendContactNotification(payload: {
     return { success: true, method: "console_log" };
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
+  const transporter = nodemailer.createTransport({host,
     port,
-    secure: true, // existing behavior
-    auth: { user, pass },
-  });
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user, pass },});
 
   const subject = `New Contact Form Submission - ${payload.name}`;
   const html = `
@@ -120,12 +119,11 @@ export async function sendBusinessGrowthReportEmail(payload: {
     return { success: true, method: "console_log" };
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
+  const transporter = nodemailer.createTransport({host,
     port,
-    secure: true, // existing behavior
-    auth: { user, pass },
-  });
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user, pass },});
 
   const company = payload.analysis?.reportMetadata?.companyName || "your business";
   const subject = `Your Business Growth Report is ready – ${company}`;
@@ -186,12 +184,11 @@ export async function sendAppointmentNotification(
     return { success: true, method: "console_log" };
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
+  const transporter = nodemailer.createTransport({host,
     port,
-    secure: true, // existing behavior
-    auth: { user, pass },
-  });
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user, pass },});
 
   const subject = `New Appointment Booked – ${appt.date} ${appt.startTime}`;
   const html = `
@@ -232,12 +229,11 @@ export async function sendAppointmentConfirmationToAttendee(
     return { success: true, method: "console_log" };
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
+  const transporter = nodemailer.createTransport({host,
     port,
-    secure: true, // existing behavior
-    auth: { user, pass },
-  });
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user, pass },});
 
   const prettyDate = appt.date;
   const prettyTime = `${appt.startTime} – ${appt.endTime}`;
@@ -284,12 +280,11 @@ export async function sendAppointmentConfirmationToGuests(
     return { success: true, method: "console_log" };
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
+  const transporter = nodemailer.createTransport({host,
     port,
-    secure: true, // existing behavior
-    auth: { user, pass },
-  });
+    secure: port === 465,
+    requireTLS: port !== 465,
+    auth: { user, pass },});
 
   const prettyDate = appt.date;
   const prettyTime = `${appt.startTime} – ${appt.endTime}`;
@@ -340,7 +335,7 @@ function getSmtpConfigWithSecure() {
   const host = process.env.SMTP_HOST || "";
   const port = Number(process.env.SMTP_PORT || 587);
   const user = process.env.SMTP_USER || "";
-  const pass = process.env.SMTP_PASS || "";
+  const pass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS || "";
 
   // Port 465 => implicit TLS
   // Port 587/25 => STARTTLS (secure false; Nodemailer upgrades automatically)
@@ -374,12 +369,10 @@ export async function sendBusinessGrowthReportEmailWithDownload({
     return { success: true, method: "console_log" };
   }
 
-  const transporter = nodemailer.createTransport({
-    host,
+  const transporter = nodemailer.createTransport({host,
     port,
     secure,
-    auth: { user, pass },
-  });
+    auth: { user, pass },});
 
   const company = analysis?.reportMetadata?.companyName || "your business";
   const website = analysis?.reportMetadata?.website || "";
@@ -454,15 +447,13 @@ export async function sendEmailViaGmail(submission: {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host,
+    const transporter = nodemailer.createTransport({host,
       port,
-      secure: true,
-      auth: {
+      secure: port === 465,
+    requireTLS: port !== 465,auth: {
         user,
         pass,
-      },
-    });
+      },});
 
     const mailOptions = {
       from: FROM_NEWSLETTER(user),
@@ -605,15 +596,13 @@ export async function sendQuestionnaireToAdmin(submission: {
   }
 
   try {
-    const transporter = nodemailer.createTransport({
-      host,
+    const transporter = nodemailer.createTransport({host,
       port,
-      secure: true,
-      auth: {
+      secure: port === 465,
+    requireTLS: port !== 465,auth: {
         user,
         pass,
-      },
-    });
+      },});
 
     const filenameTxt = `custom-app-questionnaire-${Date.now()}.txt`;
     const filenameDoc = filenameTxt.replace(/\.txt$/, ".doc");

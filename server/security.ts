@@ -475,7 +475,8 @@ export const corsOptions = {
       "https://brandingbeez.replit.app",
       "https://branding-beez-monarchteamai.replit.app",
       "https://monarchteamai-brandingbeez.replit.app",
-      "https://brandingbeez-official.onrender.com"
+      "https://brandingbeez-official.onrender.com",
+      "https://dff96945bd38.ngrok-free.app"
     ];
 
     if (

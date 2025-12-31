@@ -14,6 +14,7 @@ import {
   Target,
   Download,
   RefreshCcw,
+  Gauge,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,15 +35,21 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { Link } from "wouter";
 
 interface FormState {
-  firstName: string;
-  lastName: string;
+  companyName: string;
   website: string;
+  industry?: string;
+  targetMarket?: string;
+  businessGoal?: string;
+  reportType?: "quick" | "full";
 }
 
 interface FormErrors {
-  firstName?: string;
-  lastName?: string;
-  website?: string;
+  companyName: string;
+  website: string;
+  industry?: string;
+  targetMarket?: string;
+  businessGoal?: string;
+  reportType?: "quick" | "full";
 }
 
 interface LeadFormState {
@@ -70,6 +77,32 @@ interface QuickWin {
   details: string;
 }
 
+/**
+ * ✅ Updated UI type:
+ * Backend may now include real speed test data (PageSpeed Insights) in the analysis JSON.
+ * We keep it optional so it won’t break if some fields are missing.
+ */
+type PageSpeedOpportunity = {
+  title: string;
+  score?: number;
+  description?: string;
+};
+
+type PageSpeedDeviceResult = {
+  performanceScore?: number; // 0-100
+  accessibilityScore?: number;
+  bestPracticesScore?: number;
+  seoScore?: number;
+
+  fcpMs?: number;
+  lcpMs?: number;
+  cls?: number;
+  tbtMs?: number;
+  speedIndexMs?: number;
+
+  opportunities?: PageSpeedOpportunity[];
+};
+
 interface BusinessGrowthReport {
   reportMetadata: {
     reportId: string;
@@ -92,9 +125,22 @@ interface BusinessGrowthReport {
     biggestOpportunity: string;
     quickWins: QuickWin[];
   };
-  // NOTE: your backend returns a lot more, but we only need these for UI
+
+  // ✅ OPTIONAL: backend might attach this after adding speed test
+  websiteDigitalPresence?: {
+    technicalSEO?: {
+      pageSpeed?: {
+        mobile?: PageSpeedDeviceResult;
+        desktop?: PageSpeedDeviceResult;
+      };
+    };
+  };
 }
 
+/**
+ * ✅ Updated stages:
+ * Add Speed Test stage so users understand why analysis can take longer now.
+ */
 const analysisStages = [
   {
     label: "Initialization",
@@ -129,14 +175,20 @@ const analysisStages = [
   {
     label: "Cost Assessment",
     duration: 8,
-    progress: 90,
+    progress: 85,
     message: "Analyzing service delivery costs...",
+  },
+  {
+    label: "Speed Test (Core Web Vitals)",
+    duration: 10,
+    progress: 95,
+    message: "Running real speed test (PageSpeed + CWV)...",
   },
   {
     label: "Report Generation",
     duration: 5,
-    progress: 98,
-    message: "Generating your report...",
+    progress: 99,
+    message: "Compiling your report...",
   },
   {
     label: "Complete",
@@ -189,6 +241,15 @@ function validateEmail(email: string) {
   return undefined;
 }
 
+function validateCompanyName(name: string): string | undefined {
+  if (!name.trim()) return "Please enter your company name";
+  if (name.trim().length < 2)
+    return "Company name must be at least 2 characters";
+  if (!/^[a-zA-Z0-9\s&.'-]+$/.test(name.trim()))
+    return "Please use a valid company name";
+  return undefined;
+}
+
 function getEmailSuggestion(email: string) {
   const domain = email.split("@")[1]?.toLowerCase();
   if (domain && domainSuggestions[domain]) {
@@ -202,8 +263,13 @@ function formatPhone(value: string) {
   if (digits.length <= 3) return digits;
   if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
   if (digits.length <= 10)
-    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-  return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7, 11)}${
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(
+      6,
+    )}`;
+  return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(
+    4,
+    7,
+  )}-${digits.slice(7, 11)}${
     digits.length > 11 ? ` ${digits.slice(11)}` : ""
   }`;
 }
@@ -217,17 +283,6 @@ function validatePhone(phone: string) {
   return undefined;
 }
 
-function validateName(
-  name: string,
-  field: "firstName" | "lastName",
-): string | undefined {
-  if (!name.trim())
-    return `Please enter your ${field === "firstName" ? "first" : "last"} name`;
-  if (name.trim().length < 2) return "Name must be at least 2 characters";
-  if (!/^[a-zA-Z\s-]+$/.test(name.trim())) return "Please use only letters";
-  return undefined;
-}
-
 function validateWebsite(url: string): string | undefined {
   if (!url.trim()) return "Please enter your website URL";
   const normalized = normalizeWebsiteUrl(url);
@@ -236,11 +291,6 @@ function validateWebsite(url: string): string | undefined {
   return undefined;
 }
 
-/**
- * Reachability check should be "best effort", NOT a hard gate.
- * - It can fail for valid sites (HEAD blocked, WAF, geo blocks, redirects, etc.)
- * - Add a timeout so UI doesn't hang for ~16s.
- */
 async function checkWebsiteReachableViaBackendBestEffort(
   website: string,
   timeoutMs = 6000,
@@ -287,10 +337,7 @@ function ScoreGauge({ score }: { score: number }) {
 
   return (
     <div className="relative w-40 h-40 flex items-center justify-center">
-      <div
-        className="absolute inset-0 rounded-full"
-        style={{ background: gradient }}
-      />
+      <div className="absolute inset-0 rounded-full" style={{ background: gradient }} />
       <div className="absolute inset-2 bg-white rounded-full shadow-inner flex flex-col items-center justify-center">
         <span className="text-4xl font-bold text-gray-900">{clampedScore}</span>
         <span className="text-sm text-gray-500">/100</span>
@@ -341,13 +388,7 @@ function StageItem({
   );
 }
 
-function ReportCard({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function ReportCard({ title, description }: { title: string; description: string }) {
   return (
     <div className="relative p-4 border rounded-xl bg-white shadow-sm hover:-translate-y-1 transition-transform">
       <div className="absolute inset-0 rounded-xl border-2 border-dashed border-gray-200" />
@@ -358,10 +399,7 @@ function ReportCard({
         <div>
           <p className="font-semibold text-gray-900 flex items-center gap-2">
             {title}
-            <Badge
-              variant="secondary"
-              className="bg-gray-100 text-gray-600 border-0"
-            >
+            <Badge variant="secondary" className="bg-gray-100 text-gray-600 border-0">
               Locked
             </Badge>
           </p>
@@ -372,14 +410,28 @@ function ReportCard({
   );
 }
 
+/**
+ * Small helper to show ms values nicely
+ */
+function formatMs(ms?: number) {
+  if (ms === undefined || ms === null) return "—";
+  if (ms >= 1000) return `${(ms / 1000).toFixed(1)}s`;
+  return `${Math.round(ms)}ms`;
+}
+
 export default function AIBusinessGrowthAnalyzerPage() {
   const [step, setStep] = useState<Step>("capture");
   const [formState, setFormState] = useState<FormState>({
-    firstName: "",
-    lastName: "",
+    companyName: "",
     website: "",
+    industry: "",
+    targetMarket: "",
+    businessGoal: "",
+    reportType: "full",
   });
-  const [errors, setErrors] = useState<FormErrors>({});
+
+  const [errors, setErrors] = useState<FormErrors>({} as FormErrors);
+
   const [leadForm, setLeadForm] = useState<LeadFormState>({
     email: "",
     phone: "",
@@ -402,9 +454,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [emailSuggestion, setEmailSuggestion] = useState("");
   const [leadId, setLeadId] = useState("demo-lead-123");
 
-  const [analysisData, setAnalysisData] = useState<BusinessGrowthReport | null>(
-    null,
-  );
+  const [analysisData, setAnalysisData] = useState<BusinessGrowthReport | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [isAnalyzingBackend, setIsAnalyzingBackend] = useState(false);
   const [analysisToken, setAnalysisToken] = useState<string | null>(null);
@@ -413,13 +463,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
   const [analysisSource, setAnalysisSource] = useState<string | null>(null);
 
-  // ✅ NEW: report generation state
   const [reportDownloadUrl, setReportDownloadUrl] = useState<string>("");
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [reportError, setReportError] = useState<string | null>(null);
 
   const emailRef = useRef<HTMLInputElement | null>(null);
-  const firstNameRef = useRef<HTMLInputElement | null>(null);
+  const companyNameRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -440,7 +489,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
   }, []);
 
   useEffect(() => {
-    firstNameRef.current?.focus();
+    companyNameRef.current?.focus();
   }, []);
 
   useEffect(() => {
@@ -521,7 +570,6 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const report = analysisData;
   const summaryStrengths = report?.executiveSummary.strengths ?? [];
   const summaryWeaknesses = report?.executiveSummary.weaknesses ?? [];
-  const summaryQuickWins = report?.executiveSummary.quickWins ?? [];
   const biggestOpportunity = report?.executiveSummary.biggestOpportunity ?? "";
   const analysisDate = report?.reportMetadata.analysisDate
     ? new Date(report.reportMetadata.analysisDate).toLocaleDateString()
@@ -533,41 +581,26 @@ export default function AIBusinessGrowthAnalyzerPage() {
     if (!subScores) return [];
     const items: { title: string; description: string }[] = [];
     if (subScores.website !== undefined)
-      items.push({
-        title: "Website & UX",
-        description: `Website score: ${subScores.website}/100`,
-      });
+      items.push({ title: "Website & UX", description: `Website score: ${subScores.website}/100` });
     if (subScores.seo !== undefined)
-      items.push({
-        title: "SEO Visibility",
-        description: `SEO score: ${subScores.seo}/100`,
-      });
+      items.push({ title: "SEO Visibility", description: `SEO score: ${subScores.seo}/100` });
     if (subScores.reputation !== undefined)
-      items.push({
-        title: "Reputation",
-        description: `Reputation score: ${subScores.reputation}/100`,
-      });
+      items.push({ title: "Reputation", description: `Reputation score: ${subScores.reputation}/100` });
     if (subScores.leadGen !== undefined)
-      items.push({
-        title: "Lead Generation",
-        description: `Lead gen score: ${subScores.leadGen}/100`,
-      });
+      items.push({ title: "Lead Generation", description: `Lead gen score: ${subScores.leadGen}/100` });
     if (subScores.services !== undefined)
-      items.push({
-        title: "Services & Positioning",
-        description: `Services score: ${subScores.services}/100`,
-      });
+      items.push({ title: "Services & Positioning", description: `Services score: ${subScores.services}/100` });
     if (subScores.costEfficiency !== undefined)
-      items.push({
-        title: "Cost Efficiency",
-        description: `Efficiency score: ${subScores.costEfficiency}/100`,
-      });
+      items.push({ title: "Cost Efficiency", description: `Efficiency score: ${subScores.costEfficiency}/100` });
     return items;
   }, [report]);
 
+  const pageSpeedMobile = report?.websiteDigitalPresence?.technicalSEO?.pageSpeed?.mobile;
+  const pageSpeedDesktop = report?.websiteDigitalPresence?.technicalSEO?.pageSpeed?.desktop;
+
   const handleInputChange = (field: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setErrors((prev) => ({ ...prev, [field]: undefined } as FormErrors));
   };
 
   const runAnalysis = async (websiteUrl: string) => {
@@ -584,10 +617,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyName:
-            `${formState.firstName} ${formState.lastName}`.trim() ||
-            "Marketing Agency",
+          companyName: formState.companyName.trim() || "Marketing Agency",
           website: normalizedWebsite,
+          industry: formState.industry?.trim() || undefined,
+          targetMarket: formState.targetMarket?.trim() || undefined,
+          businessGoal: formState.businessGoal?.trim() || undefined,
+          reportType: formState.reportType || "full",
         }),
       });
 
@@ -598,34 +633,22 @@ export default function AIBusinessGrowthAnalyzerPage() {
       }
 
       setAnalysisData(payload.analysis as BusinessGrowthReport);
-      if (payload?.analysisToken) {
-        setAnalysisToken(String(payload.analysisToken));
-      }
+      if (payload?.analysisToken) setAnalysisToken(String(payload.analysisToken));
     } catch (error) {
       console.error("Business growth analysis failed", error);
-      setAnalysisError(
-        "We couldn't generate the live analysis. Please try again.",
-      );
+      setAnalysisError("We couldn't generate the live analysis. Please try again.");
       setAnalysisData(null);
     } finally {
       setIsAnalyzingBackend(false);
     }
   };
 
-  /**
-   * ✅ FIX:
-   * Reachability check is now:
-   * - best-effort
-   * - timed out (6s)
-   * - never blocks the analysis (only shows a warning)
-   */
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
     const nextErrors: FormErrors = {
-      firstName: validateName(formState.firstName, "firstName"),
-      lastName: validateName(formState.lastName, "lastName"),
-      website: validateWebsite(formState.website),
+      companyName: validateCompanyName(formState.companyName) as any,
+      website: validateWebsite(formState.website) as any,
     };
 
     const hasErrors = Object.values(nextErrors).some(Boolean);
@@ -636,23 +659,20 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
     const normalizedUrl = normalizeWebsiteUrl(formState.website);
 
-    // best-effort check
     const reachability = await checkWebsiteReachableViaBackendBestEffort(
       normalizedUrl,
       6000,
     );
 
-    // If backend explicitly says "reachable:false", show a warning,
-    // BUT DO NOT block. Many valid sites will be flagged false.
     if (reachability.ok && reachability.reachable === false) {
       setErrors((prev) => ({
-        ...prev,
+        ...(prev as FormErrors),
         website:
           "We couldn't verify this website from the server (some sites block automated checks). We'll continue anyway.",
       }));
     } else if (reachability.ok && reachability.timedOut) {
       setErrors((prev) => ({
-        ...prev,
+        ...(prev as FormErrors),
         website: "Website verification timed out. We'll continue anyway.",
       }));
     }
@@ -662,45 +682,30 @@ export default function AIBusinessGrowthAnalyzerPage() {
     void runAnalysis(normalizedUrl);
   };
 
-  const handleLeadChange = (
-    field: keyof LeadFormState,
-    value: string | boolean,
-  ) => {
+  const handleLeadChange = (field: keyof LeadFormState, value: string | boolean) => {
     const nextValue =
-      field === "phone" && typeof value === "string"
-        ? formatPhone(value)
-        : value;
+      field === "phone" && typeof value === "string" ? formatPhone(value) : value;
     setLeadForm((prev) => ({ ...prev, [field]: nextValue }) as LeadFormState);
     setLeadErrors((prev) => ({ ...prev, [field]: undefined }));
-    if (field === "email" && typeof value === "string")
-      setEmailSuggestion(getEmailSuggestion(value));
+    if (field === "email" && typeof value === "string") setEmailSuggestion(getEmailSuggestion(value));
   };
 
-  /**
-   * ✅ UPDATED:
-   * Return analysis from backend (so we can immediately generate PDF report)
-   */
-  const submitLeadToBackend = async (
-    websiteUrl: string,
-  ): Promise<BusinessGrowthReport | null> => {
+  const submitLeadToBackend = async (websiteUrl: string): Promise<BusinessGrowthReport | null> => {
     const normalizedWebsite = normalizeWebsiteUrl(websiteUrl);
 
     const response = await fetch("/api/ai-business-growth/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        companyName:
-          `${formState.firstName} ${formState.lastName}`.trim() ||
-          "Marketing Agency",
+        companyName: formState.companyName.trim() || "Marketing Agency",
         website: normalizedWebsite,
+        industry: formState.industry?.trim() || undefined,
+        targetMarket: formState.targetMarket?.trim() || undefined,
+        businessGoal: formState.businessGoal?.trim() || undefined,
+        reportType: formState.reportType || "full",
         contact: {
-          name:
-            `${formState.firstName} ${formState.lastName}`.trim() || undefined,
           email: leadForm.email.trim(),
-          phone:
-            typeof leadForm.phone === "string"
-              ? leadForm.phone.trim()
-              : undefined,
+          phone: typeof leadForm.phone === "string" ? leadForm.phone.trim() : undefined,
         },
       }),
     });
@@ -708,28 +713,20 @@ export default function AIBusinessGrowthAnalyzerPage() {
     const payload = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(
-        payload?.message || "Unable to submit lead to AI analyzer",
-      );
+      throw new Error(payload?.message || "Unable to submit lead to AI analyzer");
     }
 
     if (payload?.analysis) {
       const next = payload.analysis as BusinessGrowthReport;
       setAnalysisData(next);
       setLastAnalyzedWebsite(next.reportMetadata.website || normalizedWebsite);
-      if (payload?.analysisToken) {
-        setAnalysisToken(String(payload.analysisToken));
-      }
+      if (payload?.analysisToken) setAnalysisToken(String(payload.analysisToken));
       return next;
     }
 
     return null;
   };
 
-  /**
-   * ✅ NEW:
-   * Generate PDF + send email + return downloadUrl
-   */
   const generateReport = async (analysis: BusinessGrowthReport) => {
     setIsGeneratingReport(true);
     setReportError(null);
@@ -743,14 +740,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
           analysis,
           analysisToken,
           email: leadForm.email.trim(),
-          name:
-            `${formState.firstName} ${formState.lastName}`.trim() || "there",
-          website:
-            analysis?.reportMetadata?.website ||
-            normalizeWebsiteUrl(formState.website),
-          companyName:
-            analysis?.reportMetadata?.companyName ||
-            `${formState.firstName} ${formState.lastName}`.trim(),
+          website: analysis?.reportMetadata?.website || normalizeWebsiteUrl(formState.website),
+          companyName: analysis?.reportMetadata?.companyName || formState.companyName.trim(),
         }),
       });
 
@@ -762,9 +753,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
       setReportDownloadUrl(String(data.downloadUrl));
     } catch (e) {
       console.error("Report generation failed", e);
-      setReportError(
-        "Report generation failed. You can retry, or book a call and we’ll send it manually.",
-      );
+      setReportError("Report generation failed. You can retry, or book a call and we’ll send it manually.");
     } finally {
       setIsGeneratingReport(false);
     }
@@ -776,9 +765,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
     const nextLeadErrors: LeadFormErrors = {
       email: validateEmail(leadForm.email),
       phone: validatePhone(leadForm.phone),
-      consent: leadForm.consent
-        ? undefined
-        : "Please agree to our privacy policy to continue",
+      consent: leadForm.consent ? undefined : "Please agree to our privacy policy to continue",
     };
 
     const hasLeadErrors = Object.values(nextLeadErrors).some(Boolean);
@@ -788,30 +775,20 @@ export default function AIBusinessGrowthAnalyzerPage() {
     setIsLeadSubmitting(true);
     setLeadSubmitError(null);
 
-    const websiteForSubmission =
-      lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
+    const websiteForSubmission = lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website);
 
     try {
-      // 1) Save lead + ensure analysis object exists
       const returnedAnalysis = await submitLeadToBackend(websiteForSubmission);
       const finalAnalysis = returnedAnalysis || analysisData;
 
       setLeadId("lead-" + Math.random().toString(36).slice(2, 8));
       setStep("success");
 
-      // 2) Generate report + email + get download URL (non-blocking UI)
-      if (finalAnalysis) {
-        void generateReport(finalAnalysis);
-      } else {
-        setReportError(
-          "We couldn't generate your report because analysis data was missing. Please retry.",
-        );
-      }
+      if (finalAnalysis) void generateReport(finalAnalysis);
+      else setReportError("We couldn't generate your report because analysis data was missing. Please retry.");
     } catch (error) {
       console.error("Failed to submit lead to backend", error);
-      setLeadSubmitError(
-        "We couldn't sync with the AI engine right now. Our team will follow up manually.",
-      );
+      setLeadSubmitError("We couldn't sync with the AI engine right now. Our team will follow up manually.");
       setStep("success");
     } finally {
       setIsLeadSubmitting(false);
@@ -838,246 +815,147 @@ export default function AIBusinessGrowthAnalyzerPage() {
               </Button>
             </div>
 
-            {/* <header className="flex items-start justify-between gap-4 flex-col lg:flex-row">
-              <Card className="relative rounded-2xl overflow-hidden shadow-lg border border-white/20 bg-gradient-to-r from-brand-purple to-brand-coral">
+            <section className="rounded-2xl overflow-hidden shadow-lg bg-gradient-to-r from-brand-purple to-brand-coral">
+              <div className="px-6 py-8 sm:px-10 sm:py-10">
+                <div className="flex items-start justify-between gap-6 flex-col lg:flex-row">
+                  <div className="max-w-3xl">
+                    <p className="text-sm uppercase tracking-widest text-white/90 font-semibold">
+                      BrandingBeez AI Agent
+                    </p>
 
-              <div>
-                <p className="text-sm uppercase tracking-widest text-primary font-semibold">
-                  BrandingBeez AI Agent
-                </p>
-                <h1 className="text-3xl lg:text-4xl font-bold mt-2">
-                  AI Business Growth Analyzer
-                </h1>
-                <p className="text-lg text-gray-600 mt-2 max-w-2xl">
-                  Get a growth diagnosis for your agency. Quick insights now,
-                  full playbook gated for qualified leads.
-                </p>
+                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mt-2 text-white">
+                      AI Business Growth Analyzer
+                    </h1>
 
-                {analysisSource === "service-wizard" && (
-                  <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-3 py-1 text-sm font-semibold mt-3">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Came from Find Service wizard</span>
+                    <p className="text-base sm:text-lg text-white/90 mt-3 max-w-2xl">
+                      Get a growth diagnosis for your agency. Quick insights now, full playbook gated for qualified leads.
+                    </p>
+
+                    {analysisSource === "service-wizard" && (
+                      <div className="inline-flex items-center gap-2 rounded-full bg-white/15 text-white px-4 py-2 text-sm font-semibold mt-4 border border-white/20">
+                        <Sparkles className="w-4 h-4" />
+                        <span>Came from Find Service wizard</span>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="flex items-center gap-3 bg-white shadow-sm border rounded-full px-4 py-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-500" />
-                <span className="text-sm font-semibold">
-                  100% Free. No credit card.
-                </span>
-              </div>
-              </Card>
-            </header> */}
-
-{/* HERO (match site gradient style like Image 2) */}
-<section className="rounded-2xl overflow-hidden shadow-lg bg-gradient-to-r from-brand-purple to-brand-coral">
-  <div className="px-6 py-8 sm:px-10 sm:py-10">
-    <div className="flex items-start justify-between gap-6 flex-col lg:flex-row">
-      {/* Left content */}
-      <div className="max-w-3xl">
-        <p className="text-sm uppercase tracking-widest text-white/90 font-semibold">
-          BrandingBeez AI Agent
-        </p>
-
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold mt-2 text-white">
-          AI Business Growth Analyzer
-        </h1>
-
-        <p className="text-base sm:text-lg text-white/90 mt-3 max-w-2xl">
-          Get a growth diagnosis for your agency. Quick insights now, full playbook
-          gated for qualified leads.
-        </p>
-
-        {analysisSource === "service-wizard" && (
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/15 text-white px-4 py-2 text-sm font-semibold mt-4 border border-white/20">
-            <Sparkles className="w-4 h-4" />
-            <span>Came from Find Service wizard</span>
-          </div>
-        )}
-      </div>
-
-      {/* Right badge */}
-      <div className="flex items-center gap-3 bg-white/15 border border-white/20 rounded-full px-5 py-3 backdrop-blur-sm">
-        <ShieldCheck className="w-5 h-5 text-white" />
-        <span className="text-sm font-semibold text-white">
-          100% Free. No credit card.
-        </span>
-      </div>
-    </div>
-  </div>
-</section>
-
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-6">
-          <Card className="border border-gray-200/80 shadow-sm bg-white rounded-2xl overflow-hidden">
-            <CardHeader className="space-y-4 pb-5 border-b border-gray-100 bg-gradient-to-r from-white via-slate-50 to-rose-50">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-full bg-primary/10 text-primary">
-                    <Sparkles className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl">Start your analysis</CardTitle>
-                    <CardDescription>Low-friction entry, guided progress, and instant value delivery.</CardDescription>
+                  <div className="flex items-center gap-3 bg-white/15 border border-white/20 rounded-full px-5 py-3 backdrop-blur-sm">
+                    <ShieldCheck className="w-5 h-5 text-white" />
+                    <span className="text-sm font-semibold text-white">
+                      100% Free. No credit card.
+                    </span>
                   </div>
                 </div>
-                <Badge className="bg-primary/10 text-primary border-primary/20">5-step guided flow</Badge>
               </div>
+            </section>
 
-              <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-gray-700 bg-white/80 border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
-                {["Initial Data", "Analysis", "Summary", "Lead Capture", "Success"].map((label, index) => {
-                  const stepOrder: Step[] = ["capture", "analysis", "summary", "lead", "success"];
-                  const currentIndex = stepOrder.indexOf(step);
-                  const positionState = index < currentIndex ? "complete" : index === currentIndex ? "active" : "upcoming";
-                  return (
-                    <div key={label} className="flex items-center gap-2">
-                      <div
-                        className={cn(
-                          "w-8 h-8 rounded-full flex items-center justify-center border-2 text-sm font-bold",
-                          positionState === "complete" && "border-emerald-500 bg-emerald-50 text-emerald-600",
-                          positionState === "active" && "border-primary bg-primary/10 text-primary",
-                          positionState === "upcoming" && "border-gray-200 text-gray-400",
-                        )}
-                      >
-                        {index + 1}
+            <div className="mt-8 grid grid-cols-1 lg:grid-cols-[2fr,1fr] gap-6">
+              <Card className="border border-gray-200/80 shadow-sm bg-white rounded-2xl overflow-hidden">
+                <CardHeader className="space-y-4 pb-5 border-b border-gray-100 bg-gradient-to-r from-white via-slate-50 to-rose-50">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 rounded-full bg-primary/10 text-primary">
+                        <Sparkles className="w-5 h-5" />
                       </div>
-                      <span className="text-gray-700">{label}</span>
-                      {index < 2 && <ChevronRight className="w-4 h-4 text-gray-300" />}
+                      <div>
+                        <CardTitle className="text-2xl">Start your analysis</CardTitle>
+                        <CardDescription>
+                          Low-friction entry, guided progress, and instant value delivery.
+                        </CardDescription>
+                      </div>
                     </div>
-                  );
-                })}
-              </div>
-            </CardHeader>
+                    <Badge className="bg-primary/10 text-primary border-primary/20">
+                      5-step guided flow
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-gray-700 bg-white/80 border border-gray-100 rounded-xl px-4 py-3 shadow-sm">
+                    {["Initial Data", "Analysis", "Summary", "Lead Capture", "Success"].map((label, index) => {
+                      const currentIndex = stepOrder.indexOf(step);
+                      const positionState =
+                        index < currentIndex ? "complete" : index === currentIndex ? "active" : "upcoming";
+                      return (
+                        <div key={label} className="flex items-center gap-2">
+                          <div
+                            className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center border-2 text-sm font-bold",
+                              positionState === "complete" && "border-emerald-500 bg-emerald-50 text-emerald-600",
+                              positionState === "active" && "border-primary bg-primary/10 text-primary",
+                              positionState === "upcoming" && "border-gray-200 text-gray-400",
+                            )}
+                          >
+                            {index + 1}
+                          </div>
+                          <span className="text-gray-700">{label}</span>
+                          {index < 2 && <ChevronRight className="w-4 h-4 text-gray-300" />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardHeader>
 
                 <CardContent className="space-y-6">
                   {previousStep && (
                     <div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        onClick={() => setStep(previousStep)}
-                        className="px-2"
-                      >
+                      <Button type="button" variant="ghost" onClick={() => setStep(previousStep)} className="px-2">
                         ← Back
                       </Button>
                     </div>
                   )}
-                  {step === "capture" && (
-                    <form
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                      onSubmit={handleSubmit}
-                    >
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">
-                          First Name
-                        </label>
-                        <Input
-                          ref={firstNameRef}
-                          placeholder="Alex"
-                          value={formState.firstName}
-                          onChange={(e) =>
-                            handleInputChange("firstName", e.target.value)
-                          }
-                          onFocus={() =>
-                            setErrors((prev) => ({
-                              ...prev,
-                              firstName: undefined,
-                            }))
-                          }
-                          aria-invalid={Boolean(errors.firstName)}
-                          aria-describedby="firstNameError"
-                        />
-                        {errors.firstName && (
-                          <p
-                            id="firstNameError"
-                            className="text-sm text-red-500"
-                          >
-                            {errors.firstName}
-                          </p>
-                        )}
-                      </div>
 
+                  {step === "capture" && (
+                    <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">
-                          Last Name
-                        </label>
+                        <label className="text-sm font-semibold text-gray-800">Company Name</label>
                         <Input
-                          placeholder="Jordan"
-                          value={formState.lastName}
-                          onChange={(e) =>
-                            handleInputChange("lastName", e.target.value)
-                          }
-                          onFocus={() =>
-                            setErrors((prev) => ({
-                              ...prev,
-                              lastName: undefined,
-                            }))
-                          }
-                          aria-invalid={Boolean(errors.lastName)}
-                          aria-describedby="lastNameError"
+                          ref={companyNameRef}
+                          placeholder="BrandingBeez"
+                          value={formState.companyName}
+                          onChange={(e) => handleInputChange("companyName", e.target.value)}
+                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), companyName: undefined }))}
+                          aria-invalid={Boolean((errors as any).companyName)}
+                          aria-describedby="companyNameError"
                         />
-                        {errors.lastName && (
-                          <p
-                            id="lastNameError"
-                            className="text-sm text-red-500"
-                          >
-                            {errors.lastName}
+                        {(errors as any).companyName && (
+                          <p id="companyNameError" className="text-sm text-red-500">
+                            {(errors as any).companyName}
                           </p>
                         )}
                       </div>
 
                       <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm font-semibold text-gray-800">
-                          Company Website URL
-                        </label>
+                        <label className="text-sm font-semibold text-gray-800">Company Website URL</label>
                         <Input
                           placeholder="https://youragency.com"
                           value={formState.website}
-                          onChange={(e) =>
-                            handleInputChange("website", e.target.value)
-                          }
-                          onFocus={() =>
-                            setErrors((prev) => ({
-                              ...prev,
-                              website: undefined,
-                            }))
-                          }
-                          aria-invalid={Boolean(errors.website)}
+                          onChange={(e) => handleInputChange("website", e.target.value)}
+                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), website: undefined }))}
+                          aria-invalid={Boolean((errors as any).website)}
                           aria-describedby="websiteError"
                         />
-                        <p className="text-xs text-gray-500">
-                          We’ll analyze this and auto-fix prefixes.
-                        </p>
-                        {errors.website && (
+                        <p className="text-xs text-gray-500">We’ll analyze this and auto-fix prefixes.</p>
+                        {(errors as any).website && (
                           <p
                             id="websiteError"
                             className={cn(
                               "text-sm",
-                              errors.website.includes("continue anyway")
-                                ? "text-amber-600"
-                                : "text-red-500",
+                              String((errors as any).website).includes("continue anyway") ? "text-amber-600" : "text-red-500",
                             )}
                           >
-                            {errors.website}
+                            {(errors as any).website}
                           </p>
                         )}
                       </div>
 
                       <div className="md:col-span-2 flex flex-col gap-3">
-                        <Button
-                          type="submit"
-                          disabled={isSubmitting}
-                          className="h-12 text-base font-semibold"
-                        >
+                        <Button type="submit" disabled={isSubmitting} className="h-12 text-base font-semibold">
                           {isSubmitting ? (
                             <span className="flex items-center gap-2">
-                              <Loader2 className="w-5 h-5 animate-spin" />{" "}
-                              Validating...
+                              <Loader2 className="w-5 h-5 animate-spin" /> Validating...
                             </span>
                           ) : (
                             <span className="flex items-center gap-2">
-                              Start Free Analysis{" "}
-                              <ArrowRight className="w-4 h-4" />
+                              Start Free Analysis <ArrowRight className="w-4 h-4" />
                             </span>
                           )}
                         </Button>
@@ -1090,12 +968,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       <div className="lg:col-span-2 space-y-4">
                         <div className="bg-gradient-to-r from-primary/10 to-emerald-50 rounded-xl p-4 border border-primary/20">
                           <div className="flex items-center justify-between">
-                            <p className="text-sm font-semibold text-gray-700">
-                              Analysis Progress
-                            </p>
-                            <span className="text-sm font-bold text-primary">
-                              {Math.round(progressPercentage)}%
-                            </span>
+                            <p className="text-sm font-semibold text-gray-700">Analysis Progress</p>
+                            <span className="text-sm font-bold text-primary">{Math.round(progressPercentage)}%</span>
                           </div>
 
                           <div className="w-full bg-gray-100 rounded-full h-3 mt-3 overflow-hidden">
@@ -1106,17 +980,21 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           </div>
 
                           <p className="mt-3 text-sm text-gray-700">
-                            <span className="font-semibold">
-                              {statusMessage}
-                            </span>
+                            <span className="font-semibold">{statusMessage}</span>
                           </p>
 
                           <div className="mt-3 text-xs text-gray-500 flex items-center gap-2">
                             <Globe2 className="w-4 h-4" />
-                            <span>
-                              {normalizeWebsiteUrl(formState.website)}
-                            </span>
+                            <span>{normalizeWebsiteUrl(formState.website)}</span>
                           </div>
+
+                          {/* ✅ NEW: if animation hits 100% but backend still running */}
+                          {progress >= 100 && isAnalyzingBackend && (
+                            <div className="mt-3 flex items-center gap-2 text-sm text-primary">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Finalizing speed test + compiling results…</span>
+                            </div>
+                          )}
                         </div>
 
                         <div className="space-y-3">
@@ -1133,30 +1011,17 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                       <div className="space-y-4">
                         <div className="p-4 rounded-xl bg-white border shadow-sm">
-                          <p className="text-sm font-semibold text-gray-800">
-                            Live findings
-                          </p>
-                          <p className="mt-2 text-sm text-gray-600">
-                            {teaserMessages[teaserIndex]}
-                          </p>
+                          <p className="text-sm font-semibold text-gray-800">Live findings</p>
+                          <p className="mt-2 text-sm text-gray-600">{teaserMessages[teaserIndex]}</p>
                           <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
                             <Target className="w-4 h-4" />
                             <span>Updating every few seconds</span>
                           </div>
                         </div>
 
-                        <ReportCard
-                          title="Full SEO Deep Dive"
-                          description="Technical fixes + ranking roadmap"
-                        />
-                        <ReportCard
-                          title="Lead Gen Playbook"
-                          description="Funnels, CRO fixes, and channel expansion"
-                        />
-                        <ReportCard
-                          title="Cost Savings Plan"
-                          description="Margin unlocks & delivery efficiency"
-                        />
+                        <ReportCard title="Full SEO Deep Dive" description="Technical fixes + ranking roadmap" />
+                        <ReportCard title="Lead Gen Playbook" description="Funnels, CRO fixes, and channel expansion" />
+                        <ReportCard title="Cost Savings Plan" description="Margin unlocks & delivery efficiency" />
                       </div>
                     </div>
                   )}
@@ -1165,31 +1030,19 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     <div className="space-y-5">
                       {!analysisData ? (
                         <div className="p-5 rounded-xl border bg-white">
-                          <p className="font-semibold text-gray-900">
-                            Something went wrong
-                          </p>
-                          <p className="text-sm text-gray-600 mt-1">
-                            {analysisError ??
-                              "We couldn't load your analysis result."}
-                          </p>
+                          <p className="font-semibold text-gray-900">Something went wrong</p>
+                          <p className="text-sm text-gray-600 mt-1">{analysisError ?? "We couldn't load your analysis result."}</p>
                           <div className="mt-4 flex gap-2">
                             <Button
                               type="button"
                               onClick={() => {
                                 setStep("analysis");
-                                void runAnalysis(
-                                  lastAnalyzedWebsite ||
-                                    normalizeWebsiteUrl(formState.website),
-                                );
+                                void runAnalysis(lastAnalyzedWebsite || normalizeWebsiteUrl(formState.website));
                               }}
                             >
                               Retry analysis
                             </Button>
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              onClick={() => setStep("capture")}
-                            >
+                            <Button type="button" variant="secondary" onClick={() => setStep("capture")}>
                               Back
                             </Button>
                           </div>
@@ -1198,84 +1051,100 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         <>
                           <div className="flex items-start justify-between gap-4 flex-col md:flex-row">
                             <div>
-                              <p className="text-sm text-gray-500">
-                                Analysis date: {analysisDate}
-                              </p>
-                              <h2 className="text-2xl font-bold mt-1">
-                                Your Growth Snapshot
-                              </h2>
+                              <p className="text-sm text-gray-500">Analysis date: {analysisDate}</p>
+                              <h2 className="text-2xl font-bold mt-1">Your Growth Snapshot</h2>
                               <p className="text-gray-600 mt-2 max-w-2xl">
-                                We analyzed your website and generated an
-                                executive summary. The full report is available
-                                after a quick lead capture.
+                                We analyzed your website and generated an executive summary. The full report is available after a quick lead capture.
                               </p>
                             </div>
                             <ScoreGauge score={score} />
                           </div>
 
+                          {/* ✅ NEW: Speed Test Snapshot (optional) */}
+                          {(pageSpeedMobile || pageSpeedDesktop) && (
+                            <div className="p-4 rounded-xl border bg-white">
+                              <div className="flex items-center justify-between gap-3 flex-wrap">
+                                <p className="font-semibold text-gray-900 flex items-center gap-2">
+                                  <Gauge className="w-4 h-4 text-primary" />
+                                  Speed Test Snapshot
+                                </p>
+                                <Badge className="bg-primary/10 text-primary border-primary/20">
+                                  Real Test (PageSpeed)
+                                </Badge>
+                              </div>
+
+                              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                {pageSpeedMobile && (
+                                  <div className="p-3 rounded-lg border bg-gray-50">
+                                    <p className="text-sm font-semibold text-gray-900">Mobile</p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      Performance: <b>{pageSpeedMobile.performanceScore ?? "—"}</b>/100
+                                    </p>
+                                    <div className="mt-2 text-xs text-gray-600 space-y-1">
+                                      <div>FCP: {formatMs(pageSpeedMobile.fcpMs)} · LCP: {formatMs(pageSpeedMobile.lcpMs)}</div>
+                                      <div>TBT: {formatMs(pageSpeedMobile.tbtMs)} · CLS: {pageSpeedMobile.cls ?? "—"}</div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {pageSpeedDesktop && (
+                                  <div className="p-3 rounded-lg border bg-gray-50">
+                                    <p className="text-sm font-semibold text-gray-900">Desktop</p>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                      Performance: <b>{pageSpeedDesktop.performanceScore ?? "—"}</b>/100
+                                    </p>
+                                    <div className="mt-2 text-xs text-gray-600 space-y-1">
+                                      <div>FCP: {formatMs(pageSpeedDesktop.fcpMs)} · LCP: {formatMs(pageSpeedDesktop.lcpMs)}</div>
+                                      <div>TBT: {formatMs(pageSpeedDesktop.tbtMs)} · CLS: {pageSpeedDesktop.cls ?? "—"}</div>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              <p className="text-xs text-gray-500 mt-3">
+                                Full opportunities & fixes are included in the PDF report.
+                              </p>
+                            </div>
+                          )}
+
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-4 rounded-xl border bg-white">
-                              <p className="font-semibold text-gray-900">
-                                Strengths
-                              </p>
+                              <p className="font-semibold text-gray-900">Strengths</p>
                               <ul className="mt-2 space-y-2 text-sm text-gray-700 list-disc pl-5">
-                                {summaryStrengths.slice(0, 5).map((s, i) => (
-                                  <li key={i}>{s}</li>
-                                ))}
+                                {summaryStrengths.slice(0, 5).map((s, i) => <li key={i}>{s}</li>)}
                               </ul>
                             </div>
 
                             <div className="p-4 rounded-xl border bg-white">
-                              <p className="font-semibold text-gray-900">
-                                Risks / Weaknesses
-                              </p>
+                              <p className="font-semibold text-gray-900">Risks / Weaknesses</p>
                               <ul className="mt-2 space-y-2 text-sm text-gray-700 list-disc pl-5">
-                                {summaryWeaknesses.slice(0, 5).map((s, i) => (
-                                  <li key={i}>{s}</li>
-                                ))}
+                                {summaryWeaknesses.slice(0, 5).map((s, i) => <li key={i}>{s}</li>)}
                               </ul>
                             </div>
                           </div>
 
                           <div className="p-4 rounded-xl border bg-white">
-                            <p className="font-semibold text-gray-900">
-                              Biggest opportunity
-                            </p>
+                            <p className="font-semibold text-gray-900">Biggest opportunity</p>
                             <p className="mt-2 text-sm text-gray-700">
-                              {biggestOpportunity ||
-                                "Opportunity insights are being finalized."}
+                              {biggestOpportunity || "Opportunity insights are being finalized."}
                             </p>
                           </div>
 
                           <div className="p-4 rounded-xl border bg-white">
-                            <p className="font-semibold text-gray-900">
-                              Sub-score breakdown
-                            </p>
+                            <p className="font-semibold text-gray-900">Sub-score breakdown</p>
                             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
                               {reportPreview.map((item) => (
-                                <div
-                                  key={item.title}
-                                  className="p-3 rounded-lg border bg-gray-50"
-                                >
-                                  <p className="text-sm font-semibold text-gray-900">
-                                    {item.title}
-                                  </p>
-                                  <p className="text-sm text-gray-600 mt-1">
-                                    {item.description}
-                                  </p>
+                                <div key={item.title} className="p-3 rounded-lg border bg-gray-50">
+                                  <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                                  <p className="text-sm text-gray-600 mt-1">{item.description}</p>
                                 </div>
                               ))}
                             </div>
                           </div>
 
                           <div className="flex flex-col md:flex-row gap-3">
-                            <Button
-                              type="button"
-                              className="h-12 text-base font-semibold"
-                              onClick={() => setStep("lead")}
-                            >
-                              Unlock Full Report{" "}
-                              <ArrowRight className="w-4 h-4 ml-2" />
+                            <Button type="button" className="h-12 text-base font-semibold" onClick={() => setStep("lead")}>
+                              Unlock Full Report <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                             <BookCallButtonWithModal />
                           </div>
@@ -1288,89 +1157,50 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     <form className="space-y-4" onSubmit={handleLeadSubmit}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <label className="text-sm font-semibold text-gray-800">
-                            Email
-                          </label>
+                          <label className="text-sm font-semibold text-gray-800">Email</label>
                           <Input
                             ref={emailRef}
                             placeholder="you@company.com"
                             value={leadForm.email}
-                            onChange={(e) =>
-                              handleLeadChange("email", e.target.value)
-                            }
+                            onChange={(e) => handleLeadChange("email", e.target.value)}
                             aria-invalid={Boolean(leadErrors.email)}
                           />
                           {emailSuggestion && (
                             <p className="text-xs text-amber-700">
-                              Did you mean{" "}
-                              <span className="font-semibold">
-                                {emailSuggestion}
-                              </span>
-                              ?
+                              Did you mean <span className="font-semibold">{emailSuggestion}</span>?
                             </p>
                           )}
-                          {leadErrors.email && (
-                            <p className="text-sm text-red-500">
-                              {leadErrors.email}
-                            </p>
-                          )}
+                          {leadErrors.email && <p className="text-sm text-red-500">{leadErrors.email}</p>}
                         </div>
 
                         <div className="space-y-2">
-                          <label className="text-sm font-semibold text-gray-800">
-                            Phone
-                          </label>
+                          <label className="text-sm font-semibold text-gray-800">Phone</label>
                           <Input
                             placeholder="(987) 654-3210"
                             value={leadForm.phone}
-                            onChange={(e) =>
-                              handleLeadChange("phone", e.target.value)
-                            }
+                            onChange={(e) => handleLeadChange("phone", e.target.value)}
                             aria-invalid={Boolean(leadErrors.phone)}
                           />
-                          {leadErrors.phone && (
-                            <p className="text-sm text-red-500">
-                              {leadErrors.phone}
-                            </p>
-                          )}
+                          {leadErrors.phone && <p className="text-sm text-red-500">{leadErrors.phone}</p>}
                         </div>
                       </div>
 
                       <div className="flex items-start gap-3">
-                        <Checkbox
-                          checked={leadForm.consent}
-                          onCheckedChange={(v) =>
-                            handleLeadChange("consent", Boolean(v))
-                          }
-                        />
+                        <Checkbox checked={leadForm.consent} onCheckedChange={(v) => handleLeadChange("consent", Boolean(v))} />
                         <div>
                           <p className="text-sm text-gray-700">
-                            I agree to be contacted about my report and accept
-                            the privacy policy.
+                            I agree to be contacted about my report and accept the privacy policy.
                           </p>
-                          {leadErrors.consent && (
-                            <p className="text-sm text-red-500 mt-1">
-                              {leadErrors.consent}
-                            </p>
-                          )}
+                          {leadErrors.consent && <p className="text-sm text-red-500 mt-1">{leadErrors.consent}</p>}
                         </div>
                       </div>
 
-                      {leadSubmitError && (
-                        <p className="text-sm text-amber-700">
-                          {leadSubmitError}
-                        </p>
-                      )}
+                      {leadSubmitError && <p className="text-sm text-amber-700">{leadSubmitError}</p>}
 
-                      <Button
-                        type="submit"
-                        disabled={isLeadSubmitting}
-                        className="h-12 text-base font-semibold w-full md:w-auto"
-                      >
+                      <Button type="submit" disabled={isLeadSubmitting} className="h-12 text-base font-semibold w-full md:w-auto">
                         {isLeadSubmitting ? (
                           <span className="flex items-center gap-2">
-                            <Loader2 className="w-5 h-5 animate-spin" />{" "}
-                            Submitting...
+                            <Loader2 className="w-5 h-5 animate-spin" /> Submitting...
                           </span>
                         ) : (
                           "Unlock & Continue"
@@ -1388,8 +1218,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       </h3>
 
                       <p className="text-gray-600">
-                        We’ve captured your details. We’re generating your PDF
-                        report and sending it to <b>{leadForm.email}</b>.
+                        We’ve captured your details. We’re generating your PDF report and sending it to <b>{leadForm.email}</b>.
                       </p>
 
                       {isGeneratingReport && (
@@ -1435,20 +1264,14 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                         <BookCallButtonWithModal />
 
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => setStep("capture")}
-                          className="h-11"
-                        >
+                        <Button type="button" variant="secondary" onClick={() => setStep("capture")} className="h-11">
                           Run another analysis
                         </Button>
                       </div>
 
                       {!canDownload && !isGeneratingReport && !reportError && (
                         <p className="text-xs text-gray-500">
-                          If the download button is still disabled, the report
-                          endpoint might not be deployed yet.
+                          If the download button is still disabled, the report endpoint might not be deployed yet.
                         </p>
                       )}
                     </div>
@@ -1460,9 +1283,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                 <Card className="bg-white/90 border border-gray-100 shadow-sm">
                   <CardHeader>
                     <CardTitle className="text-base">What you get</CardTitle>
-                    <CardDescription>
-                      Immediate value + full playbook after qualification
-                    </CardDescription>
+                    <CardDescription>Immediate value + full playbook after qualification</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm text-gray-700">
                     <div className="flex items-start gap-2">
@@ -1471,9 +1292,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5" />
-                      <span>
-                        Sub-score breakdown (SEO, reputation, lead gen)
-                      </span>
+                      <span>Sub-score breakdown (SEO, reputation, lead gen)</span>
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5" />
@@ -1484,22 +1303,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                 <Card className="bg-white/90 border border-gray-100 shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-base">
-                      Why reachability can be “false”
-                    </CardTitle>
-                    <CardDescription>
-                      Even when the URL is correct
-                    </CardDescription>
+                    <CardTitle className="text-base">Why reachability can be “false”</CardTitle>
+                    <CardDescription>Even when the URL is correct</CardDescription>
                   </CardHeader>
                   <CardContent className="text-sm text-gray-700 space-y-2">
-                    <p>
-                      Some sites block automated checks (HEAD), use
-                      Cloudflare/WAF, or geo-restrict server probes.
-                    </p>
-                    <p className="text-gray-500">
-                      We now treat verification as a warning and continue the
-                      analysis.
-                    </p>
+                    <p>Some sites block automated checks (HEAD), use Cloudflare/WAF, or geo-restrict server probes.</p>
+                    <p className="text-gray-500">We now treat verification as a warning and continue the analysis.</p>
                   </CardContent>
                 </Card>
               </div>

@@ -6,6 +6,82 @@ const openaiClient = new OpenAI({
 });
 
 export const openai = openaiClient;
+/**
+ * Robust JSON parsing for model outputs.
+ * Even with response_format=json_object, the model can occasionally emit invalid JSON (e.g., unterminated strings).
+ * This helper extracts the most likely JSON substring and, if needed, asks the model to repair it.
+ */
+function extractJsonCandidate(raw: string): string {
+  const trimmed = (raw || "").trim();
+  if (!trimmed) return "{}";
+
+  // Strip ```json fences if present
+  const fenceMatch = trimmed.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+  const unfenced = fenceMatch?.[1]?.trim() || trimmed;
+
+  // Best-effort: take substring from first "{" to last "}"
+  const first = unfenced.indexOf("{");
+  const last = unfenced.lastIndexOf("}");
+  const candidate = first !== -1 && last !== -1 && last > first ? unfenced.slice(first, last + 1) : unfenced;
+
+  // Remove BOM/control chars that break JSON.parse
+  return candidate.replace(/\uFEFF/g, "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "");
+}
+
+function tryParseJson(raw: string): any | null {
+  const candidate = extractJsonCandidate(raw);
+
+  // First try: direct parse
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    // Second try: remove trailing commas
+    const noTrailingCommas = candidate
+      .replace(/,\s*}/g, "}")
+      .replace(/,\s*]/g, "]");
+    try {
+      return JSON.parse(noTrailingCommas);
+    } catch {
+      return null;
+    }
+  }
+}
+
+async function parseOrRepairModelJson(raw: string, label: string): Promise<any> {
+  const parsed = tryParseJson(raw);
+  if (parsed) return parsed;
+
+  const repairPrompt = `
+You are a JSON repair tool.
+
+Task:
+- Fix the following content into a SINGLE valid JSON object.
+- Do not add commentary or markdown.
+- Preserve the original structure/keys as much as possible.
+- If something is incomplete, make a best-effort completion while staying consistent.
+
+CONTENT TO REPAIR:
+${raw}
+`.trim();
+
+  const repairRes = await openaiClient.chat.completions.create({
+    model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
+    messages: [
+      { role: "system", content: "Return ONLY valid JSON. No markdown. No commentary." },
+      { role: "user", content: repairPrompt }
+    ],
+    response_format: { type: "json_object" },
+    temperature: 0,
+    max_tokens: 4500
+  });
+
+  const repairedRaw = repairRes.choices[0]?.message?.content || "{}";
+  const repaired = tryParseJson(repairedRaw);
+  if (repaired) return repaired;
+
+  throw new SyntaxError(`Failed to parse/repair model JSON for ${label}`);
+}
+
 
 /* =========================
    BUSINESS GROWTH SYSTEM PROMPT
@@ -163,7 +239,7 @@ Provide realistic, data-driven analysis based on the domain and typical website 
       temperature: 0.7
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await parseOrRepairModelJson(response.choices[0].message.content || "{}", "business-growth-analysis");
 
     // Ensure all required fields exist with fallbacks
     return {
@@ -284,7 +360,7 @@ Provide realistic scores and detailed recommendations for improvement.`;
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await parseOrRepairModelJson(response.choices[0].message.content || "{}", "business-growth-analysis");
 
     return {
       score: Math.max(1, Math.min(100, result.score || 75)),
@@ -375,7 +451,7 @@ Respond in JSON format:
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await parseOrRepairModelJson(response.choices[0].message.content || "{}", "business-growth-analysis");
 
     return {
       score: Math.max(1, Math.min(100, result.score || 75)),
@@ -474,7 +550,7 @@ Consider current market rates for 2024/2025. Provide realistic cost analysis in 
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await parseOrRepairModelJson(response.choices[0].message.content || "{}", "business-growth-analysis");
 
     const traditional = result.traditional || {};
     const dedicated = result.dedicated || {};
@@ -568,7 +644,7 @@ Base analysis on industry benchmarks and current performance metrics.`;
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await parseOrRepairModelJson(response.choices[0].message.content || "{}", "business-growth-analysis");
 
     return {
       currentPerformance: {
@@ -657,7 +733,7 @@ Focus on practical, achievable automation opportunities.`;
       response_format: { type: "json_object" },
     });
 
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    const result = await parseOrRepairModelJson(response.choices[0].message.content || "{}", "business-growth-analysis");
 
     return {
       score: Math.max(1, Math.min(100, result.score || 70)),
@@ -1189,6 +1265,7 @@ export interface BusinessGrowthReport {
       score: number;
       strengths: string[];
       issues: string[];
+      pageSpeed?: WebsiteSpeedTest;
     };
     contentQuality: {
       score: number;
@@ -1221,6 +1298,7 @@ export interface BusinessGrowthReport {
       referringDomains: number;
       averageDA: number;
       issues: string[];
+      pageSpeed?: WebsiteSpeedTest;
     };
     keywordRankings: {
       total: number;
@@ -1526,6 +1604,320 @@ export interface BusinessGrowthReport {
   };
 }
 
+type WebsiteSignals = {
+  url: string;
+  hostname: string;
+  title: string;
+  metaDescription: string;
+  wordCount: number;
+  h1Count: number;
+  h2Count: number;
+  h3Count: number;
+  totalLinks: number;
+  internalLinks: number;
+  externalLinks: number;
+  hasHttps: boolean;
+  hasStructuredData: boolean;
+  hasSitemapReference: boolean;
+  hasRobotsMeta: boolean;
+  hasContactCTA: boolean;
+  /**
+   * Real speed-test results from Google PageSpeed Insights (if available).
+   * Always prefer these over "guessed" values.
+   */
+  speedTest?: WebsiteSpeedTest;
+};
+
+
+type PageSpeedOpportunity = {
+  title: string;
+  description?: string;
+  estimatedSavingsMs?: number | null;
+};
+
+type PageSpeedMetrics = {
+  strategy: "mobile" | "desktop";
+  performanceScore: number | null; // 0-100
+  seoScore: number | null;         // 0-100
+  bestPracticesScore: number | null; // 0-100
+  accessibilityScore: number | null; // 0-100
+  metrics: {
+    fcpMs: number | null;
+    lcpMs: number | null;
+    tbtMs: number | null;
+    cls: number | null;
+    speedIndexMs: number | null;
+  };
+  opportunities: PageSpeedOpportunity[];
+  diagnostics?: Record<string, any>;
+  fetchedAt: string; // ISO
+};
+
+export type WebsiteSpeedTest = {
+  source: "pagespeed_insights_v5";
+  mobile: PageSpeedMetrics;
+  desktop: PageSpeedMetrics;
+};
+
+function normalizeWebsiteUrl(website: string) {
+  if (!website) return "";
+  if (/^https?:\/\//i.test(website)) return website;
+  return `https://${website}`;
+}
+
+function clampScore(value: number) {
+  return Math.max(1, Math.min(100, Math.round(value)));
+}
+
+function hashString(value: string) {
+  let hash = 0;
+  for (let i = 0; i < value.length; i += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+function seededNumber(seedBase: number, min: number, max: number, offset = 0) {
+  const range = Math.max(1, max - min + 1);
+  return min + Math.abs((seedBase + offset) % range);
+}
+
+
+async function fetchPageSpeedInsights(
+  website: string,
+  strategy: "mobile" | "desktop",
+): Promise<PageSpeedMetrics> {
+  const normalized = normalizeWebsiteUrl(website);
+  const apiKey = process.env.PAGESPEED_API_KEY || process.env.GOOGLE_PAGESPEED_API_KEY || "";
+  const qs = new URLSearchParams({
+    url: normalized,
+    strategy,
+  });
+  // Include common Lighthouse categories to support a richer report.
+  ["performance", "seo", "best-practices", "accessibility"].forEach((c) => qs.append("category", c));
+  if (apiKey) qs.set("key", apiKey);
+
+  const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?${qs.toString()}`;
+
+  const fallback: PageSpeedMetrics = {
+    strategy,
+    performanceScore: null,
+    seoScore: null,
+    bestPracticesScore: null,
+    accessibilityScore: null,
+    metrics: { fcpMs: null, lcpMs: null, tbtMs: null, cls: null, speedIndexMs: null },
+    opportunities: [],
+    fetchedAt: new Date().toISOString(),
+  };
+
+  // Keep PSI calls bounded so the analysis doesn't hang.
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25_000);
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "GET",
+      headers: { "accept": "application/json" },
+      signal: controller.signal,
+    });
+
+    if (!res.ok) return fallback;
+
+    const json = (await res.json()) as any;
+    const lighthouse = json?.lighthouseResult;
+    const categories = lighthouse?.categories || {};
+    const audits = lighthouse?.audits || {};
+
+    const scoreTo100 = (v: any) =>
+      typeof v === "number" ? Math.round(Math.max(0, Math.min(1, v)) * 100) : null;
+
+    const numOrNull = (v: any) => (typeof v === "number" ? v : null);
+
+    const opportunities: PageSpeedOpportunity[] = [];
+    const oppIds = [
+      "render-blocking-resources",
+      "unminified-javascript",
+      "unused-javascript",
+      "unminified-css",
+      "unused-css-rules",
+      "uses-optimized-images",
+      "uses-webp-images",
+      "uses-responsive-images",
+      "offscreen-images",
+      "uses-text-compression",
+      "uses-long-cache-ttl",
+      "server-response-time",
+      "third-party-summary",
+      "largest-contentful-paint-element",
+    ];
+
+    for (const id of oppIds) {
+      const a = audits?.[id];
+      if (!a) continue;
+      const savings = a?.details?.overallSavingsMs ?? a?.details?.overallSavingsBytes ?? null;
+      opportunities.push({
+        title: safeText(a?.title || id),
+        description: safeText(a?.description || ""),
+        estimatedSavingsMs: typeof savings === "number" ? savings : null,
+      });
+    }
+
+    return {
+      strategy,
+      performanceScore: scoreTo100(categories?.performance?.score),
+      seoScore: scoreTo100(categories?.seo?.score),
+      bestPracticesScore: scoreTo100(categories?.["best-practices"]?.score),
+      accessibilityScore: scoreTo100(categories?.accessibility?.score),
+      metrics: {
+        fcpMs: numOrNull(audits?.["first-contentful-paint"]?.numericValue),
+        lcpMs: numOrNull(audits?.["largest-contentful-paint"]?.numericValue),
+        tbtMs: numOrNull(audits?.["total-blocking-time"]?.numericValue),
+        cls: numOrNull(audits?.["cumulative-layout-shift"]?.numericValue),
+        speedIndexMs: numOrNull(audits?.["speed-index"]?.numericValue),
+      },
+      opportunities: opportunities.slice(0, 10),
+      diagnostics: {
+        finalUrl: safeText(lighthouse?.finalUrl || json?.id || normalized),
+        fetchTime: safeText(lighthouse?.fetchTime || ""),
+      },
+      fetchedAt: new Date().toISOString(),
+    };
+  } catch (e) {
+    return fallback;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function fetchWebsiteSignals(website: string): Promise<WebsiteSignals> {
+  const normalized = normalizeWebsiteUrl(website);
+  const fallbackHostname = website.replace(/^https?:\/\//i, "").split("/")[0] || website || "unknown";
+  const baseSignals: WebsiteSignals = {
+    url: normalized,
+    hostname: fallbackHostname,
+    title: "",
+    metaDescription: "",
+    wordCount: 0,
+    h1Count: 0,
+    h2Count: 0,
+    h3Count: 0,
+    totalLinks: 0,
+    internalLinks: 0,
+    externalLinks: 0,
+    hasHttps: normalized.startsWith("https://"),
+    hasStructuredData: false,
+    hasSitemapReference: false,
+    hasRobotsMeta: false,
+    hasContactCTA: false,
+    speedTest: undefined,
+  };
+
+  if (!normalized) {
+    return baseSignals;
+  }
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const response = await fetch(normalized, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "BrandingBeezBot/1.0 (+https://brandingbeez.com)"
+      },
+    });
+
+    clearTimeout(timeout);
+
+    if (!response.ok) {
+      return baseSignals;
+    }
+
+    const html = await response.text();
+    const url = new URL(normalized);
+    const hostname = url.hostname.toLowerCase();
+
+    const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const metaMatch =
+      html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i)
+      || html.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["'][^>]*>/i);
+
+    const bodyText = html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const words = bodyText.length ? bodyText.split(/\s+/).length : 0;
+    const h1Count = (html.match(/<h1\b/gi) || []).length;
+    const h2Count = (html.match(/<h2\b/gi) || []).length;
+    const h3Count = (html.match(/<h3\b/gi) || []).length;
+
+    const linkMatches = [...html.matchAll(/<a\s+[^>]*href=["']([^"']+)["']/gi)];
+    let internalLinks = 0;
+    let externalLinks = 0;
+
+    linkMatches.forEach((match) => {
+      const href = match[1];
+      if (href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) {
+        return;
+      }
+      try {
+        const linkUrl = new URL(href, normalized);
+        if (linkUrl.hostname.toLowerCase() === hostname) {
+          internalLinks += 1;
+        } else {
+          externalLinks += 1;
+        }
+      } catch {
+        // Ignore invalid URLs
+      }
+    });
+
+    const hasStructuredData = /application\/ld\+json/i.test(html);
+    const hasRobotsMeta = /<meta[^>]*name=["']robots["']/i.test(html);
+    const hasSitemapReference = /sitemap/i.test(html);
+    const hasContactCTA = /(contact|book|schedule|get\s+a\s+quote|request\s+a\s+demo)/i.test(bodyText);
+
+    // Run real speed-test (PageSpeed Insights). This supports accurate Core Web Vitals and performance scoring.
+    const [mobileRes, desktopRes] = await Promise.allSettled([
+      fetchPageSpeedInsights(normalized, "mobile"),
+      fetchPageSpeedInsights(normalized, "desktop"),
+    ]);
+
+    const speedTest: WebsiteSpeedTest = {
+      source: "pagespeed_insights_v5",
+      mobile: mobileRes.status === "fulfilled" ? mobileRes.value : await fetchPageSpeedInsights(normalized, "mobile"),
+      desktop: desktopRes.status === "fulfilled" ? desktopRes.value : await fetchPageSpeedInsights(normalized, "desktop"),
+    };
+
+    return {
+      url: normalized,
+      hostname,
+      speedTest,
+      title: titleMatch?.[1]?.trim() || "",
+      metaDescription: metaMatch?.[1]?.trim() || "",
+      wordCount: words,
+      h1Count,
+      h2Count,
+      h3Count,
+      totalLinks: linkMatches.length,
+      internalLinks,
+      externalLinks,
+      hasHttps: normalized.startsWith("https://"),
+      hasStructuredData,
+      hasSitemapReference,
+      hasRobotsMeta,
+      hasContactCTA,
+    };
+  } catch {
+    return baseSignals;
+  }
+}
+
 function inferGeographicMix(website: string) {
   const defaultMix = { us: "Insufficient data", uk: "Insufficient data", other: "Insufficient data" };
   if (!website) return defaultMix;
@@ -1566,12 +1958,170 @@ function inferGeographicMix(website: string) {
   return { us: "Unknown", uk: "Unknown", other: `${match.region} (inferred from domain)` };
 }
 
-export function buildBusinessGrowthFallback(input: { companyName: string; website: string; industry?: string; }): BusinessGrowthReport {
+function buildBusinessGrowthFallbackTemplate(
+  input: { companyName: string; website: string; industry?: string; },
+  signals?: WebsiteSignals,
+): BusinessGrowthReport {
   const now = new Date();
   const reportId = `BB-AI-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, "0")}${now.getDate()
     .toString()
     .padStart(2, "0")}-${Math.floor(Math.random() * 9000 + 1000)}`;
   const geographicMix = inferGeographicMix(input.website);
+  const resolvedSignals = signals ?? {
+    url: normalizeWebsiteUrl(input.website),
+    hostname: input.website.replace(/^https?:\/\//i, "").split("/")[0] || "unknown",
+    title: "",
+    metaDescription: "",
+    wordCount: 0,
+    h1Count: 0,
+    h2Count: 0,
+    h3Count: 0,
+    totalLinks: 0,
+    internalLinks: 0,
+    externalLinks: 0,
+    hasHttps: normalizeWebsiteUrl(input.website).startsWith("https://"),
+    hasStructuredData: false,
+    hasSitemapReference: false,
+    hasRobotsMeta: false,
+    hasContactCTA: false,
+    speedTest: undefined,
+  };
+  const domainSeed = hashString(resolvedSignals.hostname || input.website);
+  const wordCount = resolvedSignals.wordCount;
+  const hasMeta = Boolean(resolvedSignals.metaDescription);
+  const hasTitle = Boolean(resolvedSignals.title);
+  const hasH1 = resolvedSignals.h1Count > 0;
+  const hasH2 = resolvedSignals.h2Count > 0;
+
+  const websiteScore = clampScore(
+    58
+    + (wordCount > 800 ? 12 : wordCount > 400 ? 6 : -4)
+    + (hasH1 ? 5 : -8)
+    + (hasH2 ? 4 : -4)
+    + (resolvedSignals.internalLinks > 12 ? 6 : 0)
+    + (resolvedSignals.hasHttps ? 6 : -12),
+  );
+  const seoScore = clampScore(
+    55
+    + (hasMeta ? 8 : -8)
+    + (hasTitle ? 6 : -6)
+    + (resolvedSignals.hasStructuredData ? 8 : -6)
+    + (resolvedSignals.hasSitemapReference ? 6 : -4),
+  );
+  const reputationScore = clampScore(seededNumber(domainSeed, 60, 82, 4));
+  const leadGenScore = clampScore(
+    52
+    + (resolvedSignals.hasContactCTA ? 10 : -4)
+    + (resolvedSignals.externalLinks > 6 ? 4 : 0),
+  );
+  const servicesScore = clampScore(seededNumber(domainSeed, 62, 85, 8));
+  const costEfficiency = clampScore(seededNumber(domainSeed, 55, 78, 12));
+  const overallScore = clampScore(
+    (websiteScore + seoScore + reputationScore + leadGenScore + servicesScore + costEfficiency) / 6,
+  );
+
+  const strengths = [
+    resolvedSignals.hasHttps ? "HTTPS enabled with a secure browsing experience" : "",
+    hasTitle ? `Clear title tag (${resolvedSignals.title.slice(0, 48) || "homepage"})` : "",
+    wordCount > 700 ? `Rich on-page content (~${wordCount} words on primary page)` : "",
+    resolvedSignals.internalLinks > 10 ? `Healthy internal linking (${resolvedSignals.internalLinks} internal links)` : "",
+    resolvedSignals.hasStructuredData ? "Structured data detected for better rich results" : "",
+    resolvedSignals.hasContactCTA ? "Conversion intent visible with contact/booking cues" : "",
+    "Consistent service positioning across primary pages",
+  ].filter(Boolean) as string[];
+
+  const weaknesses = [
+    !hasMeta ? "Meta description missing or too short on the homepage" : "",
+    !resolvedSignals.hasSitemapReference ? "No visible sitemap reference in source or footer" : "",
+    !resolvedSignals.hasStructuredData ? "Structured data schema not detected" : "",
+    resolvedSignals.externalLinks < 3 ? "Limited authority signaling via outbound citations" : "",
+    resolvedSignals.h1Count > 1 ? "Multiple H1s can dilute topical clarity" : "",
+    !resolvedSignals.hasContactCTA ? "Primary CTA not obvious in above-the-fold content" : "",
+    "Low proof density (case studies/testimonials) relative to competitors",
+  ].filter(Boolean) as string[];
+
+  const ensureMinimumItems = (items: string[], minCount: number, fill: string[]) => {
+    if (items.length >= minCount) return items;
+    const needed = minCount - items.length;
+    return items.concat(fill.slice(0, needed));
+  };
+
+  const fallbackStrengths = [
+    `Brand presence signals are stable for ${resolvedSignals.hostname || "the site"}`,
+    "Service clarity is visible across primary navigation",
+    "Baseline conversion paths exist for inbound leads",
+    "Navigation hierarchy supports key service discovery",
+    "Visual brand consistency aligns with industry norms",
+    "Opportunity to highlight proof assets across core pages",
+  ];
+
+  const fallbackWeaknesses = [
+    "Proof assets are light relative to market leaders",
+    "Limited mid-funnel nurture assets for decision makers",
+    "Competitive positioning lacks vertical specificity",
+    "Messaging lacks quantified outcome metrics",
+    "Low breadth of trust signals above the fold",
+    "Few conversion-focused secondary CTAs",
+  ];
+
+  const quickWins = [
+    {
+      title: "Clarify primary CTA and add proof bar",
+      impact: "+6-10% form fills",
+      time: "1 week",
+      cost: "$0-$250",
+      details: "Add a single CTA above the fold with review stars and logos to lift trust and conversions.",
+    },
+    {
+      title: "Ship structured data (FAQ + LocalBusiness)",
+      impact: "+8-12% CTR lift",
+      time: "1-2 weeks",
+      cost: "$0",
+      details: "Implement JSON-LD for services, reviews, and FAQs to increase SERP visibility.",
+    },
+    {
+      title: "Publish 2 industry-specific landing pages",
+      impact: "+10-18 qualified leads/mo",
+      time: "3 weeks",
+      cost: "$600-$900",
+      details: `Target ${input.industry || "core"} verticals with tailored pain points and proof points.`,
+    },
+    {
+      title: "Launch a lead magnet tied to ${input.industry || 'your'} ROI",
+      impact: "2.5-3x lead conversion",
+      time: "3 weeks",
+      cost: "$400-$700",
+      details: "Build a calculator or checklist and connect to a 3-email nurture sequence.",
+    },
+    {
+      title: "Claim/optimize directory listings (Clutch, G2, DesignRush)",
+      impact: "+$25K-$40K ARR",
+      time: "2-4 weeks",
+      cost: "$0-$299",
+      details: "Add 3 proof points, 2 case studies, and request 5 reviews to unlock high-intent leads.",
+    },
+    {
+      title: "Compress hero assets and defer scripts",
+      impact: "-0.8s load time",
+      time: "1 week",
+      cost: "$0",
+      details: "Optimize images, move non-critical JS, and reduce render-blocking resources.",
+    },
+    {
+      title: "Add a comparison/alternatives page",
+      impact: "+120-180 organic visits/mo",
+      time: "2 weeks",
+      cost: "$500",
+      details: "Publish a competitive comparison page targeting high-intent queries.",
+    },
+  ];
+
+  const backlinks = seededNumber(domainSeed, 180, 920, 22);
+  const referringDomains = Math.max(30, Math.round(backlinks * 0.18));
+  const reviewCount = seededNumber(domainSeed, 18, 65, 18);
+  const clutchReviews = Math.max(0, Math.round(reviewCount * 0.18));
+  const g2Reviews = Math.max(0, Math.round(reviewCount * 0.08));
+  const googleReviews = Math.max(0, reviewCount - clutchReviews - g2Reviews);
 
   return {
     reportMetadata: {
@@ -1579,141 +2129,173 @@ export function buildBusinessGrowthFallback(input: { companyName: string; websit
       companyName: input.companyName || "Marketing Agency",
       website: input.website,
       analysisDate: now.toISOString(),
-      overallScore: 73,
+      overallScore,
       subScores: {
-        website: 76,
-        seo: 71,
-        reputation: 68,
-        leadGen: 64,
-        services: 72,
-        costEfficiency: 61,
+        website: websiteScore,
+        seo: seoScore,
+        reputation: reputationScore,
+        leadGen: leadGenScore,
+        services: servicesScore,
+        costEfficiency,
       },
     },
     executiveSummary: {
-      strengths: [
-        "Strong SEO momentum (87/100)",
-        "Great reputation score (4.7★)",
-        "Solid client retention signals",
-      ],
-      weaknesses: [
-        "Limited lead gen diversity (3/10)",
-        "High cost structure vs. peers",
-        "Missing key directory coverage",
-      ],
-      biggestOpportunity: "Claim Clutch & DesignRush listings to unlock ~$42K ARR within 90 days.",
-      quickWins: [
-        {
-          title: "Claim and optimize Clutch profile with 5 proof points",
-          impact: "+$30K ARR",
-          time: "2 weeks",
-          cost: "$0",
-          details: "Set up category tags, upload 3 portfolio pieces, and request 5 client reviews to improve lead flow.",
-        },
-        {
-          title: "Launch ROI calculator lead magnet",
-          impact: "3x lead conversion",
-          time: "3 weeks",
-          cost: "$500",
-          details: "Use a simple form-based calculator for paid media ROI with automated email follow-up.",
-        },
-        {
-          title: "Reply to recent Google reviews and add schema",
-          impact: "+8% conversion",
-          time: "1 week",
-          cost: "$0",
-          details: "Respond to last 10 reviews, add FAQ + review schema, and push testimonials to key landing pages.",
-        },
-        {
-          title: "Rework hero CTA for clarity + add proof bar",
-          impact: "+6-10% form fills",
-          time: "1 week",
-          cost: "$0",
-          details: "Add direct CTA, proof bar with review stars, and a secondary CTA for calendar booking.",
-        },
-        {
-          title: "Retargeting + LinkedIn lead form test",
-          impact: "+12-18 qualified leads/mo",
-          time: "4 weeks",
-          cost: "$1.2K",
-          details: "Spin up a LinkedIn lead form and retargeting ads focusing on core service keywords and case stats.",
-        },
-      ],
+      strengths: ensureMinimumItems(strengths, 6, fallbackStrengths).slice(0, 6),
+      weaknesses: ensureMinimumItems(weaknesses, 6, fallbackWeaknesses).slice(0, 6),
+      biggestOpportunity: `Improve ${resolvedSignals.hostname || "your"} directory visibility and proof assets to unlock $${seededNumber(
+        domainSeed,
+        28,
+        55,
+        32,
+      )}K ARR within 90 days.`,
+      quickWins,
     },
     websiteDigitalPresence: {
       technicalSEO: {
-        score: 78,
-        strengths: ["HTTPS enabled", "Clean URL structure", "XML sitemap present"],
-        issues: ["Render-blocking scripts on hero", "Missing structured data on services"],
+        score: websiteScore,
+        pageSpeed: resolvedSignals.speedTest,
+        strengths: [
+          resolvedSignals.hasHttps ? "HTTPS enabled" : "HTTPS upgrade needed",
+          hasTitle ? "Clean title tag present" : "Title tag present but needs refinement",
+          resolvedSignals.hasSitemapReference ? "Sitemap reference detected" : "Sitemap reference missing",
+        ],
+        issues: [
+          resolvedSignals.hasStructuredData ? "Schema coverage is partial" : "Missing structured data on services",
+          resolvedSignals.hasRobotsMeta ? "Robots meta present but needs validation" : "Robots meta not detected",
+          resolvedSignals.totalLinks > 40 ? "High script/link density affecting render time" : "Render-blocking assets on hero",
+        ],
       },
       contentQuality: {
-        score: 74,
-        strengths: ["Clear value prop above the fold", "Service pages have 900-1200 words"],
-        gaps: ["Few industry-specific examples", "No comparison content"],
-        recommendations: ["Add case studies with metrics", "Publish industry-targeted landing pages"],
+        score: clampScore(60 + Math.min(22, Math.round(wordCount / 60))),
+        strengths: [
+          hasH1 ? "Clear H1-based value proposition" : "Value proposition needs stronger H1 structure",
+          wordCount > 600 ? `Solid on-page depth (~${wordCount} words)` : "Content depth needs expansion",
+        ],
+        gaps: [
+          "Limited industry-specific proof points",
+          "No comparison or alternatives content",
+        ],
+        recommendations: [
+          "Add case studies with quantified outcomes",
+          `Publish ${input.industry || "industry"}-targeted landing pages`,
+        ],
       },
       uxConversion: {
-        score: 69,
-        highlights: ["Persistent CTA in nav", "Short contact form"],
-        issues: ["CTA not visible on mobile fold", "Lacks proof bar near CTA"],
+        score: clampScore(62 + (resolvedSignals.hasContactCTA ? 8 : -5)),
+        highlights: [
+          resolvedSignals.hasContactCTA ? "Conversion intent visible (contact/booking)" : "CTA intent needs strengthening",
+          resolvedSignals.internalLinks > 8 ? "Navigation supports primary paths" : "Navigation hierarchy can be simplified",
+        ],
+        issues: [
+          "CTA not reinforced with proof near the fold",
+          "No conversion-focused sticky CTA for mobile",
+        ],
         estimatedUplift: "+8-12% form conversion after CTA + proof fixes",
       },
-      contentGaps: ["Lead magnets", "Video walkthrough", "FAQ schema"],
+      contentGaps: [
+        "Lead magnets",
+        "Video walkthrough",
+        resolvedSignals.hasStructuredData ? "Review schema coverage" : "FAQ schema",
+      ],
     },
     seoVisibility: {
       domainAuthority: {
-        score: 48,
+        score: clampScore(seededNumber(domainSeed, 38, 62, 6)),
         benchmark: {
-          you: 48,
-          competitorA: 55,
-          competitorB: 61,
-          competitorC: 44,
-          industryAverage: 52,
+          you: clampScore(seededNumber(domainSeed, 38, 62, 6)),
+          competitorA: clampScore(seededNumber(domainSeed, 50, 68, 10)),
+          competitorB: clampScore(seededNumber(domainSeed, 55, 72, 14)),
+          competitorC: clampScore(seededNumber(domainSeed, 40, 58, 18)),
+          industryAverage: clampScore(seededNumber(domainSeed, 48, 60, 22)),
         },
-        rationale: "Healthy authority but trailing core competitors on referring domains.",
+        rationale: "Authority is improving but still trailing core competitors on referring domains.",
       },
       backlinkProfile: {
-        totalBacklinks: 860,
-        referringDomains: 142,
-        averageDA: 39,
-        issues: ["Low topical authority", "Missing EDU/GOV style citations"],
+        totalBacklinks: backlinks,
+        referringDomains,
+        averageDA: clampScore(seededNumber(domainSeed, 28, 48, 28)),
+        issues: [
+          "Low topical authority links",
+          "Limited editorial/industry citations",
+        ],
       },
       keywordRankings: {
-        total: 240,
-        top10: 32,
-        top50: 118,
-        top100: 196,
+        total: seededNumber(domainSeed, 160, 340, 34),
+        top10: seededNumber(domainSeed, 18, 46, 38),
+        top50: seededNumber(domainSeed, 80, 160, 42),
+        top100: seededNumber(domainSeed, 130, 220, 46),
       },
       topPerformingKeywords: [
-        { keyword: "local seo agency", position: 6, monthlyVolume: 1800, currentTraffic: "190 visits/mo" },
-        { keyword: "ppc management for smbs", position: 11, monthlyVolume: 950, currentTraffic: "75 visits/mo" },
+        {
+          keyword: `${input.industry || "digital"} seo agency`,
+          position: seededNumber(domainSeed, 4, 12, 50),
+          monthlyVolume: seededNumber(domainSeed, 900, 2200, 54),
+          currentTraffic: `${seededNumber(domainSeed, 110, 230, 58)} visits/mo`,
+        },
+        {
+          keyword: "ppc management for smbs",
+          position: seededNumber(domainSeed, 9, 18, 62),
+          monthlyVolume: seededNumber(domainSeed, 700, 1200, 66),
+          currentTraffic: `${seededNumber(domainSeed, 60, 110, 70)} visits/mo`,
+        },
       ],
       keywordGapAnalysis: [
-        { keyword: "b2b saas seo agency", monthlySearches: 700, yourRank: "Not ranking", topCompetitor: "Competitor A (7)", opportunity: "$12-18k/yr" },
-        { keyword: "clutch seo services", monthlySearches: 450, yourRank: "Not ranking", topCompetitor: "Competitor B (5)", opportunity: "+35 reviews" },
+        {
+          keyword: "b2b saas seo agency",
+          monthlySearches: seededNumber(domainSeed, 600, 900, 74),
+          yourRank: "Not ranking",
+          topCompetitor: "Competitor A (7)",
+          opportunity: "$12-18k/yr",
+        },
+        {
+          keyword: "clutch seo services",
+          monthlySearches: seededNumber(domainSeed, 380, 520, 78),
+          yourRank: "Not ranking",
+          topCompetitor: "Competitor B (5)",
+          opportunity: "+35 reviews",
+        },
       ],
       contentRecommendations: [
         {
           keyword: "b2b seo playbook",
           contentType: "guide",
-          targetWordCount: 1800,
+          targetWordCount: seededNumber(domainSeed, 1500, 2200, 82),
           subtopics: ["ICP research", "content velocity", "conversion paths"],
           trafficPotential: "120-180 visits/mo",
         },
       ],
     },
     reputation: {
-      reviewScore: 78,
+      reviewScore: reputationScore,
       summaryTable: [
-        { platform: "Google", reviews: 38, rating: "4.6/5.0", industryBenchmark: "25-50 reviews", gap: "+13" },
-        { platform: "Clutch", reviews: 4, rating: "4.8/5.0", industryBenchmark: "15-20 reviews", gap: "-11" },
-        { platform: "G2", reviews: 0, rating: "N/A", industryBenchmark: "10-15 reviews", gap: "-10" },
+        {
+          platform: "Google",
+          reviews: googleReviews,
+          rating: "4.6/5.0",
+          industryBenchmark: "25-50 reviews",
+          gap: googleReviews >= 35 ? `+${googleReviews - 35}` : `-${35 - googleReviews}`,
+        },
+        {
+          platform: "Clutch",
+          reviews: clutchReviews,
+          rating: clutchReviews ? "4.8/5.0" : "N/A",
+          industryBenchmark: "15-20 reviews",
+          gap: clutchReviews >= 15 ? `+${clutchReviews - 15}` : `-${15 - clutchReviews}`,
+        },
+        {
+          platform: "G2",
+          reviews: g2Reviews,
+          rating: g2Reviews ? "4.7/5.0" : "N/A",
+          industryBenchmark: "10-15 reviews",
+          gap: g2Reviews >= 10 ? `+${g2Reviews - 10}` : `-${10 - g2Reviews}`,
+        },
       ],
-      totalReviews: 42,
+      totalReviews: reviewCount,
       industryStandardRange: "55-80 reviews",
-      yourGap: "-13 to industry midpoint",
+      yourGap: reviewCount >= 65 ? "+Above midpoint" : `-${Math.max(0, 65 - reviewCount)} to midpoint`,
       sentimentThemes: {
         positive: ["Responsive account team", "Clear reporting"],
-        negative: ["Slow kickoff timelines"],
+        negative: ["Slow kickoff timelines", "Limited proactive updates"],
         responseRate: "62% responded",
         averageResponseTime: "48 hours",
       },
@@ -2127,11 +2709,74 @@ export function buildBusinessGrowthFallback(input: { companyName: string; websit
   };
 }
 
+async function generateBusinessGrowthFallbackViaAgent(
+  input: { companyName: string; website: string; industry?: string; },
+  fallbackTemplate: BusinessGrowthReport,
+  signals: WebsiteSignals,
+): Promise<Partial<BusinessGrowthReport> | null> {
+  if (!process.env.OPENAI_API_KEY) {
+    return null;
+  }
+
+  const prompt = `
+Generate a Business Growth Analysis report using the website signals below.
+
+Company: ${input.companyName}
+Website: ${input.website}
+Industry: ${input.industry || "Digital agency"}
+
+Website signals (derived from the live page):
+${JSON.stringify(signals, null, 2)}
+
+Return ONLY valid JSON in the exact schema:
+${JSON.stringify(fallbackTemplate, null, 2)}
+  `.trim();
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: BUSINESS_GROWTH_SYSTEM_PROMPT },
+        { role: "user", content: prompt },
+      ],
+      temperature: 0.6,
+      max_tokens: 3500,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content || "";
+    return JSON.parse(content);
+  } catch (error) {
+    console.error("Business growth fallback agent failed:", error);
+    return null;
+  }
+}
+
+export async function buildBusinessGrowthFallback(
+  input: { companyName: string; website: string; industry?: string; },
+  options: { signals?: WebsiteSignals } = {},
+): Promise<BusinessGrowthReport> {
+  const signals = options.signals ?? await fetchWebsiteSignals(input.website);
+  const fallbackTemplate = buildBusinessGrowthFallbackTemplate(input, signals);
+
+  if (!process.env.OPENAI_API_KEY) {
+    return fallbackTemplate;
+  }
+
+  const agentReport = await generateBusinessGrowthFallbackViaAgent(input, fallbackTemplate, signals);
+  if (!agentReport) {
+    return fallbackTemplate;
+  }
+
+  return mergeBusinessGrowthReport(input, agentReport, fallbackTemplate);
+}
+
 export function mergeBusinessGrowthReport(
   input: { companyName: string; website: string; industry?: string; },
   report?: Partial<BusinessGrowthReport> | null,
+  fallbackOverride?: BusinessGrowthReport,
 ): BusinessGrowthReport {
-  const fallback = buildBusinessGrowthFallback(input);
+  const fallback = fallbackOverride ?? buildBusinessGrowthFallbackTemplate(input);
   const geographicMix = inferGeographicMix(input.website);
   const parsed = report ?? {};
   const mergeArray = <T,>(fallbackList: T[], overrideList?: T[]) =>
@@ -2619,17 +3264,50 @@ export function mergeBusinessGrowthReport(
    BUSINESS GROWTH ANALYSIS
 ========================= */
 
+function buildBusinessGrowthSchemaTemplate(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    if (value.length === 0) return [];
+    return [buildBusinessGrowthSchemaTemplate(value[0])];
+  }
+
+  if (value === null) return null;
+
+  switch (typeof value) {
+    case "string":
+      return "<string>";
+    case "number":
+      return 0;
+    case "boolean":
+      return false;
+    case "object": {
+      const entries = Object.entries(value as Record<string, unknown>);
+      return entries.reduce<Record<string, unknown>>((acc, [key, item]) => {
+        acc[key] = buildBusinessGrowthSchemaTemplate(item);
+        return acc;
+      }, {});
+    }
+    default:
+      return null;
+  }
+}
+
 export async function generateBusinessGrowthAnalysis(input: {
   companyName: string;
   website: string;
   industry?: string;
 }) {
-  const fallback = buildBusinessGrowthFallback(input);
+  const signals = await fetchWebsiteSignals(input.website);
+  const fallbackTemplate = buildBusinessGrowthFallbackTemplate(input, signals);
 
   if (!process.env.OPENAI_API_KEY) {
-    return fallback;
+    return fallbackTemplate;
   }
 
+  // Build a schema template from the *actual* fallback template to guide the model.
+  // NOTE: Previously this referenced `fallback` which was undefined and caused the route to crash.
+  // We keep this here as a useful debugging/validation aid even though it isn't sent to OpenAI.
+  // (If you later want, you can embed this schemaTemplate into the prompt.)
+  const schemaTemplate = buildBusinessGrowthSchemaTemplate(fallbackTemplate);
   const userPrompt = `
 Generate a Business Growth Analysis for:
 
@@ -2638,7 +3316,10 @@ Website: ${input.website}
 Industry: ${input.industry || "Digital agency"}
 
 Return ONLY valid JSON in this exact schema:
-${JSON.stringify(fallback, null, 2)}
+${JSON.stringify(fallbackTemplate, null, 2)}
+
+Website signals (derived from the live page):
+${JSON.stringify(signals, null, 2)}
 `;
 
   try {
@@ -2654,12 +3335,12 @@ ${JSON.stringify(fallback, null, 2)}
     });
 
     const content = res.choices[0]?.message?.content || "";
-    const parsed = JSON.parse(content);
+    const parsed = await parseOrRepairModelJson(content, "business-growth-fallback");
 
-    return mergeBusinessGrowthReport(input, parsed);
+    return mergeBusinessGrowthReport(input, parsed, fallbackTemplate);
   } catch (err) {
     console.error("Business growth analysis failed:", err);
-    return fallback;
+    return buildBusinessGrowthFallback(input, { signals });
   }
 }
 
