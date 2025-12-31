@@ -243,6 +243,10 @@ export function securityHeaders() {
           // Meta / Facebook Pixel
           "https://www.facebook.com",
           "https://*.facebook.com",
+
+          // ✅ Stape / Facebook CAPI (FIX)
+          "https://capig.stape.nz",
+          "https://*.stape.nz",
         ],
 
         frameSrc: [

@@ -1493,8 +1493,8 @@ export default function Home() {
                   <div className="min-h-[56px] sm:min-h-[64px] lg:min-h-[72px] mb-4 sm:mb-6 flex items-center justify-center">
                     <h1
                       className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-3xl">
-                      See How We Help
-                      <span className="text-brand-yellow"> Agencies Scale</span>
+                      Services start from                     
+                      <span className="text-brand-yellow"> 399$</span>
                     </h1>
                   </div>
 
@@ -1507,7 +1507,7 @@ export default function Home() {
                       {/* Responsive video wrapper (keeps perfect ratio) */}
                       {/* <div className="relative w-full aspect-video"> */}
                       {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
-                        {/* <iframe
+                      {/* <iframe
                           className="absolute inset-0 w-full h-full"
                           src="https://www.youtube-nocookie.com/embed/BMcrZHzRaeg?rel=0&modestbranding=1&playsinline=1"
                           title="Website Architect Case Study | Branding Beez"
@@ -1515,7 +1515,7 @@ export default function Home() {
                           allowFullScreen
                           loading="lazy"
                         /> */}
-                        <LazyYouTube videoId="BMcrZHzRaeg" />
+                      <LazyYouTube videoId="BMcrZHzRaeg" />
                       {/* </div> */}
                     </div>
                   </div>

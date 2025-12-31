@@ -89,30 +89,38 @@
   }
 
   function loadMetaPixel() {
-    // prevent duplicate load (GTM may already load it)
     if (window._meta_pixel_loaded || window.fbq) return;
     window._meta_pixel_loaded = true;
 
     (function (f, b, e, v, n, t, s) {
       if (f.fbq) return;
       n = f.fbq = function () {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        n.callMethod
+          ? n.callMethod.apply(n, arguments)
+          : n.queue.push(arguments);
       };
       if (!f._fbq) f._fbq = n;
       n.push = n;
-      n.loaded = !0;
+      n.loaded = true;
       n.version = "2.0";
       n.queue = [];
       t = b.createElement(e);
-      t.async = !0;
+      t.async = true;
       t.src = v;
       s = b.getElementsByTagName(e)[0];
       s.parentNode.insertBefore(t, s);
-    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+    })(
+      window,
+      document,
+      "script",
+      "https://connect.facebook.net/en_US/fbevents.js"
+    );
 
-    window.fbq("init", "1275266766876958");
+    // ✅ UPDATED META PIXEL ID
+    window.fbq("init", "1914816149105645");
     window.fbq("track", "PageView");
   }
+
 
   function loadClarity() {
     if (window._clarity_loaded || window.clarity) return;
