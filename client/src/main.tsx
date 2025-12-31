@@ -129,13 +129,13 @@ if (rootElement) {
             const [
               { setupGlobalErrorHandling },
               { deferNonCriticalJS, optimizeImageLoading },
-              { initializeAnalytics },
+              // { initializeAnalytics },
               { loadExternalScripts },
               { optimizeFontDisplay },
             ] = await Promise.all([
               import("./lib/error-handler"),
               import("./utils/defer-non-critical"),
-              import("./utils/analytics"),
+              // import("./utils/analytics"),
               import("./utils/external-scripts"),
               import("./utils/load-css-async"),
             ]);
@@ -150,17 +150,17 @@ if (rootElement) {
             optimizeFontDisplay();
 
             setTimeout(async () => {
-              const { loadCSPCompliantScripts, suppressCSPErrors } = await import(
+              const {  suppressCSPErrors } = await import(
                 "./utils/csp-compliant-loader"
-              );
+              ); //loadCSPCompliantScripts
 
               suppressCSPErrors();
 
-              initializeAnalytics();
+              // initializeAnalytics();
 
               optimizeImageLoading();
 
-              loadCSPCompliantScripts();
+              // loadCSPCompliantScripts();
             }, 2000);
           } catch (_error) {
             if (import.meta.env.DEV) {

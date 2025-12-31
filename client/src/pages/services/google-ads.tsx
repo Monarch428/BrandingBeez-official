@@ -1205,7 +1205,7 @@ export default function GoogleAds() {
             <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-0 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
                   <span className="text-s font-bold tracking-wide uppercase text-brand-purple">
                     White-Label PPC – FAQs

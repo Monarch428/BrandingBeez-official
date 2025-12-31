@@ -98,70 +98,70 @@
 
 
 // CSP-compliant loader for external scripts and analytics
-export const loadCSPCompliantScripts = () => {
-  // Microsoft Clarity is now loaded directly in HTML head
+// export const loadCSPCompliantScripts = () => {
+//   // Microsoft Clarity is now loaded directly in HTML head
 
-  // Calendly - CSP compliant loading
-  const loadCalendly = () => {
-    try {
-      // Only load if not already present
-      if (!document.querySelector('script[src*="assets.calendly.com/assets/external/widget.js"]')) {
-        // Load Calendly CSS
-        if (!document.querySelector('link[href*="assets.calendly.com/assets/external/widget.css"]')) {
-          const link = document.createElement("link");
-          link.rel = "stylesheet";
-          link.href = "https://assets.calendly.com/assets/external/widget.css";
-          // ✅ IMPORTANT: Do NOT set crossorigin here (it triggers CORS mode and will be blocked)
-          document.head.appendChild(link);
-        }
+//   // Calendly - CSP compliant loading
+//   const loadCalendly = () => {
+//     try {
+//       // Only load if not already present
+//       if (!document.querySelector('script[src*="assets.calendly.com/assets/external/widget.js"]')) {
+//         // Load Calendly CSS
+//         if (!document.querySelector('link[href*="assets.calendly.com/assets/external/widget.css"]')) {
+//           const link = document.createElement("link");
+//           link.rel = "stylesheet";
+//           link.href = "https://assets.calendly.com/assets/external/widget.css";
+//           // ✅ IMPORTANT: Do NOT set crossorigin here (it triggers CORS mode and will be blocked)
+//           document.head.appendChild(link);
+//         }
 
-        const script = document.createElement("script");
-        script.src = "https://assets.calendly.com/assets/external/widget.js";
-        script.async = true;
-        // ✅ IMPORTANT: Do NOT set crossorigin here (it triggers CORS mode and will be blocked)
-        document.head.appendChild(script);
-      }
-    } catch (error) {
-      console.warn("Calendly failed to load:", error);
-    }
-  };
+//         const script = document.createElement("script");
+//         script.src = "https://assets.calendly.com/assets/external/widget.js";
+//         script.async = true;
+//         // ✅ IMPORTANT: Do NOT set crossorigin here (it triggers CORS mode and will be blocked)
+//         document.head.appendChild(script);
+//       }
+//     } catch (error) {
+//       console.warn("Calendly failed to load:", error);
+//     }
+//   };
 
-  // Google Analytics - CSP compliant loading
-  const loadGoogleAnalytics = () => {
-    try {
-      if (!document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
-        // DataLayer initialization
-        (window as any).dataLayer = (window as any).dataLayer || [];
-        const gtag = (...args: any[]) => {
-          (window as any).dataLayer.push(args);
-        };
+//   // Google Analytics - CSP compliant loading
+//   // const loadGoogleAnalytics = () => {
+//   //   try {
+//   //     if (!document.querySelector('script[src*="googletagmanager.com/gtag/js"]')) {
+//   //       // DataLayer initialization
+//   //       (window as any).dataLayer = (window as any).dataLayer || [];
+//   //       const gtag = (...args: any[]) => {
+//   //         (window as any).dataLayer.push(args);
+//   //       };
 
-        const script = document.createElement("script");
-        script.async = true;
-        script.src = "https://www.googletagmanager.com/gtag/js?id=G-GNEDWN3ZNT";
-        // ✅ IMPORTANT: remove crossorigin unless you specifically need CORS error details
-        // script.setAttribute('crossorigin', 'anonymous');
-        document.head.appendChild(script);
+//   //       const script = document.createElement("script");
+//   //       script.async = true;
+//   //       script.src = "https://www.googletagmanager.com/gtag/js?id=G-GNEDWN3ZNT";
+//   //       // ✅ IMPORTANT: remove crossorigin unless you specifically need CORS error details
+//   //       // script.setAttribute('crossorigin', 'anonymous');
+//   //       document.head.appendChild(script);
 
-        script.onload = () => {
-          gtag("js", new Date());
-          gtag("config", "G-GNEDWN3ZNT");
-        };
-      }
-    } catch (error) {
-      console.warn("Google Analytics failed to load:", error);
-    }
-  };
+//   //       script.onload = () => {
+//   //         gtag("js", new Date());
+//   //         gtag("config", "G-GNEDWN3ZNT");
+//   //       };
+//   //     }
+//   //   } catch (error) {
+//   //     console.warn("Google Analytics failed to load:", error);
+//   //   }
+//   // };
 
-  // Load scripts in optimal order with delays to prevent blocking
-  setTimeout(() => {
-    loadCalendly();
-  }, 1000);
+//   // Load scripts in optimal order with delays to prevent blocking
+//   setTimeout(() => {
+//     loadCalendly();
+//   }, 1000);
 
-  setTimeout(() => {
-    loadGoogleAnalytics();
-  }, 2000);
-};
+//   // setTimeout(() => {
+//   //   loadGoogleAnalytics();
+//   // }, 2000);
+// };
 
 // Enhanced error suppression for CSP-related issues
 export const suppressCSPErrors = () => {
