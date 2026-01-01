@@ -2922,7 +2922,6 @@
 
 
 
-
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
@@ -2977,6 +2976,7 @@ import {
 import { useThankYou } from "@/context/thank-you-context";
 
 const RajeStroke = "/images/raje-team-member.webp";
+
 /* ============================================================================
    ✅ Google Ads Conversion Tracking Helper
    Fires only after successful booking (no false conversions on validation fail)
@@ -3506,8 +3506,8 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   {statusMessage}
                 </div>
               )}
-            </div>
-            {/* ✅ Mobile/Tablet Step Header (only below lg) */}
+
+              {/* ✅ Mobile/Tablet Step Header (only below lg) */}
               <div className="lg:hidden px-4 py-3 border-b border-slate-200 bg-white flex items-center justify-between text-xs text-slate-600">
                 <span>
                   Step <b className="text-slate-900">{stepNumber}</b> of 3
@@ -3523,6 +3523,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   </button>
                 )}
               </div>
+            </div>
 
             {/* =========================================================
                2) MIDDLE: CALENDAR
