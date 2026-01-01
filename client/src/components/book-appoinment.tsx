@@ -2922,9 +2922,10 @@
 
 
 
+
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -2947,19 +2948,15 @@ import {
 } from "lucide-react";
 // import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   timeZoneOptions,
   type TimeZoneOptionId,
   formatSlotLabelForTimeZone,
   getLocalMinutesFromISTSlot,
 } from "@/utils/timezone-utils";
 import { Checkbox } from "@/components/ui/checkbox";
+
+// ✅ Calendly-like timezone picker component
+import TimeZonePicker from "@/components/TimeZonePicker";
 
 // 🧩 Modal UI (shadcn dialog)
 import {
@@ -3114,6 +3111,10 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   // Timezone selection for display
   const [timeZone, setTimeZone] = useState<TimeZoneOptionId>("browser");
 
+  // ✅ NEW: timezone panel open/close (Calendly-like)
+  const [tzOpen, setTzOpen] = useState(false);
+  const tzWrapRef = useRef<HTMLDivElement | null>(null);
+
   const { showThankYou } = useThankYou();
 
   const monthLabel = useMemo(() => {
@@ -3172,6 +3173,39 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   const mainServiceLabel =
     mainServiceValue &&
     services.find((s) => s.value === mainServiceValue)?.label;
+
+  // ✅ Current timezone label (friendly)
+  const timeZoneLabel = useMemo(() => {
+    return (
+      timeZoneOptions.find((t) => t.id === timeZone)?.label ||
+      "Select timezone"
+    );
+  }, [timeZone]);
+
+  // ✅ Close timezone panel on outside click + ESC
+  useEffect(() => {
+    if (!tzOpen) return;
+
+    const onDown = (e: MouseEvent) => {
+      if (!tzWrapRef.current) return;
+      const target = e.target as Node;
+      if (!tzWrapRef.current.contains(target)) {
+        setTzOpen(false);
+      }
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setTzOpen(false);
+    };
+
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+
+    return () => {
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [tzOpen]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -3354,8 +3388,8 @@ Your meeting with ${safeConsultantName} (${safeConsultantTitle}) is confirmed.
 
 📅 Date: ${dateLabel}
 ⏰ Time: ${timeLabel}
-${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""
-          }${result?.meetingLink ? `🔗 Google Meet link: ${result.meetingLink}\n` : ""}
+${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""}${result?.meetingLink ? `🔗 Google Meet link: ${result.meetingLink}\n` : ""
+          }
 
 We’ve emailed you the confirmation and calendar invite. Looking forward to speaking with you!`,
         formType: "strategy",
@@ -3418,12 +3452,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
     }
   };
 
-  /* ============================================================================
-     ✅ SINGLE CONTAINER (ALL RESOLUTIONS)
-     ✅ <=768px: STEP VIEW (1 Date / 2 Time / 3 Form)
-     ✅ >=1024px: Desktop 3-column view stays the same
-  ============================================================================ */
-
   return (
     <div className="w-full">
       <Card className="bg-white border-slate-200 shadow-md w-full overflow-hidden">
@@ -3433,7 +3461,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
               grid
               lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)_minmax(0,1fr)]
               divide-y lg:divide-y-0 lg:divide-x
-              divide-slate-200
+              divide-slate-200 
             "
           >
             {/* =========================================================
@@ -3527,8 +3555,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
 
             {/* =========================================================
                2) MIDDLE: CALENDAR
-               ✅ <=768px: STEP 1 only
-               ✅ lg+: always visible
             ========================================================== */}
             <div
               className={[
@@ -3619,9 +3645,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
 
             {/* =========================================================
                3) RIGHT: TIMES + FORM
-               ✅ <=768px: Step 2 (time) / Step 3 (form)
-               ✅ lg+: always visible
-               ✅ INTERNAL SCROLL for slots/form (final fix)
             ========================================================== */}
             <div
               className={[
@@ -3648,36 +3671,65 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   </p>
                 </div>
 
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-slate-600 hidden xs:inline">
+                {/* ✅ Calendly-like timezone trigger + panel (Fully responsive incl. 320px) */}
+                <div
+                  className="flex flex-col items-end gap-1 shrink-0 relative"
+                  ref={tzWrapRef}
+                >
+                  {/* Trigger row */}
+                  <div className="flex items-center gap-2 max-w-full">
+                    {/* Hide on very small screens to prevent wrap issues */}
+                    <span className="text-[10px] text-slate-600 hidden sm:inline">
                       Showing times in:
                     </span>
-                    <Select
-                      value={timeZone}
-                      onValueChange={(value) =>
-                        setTimeZone(value as TimeZoneOptionId)
-                      }
-                    >
-                      <SelectTrigger className="h-8 sm:h-7 px-2 py-1 text-[10px] bg-white border-slate-300 text-slate-700">
-                        <SelectValue />
-                      </SelectTrigger>
 
-                      {/* ✅ FIX: Force dropdown above the modal */}
-                      <SelectContent
-                        className="
-                          bg-white border-slate-200 text-slate-800 text-[11px] max-h-72
-                          z-[100005] shadow-xl
-                        "
-                      >
-                        {timeZoneOptions.map((tz) => (
-                          <SelectItem key={tz.id} value={tz.id}>
-                            {tz.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <button
+                      type="button"
+                      onClick={() => setTzOpen((v) => !v)}
+                      className="
+        h-8 sm:h-7
+        px-2 py-1
+        text-[10px] sm:text-[11px]
+        bg-white border border-slate-300
+        text-slate-700
+        rounded-md
+        hover:bg-slate-50
+        inline-flex items-center gap-1
+        max-w-[78vw] sm:max-w-[240px]
+      "
+                      aria-label="Select timezone"
+                    >
+                      <Globe className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                      <span className="truncate">{timeZoneLabel}</span>
+                    </button>
                   </div>
+
+                  {/* Responsive panel */}
+                  {tzOpen && (
+                    <div
+                      className="
+      absolute top-full mt-2 z-[100010]
+      rounded-lg border border-slate-200 bg-white shadow-2xl
+      p-4 sm:p-3 overflow-hidden
+
+      left-1/4 -translate-x-1/2
+      w-[96vw] max-w-[96vw]
+
+      sm:left-auto sm:translate-x-0 sm:right-0
+      sm:w-[380px] sm:max-w-[380px]
+      md:w-[420px] md:max-w-[420px]
+    "
+                    >
+                      <TimeZonePicker
+                        value={timeZone}
+                        onChange={(tz) => {
+                          setTimeZone(tz);
+                          setTzOpen(false);
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+                  )}
 
                   {bookingStage === "form" && (
                     <button
@@ -3701,7 +3753,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                 {/* ===== TIMES ===== */}
                 {bookingStage !== "form" && (
                   <>
-                    {/* ✅ fixed helper text (not scroll) */}
                     <p className="text-[11px] text-slate-500 mb-3 shrink-0">
                       Base availability: <b>4:00 PM – 11:00 PM IST</b>. Times
                       below are shown in your selected timezone.
@@ -3724,9 +3775,8 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                         No slots defined for this day.
                       </p>
                     ) : (
-                      /* ✅ ONLY SLOT LIST SCROLLS */
                       <div
-                        className="
+                        className="scrollbar-thin
                           overflow-y-auto
                           overscroll-contain
                           pr-1
@@ -4381,7 +4431,7 @@ export const BookCallButtonWithModal: React.FC<BookCallButtonWithModalProps> = (
           max-h-[92vh] h-[92vh]
           overflow-visible
           relative
-          flex flex-col
+          flex flex-col 
         "
       >
         <DialogClose asChild>
@@ -4419,7 +4469,7 @@ export const BookCallButtonWithModal: React.FC<BookCallButtonWithModalProps> = (
             p-3 md:p-4
             overflow-y-auto
             overscroll-contain
-            [-webkit-overflow-scrolling:touch]
+            [-webkit-overflow-scrolling:touch] scrollbar-thin
           "
         >
           <AppointmentCalendarContent
