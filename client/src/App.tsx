@@ -192,7 +192,7 @@ function Router() {
       />
       <Route path="/" component={Home} />
       <Route path="/loader" component={BeeLoadingScreen} />
-      <Route path="/case-studies" component={CaseStudyCardsPage} />
+      <Route path="/admin/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
       <Route path="/web-case-study/:slug" component={WebCaseStudySlugPage} />

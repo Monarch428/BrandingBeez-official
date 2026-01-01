@@ -35,6 +35,8 @@ import {
   getLocalMinutesFromISTSlot,
 } from "@/utils/timezone-utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { DialogClose } from "@/components/ui/dialog";
+
 
 // 🧩 Modal UI (shadcn dialog)
 import {
@@ -1297,8 +1299,24 @@ export const AppointmentCalendarModal: React.FC<
 > = ({ open, onOpenChange, ...calendarProps }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-[95vw] sm:max-w-5xl p-0 gap-0">
-        <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200">
+      <DialogContent className="w-[95vw] sm:max-w-5xl p-0 gap-0 max-h-[92vh] overflow-hidden">
+        <DialogClose asChild>
+          <button
+            aria-label="Close"
+            className="
+      absolute right-3 top-3
+      inline-flex h-8 w-8 items-center justify-center
+      rounded-md border border-slate-200
+      bg-white text-slate-600
+      hover:bg-slate-100 hover:text-slate-900
+      focus:outline-none focus:ring-2 focus:ring-brand-coral
+      z-20
+    "
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </DialogClose>
+        <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200 sticky top-0 bg-white z-10">
           <DialogTitleUI className="text-base md:text-lg font-semibold">
             Book a strategy call
           </DialogTitleUI>
@@ -1308,7 +1326,7 @@ export const AppointmentCalendarModal: React.FC<
           </DialogDescription>
         </DialogHeaderUI>
 
-        <div className="p-3 md:p-4">
+        <div className="p-3 md:p-4 overflow-y-auto max-h-[calc(92vh-72px)] overscroll-contain [-webkit-overflow-scrolling:touch]">
           <AppointmentCalendarContent
             {...calendarProps}
             onClose={() => onOpenChange(false)}
@@ -1339,9 +1357,7 @@ export const BookCallButtonWithModal: React.FC<
 }) => {
     const [open, setOpen] = useState(false);
 
-    const mergedClassName = [buttonClassName, className]
-      .filter(Boolean)
-      .join(" ");
+    const mergedClassName = [buttonClassName, className].filter(Boolean).join(" ");
 
     const labelToUse = buttonLabel || "Book a call";
     const variantToUse: "default" | "outline" | "secondary" | "ghost" | "link" =
@@ -1360,16 +1376,30 @@ export const BookCallButtonWithModal: React.FC<
             className={`inline-flex items-center gap-2 ${mergedClassName}`}
             aria-label={isIconOnly ? labelToUse : undefined}
           >
-            {/* 🗓 Default calendar icon at the start */}
             <Calendar className="w-4 h-4" />
-
-            {/* For normal buttons, show text too; for icon size, only the icon */}
             {!isIconOnly && <span>{labelToUse}</span>}
           </Button>
         </DialogTrigger>
 
-        <DialogContent className="w-full max-w-[95vw] sm:max-w-5xl p-0 gap-0">
-          <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200">
+        <DialogContent className="w-[95vw] sm:max-w-5xl p-0 gap-0 max-h-[92vh] overflow-hidden">
+          <DialogClose asChild>
+            <button
+              aria-label="Close"
+              className="
+      absolute right-3 top-3
+      inline-flex h-8 w-8 items-center justify-center
+      rounded-md border border-slate-200
+      bg-white text-slate-600
+      hover:bg-slate-100 hover:text-slate-900
+      focus:outline-none focus:ring-2 focus:ring-brand-coral
+      z-20
+    "
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </DialogClose>
+
+          <DialogHeaderUI className="px-4 pt-4 pb-2 border-b border-slate-200 sticky top-0 bg-white z-10">
             <DialogTitleUI className="text-base md:text-xl uppercase font-bold text-brand-coral">
               Book a strategy call
             </DialogTitleUI>
@@ -1379,7 +1409,7 @@ export const BookCallButtonWithModal: React.FC<
             </DialogDescription>
           </DialogHeaderUI>
 
-          <div className="p-3 md:p-4">
+          <div className="p-3 md:p-4 overflow-y-auto max-h-[calc(92vh-72px)] overscroll-contain [-webkit-overflow-scrolling:touch]">
             <AppointmentCalendarContent
               {...calendarProps}
               onClose={() => setOpen(false)}
@@ -1389,6 +1419,7 @@ export const BookCallButtonWithModal: React.FC<
       </Dialog>
     );
   };
+
 
 // Keep old name for inline use
 export const AppointmentCalendar = AppointmentCalendarContent;
