@@ -2946,7 +2946,7 @@ import {
   Globe,
   Video,
 } from "lucide-react";
-import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
+// import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
 import {
   Select,
   SelectContent,
@@ -2976,6 +2976,7 @@ import {
 // ✅ Global thank-you hook
 import { useThankYou } from "@/context/thank-you-context";
 
+const RajeStroke = "/images/raje-team-member.webp";
 /* ============================================================================
    ✅ Google Ads Conversion Tracking Helper
    Fires only after successful booking (no false conversions on validation fail)
