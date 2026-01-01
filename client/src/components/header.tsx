@@ -866,7 +866,7 @@ export default function Header() {
                   {serviceMenuItems.map((item) => (
                     <Link key={item.href} href={item.href}>
                       <button
-                        className="block w-full text-left px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50 transition-colors touch-manipulation"
+                        className="block w-full text-left px-3 py-3 rounded-md text-sm font-medium text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50 transition-colors touch-manipulation"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {item.label}

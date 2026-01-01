@@ -2053,7 +2053,7 @@ export default function Home() {
               {/* Heading Button */}
               <div className="flex justify-center mb-6">
                 {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
-                <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">What Our Clients Say</span>
+                <span className="text-black text-2xl sm:text-2xl lg:text-4xl text-center font-bold">What Our Clients Say</span>
                 {/* </div> */}
               </div>
 
