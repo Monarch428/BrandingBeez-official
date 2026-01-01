@@ -2279,7 +2279,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                     statusClasses[slot.status],
                                     extraPastClasses,
                                     isSelected
-                                      ? "bg-gray-400 text-white !border-slate-700"
+                                      ? "bg-gray-600 text-white !border-slate-700"
                                       : "",
                                     "min-h-[44px]",
                                   ].join(" ")}
