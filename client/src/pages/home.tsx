@@ -1492,9 +1492,8 @@ export default function Home() {
                 <div className="w-full">
                   <div className="min-h-[56px] sm:min-h-[64px] lg:min-h-[72px] mb-4 sm:mb-6 flex items-center justify-center">
                     <h1
-                      className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-3xl">
-                      Services start from                     
-                      <span className="text-brand-yellow"> 399$</span>
+                      className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-2xl">
+                      Services start from <span className="text-brand-yellow text-3xl underline"> 399$</span>
                     </h1>
                   </div>
 
@@ -1567,8 +1566,10 @@ export default function Home() {
                         <div className="flex flex-col flex-1 space-y-4">
                           {/* PRICING */}
                           <div className="text-base sm:text-lg font-bold text-brand-coral-darker">
-                            {service.pricing}
+                            <span className="text-blue-700">Starting at</span>
+                            <span className="ml-1">{service.pricing.replace(/^Starting at\s*/i, "")}</span>
                           </div>
+
 
                           {/* FEATURES */}
                           <ul className="space-y-2 flex-1">
@@ -1897,9 +1898,9 @@ export default function Home() {
                   Team Discounts: Up to 20% Off
                 </div>
 
-                <div className="text-xs sm:text-sm lg:text-base text-gray-200 mb-6 sm:mb-8">
+                {/* <div className="text-xs sm:text-sm lg:text-base text-gray-200 mb-6 sm:mb-8">
                   Average 60% cost savings vs. in-house team
-                </div>
+                </div> */}
 
                 {/* ROLES */}
                 <div className="flex items-center justify-center">
@@ -1974,7 +1975,7 @@ export default function Home() {
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
                       <span className="text-sm sm:text-base">
-                        Save $60,000+ a year on every resource
+                        Save $80,000+ a year on every resource
                       </span>
                     </li>
                   </ul>

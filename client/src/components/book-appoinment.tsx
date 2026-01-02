@@ -3249,6 +3249,18 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     return days;
   }, [currentMonth]);
 
+  // ✅ Helper: fully reset selection when going back to Date stage
+  const goToDateStage = () => {
+    setBookingStage("date");
+    setSelectedDate(null);
+    setSelectedSlot(null);
+    setSlots([]);
+    setSlotsError(null);
+    setLoadingSlots(false);
+    setFormStep(0);
+    setTzOpen(false);
+  };
+
   // Load slots when selectedDate changes
   useEffect(() => {
     const loadSlots = async () => {
@@ -3261,6 +3273,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
         setSlots(res.slots);
       } catch (err: any) {
         setSlotsError(err.message || "Failed to load slots");
+        setSlots([]);
       } finally {
         setLoadingSlots(false);
       }
@@ -3290,15 +3303,23 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     setShowGuestField(false);
     setFormStep(0);
     setFieldErrors({});
+    setSelectedServiceValues(serviceLocked && mainServiceValue ? [mainServiceValue] : []);
   };
 
-  const safeConsultantName = consultantName || "Raja Rajeshwari";
+  const safeConsultantName = consultantName || "Raje";
   const safeConsultantTitle = consultantTitle || "CEO, BrandingBeez";
 
   const fallbackStrokeSrc =
     typeof RajeStroke === "string" ? RajeStroke : (RajeStroke as any)?.src;
 
   const consultantAvatarSrc = consultantImage || fallbackStrokeSrc;
+
+  const resetAfterSuccessfulBooking = () => {
+    goToDateStage();
+    resetForm();
+    setTzOpen(false);
+  };
+
 
   const handleBook = async () => {
     if (!selectedDate || !selectedSlot) {
@@ -3395,14 +3416,18 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
         formType: "strategy",
       });
 
-      setSelectedSlot(null);
-      setBookingStage("time");
-      resetForm();
+      // setSelectedSlot(null);
+      // setBookingStage("time");
+      // resetForm();
+
+      // if (onClose) onClose();
+
+      // const res = await fetchSlots(selectedDateKey);
+      // setSlots(res.slots);
+      resetAfterSuccessfulBooking();
 
       if (onClose) onClose();
 
-      const res = await fetchSlots(selectedDateKey);
-      setSlots(res.slots);
     } catch (err: any) {
       setStatusType("error");
       setStatusMessage(
@@ -3447,7 +3472,8 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
       return;
     }
     if (bookingStage === "time") {
-      setBookingStage("date");
+      // ✅ IMPORTANT: clear selected date + slots so old slots won't show
+      goToDateStage();
       return;
     }
   };
@@ -3456,6 +3482,22 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
     <div className="w-full">
       <Card className="bg-white border-slate-200 shadow-md w-full overflow-hidden">
         <CardContent className="p-0">
+          <div className="lg:hidden px-4 py-3 border-b border-slate-200 bg-white flex items-center justify-between text-xs text-slate-600">
+            <span>
+              Step <b className="text-slate-900">{stepNumber}</b> of 3
+            </span>
+
+            {bookingStage !== "date" && (
+              <button
+                type="button"
+                onClick={handleMobileBack}
+                className="text-blue-600 font-semibold hover:text-blue-700"
+              >
+                Back
+              </button>
+            )}
+          </div>
+
           <div
             className="
               grid
@@ -3465,9 +3507,17 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
             "
           >
             {/* =========================================================
-               1) LEFT: DETAILS (always visible)
+               1) LEFT: DETAILS
+               ✅ Hide in MOBILE (below md) once user goes to step 2/3
+               (This is the section you listed: Raja/BrandingBeez/30min/etc.)
             ========================================================== */}
-            <div className="p-4 sm:p-5">
+            <div
+              className={[
+                "p-4 sm:p-5",
+                bookingStage !== "date" ? "hidden md:block" : "block",
+                "lg:block",
+              ].join(" ")}
+            >
               <div className="flex items-start gap-3">
                 <div className="relative">
                   <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-blue-50 border border-blue-300 overflow-hidden flex items-center justify-center">
@@ -3534,23 +3584,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   {statusMessage}
                 </div>
               )}
-
-              {/* ✅ Mobile/Tablet Step Header (only below lg) */}
-              <div className="lg:hidden px-4 py-3 border-b border-slate-200 bg-white flex items-center justify-between text-xs text-slate-600">
-                <span>
-                  Step <b className="text-slate-900">{stepNumber}</b> of 3
-                </span>
-
-                {bookingStage !== "date" && (
-                  <button
-                    type="button"
-                    onClick={handleMobileBack}
-                    className="text-blue-600 font-semibold hover:text-blue-700"
-                  >
-                    Back
-                  </button>
-                )}
-              </div>
             </div>
 
             {/* =========================================================
@@ -3623,8 +3656,13 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                       disabled={isDisabled}
                       onClick={() => {
                         if (isDisabled) return;
-                        setSelectedDate(date);
+
+                        // ✅ IMPORTANT: clear old slots immediately to avoid showing previous date slots
+                        setSlots([]);
+                        setSlotsError(null);
                         setSelectedSlot(null);
+
+                        setSelectedDate(date);
                         setBookingStage("time");
                       }}
                       className={[
@@ -3687,16 +3725,16 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                       type="button"
                       onClick={() => setTzOpen((v) => !v)}
                       className="
-        h-8 sm:h-7
-        px-2 py-1
-        text-[10px] sm:text-[11px]
-        bg-white border border-slate-300
-        text-slate-700
-        rounded-md
-        hover:bg-slate-50
-        inline-flex items-center gap-1
-        max-w-[78vw] sm:max-w-[240px]
-      "
+                        h-8 sm:h-7
+                        px-2 py-1
+                        text-[10px] sm:text-[11px]
+                        bg-white border border-slate-300
+                        text-slate-700
+                        rounded-md
+                        hover:bg-slate-50
+                        inline-flex items-center gap-1
+                        max-w-[78vw] sm:max-w-[240px]
+                      "
                       aria-label="Select timezone"
                     >
                       <Globe className="w-3.5 h-3.5 text-slate-600 shrink-0" />
@@ -3708,17 +3746,17 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   {tzOpen && (
                     <div
                       className="
-      absolute top-full mt-2 z-[100010]
-      rounded-lg border border-slate-200 bg-white shadow-2xl
-      p-4 sm:p-3 overflow-hidden
+                        absolute top-full mt-2 z-[100010]
+                        rounded-lg border border-slate-200 bg-white shadow-2xl
+                        p-4 sm:p-3 overflow-hidden
 
-      left-1/4 -translate-x-1/2
-      w-[96vw] max-w-[96vw]
+                        left-1/4 -translate-x-1/2
+                        w-[96vw] max-w-[96vw]
 
-      sm:left-auto sm:translate-x-0 sm:right-0
-      sm:w-[380px] sm:max-w-[380px]
-      md:w-[420px] md:max-w-[420px]
-    "
+                        sm:left-auto sm:translate-x-0 sm:right-0
+                        sm:w-[380px] sm:max-w-[380px]
+                        md:w-[420px] md:max-w-[420px]
+                      "
                     >
                       <TimeZonePicker
                         value={timeZone}

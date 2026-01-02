@@ -216,7 +216,7 @@ function Router() {
       <Route path="/blog/:slug" component={DynamicBlogPostPage} />
 
       {/* Case Studies */}
-      <Route path="/case-studies" component={() => <LazyRoute component={CaseStudies} />} />
+      {/* <Route path="/case-studies" component={() => <LazyRoute component={CaseStudies} />} /> */}
       <Route path="/case-studies/seo-case-study" component={() => <LazyRoute component={SEOCaseStudy} />} />
       <Route path="/case-studies/scuba-diving-case-study" component={() => <LazyRoute component={ScubaDivingCaseStudy} />} />
       <Route path="/case-studies/stat-planning-case-study" component={() => <LazyRoute component={StatPlanningCaseStudy} />} />
