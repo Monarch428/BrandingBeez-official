@@ -38,7 +38,7 @@ export default function N8NAutomations() {
         description: "Advanced workflow automation using N8N to streamline business processes and increase efficiency.",
         serviceType: "Business Process Automation"
       }} />
-      <Header />
+      {/* <Header /> */}
       <main>
         {/* Hero Section */}
         <section className="py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -222,7 +222,7 @@ export default function N8NAutomations() {
           </div>
         </section>
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

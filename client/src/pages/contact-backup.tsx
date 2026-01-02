@@ -132,7 +132,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <Header />
+      {/* <Header /> */}
       
       <main className="pt-16">
         {/* Header Section */}

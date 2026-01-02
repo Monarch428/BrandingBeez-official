@@ -149,7 +149,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
             {/* Header – phase + title */}
             <CardHeader className="pb-3 sm:pb-4 px-0">
               <div className="flex flex-col items-start gap-1 pl-4 sm:pl-8 md:pl-10">
-                <p className="text-[11px] md:text-xs font-bold uppercase tracking-[0.18em] text-white/90">
+                <p className="text-[14px] md:text-[16px] font-bold uppercase tracking-[0.18em] text-yellow-400">
                   {activePhase.label} of {totalPhases}
                 </p>
                 <h3 className="text-lg sm:text-xl md:text-3xl font-bold text-white leading-snug">

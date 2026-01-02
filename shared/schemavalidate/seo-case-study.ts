@@ -89,6 +89,7 @@ export const insertSeoCaseStudyCardSchema = z.object({
   cardCoverImageUrl: z.string().optional(),
   cardCoverImageAlt: z.string().optional(),
   cardCoverFit: z.enum(["contain", "cover"]).optional(),
+  status: z.enum(["draft", "published"]).optional().default("draft"),
 });
 
 // ---------- ✅ DETAIL SCHEMA (FK required) ----------

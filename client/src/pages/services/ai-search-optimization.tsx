@@ -151,7 +151,7 @@ export default function AiSearchOptimization() {
                 />
                 <SchemaMarkup type="custom" data={AiSearchOptimizationSchema} />
 
-                <Header />
+                {/* <Header /> */}
                 <main>
                     {/* Hero Section */}
                     <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1033,7 +1033,7 @@ export default function AiSearchOptimization() {
                     </section>
                 </main>
 
-                <Footer />
+                {/* <Footer /> */}
             </div>
         </>
     );

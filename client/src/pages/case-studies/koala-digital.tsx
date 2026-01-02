@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,13 +11,10 @@ import {
   Target,
   CheckCircle,
   Clock,
-  Zap,
-  Building,
   Quote,
   MessageSquare,
   Calendar,
   DollarSign,
-  Monitor,
 } from "lucide-react";
 import Niji from "../../../public/images/niju-team-member.png";
 import { Helmet } from "react-helmet";
@@ -25,6 +22,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { KoalaDigitalSchema } from "@/utils/all-schemas";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 export default function KoalaDigitalCaseStudy() {
   return (
@@ -50,7 +48,7 @@ export default function KoalaDigitalCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={KoalaDigitalSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -116,15 +114,16 @@ export default function KoalaDigitalCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/azHbi5z9TRs"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="azHbi5z9TRs" />
+                    {/* </div> */}
                   </div>
                 </div>
                 {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
@@ -1022,7 +1021,7 @@ export default function KoalaDigitalCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -6,17 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+// import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Calculator, Users, DollarSign, TrendingUp, CheckCircle, ArrowRight, Trophy, AlertCircle, Plus, Send } from 'lucide-react';
+import { Calculator, Users, DollarSign, CheckCircle, Trophy, AlertCircle, Plus, } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
+// import { Header } from '@/components/header';
+// import { Footer } from '@/components/footer';
 import { SEOHead } from '@/components/seo-head';
 import { SchemaMarkup } from '@/components/schema-markup';
-import { Breadcrumbs } from '@/components/breadcrumbs';
+// import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Helmet } from 'react-helmet';
 
 interface PricingResult {
@@ -577,7 +577,7 @@ export default function PricingCalculator() {
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         <SEOHead title="Pricing Calculator | White-Label Services Cost Estimator | BrandingBeez" description="Calculate costs for white-label digital marketing services..." keywords="white label pricing calculator..." canonicalUrl="https://brandingbeez.com/pricing-calculator" ogType="webapp" />
         <SchemaMarkup type="service" data={{ name: "White-Label Services Pricing Calculator", description: "Interactive pricing calculator...", serviceType: "Pricing Calculator Tool", hasOfferCatalog: { name: "Service Pricing Options", itemListElement: [{ name: "SEO Services Pricing" }, { name: "Google Ads Management Pricing" }, { name: "Dedicated Resources Pricing" }] } }} />
-        <Header />
+        {/* <Header /> */}
 
         <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
           <div className="max-w-4xl mx-auto text-center p-6">
@@ -594,14 +594,28 @@ export default function PricingCalculator() {
 
         <section className="py-12 sm:py-16 px-4">
           <div className="max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-              <Card className="border-2 border-brand-coral/20">
+            <div
+              className={[
+                "grid gap-8 lg:gap-12",
+                pricing
+                  ? "grid-cols-1 lg:grid-cols-2 items-start"
+                  : "grid-cols-1 place-items-center",
+              ].join(" ")}
+            >
+              {/* Configure Card */}
+              <Card
+                className={[
+                  "border-2 border-brand-coral/20 w-full",
+                  pricing ? "max-w-none" : "max-w-2xl",
+                ].join(" ")}
+              >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <DollarSign className="w-5 h-5 text-brand-coral" />
                     <h2>Configure Your Service</h2>
                   </CardTitle>
                 </CardHeader>
+
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Select Service</label>
@@ -614,9 +628,12 @@ export default function PricingCalculator() {
                         <SelectItem value="google-ads">Google Ads Management</SelectItem>
                         <SelectItem value="seo">SEO / AIO Services</SelectItem>
                         <SelectItem value="web-development">Web Development</SelectItem>
-                        <SelectItem value="ai-development">Custom Web & Mobile Application Development (AI-Powered)</SelectItem>
+                        <SelectItem value="ai-development">
+                          Custom Web & Mobile Application Development (AI-Powered)
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+
                     {selectedService && (
                       <p className="text-xs text-gray-500 mt-1">
                         Detailed configuration opens in a popup. Your quote updates live on the right.
@@ -639,23 +656,31 @@ export default function PricingCalculator() {
                     </div>
                   )}
                 </CardContent>
-                <div className='flex items-center justify-end p-4'>
+
+                <div className="flex items-center justify-end p-4">
                   {selectedService && (
-                    <Button className="bg-brand-coral text-white border border-brand-coral hover:bg-white hover:text-brand-coral transition-colors" type="button" size="sm" onClick={() => setShowServiceModal(true)}>
+                    <Button
+                      className="bg-brand-coral text-white border border-brand-coral hover:bg-white hover:text-brand-coral transition-colors"
+                      type="button"
+                      size="sm"
+                      onClick={() => setShowServiceModal(true)}
+                    >
                       Edit configuration
                     </Button>
                   )}
                 </div>
               </Card>
 
+              {/* Quote Card (only after pricing exists) */}
               {pricing && (
-                <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-50 to-emerald-50">
+                <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-50 to-emerald-50 w-full">
                   <CardHeader className="flex flex-row items-center justify-between gap-2">
                     <CardTitle className="flex items-center gap-2">
                       <Calculator className="w-5 h-5 text-green-600" />
                       Your Custom Quote
                     </CardTitle>
                   </CardHeader>
+
                   <CardContent className="space-y-6">
                     <div className="text-center">
                       <div className="text-3xl font-bold text-green-600">
@@ -1859,7 +1884,7 @@ export default function PricingCalculator() {
             </form>
           </DialogContent>
         </Dialog>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

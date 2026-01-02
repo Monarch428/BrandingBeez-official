@@ -1,40 +1,32 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
 import {
   ArrowRight,
-  CheckCircle,
   Leaf,
   Globe,
   Users,
   Target,
   Clock,
-  TrendingUp,
   Phone,
   Mail,
-  Building,
   Monitor,
-  Smartphone,
-  Search,
   Palette,
   Code,
   Star,
   Quote,
   ExternalLink,
-  MessageSquare,
-  Video,
-  Zap,
-  Calendar,
 } from "lucide-react";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { TSLandscapingSchema } from "@/utils/all-schemas";
 import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
-import tsl_Logo from "../../../public/images/TSL_Logo.png";
+// import tsl_Logo from "../../../public/images/TSL_Logo.png";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 // Image imported directly in the component
 
 export default function TSLandscapingCaseStudy() {
@@ -61,7 +53,7 @@ export default function TSLandscapingCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={TSLandscapingSchema} />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="py-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -122,15 +114,16 @@ export default function TSLandscapingCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/k53Ua_qvWkc"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}                      
+                      <LazyYouTube videoId="k53Ua_qvWkc" />         
+                    {/* </div> */}
                   </div>
                 </div>
                 {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
@@ -719,7 +712,7 @@ export default function TSLandscapingCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

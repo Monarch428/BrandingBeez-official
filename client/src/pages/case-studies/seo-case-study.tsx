@@ -1,6 +1,6 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,16 +15,10 @@ import {
   Users,
   Calendar,
   Globe,
-  Zap,
   Settings,
-  Eye,
-  MousePointer,
-  Award,
-  ExternalLink,
 } from "lucide-react";
-// Using direct paths to screenshots for SEO results demonstration
 // import atlanticFoundationImage from "@assets/atlantic-foundation-seo-portfolio_1754120022956.png";
-import placeholderImage from "@assets/Screenshot 2025-07-30 191221_1754117459762.png";
+// import placeholderImage from "@assets/Screenshot 2025-07-30 191221_1754117459762.png";
 import { Link } from "wouter";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -32,6 +26,7 @@ import { SchemaMarkup } from "@/components/schema-markup";
 import { AtlanticFoundationSchema } from "@/utils/all-schemas";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import atlanLogo from "../../../public/images/atlantic-logo.jpg";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 export default function SEOCaseStudy() {
   return (
@@ -57,7 +52,7 @@ export default function SEOCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={AtlanticFoundationSchema} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="pt-24 py-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -120,15 +115,16 @@ export default function SEOCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/RjNqOMsaX5E"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="RjNqOMsaX5E" />
+                    {/* </div> */}
                   </div>
                 </div>
                 {/* <div className="bg-white/10 backdrop-blur-sm rounded-2xl border border-white/20 p-4 hover:scale-105 transition-transform duration-300">
@@ -1227,7 +1223,7 @@ export default function SEOCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

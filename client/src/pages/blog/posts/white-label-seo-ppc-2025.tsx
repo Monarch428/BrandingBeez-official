@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "wouter";
@@ -11,10 +11,6 @@ import {
   Clock,
   Share2,
   Search,
-  Globe,
-  BarChart3,
-  Zap,
-  CheckCircle
 } from "lucide-react";
 
 export default function WhiteLabelSEOPPCBlog() {
@@ -43,7 +39,7 @@ export default function WhiteLabelSEOPPCBlog() {
         content="Discover how white label SEO and PPC services can help your agency scale globally in 2025. Learn about cost savings, dedicated expertise, and local SEO strategies for business growth." 
       />
       
-      <Header />
+      {/* <Header /> */}
       
       {/* Article Header */}
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -259,7 +255,7 @@ export default function WhiteLabelSEOPPCBlog() {
         </div>
       </article>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

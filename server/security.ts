@@ -45,6 +45,10 @@ export function securityHeaders() {
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
 
+          // Hotjar
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
@@ -52,7 +56,12 @@ export function securityHeaders() {
 
           // LinkedIn Insight Tag
           "https://snap.licdn.com",
-          "https://*.licdn.com"
+          "https://*.licdn.com",
+
+          // Meta / Facebook Pixel
+          "https://connect.facebook.net",
+          "https://*.facebook.net",
+
         ],
 
         scriptSrcElem: [
@@ -91,6 +100,10 @@ export function securityHeaders() {
           "https://c.clarity.ms",
           "https://scripts.clarity.ms",
 
+          // Hotjar
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
           // CDN / tooling
           "https://cdn.jsdelivr.net",
           "https://replit.com",
@@ -98,20 +111,30 @@ export function securityHeaders() {
 
           // LinkedIn Insight Tag
           "https://snap.licdn.com",
-          "https://*.licdn.com"
+          "https://*.licdn.com",
+
+          // Meta / Facebook Pixel
+          "https://connect.facebook.net",
+          "https://*.facebook.net",
         ],
 
-        /* ✅ ADD THIS BLOCK (CRITICAL FIX) */
         imgSrc: [
           "'self'",
           "data:",
           "blob:",
 
+          "https://brandingbeez.co.uk",
+          "https://www.brandingbeez.co.uk",
+
           // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
 
-          // ✅ Google (FIX for /pagead/1p-user-list)
+          "https://static.hotjar.com",
+          "https://*.hotjar.com",
+          "https://*.hotjar.io",
+
+          // Google
           "https://www.google.com",
           "https://www.google.co.in",
           "https://*.google.com",
@@ -138,7 +161,16 @@ export function securityHeaders() {
 
           // LinkedIn
           "https://px.ads.linkedin.com",
-          "https://*.linkedin.com"
+          "https://*.linkedin.com",
+
+          // Meta / Facebook Pixel
+          "https://www.facebook.com",
+          "https://*.facebook.com",
+          "https://*.fbcdn.net",
+
+          // ✅ YouTube thumbnails (FIX)
+          "https://img.youtube.com",
+          "https://i.ytimg.com",
         ],
 
         connectSrc: [
@@ -147,6 +179,16 @@ export function securityHeaders() {
           // Cloudinary
           "https://res.cloudinary.com",
           "https://*.res.cloudinary.com",
+
+          // Hotjar
+          "https://*.hotjar.com",
+          "https://*.hotjar.io",
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+
+          // ✅ Hotjar WebSocket
+          "wss://ws.hotjar.com",
+          "wss://*.hotjar.com",
 
           // Google / GA / Ads
           "https://www.google.com",
@@ -176,13 +218,17 @@ export function securityHeaders() {
           "https://www.gstatic.com",
           "https://*.gstatic.com",
 
-          // Clarity
+          // Microsoft Clarity 
           "https://www.clarity.ms",
+          "https://e.clarity.ms",
           "https://c.clarity.ms",
           "https://k.clarity.ms",
           "https://o.clarity.ms",
           "https://s.clarity.ms",
           "https://q.clarity.ms",
+          "https://y.clarity.ms",
+          // optional but safe future-proof:
+          "https://*.clarity.ms",
 
           // Calendly
           "https://calendly.com",
@@ -192,7 +238,15 @@ export function securityHeaders() {
           "https://px.ads.linkedin.com",
           "https://snap.licdn.com",
           "https://*.linkedin.com",
-          "https://*.licdn.com"
+          "https://*.licdn.com",
+
+          // Meta / Facebook Pixel
+          "https://www.facebook.com",
+          "https://*.facebook.com",
+
+          // ✅ Stape / Facebook CAPI (FIX)
+          "https://capig.stape.nz",
+          "https://*.stape.nz",
         ],
 
         frameSrc: [
@@ -245,10 +299,10 @@ export function securityHeaders() {
 // Rate limiting for general API endpoints
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 100,
   message: {
     error: "Too many requests from this IP, please try again later.",
-    retryAfter: 15 * 60 // 15 minutes in seconds
+    retryAfter: 15 * 60
   },
   standardHeaders: true,
   legacyHeaders: false,

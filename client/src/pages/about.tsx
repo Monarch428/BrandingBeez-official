@@ -767,8 +767,8 @@
 // }
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { TeamCollageBanner } from "@/components/team-collage-banner";
 import { Button } from "@/components/ui/button";
@@ -779,26 +779,9 @@ import { useRegion } from "@/hooks/use-region";
 import { useState, useEffect } from "react";
 
 // Team member images
-import vigneshImage from "@assets/Vignesh Stroke_1753273695214.png";
-import rajeImage from "@assets/Raje Stroke_1753273695213.png";
-import charanImage from "@assets/Charan Stroke_1753273701283.png";
-import priyaImage from "@assets/Priya Stroke_1753273695213.png";
-import Mathavanimage from "../../public/images/Mathavan-team-member.png";
-import loguImage from "@assets/Logu_Stroke.png";
-import SatheshImage from "@assets/Sathish_Stroke.png";
-import azeezImage from "@assets/Azeez_Stroke.png";
-import nijuImage from "@assets/Niju Stroke_1753273695212.png";
-import rajaImage from "../../public/images/Raja-team-member.png";
-import pradeepImage from "../../public/images/Pradeep-team-member.png";
-import vishnuImage from "@assets/Vishnu Stroke_1753273695214.png";
-import yuvaImage from "@assets/Yuva Stroke_1753273695215.png";
-import gopalImage from "@assets/Gopal Stroke_1753273701284.png";
-import athiraImage from "@assets/Athira Stroke_1753273701280.png";
-import jithenImage from "../../public/images/Jithen-team-member.png";
-import pranavImage from "../../public/images/Pranav-team-member.png";
-import ken from "../../public/images/Ken.png";
-import matt from "../../public/images/Matt.png";
-import phillip from "../../public/images/Phillip.png";
+// import ken from "../../public/images/Ken.webp";
+// import matt from "../../public/images/Matt.webp";
+// import phillip from "../../public/images/Phillip.webp";
 import teamImage from "../../public/images/Team.png";
 import learnImage from "../../public/images/work.png";
 import playImage from "../../public/images/play.png";
@@ -809,25 +792,25 @@ import {
   Heart,
   Linkedin,
   Globe,
-  Building,
   Target,
   Zap,
   Shield,
   Handshake,
   Calendar,
   BookOpen,
-  TrendingUp, // ✅ added for global partnership benefits
+  TrendingUp,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { AboutPageSchema } from "@/utils/all-schemas";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 const teamMembers = [
   {
     name: "Vignesh",
     role: "Founder",
     location: "India",
-    image: vigneshImage,
+    image: "/images/vignesh-founder.webp",
     bio: "Visionary founder driving innovation in digital marketing",
     linkedin:
       "https://www.linkedin.com/in/vigneshwaran-velusamy?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -837,7 +820,7 @@ const teamMembers = [
     name: "Raje",
     role: "CEO",
     location: "India",
-    image: rajeImage,
+    image: "/images/raje-team-member.webp",
     bio: "Leading global operations and strategic partnerships",
     linkedin:
       "https://www.linkedin.com/in/raja-rajeswari?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -847,16 +830,16 @@ const teamMembers = [
     name: "Charan",
     role: "Chief Visionary Officer",
     location: "India",
-    image: charanImage,
+    image: "/images/Charan-team-member.webp",
     bio: "Shaping the future vision and strategic direction",
-    linkedin: "https://www.linkedin.com/company/brandingbeez-academy/", //https://www.linkedin.com/in/charan-brandingbeez
+    linkedin: "https://www.linkedin.com/company/brandingbeez-academy/",
     specialties: ["Strategic Vision", "Innovation", "Leadership"],
   },
   {
     name: "Priya",
     role: "Automation Specialist",
     location: "India",
-    image: priyaImage,
+    image: "/images/priya-team-member.webp",
     bio: "Expert in workflow automation and process optimization",
     linkedin:
       "https://www.linkedin.com/in/vishnupriyaa-rajan?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -866,30 +849,17 @@ const teamMembers = [
     name: "Athira",
     role: "HR",
     location: "India",
-    image: athiraImage,
+    image: "/images/Athira-team-member.webp",
     bio: "Human resources specialist fostering team growth and culture",
     linkedin:
       "https://www.linkedin.com/in/athirasrihari?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
     specialties: ["Human Resources", "Team Development", "Culture Building"],
   },
-  // {
-  //   name: "Mathavan",
-  //   role: "AI Developer",
-  //   location: "India",
-  //   image: Mathavanimage,
-  //   bio: "Cutting-edge AI solutions and machine learning expert",
-  //   linkedin: "https://www.linkedin.com/in/mathavan-mukesh-7a53a3360",
-  //   specialties: [
-  //     "AI & Machine Learning Solutions",
-  //     "Generative AI & LLMs",
-  //     "Data Engineering & Automation",
-  //   ],
-  // },
   {
     name: "Logu",
     role: "Full-Stack Developer",
     location: "India",
-    image: loguImage,
+    image: "/images/Logu_Stroke.webp",
     bio: "Full-stack development specialist with modern frameworks",
     linkedin:
       "https://www.linkedin.com/in/loguvan-lk?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -899,7 +869,7 @@ const teamMembers = [
     name: "Raja",
     role: "AI Specialist",
     location: "India",
-    image: rajaImage,
+    image: "/images/Raja-team-member.webp",
     bio: "AI specialist with expertise in generative AI and NLP, Machine Learning",
     linkedin: "https://www.linkedin.com/in/rajakrishnank/",
     specialties: ["Gen-AI", "NLP", "AI Solutions"],
@@ -908,7 +878,7 @@ const teamMembers = [
     name: "Sathesh",
     role: "Full-Stack Developer",
     location: "India",
-    image: SatheshImage,
+    image: "/images/Sathish_Stroke.webp",
     bio: "Full-stack development specialist with modern frameworks",
     linkedin: "https://www.linkedin.com/in/satheshkumar-v/",
     specialties: ["Full-Stack Development", "React", "Node.js"],
@@ -917,7 +887,7 @@ const teamMembers = [
     name: "Pradeep",
     role: "Full Stack Developer",
     location: "India",
-    image: pradeepImage,
+    image: "/images/Pradeep-team-member.webp",
     bio: "Full-stack development specialist with modern Web Technologies",
     linkedin: "https://www.linkedin.com/in/l-pradeep/",
     specialties: ["Full-Stack Development", "MERN Stack", "API Development"],
@@ -926,7 +896,7 @@ const teamMembers = [
     name: "Azeez",
     role: "Senior Graphic Designer",
     location: "India",
-    image: azeezImage,
+    image: "/images/azeez-team-member.webp",
     bio: "Senior designer specializing in advanced visual concepts",
     linkedin:
       "https://www.linkedin.com/in/abdul-azeez-a-57b9b2256?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -936,7 +906,7 @@ const teamMembers = [
     name: "Niju",
     role: "Senior WordPress Developer",
     location: "India",
-    image: nijuImage,
+    image: "/images/niju-team-member.webp",
     bio: "WordPress expert building scalable web solutions",
     linkedin:
       "https://www.linkedin.com/in/nijanthan-k-7b984721b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -946,21 +916,21 @@ const teamMembers = [
       "Plugin Development",
     ],
   },
-  {
-    name: "Yuva",
-    role: "SEO Specialist",
-    location: "India",
-    image: yuvaImage,
-    bio: "SEO expert driving organic growth and search visibility",
-    linkedin:
-      "https://www.linkedin.com/in/yuva-sankar-25294a267?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
-    specialties: ["SEO Strategy", "Technical SEO", "Content Optimization"],
-  },
+  // {
+  //   name: "Yuva",
+  //   role: "SEO Specialist",
+  //   location: "India",
+  //   image: "/images/Yuva-team-member.webp", // ✅ confirm filename exists
+  //   bio: "SEO expert driving organic growth and search visibility",
+  //   linkedin:
+  //     "https://www.linkedin.com/in/yuva-sankar-25294a267?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
+  //   specialties: ["SEO Strategy", "Technical SEO", "Content Optimization"],
+  // },
   {
     name: "Gopal",
     role: "Senior Google Ads & SEO Expert",
     location: "India",
-    image: gopalImage,
+    image: "/images/gopal-team-member.webp",
     bio: "Dual expertise in paid advertising and organic search optimization",
     linkedin: "https://in.linkedin.com/in/gopala-krishnan-85214077",
     specialties: ["Google Ads", "SEO", "PPC Management"],
@@ -969,7 +939,7 @@ const teamMembers = [
     name: "Jithendran",
     role: "Video Editor",
     location: "India",
-    image: jithenImage,
+    image: "/images/Jithen-team-member.webp",
     bio: "Creative video editor crafting engaging visual stories",
     linkedin:
       "https://www.linkedin.com/in/jithendran-natarajan-50976b187?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -979,7 +949,7 @@ const teamMembers = [
     name: "Vishnu",
     role: "Senior WordPress Developer & UI/UX Designer",
     location: "India",
-    image: vishnuImage,
+    image: "/images/vishnu-team-member.webp",
     bio: "Combining development skills with exceptional design expertise",
     linkedin:
       "https://www.linkedin.com/in/vishnupradeep-v-670681179?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
@@ -993,13 +963,14 @@ const teamMembers = [
     name: "Pranavkumar",
     role: "Content Manager",
     location: "India",
-    image: pranavImage,
+    image: "/images/Pranav-team-member.webp",
     bio: "Content manager driving strategic content initiatives",
     linkedin:
       "https://www.linkedin.com/in/pranavkumar8481?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app",
     specialties: ["Strategy", "Content Creation", "Editorial Management"],
   },
 ];
+
 
 const offices = [
   {
@@ -1062,7 +1033,7 @@ const regionalPartners: RegionalPartnersMember[] = [
       "Regional compliance and business practices",
     ],
     contact: "Reach Ken for US-based projects and consultations",
-    image: ken,
+    image: "/images/Ken.webp",
   },
   {
     name: "Matt",
@@ -1076,7 +1047,7 @@ const regionalPartners: RegionalPartnersMember[] = [
       "Regional market insights and opportunities",
     ],
     contact: "Connect with Matt for Southeast US projects",
-    image: matt,
+    image: "/images/Matt.webp",
   },
   {
     name: "Phillip Einetter",
@@ -1090,7 +1061,7 @@ const regionalPartners: RegionalPartnersMember[] = [
       "Multi-language project coordination",
     ],
     contact: "Contact Philip for European projects and consultations",
-    image: phillip,
+    image: "/images/Phillip.webp",
   },
 ];
 
@@ -1173,7 +1144,7 @@ export default function About() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={AboutPageSchema} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="py-16 px-4 bg-gradient-to-br from-brand-purple via-brand-purple/90 to-brand-coral">
@@ -1262,15 +1233,16 @@ export default function About() {
                   <div className="bg-gradient-to-br from-brand-purple to-brand-coral   rounded-2xl p-3 md:p-4 text-white text-center shadow-2xl w-full max-w-2xl">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
-                      <div className="w-full h-64 md:h-[380px] lg:h-[350px]  rounded-xl overflow-hidden shadow-lg">
-                        <iframe
+                      {/* <div className="w-full h-40 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                           className="w-full h-full"
                           src="https://www.youtube.com/embed/J4RRz15Q73s?autoplay=0&mute=1"
                           title="Founder Video — Our Story"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
-                        />
-                      </div>
+                        /> */}
+                      <LazyYouTube videoId="J4RRz15Q73s" />
+                      {/* </div> */}
                     </div>
                   </div>
                 </div>
@@ -1895,7 +1867,7 @@ export default function About() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

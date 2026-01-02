@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -10,22 +10,15 @@ import {
   Zap,
   CheckCircle,
   ArrowRight,
-  Star,
   Quote,
   Users,
-  Calendar,
   Layout,
-  Code,
-  Settings,
   Eye,
   MousePointer,
   Award,
   ExternalLink,
-  MapPin,
   Building,
-  Clock,
   Monitor,
-  Palette,
   Search,
 } from "lucide-react";
 import { Link } from "wouter";
@@ -59,7 +52,7 @@ export default function SocialLandWebsiteCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={SocialLandWebsiteSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -664,7 +657,7 @@ export default function SocialLandWebsiteCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

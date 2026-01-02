@@ -1,7 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 🔥 Force toast above Radix Dialog overlay */
+[data-radix-portal]~.react-hot-toast {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Radix dialog overlay fix (keep below toast) */
+[data-radix-dialog-overlay] {
+  z-index: 1000 !important;
+}
 
 :root {
   --background: hsl(0, 0%, 100%);
@@ -14,6 +35,7 @@
   --card-foreground: hsl(222, 84%, 4.9%);
   --border: hsl(214, 32%, 91%);
   --input: hsl(214, 32%, 91%);
+
   /* BrandingBeez brand colors extracted from logo */
   --brand-coral: hsl(351, 83%, 61%);
   --brand-coral-dark: hsl(351, 83%, 51%);
@@ -41,65 +63,6 @@
   --radius: 0.5rem;
 }
 
-.snowflake {
-  position: absolute;
-  top: -10%;
-  color: #ffffff;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
-  animation-name: snowfall-diagonal;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  z-index: 999;
-  user-select: none;
-  animation-duration: 50s !important;
-}
-
-@keyframes snowfall-diagonal {
-  0% {
-    transform: translate3d(30vw, -100%, 0) rotate(0deg);
-  }
-
-  100% {
-    transform: translate3d(-20vw, 110vh, 0) rotate(360deg);
-  }
-}
-
-/* ---------------- Glowing Snow Particles ---------------- */
-
-.snow-particle {
-  position: absolute;
-  top: 20%;
-  border-radius: 9999px;
-  background: radial-gradient(circle,
-      rgba(255, 255, 255, 0.9) 0%,
-      rgba(255, 255, 255, 0.4) 45%,
-      rgba(255, 255, 255, 0) 70%);
-  box-shadow:
-    0 0 6px rgba(255, 255, 255, 0.9),
-    0 0 18px rgba(255, 255, 255, 0.6);
-  animation-name: snowfall-drift-diagonal;
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  opacity: 0.4;
-  animation-duration: 50s !important;
-}
-
-@keyframes snowfall-drift-diagonal {
-  0% {
-    transform: translate3d(20vw, -100%, 0);
-    opacity: 0;
-  }
-
-  10% {
-    opacity: 0.8;
-  }
-
-  100% {
-    transform: translate3d(-30vw, 110vh, 0);
-    opacity: 0;
-  }
-}
-
 /* Hide scrollbars universally but keep scroll behavior */
 .scrollbar-none {
   -ms-overflow-style: none;
@@ -110,17 +73,14 @@
   display: none;
 }
 
-
 .scrollbar-smooth {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
 
-
-/* Optimized font declaration with fallback to prevent layout shift */
-* {
+/* * {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-}
+} */
 
 /* Custom Scrollbar */
 .scrollbar-thin::-webkit-scrollbar {
@@ -205,6 +165,7 @@
   background-color: hsl(var(--brand-coral) / 0.1);
 }
 
+/* ✅ DEDUPED marquee keyframes + class (kept once) */
 @keyframes marquee {
   0% {
     transform: translateX(0);
@@ -219,16 +180,6 @@
   animation: marquee 20s linear infinite;
 }
 
-/* Image display fixes to prevent disappearing */
-img {
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: block !important;
-  animation: none !important;
-  transform: none !important;
-  transition: none !important;
-}
-
 /* Ensure partner logo containers maintain their size */
 .partner-logo-container {
   min-height: 80px;
@@ -237,7 +188,7 @@ img {
   justify-content: center;
 }
 
-/* Optimized animations with reduced motion support */
+/* ✅ DEDUPED float keyframes + class (kept once, light transform) */
 @keyframes float {
   0% {
     transform: translateY(0px);
@@ -254,8 +205,10 @@ img {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+  will-change: transform;
 }
 
+/* ✅ Keep shimmer but reduce cost a bit */
 @keyframes shimmer {
   0% {
     background-position: -200px 0;
@@ -274,61 +227,6 @@ img {
   background-size: 200px 100%;
   animation: shimmer 2s linear infinite;
 }
-
-
-/* @keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0px);
-  }
-
-  50% {
-    transform: translateY(-10px);
-  }
-} */
-
-/* @keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-
-  100% {
-    background-position: 1000px 0;
-  }
-} */
-
-@keyframes gradient-shift {
-
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* .animate-shimmer {
-  animation: shimmer 2s infinite;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  background-size: 1000px 100%;
-} */
 
 /* Respect user's reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
@@ -349,26 +247,7 @@ img {
 
 /* Essential performance optimizations - simplified */
 * {
-  box-sizing: border-box
-}
-
-/* Optimized font loading - prevent layout shift */
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 400;
-  font-display: fallback;
-  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
-  unicode-range: U+0000-00FF;
-}
-
-@font-face {
-  font-family: 'Inter';
-  font-style: normal;
-  font-weight: 600;
-  font-display: fallback;
-  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
-  unicode-range: U+0000-00FF;
+  box-sizing: border-box;
 }
 
 /* Optimize rendering performance */
@@ -379,13 +258,22 @@ img {
   perspective: 1000px;
 }
 
+/* ✅ Keep gradient shift (no duplicates) */
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .animate-gradient {
   animation: gradient-shift 6s ease infinite;
   background-size: 200% 200%;
-}
-
-.animate-marquee {
-  animation: marquee 20s linear infinite;
 }
 
 .card-hover-effect {
@@ -419,6 +307,11 @@ img {
   --ring: hsl(351, 83%, 61%);
 }
 
+html {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+
 @layer base {
   * {
     @apply border-border;
@@ -426,7 +319,8 @@ img {
 
   body {
     @apply font-sans antialiased bg-background text-foreground;
-    font-family: 'Inter', system-ui, sans-serif;
+    /* font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; */
+    text-rendering: optimizeSpeed;
   }
 
   html {
@@ -514,18 +408,6 @@ img {
   }
 }
 
-@keyframes float {
-
-  0%,
-  100% {
-    transform: translateY(0px) scale(1);
-  }
-
-  50% {
-    transform: translateY(-10px) scale(1.05);
-  }
-}
-
 .animate-scroll {
   animation: scroll 20s linear infinite;
   will-change: transform;
@@ -535,14 +417,9 @@ img {
   animation-play-state: paused;
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-  will-change: transform;
-}
-
 /* Performance optimizations */
 .optimize-animations {
-  contain: layout style paint;
+  contain: style paint;
   will-change: transform;
 }
 
@@ -573,7 +450,7 @@ a:focus {
   width: 100%;
 }
 
-/* Optimized image loading */
+/* Optimized image loading (keep) */
 img[loading="lazy"] {
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
@@ -589,13 +466,11 @@ picture {
   display: contents;
 }
 
+/* ✅ Remove heavy global image forcing, keep sane defaults */
 img {
   max-width: 100%;
   height: auto;
-  font-style: italic;
-  background-repeat: no-repeat;
-  background-size: cover;
-  shape-margin: 0.75rem;
+  display: block;
 }
 
 /* Reduced motion support */
@@ -611,12 +486,6 @@ img {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }
-}
-
-/* Optimize font rendering */
-body {
-  font-display: swap;
-  text-rendering: optimizeSpeed;
 }
 
 /* Content visibility for off-screen elements */
@@ -667,12 +536,14 @@ body {
   justify-content: center !important;
   align-items: flex-start !important;
   padding-top: 20px !important;
+
   /* Hardware acceleration */
   transform: translateZ(0);
   backface-visibility: hidden;
-  /* Smooth backdrop blur */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+
+  /* ✅ Reduced blur cost (8px -> 4px) */
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 .popup-modal {
@@ -918,4 +789,37 @@ body {
 .mobile-popup-modal .progress-step.active {
   transform: scale(1.2);
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+}
+
+/* Pricing slider only from 480px to 767px */
+@media (min-width: 480px) and (max-width: 768px) {
+  .pricing-slider-range {
+    display: flex !important;
+  }
+
+  .pricing-grid-range {
+    display: none !important;
+  }
+}
+
+/* Below 480px: grid */
+@media (max-width: 479px) {
+  .pricing-slider-range {
+    display: none !important;
+  }
+
+  .pricing-grid-range {
+    display: grid !important;
+  }
+}
+
+/* 768px and up: grid */
+@media (min-width: 768px) {
+  .pricing-slider-range {
+    display: none !important;
+  }
+
+  .pricing-grid-range {
+    display: grid !important;
+  }
 }

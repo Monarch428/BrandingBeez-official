@@ -1145,22 +1145,27 @@
 //   );
 // }
 
-
-
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import { Shield, Lock, CheckCircle, Clock, Star, Award, Plus, Minus, Gift, Copy } from "lucide-react";
+import { Plus, Minus, Gift } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
+import { ThankYouPopup } from "./thank-you-popup";
 
 interface ContactFormData {
   name: string;
@@ -1181,8 +1186,8 @@ interface ContactFormData {
   };
   seoDetails: string[];
   googleAdsDetails: string[];
-  n8nDetails: string[]; // used for app-scope details
-  aiDetails: string[];  // used for AI-related details
+  n8nDetails: string[];
+  aiDetails: string[];
   message: string;
   region: string;
   budget: string;
@@ -1200,7 +1205,6 @@ const services = [
     value: "custom-app-ai-development",
     label: "Custom Web & Mobile Application Development (AI-Powered)",
   },
-  // { value: "other", label: "Other" },
 ];
 
 const websitePlatforms = [
@@ -1225,7 +1229,6 @@ const dedicatedResourceTypes = [
   { value: "google-ads-expert", label: "Google Ads Expert", skillLevels: ["senior", "specialist"] },
   { value: "web-developer", label: "Web Developer", skillLevels: ["junior", "senior", "specialist"] },
   { value: "full-stack-developer", label: "Full-Stack Developer", skillLevels: ["junior", "senior", "specialist"] },
-  { value: "others", label: "Others (Data Entry/Virtual Assistants/Social Media Managers)", skillLevels: ["junior", "senior"] },
 ];
 
 const seoTypes = [
@@ -1242,8 +1245,6 @@ const googleAdsTiers = [
   { value: "scale", label: "Scale Package" },
 ];
 
-// We'll re-use n8nDetails for APP SCOPE and aiDetails for AI FEATURES,
-// but keep the naming to avoid backend changes.
 const appScopeTypes = [
   { value: "mvp-mobile-app", label: "Prototype / MVP Mobile App" },
   { value: "full-scale-app", label: "Full-Scale Production App" },
@@ -1283,53 +1284,16 @@ const regions = [
 ];
 
 export function ContactFormOptimized() {
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const { hash, search } = window.location;
-    const params = new URLSearchParams(search);
-    const couponFromUrl = params.get("coupon");
-
-    // Autofill coupon code if present in URL
-    if (couponFromUrl) {
-      setFormData(prev => ({
-        ...prev,
-        couponCode: couponFromUrl.toUpperCase(),
-      }));
-    }
-
-    // Smooth scroll to #contact-form with header offset
-    if (hash === "#contact-form") {
-      setTimeout(() => {
-        const formEl = document.getElementById("contact-form");
-        if (formEl) {
-          const headerOffset = 100; // adjust to match your fixed header height
-          const elementPosition = formEl.getBoundingClientRect().top + window.scrollY;
-          const offsetPosition = elementPosition - headerOffset;
-
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: "smooth",
-          });
-        }
-      }, 150);
-    }
-  }, []);
-
   const { toast } = useToast();
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     company: "",
     phone: "",
     service: "",
-    websiteDetails: {
-      platform: "",
-      tier: "",
-    },
-    dedicatedResourceDetails: {
-      roles: [],
-    },
+    websiteDetails: { platform: "", tier: "" },
+    dedicatedResourceDetails: { roles: [] },
     seoDetails: [],
     googleAdsDetails: [],
     n8nDetails: [],
@@ -1342,8 +1306,69 @@ export function ContactFormOptimized() {
     couponCode: "",
   });
 
-  // Auto-fill coupon code & service from URL parameters (with backwards compatibility)
+  // ✅ Thank popup state
+  const [thankOpen, setThankOpen] = useState(false);
+
+  // errors by "path": name, email, websiteDetails.platform, dedicated.roles.0.type, etc.
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const setError = (path: string, msg: string) => {
+    setErrors(prev => ({ ...prev, [path]: msg }));
+  };
+
+  const clearError = (path: string) => {
+    setErrors(prev => {
+      if (!prev[path]) return prev;
+      const next = { ...prev };
+      delete next[path];
+      return next;
+    });
+  };
+
+  const clearErrorsByPrefix = (prefix: string) => {
+    setErrors(prev => {
+      const next: Record<string, string> = {};
+      for (const k of Object.keys(prev)) {
+        if (!k.startsWith(prefix)) next[k] = prev[k];
+      }
+      return next;
+    });
+  };
+
+  // URL: coupon + hash scroll
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const { hash, search } = window.location;
+    const params = new URLSearchParams(search);
+    const couponFromUrl = params.get("coupon");
+
+    if (couponFromUrl) {
+      setFormData(prev => ({
+        ...prev,
+        couponCode: couponFromUrl.toUpperCase(),
+      }));
+      clearError("couponCode");
+    }
+
+    if (hash === "#contact-form") {
+      setTimeout(() => {
+        const formEl = document.getElementById("contact-form");
+        if (formEl) {
+          const headerOffset = 100;
+          const elementPosition = formEl.getBoundingClientRect().top + window.scrollY;
+          const offsetPosition = elementPosition - headerOffset;
+          window.scrollTo({ top: offsetPosition, behavior: "smooth" });
+        }
+      }, 150);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // URL: coupon + service mapping (backwards compatible)
   React.useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const urlParams = new URLSearchParams(window.location.search);
     const couponFromUrl = urlParams.get("coupon");
     const serviceFromUrl = urlParams.get("service");
@@ -1352,11 +1377,7 @@ export function ContactFormOptimized() {
       let service = prev.service;
 
       if (serviceFromUrl) {
-        // Map old values to new combined service
-        if (
-          serviceFromUrl === "custom-app-development" ||
-          serviceFromUrl === "ai-development"
-        ) {
+        if (serviceFromUrl === "custom-app-development" || serviceFromUrl === "ai-development") {
           service = "custom-app-ai-development";
         } else {
           service = serviceFromUrl;
@@ -1365,44 +1386,32 @@ export function ContactFormOptimized() {
 
       return {
         ...prev,
-        couponCode: couponFromUrl || prev.couponCode,
+        couponCode: couponFromUrl ? couponFromUrl.toUpperCase() : prev.couponCode,
         service,
       };
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const contactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
-      // Build structured message with service details
       let structuredMessage = data.message || "Contact form submission";
 
-      // Add service selections
       if (data.service) {
-        structuredMessage += `\n\n📋 PRIMARY SERVICE: ${
-          services.find(s => s.value === data.service)?.label || data.service
-        }`;
+        structuredMessage += `\n\n📋 PRIMARY SERVICE: ${services.find(s => s.value === data.service)?.label || data.service
+          }`;
       }
 
-      // Add website details
       if (data.service === "website-development" && data.websiteDetails.platform) {
         structuredMessage += `\n\n🌐 WEBSITE DETAILS:`;
-        structuredMessage += `\n• Platform: ${
-          websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label
-        }`;
-        if (data.websiteDetails.tier) {
-          structuredMessage += `\n• Tier: ${
-            websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label
+        structuredMessage += `\n• Platform: ${websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label
           }`;
+        if (data.websiteDetails.tier) {
+          structuredMessage += `\n• Tier: ${websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label}`;
         }
       }
 
-      // Add dedicated resources details
-      if (
-        data.service === "dedicated-resources" &&
-        data.dedicatedResourceDetails.roles.length > 0
-      ) {
+      if (data.service === "dedicated-resources" && data.dedicatedResourceDetails.roles.length > 0) {
         structuredMessage += `\n\n👥 DEDICATED RESOURCES:`;
         data.dedicatedResourceDetails.roles.forEach(role => {
           if (role.type && role.skillLevel) {
@@ -1412,7 +1421,6 @@ export function ContactFormOptimized() {
         });
       }
 
-      // Add SEO details
       if (data.service === "seo" && data.seoDetails.length > 0) {
         structuredMessage += `\n\n🔍 SEO SERVICES:`;
         data.seoDetails.forEach(detail => {
@@ -1421,7 +1429,6 @@ export function ContactFormOptimized() {
         });
       }
 
-      // Add Google Ads details
       if (data.service === "google-ads" && data.googleAdsDetails.length > 0) {
         structuredMessage += `\n\n🎯 GOOGLE ADS:`;
         data.googleAdsDetails.forEach(detail => {
@@ -1430,7 +1437,6 @@ export function ContactFormOptimized() {
         });
       }
 
-      // Add Custom Web & Mobile App Development (AI-Powered) details
       if (
         data.service === "custom-app-ai-development" &&
         (data.n8nDetails.length > 0 || data.aiDetails.length > 0)
@@ -1454,24 +1460,15 @@ export function ContactFormOptimized() {
         }
       }
 
-      // Add budget and timeline
       if (data.budget) {
-        structuredMessage += `\n\n💰 BUDGET: ${
-          budgets.find(b => b.value === data.budget)?.label || data.budget
-        }`;
+        structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
       }
-
       if (data.timeline) {
-        structuredMessage += `\n\n⏰ TIMELINE: ${
-          timelines.find(t => t.value === data.timeline)?.label || data.timeline
-        }`;
+        structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline
+          }`;
       }
+      if (data.referral) structuredMessage += `\n\n📢 REFERRAL: ${data.referral}`;
 
-      if (data.referral) {
-        structuredMessage += `\n\n📢 REFERRAL: ${data.referral}`;
-      }
-
-      // Transform the form data to match the API expected format
       const submissionData = {
         name: data.name,
         email: data.email,
@@ -1499,27 +1496,26 @@ export function ContactFormOptimized() {
 
       return await apiRequest("/api/contacts", "POST", submissionData);
     },
+
     onSuccess: () => {
+      // ✅ open popup
+      setThankOpen(true);
+
+      // optional toast (keep or remove)
       toast({
         title: "Message sent successfully!",
         description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
-        duration: 5000,
+        duration: 3000,
       });
 
-      // Reset form
       setFormData({
         name: "",
         email: "",
         company: "",
         phone: "",
         service: "",
-        websiteDetails: {
-          platform: "",
-          tier: "",
-        },
-        dedicatedResourceDetails: {
-          roles: [],
-        },
+        websiteDetails: { platform: "", tier: "" },
+        dedicatedResourceDetails: { roles: [] },
         seoDetails: [],
         googleAdsDetails: [],
         n8nDetails: [],
@@ -1531,19 +1527,15 @@ export function ContactFormOptimized() {
         referral: "",
         couponCode: "",
       });
-
       setErrors({});
     },
+
     onError: (error: any) => {
       console.error("Contact form error:", error);
 
-      // Extract user-friendly message from server response
       let errorMessage = "Please try again or contact us directly.";
-      if (error?.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
+      if (error?.response?.data?.message) errorMessage = error.response.data.message;
+      else if (error?.message) errorMessage = error.message;
 
       toast({
         title: "Please check your information",
@@ -1553,29 +1545,77 @@ export function ContactFormOptimized() {
     },
   });
 
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
+
+  const isLikelyValidPhone = (raw: string) => {
+    const digits = (raw || "").replace(/\D/g, "");
+    if (!digits) return true; // optional
+    return digits.length >= 10 && digits.length <= 16;
+  };
+
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required";
+    const name = formData.name.trim();
+    const email = formData.email.trim();
+    const company = formData.company.trim();
+
+    if (!name) newErrors.name = "Name is required";
+
+    if (!email) newErrors.email = "Email is required";
+    else if (!isValidEmail(email)) newErrors.email = "Please enter a valid email address";
+
+    if (!company) newErrors.company = "Company name is required";
+
+    if (!formData.service) newErrors.service = "Please select a service";
+
+    if (!formData.region) newErrors.region = "Please select your region";
+
+    if (!isLikelyValidPhone(formData.phone)) {
+      newErrors.phone = "Please enter a valid phone number";
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+    if (formData.service === "website-development") {
+      if (!formData.websiteDetails.platform) {
+        newErrors["websiteDetails.platform"] = "Please choose a platform";
+      }
+      if (!formData.websiteDetails.tier) {
+        newErrors["websiteDetails.tier"] = "Please choose a tier";
+      }
     }
 
-    if (!formData.company.trim()) {
-      newErrors.company = "Company name is required";
+    if (formData.service === "dedicated-resources") {
+      if (formData.dedicatedResourceDetails.roles.length === 0) {
+        newErrors["dedicatedResourceDetails.roles"] = "Please add at least one resource";
+      } else {
+        formData.dedicatedResourceDetails.roles.forEach((r, idx) => {
+          if (!r.type) newErrors[`dedicatedResourceDetails.roles.${idx}.type`] = "Select a role type";
+          if (!r.skillLevel) newErrors[`dedicatedResourceDetails.roles.${idx}.skillLevel`] = "Select a skill level";
+          if (!r.quantity || r.quantity < 1)
+            newErrors[`dedicatedResourceDetails.roles.${idx}.quantity`] = "Quantity must be at least 1";
+        });
+      }
     }
 
-    if (!formData.service) {
-      newErrors.service = "Please select a service";
+    if (formData.service === "seo") {
+      if (formData.seoDetails.length === 0) {
+        newErrors["seoDetails"] = "Please select at least one SEO service";
+      }
     }
 
-    if (!formData.region) {
-      newErrors.region = "Please select your region";
+    if (formData.service === "google-ads") {
+      if (formData.googleAdsDetails.length === 0) {
+        newErrors["googleAdsDetails"] = "Please select at least one package";
+      }
+    }
+
+    if (formData.service === "custom-app-ai-development") {
+      if (formData.n8nDetails.length === 0) {
+        newErrors["n8nDetails"] = "Please select at least one App Scope option";
+      }
+      if (formData.aiDetails.length === 0) {
+        newErrors["aiDetails"] = "Please select at least one AI requirement";
+      }
     }
 
     setErrors(newErrors);
@@ -1584,26 +1624,61 @@ export function ContactFormOptimized() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (validateForm()) {
-      contactMutation.mutate(formData);
+      contactMutation.mutate({
+        ...formData,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        company: formData.company.trim(),
+        referral: formData.referral.trim(),
+        message: formData.message.trim(),
+        couponCode: formData.couponCode.trim().toUpperCase(),
+      });
     }
   };
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
 
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+    clearError(field as string);
+
+    if (field === "service") {
+      clearErrorsByPrefix("websiteDetails.");
+      clearErrorsByPrefix("dedicatedResourceDetails.");
+      clearError("seoDetails");
+      clearError("googleAdsDetails");
+      clearError("n8nDetails");
+      clearError("aiDetails");
+
+      setFormData(prev => ({
+        ...prev,
+        service: value,
+        websiteDetails: { platform: "", tier: "" },
+        dedicatedResourceDetails: { roles: [] },
+        seoDetails: [],
+        googleAdsDetails: [],
+        n8nDetails: [],
+        aiDetails: [],
+      }));
+    }
+
+    if (field === "phone") {
+      clearError("phone");
     }
   };
 
   const handleWebsiteDetailsChange = (field: keyof ContactFormData["websiteDetails"], value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      websiteDetails: { ...prev.websiteDetails, [field]: value },
-    }));
+    setFormData(prev => {
+      const next = {
+        ...prev,
+        websiteDetails: { ...prev.websiteDetails, [field]: value },
+      };
+      if (field === "platform") next.websiteDetails.tier = "";
+      return next;
+    });
+
+    clearError(`websiteDetails.${field}`);
+    if (field === "platform") clearError("websiteDetails.tier");
   };
 
   const handleResourceRoleAdd = () => {
@@ -1611,12 +1686,10 @@ export function ContactFormOptimized() {
       ...prev,
       dedicatedResourceDetails: {
         ...prev.dedicatedResourceDetails,
-        roles: [
-          ...prev.dedicatedResourceDetails.roles,
-          { type: "", skillLevel: "", quantity: 1 },
-        ],
+        roles: [...prev.dedicatedResourceDetails.roles, { type: "", skillLevel: "", quantity: 1 }],
       },
     }));
+    clearError("dedicatedResourceDetails.roles");
   };
 
   const handleResourceRoleUpdate = (index: number, field: string, value: string | number) => {
@@ -1629,6 +1702,8 @@ export function ContactFormOptimized() {
         ),
       },
     }));
+    clearError(`dedicatedResourceDetails.roles.${index}.${field}`);
+    clearError("dedicatedResourceDetails.roles");
   };
 
   const handleResourceRoleRemove = (index: number) => {
@@ -1639,6 +1714,7 @@ export function ContactFormOptimized() {
         roles: prev.dedicatedResourceDetails.roles.filter((_, i) => i !== index),
       },
     }));
+    clearErrorsByPrefix(`dedicatedResourceDetails.roles.${index}.`);
   };
 
   const handleCheckboxChange = (field: string, value: string, checked: boolean) => {
@@ -1648,660 +1724,576 @@ export function ContactFormOptimized() {
         ? [...(prev[field as keyof ContactFormData] as string[]), value]
         : (prev[field as keyof ContactFormData] as string[]).filter(item => item !== value),
     }));
+    clearError(field);
   };
 
   const getAvailableTiers = () => {
     if (!formData.websiteDetails.platform) return [];
-
     return websiteTiers.filter(tier => {
-      if (tier.platform) return tier.platform === formData.websiteDetails.platform;
+      if ((tier as any).platform) return (tier as any).platform === formData.websiteDetails.platform;
       if ((tier as any).platforms) return (tier as any).platforms.includes(formData.websiteDetails.platform);
       return true;
     });
   };
 
   return (
-    <Card className="max-w-2xl mx-auto">
-      <CardContent className="p-8 relative" id="contact-form">
-        {formData.couponCode && (
-          <>
-            <div className="hidden md:flex absolute top-3 right-4 items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1 shadow-sm">
-              <Gift className="w-4 h-4 text-emerald-600" />
-              <span className="text-xs font-bold text-emerald-800">
-                Coupon <span className="font-bold">{formData.couponCode}</span> applied
-              </span>
-            </div>
+    <>
+      {/* ✅ Thank You Popup */}
+      <ThankYouPopup
+        isOpen={thankOpen}
+        onClose={() => setThankOpen(false)}
+        title="Thank You! We Got Your Request ✅"
+        message="We've received your details. Our team will reach out within 24 hours."
+        formType="contact"
+      />
 
-            <div className="md:hidden mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-2">
-              <Gift className="w-4 h-4 text-emerald-600" />
-              <div className="text-xs text-emerald-800">
-                <span className="font-bold">Coupon {formData.couponCode}</span> will be applied to your project.
+      <Card className="max-w-2xl mx-auto">
+        <CardContent className="p-8 relative" id="contact-form">
+          {formData.couponCode && (
+            <>
+              <div className="hidden md:flex absolute top-3 right-4 items-center gap-2 rounded-full bg-emerald-50 border border-emerald-200 px-4 py-1 shadow-sm">
+                <Gift className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs font-bold text-emerald-800">
+                  Coupon <span className="font-bold">{formData.couponCode}</span> applied
+                </span>
+              </div>
+
+              <div className="md:hidden mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 flex items-center gap-2">
+                <Gift className="w-4 h-4 text-emerald-600" />
+                <div className="text-xs text-emerald-800">
+                  <span className="font-bold">Coupon {formData.couponCode}</span> will be applied to your project.
+                </div>
+              </div>
+            </>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6 p-2">
+            {/* Personal Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={e => handleInputChange("name", e.target.value)}
+                  placeholder="Enter your full name"
+                  className={errors.name ? "border-red-500" : ""}
+                  autoComplete="name"
+                />
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="email">Email Address *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={e => handleInputChange("email", e.target.value)}
+                  placeholder="Enter your email address"
+                  className={errors.email ? "border-red-500" : ""}
+                  autoComplete="email"
+                />
+                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
               </div>
             </div>
-          </>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-6 p-2">
-          {/* Personal Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Full Name *</Label>
-              <Input
-                id="name"
-                type="text"
-                value={formData.name}
-                onChange={e => handleInputChange("name", e.target.value)}
-                placeholder="Enter your full name"
-                className={errors.name ? "border-red-500" : ""}
-                autoComplete="name"
-              />
-              {errors.name && (
-                <p className="text-red-500 text-sm mt-1">{errors.name}</p>
-              )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="company">Company Name *</Label>
+                <Input
+                  id="company"
+                  type="text"
+                  value={formData.company}
+                  onChange={e => handleInputChange("company", e.target.value)}
+                  placeholder="Enter your company name"
+                  className={errors.company ? "border-red-500" : ""}
+                  autoComplete="organization"
+                />
+                {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  Phone Number (Optional)
+                </Label>
+
+                <PhoneInput
+                  country={"us"}
+                  value={formData.phone}
+                  onChange={(value: string) => handleInputChange("phone", value)}
+                  inputProps={{
+                    name: "phone",
+                    id: "phone",
+                    className:
+                      "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+                    required: false,
+                  }}
+                  containerClass="w-full"
+                />
+                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+              </div>
             </div>
 
+            {/* Project Details */}
             <div>
-              <Label htmlFor="email">Email Address *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={e => handleInputChange("email", e.target.value)}
-                placeholder="Enter your email address"
-                className={errors.email ? "border-red-500" : ""}
-                autoComplete="email"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="company">Company Name *</Label>
-              <Input
-                id="company"
-                type="text"
-                value={formData.company}
-                onChange={e => handleInputChange("company", e.target.value)}
-                placeholder="Enter your company name"
-                className={errors.company ? "border-red-500" : ""}
-                autoComplete="organization"
-              />
-              {errors.company && (
-                <p className="text-red-500 text-sm mt-1">{errors.company}</p>
-              )}
+              <Label htmlFor="service">Service Needed *</Label>
+              <Select value={formData.service} onValueChange={value => handleInputChange("service", value)}>
+                <SelectTrigger className={errors.service ? "border-red-500" : ""}>
+                  <SelectValue placeholder="Select a service" />
+                </SelectTrigger>
+                <SelectContent>
+                  {services.map(service => (
+                    <SelectItem key={service.value} value={service.value}>
+                      {service.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.service && <p className="text-red-500 text-sm mt-1">{errors.service}</p>}
             </div>
 
-            <div>
-              <Label
-                htmlFor="phone"
-                className="text-sm font-medium text-gray-700"
-              >
-                Phone Number
-              </Label>
+            {/* Website Development Details */}
+            {formData.service === "website-development" && (
+              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  What are you specifically looking for in Website Development? *
+                </h3>
 
-              <PhoneInput
-                country={"us"}
-                value={formData.phone}
-                onChange={(value: string) => handleInputChange("phone", value)}
-                inputProps={{
-                  name: "phone",
-                  id: "phone",
-                  className:
-                    "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
-                  required: false,
-                }}
-                containerClass="w-full"
-              />
-            </div>
-          </div>
-
-          {/* Project Details */}
-          <div>
-            <Label htmlFor="service">Service Needed *</Label>
-            <Select
-              value={formData.service}
-              onValueChange={value => handleInputChange("service", value)}
-            >
-              <SelectTrigger className={errors.service ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select a service" />
-              </SelectTrigger>
-              <SelectContent>
-                {services.map(service => (
-                  <SelectItem key={service.value} value={service.value}>
-                    {service.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.service && (
-              <p className="text-red-500 text-sm mt-1">{errors.service}</p>
-            )}
-          </div>
-
-          {/* Website Development Details */}
-          {formData.service === "website-development" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in Website Development? *
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label>Platform</Label>
-                  <Select
-                    value={formData.websiteDetails.platform}
-                    onValueChange={value =>
-                      handleWebsiteDetailsChange("platform", value)
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose platform..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {websitePlatforms.map(platform => (
-                        <SelectItem key={platform.value} value={platform.value}>
-                          {platform.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {formData.websiteDetails.platform && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Tier</Label>
+                    <Label>Platform *</Label>
                     <Select
-                      value={formData.websiteDetails.tier}
-                      onValueChange={value =>
-                        handleWebsiteDetailsChange("tier", value)
-                      }
+                      value={formData.websiteDetails.platform}
+                      onValueChange={value => handleWebsiteDetailsChange("platform", value)}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose tier..." />
+                      <SelectTrigger className={errors["websiteDetails.platform"] ? "border-red-500" : ""}>
+                        <SelectValue placeholder="Choose platform..." />
                       </SelectTrigger>
                       <SelectContent>
-                        {getAvailableTiers().map(tier => (
-                          <SelectItem key={tier.value} value={tier.value}>
-                            {tier.label}
+                        {websitePlatforms.map(platform => (
+                          <SelectItem key={platform.value} value={platform.value}>
+                            {platform.label}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                    {errors["websiteDetails.platform"] && (
+                      <p className="text-red-500 text-sm mt-1">{errors["websiteDetails.platform"]}</p>
+                    )}
                   </div>
-                )}
-              </div>
 
-              <div className="space-y-2">
-                <h4 className="font-medium text-gray-700">Selected:</h4>
-                {formData.websiteDetails.platform && (
-                  <Badge variant="outline" className="mr-2">
-                    {
-                      websitePlatforms.find(
-                        p => p.value === formData.websiteDetails.platform
-                      )?.label
-                    }
-                    {formData.websiteDetails.tier &&
-                      ` - ${
-                        getAvailableTiers().find(
-                          t => t.value === formData.websiteDetails.tier
-                        )?.label
-                      }`}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Dedicated Resources Details */}
-          {formData.service === "dedicated-resources" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in Dedicated Resource? *
-              </h3>
-
-              <div className="space-y-4">
-                {formData.dedicatedResourceDetails.roles.map((role, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-200 rounded-lg p-4 space-y-3"
-                  >
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-medium text-gray-700">
-                        Resource #{index + 1}
-                      </h4>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleResourceRoleRemove(index)}
-                        className="text-red-600"
+                  {formData.websiteDetails.platform && (
+                    <div>
+                      <Label>Tier *</Label>
+                      <Select
+                        value={formData.websiteDetails.tier}
+                        onValueChange={value => handleWebsiteDetailsChange("tier", value)}
                       >
-                        <Minus className="w-4 h-4" />
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div>
-                        <Label>Role Type</Label>
-                        <Select
-                          value={role.type}
-                          onValueChange={value =>
-                            handleResourceRoleUpdate(index, "type", value)
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose role..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {dedicatedResourceTypes.map(type => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {role.type && (
-                        <div>
-                          <Label>Skill Level</Label>
-                          <Select
-                            value={role.skillLevel}
-                            onValueChange={value =>
-                              handleResourceRoleUpdate(index, "skillLevel", value)
-                            }
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose level..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {dedicatedResourceTypes
-                                .find(t => t.value === role.type)
-                                ?.skillLevels.map(level => (
-                                  <SelectItem key={level} value={level}>
-                                    {level.charAt(0).toUpperCase() + level.slice(1)}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <SelectTrigger className={errors["websiteDetails.tier"] ? "border-red-500" : ""}>
+                          <SelectValue placeholder="Choose tier..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getAvailableTiers().map(tier => (
+                            <SelectItem key={tier.value} value={tier.value}>
+                              {tier.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors["websiteDetails.tier"] && (
+                        <p className="text-red-500 text-sm mt-1">{errors["websiteDetails.tier"]}</p>
                       )}
+                    </div>
+                  )}
+                </div>
 
-                      <div>
-                        <Label>Quantity</Label>
-                        <div className="flex items-center gap-2">
+                <div className="space-y-2">
+                  <h4 className="font-medium text-gray-700">Selected:</h4>
+                  {formData.websiteDetails.platform && (
+                    <Badge variant="outline" className="mr-2">
+                      {websitePlatforms.find(p => p.value === formData.websiteDetails.platform)?.label}
+                      {formData.websiteDetails.tier &&
+                        ` - ${getAvailableTiers().find(t => t.value === formData.websiteDetails.tier)?.label}`}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Dedicated Resources Details */}
+            {formData.service === "dedicated-resources" && (
+              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  What are you specifically looking for in Dedicated Resource? *
+                </h3>
+
+                {errors["dedicatedResourceDetails.roles"] && (
+                  <p className="text-red-500 text-sm">{errors["dedicatedResourceDetails.roles"]}</p>
+                )}
+
+                <div className="space-y-4">
+                  {formData.dedicatedResourceDetails.roles.map((role, index) => {
+                    const typeErr = errors[`dedicatedResourceDetails.roles.${index}.type`];
+                    const skillErr = errors[`dedicatedResourceDetails.roles.${index}.skillLevel`];
+                    const qtyErr = errors[`dedicatedResourceDetails.roles.${index}.quantity`];
+
+                    return (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium text-gray-700">Resource #{index + 1}</h4>
                           <Button
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              handleResourceRoleUpdate(
-                                index,
-                                "quantity",
-                                Math.max(1, role.quantity - 1)
-                              )
-                            }
+                            onClick={() => handleResourceRoleRemove(index)}
+                            className="text-red-600"
                           >
                             <Minus className="w-4 h-4" />
                           </Button>
-                          <Input
-                            type="number"
-                            min="1"
-                            value={role.quantity}
-                            onChange={e =>
-                              handleResourceRoleUpdate(
-                                index,
-                                "quantity",
-                                parseInt(e.target.value) || 1
-                              )
-                            }
-                            className="text-center w-16"
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              handleResourceRoleUpdate(
-                                index,
-                                "quantity",
-                                role.quantity + 1
-                              )
-                            }
-                          >
-                            <Plus className="w-4 h-4" />
-                          </Button>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <Label>Role Type *</Label>
+                            <Select
+                              value={role.type}
+                              onValueChange={value => handleResourceRoleUpdate(index, "type", value)}
+                            >
+                              <SelectTrigger className={typeErr ? "border-red-500" : ""}>
+                                <SelectValue placeholder="Choose role..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {dedicatedResourceTypes.map(type => (
+                                  <SelectItem key={type.value} value={type.value}>
+                                    {type.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {typeErr && <p className="text-red-500 text-sm mt-1">{typeErr}</p>}
+                          </div>
+
+                          {role.type && (
+                            <div>
+                              <Label>Skill Level *</Label>
+                              <Select
+                                value={role.skillLevel}
+                                onValueChange={value => handleResourceRoleUpdate(index, "skillLevel", value)}
+                              >
+                                <SelectTrigger className={skillErr ? "border-red-500" : ""}>
+                                  <SelectValue placeholder="Choose level..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {dedicatedResourceTypes
+                                    .find(t => t.value === role.type)
+                                    ?.skillLevels.map(level => (
+                                      <SelectItem key={level} value={level}>
+                                        {level.charAt(0).toUpperCase() + level.slice(1)}
+                                      </SelectItem>
+                                    ))}
+                                </SelectContent>
+                              </Select>
+                              {skillErr && <p className="text-red-500 text-sm mt-1">{skillErr}</p>}
+                            </div>
+                          )}
+
+                          <div>
+                            <Label>Quantity *</Label>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  handleResourceRoleUpdate(index, "quantity", Math.max(1, role.quantity - 1))
+                                }
+                              >
+                                <Minus className="w-4 h-4" />
+                              </Button>
+                              <Input
+                                type="number"
+                                min="1"
+                                value={role.quantity}
+                                onChange={e =>
+                                  handleResourceRoleUpdate(index, "quantity", parseInt(e.target.value) || 1)
+                                }
+                                className={`text-center w-16 ${qtyErr ? "border-red-500" : ""}`}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleResourceRoleUpdate(index, "quantity", role.quantity + 1)}
+                              >
+                                <Plus className="w-4 h-4" />
+                              </Button>
+                            </div>
+                            {qtyErr && <p className="text-red-500 text-sm mt-1">{qtyErr}</p>}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  })}
 
-                <Button
-                  type="button"
-                  onClick={handleResourceRoleAdd}
-                  className="w-full bg-brand-coral text-white hover:bg-brand-coral-dark"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Another Resource
-                </Button>
-
-                {formData.dedicatedResourceDetails.roles.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-gray-700">
-                      Selected Resources:
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {formData.dedicatedResourceDetails.roles.map(
-                        (role, index) =>
-                          role.type &&
-                          role.skillLevel && (
-                            <Badge key={index} variant="outline">
-                              {role.quantity}x{" "}
-                              {
-                                dedicatedResourceTypes.find(
-                                  t => t.value === role.type
-                                )?.label
-                              }{" "}
-                              ({role.skillLevel})
-                            </Badge>
-                          )
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* SEO Services Details */}
-          {formData.service === "seo" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in SEO Services? *
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {seoTypes.map(type => (
-                  <div
-                    key={type.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={type.value}
-                      checked={formData.seoDetails.includes(type.value)}
-                      onCheckedChange={checked =>
-                        handleCheckboxChange(
-                          "seoDetails",
-                          type.value,
-                          checked as boolean
-                        )
-                      }
-                    />
-                    <Label
-                      htmlFor={type.value}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {type.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Google Ads Details */}
-          {formData.service === "google-ads" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in Google Ads? *
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {googleAdsTiers.map(tier => (
-                  <div
-                    key={tier.value}
-                    className="flex items-center space-x-2"
-                  >
-                    <Checkbox
-                      id={tier.value}
-                      checked={formData.googleAdsDetails.includes(tier.value)}
-                      onCheckedChange={checked =>
-                        handleCheckboxChange(
-                          "googleAdsDetails",
-                          tier.value,
-                          checked as boolean
-                        )
-                      }
-                    />
-                    <Label
-                      htmlFor={tier.value}
-                      className="text-sm font-normal cursor-pointer"
-                    >
-                      {tier.label}
-                    </Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Custom Web & Mobile Application Development (AI-Powered) Details */}
-          {formData.service === "custom-app-ai-development" && (
-            <div className="border-2 border-purple-200 rounded-lg p-6 space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                What are you specifically looking for in Custom Web & Mobile Application Development (AI-Powered)? *
-              </h3>
-
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
-                <p className="text-yellow-800 text-sm">
-                  Tell us both the <span className="font-semibold">app scope</span> and the{" "}
-                  <span className="font-semibold">AI capabilities</span> you have in mind. This helps us scope the right architecture and team.
-                </p>
-              </div>
-
-              {/* App Scope */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-800">
-                  App Scope (Web & Mobile)
-                </h4>
-                <div className="grid grid-cols-1 gap-3">
-                  {appScopeTypes.map(type => (
-                    <div
-                      key={type.value}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={type.value}
-                        checked={formData.n8nDetails.includes(type.value)}
-                        onCheckedChange={checked =>
-                          handleCheckboxChange(
-                            "n8nDetails",
-                            type.value,
-                            checked as boolean
-                          )
-                        }
-                      />
-                      <Label
-                        htmlFor={type.value}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {type.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* AI Features */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-800">
-                  AI Features / Platform Requirements
-                </h4>
-                <div className="grid grid-cols-1 gap-3">
-                  {aiTypes.map(type => (
-                    <div
-                      key={type.value}
-                      className="flex items-center space-x-2"
-                    >
-                      <Checkbox
-                        id={type.value}
-                        checked={formData.aiDetails.includes(type.value)}
-                        onCheckedChange={checked =>
-                          handleCheckboxChange(
-                            "aiDetails",
-                            type.value,
-                            checked as boolean
-                          )
-                        }
-                      />
-                      <Label
-                        htmlFor={type.value}
-                        className="text-sm font-normal cursor-pointer"
-                      >
-                        {type.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="region">Your Region *</Label>
-              <Select
-                value={formData.region}
-                onValueChange={value => handleInputChange("region", value)}
-              >
-                <SelectTrigger className={errors.region ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select your region" />
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map(region => (
-                    <SelectItem key={region.value} value={region.value}>
-                      {region.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.region && (
-                <p className="text-red-500 text-sm mt-1">{errors.region}</p>
-              )}
-            </div>
-
-            <div>
-              <Label htmlFor="budget">Project Budget</Label>
-              <Select
-                value={formData.budget}
-                onValueChange={value => handleInputChange("budget", value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select budget range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {budgets.map(budget => (
-                    <SelectItem key={budget.value} value={budget.value}>
-                      {budget.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div>
-            <Label htmlFor="timeline">Timeline</Label>
-            <Select
-              value={formData.timeline}
-              onValueChange={value => handleInputChange("timeline", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select timeline" />
-              </SelectTrigger>
-              <SelectContent>
-                {timelines.map(timeline => (
-                  <SelectItem key={timeline.value} value={timeline.value}>
-                    {timeline.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="message">Message (Optional)</Label>
-            <Textarea
-              id="message"
-              value={formData.message}
-              onChange={e => handleInputChange("message", e.target.value)}
-              placeholder="Tell us about your agency and goals... (Optional)"
-              className="min-h-[120px]"
-              rows={5}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="referral">How did you hear about us?</Label>
-            <Input
-              id="referral"
-              type="text"
-              value={formData.referral}
-              onChange={e => handleInputChange("referral", e.target.value)}
-              placeholder="Google, referral, social media, etc."
-            />
-          </div>
-
-          {/* Coupon Code Section */}
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-purple-600 mb-4 flex items-center gap-2">
-              <Gift className="w-5 h-5 text-pink-600" />
-              Special Offer
-            </h3>
-            <div>
-              <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="couponCode"
-                  type="text"
-                  placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
-                  value={formData.couponCode}
-                  onChange={e => handleInputChange("couponCode", e.target.value)}
-                  className="flex-1"
-                />
-                {formData.couponCode && (
                   <Button
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleInputChange("couponCode", "")}
+                    onClick={handleResourceRoleAdd}
+                    className="w-full bg-brand-coral text-white hover:bg-brand-coral-dark"
                   >
-                    Clear
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Another Resource
                   </Button>
+
+                  {formData.dedicatedResourceDetails.roles.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-gray-700">Selected Resources:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {formData.dedicatedResourceDetails.roles.map(
+                          (role, index) =>
+                            role.type &&
+                            role.skillLevel && (
+                              <Badge key={index} variant="outline">
+                                {role.quantity}x {dedicatedResourceTypes.find(t => t.value === role.type)?.label} (
+                                {role.skillLevel})
+                              </Badge>
+                            )
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SEO Services Details */}
+            {formData.service === "seo" && (
+              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  What are you specifically looking for in SEO Services? *
+                </h3>
+
+                {errors["seoDetails"] && <p className="text-red-500 text-sm">{errors["seoDetails"]}</p>}
+
+                <div className="grid grid-cols-1 gap-3">
+                  {seoTypes.map(type => (
+                    <div key={type.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={type.value}
+                        checked={formData.seoDetails.includes(type.value)}
+                        onCheckedChange={checked => handleCheckboxChange("seoDetails", type.value, checked as boolean)}
+                      />
+                      <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                        {type.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Google Ads Details */}
+            {formData.service === "google-ads" && (
+              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  What are you specifically looking for in Google Ads? *
+                </h3>
+
+                {errors["googleAdsDetails"] && <p className="text-red-500 text-sm">{errors["googleAdsDetails"]}</p>}
+
+                <div className="grid grid-cols-1 gap-3">
+                  {googleAdsTiers.map(tier => (
+                    <div key={tier.value} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={tier.value}
+                        checked={formData.googleAdsDetails.includes(tier.value)}
+                        onCheckedChange={checked =>
+                          handleCheckboxChange("googleAdsDetails", tier.value, checked as boolean)
+                        }
+                      />
+                      <Label htmlFor={tier.value} className="text-sm font-normal cursor-pointer">
+                        {tier.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Custom Web & Mobile Application Development (AI-Powered) Details */}
+            {formData.service === "custom-app-ai-development" && (
+              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-6">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  What are you specifically looking for in Custom Web & Mobile Application Development (AI-Powered)? *
+                </h3>
+
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
+                  <p className="text-yellow-800 text-sm">
+                    Tell us both the <span className="font-semibold">app scope</span> and the{" "}
+                    <span className="font-semibold">AI capabilities</span> you have in mind.
+                  </p>
+                </div>
+
+                {/* App Scope */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-800">App Scope (Web & Mobile) *</h4>
+                  {errors["n8nDetails"] && <p className="text-red-500 text-sm">{errors["n8nDetails"]}</p>}
+
+                  <div className="grid grid-cols-1 gap-3">
+                    {appScopeTypes.map(type => (
+                      <div key={type.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={type.value}
+                          checked={formData.n8nDetails.includes(type.value)}
+                          onCheckedChange={checked => handleCheckboxChange("n8nDetails", type.value, checked as boolean)}
+                        />
+                        <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                          {type.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI Features */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-gray-800">AI Features / Platform Requirements *</h4>
+                  {errors["aiDetails"] && <p className="text-red-500 text-sm">{errors["aiDetails"]}</p>}
+
+                  <div className="grid grid-cols-1 gap-3">
+                    {aiTypes.map(type => (
+                      <div key={type.value} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={type.value}
+                          checked={formData.aiDetails.includes(type.value)}
+                          onCheckedChange={checked => handleCheckboxChange("aiDetails", type.value, checked as boolean)}
+                        />
+                        <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                          {type.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="region">Your Region *</Label>
+                <Select value={formData.region} onValueChange={value => handleInputChange("region", value)}>
+                  <SelectTrigger className={errors.region ? "border-red-500" : ""}>
+                    <SelectValue placeholder="Select your region" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {regions.map(region => (
+                      <SelectItem key={region.value} value={region.value}>
+                        {region.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.region && <p className="text-red-500 text-sm mt-1">{errors.region}</p>}
+              </div>
+
+              <div>
+                <Label htmlFor="budget">Project Budget</Label>
+                <Select value={formData.budget} onValueChange={value => handleInputChange("budget", value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select budget range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {budgets.map(budget => (
+                      <SelectItem key={budget.value} value={budget.value}>
+                        {budget.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="timeline">Timeline</Label>
+              <Select value={formData.timeline} onValueChange={value => handleInputChange("timeline", value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select timeline" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timelines.map(timeline => (
+                    <SelectItem key={timeline.value} value={timeline.value}>
+                      {timeline.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="message">Message (Optional)</Label>
+              <Textarea
+                id="message"
+                value={formData.message}
+                onChange={e => handleInputChange("message", e.target.value)}
+                placeholder="Tell us about your agency and goals... (Optional)"
+                className="min-h-[120px]"
+                rows={5}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="referral">How did you hear about us?</Label>
+              <Input
+                id="referral"
+                type="text"
+                value={formData.referral}
+                onChange={e => handleInputChange("referral", e.target.value)}
+                placeholder="Google, referral, social media, etc."
+              />
+            </div>
+
+            {/* Coupon Code Section */}
+            <div className="border-t pt-6">
+              <h3 className="text-lg font-semibold text-purple-600 mb-4 flex items-center gap-2">
+                <Gift className="w-5 h-5 text-pink-600" />
+                Special Offer
+              </h3>
+              <div>
+                <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="couponCode"
+                    type="text"
+                    placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
+                    value={formData.couponCode}
+                    onChange={e => handleInputChange("couponCode", e.target.value.toUpperCase())}
+                    className="flex-1"
+                  />
+                  {formData.couponCode && (
+                    <Button type="button" variant="outline" size="sm" onClick={() => handleInputChange("couponCode", "")}>
+                      Clear
+                    </Button>
+                  )}
+                </div>
+                {formData.couponCode && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    You can update or clear the code here. The applied coupon is shown at the top-right of this form.
+                  </p>
                 )}
               </div>
-              {formData.couponCode && (
-                <p className="text-xs text-gray-500 mt-1">
-                  You can update or clear the code here. The applied coupon is shown at the
-                  top-right of this form.
-                </p>
-              )}
             </div>
-          </div>
 
-          <Button
-            type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 lg:text-lg md:text-md sm:text-md"
-            disabled={contactMutation.isPending}
-          >
-            {contactMutation.isPending
-              ? "Sending..."
-              : "Schedule Free Consultation"}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <Button
+              type="submit"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 lg:text-lg md:text-md sm:text-md"
+              disabled={contactMutation.isPending}
+            >
+              {contactMutation.isPending ? "Sending..." : "Schedule Free Consultation"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </>
   );
 }

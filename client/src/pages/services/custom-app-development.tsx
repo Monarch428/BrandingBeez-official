@@ -1333,7 +1333,7 @@ export default function CustomAppDevelopment() {
         />
         <SchemaMarkup type="service" data={schemaData} />
 
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section (merged App + AI) */}
@@ -2823,7 +2823,7 @@ export default function CustomAppDevelopment() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

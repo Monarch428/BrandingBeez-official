@@ -1059,9 +1059,9 @@
 
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import { HomeTeamBanner } from "@/components/home-team-banner";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
+// import { HomeTeamBanner } from "@/components/home-team-banner";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { ThankYouPopup } from "@/components/thank-you-popup";
@@ -1084,46 +1084,48 @@ import {
   X,
 } from "lucide-react";
 
-import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
-import bniLogo from "@assets/bni_1752907520728.jpg";
-import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
-import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
-import webArtLogo from "../../public/images/website-architect-logo.jpeg";
-import mdmLogo from "../../public/images/MDM Logo.png";
-import nvtLogo from "../../public/images/NVT Logo.png";
+// import brandingBeezLogo from "@assets/Logo_1751475462352.jpg";
+// import bniLogo from "@assets/bni_1752907520728.jpg";
+// import masterNetworksLogo from "@assets/mn_1752907520731.jpg";
+// import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 
-// Partner Agency Logos
-import newVisionTechLogo from "@assets/IMG-20250719-WA0264_1752907768834.jpg";
-import carolinaWebLogo from "@assets/IMG-20250719-WA0270_1752907768835.jpg";
-import socialLandLogo from "@assets/IMG-20250719-WA0271_1752907768836.jpg";
-import focusEcommerceLogo from "@assets/IMG-20250719-WA0272_1752907768837.jpg";
-import smartConnectingLogo from "@assets/IMG-20250719-WA0273_1752907768839.jpg";
-import koalaDigitalLogo from "@assets/IMG-20250719-WA0274_1752907768841.jpg";
-import websiteArchitectLogo from "@assets/IMG-20250719-WA0275_1752907768843.jpg";
-import intrinsicLogo from "@assets/IMG-20250719-WA0276_1752907768844.jpg";
-import socialBrainLogo from "@assets/IMG-20250719-WA0277_1752907768845.jpg";
-import atlanticGrowthLogo from "@assets/atlantic-logo-new_1753433422794.jpg";
-import octupusLogo from "@assets/Octupus Logo_1753187134020.jpg";
-import fsbLogo from "../../public/images/FSE-Digital-Logo.jpg";
-import museLogo from "../../public/images/Muse_Logo_Blue.png";
 import { Helmet } from "react-helmet";
 import "react-phone-input-2/lib/style.css";
-import ken from "../../public/images/Ken.png";
-import matt from "../../public/images/Matt.png";
-import phillip from "../../public/images/Phillip.png";
+// import ken from "../../public/images/Ken.png";
+// import matt from "../../public/images/Matt.png";
+// import phillip from "../../public/images/Phillip.png";
 import {
   AppointmentCalendar,
   BookCallButtonWithModal,
 } from "@/components/book-appoinment";
 import RajeStroke from "@assets/Raje Stroke_1753273695213.png";
-import Mark_Image from "../../public/images/Mark.png";
-import Dani_Image from "../../public/images/Dani.png";
-import Gemma_Image from "../../public/images/Gemma.png";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { TestimonialCard } from "@/components/TestimonialCard";
-import ChristmasEffects from "@/components/FestiveSnowOverlay";
+// import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
-import PortfolioCtaSection from "@/components/portfolioimagecta";
+import { LazyYouTube } from "@/components/LazyYouTube";
+// import PortfolioCtaSection from "@/components/portfolioimagecta";
+
+export const IMAGES = {
+  testimonials: {
+    mark: "/images/Mark.png",
+    dani: "/images/Dani.png",
+    gemma: "/images/Gemma.png",
+  },
+  logos: {
+    webArt: "/images/website-architect.webp",
+    muse: "/images/Muse_Logo_Blue.webp",
+    nvt: "/images/vision_tech.webp",
+    carolina: "/images/carolina_logo.webp",
+    socialLand: "/images/socialland-logo.webp",
+    focus: "/images/focus_logo.webp",
+    koala: "/images/koala-digital-logo.webp",
+    intrinsic: "/images/Intrinsic_logo.webp",
+    socialBrain: "/images/social_brain_logo.webp",
+    fse: "/images/FSE-Digital-Logo.webp",
+  },
+} as const;
+
 
 export default function Home() {
   useEffect(() => {
@@ -1187,7 +1189,10 @@ export default function Home() {
     "Faster delivery without compromising quality",
     "Predictable, scalable fulfillment",
     "A white-label team they can trust long-term",
+    "Seamless collaboration that feels like an in-house team",
+    "Cost-efficient scaling without hiring overhead",
   ];
+
 
   // Newsletter CTA state (for home page CTA section)
   const [newsletterName, setNewsletterName] = useState("");
@@ -1340,8 +1345,8 @@ export default function Home() {
       company: "Founder, Muse Digital Media",
       testimonial:
         "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
-      imageUrl: Mark_Image,
-      logoUrl: mdmLogo,
+      imageUrl: IMAGES.testimonials.mark,
+      logoUrl: IMAGES.logos.muse,
     },
     {
       id: 2,
@@ -1349,8 +1354,8 @@ export default function Home() {
       company: "COO, New Vision Tech",
       testimonial:
         "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
-      imageUrl: Dani_Image,
-      logoUrl: nvtLogo,
+      imageUrl: IMAGES.testimonials.dani,
+      logoUrl: IMAGES.logos.nvt,
     },
     {
       id: 3,
@@ -1358,10 +1363,12 @@ export default function Home() {
       company: "Founder, Website Architect",
       testimonial:
         "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
-      imageUrl: Gemma_Image,
-      logoUrl: webArtLogo,
+      imageUrl: IMAGES.testimonials.gemma,
+      logoUrl: IMAGES.logos.webArt,
     },
   ];
+
+
 
   // 🎄 Only show snowfall in December (month index 11)
   // const isChristmasSeason = new Date().getMonth() === 11;
@@ -1399,7 +1406,7 @@ export default function Home() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
 
         <main>
           {/* Hero Section */}
@@ -1408,24 +1415,27 @@ export default function Home() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-center">
                 {/* Left: Copy */}
                 <div>
-                  <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full mb-5 sm:mb-6">
-                    <span className="text-xs sm:text-sm font-semibold text-white">
-                      ✓ Trusted by 25+ Agencies Worldwide
-                    </span>
+                  {/* CLS FIX: reserve space for trust badge */}
+                  <div className="min-h-[40px] sm:min-h-[44px] flex items-center">
+                    <div className="inline-flex items-center px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full">
+                      <span className="text-xs sm:text-sm font-semibold text-white">
+                        ✓ Trusted by 25+ Agencies Worldwide
+                      </span>
+                    </div>
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-                    Scale Your Agency
-                    <span className="text-brand-yellow">
-                      {" "}
-                      Without Hiring Full-Time Staff
-                    </span>
-                  </h1>
+                  {/* CLS FIX: reserve space for hero H1 */}
+                  <div className="min-h-[96px] sm:min-h-[112px] md:min-h-[128px] lg:min-h-[144px] flex items-center">
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                      Scale Your Agency
+                      <span className="text-brand-yellow">{" "}Without Hiring Full-Time Staff</span>
+                    </h1>
+                  </div>
+
 
                   <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-6 sm:mb-8 text-left leading-relaxed">
-                    White-label delivery teams for US digital agencies offering
-                    dedicated resources, websites, SEO, PPC, and AI-powered
-                    development under your brand.
+                    White-label delivery teams for US digital agencies offering dedicated resources, websites, SEO, PPC,
+                    and AI-powered development under your brand.
                   </p>
 
                   <h2 className="text-base sm:text-lg lg:text-xl font-medium text-white/90 mb-6 sm:mb-8 leading-snug">
@@ -1436,9 +1446,7 @@ export default function Home() {
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
-                      <span className="text-sm sm:text-base text-white">
-                        100% White-Label Delivery
-                      </span>
+                      <span className="text-sm sm:text-base text-white">100% White-Label Delivery</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
@@ -1449,7 +1457,7 @@ export default function Home() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        Save Up to 60% vs In-House Hiring
+                        Save Up to $80k a Year vs In-House Hiring
                       </span>
                     </div>
                   </div>
@@ -1461,10 +1469,8 @@ export default function Home() {
                       className="bg-brand-coral hover:bg-brand-coral-dark text-white px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"
                       asChild
                     >
-                      <Link href="/onboarding-wizard">
-                        <span className="hidden sm:inline">
-                          Hire Dedicated Resources
-                        </span>
+                      <Link href="/pricing-calculator?service=dedicated-resources">
+                        <span className="hidden sm:inline">Hire Dedicated Resources</span>
                         <span className="sm:hidden">Hire Resources</span>
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
@@ -1478,9 +1484,40 @@ export default function Home() {
                   </div>
                 </div>
 
+
                 {/* Right: HomeTeamBanner (hidden <= 480px) */}
-                <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
+                {/* <div className="relative max-[480px]:hidden mt-8 lg:mt-0">
                   <HomeTeamBanner />
+                </div> */}
+                <div className="w-full">
+                  <div className="min-h-[56px] sm:min-h-[64px] lg:min-h-[72px] mb-4 sm:mb-6 flex items-center justify-center">
+                    <h1
+                      className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-2xl">
+                      Services start from <span className="text-brand-yellow text-3xl underline"> 399$</span>
+                    </h1>
+                  </div>
+
+
+                  <div className="bg-white/10 backdrop-blur-sm rounded-xl
+                  p-3 sm:p-4 lg:p-5
+                  mt-6 sm:mt-8 lg:mt-0">
+                    {/* VIDEO ALWAYS SHOWN */}
+                    <div className="rounded-xl overflow-hidden shadow-lg">
+                      {/* Responsive video wrapper (keeps perfect ratio) */}
+                      {/* <div className="relative w-full aspect-video"> */}
+                      {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
+                          className="absolute inset-0 w-full h-full"
+                          src="https://www.youtube-nocookie.com/embed/BMcrZHzRaeg?rel=0&modestbranding=1&playsinline=1"
+                          title="Website Architect Case Study | Branding Beez"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          loading="lazy"
+                        /> */}
+                      <LazyYouTube videoId="BMcrZHzRaeg" />
+                      {/* </div> */}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1529,8 +1566,10 @@ export default function Home() {
                         <div className="flex flex-col flex-1 space-y-4">
                           {/* PRICING */}
                           <div className="text-base sm:text-lg font-bold text-brand-coral-darker">
-                            {service.pricing}
+                            <span className="text-blue-700">Starting at</span>
+                            <span className="ml-1">{service.pricing.replace(/^Starting at\s*/i, "")}</span>
                           </div>
+
 
                           {/* FEATURES */}
                           <ul className="space-y-2 flex-1">
@@ -1582,8 +1621,7 @@ export default function Home() {
                 <PortfolioCtaSection />
               </div>
             </div>
-          </section>
-
+          </section> */}
 
           {/* Who We Work With Section */}
           <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
@@ -1641,8 +1679,8 @@ export default function Home() {
                 </div>
 
                 {/* Benefits Section */}
-                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[70px]">
-                  <h3 className="text-white mb-5 sm:mb-8 uppercase font-medium tracking-wider">
+                <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[30px]">
+                  <h3 className="text-white mt-5 sm:mt-6 mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
                   </h3>
 
@@ -1689,22 +1727,16 @@ export default function Home() {
                   {[...Array(2)].map((_, i) => (
                     <div key={i} className="flex gap-4 sm:gap-6">
                       {[
-                        { logo: socialLandLogo, name: "Social Land" },
-                        {
-                          logo: websiteArchitectLogo,
-                          name: "Website Architect",
-                        },
-                        {
-                          logo: focusEcommerceLogo,
-                          name: "Focus E-commerce",
-                        },
-                        { logo: smartConnectingLogo, name: "Koala Digital" },
-                        { logo: newVisionTechLogo, name: "New Vision Tech" },
-                        { logo: carolinaWebLogo, name: "Carolina Web" },
-                        { logo: intrinsicLogo, name: "Intrinsic" },
-                        { logo: socialBrainLogo, name: "Social Brain" },
-                        { logo: fsbLogo, name: "FSE Digital" },
-                        { logo: museLogo, name: "MUSE Digital Media" },
+                        { logo: IMAGES.logos.socialLand, name: "Social Land" },
+                        { logo: IMAGES.logos.webArt, name: "Website Architect" },
+                        { logo: IMAGES.logos.focus, name: "Focus E-commerce" },
+                        { logo: IMAGES.logos.koala, name: "Koala Digital" },
+                        { logo: IMAGES.logos.nvt, name: "New Vision Tech" },
+                        { logo: IMAGES.logos.carolina, name: "Carolina Web" },
+                        { logo: IMAGES.logos.intrinsic, name: "Intrinsic" },
+                        { logo: IMAGES.logos.socialBrain, name: "Social Brain" },
+                        { logo: IMAGES.logos.fse, name: "FSE Digital" },
+                        { logo: IMAGES.logos.muse, name: "MUSE Digital Media" },
                       ].map((item, idx) => (
                         <div
                           key={idx}
@@ -1713,7 +1745,11 @@ export default function Home() {
                           <img
                             src={item.logo}
                             alt={item.name}
+                            width="180"
+                            height="64"
                             className="h-10 sm:h-12 md:h-16 w-auto mx-auto mb-2 sm:mb-3 object-contain"
+                            loading="lazy"
+                            decoding="async"
                           />
                           <p className="text-xs sm:text-sm font-medium text-gray-900">
                             {item.name}
@@ -1775,7 +1811,7 @@ export default function Home() {
                         key={index}
                         className="bg-white border border-gray-200 rounded-xl p-4 hover:border-red-300 transition-colors shadow-sm"
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
                           <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <X className="w-4 h-4 text-red-600" />
                           </div>
@@ -1807,7 +1843,7 @@ export default function Home() {
                         key={index}
                         className="bg-white border border-gray-200 rounded-xl p-4 hover:border-green-300 transition-colors shadow-sm"
                       >
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 items-center">
                           <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <Zap className="w-4 h-4 text-green-600" />
                           </div>
@@ -1817,7 +1853,7 @@ export default function Home() {
                     ))}
                   </div>
 
-                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mt-4">
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl py-2 px-4 mt-4">
                     <p className="text-gray-700 text-sm">
                       You focus on sales, strategy, and client relationships. We
                       make sure delivery never slows you down.
@@ -1849,9 +1885,9 @@ export default function Home() {
                 {/* PRICING */}
                 <div className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-yellow-200">
                   <span className="text-lg sm:text-xl lg:text-2xl text-white">
-                    Starting @{" "}
-                  </span>
-                  1,199$ a /month <span className="text-lg sm:text-xl lg:text-2xl text-white">Resource</span>
+                    Starting at{" "}
+                  </span>$1,199
+                  <span className="text-lg sm:text-xl lg:text-2xl text-white">per resource / month</span>
                 </div>
 
                 <p className="mb-1 font-medium">
@@ -1862,9 +1898,9 @@ export default function Home() {
                   Team Discounts: Up to 20% Off
                 </div>
 
-                <div className="text-xs sm:text-sm lg:text-base text-gray-200 mb-6 sm:mb-8">
+                {/* <div className="text-xs sm:text-sm lg:text-base text-gray-200 mb-6 sm:mb-8">
                   Average 60% cost savings vs. in-house team
-                </div>
+                </div> */}
 
                 {/* ROLES */}
                 <div className="flex items-center justify-center">
@@ -1939,7 +1975,7 @@ export default function Home() {
                     <li className="flex items-center gap-2 sm:gap-3">
                       <CheckCircle className="w-5 h-5 text-yellow-200 flex-shrink-0 mt-0.5" />
                       <span className="text-sm sm:text-base">
-                        Save $60,000+ a year on every resource
+                        Save $80,000+ a year on every resource
                       </span>
                     </li>
                   </ul>
@@ -1952,7 +1988,7 @@ export default function Home() {
                     asChild
                   >
                     <Link href="/contact?service=dedicated-resources&#contact-form">
-                      Get Dedicated Resources
+                      Hire Dedicated Resources
                       <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2 text-white group-hover:text-brand-purple transition-colors duration-300" />
                     </Link>
                   </Button>
@@ -2018,7 +2054,7 @@ export default function Home() {
               {/* Heading Button */}
               <div className="flex justify-center mb-6">
                 {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
-                <span className="text-black text-3xl sm:text-3xl lg:text-4xl font-bold">What Our Clients Say</span>
+                <span className="text-black text-2xl sm:text-2xl lg:text-4xl text-center font-bold">What Our Clients Say</span>
                 {/* </div> */}
               </div>
 
@@ -2157,14 +2193,14 @@ export default function Home() {
           </section>
 
           {/* HomeTeamBanner at bottom for screens ≤ 480px also hidden */}
-          <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
+          {/* <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
               <HomeTeamBanner />
             </div>
-          </section>
+          </section> */}
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

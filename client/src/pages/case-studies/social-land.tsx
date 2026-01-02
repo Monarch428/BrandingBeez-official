@@ -847,8 +847,8 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -859,11 +859,8 @@ import {
   TrendingUp,
   Target,
   CheckCircle,
-  Calendar,
-  Monitor,
   MessageSquare,
   Zap,
-  Building,
   Quote,
   Video,
   Clock,
@@ -876,6 +873,7 @@ import loguImage from "../../../../attached_assets/Logu_Stroke.png";
 import rajaImage from "../../../public/images/Raja-team-member.png";
 import jithenImage from "../../../public/images/Jithen-team-member.png";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 export default function SocialLandCaseStudy() {
   return (
@@ -901,7 +899,7 @@ export default function SocialLandCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={SocialLandSchema} />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -981,15 +979,16 @@ export default function SocialLandCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/AqZarWYdHPo"
                         title="Social Land Digital Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="AqZarWYdHPo" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>
@@ -1675,7 +1674,7 @@ export default function SocialLandCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

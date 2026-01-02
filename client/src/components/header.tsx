@@ -477,7 +477,7 @@
 
 
 
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "wouter";
 import {
@@ -490,106 +490,103 @@ import {
   MonitorSmartphone,
   Cpu,
   Dot,
+  Phone,
 } from "lucide-react";
-import brandingBeezLogo from "@assets/BB_Logo_Color.png";
-import { BookCallButtonWithModal } from "./book-appoinment";
-import BB_Chris_Logo from "../../public/images/BB_Christmas_Logo.png";
+
+// ✅ Lazy-load the modal/button to reduce initial JS + improve LCP
+const BookCallButtonWithModal = lazy(() =>
+  import("./book-appoinment").then((m) => ({ default: m.BookCallButtonWithModal })),
+);
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isServicesSubmenuOpen, setIsServicesSubmenuOpen] = useState(false);
+
   const [isDesktopServicesOpen, setIsDesktopServicesOpen] = useState(false);
   const [isDesktopServicesPinned, setIsDesktopServicesPinned] = useState(false);
+
   const servicesRef = useRef<HTMLDivElement | null>(null);
-  const [location, navigate] = useLocation(); // ✅ can navigate programmatically
+  const logoImgRef = useRef<HTMLImageElement | null>(null);
+  const [location, navigate] = useLocation();
 
   const openCalendly = () => {
     // window.open("https://calendly.com/vignesh-velusamy/30min", "_blank");
     window.open("/book-appointment", "_blank");
   };
 
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
+  // ✅ Set fetchpriority in a TS-safe way
+  useEffect(() => {
+    if (!logoImgRef.current) return;
+    logoImgRef.current.setAttribute("fetchpriority", "high");
+    logoImgRef.current.setAttribute("decoding", "async");
+  }, []);
 
   // Desktop / mobile service links
-  const serviceMenuItems = [
-    {
-      label: "SEO Services (White-label)",
-      href: "/services/seo",
-      description: "White-label SEO for agencies managing multiple clients.",
-      icon: Search,
-      recommended: false,
-    },
-    {
-      label: "PPC Advertising (White-label)",
-      href: "/services/google-ads",
-      description: "Done-for-you Google Ads & PPC campaign management.",
-      icon: MousePointerClick,
-      recommended: false,
-    },
-    {
-      label: "Dedicated Resources",
-      href: "/services/dedicated-resources",
-      description: "Hire designers, developers, SEO & PPC specialists.",
-      icon: Users,
-      recommended: true,
-    },
-    {
-      label: "Website Design & Development (White-label)",
-      href: "/services/web-development",
-      description: "High-converting sites built for your agency clients.",
-      icon: MonitorSmartphone,
-      recommended: false,
-    },
-    {
-      label: "Custom Web & Mobile Application Development (AI-Powered)",
-      href: "/services/custom-app-development",
-      description: "Custom apps & AI-powered solutions for scale.",
-      icon: Cpu,
-      recommended: false,
-    },
-  ];
+  const serviceMenuItems = useMemo(
+    () => [
+      {
+        label: "SEO Services (White-label)",
+        href: "/services/seo",
+        description: "White-label SEO for agencies managing multiple clients.",
+        icon: Search,
+        recommended: false,
+      },
+      {
+        label: "PPC Advertising (White-label)",
+        href: "/services/google-ads",
+        description: "Done-for-you Google Ads & PPC campaign management.",
+        icon: MousePointerClick,
+        recommended: false,
+      },
+      {
+        label: "Dedicated Resources",
+        href: "/services/dedicated-resources",
+        description: "Hire designers, developers, SEO & PPC specialists.",
+        icon: Users,
+        recommended: true,
+      },
+      {
+        label: "Website Design & Development (White-label)",
+        href: "/services/web-development",
+        description: "High-converting sites built for your agency clients.",
+        icon: MonitorSmartphone,
+        recommended: false,
+      },
+      {
+        label: "Custom Web & Mobile Application Development (AI-Powered)",
+        href: "/services/custom-app-development",
+        description: "Custom apps & AI-powered solutions for scale.",
+        icon: Cpu,
+        recommended: false,
+      },
+    ],
+    [],
+  );
 
-  // ✅ CLICK HANDLER: Always open + pin (do NOT toggle close)
-  const handleDesktopServicesClick = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
+  // ✅ CLICK HANDLER: toggle pin + open and navigate when opening (same behavior as old)
+  const handleDesktopServicesClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-
-    // Always open + pin (no toggle close)
-    if (!isDesktopServicesPinned) setIsDesktopServicesPinned(true);
-    if (!isDesktopServicesOpen) setIsDesktopServicesOpen(true);
+    setIsDesktopServicesPinned((prev) => {
+      const next = !prev;
+      setIsDesktopServicesOpen(next);
+      if (next) navigate("/services");
+      return next;
+    });
   };
-
-  // ✅ Navigate AFTER state updates (prevents "Cannot update Route while rendering Header")
-  useEffect(() => {
-    if (isDesktopServicesPinned) {
-      navigate("/services");
-    }
-  }, [isDesktopServicesPinned, navigate]);
 
   // ✅ close when clicking outside if pinned
   useEffect(() => {
     if (!isDesktopServicesPinned) return;
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        servicesRef.current &&
-        !servicesRef.current.contains(event.target as Node)
-      ) {
+      if (servicesRef.current && !servicesRef.current.contains(event.target as Node)) {
         setIsDesktopServicesPinned(false);
         setIsDesktopServicesOpen(false);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isDesktopServicesPinned]);
 
   return (
@@ -601,60 +598,56 @@ export default function Header() {
             <Link href="/">
               <div className="flex-shrink-0 cursor-pointer">
                 <img
-                  src={BB_Chris_Logo}
+                  ref={logoImgRef}
+                  src="/images/BB_Christmas_Logo.webp"
                   alt="BrandingBeez"
-                  className="h-16 w-auto object-contain"
-                  width="320"
-                  height="80"
+                  className="block object-contain h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[72px] w-auto max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px]"
+                  width="140"
+                  height="70"
+                  decoding="async"
+                  loading="eager"
                 />
               </div>
             </Link>
           </div>
 
-          {/* Navigation - Prevent layout shift with min-width */}
+          {/* Navigation */}
           <nav
             className="hidden md:flex items-center justify-center space-x-8"
             style={{ minWidth: "560px" }}
           >
             <Link href="/">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Home
               </span>
             </Link>
 
-            {/* SERVICES MEGA MENU (Desktop) */}
+            {/* SERVICES MEGA MENU (Desktop) - restored */}
             <div
               className="relative"
               ref={servicesRef}
-              onMouseEnter={() => {
-                setIsDesktopServicesOpen(true);
-              }}
+              onMouseEnter={() => setIsDesktopServicesOpen(true)}
               onMouseLeave={() => {
-                if (!isDesktopServicesPinned) {
-                  setIsDesktopServicesOpen(false);
-                }
+                if (!isDesktopServicesPinned) setIsDesktopServicesOpen(false);
               }}
             >
               <button
                 type="button"
                 onClick={handleDesktopServicesClick}
-                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${
-                  location.startsWith("/services") || isDesktopServicesOpen
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`inline-flex items-center gap-1 font-medium cursor-pointer transition-colors ${location.startsWith("/services") || isDesktopServicesOpen
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Services
                 <ChevronDown
-                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${
-                    isDesktopServicesOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 mt-[1px] transition-transform duration-200 ${isDesktopServicesOpen ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -665,19 +658,8 @@ export default function Header() {
                       {serviceMenuItems.map((item) => {
                         const Icon = item.icon;
                         return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className="relative group"
-                          >
-                            <a
-                              onClick={() => {
-                                // ✅ Close dropdown after selecting an item
-                                setIsDesktopServicesPinned(false);
-                                setIsDesktopServicesOpen(false);
-                              }}
-                              className="block relative cursor-pointer rounded-xl px-3 py-3 border border-transparent hover:bg-brand-coral/10 hover:border-brand-coral hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150"
-                            >
+                          <Link key={item.href} href={item.href}>
+                            <a className="block relative group cursor-pointer rounded-xl px-3 py-3 border border-transparent hover:bg-brand-coral/10 hover:border-brand-coral hover:shadow-sm hover:-translate-y-0.5 transition-all duration-150">
                               <div className="flex items-center gap-3">
                                 <div className="flex-shrink-0 mt-0.5">
                                   <div className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-gray-100 group-hover:bg-brand-coral">
@@ -700,8 +682,7 @@ export default function Header() {
                                             className="absolute inset-0 rounded-full pointer-events-none animate-shimmer"
                                             aria-hidden="true"
                                             style={{
-                                              boxShadow:
-                                                "0 0 18px rgba(255, 255, 255, 0.6)",
+                                              boxShadow: "0 0 18px rgba(255, 255, 255, 0.6)",
                                               filter: "blur(8px)",
                                             }}
                                           />
@@ -709,6 +690,11 @@ export default function Header() {
                                       </div>
                                     )}
                                   </div>
+
+                                  {/* (optional) keep description if you want later:
+                                  <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                                    {item.description}
+                                  </div> */}
                                 </div>
 
                                 <div className="ml-auto hidden sm:flex items-center">
@@ -740,33 +726,32 @@ export default function Header() {
 
             <Link href="/blog">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/blog"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/blog"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
-                Blog
+                Blogs
               </span>
             </Link>
+
             <Link href="/about">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/about"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/about"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 About
               </span>
             </Link>
+
             <Link href="/portfolio">
               <span
-                className={`font-medium transition-colors cursor-pointer ${
-                  location === "/portfolio"
-                    ? "text-brand-coral-darker"
-                    : "text-gray-700 hover:text-brand-coral-darker"
-                }`}
+                className={`font-medium transition-colors cursor-pointer ${location === "/portfolio"
+                  ? "text-brand-coral-darker"
+                  : "text-gray-700 hover:text-brand-coral-darker"
+                  }`}
               >
                 Portfolio
               </span>
@@ -774,34 +759,51 @@ export default function Header() {
           </nav>
 
           {/* CTA */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            <BookCallButtonWithModal
-              buttonLabel="Book a call"
-              className="hidden sm:flex bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 py-2 rounded-lg text-sm sm:text-base touch-manipulation"
-              buttonSize="lg"
-              // defaultServiceType="Website Development"
-            />
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
+            {/* 📞 Phone */}
+            <a
+              href="tel:+19792717552"
+              className={[
+                "inline-flex items-center justify-center",
+                "h-10 w-10 lg:w-auto",
+                "rounded-lg border border-gray-200 lg:border-0",
+                "hover:bg-brand-coral/10 lg:hover:bg-transparent",
+                "text-gray-700 hover:text-brand-coral-darker transition-colors",
+                "shrink-0",
+              ].join(" ")}
+              aria-label="Call BrandingBeez: +1 979 271 7552"
+            >
+              <Phone className="w-5 h-5 lg:w-4 lg:h-4 text-brand-coral" />
 
-            {/* Mobile Menu Button */}
+              {/* 🔢 Number shows ONLY on lg+ */}
+              <span className="hidden lg:inline ml-2 text-sm font-semibold">
+                +1 979 271 7552
+              </span>
+            </a>
+
+            {/* 📅 Book a call (sm+) */}
+            <Suspense fallback={null}>
+              <div className="hidden sm:block shrink-0">
+                <BookCallButtonWithModal
+                  buttonLabel="Book a call"
+                  className="h-10 bg-gradient-to-r from-brand-coral to-pink-500 hover:from-brand-coral-dark hover:to-pink-600 text-white font-semibold px-4 sm:px-6 rounded-lg"
+                  buttonSize="lg"
+                />
+              </div>
+            </Suspense>
+
+            {/* Mobile Menu (<md) */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden p-2 h-10 w-10"
+              className="md:hidden p-2 h-10 w-10 shrink-0"
               onClick={() => {
                 setIsMobileMenuOpen(!isMobileMenuOpen);
-                if (!isMobileMenuOpen) {
-                  setIsServicesSubmenuOpen(false);
-                }
+                if (!isMobileMenuOpen) setIsServicesSubmenuOpen(false);
               }}
-              aria-label={
-                isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"
-              }
+              aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
             >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               <span className="sr-only">
                 {isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"}
               </span>
@@ -809,17 +811,16 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu - restored */}
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-4 py-2 space-y-1">
               <Link href="/">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
@@ -828,13 +829,12 @@ export default function Header() {
 
               {/* SERVICES with mobile submenu */}
               <div
-                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                  location.startsWith("/services")
-                    ? "text-brand-coral-darker bg-brand-coral/10"
-                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                }`}
+                className={`flex w-full items-center justify-between px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location.startsWith("/services")
+                  ? "text-brand-coral-darker bg-brand-coral/10"
+                  : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                  }`}
               >
-                {/* ⭐ Click text -> navigate to /services */}
+                {/* Click text -> navigate to /services */}
                 <button
                   className="flex-1 text-left"
                   onClick={() => {
@@ -845,18 +845,18 @@ export default function Header() {
                   Services
                 </button>
 
-                {/* ⭐ Click chevron -> toggle dropdown only */}
+                {/* Click chevron -> toggle dropdown only */}
                 <button
                   className="ml-2 p-1"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsServicesSubmenuOpen((prev) => !prev);
                   }}
+                  aria-label="Toggle services submenu"
                 >
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      isServicesSubmenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${isServicesSubmenuOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -866,7 +866,7 @@ export default function Header() {
                   {serviceMenuItems.map((item) => (
                     <Link key={item.href} href={item.href}>
                       <button
-                        className="block w-full text-left px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50 transition-colors touch-manipulation"
+                        className="block w-full text-left px-3 py-3 rounded-md text-sm font-medium text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50 transition-colors touch-manipulation"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {item.label}
@@ -878,47 +878,46 @@ export default function Header() {
 
               <Link href="/blog">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/blog"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/blog"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Blog
+                  Blogs
                 </button>
               </Link>
+
               <Link href="/about">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/about"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/about"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
                 </button>
               </Link>
+
               <Link href="/portfolio">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/portfolio"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/portfolio"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Portfolio
                 </button>
               </Link>
+
               <Link href="/contact">
                 <button
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${
-                    location === "/contact"
-                      ? "text-brand-coral-darker bg-brand-coral/10"
-                      : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
-                  }`}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors touch-manipulation ${location === "/contact"
+                    ? "text-brand-coral-darker bg-brand-coral/10"
+                    : "text-gray-700 hover:text-brand-coral-darker hover:bg-gray-50"
+                    }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Contact
@@ -926,12 +925,15 @@ export default function Header() {
               </Link>
 
               <div className="pt-2 border-t border-gray-200">
-                <BookCallButtonWithModal
-                  buttonLabel="Book a call"
+                <Button
+                  onClick={() => {
+                    openCalendly();
+                    setIsMobileMenuOpen(false);
+                  }}
                   className="w-full bg-brand-coral-darker hover:bg-brand-coral-dark text-white px-4 py-3 rounded-lg transition-colors font-medium text-base touch-manipulation"
-                  buttonSize="lg"
-                  // defaultServiceType="Website Development"
-                />
+                >
+                  Book a Call
+                </Button>
               </div>
             </div>
           </div>
@@ -942,4 +944,3 @@ export default function Header() {
 }
 
 export { Header };
-

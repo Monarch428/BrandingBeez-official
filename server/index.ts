@@ -26,9 +26,11 @@ app.use(compression({
 
 
 if (process.env.NODE_ENV === 'production') {
+  // ✅ Production behind a proxy (Render/Nginx/etc.) - usually 1 hop
   app.set('trust proxy', 1);
 } else {
-  app.set('trust proxy', true);
+  // ✅ Local dev: DO NOT use true (express-rate-limit blocks it)
+  app.set('trust proxy', false);
 }
 
 // Security and performance headers
@@ -48,7 +50,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
   // Enable server push for HTTP/2
   if (req.headers['accept'] && req.headers['accept'].includes('text/html')) {
-    res.setHeader('Link', '</src/main.tsx>; rel=modulepreload, </src/index.css>; rel=preload; as=style');
+    // ✅ Keep only modulepreload (remove /src/index.css preload warning)
+    res.setHeader('Link', '</src/main.tsx>; rel=modulepreload');
   }
 
   next();
@@ -76,9 +79,10 @@ Sitemap: https://brandingbeez.co.uk/sitemap.xml`);
 app.get('/sitemap.xml', (req: Request, res: Response) => {
   res.type('application/xml');
   res.setHeader('Cache-Control', 'public, max-age=3600');
-  res.send(`
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">
+
+  // ✅ CRITICAL: Do NOT start with newline before <?xml
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Homepage -->
   <url>
     <loc>https://brandingbeez.co.uk/</loc>
@@ -315,81 +319,6 @@ app.get('/sitemap.xml', (req: Request, res: Response) => {
 </urlset>
 `);
 });
-//     <?xml version="1.0" encoding="UTF-8"?>
-// <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-//   <url>
-//     <loc>https://brandingbeez.co.uk/</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>weekly</changefreq>
-//     <priority>1.0</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/services</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>weekly</changefreq>
-//     <priority>0.9</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/services/ai-development</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/services/web-development</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/services/google-ads</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/services/seo</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/services/dedicated-resources</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/about</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.7</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/contact</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.7</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/blog</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>weekly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/case-studies</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.7</priority>
-//   </url>
-//   <url>
-//     <loc>https://brandingbeez.co.uk/pricing</loc>
-//     <lastmod>2025-08-26</lastmod>
-//     <changefreq>monthly</changefreq>
-//     <priority>0.8</priority>
-//   </url>
-// </urlset>
 
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
 

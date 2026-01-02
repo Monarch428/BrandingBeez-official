@@ -147,8 +147,8 @@
 // }
 
 
-import Footer from "@/components/footer";
-import Header from "@/components/header";
+// import Footer from "@/components/footer";
+// import Header from "@/components/header";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SEOHead } from "@/components/seo-head";
 import { ThankYouPopup } from "@/components/thank-you-popup";

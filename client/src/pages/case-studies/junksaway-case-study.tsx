@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,40 +7,27 @@ import { OptimizedImage } from "@/components/optimized-image";
 import { Link } from "wouter";
 import {
   MousePointer,
-  TrendingUp,
   Target,
   BarChart3,
   Users,
   CheckCircle,
   ArrowRight,
-  Star,
-  Award,
   Globe,
-  ExternalLink,
-  LineChart,
   Zap,
-  Shield,
   Eye,
-  Phone,
-  Quote,
-  Calendar,
   Settings,
   DollarSign,
-  Trash2,
   Building,
   Building2,
 } from "lucide-react";
-import { useRegion } from "@/hooks/use-region";
+// import { useRegion } from "@/hooks/use-region";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 export default function JunksAwayCaseStudy() {
-  const { regionConfig } = useRegion();
-  const getCalendlyUrl = () => regionConfig.calendlyUrl;
-
-
   return (
     <>
       <Helmet>
@@ -58,7 +45,7 @@ export default function JunksAwayCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="service" />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="pt-24 pb-16 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -110,15 +97,16 @@ export default function JunksAwayCaseStudy() {
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/xs8de_OczQs"
                         title="Junk Away Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="xs8de_OczQs" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>
@@ -613,7 +601,7 @@ export default function JunksAwayCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

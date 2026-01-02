@@ -1246,6 +1246,8 @@ import {
 } from "lucide-react";
 import { ObjectUploader } from "./object-uploader";
 
+type BlogCategory = "SEO" | "PPC" | "Web Development" | "App Development";
+
 interface BlogPost {
   id: number;
   slug: string;
@@ -1262,14 +1264,22 @@ interface BlogPost {
   metaDescription?: string;
   createdAt: string;
   updatedAt: string;
+
+  // ✅ NEW: category for blog post (SEO / PPC / Web / App)
+  category: BlogCategory;
 }
 
-type SectionType = "content" | "process";
+type SectionType = "content" | "process" | "faq";
 
 type SectionLink = {
   id: string;
   label: string;
   url: string;
+
+  // ✅ NEW: inline link formatting options
+  bold?: boolean;
+  italic?: boolean;
+  fontSize?: "sm" | "base" | "lg" | "xl";
 };
 
 type ProcessStep = {
@@ -1277,17 +1287,15 @@ type ProcessStep = {
   title: string;
   description: string;
 
-  /**
-   * ✅ IMPORTANT UPDATE (as per your request):
-   * Step "References" (list shown under step)
-   */
   links?: SectionLink[];
 
-  /**
-   * ✅ IMPORTANT UPDATE:
-   * Step "Inline Word Links" (auto link inside step description)
-   */
   inlineLinks?: SectionLink[];
+};
+
+type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
 };
 
 type SectionCTA = {
@@ -1306,6 +1314,7 @@ type BlogSection = {
   content: string;
   images: string[];
   steps: ProcessStep[];
+  faqItems?: FaqItem[];
   cta: SectionCTA;
 
   /**
@@ -1388,11 +1397,6 @@ function sanitizeUrl(u: string) {
   return "";
 }
 
-/**
- * ✅ IMPORTANT UPDATE (as per your request):
- * Extract markdown links + bare URLs into "INLINE WORD LINKS" (NOT references list)
- * So inline linking is independent.
- */
 function extractInlineLinksFromText(
   text: string,
 ): { cleaned: string; inlineLinks: SectionLink[] } {
@@ -1400,21 +1404,41 @@ function extractInlineLinksFromText(
   const links: SectionLink[] = [];
 
   // Markdown links: [Label](https://url)
-  cleaned = cleaned.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label, url) => {
-    const safe = sanitizeUrl(url);
-    if (safe) links.push({ id: uid(), label: String(label || "").trim(), url: safe });
-    return String(label || "").trim();
-  });
+  cleaned = cleaned.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    (_, label, url) => {
+      const safe = sanitizeUrl(url);
+      if (safe)
+        links.push({
+          id: uid(),
+          label: String(label || "").trim(),
+          url: safe,
+          fontSize: "base",
+          bold: false,
+          italic: false,
+        });
+      return String(label || "").trim();
+    },
+  );
 
   // Bare URLs
   cleaned = cleaned.replace(/(^|\s)(https?:\/\/[^\s)]+)(?=\s|$)/g, (m, pre, url) => {
     const safe = sanitizeUrl(url);
-    if (safe) links.push({ id: uid(), label: safe, url: safe });
+    if (safe)
+      links.push({
+        id: uid(),
+        label: safe,
+        url: safe,
+        fontSize: "base",
+        bold: false,
+        italic: false,
+      });
     return pre + safe;
   });
 
   // Unique
-  const key = (l: SectionLink) => `${(l.label || "").trim()}__${(l.url || "").trim()}`;
+  const key = (l: SectionLink) =>
+    `${(l.label || "").trim()}__${(l.url || "").trim()}`;
   const seen = new Set<string>();
   const unique = links.filter((l) => {
     const k = key(l);
@@ -1446,6 +1470,7 @@ function defaultSection(type: SectionType): BlogSection {
           },
         ]
         : [],
+    faqItems: type === "faq" ? [{ id: uid(), question: "", answer: "" }] : [],
     cta: {
       enabled: false,
       heading: "",
@@ -1478,6 +1503,16 @@ function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
         if (t) {
           const anchor = `step-${slugify(t)}-${sIdx + 1}-${stIdx + 1}`;
           items.push({ id: `step:${sec.id}:${st.id}`, label: t, anchor });
+        }
+      });
+    }
+
+    if (sec.type === "faq" && Array.isArray(sec.faqItems)) {
+      sec.faqItems.forEach((f, fIdx) => {
+        const q = (f.question || "").trim();
+        if (q) {
+          const anchor = `faq-${slugify(q)}-${sIdx + 1}-${fIdx + 1}`;
+          items.push({ id: `faq:${sec.id}:${f.id}`, label: q, anchor });
         }
       });
     }
@@ -1514,6 +1549,17 @@ async function uploadImagesToCloudinary(files: File[], token: string): Promise<s
   return urls;
 }
 
+function normalizeLinkFromAny(l: any): SectionLink {
+  return {
+    id: l?.id || uid(),
+    label: String(l?.label || ""),
+    url: String(l?.url || ""),
+    bold: !!l?.bold,
+    italic: !!l?.italic,
+    fontSize: (l?.fontSize as any) || "base",
+  };
+}
+
 function tryParseStructuredContent(
   raw: string,
 ): { sections: BlogSection[]; tocOrder: string[] } | null {
@@ -1531,21 +1577,13 @@ function tryParseStructuredContent(
         // - inlineLinks = s.inlineLinks if exists else use s.links for inline also (so old posts still auto-link)
         const parsedLinks: SectionLink[] = Array.isArray(s?.links)
           ? s.links
-            .map((l: any) => ({
-              id: l?.id || uid(),
-              label: String(l?.label || ""),
-              url: String(l?.url || ""),
-            }))
+            .map((l: any) => normalizeLinkFromAny(l))
             .filter((l: any) => l.label.trim() || l.url.trim())
           : [];
 
         const parsedInlineLinks: SectionLink[] = Array.isArray(s?.inlineLinks)
           ? s.inlineLinks
-            .map((l: any) => ({
-              id: l?.id || uid(),
-              label: String(l?.label || ""),
-              url: String(l?.url || ""),
-            }))
+            .map((l: any) => normalizeLinkFromAny(l))
             .filter((l: any) => l.label.trim() || l.url.trim())
           : parsedLinks; // ✅ fallback for older saved content
 
@@ -1553,21 +1591,13 @@ function tryParseStructuredContent(
           ? s.steps.map((st: any) => {
             const stLinks: SectionLink[] = Array.isArray(st?.links)
               ? st.links
-                .map((l: any) => ({
-                  id: l?.id || uid(),
-                  label: String(l?.label || ""),
-                  url: String(l?.url || ""),
-                }))
+                .map((l: any) => normalizeLinkFromAny(l))
                 .filter((l: any) => l.label.trim() || l.url.trim())
               : [];
 
             const stInlineLinks: SectionLink[] = Array.isArray(st?.inlineLinks)
               ? st.inlineLinks
-                .map((l: any) => ({
-                  id: l?.id || uid(),
-                  label: String(l?.label || ""),
-                  url: String(l?.url || ""),
-                }))
+                .map((l: any) => normalizeLinkFromAny(l))
                 .filter((l: any) => l.label.trim() || l.url.trim())
               : stLinks; // ✅ fallback for older saved content
 
@@ -1581,9 +1611,13 @@ function tryParseStructuredContent(
           })
           : [];
 
+        const faqItems: FaqItem[] = Array.isArray(s?.faqItems)
+          ? s.faqItems.map((f: any) => ({ id: f?.id || uid(), question: String(f?.question || ""), answer: String(f?.answer || "") }))
+          : [];
+
         return {
           id: s?.id || uid(),
-          type: s?.type === "process" ? "process" : "content",
+          type: s?.type === "process" ? "process" : s?.type === "faq" ? "faq" : "content",
           heading: String(s?.heading || ""),
           subHeading: String(s?.subHeading || ""),
           content: String(s?.content || ""),
@@ -1594,6 +1628,7 @@ function tryParseStructuredContent(
           inlineLinks: parsedInlineLinks,
 
           steps,
+          faqItems,
           cta: {
             enabled: !!s?.cta?.enabled,
             heading: String(s?.cta?.heading || ""),
@@ -1748,12 +1783,6 @@ function splitAiContentToSections(raw: string): BlogSection[] {
   return sections.length ? sections : [defaultSection("content")];
 }
 
-/**
- * ✅ Inline hyperlink feature (label -> url) inside the actual content text.
- * NOTE (your update):
- * - INLINE WORD LINKS use `inlineLinks`
- * - REFERENCES LIST uses `links`
- */
 function escapeHtml(text: string) {
   return (text || "")
     .replace(/&/g, "&amp;")
@@ -1775,6 +1804,9 @@ function applyInlineLinksToHtml(html: string, links: SectionLink[]) {
     .map((l) => ({
       label: (l.label || "").trim(),
       url: sanitizeUrl(l.url || ""),
+      bold: !!l.bold,
+      italic: !!l.italic,
+      fontSize: (l.fontSize as any) || "base",
     }))
     .filter((l) => l.label && l.url)
     .sort((a, b) => b.label.length - a.label.length);
@@ -1798,6 +1830,7 @@ function applyInlineLinksToHtml(html: string, links: SectionLink[]) {
 
   const linkifyTextChunk = (chunk: string) => {
     let c = chunk;
+
     for (const l of valid) {
       const label = l.label;
       const url = l.url;
@@ -1807,12 +1840,31 @@ function applyInlineLinksToHtml(html: string, links: SectionLink[]) {
       const pattern = `(^|[^\\w])(${escapeRegExp(label)})(?=[^\\w]|$)`;
       const re = new RegExp(pattern, "g");
 
+      const sizeClass =
+        l.fontSize === "sm"
+          ? "text-sm"
+          : l.fontSize === "lg"
+            ? "text-lg"
+            : l.fontSize === "xl"
+              ? "text-xl"
+              : "text-base";
+
+      const className = [
+        "text-blue-600 underline hover:opacity-80",
+        sizeClass,
+        l.bold ? "font-bold" : "",
+        l.italic ? "italic" : "",
+      ]
+        .filter(Boolean)
+        .join(" ");
+
       const attrs = url.startsWith("/")
-        ? `href="${url}" class="text-blue-600 underline hover:opacity-80"`
-        : `href="${url}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:opacity-80"`;
+        ? `href="${url}" class="${className}"`
+        : `href="${url}" target="_blank" rel="noopener noreferrer" class="${className}"`;
 
       c = c.replace(re, `$1<a ${attrs}>$2</a>`);
     }
+
     return c;
   };
 
@@ -1867,12 +1919,15 @@ export function BlogPostsManager() {
     isFeatured: false,
     metaDescription: "",
     metaTitle: "",
+
+    // ✅ NEW
+    category: "SEO" as BlogCategory,
   });
 
   const [generateData, setGenerateData] = useState({
     title: "",
     keywords: "",
-    category: "Digital Marketing",
+    category: "SEO" as BlogCategory,
     targetAudience: "business owners",
   });
 
@@ -1923,14 +1978,17 @@ export function BlogPostsManager() {
     setTocOrder((prev) => syncTocOrder(prev, tocItems));
   }, [tocItems]);
 
-  // =========================
-  // ✅ References (Section)
-  // =========================
   const addSectionReference = (sectionId: string) => {
     setSections((prev) =>
       prev.map((s) =>
         s.id === sectionId
-          ? { ...s, links: [...(s.links || []), { id: uid(), label: "", url: "" }] }
+          ? {
+            ...s,
+            links: [
+              ...(s.links || []),
+              { id: uid(), label: "", url: "", bold: false, italic: false, fontSize: "base" },
+            ],
+          }
           : s,
       ),
     );
@@ -1954,14 +2012,17 @@ export function BlogPostsManager() {
     );
   };
 
-  // =========================
-  // ✅ Inline Word Links (Section)
-  // =========================
   const addSectionInlineLink = (sectionId: string) => {
     setSections((prev) =>
       prev.map((s) =>
         s.id === sectionId
-          ? { ...s, inlineLinks: [...(s.inlineLinks || []), { id: uid(), label: "", url: "" }] }
+          ? {
+            ...s,
+            inlineLinks: [
+              ...(s.inlineLinks || []),
+              { id: uid(), label: "", url: "", bold: false, italic: false, fontSize: "base" },
+            ],
+          }
           : s,
       ),
     );
@@ -2068,6 +2129,9 @@ export function BlogPostsManager() {
         slug: generateSlug(data?.blog?.title || prev.title || prev.slug),
         tags: Array.isArray(data?.blog?.tags) ? data.blog.tags.join(", ") : prev.tags,
         metaDescription: data?.blog?.metaDescription || prev.metaDescription,
+
+        // ✅ NEW
+        category: (data?.blog?.category as BlogCategory) || prev.category || "SEO",
       }));
 
       setIsDialogOpen(true);
@@ -2173,6 +2237,9 @@ export function BlogPostsManager() {
       isFeatured: false,
       metaDescription: "",
       metaTitle: "",
+
+      // ✅ NEW
+      category: "SEO",
     });
     setSections([defaultSection("content")]);
     setTocOrder([]);
@@ -2182,7 +2249,7 @@ export function BlogPostsManager() {
     setGenerateData({
       title: "",
       keywords: "",
-      category: "Digital Marketing",
+      category: "SEO",
       targetAudience: "business owners",
     });
   };
@@ -2219,6 +2286,9 @@ export function BlogPostsManager() {
       isFeatured: post.isFeatured,
       metaDescription: post.metaDescription || "",
       metaTitle: (post as any).metaTitle || "",
+
+      // ✅ NEW
+      category: ((post as any).category as BlogCategory) || "SEO",
     });
 
     parseContentToBuilder(post.content);
@@ -2277,6 +2347,51 @@ export function BlogPostsManager() {
               inlineLinks: [],
             },
           ],
+        };
+      }),
+    );
+  };
+
+  const addFaqItem = (sectionId: string) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id !== sectionId) return s;
+        const items = Array.isArray(s.faqItems) ? s.faqItems : [];
+        return {
+          ...s,
+          faqItems: [
+            ...items,
+            {
+              id: uid(),
+              question: ``,
+              answer: ``,
+            },
+          ],
+        };
+      }),
+    );
+  };
+
+  const removeFaqItem = (sectionId: string, faqId: string) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id !== sectionId) return s;
+        const items = (s.faqItems || []).filter((f) => f.id !== faqId);
+        return {
+          ...s,
+          faqItems: items.length ? items : [{ id: uid(), question: "", answer: "" }],
+        };
+      }),
+    );
+  };
+
+  const updateFaqItem = (sectionId: string, faqId: string, patch: Partial<FaqItem>) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id !== sectionId) return s;
+        return {
+          ...s,
+          faqItems: (s.faqItems || []).map((f) => (f.id === faqId ? { ...f, ...patch } : f)),
         };
       }),
     );
@@ -2421,6 +2536,16 @@ export function BlogPostsManager() {
         return true;
       }
 
+      if (
+        s.type === "faq" &&
+        (s.faqItems || []).some((f) => {
+          if ((f.question || "").trim() || (f.answer || "").trim()) return true;
+          return false;
+        })
+      ) {
+        return true;
+      }
+
       return false;
     });
 
@@ -2437,14 +2562,28 @@ export function BlogPostsManager() {
         // ✅ references list
         links: Array.isArray(s.links)
           ? s.links
-            .map((l) => ({ ...l, label: (l.label || "").trim(), url: (l.url || "").trim() }))
+            .map((l) => ({
+              ...l,
+              label: (l.label || "").trim(),
+              url: (l.url || "").trim(),
+              bold: !!l.bold,
+              italic: !!l.italic,
+              fontSize: (l.fontSize as any) || "base",
+            }))
             .filter((l) => l.label || l.url)
           : [],
 
         // ✅ inline links
         inlineLinks: Array.isArray(s.inlineLinks)
           ? s.inlineLinks
-            .map((l) => ({ ...l, label: (l.label || "").trim(), url: (l.url || "").trim() }))
+            .map((l) => ({
+              ...l,
+              label: (l.label || "").trim(),
+              url: (l.url || "").trim(),
+              bold: !!l.bold,
+              italic: !!l.italic,
+              fontSize: (l.fontSize as any) || "base",
+            }))
             .filter((l) => l.label || l.url)
           : [],
 
@@ -2459,6 +2598,9 @@ export function BlogPostsManager() {
                   ...l,
                   label: (l.label || "").trim(),
                   url: (l.url || "").trim(),
+                  bold: !!l.bold,
+                  italic: !!l.italic,
+                  fontSize: (l.fontSize as any) || "base",
                 }))
                 .filter((l) => l.label || l.url)
               : [],
@@ -2470,10 +2612,22 @@ export function BlogPostsManager() {
                   ...l,
                   label: (l.label || "").trim(),
                   url: (l.url || "").trim(),
+                  bold: !!l.bold,
+                  italic: !!l.italic,
+                  fontSize: (l.fontSize as any) || "base",
                 }))
                 .filter((l) => l.label || l.url)
               : [],
           }))
+          : [],
+        faqItems: Array.isArray(s.faqItems)
+          ? s.faqItems
+            .map((f) => ({
+              id: f.id || uid(),
+              question: (f.question || "").trim(),
+              answer: (f.answer || "").trim(),
+            }))
+            .filter((f) => f.question || f.answer)
           : [],
       })),
       tocOrder: syncTocOrder(tocOrder, tocItems),
@@ -2552,7 +2706,6 @@ export function BlogPostsManager() {
                           <div
                             className="text-gray-700 leading-relaxed"
                             dangerouslySetInnerHTML={{
-                              // ✅ UPDATE: Use ONLY section inlineLinks for section content
                               __html: renderTextWithInlineLinks(sec.content, sec.inlineLinks || []),
                             }}
                           />
@@ -2580,12 +2733,7 @@ export function BlogPostsManager() {
                                       <div
                                         className="text-gray-700 mt-1 leading-relaxed"
                                         dangerouslySetInnerHTML={{
-                                          // ✅ UPDATE: DO NOT MERGE section links + step links.
-                                          // Inline word links in step description use ONLY step.inlineLinks
-                                          __html: renderTextWithInlineLinks(
-                                            st.description,
-                                            st.inlineLinks || [],
-                                          ),
+                                          __html: renderTextWithInlineLinks(st.description, st.inlineLinks || []),
                                         }}
                                       />
                                     )}
@@ -2619,13 +2767,26 @@ export function BlogPostsManager() {
                           })}
                         </div>
                       </div>
+                    ) : sec.type === "faq" ? (
+                      <div className="space-y-3">
+                        {(sec.faqItems || []).map((f, fi) => (
+                          <div key={f.id} className="border rounded-xl p-4 bg-white">
+                            <div className="font-semibold">Q: {f.question}</div>
+                            {f.answer?.trim() && (
+                              <div
+                                className="text-gray-700 mt-2 leading-relaxed"
+                                dangerouslySetInnerHTML={{ __html: renderTextWithInlineLinks(f.answer, sec.inlineLinks || []) }}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     ) : (
                       <>
                         {sec.content?.trim() && (
                           <div className="prose prose-lg max-w-none leading-relaxed">
                             <div
                               dangerouslySetInnerHTML={{
-                                // ✅ UPDATE: Use ONLY section inlineLinks for content section
                                 __html: renderTextWithInlineLinks(sec.content, sec.inlineLinks || []),
                               }}
                             />
@@ -2633,6 +2794,7 @@ export function BlogPostsManager() {
                         )}
                       </>
                     )}
+
 
                     {Array.isArray(sec.images) && sec.images.length > 0 && (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -2770,19 +2932,18 @@ export function BlogPostsManager() {
                     <Label htmlFor="generate-category">Category</Label>
                     <Select
                       value={generateData.category}
-                      onValueChange={(value) => setGenerateData({ ...generateData, category: value })}
+                      onValueChange={(value) =>
+                        setGenerateData({ ...generateData, category: value as BlogCategory })
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="SEO">SEO</SelectItem>
-                        <SelectItem value="Google Ads">Google Ads</SelectItem>
+                        <SelectItem value="PPC">PPC</SelectItem>
                         <SelectItem value="Web Development">Web Development</SelectItem>
-                        <SelectItem value="AI & Technology">AI & Technology</SelectItem>
-                        <SelectItem value="Industry Marketing">Industry Marketing</SelectItem>
-                        <SelectItem value="Business Growth">Business Growth</SelectItem>
-                        <SelectItem value="Digital Marketing">Digital Marketing</SelectItem>
+                        <SelectItem value="App Development">App Development</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -2861,8 +3022,8 @@ export function BlogPostsManager() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Top meta */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
                     <Label htmlFor="title">Title *</Label>
                     <Input
                       id="title"
@@ -2878,6 +3039,27 @@ export function BlogPostsManager() {
                       required
                     />
                   </div>
+
+                  <div>
+                    <Label>Category *</Label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(v) => setFormData((prev) => ({ ...prev, category: v as BlogCategory }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SEO">SEO</SelectItem>
+                        <SelectItem value="PPC">PPC</SelectItem>
+                        <SelectItem value="Web Development">Web Development</SelectItem>
+                        <SelectItem value="App Development">App Development</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="slug">Slug *</Label>
                     <Input
@@ -2887,9 +3069,6 @@ export function BlogPostsManager() {
                       required
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="subtitle">Subtitle</Label>
                     <Input
@@ -2899,6 +3078,9 @@ export function BlogPostsManager() {
                       placeholder="Short supporting line under the title"
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="excerpt">Excerpt</Label>
                     <Input
@@ -2906,6 +3088,15 @@ export function BlogPostsManager() {
                       value={formData.excerpt}
                       onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                       placeholder="Used in cards / SEO snippets"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="tags">Tags (comma-separated)</Label>
+                    <Input
+                      id="tags"
+                      value={formData.tags}
+                      onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
+                      placeholder="AI, Business, Growth"
                     />
                   </div>
                 </div>
@@ -3009,8 +3200,8 @@ export function BlogPostsManager() {
                           Blog Content Sections
                         </div>
                         <div className="text-sm text-gray-500">
-                          Add multiple content/process sections. Each section can have images, references, inline
-                          word-links, optional CTA.
+                          Add multiple content/process sections. Each section can have images, references, inline word-links, optional
+                          CTA.
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-2">
@@ -3022,6 +3213,10 @@ export function BlogPostsManager() {
                           <Plus className="w-4 h-4 mr-2" />
                           Process Section
                         </Button>
+                        <Button type="button" variant="outline" onClick={() => addSection("faq")}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          FAQ Section
+                        </Button>
                       </div>
                     </div>
 
@@ -3030,7 +3225,9 @@ export function BlogPostsManager() {
                         <CardHeader className="py-3">
                           <div className="flex items-center justify-between gap-3">
                             <div className="flex items-center gap-2">
-                              <Badge variant="outline">{sec.type === "process" ? "Process" : "Content"}</Badge>
+                              <Badge variant="outline">
+                                {sec.type === "process" ? "Process" : sec.type === "faq" ? "FAQ" : "Content"}
+                              </Badge>
                               <div className="font-semibold">
                                 Section {idx + 1}
                                 {sec.heading?.trim() ? ` — ${sec.heading}` : ""}
@@ -3083,7 +3280,10 @@ export function BlogPostsManager() {
                             </div>
                           </div>
 
-                          {sec.type === "content" ? (
+                          {/* ✅ UPDATED: removed ternary, using separate blocks to avoid ':' expected TS error */}
+
+                          {/* CONTENT */}
+                          {sec.type === "content" && (
                             <div>
                               <Label>Content</Label>
                               <Textarea
@@ -3096,7 +3296,10 @@ export function BlogPostsManager() {
                                 AI content with HTML is supported and will render in preview.
                               </p>
                             </div>
-                          ) : (
+                          )}
+
+                          {/* PROCESS */}
+                          {sec.type === "process" && (
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
                                 <Label>Process Steps</Label>
@@ -3111,7 +3314,12 @@ export function BlogPostsManager() {
                                   <div key={st.id} className="border rounded-xl p-3 space-y-2 bg-white">
                                     <div className="flex items-center justify-between">
                                       <div className="font-medium">Step {stIdx + 1}</div>
-                                      <Button type="button" variant="destructive" size="sm" onClick={() => removeStep(sec.id, st.id)}>
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => removeStep(sec.id, st.id)}
+                                      >
                                         <X className="w-4 h-4" />
                                       </Button>
                                     </div>
@@ -3158,7 +3366,14 @@ export function BlogPostsManager() {
                                                         ...x,
                                                         inlineLinks: [
                                                           ...(x.inlineLinks || []),
-                                                          { id: uid(), label: "", url: "" },
+                                                          {
+                                                            id: uid(),
+                                                            label: "",
+                                                            url: "",
+                                                            bold: false,
+                                                            italic: false,
+                                                            fontSize: "base",
+                                                          },
                                                         ],
                                                       },
                                                   ),
@@ -3173,7 +3388,7 @@ export function BlogPostsManager() {
 
                                       {Array.isArray(st.inlineLinks) &&
                                         st.inlineLinks.map((l: any) => (
-                                          <div key={l.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                                          <div key={l.id} className="grid grid-cols-1 md:grid-cols-8 gap-2 items-center">
                                             <Input
                                               className="md:col-span-2"
                                               placeholder="Word / Phrase (e.g., BrandingBeez)"
@@ -3224,10 +3439,101 @@ export function BlogPostsManager() {
                                                 );
                                               }}
                                             />
+
+                                            <Select
+                                              value={l.fontSize || "base"}
+                                              onValueChange={(v) => {
+                                                setSections((prev) =>
+                                                  prev.map((s) => {
+                                                    if (s.id !== sec.id) return s;
+                                                    return {
+                                                      ...s,
+                                                      steps: (s.steps || []).map((x) => {
+                                                        if (x.id !== st.id) return x;
+                                                        return {
+                                                          ...x,
+                                                          inlineLinks: (x.inlineLinks || []).map((ln: any) =>
+                                                            ln.id === l.id ? { ...ln, fontSize: v } : ln,
+                                                          ),
+                                                        };
+                                                      }),
+                                                    };
+                                                  }),
+                                                );
+                                              }}
+                                            >
+                                              <SelectTrigger>
+                                                <SelectValue placeholder="Size" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="sm">Small</SelectItem>
+                                                <SelectItem value="base">Normal</SelectItem>
+                                                <SelectItem value="lg">Large</SelectItem>
+                                                <SelectItem value="xl">XL</SelectItem>
+                                              </SelectContent>
+                                            </Select>
+
+                                            <label className="flex items-center gap-2 text-sm md:col-span-1">
+                                              <input
+                                                type="checkbox"
+                                                checked={!!l.bold}
+                                                onChange={(e) => {
+                                                  const checked = e.target.checked;
+                                                  setSections((prev) =>
+                                                    prev.map((s) => {
+                                                      if (s.id !== sec.id) return s;
+                                                      return {
+                                                        ...s,
+                                                        steps: (s.steps || []).map((x) => {
+                                                          if (x.id !== st.id) return x;
+                                                          return {
+                                                            ...x,
+                                                            inlineLinks: (x.inlineLinks || []).map((ln: any) =>
+                                                              ln.id === l.id ? { ...ln, bold: checked } : ln,
+                                                            ),
+                                                          };
+                                                        }),
+                                                      };
+                                                    }),
+                                                  );
+                                                }}
+                                              />
+                                              Bold
+                                            </label>
+
+                                            <label className="flex items-center gap-2 text-sm md:col-span-1">
+                                              <input
+                                                type="checkbox"
+                                                checked={!!l.italic}
+                                                onChange={(e) => {
+                                                  const checked = e.target.checked;
+                                                  setSections((prev) =>
+                                                    prev.map((s) => {
+                                                      if (s.id !== sec.id) return s;
+                                                      return {
+                                                        ...s,
+                                                        steps: (s.steps || []).map((x) => {
+                                                          if (x.id !== st.id) return x;
+                                                          return {
+                                                            ...x,
+                                                            inlineLinks: (x.inlineLinks || []).map((ln: any) =>
+                                                              ln.id === l.id ? { ...ln, italic: checked } : ln,
+                                                            ),
+                                                          };
+                                                        }),
+                                                      };
+                                                    }),
+                                                  );
+                                                }}
+                                              />
+                                              Italic
+                                            </label>
+
                                             <Button
                                               type="button"
                                               variant="destructive"
                                               size="sm"
+                                              className="md:col-span-1"
                                               onClick={() => {
                                                 setSections((prev) =>
                                                   prev.map((s) => {
@@ -3272,7 +3578,20 @@ export function BlogPostsManager() {
                                                   steps: (s.steps || []).map((x) =>
                                                     x.id !== st.id
                                                       ? x
-                                                      : { ...x, links: [...(x.links || []), { id: uid(), label: "", url: "" }] },
+                                                      : {
+                                                        ...x,
+                                                        links: [
+                                                          ...(x.links || []),
+                                                          {
+                                                            id: uid(),
+                                                            label: "",
+                                                            url: "",
+                                                            bold: false,
+                                                            italic: false,
+                                                            fontSize: "base",
+                                                          },
+                                                        ],
+                                                      },
                                                   ),
                                                 };
                                               }),
@@ -3369,6 +3688,54 @@ export function BlogPostsManager() {
                             </div>
                           )}
 
+                          {/* FAQ */}
+                          {sec.type === "faq" && (
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Label>FAQ Items</Label>
+                                <Button type="button" variant="outline" size="sm" onClick={() => addFaqItem(sec.id)}>
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  Add FAQ Item
+                                </Button>
+                              </div>
+
+                              <div className="space-y-3">
+                                {(sec.faqItems || []).map((f, fIdx) => (
+                                  <div key={f.id} className="border rounded-xl p-3 space-y-2 bg-white">
+                                    <div className="flex items-center justify-between">
+                                      <div className="font-medium">FAQ {fIdx + 1}</div>
+                                      <Button
+                                        type="button"
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={() => removeFaqItem(sec.id, f.id)}
+                                      >
+                                        <X className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+
+                                    <div>
+                                      <Label>Question</Label>
+                                      <Input
+                                        value={f.question}
+                                        onChange={(e) => updateFaqItem(sec.id, f.id, { question: e.target.value })}
+                                      />
+                                    </div>
+
+                                    <div>
+                                      <Label>Answer</Label>
+                                      <Textarea
+                                        rows={3}
+                                        value={f.answer}
+                                        onChange={(e) => updateFaqItem(sec.id, f.id, { answer: e.target.value })}
+                                      />
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {/* Images */}
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
@@ -3390,9 +3757,7 @@ export function BlogPostsManager() {
                                   e.currentTarget.value = "";
                                 }}
                               />
-                              {uploadingSectionImagesId === sec.id && (
-                                <span className="text-xs text-gray-500">Uploading...</span>
-                              )}
+                              {uploadingSectionImagesId === sec.id && <span className="text-xs text-gray-500">Uploading...</span>}
                             </div>
 
                             {sec.images?.length > 0 && (
@@ -3429,14 +3794,13 @@ export function BlogPostsManager() {
 
                             {(!sec.inlineLinks || sec.inlineLinks.length === 0) && (
                               <p className="text-sm text-gray-500">
-                                Add inline word links (e.g., "Pradeep" → "/about-pradeep"). These will auto-link inside
-                                the content text.
+                                Add inline word links (e.g., "Pradeep" → "/about-pradeep"). These will auto-link inside the content text.
                               </p>
                             )}
 
                             <div className="space-y-2">
                               {(sec.inlineLinks || []).map((link) => (
-                                <div key={link.id} className="grid grid-cols-1 md:grid-cols-5 gap-2 items-center">
+                                <div key={link.id} className="grid grid-cols-1 md:grid-cols-8 gap-2 items-center">
                                   <Input
                                     className="md:col-span-2"
                                     placeholder="Word / Phrase (e.g., Pradeep)"
@@ -3449,7 +3813,46 @@ export function BlogPostsManager() {
                                     value={link.url}
                                     onChange={(e) => updateSectionInlineLink(sec.id, link.id, { url: e.target.value })}
                                   />
-                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionInlineLink(sec.id, link.id)}>
+
+                                  <Select
+                                    value={link.fontSize || "base"}
+                                    onValueChange={(v) => updateSectionInlineLink(sec.id, link.id, { fontSize: v as any })}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Size" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="sm">Small</SelectItem>
+                                      <SelectItem value="base">Normal</SelectItem>
+                                      <SelectItem value="lg">Large</SelectItem>
+                                      <SelectItem value="xl">XL</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+
+                                  <label className="flex items-center gap-2 text-sm md:col-span-1">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!link.bold}
+                                      onChange={(e) => updateSectionInlineLink(sec.id, link.id, { bold: e.target.checked })}
+                                    />
+                                    Bold
+                                  </label>
+
+                                  <label className="flex items-center gap-2 text-sm md:col-span-1">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!link.italic}
+                                      onChange={(e) => updateSectionInlineLink(sec.id, link.id, { italic: e.target.checked })}
+                                    />
+                                    Italic
+                                  </label>
+
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeSectionInlineLink(sec.id, link.id)}
+                                  >
                                     Remove
                                   </Button>
                                 </div>
@@ -3471,8 +3874,8 @@ export function BlogPostsManager() {
 
                             {(!sec.links || sec.links.length === 0) && (
                               <p className="text-sm text-gray-500">
-                                Add references for this section (sources, citations, external docs). These are shown as a
-                                list under the section.
+                                Add references for this section (sources, citations, external docs). These are shown as a list under the
+                                section.
                               </p>
                             )}
 
@@ -3491,7 +3894,12 @@ export function BlogPostsManager() {
                                     value={link.url}
                                     onChange={(e) => updateSectionReference(sec.id, link.id, { url: e.target.value })}
                                   />
-                                  <Button type="button" variant="destructive" size="sm" onClick={() => removeSectionReference(sec.id, link.id)}>
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => removeSectionReference(sec.id, link.id)}
+                                  >
                                     Remove
                                   </Button>
                                 </div>
@@ -3506,9 +3914,7 @@ export function BlogPostsManager() {
                               <div className="flex items-center gap-2">
                                 <Switch
                                   checked={sec.cta.enabled}
-                                  onCheckedChange={(checked) =>
-                                    updateSection(sec.id, { cta: { ...sec.cta, enabled: checked } })
-                                  }
+                                  onCheckedChange={(checked) => updateSection(sec.id, { cta: { ...sec.cta, enabled: checked } })}
                                 />
                                 <span className="text-sm text-gray-600">{sec.cta.enabled ? "Enabled" : "Disabled"}</span>
                               </div>
@@ -3520,11 +3926,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Heading</Label>
                                   <Input
                                     value={sec.cta.heading || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, heading: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, heading: e.target.value } })}
                                     placeholder="e.g., Want us to do this for you?"
                                   />
                                 </div>
@@ -3532,11 +3934,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Button Text</Label>
                                   <Input
                                     value={sec.cta.buttonText || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, buttonText: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, buttonText: e.target.value } })}
                                     placeholder="e.g., Book a Call"
                                   />
                                 </div>
@@ -3544,11 +3942,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Description</Label>
                                   <Textarea
                                     value={sec.cta.description || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, description: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, description: e.target.value } })}
                                     rows={2}
                                     placeholder="Short supporting text..."
                                   />
@@ -3557,11 +3951,7 @@ export function BlogPostsManager() {
                                   <Label>CTA Button Link</Label>
                                   <Input
                                     value={sec.cta.buttonLink || ""}
-                                    onChange={(e) =>
-                                      updateSection(sec.id, {
-                                        cta: { ...sec.cta, buttonLink: e.target.value },
-                                      })
-                                    }
+                                    onChange={(e) => updateSection(sec.id, { cta: { ...sec.cta, buttonLink: e.target.value } })}
                                     placeholder="https://... or /contact"
                                   />
                                 </div>
@@ -3616,22 +4006,16 @@ export function BlogPostsManager() {
                         Content is saved as JSON in the <b>content</b> field (no DB/model changes).
                         <br />
                         ✅ Inline word links and References are saved separately.
+                        <br />
+                        ✅ Inline word links now support: <b>bold</b>, <i>italic</i>, and{" "}
+                        <span className="font-semibold">font size</span>.
                       </CardContent>
                     </Card>
                   </div>
                 </div>
 
-                {/* Tags/Author/SEO */}
+                {/* Author/SEO */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="tags">Tags (comma-separated)</Label>
-                    <Input
-                      id="tags"
-                      value={formData.tags}
-                      onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                      placeholder="AI, Business, Growth"
-                    />
-                  </div>
                   <div>
                     <Label htmlFor="author">Author</Label>
                     <Input
@@ -3640,18 +4024,21 @@ export function BlogPostsManager() {
                       onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                     />
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="readTime">Read Time (minutes)</Label>
                     <Input
                       id="readTime"
                       type="number"
                       value={formData.readTime}
-                      onChange={(e) => setFormData({ ...formData, readTime: parseInt(e.target.value) || 5 })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, readTime: parseInt(e.target.value) || 5 })
+                      }
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="metaTitle">Meta Title (SEO)</Label>
                     <Input
@@ -3662,18 +4049,17 @@ export function BlogPostsManager() {
                       maxLength={60}
                     />
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="metaDescription">Meta Description</Label>
-                  <Textarea
-                    id="metaDescription"
-                    value={formData.metaDescription}
-                    onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
-                    rows={2}
-                    placeholder="SEO meta description (160 chars max)"
-                    maxLength={160}
-                  />
+                  <div>
+                    <Label htmlFor="metaDescription">Meta Description</Label>
+                    <Textarea
+                      id="metaDescription"
+                      value={formData.metaDescription}
+                      onChange={(e) => setFormData({ ...formData, metaDescription: e.target.value })}
+                      rows={2}
+                      placeholder="SEO meta description (160 chars max)"
+                      maxLength={160}
+                    />
+                  </div>
                 </div>
 
                 {/* Publish switches */}
@@ -3732,7 +4118,12 @@ export function BlogPostsManager() {
               <div className="flex justify-between items-start gap-3">
                 <div className="flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <CardTitle className="text-lg font-bold">{post.title}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg font-bold">{post.title}</CardTitle>
+                      <Badge variant="outline" className="text-xs">
+                        {(post as any).category || "SEO"}
+                      </Badge>
+                    </div>
                     <div className="flex items-center gap-2">
                       {post.isFeatured && <Badge variant="secondary">Featured</Badge>}
                       {!post.isPublished && <Badge variant="destructive">Draft</Badge>}
@@ -3743,7 +4134,9 @@ export function BlogPostsManager() {
                     /{post.slug} • {post.author} • {post.readTime} min read
                   </p>
 
-                  {post.subtitle && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.subtitle}</p>}
+                  {post.subtitle && (
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{post.subtitle}</p>
+                  )}
                 </div>
 
                 <div className="flex gap-2">
@@ -3819,6 +4212,12 @@ export function BlogPostsManager() {
                   </div>
                   <div>
                     <span className="font-semibold">Read Time:</span> {viewingPostData.readTime} min
+                  </div>
+                  <div>
+                    <span className="font-semibold">Category:</span>{" "}
+                    <Badge variant="outline" className="ml-2">
+                      {(viewingPostData as any).category || "SEO"}
+                    </Badge>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">Status:</span>

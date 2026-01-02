@@ -1,3 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <!-- Google Consent Mode v2 : Default Denied -->
+  <!-- <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied'
+    });
+  </script> -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      functionality_storage: 'denied',
+
+      // ✅ only here
+      wait_for_update: 500
+    });
+  </script>
+
+  <!-- End Google Consent Mode -->
+
+  <!-- Microsoft Clarity -->
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "umfi093rcx");
+  </script>
+  <!-- End Microsoft Clarity -->
+
+  <!-- LinkedIn Insight Tag -->
+  <script type="text/javascript">
+    _linkedin_partner_id = "8407852";
+    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
+    window._linkedin_data_partner_ids.push(_linkedin_partner_id);
+  </script>
+
+  <script type="text/javascript">
+    (function (l) {
+      if (!l) {
+        window.lintrk = function (a, b) {
+          window.lintrk.q.push([a, b]);
+        };
+        window.lintrk.q = [];
+      }
+      var s = document.getElementsByTagName("script")[0];
+      var b = document.createElement("script");
+      b.type = "text/javascript";
+      b.async = true;
+      b.src = "https://snap.licdn.com/li.lms-analytics/insight.min.js";
+      s.parentNode.insertBefore(b, s);
+    })(window.lintrk);
+  </script>
+  <!-- End LinkedIn Insight Tag -->
+
+  <!-- Google Tag Manager -->
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-KP5XRG5D');</script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Google tag (gtag.js) -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-GNEDWN3ZNT"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-GNEDWN3ZNT');
+  </script> -->
+  <!-- <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "su6w3do9p1");
+    </script>
+     -->
+
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17781107849"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17781107849');
+  </script> -->
+
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
+  <meta name="format-detection" content="telephone=no" />
+  <base href="/" />
+  <!-- CSP is set via server headers in server/index.ts -->
+
+  <title>BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies</title>
+  <meta name="description"
+    content="Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide." />
+
+
+  <!-- Analytics will be loaded via external script to avoid CSP violations -->
+
+  <!-- Open Graph tags -->
+  <meta property="og:title" content="BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies" />
+  <meta property="og:description"
+    content="Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://brandingbeez.co.uk" />
+
+  <!-- Twitter Card tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies" />
+  <meta name="twitter:description"
+    content="White-label SEO, google ads, design, dev & AI services trusted by agencies in the US & UK. Scale your business with BrandingBeez's on-demand growth solutions." />
+
+  <!-- CRITICAL: Immediate domain connections (highest priority) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://www.google-analytics.com">
+  <!-- <link rel="preconnect" href="https://assets.calendly.com"> -->
+
+  <!-- CRITICAL: Main resource preloads to break dependency chain -->
+  <link rel="modulepreload" href="/src/main.tsx">
+  <link rel="modulepreload" href="/src/App.tsx">
+  <link rel="modulepreload" href="/src/pages/home.tsx">
+  <link rel="stylesheet" href="/src/index.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="apple-touch-icon" href="/favicon.png">
+
+  <!-- Additional domain optimization -->
+  <link rel="dns-prefetch" href="https://stats.g.doubleclick.net">
+  <link rel="dns-prefetch" href="https://region1.google-analytics.com">
+  <link rel="dns-prefetch" href="https://analytics.google.com">
+
+
+  <!-- Load font CSS -->
+  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"> -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
+
+  <!-- Performance optimizations -->
+  <meta name="robots" content="index, follow">
+  <meta name="googlebot" content="index, follow">
+  <meta name="google-site-verification" content="xqlSp59sUF8tAYClepaa_ymf2QRwDXPBWbFryVEipMM" />
+  <link rel="canonical" href="https://brandingbeez.co.uk">
+
+  <!-- Critical CSS inlined for instant rendering (single consolidated block) -->
+  <style>
+    :root {
+      --brand-coral: hsl(351, 83%, 61%);
+      --brand-purple: hsl(259, 60%, 25%);
+      --brand-yellow: hsl(51, 100%, 50%);
+      --brand-wings: hsl(340, 50%, 94%);
+      --background: hsl(0, 0%, 100%);
+      --foreground: hsl(222, 84%, 4.9%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+
+    html {
+      font-display: swap;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background: white;
+      color: var(--foreground);
+      text-rendering: optimizeSpeed;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      line-height: 1.5;
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+
+    #root {
+      min-height: 100vh;
+      contain: layout style paint;
+    }
+
+    /* Containers */
+    .container {
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+      max-width: 1200px;
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        max-width: 640px;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        max-width: 768px;
+        padding: 0 2rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .container {
+        max-width: 1024px;
+      }
+    }
+
+    @media (min-width: 1280px) {
+      .container {
+        max-width: 1280px;
+      }
+    }
+
+    /* Hero / Background helpers */
+    .hero-bg {
+      background: linear-gradient(to bottom right, hsl(340, 50%, 94%), white, hsl(351, 83%, 61%, 0.05));
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-gradient {
+      background: linear-gradient(135deg, #fef7f7 0%, #fff 50%, #fdf2f8 100%);
+    }
+
+    /* Typography helpers */
+    .text-hero-h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: hsl(17, 24%, 9%);
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    @media (min-width: 768px) {
+      .text-hero-h1 {
+        font-size: 3rem;
+      }
+
+      .md\:text-5xl {
+        font-size: 3rem;
+        line-height: 1;
+      }
+
+      .md\:text-6xl {
+        font-size: 3.75rem;
+        line-height: 1;
+      }
+
+      .md\:py-32 {
+        padding-top: 8rem;
+        padding-bottom: 8rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .text-hero-h1 {
+        font-size: 4rem;
+      }
+
+      .lg\:text-6xl {
+        font-size: 3.75rem;
+        line-height: 1;
+      }
+
+      .lg\:text-7xl {
+        font-size: 4.5rem;
+        line-height: 1;
+      }
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, var(--brand-coral), var(--brand-purple));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-coral {
+      color: var(--brand-coral);
+    }
+
+    .bg-brand-coral {
+      background-color: var(--brand-coral);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand-coral), #f472b6);
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 2rem;
+      border-radius: 9999px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s ease;
+      text-decoration: none;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Common utilities (kept from your original) */
+    .mx-auto {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .relative {
+      position: relative;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .items-center {
+      align-items: center;
+    }
+
+    .justify-center {
+      justify-content: center;
+    }
+
+    .gap-4 {
+      gap: 1rem;
+    }
+
+    .space-y-6>*+* {
+      margin-top: 1.5rem;
+    }
+
+    .space-y-4>*+* {
+      margin-top: 1rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1rem;
+    }
+
+    .mb-6 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mb-8 {
+      margin-bottom: 2rem;
+    }
+
+    .px-4 {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .pt-20 {
+      padding-top: 5rem;
+    }
+
+    .py-20 {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+
+    .p-6 {
+      padding: 1.5rem;
+    }
+
+    .text-4xl {
+      font-size: 2.25rem;
+      line-height: 2.5rem;
+    }
+
+    .text-5xl {
+      font-size: 3rem;
+      line-height: 1;
+    }
+
+    .text-6xl {
+      font-size: 3.75rem;
+      line-height: 1;
+    }
+
+    .text-lg {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+
+    .text-xl {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+
+    .font-bold {
+      font-weight: 700;
+    }
+
+    .font-semibold {
+      font-weight: 600;
+    }
+
+    .text-gray-600 {
+      color: rgb(75 85 99);
+    }
+
+    .text-gray-900 {
+      color: rgb(17 24 39);
+    }
+
+    .leading-tight {
+      line-height: 1.25;
+    }
+
+    /* Loading states */
+    .loading-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% {
+        background-position: 200% 0;
+      }
+
+      100% {
+        background-position: -200% 0;
+      }
+    }
+
+    .preload-hidden {
+      opacity: 0;
+    }
+
+    .preload-visible {
+      opacity: 1;
+      transition: opacity 0.2s ease-in;
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+
+  <!-- Main CSS bundle -->
+  <link rel="stylesheet" href="/src/index.css">
+
+  <!-- Resource optimization will be handled via external script -->
+
+  <!-- Microsoft Clarity will be loaded via external script -->
+  <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "BrandingBeez",
+        "url": "https://brandingbeez.co.uk",
+        "logo": "https://brandingbeez.co.uk/assets/Logo_1751475462352-gtBR4PPW.jpg",
+        "description": "BrandingBeez provides dedicated resources for UK and USA markets worldwide, specializing in web development, SEO, and digital marketing with expert teams.",
+        "sameAs": [
+          "https://www.facebook.com/BrandingBeez/",
+          "https://www.linkedin.com/company/brandingbeez",
+          "https://www.behance.net/brandingbeez",
+          "https://in.pinterest.com/brandingbeez/_created/"
+        ],
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Global Operations",
+          "addressRegion": "UK & USA",
+          "addressCountry": "Global"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+91-99524-62833",
+          "contactType": "Customer Service",
+          "email": "info@brandingbeez.co.uk",
+          "availableLanguage": "English"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.8",
+          "reviewCount": "150",
+          "bestRating": "5",
+          "worstRating": "1"
+        },
+        "offers": {
+          "@type": "Offer",
+          "url": "https://brandingbeez.co.uk/dedicated-resources",
+          "priceCurrency": "USD",
+          "price": "800.00",
+          "priceValidUntil": "2026-08-20",
+          "availability": "https://schema.org/InStock",
+          "itemCondition": "https://schema.org/NewCondition",
+          "description": "Dedicated resource teams starting at $800/month for UK, USA, and global markets."
+        },
+        "service": {
+          "@type": "Service",
+          "serviceType": "Dedicated Resource Teams",
+          "provider": {
+            "@type": "Organization",
+            "name": "BrandingBeez"
+          },
+          "areaServed": {
+            "@type": "GeoShape",
+            "name": "Global",
+            "addressCountry": [
+              "GB",
+              "US"
+            ]
+          },
+          "description": "Expert developers, designers, and specialists dedicated to your projects in the UK, USA, and worldwide.",
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Dedicated Resource Packages",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Individual Resources"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Small Team (2-4 People)"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Large Team (5+ People)"
+                }
+              }
+            ]
+          }
+        }
+      }
+      </script>
+
+</head>
+
+<body>
+  <!-- LinkedIn (no script) -->
+  <noscript>
+    <img height="1" width="1" style="display:none;" alt=""
+      src="https://px.ads.linkedin.com/collect/?pid=8407852&fmt=gif" />
+  </noscript>
+  <!-- ------------------------------------------------------------------- -->
+
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KP5XRG5D" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
+
+  <div id="root"></div>
+  <!-- Load main script with high priority and eliminate dependency chain -->
+  <script type="module" src="/src/main.tsx"></script>
+
+  <!-- Non-critical scripts loaded asynchronously -->
+  <!-- Deferred loading will be handled via external script -->
+</body>
+
+</html>
+
+
+
+
+
 <!-- Our Service Backup from Home -->
 <!--   {/* Services Section */}
           <section className="py-12 sm:py-16 lg:py-20 bg-gray-50">
@@ -5044,3 +5656,1201 @@ db.getCollection("portfolio_items").insertMany([
 //   );
 // }
 
+
+
+
+<!-- import express, { type Express } from "express";
+import fs from "fs";
+import path from "path";
+import { createServer as createViteServer, createLogger } from "vite";
+import { type Server } from "http";
+import viteConfig from "../vite.config";
+import { nanoid } from "nanoid";
+import cors from "cors";
+
+const viteLogger = createLogger();
+
+export function log(message: string, source = "express") {
+  const formattedTime = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+  });
+
+  console.log(`${formattedTime} [${source}] ${message}`);
+}
+
+export async function setupVite(app: Express, server: Server) {
+  const serverOptions = {
+    middlewareMode: true,
+    hmr: { server },
+    allowedHosts: true,
+  };
+
+  const vite = await createViteServer({
+    ...viteConfig,
+    configFile: false,
+    customLogger: {
+      ...viteLogger,
+      error: (msg, options) => {
+        viteLogger.error(msg, options);
+        process.exit(1);
+      },
+    },
+    server: serverOptions,
+    appType: "custom",
+  });
+
+  app.use(cors({
+    origin: [
+      "https://brandingbeez-official.onrender.com",  
+      "http://localhost:5173",                       
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }));
+
+  app.use(vite.middlewares);
+  app.use("*", async (req, res, next) => {
+    const url = req.originalUrl;
+
+    // Skip API routes and static assets
+    if (url.startsWith('/api/') || url.startsWith('/assets/') || url.startsWith('/src/') || url.includes('.')) {
+      return next();
+    }
+
+    try {
+      const clientTemplate = path.resolve(
+        import.meta.dirname,
+        "..",
+        "client",
+        "index.html",
+      );
+
+      let template = await fs.promises.readFile(clientTemplate, "utf-8");
+      template = template.replace(
+        `src="/src/main.tsx"`,
+        `src="/src/main.tsx?v=${nanoid()}"`,
+      );
+      const page = await vite.transformIndexHtml(url, template);
+      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+    } catch (e) {
+      vite.ssrFixStacktrace(e as Error);
+      next(e);
+    }
+  });
+}
+
+export function serveStatic(app: Express) {
+  const distPath = path.resolve(import.meta.dirname, "..", "dist", "public");
+
+  if (!fs.existsSync(distPath)) {
+    throw new Error(
+      `Could not find the build directory: ${distPath}, make sure to build the client first`,
+    );
+  }
+app.use(cors({
+    origin: [
+      "https://brandingbeez-official.onrender.com",
+      "http://localhost:5173",
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  }));
+
+  app.use(express.static(distPath));
+
+  app.use("*", (_req, res) => {
+    res.sendFile(path.resolve(distPath, "index.html"));
+  });
+}
+ -->
+
+
+
+<!-- //     <?xml version="1.0" encoding="UTF-8"?>
+// <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+//   <url>
+//     <loc>https://brandingbeez.co.uk/</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>weekly</changefreq>
+//     <priority>1.0</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>weekly</changefreq>
+//     <priority>0.9</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/ai-development</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/web-development</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/google-ads</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/seo</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/services/dedicated-resources</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/about</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.7</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/contact</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.7</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/blog</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>weekly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/case-studies</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.7</priority>
+//   </url>
+//   <url>
+//     <loc>https://brandingbeez.co.uk/pricing</loc>
+//     <lastmod>2025-08-26</lastmod>
+//     <changefreq>monthly</changefreq>
+//     <priority>0.8</priority>
+//   </url>
+// </urlset> -->
+
+
+
+<!-- 
+/* ---------------- Snow (kept as-is, but still heavy if enabled) ---------------- */
+.snowflake {
+  position: absolute;
+  top: -10%;
+  color: #ffffff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  animation-name: snowfall-diagonal;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  z-index: 999;
+  user-select: none;
+  animation-duration: 50s !important;
+}
+
+@keyframes snowfall-diagonal {
+  0% {
+    transform: translate3d(30vw, -100%, 0) rotate(0deg);
+  }
+
+  100% {
+    transform: translate3d(-20vw, 110vh, 0) rotate(360deg);
+  }
+}
+
+/* ---------------- Glowing Snow Particles ---------------- */
+.snow-particle {
+  position: absolute;
+  top: 20%;
+  border-radius: 9999px;
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.4) 45%,
+      rgba(255, 255, 255, 0) 70%);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9), 0 0 18px rgba(255, 255, 255, 0.6);
+  animation-name: snowfall-drift-diagonal;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0.4;
+  animation-duration: 50s !important;
+}
+
+@keyframes snowfall-drift-diagonal {
+  0% {
+    transform: translate3d(20vw, -100%, 0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate3d(-30vw, 110vh, 0);
+    opacity: 0;
+  }
+}
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap'); */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+
+/* 🔥 Force toast above Radix Dialog overlay */
+[data-radix-portal]~.react-hot-toast {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Radix dialog overlay fix (keep below toast) */
+[data-radix-dialog-overlay] {
+  z-index: 1000 !important;
+}
+
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(222, 84%, 4.9%);
+  --muted: hsl(210, 40%, 98%);
+  --muted-foreground: hsl(215, 13.8%, 34.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(222, 84%, 4.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(222, 84%, 4.9%);
+  --border: hsl(214, 32%, 91%);
+  --input: hsl(214, 32%, 91%);
+  /* BrandingBeez brand colors extracted from logo */
+  --brand-coral: hsl(351, 83%, 61%);
+  --brand-coral-dark: hsl(351, 83%, 51%);
+  --brand-coral-darker: hsl(351, 83%, 41%);
+  /* For better contrast on light backgrounds */
+  --brand-coral-light: hsl(351, 83%, 71%);
+  --brand-coral-custom: hsl(351, 83%, 41%);
+  /* Darker coral for better contrast */
+  --brand-purple: hsl(259, 60%, 25%);
+  --brand-purple-light: hsl(259, 60%, 35%);
+  --brand-yellow: hsl(51, 100%, 50%);
+  --brand-yellow-dark: hsl(51, 100%, 40%);
+  --brand-wings: hsl(340, 50%, 94%);
+
+  /* Updated theme colors using BrandingBeez brand */
+  --primary: hsl(351, 83%, 61%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(259, 60%, 25%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(51, 100%, 50%);
+  --accent-foreground: hsl(259, 60%, 25%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(351, 83%, 61%);
+  --radius: 0.5rem;
+}
+
+.snowflake {
+  position: absolute;
+  top: -10%;
+  color: #ffffff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+  animation-name: snowfall-diagonal;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  z-index: 999;
+  user-select: none;
+  animation-duration: 50s !important;
+}
+
+@keyframes snowfall-diagonal {
+  0% {
+    transform: translate3d(30vw, -100%, 0) rotate(0deg);
+  }
+
+  100% {
+    transform: translate3d(-20vw, 110vh, 0) rotate(360deg);
+  }
+}
+
+/* ---------------- Glowing Snow Particles ---------------- */
+
+.snow-particle {
+  position: absolute;
+  top: 20%;
+  border-radius: 9999px;
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.4) 45%,
+      rgba(255, 255, 255, 0) 70%);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.9),
+    0 0 18px rgba(255, 255, 255, 0.6);
+  animation-name: snowfall-drift-diagonal;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  opacity: 0.4;
+  animation-duration: 50s !important;
+}
+
+@keyframes snowfall-drift-diagonal {
+  0% {
+    transform: translate3d(20vw, -100%, 0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: translate3d(-30vw, 110vh, 0);
+    opacity: 0;
+  }
+}
+
+/* Hide scrollbars universally but keep scroll behavior */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+
+.scrollbar-smooth {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/* Optimized font declaration with fallback to prevent layout shift */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Custom Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #ff6f61;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #ff4f45;
+}
+
+/* Consistent Button Styles */
+.btn-primary {
+  @apply bg-gradient-to-r from-brand-coral to-pink-500 text-white font-semibold px-6 py-3 rounded-lg shadow-lg;
+}
+
+.btn-secondary {
+  @apply bg-white text-brand-coral border-2 border-brand-coral font-semibold px-6 py-3 rounded-lg;
+}
+
+.btn-outline {
+  @apply border-2 border-brand-coral text-brand-coral px-6 py-3 rounded-lg;
+}
+
+/* Consistent Text Styles */
+.text-h1 {
+  @apply text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight;
+}
+
+.text-h2 {
+  @apply text-3xl md:text-4xl font-bold text-gray-900 leading-tight;
+}
+
+.text-h3 {
+  @apply text-2xl md:text-3xl font-bold text-gray-900 leading-tight;
+}
+
+.text-body {
+  @apply text-lg text-gray-700 leading-relaxed;
+}
+
+/* Core optimizations */
+
+/* Consistent Card Styles */
+.card-default {
+  @apply bg-white rounded-xl shadow-lg border border-gray-100;
+}
+
+.card-gradient {
+  @apply bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border border-gray-100;
+}
+
+/* Consistent Stats Styles */
+.stats-number {
+  @apply text-4xl md:text-5xl font-bold text-brand-coral mb-2;
+}
+
+.stats-label {
+  @apply text-sm md:text-base text-gray-700 font-medium;
+}
+
+.stats-container {
+  @apply text-center p-6 bg-white rounded-lg shadow-sm border border-gray-100;
+}
+
+/* Consistent Icon Styles */
+.icon-container {
+  @apply w-12 h-12 rounded-lg flex items-center justify-center mb-4;
+  background-color: hsl(var(--brand-coral) / 0.1);
+}
+
+.icon-container-large {
+  @apply w-16 h-16 rounded-xl flex items-center justify-center mb-6;
+  background-color: hsl(var(--brand-coral) / 0.1);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+/* Image display fixes to prevent disappearing */
+img {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Ensure partner logo containers maintain their size */
+.partner-logo-container {
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Optimized animations with reduced motion support */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-3px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.1) 100%);
+  background-size: 200px 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+
+/* @keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+} */
+
+/* @keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+} */
+
+@keyframes gradient-shift {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* .animate-shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 1000px 100%;
+} */
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+
+  .animate-float,
+  .animate-shimmer,
+  .animate-gradient-shift,
+  .animate-marquee {
+    animation: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Essential performance optimizations - simplified */
+* {
+  box-sizing: border-box
+}
+
+/* Optimized font loading - prevent layout shift */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: fallback;
+  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+  unicode-range: U+0000-00FF;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: fallback;
+  src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2') format('woff2');
+  unicode-range: U+0000-00FF;
+}
+
+/* Optimize rendering performance */
+.performance-layer {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.animate-gradient {
+  animation: gradient-shift 6s ease infinite;
+  background-size: 200% 200%;
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+.card-hover-effect {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.dark {
+  --background: hsl(222, 84%, 4.9%);
+  --foreground: hsl(210, 40%, 98%);
+  --muted: hsl(217, 32%, 17%);
+  --muted-foreground: hsl(215, 20%, 65%);
+  --popover: hsl(222, 84%, 4.9%);
+  --popover-foreground: hsl(210, 40%, 98%);
+  --card: hsl(222, 84%, 4.9%);
+  --card-foreground: hsl(210, 40%, 98%);
+  --border: hsl(217, 32%, 17%);
+  --input: hsl(217, 32%, 17%);
+  --primary: hsl(351, 83%, 61%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(259, 60%, 25%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(51, 100%, 50%);
+  --accent-foreground: hsl(259, 60%, 25%);
+  --destructive: hsl(0, 62%, 30%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(351, 83%, 61%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Brand color utilities */
+.bg-brand-coral {
+  background-color: var(--brand-coral);
+}
+
+.bg-brand-coral-dark {
+  background-color: var(--brand-coral-dark);
+}
+
+.bg-brand-coral-darker {
+  background-color: var(--brand-coral-darker);
+}
+
+.bg-brand-coral-light {
+  background-color: var(--brand-coral-light);
+}
+
+.bg-brand-coral-custom {
+  background-color: var(--brand-coral-custom);
+}
+
+.bg-brand-purple {
+  background-color: var(--brand-purple);
+}
+
+.bg-brand-yellow {
+  background-color: var(--brand-yellow);
+}
+
+.text-brand-coral {
+  color: var(--brand-coral);
+}
+
+.text-brand-coral-dark {
+  color: var(--brand-coral-dark);
+}
+
+.text-brand-coral-darker {
+  color: var(--brand-coral-darker);
+}
+
+.text-brand-purple {
+  color: var(--brand-purple);
+}
+
+.text-brand-yellow {
+  color: var(--brand-yellow);
+}
+
+.border-brand-coral {
+  border-color: var(--brand-coral);
+}
+
+.hover\:bg-brand-coral-dark:hover {
+  background-color: var(--brand-coral-dark);
+}
+
+.hover\:text-brand-coral:hover {
+  color: var(--brand-coral);
+}
+
+.hover\:text-brand-coral-dark:hover {
+  color: var(--brand-coral-dark);
+}
+
+.hover\:text-brand-coral-darker:hover {
+  color: var(--brand-coral-darker);
+}
+
+/* Optimized animations for performance */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-10px) scale(1.05);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 20s linear infinite;
+  will-change: transform;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Performance optimizations */
+.optimize-animations {
+  contain: layout style paint;
+  will-change: transform;
+}
+
+.reduce-blur {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* GPU acceleration for better performance */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Calendly custom styles */
+.calendly-inline-widget {
+  min-height: 630px;
+  width: 100%;
+}
+
+/* Optimized image loading */
+img[loading="lazy"] {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+img[loading="lazy"].loaded,
+img[loading="lazy"]:not([src=""]) {
+  opacity: 1;
+}
+
+/* Image optimization */
+picture {
+  display: contents;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  font-style: italic;
+  background-repeat: no-repeat;
+  background-size: cover;
+  shape-margin: 0.75rem;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+
+  .animate-float,
+  .animate-pulse,
+  .animate-scroll {
+    animation: none !important;
+  }
+
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Optimize font rendering */
+body {
+  font-display: swap;
+  text-rendering: optimizeSpeed;
+}
+
+/* Content visibility for off-screen elements */
+.off-screen {
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
+}
+
+/* Loading skeletons for better perceived performance */
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading-shimmer 1.5s infinite;
+  border-radius: 0.5rem;
+}
+
+@keyframes loading-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.dark .loading-skeleton {
+  background: linear-gradient(90deg, #2a2a2a 25%, #3a3a3a 50%, #2a2a2a 75%);
+  background-size: 200% 100%;
+}
+
+/* Error suppression for better UX */
+.error-suppression {
+  display: none !important;
+}
+
+/* BrandingBeez Popup - Cross-device styles */
+/* Ensure popup appears on top of all content */
+.popup-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  z-index: 9999 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  padding-top: 20px !important;
+  /* Hardware acceleration */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Smooth backdrop blur */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.popup-modal {
+  position: relative !important;
+  z-index: 10000 !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  /* Smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Popup animations for all devices */
+.popup-enter {
+  animation: popupSlideInTop 0.3s ease-out;
+}
+
+.popup-exit {
+  animation: popupSlideOutTop 0.2s ease-in;
+}
+
+@keyframes popupSlideInTop {
+  from {
+    transform: translateY(-100%) translateX(-50%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0) translateX(-50%);
+    opacity: 1;
+  }
+}
+
+@keyframes popupSlideOutTop {
+  from {
+    transform: translateY(0) translateX(-50%);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(-100%) translateX(-50%);
+    opacity: 0;
+  }
+}
+
+/* Cross-device responsive design */
+@media (max-width: 768px) {
+  .popup-overlay {
+    padding-top: 10px !important;
+  }
+
+  .popup-modal {
+    width: calc(100% - 2rem) !important;
+    max-width: none !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .popup-modal {
+    width: 100% !important;
+    max-width: 28rem !important;
+  }
+}
+
+/* Accessibility improvements for all devices */
+.popup-modal {
+
+  /* Ensure adequate touch targets */
+  button,
+  [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Better focus visibility */
+  button:focus,
+  input:focus,
+  [role="button"]:focus {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+
+  .popup-enter,
+  .popup-exit {
+    animation: none;
+  }
+
+  .popup-overlay,
+  .popup-modal {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .popup-overlay {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
+
+  .popup-modal {
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* ===============================
+   MOBILE-FIRST POPUP ENHANCEMENTS
+   =============================== */
+
+/* Mobile-specific popup optimizations */
+.mobile-popup-overlay {
+  /* Enhanced mobile touch optimization */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+
+  /* Safe area handling for modern mobile devices */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.mobile-popup-modal {
+  /* Hardware acceleration for smooth animations */
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+
+  /* Touch optimization */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: pan-y;
+}
+
+/* Mobile viewport optimizations */
+@media screen and (max-width: 768px) {
+  .mobile-popup-overlay {
+    /* Better mobile positioning */
+    padding: 0.5rem;
+  }
+
+  .mobile-popup-modal {
+    /* Full-width on small screens */
+    left: 0.5rem;
+    right: 0.5rem;
+    top: 0.5rem;
+    max-width: none;
+    width: auto;
+  }
+
+  /* Enhanced touch targets for mobile */
+  .mobile-popup-modal button {
+    min-height: 44px;
+    /* iOS recommended touch target */
+    min-width: 44px;
+  }
+
+  /* Improved input fields for mobile */
+  .mobile-popup-modal input[type="email"] {
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+    line-height: 1.5;
+  }
+}
+
+/* Small mobile devices */
+@media screen and (max-width: 480px) {
+  .mobile-popup-modal {
+    left: 0.25rem;
+    right: 0.25rem;
+    top: 0.25rem;
+  }
+
+  /* Smaller padding on very small screens */
+  .mobile-popup-modal .p-4 {
+    padding: 0.75rem;
+  }
+}
+
+/* Landscape mobile orientation */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .mobile-popup-overlay {
+    padding-top: 0.25rem;
+  }
+
+  .mobile-popup-modal {
+    top: 0.25rem;
+    max-height: calc(100vh - 0.5rem);
+  }
+}
+
+/* Performance enhancements */
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-popup-modal {
+    /* Smooth entrance animation */
+    animation: mobilePopupSlideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+}
+
+@keyframes mobilePopupSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Accessibility enhancements */
+@media (prefers-contrast: high) {
+  .mobile-popup-modal {
+    border: 3px solid #000;
+  }
+
+  .mobile-popup-modal button {
+    border: 2px solid;
+  }
+}
+
+/* Focus management for mobile popup */
+.mobile-popup-modal:focus-within {
+  outline: none;
+}
+
+.mobile-popup-modal [tabindex="0"]:focus,
+.mobile-popup-modal button:focus,
+.mobile-popup-modal input:focus {
+  outline: 3px solid #f97316;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Enhanced progress indicator for mobile */
+.mobile-popup-modal .progress-step {
+  transition: all 0.3s ease-in-out;
+}
+
+.mobile-popup-modal .progress-step.active {
+  transform: scale(1.2);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+}
+
+ -->

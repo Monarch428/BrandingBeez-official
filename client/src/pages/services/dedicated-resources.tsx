@@ -39,6 +39,11 @@ import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection } from "@/components/phase-slider-section";
+import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
+import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+import { LazyYouTube } from "@/components/LazyYouTube";
+// import DR_Image from "../../../public/images/D"
+
 
 export default function DedicatedResources() {
   const [currentPhase, setCurrentPhase] = useState(0);
@@ -258,7 +263,7 @@ export default function DedicatedResources() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={DedicatedResourcesSchema} />
-        <Header />
+        {/* <Header /> */}
         <main>
           {/* Hero Section */}
           <section className="py-14 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -290,6 +295,28 @@ export default function DedicatedResources() {
                     </div>
                   </div>
 
+                  {/* Key Benefits */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        100% White-Label Delivery
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        24 Hours Start Time
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        Dedicated Team Setup
+                      </span>
+                    </div>
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                     <Link href="/pricing-calculator?service=dedicated-resources">
                       <Button
@@ -311,20 +338,46 @@ export default function DedicatedResources() {
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
+                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                    <div className="flex justify-end">
+                      <img
+                        src={Whitelabel_Image}
+                        alt="White Label Delivery"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="flex justify-center px-0">
+                      <img
+                        src={Hours_24_Image}
+                        alt="24 Hours Start Time"
+                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                      />
+                    </div>
+
+                     <div className="flex justify-start">
+                      <img
+                        src={WEB_Image}
+                        alt="Dedicated SEO Resource"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div> 
+                  </div> */}
                 </div>
 
                 <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
-                    <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                      <iframe
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/o1pOaGyjVuQ"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                      />
-                    </div>
+                      /> */}
+                      <LazyYouTube videoId="o1pOaGyjVuQ" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>
@@ -1219,7 +1272,7 @@ export default function DedicatedResources() {
 
                     <div className="mt-auto pt-6 sm:pt-8 border-t border-brand-purple/10">
                       <div className="flex flex-col gap-3">
-                        <Link href="/pricing-calculator">
+                        <Link href="/pricing-calculator?service=dedicated-resources">
                           <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
                             Get Started
                           </Button>
@@ -1286,7 +1339,7 @@ export default function DedicatedResources() {
 
                     <div className="mt-auto pt-6 sm:pt-8 border-t border-brand-purple/10">
                       <div className="flex flex-col gap-3">
-                        <Link href="/pricing-calculator">
+                        <Link href="/pricing-calculator?service=dedicated-resources">
                           <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
                             Build Your Team
                           </Button>
@@ -1347,7 +1400,7 @@ export default function DedicatedResources() {
 
                     <div className="mt-auto pt-6 sm:pt-8 border-t border-brand-purple/10">
                       <div className="flex flex-col gap-3">
-                        <Link href="/pricing-calculator">
+                        <Link href="/pricing-calculator?service=dedicated-resources">
                           <Button className="w-full h-11 px-4 text-sm font-medium bg-brand-coral hover:bg-brand-coral text-white transition-all duration-300">
                             Scale Your Team
                           </Button>
@@ -1374,7 +1427,7 @@ export default function DedicatedResources() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 lg:gap-12 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-0 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
                   <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
                     Dedicated Resources – FAQs
@@ -1492,7 +1545,7 @@ export default function DedicatedResources() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

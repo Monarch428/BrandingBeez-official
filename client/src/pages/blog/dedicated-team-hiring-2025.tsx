@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRegion } from "@/hooks/use-region";
@@ -249,7 +249,7 @@ Hiring a dedicated team can transform the way your business operates. Whether yo
         content="Learn how to hire a dedicated team — from software developers to SEO specialists — and build a high-performing workforce in 2025. Discover the benefits, hiring process, and success tips for businesses of all sizes."
       />
 
-      <Header />
+      {/* <Header /> */}
 
       {/* Article Header */}
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -332,7 +332,7 @@ Hiring a dedicated team can transform the way your business operates. Whether yo
         </div>
       </article>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

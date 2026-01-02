@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRegion } from "@/hooks/use-region";
@@ -20,7 +20,6 @@ import {
   Eye,
   AlertTriangle,
   CheckCircle,
-  ArrowRight,
   Globe,
   Users
 } from "lucide-react";
@@ -143,7 +142,7 @@ export default function AdFatigueDigitalMarketingBlog() {
         }`}
       </script>
       
-      <Header />
+      {/* <Header /> */}
       
       {/* Article Header */}
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -546,7 +545,7 @@ export default function AdFatigueDigitalMarketingBlog() {
         </div>
       </article>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

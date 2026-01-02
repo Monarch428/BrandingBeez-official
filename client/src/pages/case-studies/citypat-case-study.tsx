@@ -597,10 +597,10 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   TrendingUp,
@@ -609,22 +609,16 @@ import {
   BarChart3,
   CheckCircle,
   ArrowRight,
-  Star,
   Quote,
   Users,
-  Calendar,
   Globe,
-  Zap,
   Settings,
   Eye,
   MousePointer,
   Award,
-  ExternalLink,
   MapPin,
   Building,
-  Clock,
   Shield,
-  Lightbulb,
   FileText,
 } from "lucide-react";
 import citypatPerformanceImage from "@assets/citypat-seo-case-study_1754120721661.png";
@@ -663,7 +657,7 @@ export default function CitypatCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={CitypatSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-0">
           {/* Hero Section */}
@@ -1245,7 +1239,7 @@ export default function CitypatCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

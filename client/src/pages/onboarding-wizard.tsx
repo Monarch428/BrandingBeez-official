@@ -15,7 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Link } from "wouter";
-import { Header } from "@/components/header";
+// import { Header } from "@/components/header";
 import { CustomQuoteModal } from "@/components/custom-quote-modal";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
@@ -641,7 +641,7 @@ export default function OnboardingWizard() {
   if (recommendations.length > 0) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-        <Header />
+        {/* <Header /> */}
         <div className="py-6 sm:py-12">
           <div className="container mx-auto px-3 sm:px-4 max-w-5xl">
             <div className="text-center mb-6 sm:mb-8">
@@ -879,7 +879,7 @@ export default function OnboardingWizard() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={OnboardingWizardSchema} />
-        <Header />
+        {/* <Header /> */}
         <div className="py-6 sm:py-12">
           <div className="container mx-auto px-3 sm:px-4 max-w-2xl">
             <div className="text-center mb-6 sm:mb-8">

@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,21 +11,20 @@ import {
   Target,
   CheckCircle,
   Calendar,
-  Monitor,
   MessageSquare,
   Zap,
-  Building,
   Quote,
   Video,
   Clock,
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
-import { SchemaMarkup } from "@/components/schema-markup";
+// import { SchemaMarkup } from "@/components/schema-markup";
 // TODO: create this schema in your all-schemas file
 // import { FSEDigitalPpcSchema } from "@/utils/all-schemas";
-import FSELogo from "../../../public/images/FSE-Digital-Logo.jpg";
+// import FSELogo from "../../../public/images/FSE-Digital-Logo.jpg";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 export default function FSEDigitalPpcCaseStudy() {
   return (
@@ -53,7 +52,7 @@ export default function FSEDigitalPpcCaseStudy() {
         />
         {/* <SchemaMarkup type="custom" data={FSEDigitalPpcSchema} /> */}
 
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -120,7 +119,7 @@ export default function FSEDigitalPpcCaseStudy() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+                {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-white flex items-center justify-center text-brand-purple font-bold text-xl p-1">
                       <img src={FSELogo} alt="FSE Digital Logo" />
@@ -149,6 +148,21 @@ export default function FSEDigitalPpcCaseStudy() {
                       <Monitor className="w-5 h-5 text-white/80" />
                       <span>Works fully under FSE Digital’s brand</span>
                     </div>
+                  </div>
+                </div> */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/RkP9jTtCVhE"
+                        title="FSE Digital Case Study | Branding Beez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      /> */}
+                      <LazyYouTube videoId="RkP9jTtCVhE" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>
@@ -799,7 +813,7 @@ export default function FSEDigitalPpcCaseStudy() {
           </section>
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

@@ -25,7 +25,7 @@ export function optimizeCriticalChain(): void {
       crossorigin: true
     },
     {
-      href: 'https://assets.calendly.com/assets/external/widget.css', 
+      href: 'https://assets.calendly.com/assets/external/widget.css',
       as: 'style',
       crossorigin: true
     }

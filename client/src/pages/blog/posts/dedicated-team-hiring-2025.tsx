@@ -1,6 +1,6 @@
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useRegion } from "@/hooks/use-region";
@@ -22,7 +22,7 @@ export const blogPostData = {
   title: "How To Hire a Dedicated Team And Build a High-Performing Workforce in 2025",
   subtitle: "Complete guide to building dedicated offshore teams",
   excerpt: "Learn how to hire a dedicated team — from software developers to SEO specialists — and build a high-performing workforce in 2025. Discover the benefits, hiring process, and success tips for businesses of all sizes.",
-  imageUrl: "/enhanced-operational-efficiency.webp",
+  imageUrl: "", ///enhanced-operational-efficiency.webp
   tags: ["Dedicated Teams", "Workforce Management", "Hiring", "Remote Teams"],
   author: "Workforce Strategy Team",
   readTime: 8,
@@ -60,7 +60,7 @@ export default function DedicatedTeamHiringBlog() {
       <title>{blogPostData.metaTitle}</title>
       <meta name="description" content={blogPostData.metaDescription} />
       
-      <Header />
+      {/* <Header /> */}
       
       <section className="py-8 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
         <div className="max-w-4xl mx-auto">
@@ -150,7 +150,7 @@ export default function DedicatedTeamHiringBlog() {
         </div>
       </article>
       
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

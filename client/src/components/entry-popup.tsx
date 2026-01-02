@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Star, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,14 +15,42 @@ interface EntryPopupProps {
 const ENTRY_SUBMITTED_KEY = "entryPopup_submitted"; // localStorage
 const ENTRY_CLOSED_KEY = "entryPopup_closed"; // sessionStorage
 
+// ✅ Safe storage helpers (prevents SecurityError -> white screen)
+function safeGet(storage: Storage | undefined, key: string) {
+  try {
+    if (!storage) return null;
+    return storage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function safeSet(storage: Storage | undefined, key: string, value: string) {
+  try {
+    if (!storage) return;
+    storage.setItem(key, value);
+  } catch {
+    // ignore
+  }
+}
+
+function safeRemove(storage: Storage | undefined, key: string) {
+  try {
+    if (!storage) return;
+    storage.removeItem(key);
+  } catch {
+    // ignore
+  }
+}
+
 function hasEntrySubmitted() {
   if (typeof window === "undefined") return false;
-  return window.localStorage.getItem(ENTRY_SUBMITTED_KEY) === "1";
+  return safeGet(window.localStorage, ENTRY_SUBMITTED_KEY) === "1";
 }
 
 function hasEntryClosedThisSession() {
   if (typeof window === "undefined") return false;
-  return window.sessionStorage.getItem(ENTRY_CLOSED_KEY) === "1";
+  return safeGet(window.sessionStorage, ENTRY_CLOSED_KEY) === "1";
 }
 
 export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
@@ -74,8 +103,8 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
 
       // ✅ Submitted => persist forever (doesn't show again)
       if (typeof window !== "undefined") {
-        window.localStorage.setItem(ENTRY_SUBMITTED_KEY, "1");
-        window.sessionStorage.removeItem(ENTRY_CLOSED_KEY);
+        safeSet(window.localStorage, ENTRY_SUBMITTED_KEY, "1");
+        safeRemove(window.sessionStorage, ENTRY_CLOSED_KEY);
       }
 
       toast({
@@ -118,7 +147,7 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   const handleClose = () => {
     // ✅ Closed => only hide for this tab session
     if (typeof window !== "undefined") {
-      window.sessionStorage.setItem(ENTRY_CLOSED_KEY, "1");
+      safeSet(window.sessionStorage, ENTRY_CLOSED_KEY, "1");
     }
 
     resetPopup();
@@ -134,20 +163,21 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   if (hasEntrySubmitted()) return null;
   if (hasEntryClosedThisSession()) return null;
 
-  return (
-    /* ---------- Fixed fullscreen wrapper (overlay + top-aligned modal) ---------- */
-    // `items-start` anchors modal to top; `pt-24` nudges it down into the hero area
-    <div className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-24">
-      {/* Full-viewport overlay (below modal) */}
+  // ✅ Portal target
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+      {/* Overlay */}
       <div
         className="absolute inset-0 z-40 bg-black/40"
         onClick={handleClose}
         aria-hidden="true"
       />
 
-      {/* Modal shell (anchored near top) */}
+      {/* Modal shell (viewport centered) */}
       <div className="relative z-50 max-w-lg w-full mx-4">
-        <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl">
+        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl">
           {/* Close button */}
           <button
             onClick={handleClose}
@@ -157,9 +187,9 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
             <X size={20} />
           </button>
 
-          {/* Scrollable content area - important: max-h + overflow here */}
-          <div className="modal-content max-h-[80vh] overflow-auto">
-            {/* Step 1: Welcome & Value Proposition */}
+          {/* Scrollable content area */}
+          <div className="modal-content max-h-[90vh] overflow-auto">
+            {/* Step 1 */}
             {step === 1 && (
               <div className="p-6">
                 <div className="text-center mb-6">
@@ -232,7 +262,7 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
               </div>
             )}
 
-            {/* Step 2: Interest Selection & Email Capture */}
+            {/* Step 2 */}
             {step === 2 && (
               <div className="p-6">
                 <div className="text-center mb-4">
@@ -288,7 +318,7 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
               </div>
             )}
 
-            {/* Step 3: Success & Next Steps */}
+            {/* Step 3 */}
             {step === 3 && (
               <div className="p-6 text-center">
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -351,9 +381,9 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
               </div>
             </div>
           </div>
-          {/* end modal-content */}
         </div>
       </div>
-    </div>
+    </div>,
+    (document.body || document.documentElement)
   );
 }

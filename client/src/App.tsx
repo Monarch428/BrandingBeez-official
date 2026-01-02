@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect, Suspense, lazy } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import { apiRequest, queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { AppToastProvider } from "@/components/ui/toaster";
@@ -20,7 +20,6 @@ import ErrorBoundary from "@/components/error-boundary";
 // CRITICAL: Only import home page immediately (above the fold)
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
-import FestiveSnowOverlay from "./components/FestiveSnowOverlay";
 import BeeLoadingScreen from "./components/BeeLoadingScreen";
 import { ThankYouProvider } from "./context/thank-you-context";
 import { SeoCaseStudyPage } from "./pages/case-studies/seo-case-studies/[slug]";
@@ -144,48 +143,48 @@ const LazyRoute = ({
   </Suspense>
 );
 
-// 🌨 Global snowfall overlay (for Christmas month)
-const SnowfallOverlay = () => {
-  const flakes = Array.from({ length: 80 });
+/**
+ * ✅ NEW: isolates popup layer so popup crash never white-screens the full site
+ */
+class SafePopupBoundary extends React.Component<
+  { children: React.ReactNode; name: string },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; name: string }) {
+    super(props);
+    this.state = { hasError: false };
+  }
 
-  return (
-    <div className="pointer-events-none fixed inset-0 z-[60] overflow-hidden">
-      {flakes.map((_, index) => (
-        <span
-          key={index}
-          className="snowflake select-none"
-          style={{
-            left: `${Math.random() * 100}%`,
-            animationDuration: `${10 + Math.random() * 20}s`,
-            animationDelay: `${Math.random() * -20}s`,
-            fontSize: `${12 + Math.random() * 24}px`,
-            opacity: 0.3 + Math.random() * 0.7,
-          }}
-        >
-          ❄
-        </span>
-      ))}
-    </div>
-  );
-};
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: unknown) {
+    console.warn(`[SafePopupBoundary] ${this.props.name} crashed (isolated).`, error);
+  }
+
+  render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
+
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 
 function Router() {
   const [location] = useLocation();
 
-  // Debug current route
-  useEffect(() => {
-    console.log("🚀 Current route:", location);
-    if (location === "/newsletter") {
-      console.log("📧 Newsletter route matched!");
-    }
-  }, [location]);
-
-  // Scroll to top whenever the route changes
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
-  return (
+  // routes that should NOT show header/footer
+  const hideChrome =
+    location === "/loader" ||
+    location.startsWith("/admin"); // add more if needed
+
+  const Content = (
     <Switch>
       {/* CRITICAL: Home page loads immediately */}
       <Route
@@ -194,7 +193,7 @@ function Router() {
       />
       <Route path="/" component={Home} />
       <Route path="/loader" component={BeeLoadingScreen} />
-      <Route path="/case-studies" component={CaseStudyCardsPage} />
+      <Route path="/admin/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
       <Route path="/web-case-study/:slug" component={WebCaseStudySlugPage} />
@@ -218,7 +217,7 @@ function Router() {
       <Route path="/blog/:slug" component={DynamicBlogPostPage} />
 
       {/* Case Studies */}
-      <Route path="/case-studies" component={() => <LazyRoute component={CaseStudies} />} />
+      {/* <Route path="/case-studies" component={() => <LazyRoute component={CaseStudies} />} /> */}
       <Route path="/case-studies/seo-case-study" component={() => <LazyRoute component={SEOCaseStudy} />} />
       <Route path="/case-studies/scuba-diving-case-study" component={() => <LazyRoute component={ScubaDivingCaseStudy} />} />
       <Route path="/case-studies/stat-planning-case-study" component={() => <LazyRoute component={StatPlanningCaseStudy} />} />
@@ -271,7 +270,18 @@ function Router() {
       <Route component={NotFound} />
     </Switch>
   );
+
+  if (hideChrome) return Content;
+
+  return (
+    <>
+      <Header />
+      <main>{Content}</main>
+      <Footer />
+    </>
+  );
 }
+
 
 function App() {
   const {
@@ -287,7 +297,8 @@ function App() {
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-      event.preventDefault();
+      // ✅ IMPORTANT: do NOT preventDefault here — it hides real runtime errors and chunk-load issues
+      // event.preventDefault();
     };
 
     const handleError = (event: ErrorEvent) => {
@@ -311,14 +322,24 @@ function App() {
             <AppToastProvider>
               <ThankYouProvider>
                 <CriticalPathOptimizer />
+
                 <PerformanceOptimizer />
 
                 <Router />
                 <CookieConsent />
 
-                <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
-                <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
-                <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+                {/* ✅ Isolated so popup crashes can't white-screen the site */}
+                {/* <SafePopupBoundary name="EntryPopup">
+                  <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
+                </SafePopupBoundary> */}
+
+                <SafePopupBoundary name="ExitIntentPopup">
+                  <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
+                </SafePopupBoundary>
+
+                {/* <SafePopupBoundary name="MobilePopup">
+                  <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />
+                </SafePopupBoundary> */}
               </ThankYouProvider>
             </AppToastProvider>
           </TooltipProvider>

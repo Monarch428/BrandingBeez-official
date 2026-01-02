@@ -166,7 +166,7 @@ export default function HomeOptimized() {
         }}
       />
       
-      <Header />
+      {/* <Header /> */}
       
       <main>
         {/* Hero Section with Optimized CTA */}

@@ -34,6 +34,11 @@ import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-section";
+import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
+import Hours_24_Image from "../../../public/images/24 hour Start time.png";
+import PPC_Image from "../../../public/images/DEDICATED PPC SPECIALIST.png"
+import { LazyYouTube } from "@/components/LazyYouTube";
+
 
 // Featured Google Ads client data
 const featuredClient = {
@@ -372,7 +377,7 @@ export default function GoogleAds() {
             ]
           }
         }} />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
 
           {/* Featured Google Ads Client Section */}
@@ -405,6 +410,28 @@ export default function GoogleAds() {
                     Trusted by UK &amp; US agencies to deliver profitable Google Ads campaigns for law firms,
                     local services, e-commerce brands, and high-intent leads.
                   </p>
+
+                  {/* Key Benefits */}
+                  <div className="space-y-3 mb-8">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        100% White-Label Delivery
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        24 Hours Start Time
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="w-5 h-5 text-brand-yellow" />
+                      <span className="text-sm sm:text-base text-white">
+                        Dedicated PPC Specialist
+                      </span>
+                    </div>
+                  </div>
 
                   {/* CTA Buttons */}
                   <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
@@ -444,6 +471,31 @@ export default function GoogleAds() {
                       No Direct Client Contact
                     </span>
                   </div> */}
+                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
+                    <div className="flex justify-end">
+                      <img
+                        src={Whitelabel_Image}
+                        alt="White Label Delivery"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="flex justify-center px-0">
+                      <img
+                        src={Hours_24_Image}
+                        alt="24 Hours Start Time"
+                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
+                      />
+                    </div>
+
+                    <div className="flex justify-start">
+                      <img
+                        src={PPC_Image}
+                        alt="Dedicated SEO Resource"
+                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
+                      />
+                    </div>
+                  </div> */}
                 </div>
 
                 {/* Right: Results Card */}
@@ -451,16 +503,17 @@ export default function GoogleAds() {
                   <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
                     {/* VIDEO ALWAYS SHOWN */}
                     <div className="mb-0">
-                      <div className="w-full h-52 md:h-76 lg:h-[350px] rounded-xl overflow-hidden shadow-lg">
-                        <iframe
+                      {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[305px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
                           className="w-full h-full"
                           src="https://www.youtube.com/embed/8CRaG4x_IXA?rel=0&modestbranding=1"
                           title="PPC / Google Ads Overview"
                           loading="lazy"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
-                        />
-                      </div>
+                        /> */}
+                      <LazyYouTube videoId="8CRaG4x_IXA" />
+                      {/* </div> */}
                     </div>
                   </div>
                 </div>
@@ -550,7 +603,7 @@ export default function GoogleAds() {
                         <li className="flex items-start gap-3">
                           <CheckCircle className="w-5 h-5 mt-0.5 text-brand-coral flex-shrink-0" />
                           <span>
-                            Direct access to PPC specialists — not account managers only
+                            Direct access to PPC specialists not account managers only
                           </span>
                         </li>
                       </ul>
@@ -1152,7 +1205,7 @@ export default function GoogleAds() {
             <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.1fr,1fr] items-start">
               {/* Left – intro / highlight */}
               <div>
-                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-4 py-2 mb-4">
+                <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-0 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
                   <span className="text-s font-bold tracking-wide uppercase text-brand-purple">
                     White-Label PPC – FAQs
@@ -1375,7 +1428,7 @@ export default function GoogleAds() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

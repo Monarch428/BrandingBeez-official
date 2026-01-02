@@ -523,15 +523,15 @@
 
 
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+// import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -543,14 +543,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Phone,
   Mail,
-  MapPin,
   Clock,
   Gift,
-  CheckCircle,
-  Star,
-  Globe,
   Users,
-  Zap,
   ArrowRight,
   Handshake,
 } from "lucide-react";
@@ -716,7 +711,7 @@ export default function Contact() {
           ogType="website"
         />
         <SchemaMarkup type="custom" data={ContactPageSchema} />
-        <Header />
+        {/* <Header /> */}
 
         <main className="pt-16">
           {/* Header Section */}
@@ -740,7 +735,7 @@ export default function Contact() {
               <div className="flex flex-wrap justify-center items-center gap-8 text-center">
                 <div className="flex items-center gap-2">
                   <Phone className="w-4 h-4" />
-                  <span className="font-semibold">+91 78719 90263</span>
+                  <span className="font-semibold"> +1 979 271 7552</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Mail className="w-4 h-4" />
@@ -1077,7 +1072,7 @@ export default function Contact() {
           />
         </main>
 
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

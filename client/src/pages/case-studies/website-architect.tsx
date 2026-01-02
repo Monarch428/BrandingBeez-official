@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
+// import { Header } from "@/components/header";
+// import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import { SEOHead } from "@/components/seo-head";
 import { Helmet } from "react-helmet";
 import Gemma_Image from "../../../public/images/Gemma.png";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { LazyYouTube } from "@/components/LazyYouTube";
 
 
 export default function WebsiteArchitectCaseStudy() {
@@ -53,7 +54,7 @@ export default function WebsiteArchitectCaseStudy() {
           ogType="website"
         />
         <SchemaMarkup type="localBusiness" />
-        <Header />
+        {/* <Header /> */}
         <main className="pt-0">
           {/* Hero Section */}
           <section className="pt-20 pb-16 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -98,7 +99,7 @@ export default function WebsiteArchitectCaseStudy() {
                   </div>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
+                {/* <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8">
                   <div className="flex items-center justify-between mb-6">
                     <div className="w-16 h-16 rounded-xl overflow-hidden bg-white p-1">
                       <img
@@ -129,6 +130,21 @@ export default function WebsiteArchitectCaseStudy() {
                       <Target className="w-5 h-5 text-white/80" />
                       <span>Custom WordPress Websites</span>
                     </div>
+                  </div>
+                </div> */}
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                  {/* VIDEO ALWAYS SHOWN */}
+                  <div className="mb-0">
+                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[320px] rounded-xl overflow-hidden shadow-lg"> */}
+                      {/* <iframe
+                        className="w-full h-full"
+                        src="https://www.youtube.com/embed/np23ndJoNro"
+                        title="Website Architect Case Study | Branding Beez"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      /> */}
+                      <LazyYouTube videoId="np23ndJoNro" />
+                    {/* </div> */}
                   </div>
                 </div>
               </div>
@@ -784,7 +800,7 @@ export default function WebsiteArchitectCaseStudy() {
             </div>
           </section>
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </>
   );

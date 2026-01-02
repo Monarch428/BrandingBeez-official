@@ -16,12 +16,12 @@ type StructuredBlogContentV1 = {
     subHeading?: string;
     content?: string; // allow html/markdown text
     images?: string[]; // single or multiple
-    links?: Array<{ label?: string; url: string }>; // ✅ NEW: hyperlinks per section
+    links?: Array<{ label?: string; url: string }>; 
     steps?: Array<{
       id: string;
       title?: string;
       description?: string;
-      links?: Array<{ label?: string; url: string }>; // optional refs inside steps too
+      links?: Array<{ label?: string; url: string }>; 
     }>;
     cta?: {
       enabled?: boolean;
