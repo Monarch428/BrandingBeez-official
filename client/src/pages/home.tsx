@@ -2027,7 +2027,7 @@ export default function Home() {
                   Book a free strategy call
                 </p> */}
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
-                  Ready to see what BrandingBeez can do for you?
+                  Ready to see what <span className="text-brand-coral">BrandingBeez</span> can do for you?
                 </h2>
                 <p className="text-sm md:text-base text-slate-400 leading-relaxed">
                   Pick an available slot with our lead consultant and we&apos;ll

@@ -604,7 +604,7 @@ export default function WebDevelopment() {
                         >
                           <h3
                             className="
-                    text-brand-coral font-bold
+                    text-red-600 font-bold
                     text-base sm:text-lg lg:text-xl
                     leading-snug
                     mb-2
