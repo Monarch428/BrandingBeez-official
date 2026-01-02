@@ -74,6 +74,11 @@ export interface SeoCaseStudyKeywordMetric {
   percentage: string;
 }
 
+export interface SeoMeta {
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
 // --------- Main Detail Type ---------
 export interface SeoCaseStudyDetail {
   cardId: Types.ObjectId;
@@ -150,11 +155,13 @@ export interface SeoCaseStudyDetail {
   bottomSecondaryCtaText: string;
   bottomSecondaryCtaHref?: string;
 
+  seo?: SeoMeta;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface SeoCaseStudyDetailDocument extends Document, SeoCaseStudyDetail {}
+export interface SeoCaseStudyDetailDocument extends Document, SeoCaseStudyDetail { }
 
 // --------- Sub-schemas ---------
 const heroStatSchema = new Schema<SeoCaseStudyHeroStat>(
@@ -266,6 +273,14 @@ const keywordMetricSchema = new Schema<SeoCaseStudyKeywordMetric>(
   { _id: false }
 );
 
+const seoMetaSchema = new Schema(
+  {
+    metaTitle: { type: String, maxlength: 60 },
+    metaDescription: { type: String, maxlength: 160 },
+  },
+  { _id: false }
+);
+
 // --------- Main Schema ---------
 const seoCaseStudyDetailSchema = new Schema<SeoCaseStudyDetailDocument>(
   {
@@ -349,6 +364,8 @@ const seoCaseStudyDetailSchema = new Schema<SeoCaseStudyDetailDocument>(
     bottomPrimaryCtaHref: String,
     bottomSecondaryCtaText: { type: String, required: true },
     bottomSecondaryCtaHref: String,
+
+    seo: { type: seoMetaSchema },
   },
   {
     collection: "seo_case_study_details",

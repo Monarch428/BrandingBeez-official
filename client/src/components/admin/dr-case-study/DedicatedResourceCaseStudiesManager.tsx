@@ -25,6 +25,7 @@ import {
   DrVideoTestimonial,
   DrCtaPrimary,
   DrCtaSecondary,
+  DrSeoMeta,
 } from "./DedicatedResourceCaseStudyDetailTab";
 
 // ---------- Helper ----------
@@ -158,6 +159,8 @@ export type DedicatedResourceCaseStudyDetail = {
   // CTA blocks
   ctaPrimary: DrCtaPrimary;
   ctaSecondary: DrCtaSecondary;
+
+  seo?: DrSeoMeta;
 
   createdAt?: string;
   updatedAt?: string;
@@ -295,6 +298,12 @@ const emptyForm: FormState = {
     phoneValue: "",
     formTitle: "Get a Dedicated Resources Quote",
   },
+
+  seo: {
+    metaTitle: "",
+    metaDescription: "",
+  },
+
 };
 
 function normalizeDetailToForm(detail: DedicatedResourceCaseStudyDetailDoc): Partial<FormState> {
@@ -352,6 +361,8 @@ function normalizeDetailToForm(detail: DedicatedResourceCaseStudyDetailDoc): Par
 
     ctaPrimary: detail.ctaPrimary || (emptyForm.ctaPrimary as any),
     ctaSecondary: detail.ctaSecondary || (emptyForm.ctaSecondary as any),
+
+    seo: detail.seo || {},
   };
 }
 
@@ -633,14 +644,22 @@ export function DedicatedResourceCaseStudiesManager() {
 
         ctaPrimary: (form.ctaPrimary || emptyForm.ctaPrimary) as any,
         ctaSecondary: (form.ctaSecondary || emptyForm.ctaSecondary) as any,
+
+        seo:
+          form.seo?.metaTitle || form.seo?.metaDescription
+            ? {
+              metaTitle: String(form.seo?.metaTitle || "").trim(),
+              metaDescription: String(form.seo?.metaDescription || "").trim(),
+            }
+            : undefined,
       };
 
       const isEdit = Boolean(String(form.detailMongoId || "").trim());
       const endpoints = isEdit
         ? [
-            `/api/admin/dedicated-resource-case-study/detail/${encodeURIComponent(String(form.detailMongoId))}`,
-            `/api/admin/dedicated-resource-case-study/detail?detailId=${encodeURIComponent(String(form.detailMongoId))}`,
-          ]
+          `/api/admin/dedicated-resource-case-study/detail?detailId=${encodeURIComponent(String(form.detailMongoId))}`,
+          `/api/admin/dedicated-resource-case-study/detail/${encodeURIComponent(String(form.detailMongoId))}`,
+        ]
         : ["/api/admin/dedicated-resource-case-study/detail"];
 
       const method = isEdit ? "PUT" : "POST";
@@ -675,7 +694,7 @@ export function DedicatedResourceCaseStudiesManager() {
         try {
           const d = await fetchDetailByCardId(finalCardId);
           if (d?._id) setForm((p) => ({ ...p, detailMongoId: String(d._id) }));
-        } catch {}
+        } catch { }
       }
 
       success(isEdit ? "Detail updated successfully." : "Detail saved successfully.", "Detail");

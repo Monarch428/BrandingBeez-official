@@ -3,6 +3,7 @@ import { useLocation, useRoute } from "wouter";
 import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { Helmet } from "react-helmet";
 
 // ---------------- Types (mirror Web Slug style) ----------------
 type ResultItem = {
@@ -111,6 +112,11 @@ type TeamStat = {
   value: string;
 };
 
+type DrSeoMeta = {
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
 type DedicatedResourceCaseStudyDetail = {
   cardId: string;
 
@@ -181,6 +187,8 @@ type DedicatedResourceCaseStudyDetail = {
   teamBannerStatusText?: string;
   teamMembers: TeamMember[];
   teamStats: TeamStat[];
+
+  seo?: DrSeoMeta;
 };
 
 type DedicatedResourceCombined = {
@@ -406,6 +414,11 @@ function mapApiToCombined(api: any): DedicatedResourceCombined | null {
     secondaryHref: "/services/dedicated-resources#case-studies",
   };
 
+  const seo: DrSeoMeta = {
+    metaTitle: String(d.seo?.metaTitle ?? ""),
+    metaDescription: String(d.seo?.metaDescription ?? ""),
+  }
+
   const detail: DedicatedResourceCaseStudyDetail = {
     cardId: String(d.cardId ?? ""),
 
@@ -475,6 +488,7 @@ function mapApiToCombined(api: any): DedicatedResourceCombined | null {
     teamBannerStatusText: typeof d.teamBannerStatusText === "string" ? d.teamBannerStatusText : undefined,
     teamMembers,
     teamStats,
+    seo,
   };
 
   return { card, detail };
@@ -587,186 +601,204 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* ================= HERO (same as web) ================= */}
-      <section className="relative bg-gradient-to-r from-brand-purple to-brand-coral text-white overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-20 w-80 h-80 bg-[#ee4962]/10 rounded-full blur-3xl"></div>
-        </div>
+    <>
+      <Helmet>
+        <title>
+          {`${detail?.seo?.metaTitle} | Dedicated Resource Case Study | BrandingBeez`}
+        </title>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left */}
-            <div>
-              <div className="flex mb-6">
-                <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
-                  <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
-                    <IconByKey iconKey="Award" className="w-3.5 h-3.5 text-white" size={14} />
-                  </div>
-                  <span className="text-white text-sm font-medium">{detail?.heroBadgeText ?? "Featured Dedicated Team Success"}</span>
-                </div>
-              </div>
+        <meta
+          name="description"
+          content={
+            detail?.seo?.metaDescription ||
+            detail?.heroDescription ||
+            card.description
+          }
+        />
+      </Helmet>
 
-              <h1 className="text-white mb-4 font-bold text-[42px] md:text-[56px] leading-tight">
-                {detail?.heroTitle ?? card.title ?? card.client}
-              </h1>
 
-              <div className="flex items-center gap-2 mb-6">
-                <span className="text-white/90">{detail?.heroRatingText ?? "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}</span>
-              </div>
-
-              <p className="text-white/90 mb-12">{detail?.heroDescription ?? card.description}</p>
-
-              {/* Stats (3) */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                {(heroStats.length ? heroStats : cardTop3.map((r) => ({ value: r.value, label: r.label, iconKey: "TrendingUp" })))
-                  .slice(0, 3)
-                  .map((s, idx) => (
-                    <div key={`${s.label}-${idx}`} className="backdrop-blur-[2px] bg-white rounded-lg p-4 text-center">
-                      <div className="inline-flex items-center justify-center w-10 h-10 bg-[#EE4962] rounded-lg mb-3">
-                        <IconByKey iconKey={s.iconKey ?? "CheckCircle2"} className="w-5 h-5 text-white" size={20} />
-                      </div>
-                      <div className="text-sm mb-1 text-black font-semibold">{s.value}</div>
-                      <p className="text-xs text-black/80">{s.label}</p>
-                    </div>
-                  ))}
-              </div>
-
-              {/* CTA */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <BookCallButtonWithModal
-                  buttonLabel={detail?.heroPrimaryCtaText ?? "Hire Your Team"}
-                  className="px-8 py-6 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
-                  buttonSize="lg"
-                  defaultServiceType="Dedicated Resources"
-                />
-                <CtaButton
-                  variant="secondary"
-                  text={detail?.heroSecondaryCtaText ?? "View Other Dedicated Resources"}
-                  href={detail?.heroSecondaryCtaHref ?? "/services/dedicated-resources#case-studies"}
-                  rightIconKey="ArrowRight"
-                />
-              </div>
-            </div>
-
-            {/* Right: iframe video OR fallback image */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
-              <div className="absolute -inset-4 bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20 rounded-2xl blur-2xl"></div>
-
-              <div className="relative rounded-xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-                <div className="aspect-video bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20">
-                  {detail?.heroVideoUrl ? (
-                    <div className="relative w-full h-full">
-                      <LazyYouTube
-                        videoId={extractYouTubeId(detail.heroVideoUrl)}
-                        className="w-full h-full"
-                        thumbnailQuality="hqdefault"
-                        aspectRatio="16/9"
-                      />
-                    </div>
-                  ) : card.coverImageUrl ? (
-                    <img
-                      src={card.coverImageUrl}
-                      alt={card.coverImageAlt || card.title}
-                      className={`w-full h-full ${(card.coverFit || "cover") === "cover" ? "object-cover" : "object-contain"}`}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white/80 text-sm">Video / image not provided</div>
-                  )}
-                </div>
-              </div>
-            </div>
+      <div className="min-h-screen bg-white">
+        {/* ================= HERO (same as web) ================= */}
+        <section className="relative bg-gradient-to-r from-brand-purple to-brand-coral text-white overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 left-20 w-80 h-80 bg-[#ee4962]/10 rounded-full blur-3xl"></div>
           </div>
 
-          {!hasDetail ? (
-            <div className="mt-10 bg-white/10 border border-white/20 text-white rounded-xl p-4">
-              Detail content not added yet for this Dedicated Resource case study. (Card data loaded ✅)
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-20 relative z-10">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Left */}
+              <div>
+                <div className="flex mb-6">
+                  <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
+                    <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
+                      <IconByKey iconKey="Award" className="w-3.5 h-3.5 text-white" size={14} />
+                    </div>
+                    <span className="text-white text-sm font-medium">{detail?.heroBadgeText ?? "Featured Dedicated Team Success"}</span>
+                  </div>
+                </div>
+
+                <h1 className="text-white mb-4 font-bold text-[42px] md:text-[56px] leading-tight">
+                  {detail?.heroTitle ?? card.title ?? card.client}
+                </h1>
+
+                <div className="flex items-center gap-2 mb-6">
+                  <span className="text-white/90">{detail?.heroRatingText ?? "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}</span>
+                </div>
+
+                <p className="text-white/90 mb-12">{detail?.heroDescription ?? card.description}</p>
+
+                {/* Stats (3) */}
+                <div className="grid grid-cols-3 gap-4 mb-6">
+                  {(heroStats.length ? heroStats : cardTop3.map((r) => ({ value: r.value, label: r.label, iconKey: "TrendingUp" })))
+                    .slice(0, 3)
+                    .map((s, idx) => (
+                      <div key={`${s.label}-${idx}`} className="backdrop-blur-[2px] bg-white rounded-lg p-4 text-center">
+                        <div className="inline-flex items-center justify-center w-10 h-10 bg-[#EE4962] rounded-lg mb-3">
+                          <IconByKey iconKey={s.iconKey ?? "CheckCircle2"} className="w-5 h-5 text-white" size={20} />
+                        </div>
+                        <div className="text-sm mb-1 text-black font-semibold">{s.value}</div>
+                        <p className="text-xs text-black/80">{s.label}</p>
+                      </div>
+                    ))}
+                </div>
+
+                {/* CTA */}
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <BookCallButtonWithModal
+                    buttonLabel={detail?.heroPrimaryCtaText ?? "Hire Your Team"}
+                    className="px-8 py-6 bg-[#ee4b64] text-white font-bold rounded-[8px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
+                    buttonSize="lg"
+                    defaultServiceType="Dedicated Resources"
+                  />
+                  <CtaButton
+                    variant="secondary"
+                    text={detail?.heroSecondaryCtaText ?? "View Other Dedicated Resources"}
+                    href={detail?.heroSecondaryCtaHref ?? "/services/dedicated-resources#case-studies"}
+                    rightIconKey="ArrowRight"
+                  />
+                </div>
+              </div>
+
+              {/* Right: iframe video OR fallback image */}
+              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
+                <div className="absolute -inset-4 bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20 rounded-2xl blur-2xl"></div>
+
+                <div className="relative rounded-xl overflow-hidden shadow-2xl bg-white/10 backdrop-blur-sm border border-white/20">
+                  <div className="aspect-video bg-gradient-to-br from-[#ee4962]/20 to-[#321a66]/20">
+                    {detail?.heroVideoUrl ? (
+                      <div className="relative w-full h-full">
+                        <LazyYouTube
+                          videoId={extractYouTubeId(detail.heroVideoUrl)}
+                          className="w-full h-full"
+                          thumbnailQuality="hqdefault"
+                          aspectRatio="16/9"
+                        />
+                      </div>
+                    ) : card.coverImageUrl ? (
+                      <img
+                        src={card.coverImageUrl}
+                        alt={card.coverImageAlt || card.title}
+                        className={`w-full h-full ${(card.coverFit || "cover") === "cover" ? "object-cover" : "object-contain"}`}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-white/80 text-sm">Video / image not provided</div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          ) : null}
-        </div>
-      </section>
 
-      {/* ================= Showcase (kept as-is; API doesn't provide showcase) ================= */}
-      <WebsiteShowcaseSection showcase={showcase} fallbackTitle="Showcase" fallbackSubtitle={`Desktop & mobile snapshots for ${card.client}`} />
+            {!hasDetail ? (
+              <div className="mt-10 bg-white/10 border border-white/20 text-white rounded-xl p-4">
+                Detail content not added yet for this Dedicated Resource case study. (Card data loaded ✅)
+              </div>
+            ) : null}
+          </div>
+        </section>
 
-      {/* ================= Team Involved (NOW MAPPED + RENDERED) ================= */}
-      {hasDetail && (detail?.teamTitle || teamMembers.length || teamStats.length) ? (
-        <TeamInvolvedSection
-          title={detail?.teamTitle ?? "The Team Involved"}
-          subtitle={detail?.teamSubtitle ?? ""}
-          bannerLeftText={detail?.teamBannerLeftText ?? ""}
-          bannerStatusText={detail?.teamBannerStatusText ?? ""}
-          members={teamMembers}
-          stats={teamStats}
+        {/* ================= Showcase (kept as-is; API doesn't provide showcase) ================= */}
+        <WebsiteShowcaseSection showcase={showcase} fallbackTitle="Showcase" fallbackSubtitle={`Desktop & mobile snapshots for ${card.client}`} />
+
+        {/* ================= Team Involved (NOW MAPPED + RENDERED) ================= */}
+        {hasDetail && (detail?.teamTitle || teamMembers.length || teamStats.length) ? (
+          <TeamInvolvedSection
+            title={detail?.teamTitle ?? "The Team Involved"}
+            subtitle={detail?.teamSubtitle ?? ""}
+            bannerLeftText={detail?.teamBannerLeftText ?? ""}
+            bannerStatusText={detail?.teamBannerStatusText ?? ""}
+            members={teamMembers}
+            stats={teamStats}
+          />
+        ) : null}
+
+        {/* ================= CTA Top ================= */}
+        <InlineCtaBand
+          title={detail?.ctaTop?.title ?? "Need a Dedicated Team Like This?"}
+          body={detail?.ctaTop?.body ?? "Book a free strategy call and see how an embedded team can plug into your workflow within days."}
+          buttonText={detail?.ctaTop?.primaryText ?? "Book Strategy Call"}
+          buttonHref={detail?.ctaTop?.primaryHref ?? "/contact?service=dedicated-resources"}
         />
-      ) : null}
 
-      {/* ================= CTA Top ================= */}
-      <InlineCtaBand
-        title={detail?.ctaTop?.title ?? "Need a Dedicated Team Like This?"}
-        body={detail?.ctaTop?.body ?? "Book a free strategy call and see how an embedded team can plug into your workflow within days."}
-        buttonText={detail?.ctaTop?.primaryText ?? "Book Strategy Call"}
-        buttonHref={detail?.ctaTop?.primaryHref ?? "/contact?service=dedicated-resources"}
-      />
+        {/* ================= Challenge + Before/After ================= */}
+        <ChallengeSection
+          title={detail?.challengeTitle ?? "Partnership Challenge"}
+          subtitle={detail?.challengeSubtitle ?? ""}
+          points={challengePoints}
+          beforeAfter={beforeAfter}
+        />
 
-      {/* ================= Challenge + Before/After ================= */}
-      <ChallengeSection
-        title={detail?.challengeTitle ?? "Partnership Challenge"}
-        subtitle={detail?.challengeSubtitle ?? ""}
-        points={challengePoints}
-        beforeAfter={beforeAfter}
-      />
+        {/* ================= Strategy / Evolution ================= */}
+        <StrategySection title={detail?.strategyTitle ?? "Partnership Evolution"} subtitle={detail?.strategySubtitle ?? ""} columns={strategyColumns} />
 
-      {/* ================= Strategy / Evolution ================= */}
-      <StrategySection title={detail?.strategyTitle ?? "Partnership Evolution"} subtitle={detail?.strategySubtitle ?? ""} columns={strategyColumns} />
+        {/* ================= Success Factors / Features ================= */}
+        <FeaturesSection
+          title={detail?.featuresTitle ?? "Success Factors"}
+          subtitle={detail?.featuresSubtitle ?? ""}
+          coreTitle={detail?.coreFeaturesTitle ?? "Core Success Drivers"}
+          core={coreFeatures}
+          techTitle={detail?.technicalExcellenceTitle ?? "Operational Excellence"}
+          tech={technicalExcellence}
+        />
 
-      {/* ================= Success Factors / Features ================= */}
-      <FeaturesSection
-        title={detail?.featuresTitle ?? "Success Factors"}
-        subtitle={detail?.featuresSubtitle ?? ""}
-        coreTitle={detail?.coreFeaturesTitle ?? "Core Success Drivers"}
-        core={coreFeatures}
-        techTitle={detail?.technicalExcellenceTitle ?? "Operational Excellence"}
-        tech={technicalExcellence}
-      />
+        {/* ================= CTA Mid ================= */}
+        <InlineCtaBand
+          title={detail?.ctaMid?.title ?? "Want to scale without hiring headaches?"}
+          body={detail?.ctaMid?.body ?? "We’ll map a team structure, SOP and timeline for your agency in one call."}
+          buttonText={detail?.ctaMid?.primaryText ?? "Talk to Us"}
+          buttonHref={detail?.ctaMid?.primaryHref ?? "/contact?service=dedicated-resources"}
+        />
 
-      {/* ================= CTA Mid ================= */}
-      <InlineCtaBand
-        title={detail?.ctaMid?.title ?? "Want to scale without hiring headaches?"}
-        body={detail?.ctaMid?.body ?? "We’ll map a team structure, SOP and timeline for your agency in one call."}
-        buttonText={detail?.ctaMid?.primaryText ?? "Talk to Us"}
-        buttonHref={detail?.ctaMid?.primaryHref ?? "/contact?service=dedicated-resources"}
-      />
+        {/* ================= Evaluation (only if cards exist) ================= */}
+        {evaluationCards.length ? (
+          <EvaluationSection kicker={detail?.evaluationKicker ?? "Why this partnership works"} title={detail?.evaluationTitle ?? "Partnership Evaluation"} cards={evaluationCards} />
+        ) : null}
 
-      {/* ================= Evaluation (only if cards exist) ================= */}
-      {evaluationCards.length ? (
-        <EvaluationSection kicker={detail?.evaluationKicker ?? "Why this partnership works"} title={detail?.evaluationTitle ?? "Partnership Evaluation"} cards={evaluationCards} />
-      ) : null}
+        {/* ================= Feedback ================= */}
+        <FeedbackSection
+          kicker={detail?.feedbackKicker ?? "Client Feedback"}
+          quote={detail?.testimonial?.quote ?? ""}
+          authorName={detail?.testimonial?.authorName ?? ""}
+          authorRole={detail?.testimonial?.authorRole ?? ""}
+          ratingText={detail?.testimonial?.ratingText ?? "⭐⭐⭐⭐⭐"}
+          metricsTitle={detail?.partnershipMetricsTitle ?? "Partnership Metrics"}
+          metrics={partnershipMetrics}
+          primaryCtaText={detail?.feedbackPrimaryCtaText ?? "Start Your Partnership"}
+          primaryCtaHref={detail?.feedbackPrimaryCtaHref ?? "/contact?service=dedicated-resources"}
+        />
 
-      {/* ================= Feedback ================= */}
-      <FeedbackSection
-        kicker={detail?.feedbackKicker ?? "Client Feedback"}
-        quote={detail?.testimonial?.quote ?? ""}
-        authorName={detail?.testimonial?.authorName ?? ""}
-        authorRole={detail?.testimonial?.authorRole ?? ""}
-        ratingText={detail?.testimonial?.ratingText ?? "⭐⭐⭐⭐⭐"}
-        metricsTitle={detail?.partnershipMetricsTitle ?? "Partnership Metrics"}
-        metrics={partnershipMetrics}
-        primaryCtaText={detail?.feedbackPrimaryCtaText ?? "Start Your Partnership"}
-        primaryCtaHref={detail?.feedbackPrimaryCtaHref ?? "/contact?service=dedicated-resources"}
-      />
-
-      {/* ================= Final CTA ================= */}
-      <FinalCtaSection
-        title={detail?.finalCta?.title ?? "Ready to Hire Your Dedicated Team?"}
-        body={detail?.finalCta?.body ?? `Join ${card.client} and other agencies that scale with BrandingBeez dedicated resources.`}
-        primaryText={detail?.finalCta?.primaryText ?? "Book Your Free Consultation"}
-        primaryHref={detail?.finalCta?.primaryHref ?? "/contact?service=dedicated-resources"}
-        secondaryText={detail?.finalCta?.secondaryText ?? "View Other Case Studies"}
-        secondaryHref={detail?.finalCta?.secondaryHref ?? "/services/dedicated-resources#case-studies"}
-      />
-    </div>
+        {/* ================= Final CTA ================= */}
+        <FinalCtaSection
+          title={detail?.finalCta?.title ?? "Ready to Hire Your Dedicated Team?"}
+          body={detail?.finalCta?.body ?? `Join ${card.client} and other agencies that scale with BrandingBeez dedicated resources.`}
+          primaryText={detail?.finalCta?.primaryText ?? "Book Your Free Consultation"}
+          primaryHref={detail?.finalCta?.primaryHref ?? "/contact?service=dedicated-resources"}
+          secondaryText={detail?.finalCta?.secondaryText ?? "View Other Case Studies"}
+          secondaryHref={detail?.finalCta?.secondaryHref ?? "/services/dedicated-resources#case-studies"}
+        />
+      </div>
+    </>
   );
 }
 

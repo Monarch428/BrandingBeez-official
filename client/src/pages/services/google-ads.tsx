@@ -77,20 +77,20 @@ const caseStudies = [
     description: "Achieved exceptional results for UK family law firm with Performance Max and Search campaigns optimization.",
     link: "/case-studies/arlingsworth-solicitors-case-study"
   },
-  {
-    id: 2,
-    title: "Waste Management Transformation",
-    client: "JunksAway",
-    industry: "Waste Management",
-    results: {
-      cpaReduction: "82% CPA reduction",
-      conversions: "706 Total Conversions",
-      roas: "1.28x ROAS achieved"
-    },
-    description: "Dramatically reduced CPA from $34 to $6 for US junk removal company through strategic campaign restructure.",
-    // description: "Dramatically reduced CPA from $34.37 to $6.09 for US junk removal company through strategic campaign restructure.",
-    link: "/case-studies/junksaway-case-study"
-  },
+  // {
+  //   id: 2,
+  //   title: "Waste Management Transformation",
+  //   client: "JunksAway",
+  //   industry: "Waste Management",
+  //   results: {
+  //     cpaReduction: "82% CPA reduction",
+  //     conversions: "706 Total Conversions",
+  //     roas: "1.28x ROAS achieved"
+  //   },
+  //   description: "Dramatically reduced CPA from $34 to $6 for US junk removal company through strategic campaign restructure.",
+  //   // description: "Dramatically reduced CPA from $34.37 to $6.09 for US junk removal company through strategic campaign restructure.",
+  //   link: "/case-studies/junksaway-case-study"
+  // },
   {
     id: 3,
     title: "Pet Services Success",

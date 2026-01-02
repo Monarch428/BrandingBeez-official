@@ -1130,6 +1130,7 @@ import {
   PpcOutstandingCard,
   PpcTimelineStep,
   PpcProcessStep,
+  PpcSeoMeta,
 } from "./PpcCaseStudyDetailTab";
 
 // ---------- Helper ----------
@@ -1240,6 +1241,8 @@ export type PpcCaseStudyDetail = {
   bottomSecondaryCtaText?: string;
   bottomSecondaryCtaHref?: string;
 
+  seo?: PpcSeoMeta;
+
   createdAt?: string;
   updatedAt?: string;
 };
@@ -1253,12 +1256,6 @@ type FormState = Partial<PpcCaseStudyCard> &
     detailMongoId?: string;
   };
 
-/**
- * ✅ DEFAULTS (so admin sees sensible defaults, but can edit)
- * - headings defaulted
- * - some icons defaulted
- * - CTA defaults
- */
 const emptyForm: FormState = {
   // Card
   slug: "",
@@ -1389,6 +1386,11 @@ const emptyForm: FormState = {
   bottomPrimaryCtaHref: "/book-appointment",
   bottomSecondaryCtaText: "",
   bottomSecondaryCtaHref: "",
+
+  seo: {
+    metaTitle: "",
+    metaDescription: "",
+  },
 };
 
 function normalizeDetailToForm(detail: PpcCaseStudyDetailDoc): Partial<FormState> {
@@ -1448,6 +1450,8 @@ function normalizeDetailToForm(detail: PpcCaseStudyDetailDoc): Partial<FormState
     bottomPrimaryCtaHref: detail.bottomPrimaryCtaHref || "",
     bottomSecondaryCtaText: detail.bottomSecondaryCtaText || "",
     bottomSecondaryCtaHref: detail.bottomSecondaryCtaHref || "",
+
+    seo: detail.seo || {},
   };
 }
 
@@ -1500,10 +1504,6 @@ function validateCard(form: FormState): ErrorMap {
   return e;
 }
 
-/**
- * ✅ This matches your backend Zod errors like:
- * heroStats.0.value, challengeCards.0.title, approachSections.0.bullets.0, etc.
- */
 function validateDetail(form: FormState): ErrorMap {
   const e: ErrorMap = {};
   const requiredStrings: Array<[keyof PpcCaseStudyDetail, string]> = [
@@ -1691,31 +1691,47 @@ export function PpcCaseStudiesManager() {
     setErrors({});
   };
 
-  // ✅ detail fetch by cardId (try multiple endpoint styles)
-  const fetchDetailByCardId = async (cardId: string): Promise<PpcCaseStudyDetailDoc | null> => {
+  const fetchDetailByCardId = async (
+    cardId: string,
+  ): Promise<PpcCaseStudyDetailDoc | null> => {
     if (!token) throw new Error("Admin token missing. Please login again.");
     if (!cardId) return null;
 
     const endpoints = [
-      `/api/admin/ppc-case-study/detail/${cardId}`,
       `/api/admin/ppc-case-study/detail?cardId=${encodeURIComponent(cardId)}`,
+      `/api/admin/ppc-case-study/detail/${encodeURIComponent(cardId)}`,
     ];
 
+    let lastNon404Error: string | null = null;
+
     for (const url of endpoints) {
-      try {
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (res.status === 404) continue;
-        if (!res.ok) {
-          const t = await res.text().catch(() => "");
-          throw new Error(t || `Failed to fetch detail (${res.status})`);
-        }
-        const data = await res.json().catch(() => null);
-        if (!data) continue;
-        return data as PpcCaseStudyDetailDoc;
-      } catch {
-        continue;
+      const res = await fetch(url, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      }).catch((e) => {
+        lastNon404Error = e?.message || "Network error";
+        return null;
+      });
+
+      if (!res) continue;
+
+      if (res.status === 404) continue;
+
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        lastNon404Error = t || `Failed to fetch detail (${res.status})`;
+        // don’t continue on non-404 (it’s not “try another route” problem)
+        break;
       }
+
+      const data = await res.json().catch(() => null);
+      if (data) return data as PpcCaseStudyDetailDoc;
     }
+
+    // If both were 404 => null (no detail yet)
+    if (lastNon404Error) throw new Error(lastNon404Error);
+
     return null;
   };
 
@@ -2219,14 +2235,21 @@ export function PpcCaseStudiesManager() {
         bottomPrimaryCtaHref: form.bottomPrimaryCtaHref || undefined,
         bottomSecondaryCtaText: form.bottomSecondaryCtaText || undefined,
         bottomSecondaryCtaHref: form.bottomSecondaryCtaHref || undefined,
+        seo:
+          form.seo?.metaTitle || form.seo?.metaDescription
+            ? {
+              metaTitle: String(form.seo?.metaTitle || "").trim(),
+              metaDescription: String(form.seo?.metaDescription || "").trim(),
+            }
+            : undefined,
       };
 
       const isEdit = Boolean(String(form.detailMongoId || "").trim());
       const endpoints = isEdit
         ? [
-            `/api/admin/ppc-case-study/detail/${encodeURIComponent(String(form.detailMongoId))}`,
-            `/api/admin/ppc-case-study/detail?detailId=${encodeURIComponent(String(form.detailMongoId))}`,
-          ]
+          `/api/admin/ppc-case-study/detail/${encodeURIComponent(String(form.detailMongoId))}`,
+          `/api/admin/ppc-case-study/detail?detailId=${encodeURIComponent(String(form.detailMongoId))}`,
+        ]
         : ["/api/admin/ppc-case-study/detail"];
 
       const method = isEdit ? "PUT" : "POST";
@@ -2261,7 +2284,7 @@ export function PpcCaseStudiesManager() {
         try {
           const d = await fetchDetailByCardId(finalCardId);
           if (d?._id) setForm((p) => ({ ...p, detailMongoId: String(d._id) }));
-        } catch {}
+        } catch { }
       }
 
       success(isEdit ? "Detail updated successfully." : "Detail saved successfully.", "Detail");
