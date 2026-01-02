@@ -3,11 +3,35 @@ import React, { useMemo } from "react";
 
 const beeLogo = "/images/Bee_Logo.png";
 
-const BrandingBeezLoader: React.FC = () => {
+type BrandingBeezLoaderProps = {
+  /**
+   * "fullscreen" => covers entire viewport (default)
+   * "contained"  => covers only its parent (parent must be relative)
+   */
+  mode?: "fullscreen" | "contained";
+
+  /**
+   * Optional: set a minimum height when used in contained mode
+   * (helps avoid collapse in short containers)
+   */
+  minHeightClassName?: string;
+};
+
+const BrandingBeezLoader: React.FC<BrandingBeezLoaderProps> = ({
+  mode = "fullscreen",
+  minHeightClassName = "min-h-[260px]",
+}) => {
   const bars = useMemo(() => [0, 1, 2, 3, 4, 5, 6], []);
 
+  const containerClass =
+    mode === "fullscreen"
+      ? "fixed inset-0 z-[9999]"
+      : `absolute inset-0 z-[10] ${minHeightClassName}`;
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 sm:px-6 bg-gradient-to-br from-[#050017] via-[#07042a] to-[#0a0440] text-slate-100">
+    <div
+      className={`${containerClass} flex items-center justify-center px-4 sm:px-6 bg-gradient-to-br from-[#050017] via-[#07042a] to-[#0a0440] text-slate-100`}
+    >
       {/* Responsive wrapper: scales down on small screens, keeps center aligned */}
       <div className="w-full max-w-[360px] sm:max-w-[420px] md:max-w-[520px] flex flex-col items-center gap-5 sm:gap-6">
         {/* Bee */}

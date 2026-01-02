@@ -5,18 +5,13 @@ export type TimeZoneOptionId = string;
 export type TimeFormatMode = "ampm" | "24h";
 
 export type TimeZoneOption = {
-  id: TimeZoneOptionId;      // IANA timezone or "browser"
-  label: string;             // "Pacific Time - US & Canada"
-  group: string;             // "US/CANADA", "AMERICA", ...
-  keywords?: string[];       // optional extra search terms
+  id: TimeZoneOptionId;      
+  label: string;             
+  group: string;             
+  keywords?: string[];      
 };
 
-// ------------------------------------------------------------------
-// ✅ Calendly-style grouped timezone list (friendly labels + groups)
-// ------------------------------------------------------------------
-
 export const timeZoneOptions: TimeZoneOption[] = [
-  // Browser
   {
     id: "browser",
     label: "Auto-detect (Local Time)",
