@@ -64,6 +64,11 @@ export interface PpcProcessStep {
   description: string;
 }
 
+export interface PpcSeoMeta {
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
 // ---------- Main ----------
 export interface PpcCaseStudyDetail {
   cardId: Types.ObjectId; // ✅ FK to PpcCaseStudyCard
@@ -130,6 +135,8 @@ export interface PpcCaseStudyDetail {
   bottomPrimaryCtaHref?: string;
   bottomSecondaryCtaText?: string;
   bottomSecondaryCtaHref?: string;
+
+  seo?: PpcSeoMeta;
 
   createdAt: Date;
   updatedAt: Date;
@@ -211,6 +218,15 @@ const processStepSchema = new Schema<PpcProcessStep>(
   { _id: false }
 );
 
+const ppcSeoMetaSchema = new Schema(
+  {
+    metaTitle: { type: String, maxlength: 60 },
+    metaDescription: { type: String, maxlength: 160 },
+  },
+  { _id: false }
+);
+
+
 // ---------- Main schema ----------
 const ppcCaseStudyDetailSchema = new Schema<PpcCaseStudyDetailDocument>(
   {
@@ -275,6 +291,8 @@ const ppcCaseStudyDetailSchema = new Schema<PpcCaseStudyDetailDocument>(
     bottomPrimaryCtaHref: String,
     bottomSecondaryCtaText: String,
     bottomSecondaryCtaHref: String,
+
+    seo: { type: ppcSeoMetaSchema}
   },
   {
     collection: "ppc_case_study_details",

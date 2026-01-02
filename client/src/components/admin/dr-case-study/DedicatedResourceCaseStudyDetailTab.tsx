@@ -1176,6 +1176,11 @@ export type DrCtaSecondary = {
   formTitle?: string;
 };
 
+export type DrSeoMeta = {
+  metaTitle?: string;
+  metaDescription?: string;
+};
+
 export type DedicatedResourceCaseStudyDetailTabValues = {
   cardId?: string;
 
@@ -1229,6 +1234,8 @@ export type DedicatedResourceCaseStudyDetailTabValues = {
 
   ctaPrimary?: DrCtaPrimary;
   ctaSecondary?: DrCtaSecondary;
+
+  seo?: DrSeoMeta;
 };
 
 type CardOption = { _id: string; slug: string; title: string; client: string; industry: string };
@@ -1810,6 +1817,53 @@ export function DedicatedResourceCaseStudyDetailTab({
         <div>
           <Label>Body</Label>
           <TextArea value={ctaSecondary.body || ""} onChange={(v) => onChange("ctaSecondary", { ...ctaSecondary, body: v })} />
+        </div>
+      </div>
+
+      {/* SEO */}
+      <div className="border rounded-lg p-3 space-y-3 bg-slate-50">
+        <SectionTitle
+          title="SEO Metadata"
+          subtitle="Used for Google title & description (Helmet)"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <Label>Meta Title</Label>
+            <Input
+              value={form.seo?.metaTitle || ""}
+              maxLength={60}
+              placeholder="Max 60 characters"
+              onChange={(e) =>
+                onChange("seo", {
+                  ...form.seo,
+                  metaTitle: e.target.value,
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {(form.seo?.metaTitle || "").length}/60
+            </div>
+          </div>
+
+          <div>
+            <Label>Meta Description</Label>
+            <textarea
+              className="w-full border rounded-md p-2 mt-1 min-h-[84px]"
+              maxLength={160}
+              placeholder="Max 160 characters"
+              value={form.seo?.metaDescription || ""}
+              onChange={(e) =>
+                onChange("seo", {
+                  ...form.seo,
+                  metaDescription: e.target.value,
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {(form.seo?.metaDescription || "").length}/160
+            </div>
+          </div>
         </div>
       </div>
     </div>

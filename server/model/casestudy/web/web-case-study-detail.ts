@@ -73,6 +73,12 @@ export type WebTestimonial = {
     ratingText?: string;
 };
 
+export type WebSeoMeta = {
+    metaTitle?: string;
+    metaDescription?: string;
+};
+
+
 export type WebPartnershipMetric = { iconKey: string; label: string; value: string };
 
 export interface WebCaseStudyDetail {
@@ -142,6 +148,8 @@ export interface WebCaseStudyDetail {
 
     // FINAL CTA
     finalCta: WebCtaBlock;
+
+    seo?: WebSeoMeta;
 
     createdAt: Date;
     updatedAt: Date;
@@ -274,6 +282,14 @@ const partnershipMetricSchema = new Schema<WebPartnershipMetric>(
     { _id: false }
 );
 
+const seoSchema = new Schema(
+    {
+        metaTitle: { type: String, maxlength: 60 },
+        metaDescription: { type: String, maxlength: 160 },
+    },
+    { _id: false }
+);
+
 const webCaseStudyDetailSchema = new Schema<WebCaseStudyDetailDocument>(
     {
         cardId: { type: Schema.Types.ObjectId, required: true, index: true },
@@ -330,6 +346,8 @@ const webCaseStudyDetailSchema = new Schema<WebCaseStudyDetailDocument>(
         feedbackPrimaryCtaHref: String,
 
         finalCta: { type: ctaSchema, required: true },
+        seo: { type: seoSchema },
+
     },
     {
         collection: "web_case_study_details",

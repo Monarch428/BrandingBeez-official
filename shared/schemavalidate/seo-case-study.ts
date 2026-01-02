@@ -92,6 +92,11 @@ export const insertSeoCaseStudyCardSchema = z.object({
   status: z.enum(["draft", "published"]).optional().default("draft"),
 });
 
+const seoMetaSchema = z.object({
+  metaTitle: z.string().max(60).optional(),
+  metaDescription: z.string().max(160).optional(),
+});
+
 // ---------- ✅ DETAIL SCHEMA (FK required) ----------
 export const insertSeoCaseStudyDetailSchema = z.object({
   cardId: z.string().min(1), // FK comes from card create response
@@ -157,4 +162,6 @@ export const insertSeoCaseStudyDetailSchema = z.object({
   bottomPrimaryCtaHref: z.string().optional(),
   bottomSecondaryCtaText: z.string().min(1),
   bottomSecondaryCtaHref: z.string().optional(),
+
+  seo: seoMetaSchema.optional(),
 });

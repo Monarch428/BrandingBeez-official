@@ -143,6 +143,12 @@ const partnershipMetricSchema = z.object({
     value: z.string().min(1),
 });
 
+const seoSchema = z.object({
+    metaTitle: z.string().max(60).optional(),
+    metaDescription: z.string().max(160).optional(),
+});
+
+
 export const insertWebCaseStudyDetailSchema = z.object({
     cardId: z.string().min(1),
 
@@ -198,4 +204,5 @@ export const insertWebCaseStudyDetailSchema = z.object({
     feedbackPrimaryCtaHref: z.string().optional(),
 
     finalCta: ctaSchema,
+    seo: seoSchema.optional(),
 });

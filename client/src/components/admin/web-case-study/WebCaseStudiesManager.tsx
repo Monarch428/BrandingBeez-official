@@ -998,7 +998,12 @@ export type WebCaseStudyCard = {
   updatedAt: string;
 };
 
-export type WebCaseStudyDetail = {
+export type WebSeoMeta = {
+  metaTitle?: string;
+  metaDescription?: string;
+};
+
+type WebCaseStudyDetail = {
   cardId: string;
 
   heroBadgeText: string;
@@ -1054,6 +1059,8 @@ export type WebCaseStudyDetail = {
 
   finalCta: WebCtaBlock;
 
+  seo?: WebSeoMeta;
+  
   createdAt?: string;
   updatedAt?: string;
 };
@@ -1231,8 +1238,8 @@ const emptyForm: FormState = {
     body: "",
     primaryText: "Book a Call",
     primaryHref: "/contact?service=website-development",
-    secondaryText: "See Portfolio",
-    secondaryHref: "/portfolio",
+    secondaryText: "View Other Case Studies",
+    secondaryHref: "/services/web-development#case-studies",
   },
 };
 
@@ -1293,6 +1300,7 @@ function normalizeDetailToForm(detail: WebCaseStudyDetailDoc): Partial<FormState
     feedbackPrimaryCtaHref: detail.feedbackPrimaryCtaHref || "",
 
     finalCta: detail.finalCta || (emptyForm.finalCta as any),
+    seo: detail.seo || {},
   };
 }
 
@@ -1649,6 +1657,13 @@ export function WebCaseStudiesManager() {
         feedbackPrimaryCtaHref: form.feedbackPrimaryCtaHref || undefined,
 
         finalCta: (form.finalCta || emptyForm.finalCta) as any,
+
+        seo: form.seo?.metaTitle || form.seo?.metaDescription
+          ? {
+            metaTitle: form.seo?.metaTitle?.trim() || undefined,
+            metaDescription: form.seo?.metaDescription?.trim() || undefined,
+          }
+          : undefined,
       };
 
       const isEdit = Boolean(String(form.detailMongoId || "").trim());
