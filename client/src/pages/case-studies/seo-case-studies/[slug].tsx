@@ -16,6 +16,7 @@ import network_icon from "@assets/networkicon.png";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { Helmet } from "react-helmet";
 
 /* ============================================================
    TYPES (API returns combined: { card, detail })
@@ -82,6 +83,11 @@ interface KeywordMetric {
   label: string;
   value: string;
   percentage: string;
+}
+
+interface SeoMeta {
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface SeoCaseStudyCard {
@@ -166,6 +172,8 @@ export interface SeoCaseStudyDetail {
   bottomPrimaryCtaHref?: string;
   bottomSecondaryCtaText: string;
   bottomSecondaryCtaHref?: string;
+
+  seo?: SeoMeta;
 }
 
 export type SeoCaseStudyCombined = {
@@ -275,6 +283,8 @@ function buildSeoFallbackFromCard(card: SeoCaseStudyCard): SeoCaseStudyDetail {
     bottomPrimaryCtaHref: "/seo-audit",
     bottomSecondaryCtaText: "See Pricing",
     bottomSecondaryCtaHref: "/pricing",
+
+    seo: {},
   };
 }
 
@@ -370,6 +380,14 @@ export function SeoCaseStudyPage() {
 
   return (
     <>
+      <Helmet>
+        <title>
+          {`${seo.seo?.metaTitle} SEO Case Study | BrandingBeez`}
+        </title>
+
+        <meta name="description" content={seo.seo?.metaDescription} />
+      </Helmet>
+
       <HeroSection seo={seo} />
       <CaseStudyHighlights seo={seo} />
       <CTASection seo={seo} />
@@ -866,8 +884,8 @@ function ClientTestimonialsSection({ seo }: { seo: SeoCaseStudyDetail }) {
                         iconKey="Star"
                         size={20}
                         className={`w-5 h-5 ${i < (primary.rating || 0)
-                            ? "text-yellow-400 fill-yellow-400"
-                            : "text-white/25"
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-white/25"
                           }`}
                       />
                     ))}

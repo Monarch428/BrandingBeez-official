@@ -212,7 +212,7 @@ function FooterImpl() {
 
             {/* Services */}
             <div>
-              <h3 className="font-semibold text-base">Services</h3>
+              <strong className="font-semibold text-base">Services</strong>
               <ul className="mt-4 space-y-2">
                 {services.map((item) => (
                   <li key={item.href}>
@@ -226,7 +226,7 @@ function FooterImpl() {
 
             {/* Menus */}
             <div>
-              <h3 className="font-semibold text-base">Menus</h3>
+              <strong className="font-semibold text-base">Menus</strong>
               <ul className="mt-4 space-y-2">
                 {menus.map((item) => (
                   <li key={item.href}>
@@ -240,7 +240,7 @@ function FooterImpl() {
 
             {/* Contact */}
             <div>
-              <h3 className="font-semibold text-base">Contact</h3>
+              <strong className="font-semibold text-base">Contact</strong>
               <ul className="mt-4 space-y-3 text-gray-400">
                 <li className="flex items-start gap-2">
                   <Mail className="w-4 h-4 text-brand-coral mt-0.5 flex-shrink-0" aria-hidden="true" />
@@ -277,10 +277,10 @@ function FooterImpl() {
           <div className="mt-10 sm:mt-12 grid grid-cols-1 md:grid-cols-2 gap-10 pt-10 border-t border-gray-800">
             {/* Directory Listings */}
             <div>
-              <h3 className="font-semibold text-base flex items-center gap-2">
+              <strong className="font-semibold text-base flex items-center gap-2">
                 <Award className="w-4 h-4 text-brand-coral" aria-hidden="true" />
                 Listed On
-              </h3>
+              </strong>
 
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                 {listedOn.map((item) => (
@@ -307,10 +307,10 @@ function FooterImpl() {
 
             {/* Networking Partners */}
             <div>
-              <h3 className="font-semibold text-base flex items-center gap-2">
+              <strong className="font-semibold text-base flex items-center gap-2">
                 <Globe className="w-4 h-4 text-brand-coral" aria-hidden="true" />
                 Networking Partners
-              </h3>
+              </strong>
 
               <div className="mt-4 grid grid-cols-3 gap-3 sm:gap-4">
                 {networking.map((item) => (

@@ -3,6 +3,7 @@ import { useLocation, useRoute } from "wouter";
 import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { Helmet } from "react-helmet";
 
 // ---------------- Types ----------------
 type WebCardResults = {
@@ -99,6 +100,11 @@ type Showcase = {
     mobileImageAlt?: string;
 };
 
+type SeoMeta = {
+    metaTitle?: string;
+    metaDescription?: string;
+};
+
 type WebCaseStudyDetail = {
     cardId: string;
 
@@ -161,6 +167,8 @@ type WebCaseStudyDetail = {
     partnershipMetrics: PartnershipMetric[];
     feedbackPrimaryCtaText?: string;
     feedbackPrimaryCtaHref?: string;
+
+    seo?: SeoMeta;
 };
 
 type WebCaseStudyCombined = {
@@ -366,90 +374,209 @@ export default function WebCaseStudySlugPage(props: any) {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* ================= HERO ================= */}
-            <section className="relative overflow-hidden text-white">
-                {/* gradient bg */}
-                <div className="absolute inset-0 bg-gradient-to-r from-brand-purple to-brand-coral" />
+        <>
+            <Helmet>
+                <title>
+                    {`${detail?.seo?.metaTitle} | BrandingBeez Case Study`}
+                </title>
 
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16 lg:py-20">
-                    {/* ✅ centered content wrapper */}
-                    <div className="max-w-6xl mx-auto text-center">
-                        {/* badge */}
-                        <div className="flex justify-center mb-5 sm:mb-8">
-                            <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
-                                <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
-                                    <IconByKey
-                                        iconKey="Award"
-                                        className="w-3.5 h-3.5 text-white"
-                                        size={14}
-                                    />
+                <meta name="description" content={detail?.seo?.metaDescription} />
+
+                <meta property="og:type" content="article" />
+                <meta
+                    property="og:title"
+                    content={
+                        `${detail?.seo?.metaTitle}  | BrandingBeez`
+                    }
+                />
+                <meta
+                    property="og:description"
+                    content={
+                        detail?.seo?.metaDescription}
+                />
+
+                {/* {card.imageUrl ? (
+                    <meta property="og:image" content={card.imageUrl} />
+                ) : null} */}
+
+                {/* <meta property="og:url" content={window.location.href} /> */}
+            </Helmet>
+
+            <div className="min-h-screen bg-white">
+                {/* ================= HERO ================= */}
+                {/* <section className="relative overflow-hidden text-white">
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-purple to-brand-coral" />
+
+                    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16 lg:py-20">
+                        <div className="max-w-6xl mx-auto text-center">
+                            <div className="flex justify-center mb-5 sm:mb-8">
+                                <div className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
+                                    <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
+                                        <IconByKey
+                                            iconKey="Award"
+                                            className="w-3.5 h-3.5 text-white"
+                                            size={14}
+                                        />
+                                    </div>
+                                    <span className="text-white text-xs sm:text-sm font-medium">
+                                        {detail?.heroBadgeText ?? "Website Development Success Story"}
+                                    </span>
                                 </div>
-                                <span className="text-white text-xs sm:text-sm font-medium">
+                            </div>
+
+                            <h1 className="text-white mb-3 sm:mb-6 font-bold text-3xl sm:text-4xl md:text-5xl xl:text-[56px] leading-tight break-words">
+                                {detail?.heroTitle ?? card.title ?? card.client}
+                            </h1>
+
+                            <div className="flex justify-center items-center gap-2 mb-6 sm:mb-8">
+                                <span className="text-white/90 text-sm sm:text-base">
+                                    {detail?.heroRatingText ??
+                                        "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}
+                                </span>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+                                <BookCallButtonWithModal
+                                    buttonLabel={
+                                        detail?.heroPrimaryCtaText ?? "Book Free Consultation"
+                                    }
+                                    className="w-full sm:w-auto px-6 sm:px-8 py-6 sm:py-5 bg-[#ee4b64] text-white font-bold rounded-[10px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
+                                    buttonSize="lg"
+                                    defaultServiceType="Website Development"
+                                />
+                                <CtaButton
+                                    variant="secondary"
+                                    text={detail?.heroSecondaryCtaText ?? "Visit Live Website"}
+                                    href={
+                                        detail?.heroSecondaryCtaHref ??
+                                        showcase?.liveUrl ??
+                                        card.link
+                                    }
+                                    rightIconKey="ExternalLink"
+                                />
+                            </div>
+
+                            {!hasDetail && (
+                                <div className="mt-8 sm:mt-10 bg-white/10 border border-white/20 text-white rounded-xl p-4 text-sm sm:text-base">
+                                    Detail content not added yet for this Web case study. (Card data
+                                    loaded ✅)
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </section>
+
+                <section className="bg-gray-50">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
+
+                        <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+                            <div className="lg:col-span-6 min-w-0">
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
+                                    Project Overview & Key Results
+                                </h2>
+                                <p className="text-gray-700 text-sm sm:text-base md:text-[17px] leading-relaxed mb-10 max-w-2xl">
+                                    {detail?.heroDescription ?? card.description}
+                                </p>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                                    {(heroStats.length
+                                        ? heroStats
+                                        : [
+                                            { value: card.results?.performance, label: "Industry", iconKey: "Building2" },
+                                            { value: card.results?.conversions, label: "Website Type", iconKey: "Calendar" },
+                                            { value: card.results?.users, label: "Delivery Type", iconKey: "Award" },
+                                        ]
+                                    )
+                                        .slice(0, 3)
+                                        .map((s, idx) => (
+                                            <div
+                                                key={`${s.label}-${idx}`}
+                                                className="bg-white rounded-2xl border border-gray-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow"
+                                            >
+                                                <div className="inline-flex items-center justify-center w-12 h-12 bg-[#EE4962] rounded-xl mb-4">
+                                                    <IconByKey
+                                                        iconKey={s.iconKey ?? "CheckCircle2"}
+                                                        className="w-5 h-5 text-white"
+                                                        size={20}
+                                                    />
+                                                </div>
+                                                <div className="text-sm sm:text-base font-semibold text-gray-900 mb-1 break-words">
+                                                    {s.value}
+                                                </div>
+                                                <p className="text-xs sm:text-sm text-gray-600">{s.label}</p>
+                                            </div>
+                                        ))}
+                                </div>
+                            </div>
+
+                            <div className="lg:col-span-6">
+                                <div className="rounded-[28px] border border-gray-100 bg-gradient-to-br from-gray-50 to-white shadow-md p-3 sm:p-4">
+                                    <div className="rounded-2xl overflow-hidden">
+                                        <div className="relative w-full aspect-[16/9] sm:aspect-[16/9.5] bg-black/5">
+                                            {detail?.heroVideoUrl ? (
+                                                <LazyYouTube
+                                                    videoId={extractYouTubeId(detail.heroVideoUrl)}
+                                                    aspectRatio="16/9"
+                                                    thumbnailQuality="hqdefault"
+                                                    className="absolute inset-0 w-full h-full"
+                                                />
+                                            ) : (
+                                                <div className="flex flex-col items-center justify-center text-center px-6 py-20">
+                                                    <div className="text-gray-900 font-semibold text-lg sm:text-xl">
+                                                        Video Coming Soon
+                                                    </div>
+                                                    <div className="text-gray-600 text-sm mt-2 max-w-md">
+                                                        We’re currently preparing the full case study walkthrough video.
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section> */}
+
+                <section className="relative overflow-hidden text-white">
+                    {/* Gradient background */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-brand-purple to-brand-coral" />
+
+                    <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-14 sm:py-18 lg:py-22 text-center">
+
+                        {/* Badge */}
+                        <div className="mb-6 flex justify-center">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg">
+                                <div className="flex items-center justify-center w-6 h-6 bg-white/20 rounded-md">
+                                    <IconByKey iconKey="Award" className="w-3.5 h-3.5 text-white" size={14} />
+                                </div>
+                                <span className="text-xs sm:text-sm font-medium">
                                     {detail?.heroBadgeText ?? "Website Development Success Story"}
                                 </span>
                             </div>
                         </div>
 
-                        {/* title */}
-                        <h1 className="text-white mb-3 sm:mb-6 font-bold text-3xl sm:text-4xl md:text-5xl xl:text-[56px] leading-tight break-words">
+                        {/* Title */}
+                        <h1 className="mb-4 font-bold text-3xl sm:text-4xl md:text-5xl xl:text-[48px] leading-tight">
                             {detail?.heroTitle ?? card.title ?? card.client}
                         </h1>
 
-                        {/* rating */}
-                        <div className="flex justify-center items-center gap-2 mb-6 sm:mb-8">
-                            <span className="text-white/90 text-sm sm:text-base">
-                                {detail?.heroRatingText ??
-                                    "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}
-                            </span>
-                        </div>
+                        {/* Rating */}
+                        <p className="mb-6 text-white/90 text-sm sm:text-base">
+                            {detail?.heroRatingText ?? "⭐⭐⭐⭐⭐ Rated 4.9 | Trusted by 25+ Agencies"}
+                        </p>
 
-                        {/* CTA buttons */}
-                        <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-                            <BookCallButtonWithModal
-                                buttonLabel={
-                                    detail?.heroPrimaryCtaText ?? "Book Free Consultation"
-                                }
-                                className="w-full sm:w-auto px-6 sm:px-8 py-6 sm:py-5 bg-[#ee4b64] text-white font-bold rounded-[10px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
-                                buttonSize="lg"
-                                defaultServiceType="Website Development"
-                            />
-                            <CtaButton
-                                variant="secondary"
-                                text={detail?.heroSecondaryCtaText ?? "Visit Live Website"}
-                                href={
-                                    detail?.heroSecondaryCtaHref ??
-                                    showcase?.liveUrl ??
-                                    card.link
-                                }
-                                rightIconKey="ExternalLink"
-                            />
-                        </div>
-
-                        {!hasDetail && (
-                            <div className="mt-8 sm:mt-10 bg-white/10 border border-white/20 text-white rounded-xl p-4 text-sm sm:text-base">
-                                Detail content not added yet for this Web case study. (Card data
-                                loaded ✅)
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </section>
-
-            <section className="bg-gray-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 lg:py-28">
-
-                    <div className="grid lg:grid-cols-12 gap-10 lg:gap-16 items-start">
-                        {/* LEFT CONTENT */}
-                        <div className="lg:col-span-6 min-w-0">
-                            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4 sm:mb-6">
-                                Project Overview & Key Results
-                            </h2>
-                            <p className="text-gray-700 text-sm sm:text-base md:text-[17px] leading-relaxed mb-10 max-w-2xl">
+                        {/* Description */}
+                        <div className="px-6 sm:px-8 mb-4">
+                            <p className="text-white text-sm sm:text-base leading-relaxed text-center">
                                 {detail?.heroDescription ?? card.description}
                             </p>
+                        </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
+                        {/* Stats */}
+                        <div className="px-6 sm:px-8 pb-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                                 {(heroStats.length
                                     ? heroStats
                                     : [
@@ -462,149 +589,142 @@ export default function WebCaseStudySlugPage(props: any) {
                                     .map((s, idx) => (
                                         <div
                                             key={`${s.label}-${idx}`}
-                                            className="bg-white rounded-2xl border border-gray-100 p-6 text-center shadow-sm hover:shadow-md transition-shadow"
+                                            className="rounded-2xl border bg-gray-50 p-5 hover:shadow-md transition"
                                         >
-                                            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#EE4962] rounded-xl mb-4">
+                                            <div className="inline-flex items-center justify-center w-11 h-11 bg-[#EE4962] rounded-xl mb-3">
                                                 <IconByKey
                                                     iconKey={s.iconKey ?? "CheckCircle2"}
                                                     className="w-5 h-5 text-white"
                                                     size={20}
                                                 />
                                             </div>
-                                            <div className="text-sm sm:text-base font-semibold text-gray-900 mb-1 break-words">
+                                            <div className="font-semibold text-sm sm:text-base text-gray-700">
                                                 {s.value}
                                             </div>
-                                            <p className="text-xs sm:text-sm text-gray-600">{s.label}</p>
+                                            <div className="text-gray-600 text-xs sm:text-sm mt-1">
+                                                {s.label}
+                                            </div>
                                         </div>
                                     ))}
                             </div>
                         </div>
 
-                        {/* ✅ BIGGER VIDEO */}
-                        <div className="lg:col-span-6">
-                            <div className="rounded-[28px] border border-gray-100 bg-gradient-to-br from-gray-50 to-white shadow-md p-3 sm:p-4">
-                                <div className="rounded-2xl overflow-hidden">
-                                    <div className="relative w-full aspect-[16/9] sm:aspect-[16/9.5] bg-black/5">
-                                        {detail?.heroVideoUrl ? (
-                                            <LazyYouTube
-                                                videoId={extractYouTubeId(detail.heroVideoUrl)}
-                                                aspectRatio="16/9"
-                                                thumbnailQuality="hqdefault"
-                                                className="absolute inset-0 w-full h-full"
-                                            />
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center text-center px-6 py-20">
-                                                <div className="text-gray-900 font-semibold text-lg sm:text-xl">
-                                                    Video Coming Soon
-                                                </div>
-                                                <div className="text-gray-600 text-sm mt-2 max-w-md">
-                                                    We’re currently preparing the full case study walkthrough video.
-                                                </div>
-                                            </div>
-                                        )}
 
-                                    </div>
-                                </div>
-                            </div>
+                        {/* CTAs */}
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center mt-5">
+                            <BookCallButtonWithModal
+                                buttonLabel={detail?.heroPrimaryCtaText ?? "Book Free Consultation"}
+                                className="px-7 py-5 bg-[#ee4b64] text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition"
+                                buttonSize="lg"
+                                defaultServiceType="Website Development"
+                            />
+                            <CtaButton
+                                variant="secondary"
+                                text={detail?.heroSecondaryCtaText ?? "Visit Live Website"}
+                                href={detail?.heroSecondaryCtaHref ?? showcase?.liveUrl ?? card.link}
+                                rightIconKey="ExternalLink"
+                            />
                         </div>
+
                     </div>
-                </div>
-            </section>
+                </section>
 
-            {/* ================= Website Showcase ================= */}
-            <WebsiteShowcaseSection
-                showcase={showcase}
-                fallbackTitle="Website Showcase"
-                fallbackSubtitle={`Live snapshots of the ${card.client} website we built`}
-            />
 
-            {/* ================= CTA 1 ================= */}
-            <InlineCtaBand
-                title={detail?.ctaTop?.title ?? "Not sure where to start?"}
-                body={
-                    detail?.ctaTop?.body ??
-                    "Get a quick website review and see how a refreshed build can improve conversions, speed, and credibility."
-                }
-                buttonText={detail?.ctaTop?.primaryText ?? "Request a Strategy Consultation"}
-                buttonHref={detail?.ctaTop?.primaryHref ?? "/contact?service=website-development"}
-            />
+                {/* ================= Website Showcase ================= */}
+                <WebsiteShowcaseSection
+                    showcase={showcase}
+                    fallbackTitle="Website Showcase"
+                    fallbackSubtitle={`Live snapshots of the ${card.client} website we built`}
+                />
 
-            {/* ================= Challenge ================= */}
-            <ChallengeSection
-                title={detail?.challengeTitle ?? "The Challenge"}
-                subtitle={detail?.challengeSubtitle ?? ""}
-                points={challengePoints}
-                beforeAfter={beforeAfter}
-            />
+                {/* ================= CTA 1 ================= */}
+                <InlineCtaBand
+                    title={detail?.ctaTop?.title ?? "Not sure where to start?"}
+                    body={
+                        detail?.ctaTop?.body ??
+                        "Get a quick website review and see how a refreshed build can improve conversions, speed, and credibility."
+                    }
+                    buttonText={detail?.ctaTop?.primaryText ?? "Request a Strategy Consultation"}
+                    buttonHref={detail?.ctaTop?.primaryHref ?? "/contact?service=website-development"}
+                />
 
-            {/* ================= Project Overview ================= */}
-            <OverviewSection
-                title={detail?.overviewTitle ?? "Project Overview"}
-                subtitle={detail?.overviewSubtitle ?? ""}
-                columns={overviewColumns}
-            />
+                {/* ================= Challenge ================= */}
+                <ChallengeSection
+                    title={detail?.challengeTitle ?? "The Challenge"}
+                    subtitle={detail?.challengeSubtitle ?? ""}
+                    points={challengePoints}
+                    beforeAfter={beforeAfter}
+                />
 
-            {/* ================= Strategy ================= */}
-            <StrategySection
-                title={detail?.strategyTitle ?? "Website Development Strategy"}
-                subtitle={detail?.strategySubtitle ?? ""}
-                columns={strategyColumns}
-            />
+                {/* ================= Project Overview ================= */}
+                <OverviewSection
+                    title={detail?.overviewTitle ?? "Project Overview"}
+                    subtitle={detail?.overviewSubtitle ?? ""}
+                    columns={overviewColumns}
+                />
 
-            {/* ================= Features ================= */}
-            <FeaturesSection
-                title={detail?.featuresTitle ?? "Website Features & Solution"}
-                subtitle={detail?.featuresSubtitle ?? ""}
-                coreTitle={detail?.coreFeaturesTitle ?? "Core Features Delivered"}
-                core={coreFeatures}
-                techTitle={detail?.technicalExcellenceTitle ?? "Technical Excellence"}
-                tech={technicalExcellence}
-            />
+                {/* ================= Strategy ================= */}
+                <StrategySection
+                    title={detail?.strategyTitle ?? "Website Development Strategy"}
+                    subtitle={detail?.strategySubtitle ?? ""}
+                    columns={strategyColumns}
+                />
 
-            {/* ================= CTA 2 ================= */}
-            <InlineCtaBand
-                title={detail?.ctaMid?.title ?? "Want similar results for your agency or business website?"}
-                body={
-                    detail?.ctaMid?.body ??
-                    "Share your current website and goals, and we'll tell you if this white-label build model fits your niche, timeline, and tech stack."
-                }
-                buttonText={detail?.ctaMid?.primaryText ?? "Talk to the Development Team"}
-                buttonHref={detail?.ctaMid?.primaryHref ?? "/contact?service=website-development"}
-            />
+                {/* ================= Features ================= */}
+                <FeaturesSection
+                    title={detail?.featuresTitle ?? "Website Features & Solution"}
+                    subtitle={detail?.featuresSubtitle ?? ""}
+                    coreTitle={detail?.coreFeaturesTitle ?? "Core Features Delivered"}
+                    core={coreFeatures}
+                    techTitle={detail?.technicalExcellenceTitle ?? "Technical Excellence"}
+                    tech={technicalExcellence}
+                />
 
-            {/* ================= Partnership Evaluation ================= */}
-            <EvaluationSection
-                kicker={detail?.evaluationKicker ?? "What makes this partnership successful?"}
-                title={detail?.evaluationTitle ?? "Partnership Evaluation"}
-                cards={evaluationCards}
-            />
+                {/* ================= CTA 2 ================= */}
+                <InlineCtaBand
+                    title={detail?.ctaMid?.title ?? "Want similar results for your agency or business website?"}
+                    body={
+                        detail?.ctaMid?.body ??
+                        "Share your current website and goals, and we'll tell you if this white-label build model fits your niche, timeline, and tech stack."
+                    }
+                    buttonText={detail?.ctaMid?.primaryText ?? "Talk to the Development Team"}
+                    buttonHref={detail?.ctaMid?.primaryHref ?? "/contact?service=website-development"}
+                />
 
-            {/* ================= Client Feedback ================= */}
-            <FeedbackSection
-                kicker={detail?.feedbackKicker ?? "What Our Clients Say"}
-                quote={detail?.testimonial?.quote ?? ""}
-                authorName={detail?.testimonial?.authorName ?? ""}
-                authorRole={detail?.testimonial?.authorRole ?? ""}
-                ratingText={detail?.testimonial?.ratingText ?? "⭐⭐⭐⭐⭐"}
-                metricsTitle={detail?.partnershipMetricsTitle ?? "Partnership Success"}
-                metrics={partnershipMetrics}
-                primaryCtaText={detail?.feedbackPrimaryCtaText ?? "Start Your Website Project"}
-                primaryCtaHref={detail?.feedbackPrimaryCtaHref ?? "/contact?service=website-development"}
-            />
+                {/* ================= Partnership Evaluation ================= */}
+                <EvaluationSection
+                    kicker={detail?.evaluationKicker ?? "What makes this partnership successful?"}
+                    title={detail?.evaluationTitle ?? "Partnership Evaluation"}
+                    cards={evaluationCards}
+                />
 
-            {/* ================= Final CTA ================= */}
-            <FinalCtaSection
-                title={detail?.finalCta?.title ?? "Ready to Build Your Professional Website?"}
-                body={
-                    detail?.finalCta?.body ??
-                    `Join ${card.client} and 100+ other agencies that trust BrandingBeez for their website development needs.`
-                }
-                primaryText={detail?.finalCta?.primaryText ?? "Book Your Free Consultation"}
-                primaryHref={detail?.finalCta?.primaryHref ?? "/contact?service=website-development"}
-                secondaryText={detail?.finalCta?.secondaryText ?? "View Other Website Services"}
-                secondaryHref={detail?.finalCta?.secondaryHref ?? "/services"}
-            />
-        </div>
+                {/* ================= Client Feedback ================= */}
+                <FeedbackSection
+                    kicker={detail?.feedbackKicker ?? "What Our Clients Say"}
+                    quote={detail?.testimonial?.quote ?? ""}
+                    authorName={detail?.testimonial?.authorName ?? ""}
+                    authorRole={detail?.testimonial?.authorRole ?? ""}
+                    ratingText={detail?.testimonial?.ratingText ?? "⭐⭐⭐⭐⭐"}
+                    metricsTitle={detail?.partnershipMetricsTitle ?? "Partnership Success"}
+                    metrics={partnershipMetrics}
+                    primaryCtaText={detail?.feedbackPrimaryCtaText ?? "Start Your Website Project"}
+                    primaryCtaHref={detail?.feedbackPrimaryCtaHref ?? "/contact?service=website-development"}
+                />
+
+                {/* ================= Final CTA ================= */}
+                <FinalCtaSection
+                    title={detail?.finalCta?.title ?? "Ready to Build Your Professional Website?"}
+                    body={
+                        detail?.finalCta?.body ??
+                        `Join ${card.client} and 100+ other agencies that trust BrandingBeez for their website development needs.`
+                    }
+                    primaryText={detail?.finalCta?.primaryText ?? "Book Your Free Consultation"}
+                    primaryHref={detail?.finalCta?.primaryHref ?? "/contact?service=website-development"}
+                    secondaryText={detail?.finalCta?.secondaryText ?? "View Other Website Services"}
+                    secondaryHref={detail?.finalCta?.secondaryHref ?? "/services"}
+                />
+            </div>
+        </>
     );
 }
 
@@ -1164,59 +1284,91 @@ function FeedbackSection({
     const [, setLocation] = useLocation();
 
     return (
-        <section className="bg-gray-50 py-12 sm:py-16 md:py-20">
+        <section className="bg-gray-50 py-10 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-8 sm:mb-10 md:mb-12">
-                    <p className="text-[#ee4962] mb-2 font-bold text-base sm:text-[20px]">{kicker}</p>
+                    <p className="text-black mb-2 font-bold text-base sm:text-[32px]">
+                        {kicker}
+                    </p>
                     <p className="text-gray-600 mt-2 sm:mt-3 max-w-2xl mx-auto text-sm sm:text-base">
-                        See how this partnership created lasting value and set the foundation for continued success.
+                        See how this partnership created lasting value and set the foundation
+                        for continued success.
                     </p>
                 </div>
 
+                {/* If you want 2 cols on tablet too, change lg:grid-cols-2 -> md:grid-cols-2 */}
                 <div className="grid lg:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
                     {/* testimonial */}
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-6 sm:p-8 md:p-10 lg:p-12 relative">
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-5 sm:p-8 md:p-10 lg:p-12 relative">
                         <div className="absolute top-4 sm:top-6 left-4 sm:left-6">
-                            <div className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br from-[#321a66] to-[#ee4962] rounded-full">
-                                <IconByKey iconKey="Quote" className="w-6 h-6 sm:w-7 sm:h-7 text-white" size={26} />
+                            <div className="flex items-center justify-center w-11 h-11 sm:w-14 sm:h-14 bg-gradient-to-br from-[#321a66] to-[#ee4962] rounded-full">
+                                <IconByKey
+                                    iconKey="Quote"
+                                    className="w-6 h-6 sm:w-7 sm:h-7 text-white"
+                                    size={26}
+                                />
                             </div>
                         </div>
 
-                        <blockquote className="text-center mb-7 sm:mb-8 mt-10 sm:mt-12">
-                            <p className="text-gray-700 italic mb-3 sm:mb-4 text-sm sm:text-base leading-relaxed">
+                        <blockquote className="text-center mb-6 sm:mb-8 mt-10 sm:mt-12">
+                            <p className="text-gray-700 italic mb-3 sm:mb-4 text-sm sm:text-base leading-relaxed break-words">
                                 {quote ? `"${quote}"` : "“Testimonial not provided yet.”"}
                             </p>
                             <div className="text-gray-500 text-sm">{ratingText}</div>
                         </blockquote>
 
-                        <div className="flex items-center justify-center gap-4">
-                            <div className="flex items-center justify-center w-12 h-12 bg-[#321a66] rounded-full">
-                                <IconByKey iconKey="MessageCircle" className="w-6 h-6 text-white" size={22} />
+                        <div className="flex items-center justify-center gap-3 sm:gap-4 ">
+                            <div className="flex items-center justify-center w-11 h-11 sm:w-12 sm:h-12 bg-[#321a66] rounded-full">
+                                <IconByKey
+                                    iconKey="MessageCircle"
+                                    className="w-6 h-6 text-white"
+                                    size={22}
+                                />
                             </div>
-                            <div className="text-left">
-                                <div className="text-gray-900 font-semibold text-sm sm:text-base">{authorName || "Client"}</div>
-                                <p className="text-gray-600 text-sm">{authorRole || "—"}</p>
+                            <div className="text-left min-w-0">
+                                <div className="text-gray-900 font-semibold text-sm sm:text-base break-words">
+                                    {authorName || "Client"}
+                                </div>
+                                <p className="text-gray-600 text-sm break-words">
+                                    {authorRole || "—"}
+                                </p>
                             </div>
                         </div>
                     </div>
 
                     {/* metrics */}
-                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-6 sm:p-8 md:p-10 lg:p-12">
+                    <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-5 sm:p-8 md:p-10 lg:p-12">
                         <h3 className="text-gray-900 mb-6 sm:mb-8 text-center font-bold text-base sm:text-[20px]">
                             {metricsTitle}
                         </h3>
 
                         <div className="space-y-4 sm:space-y-6 mb-7 sm:mb-8">
                             {(metrics || []).map((m, idx) => (
-                                <div key={idx} className="flex items-start sm:items-center justify-between gap-4">
+                                <div
+                                    key={idx}
+                                    className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1">
                                     <div className="flex items-center gap-3 min-w-0">
-                                        <IconByKey iconKey={m.iconKey} className="w-5 h-5 text-[#321a66] flex-shrink-0" size={18} />
-                                        <span className="text-gray-700 text-sm sm:text-base break-words">{m.label}</span>
+                                        <IconByKey
+                                            iconKey={m.iconKey}
+                                            className="w-5 h-5 text-[#321a66] flex-shrink-0"
+                                            size={18}
+                                        />
+                                        <span className="text-gray-900 font-semibold text-sm sm:text-base break-words">
+                                            {m.label}
+                                        </span>
                                     </div>
-                                    <span className="text-gray-900 font-semibold text-sm sm:text-base whitespace-nowrap">{m.value}</span>
+
+                                    <span className="text-gray-700 text-sm sm:text-base break-words font-medium">
+                                        {m.value}
+                                    </span>
                                 </div>
                             ))}
-                            {!metrics?.length ? <div className="text-sm text-gray-500 text-center">Metrics not provided yet.</div> : null}
+
+                            {!metrics?.length ? (
+                                <div className="text-sm text-gray-500 text-center">
+                                    Metrics not provided yet.
+                                </div>
+                            ) : null}
                         </div>
 
                         <div className="text-center">

@@ -86,6 +86,11 @@ const processStepSchema = z.object({
   description: z.string().min(1),
 });
 
+const ppcSeoMetaSchema = z.object({
+  metaTitle: z.string().max(60).optional(),
+  metaDescription: z.string().max(160).optional(),
+});
+
 export const insertPpcCaseStudyDetailSchema = z.object({
   cardId: z.string().min(1), // FK from card _id
 
@@ -142,4 +147,6 @@ export const insertPpcCaseStudyDetailSchema = z.object({
   bottomPrimaryCtaHref: z.string().optional(),
   bottomSecondaryCtaText: z.string().optional(),
   bottomSecondaryCtaHref: z.string().optional(),
+
+  seo: ppcSeoMetaSchema.optional(),
 });

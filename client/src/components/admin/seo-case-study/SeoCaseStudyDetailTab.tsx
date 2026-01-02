@@ -1009,6 +1009,11 @@ export type SeoCaseStudyPerformanceMetric = { label: string; value: string; chan
 
 export type SeoCaseStudyKeywordMetric = { label: string; value: string; percentage: string };
 
+export type SeoMeta = {
+  metaTitle?: string;
+  metaDescription?: string;
+};
+
 export type SeoCaseStudyDetailTabValues = {
   // FK
   cardId?: string;
@@ -1088,6 +1093,8 @@ export type SeoCaseStudyDetailTabValues = {
   bottomPrimaryCtaHref?: string;
   bottomSecondaryCtaText?: string;
   bottomSecondaryCtaHref?: string;
+
+  seo?: SeoMeta;
 };
 
 // dropdown option type
@@ -2149,6 +2156,53 @@ export function SeoCaseStudyDetailTab({
           <div>
             <Label>Bottom Secondary CTA Href</Label>
             <Input value={form.bottomSecondaryCtaHref || ""} onChange={(e) => onChange("bottomSecondaryCtaHref", e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      {/* SEO */}
+      <div className="border rounded-lg p-3 space-y-3 bg-slate-50">
+        <SectionTitle
+          title="SEO Metadata"
+          subtitle="Used for Google title & description (Helmet)"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <Label>Meta Title</Label>
+            <Input
+              value={form.seo?.metaTitle || ""}
+              maxLength={60}
+              placeholder="Max 60 characters"
+              onChange={(e) =>
+                onChange("seo", {
+                  ...form.seo,
+                  metaTitle: e.target.value,
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {(form.seo?.metaTitle || "").length}/60
+            </div>
+          </div>
+
+          <div>
+            <Label>Meta Description</Label>
+            <textarea
+              className="w-full border rounded-md p-2 mt-1 min-h-[84px]"
+              maxLength={160}
+              placeholder="Max 160 characters"
+              value={form.seo?.metaDescription || ""}
+              onChange={(e) =>
+                onChange("seo", {
+                  ...form.seo,
+                  metaDescription: e.target.value,
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {(form.seo?.metaDescription || "").length}/160
+            </div>
           </div>
         </div>
       </div>

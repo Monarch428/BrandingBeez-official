@@ -1182,6 +1182,7 @@ import {
   SeoCaseStudyContactPoint,
   SeoCaseStudyPerformanceMetric,
   SeoCaseStudyKeywordMetric,
+  SeoMeta,
 } from "./SeoCaseStudyDetailTab";
 
 // ---------- Helper ----------
@@ -1310,6 +1311,8 @@ export type SeoCaseStudyDetail = {
   bottomSecondaryCtaText?: string;
   bottomSecondaryCtaHref?: string;
 
+  seo?: SeoMeta;
+
   createdAt?: string;
   updatedAt?: string;
 };
@@ -1323,9 +1326,7 @@ type FormState = Partial<SeoCaseStudyCard> &
     detailMongoId?: string;
   };
 
-/**
- * ✅ DEFAULTS (admin sees sensible defaults, but can edit)
- */
+
 const emptyForm: FormState = {
   // Card
   slug: "",
@@ -1433,6 +1434,10 @@ const emptyForm: FormState = {
   bottomPrimaryCtaHref: "/contact?service=seo",
   bottomSecondaryCtaText: "See Pricing",
   bottomSecondaryCtaHref: "/pricing-calculator?service=seo",
+  seo: {
+    metaTitle: "",
+    metaDescription: "",
+  },
 };
 
 function normalizeDetailToForm(detail: SeoCaseStudyDetailDoc): Partial<FormState> {
@@ -1501,6 +1506,7 @@ function normalizeDetailToForm(detail: SeoCaseStudyDetailDoc): Partial<FormState
     bottomPrimaryCtaHref: detail.bottomPrimaryCtaHref || "",
     bottomSecondaryCtaText: detail.bottomSecondaryCtaText || "",
     bottomSecondaryCtaHref: detail.bottomSecondaryCtaHref || "",
+    seo: detail.seo || {},
   };
 }
 
@@ -2088,6 +2094,7 @@ export function SeoCaseStudiesManager() {
       percentage: String(m?.percentage || "").trim(),
     }));
 
+
     return {
       cardId: finalCardId,
 
@@ -2156,6 +2163,14 @@ export function SeoCaseStudiesManager() {
       bottomPrimaryCtaHref: form.bottomPrimaryCtaHref || undefined,
       bottomSecondaryCtaText: form.bottomSecondaryCtaText || undefined,
       bottomSecondaryCtaHref: form.bottomSecondaryCtaHref || undefined,
+
+      seo:
+        form.seo?.metaTitle || form.seo?.metaDescription
+          ? {
+            metaTitle: String(form.seo?.metaTitle || "").trim(),
+            metaDescription: String(form.seo?.metaDescription || "").trim(),
+          }
+          : undefined,
     };
   };
 

@@ -1483,6 +1483,11 @@ export type WebTestimonial = {
 
 export type WebPartnershipMetric = { iconKey: string; label: string; value: string };
 
+export type WebSeoMeta = {
+  metaTitle?: string;
+  metaDescription?: string;
+};
+
 export type WebCaseStudyDetailTabValues = {
   cardId?: string;
 
@@ -1538,6 +1543,7 @@ export type WebCaseStudyDetailTabValues = {
   feedbackPrimaryCtaHref?: string;
 
   finalCta?: WebCtaBlock;
+  seo?: WebSeoMeta;
 };
 
 type CardOption = { _id: string; slug: string; title: string; client: string; industry: string };
@@ -1672,6 +1678,8 @@ export function WebCaseStudyDetailTab({
   const ctaMid = form.ctaMid || ({} as any);
   const testimonial = form.testimonial || ({} as any);
   const finalCta = form.finalCta || ({} as any);
+
+
 
   const errClass = (key: string) => (errors?.[key] ? "border-red-500 focus-visible:ring-red-500" : "");
   const errText = (key: string) => (errors?.[key] ? <div className="text-xs text-red-600 mt-1">{errors[key]}</div> : null);
@@ -1894,24 +1902,39 @@ export function WebCaseStudyDetailTab({
             />
 
             {showcase.desktopImageUrl ? (
-              <div className="mt-2 space-y-2">
-                <img src={showcase.desktopImageUrl} className="rounded-lg border w-full max-w-md" />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    onChange("showcase", {
-                      ...showcase,
-                      desktopImageUrl: "",
-                      desktopImagePublicId: "",
-                      desktopImageAlt: "",
-                    })
-                  }
-                >
-                  Remove Desktop Image
-                </Button>
+              <div
+                className="
+      mt-2 space-y-2
+      max-h-[260px]
+      overflow-y-auto
+      pr-1
+      scrollbar-thin
+      scrollbar-thumb-slate-300
+      scrollbar-track-slate-100
+    "
+              >
+                <img
+                  src={showcase.desktopImageUrl}
+                  className="rounded-lg border w-full max-w-md"
+                  alt={showcase.desktopImageAlt || "Desktop preview"}
+                />
               </div>
             ) : null}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full mt-2 hover:bg-red-400"
+              onClick={() =>
+                onChange("showcase", {
+                  ...showcase,
+                  desktopImageUrl: "",
+                  desktopImagePublicId: "",
+                  desktopImageAlt: "",
+                })
+              }
+            >
+              Remove Desktop Image
+            </Button>
           </div>
 
           {/* ✅ Mobile upload */}
@@ -1953,24 +1976,32 @@ export function WebCaseStudyDetailTab({
             />
 
             {showcase.mobileImageUrl ? (
-              <div className="mt-2 space-y-2">
-                <img src={showcase.mobileImageUrl} className="rounded-lg border w-48 mx-auto" />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    onChange("showcase", {
-                      ...showcase,
-                      mobileImageUrl: "",
-                      mobileImagePublicId: "",
-                      mobileImageAlt: "",
-                    })
-                  }
-                >
-                  Remove Mobile Image
-                </Button>
+              <div
+                className=" mt-2 space-y-2 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+                <img
+                  src={showcase.mobileImageUrl}
+                  className="rounded-lg border w-48 mx-auto"
+                  alt={showcase.mobileImageAlt || "Mobile preview"}
+                />
+
               </div>
             ) : null}
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full mt-2 hover:bg-red-400"
+              onClick={() =>
+                onChange("showcase", {
+                  ...showcase,
+                  mobileImageUrl: "",
+                  mobileImagePublicId: "",
+                  mobileImageAlt: "",
+                })
+              }
+            >
+              Remove Mobile Image
+            </Button>
           </div>
         </div>
       </div>
@@ -2806,6 +2837,53 @@ export function WebCaseStudyDetailTab({
           <div>
             <Label>Secondary Href</Label>
             <Input value={finalCta.secondaryHref || ""} onChange={(e) => onChange("finalCta", { ...finalCta, secondaryHref: e.target.value })} />
+          </div>
+        </div>
+      </div>
+
+      {/* SEO */}
+      <div className="border rounded-lg p-3 space-y-3 bg-slate-50">
+        <SectionTitle
+          title="SEO Metadata"
+          subtitle="Overrides default title & description for search engines"
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <Label>Meta Title</Label>
+            <Input
+              value={form.seo?.metaTitle || ""}
+              maxLength={60}
+              placeholder="Max 60 characters"
+              onChange={(e) =>
+                onChange("seo", {
+                  ...form.seo,
+                  metaTitle: e.target.value,
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {form.seo?.metaTitle?.length || 0}/60
+            </div>
+          </div>
+
+          <div>
+            <Label>Meta Description</Label>
+            <textarea
+              className="w-full border rounded-md p-2 mt-1 min-h-[84px]"
+              maxLength={160}
+              placeholder="Max 160 characters"
+              value={form.seo?.metaDescription || ""}
+              onChange={(e) =>
+                onChange("seo", {
+                  ...form.seo,
+                  metaDescription: e.target.value,
+                })
+              }
+            />
+            <div className="text-xs text-gray-500 mt-1">
+              {form.seo?.metaDescription?.length || 0}/160
+            </div>
           </div>
         </div>
       </div>
