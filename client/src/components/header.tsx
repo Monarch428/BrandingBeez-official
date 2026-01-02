@@ -731,7 +731,7 @@ export default function Header() {
                   : "text-gray-700 hover:text-brand-coral-darker"
                   }`}
               >
-                Blog
+                Blogs
               </span>
             </Link>
 
@@ -884,7 +884,7 @@ export default function Header() {
                     }`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
-                  Blog
+                  Blogs
                 </button>
               </Link>
 
