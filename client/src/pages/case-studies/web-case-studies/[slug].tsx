@@ -1346,25 +1346,19 @@ function FeedbackSection({
                             {(metrics || []).map((m, idx) => (
                                 <div
                                     key={idx}
-                                    className="
-                flex flex-col xs:flex-row
-                items-start xs:items-center
-                justify-between
-                gap-2 xs:gap-4
-              "
-                                >
+                                    className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-1">
                                     <div className="flex items-center gap-3 min-w-0">
                                         <IconByKey
                                             iconKey={m.iconKey}
                                             className="w-5 h-5 text-[#321a66] flex-shrink-0"
                                             size={18}
                                         />
-                                        <span className="text-gray-700 text-sm sm:text-base break-words">
+                                        <span className="text-gray-900 font-semibold text-sm sm:text-base break-words">
                                             {m.label}
                                         </span>
                                     </div>
 
-                                    <span className="text-gray-900 font-semibold text-sm sm:text-base break-words">
+                                    <span className="text-gray-700 text-sm sm:text-base break-words font-medium">
                                         {m.value}
                                     </span>
                                 </div>
