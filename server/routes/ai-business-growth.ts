@@ -36,6 +36,80 @@ import { sendBusinessGrowthReportEmailWithDownload, sendContactNotification } fr
 // }
 import { generateBusinessGrowthPdfBuffer } from "../generateBusinessGrowthPdf";
 
+/**
+ * Normalize website URL (ensures https:// and no trailing slash).
+ */
+function normalizeWebsiteUrl(url: string) {
+  const trimmed = String(url || "").trim();
+  if (!trimmed) return "";
+  const hasProtocol = /^https?:\/\//i.test(trimmed);
+  const withProtocol = hasProtocol ? trimmed : `https://${trimmed}`;
+  return withProtocol.replace(/\/+$/, "");
+}
+
+/**
+ * Strict reachability check.
+ * Analysis/report generation should ONLY run if the website is reachable.
+ */
+async function checkWebsiteReachableStrict(
+  website: string,
+  timeoutMs = 8000,
+): Promise<{
+  reachable: boolean;
+  inputUrl: string;
+  normalizedUrl: string;
+  finalUrl?: string;
+  httpStatus?: number;
+  error?: string;
+}> {
+  const normalizedUrl = normalizeWebsiteUrl(website);
+  const inputUrl = String(website || "").trim();
+
+  if (!normalizedUrl) {
+    return { reachable: false, inputUrl, normalizedUrl, error: "EMPTY_URL" };
+  }
+
+  // Basic format guard
+  const isValidFormat = /^https?:\/\/[^\s]+\.[^\s]+$/i.test(normalizedUrl);
+  if (!isValidFormat) {
+    return { reachable: false, inputUrl, normalizedUrl, error: "INVALID_URL_FORMAT" };
+  }
+
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(normalizedUrl, {
+      method: "GET",
+      redirect: "follow",
+      signal: controller.signal,
+      headers: {
+        "User-Agent": "BrandingBeezBot/1.0 (+https://brandingbeez.co.uk)",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+
+    const httpStatus = res.status;
+    const finalUrl = (res as any).url || normalizedUrl;
+
+    if (httpStatus >= 200 && httpStatus < 400) {
+      return { reachable: true, inputUrl, normalizedUrl, finalUrl, httpStatus };
+    }
+
+    return { reachable: false, inputUrl, normalizedUrl, finalUrl, httpStatus, error: `HTTP_${httpStatus}` };
+  } catch (err: any) {
+    const isAbort = err?.name === "AbortError";
+    return {
+      reachable: false,
+      inputUrl,
+      normalizedUrl,
+      error: isAbort ? "TIMEOUT" : (err?.message || "FETCH_FAILED"),
+    };
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 function slugify(value: string) {
   return (
     value
@@ -249,10 +323,24 @@ export function registerBusinessGrowthRoutes(app: Express) {
    * (Email + PDF handled in /report step after lead submit).
    */
   app.post("/api/ai-business-growth/analyze", async (req, res) => {
-    const { companyName, website, industry } = req.body || {};
+    const { companyName, website, industry, targetMarket, businessGoal, reportType } = req.body || {};
 
     if (!website || typeof website !== "string") {
       return res.status(400).json({ success: false, message: "Website is required" });
+    }
+
+
+    const reach = await checkWebsiteReachableStrict(website);
+    if (!reach.reachable) {
+      return res.status(400).json({
+        success: false,
+        code: "WEBSITE_NOT_REACHABLE",
+        message:
+          reach.error === "INVALID_URL_FORMAT"
+            ? "Please enter a valid website URL (e.g., https://example.com)."
+            : "Website is not reachable. Please enter a correct URL and try again.",
+        details: reach,
+      });
     }
 
     try {
@@ -260,6 +348,9 @@ export function registerBusinessGrowthRoutes(app: Express) {
         companyName: companyName || "Marketing Agency",
         website,
         industry,
+        targetMarket,
+        businessGoal,
+        reportType,
       });
 
       const analysisToken = makeToken();
@@ -276,9 +367,19 @@ export function registerBusinessGrowthRoutes(app: Express) {
       }
 
       res.json({ success: true, analysis, analysisToken });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Business growth analysis route error:", error);
-      res.status(500).json({ success: false, message: "Failed to generate analysis" });
+
+      if (error?.code === "WEBSITE_NOT_REACHABLE") {
+        return res.status(400).json({
+          success: false,
+          code: "WEBSITE_NOT_REACHABLE",
+          message: error?.message || "Website is not reachable. Please enter a correct URL and try again.",
+          details: error?.details,
+        });
+      }
+
+      return res.status(500).json({ success: false, message: "Failed to generate analysis" });
     }
   });
 
@@ -299,6 +400,17 @@ export function registerBusinessGrowthRoutes(app: Express) {
     if (!resolvedWebsite || typeof resolvedWebsite !== "string") {
       return res.status(400).json({ success: false, message: "Website is required for PDF generation" });
     }
+
+    const reach = await checkWebsiteReachableStrict(resolvedWebsite);
+    if (!reach.reachable) {
+      return res.status(400).json({
+        success: false,
+        code: "WEBSITE_NOT_REACHABLE",
+        message: "Website is not reachable. Please enter a correct URL and try again.",
+        details: reach,
+      });
+    }
+
     if (!analysisSource) {
       return res.status(404).json({ success: false, message: "Analysis not found or expired" });
     }

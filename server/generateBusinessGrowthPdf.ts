@@ -22,6 +22,29 @@ const BG_LIGHT = "#f8fafc";
 
 const MARGINS = { top: 54, left: 54, right: 54, bottom: 54 };
 
+const FOOTER_RESERVED_H = 44; // keep content clear of footer area
+
+function contentBottom(doc: PDFKit.PDFDocument) {
+  return doc.page.height - doc.page.margins.bottom - FOOTER_RESERVED_H;
+}
+
+function ensureSpace(doc: PDFKit.PDFDocument, neededHeight: number) {
+  if (doc.y + neededHeight > contentBottom(doc)) {
+    doc.addPage();
+  }
+}
+
+function resetX(doc: PDFKit.PDFDocument) {
+  doc.x = doc.page.margins.left;
+}
+
+
+// Avoid blank pages: only add a new page if current page already has content
+function addPageIfNotAtTop(doc: PDFKit.PDFDocument) {
+  const top = doc.page.margins.top;
+  if (doc.y > top + 5) doc.addPage();
+}
+
 function safeText(value: unknown, fallback = "N/A") {
   if (typeof value === "string") return value.trim() || fallback;
   if (typeof value === "number") return Number.isFinite(value) ? String(value) : fallback;
@@ -130,10 +153,22 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
     doc.y = prevY;
 
     // Footer
+    // IMPORTANT: In PDFKit, any text drawn with a Y position BELOW
+    // (page.height - margins.bottom) can trigger an automatic page break.
+    // Your previous footer Y (h - bottom + …) was below that threshold,
+    // which caused an extra page to be inserted that contained ONLY the
+    // header/footer, and then the actual content started on the next page.
+    //
+    // Fix: draw footer INSIDE the safe content box, just above the bottom margin.
     doc.save();
+
+    const contentBottomY = h - bottom; // max Y before PDFKit auto-adds a new page
+    const footerRuleY = contentBottomY - 22;
+    const footerTextY = contentBottomY - 16;
+
     doc
-      .moveTo(left, h - bottom + 16)
-      .lineTo(w - right, h - bottom + 16)
+      .moveTo(left, footerRuleY)
+      .lineTo(w - right, footerRuleY)
       .lineWidth(1)
       .strokeColor(GRAY_200)
       .stroke();
@@ -142,20 +177,21 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
       .font("Helvetica")
       .fontSize(9)
       .fillColor(GRAY_500)
-      .text(`Page ${pageNumber - 1}`, left, h - bottom + 24, { align: "left", lineBreak: false });
+      .text(`Page ${pageNumber - 1}`, left, footerTextY, { align: "left", lineBreak: false });
 
-    doc
-      .font("Helvetica")
-      .fontSize(9)
-      .fillColor(GRAY_500)
-      .text(`Report ID: ${reportId}`, left, h - bottom + 24, { width: w - left - right, align: "center", lineBreak: false });
+    // doc
+    //   .font("Helvetica")
+    //   .fontSize(9)
+    //   .fillColor(GRAY_500)
+    //   .text(`Report ID: ${reportId}`, left, footerTextY, { width: w - left - right, align: "center", lineBreak: false });
 
     doc
       .font("Helvetica-Bold")
       .fontSize(9)
       .fillColor(GRAY_500)
-      .text("CONFIDENTIAL", left, h - bottom + 24, { width: w - left - right, align: "right", lineBreak: false });
+      .text("CONFIDENTIAL", left, footerTextY, { width: w - left - right, align: "right", lineBreak: false });
 
+    doc.restore();
     doc.restore();
 
       // Restore cursor
@@ -171,12 +207,14 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
 }
 
 function sectionTitle(doc: PDFKit.PDFDocument, n: string, title: string) {
+  resetX(doc);
+  ensureSpace(doc, 60);
   doc.moveDown(0.5);
   doc
     .font("Helvetica-Bold")
     .fontSize(16)
     .fillColor(GRAY_900)
-    .text(`${n}. ${title}`);
+    .text(`${n}. ${title}`, doc.page.margins.left, doc.y, { width: doc.page.width - doc.page.margins.left - doc.page.margins.right, align: "left" });
   doc
     .moveDown(0.25)
     .moveTo(doc.page.margins.left, doc.y)
@@ -188,21 +226,32 @@ function sectionTitle(doc: PDFKit.PDFDocument, n: string, title: string) {
 }
 
 function paragraph(doc: PDFKit.PDFDocument, text: string) {
-  doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(text, { lineGap: 2 });
+  resetX(doc);
+  const w = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+  const h = doc.heightOfString(text || "", { width: w, lineGap: 2 });
+  ensureSpace(doc, h + 18);
+  doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(text, doc.page.margins.left, doc.y, { lineGap: 2, width: w, align: "left" });
   doc.moveDown(0.4);
 }
 
 function bullets(doc: PDFKit.PDFDocument, items: string[], emptyMessage = "No data available.") {
+  resetX(doc);
   const list = (items || []).filter(Boolean);
+  const w = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+
   if (!list.length) {
-    doc.font("Helvetica").fontSize(11).fillColor(GRAY_500).text(emptyMessage);
+    ensureSpace(doc, 24);
+    doc.font("Helvetica").fontSize(11).fillColor(GRAY_500).text(emptyMessage, doc.page.margins.left, doc.y, { width: w, lineGap: 2, align: "left" });
     doc.moveDown(0.4);
     return;
   }
 
   doc.font("Helvetica").fontSize(11).fillColor(GRAY_900);
   list.forEach((it) => {
-    doc.text(`• ${it}`, { indent: 10, lineGap: 2 });
+    const line = `• ${it}`;
+    const h = doc.heightOfString(line, { width: w, indent: 12, lineGap: 2, align: "left" });
+    ensureSpace(doc, h + 6);
+    doc.text(line, doc.page.margins.left, doc.y, { indent: 12, lineGap: 2, width: w, align: "left" });
   });
   doc.moveDown(0.4);
 }
@@ -210,24 +259,47 @@ function bullets(doc: PDFKit.PDFDocument, items: string[], emptyMessage = "No da
 function callout(doc: PDFKit.PDFDocument, title: string, body: string) {
   const x = doc.page.margins.left;
   const w = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-  const startY = doc.y;
 
   const padding = 12;
-  const boxH = 10 + padding * 2 + 40; // will be adjusted by text flow (approx)
+  const innerW = w - padding * 2;
+
+  const titleH = doc.heightOfString(title || "", { width: innerW, lineGap: 2 });
+  const bodyH = doc.heightOfString(body || "", { width: innerW, lineGap: 2 });
+
+  const boxH = padding + titleH + 6 + bodyH + padding;
+
+  // Prevent overlap/misalignment near page bottom
+  ensureSpace(doc, boxH + 10);
+
+  const startY = doc.y;
+
   doc.save();
   doc.roundedRect(x, startY, w, boxH, 12).fill(BG_LIGHT);
   doc.restore();
 
   doc.y = startY + padding;
-  doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(title, x + padding, doc.y, { width: w - padding * 2 });
+
+  doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(title, x + padding, doc.y, {
+    width: innerW,
+    lineGap: 2,
+  });
+
   doc.moveDown(0.3);
-  doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(body, x + padding, doc.y, { width: w - padding * 2, lineGap: 2 });
+
+  doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(body, x + padding, doc.y, {
+    width: innerW,
+    lineGap: 2,
+  });
+
+  doc.y = startY + boxH;
   doc.moveDown(0.8);
+  resetX(doc);
 }
 
 function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[], colWidths?: number[]) {
   const x = doc.page.margins.left;
   const yStart = doc.y;
+  ensureSpace(doc, 28);
   const w = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
   const widths = colWidths && colWidths.length === headers.length
@@ -247,7 +319,7 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
     );
 
     // Page break
-    const bottomLimit = doc.page.height - doc.page.margins.bottom - 40;
+    const bottomLimit = contentBottom(doc) - 10;
     if (y + rowHeight > bottomLimit) {
       doc.addPage();
       return drawRow(cells, doc.y, isHeader, stripe);
@@ -310,6 +382,7 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
   });
 
   doc.moveDown(0.8);
+  resetX(doc);
 }
 
 function speedTestTable(speed: WebsiteSpeedTest | undefined) {
@@ -380,13 +453,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text("Overall Score", badgeX + 14, badgeY + 12);
       doc.font("Helvetica-Bold").fontSize(28).fillColor(BRAND_CORAL).text(`${overallScore}/100`, badgeX + 14, badgeY + 30);
 
-      doc.moveDown(5.2);
-      doc.font("Helvetica").fontSize(10).fillColor(GRAY_500).text(
-        "Generated by BrandingBeez • This report is an automated analysis and should be reviewed with a strategist before making major decisions.",
-        { align: "left", lineGap: 2 },
-      );
-
-      doc.addPage();
+      addPageIfNotAtTop(doc);
 
       /* =========================
          1) EXECUTIVE SUMMARY
@@ -435,7 +502,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         });
       }
 
-      doc.addPage();
+      addPageIfNotAtTop(doc);
 
       /* =========================
          2) WEBSITE & DIGITAL PRESENCE
@@ -452,9 +519,6 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       // Speed test table
       const speed = t?.pageSpeed as WebsiteSpeedTest | undefined;
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Page Speed & Core Web Vitals (Real Test)");
-      doc.font("Helvetica").fontSize(10).fillColor(GRAY_500).text(
-        "Source: Google PageSpeed Insights (Mobile + Desktop). If any values show '—', the test couldn't be fetched at runtime.",
-      );
       doc.moveDown(0.4);
       drawTable(doc, ["Strategy", "Perf", "SEO", "LCP", "CLS", "TBT"], speedTestTable(speed), [90, 60, 60, 95, 70, 80]);
 
@@ -468,7 +532,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       }
 
       const cq = report.websiteDigitalPresence?.contentQuality;
-      doc.addPage();
+      addPageIfNotAtTop(doc);
       sectionTitle(doc, "2.2", "Content Quality Assessment");
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Content Quality Score: ${clampScore(cq?.score)}/100`);
       bullets(doc, normalizeStringList(cq?.strengths), "No content strengths detected.");
@@ -478,7 +542,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       bullets(doc, normalizeStringList(cq?.recommendations), "No recommendations available.");
 
       const ux = report.websiteDigitalPresence?.uxConversion;
-      doc.addPage();
+      addPageIfNotAtTop(doc);
       sectionTitle(doc, "2.3", "UX & Conversion Optimization");
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`UX/Conversion Score: ${clampScore(ux?.score)}/100`);
       bullets(doc, normalizeStringList(ux?.highlights), "No conversion positives detected.");
@@ -488,7 +552,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       const gaps = normalizeStringList(report.websiteDigitalPresence?.contentGaps);
       if (gaps.length) {
-        doc.addPage();
+        addPageIfNotAtTop(doc);
         sectionTitle(doc, "2.4", "Content Gaps");
         bullets(doc, gaps, "No gaps detected.");
       }
@@ -496,7 +560,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       /* =========================
          3) SEO & ORGANIC VISIBILITY
       ========================= */
-      doc.addPage();
+      addPageIfNotAtTop(doc);
       sectionTitle(doc, "3", "SEO & Organic Visibility");
 
       const da = report.seoVisibility?.domainAuthority;
@@ -531,15 +595,510 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       );
       bullets(doc, normalizeStringList(backlinks?.issues), "No backlink issues detected.");
 
+      
       /* =========================
-         FINISH
+         4) REPUTATION & SOCIAL PROOF
       ========================= */
-      doc.addPage();
-      sectionTitle(doc, "13", "Risk Assessment & Next Steps");
-      paragraph(
-        doc,
-        "This report is designed to be actionable. If you want BrandingBeez to help implement the highest-ROI opportunities, book a strategy call and we’ll map the plan into deliverables, timelines, and owners.",
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "4", "Reputation & Social Proof Audit");
+
+      const rep = report.reputation;
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Overall Review Score: ${safeText(rep?.reviewScore, "—")}/5`);
+      doc.font("Helvetica").fontSize(10).fillColor(GRAY_500).text(
+        "Based on publicly available review platforms detected during analysis.",
+        { lineGap: 2 },
       );
+      doc.moveDown(0.4);
+
+      if (rep?.summaryTable?.length) {
+        drawTable(
+          doc,
+          ["Platform", "Reviews", "Rating", "Benchmark", "Gap"],
+          rep.summaryTable.map((r) => [r.platform, r.reviews, r.rating, r.industryBenchmark, r.gap]),
+          [140, 70, 70, 110, 110],
+        );
+      } else {
+        paragraph(doc, "No review platform data was detected for this website/company.");
+      }
+
+      paragraph(doc, `Total Reviews Found: ${safeText(rep?.totalReviews, "—")} • Industry Standard: ${safeText(rep?.industryStandardRange, "—")} • Your Gap: ${safeText(rep?.yourGap, "—")}`);
+
+      const themes = rep?.sentimentThemes;
+      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
+      bullets(doc, normalizeStringList(themes?.positive), "No positive themes detected.");
+      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
+      bullets(doc, normalizeStringList(themes?.negative), "No negative themes detected.");
+      paragraph(doc, `Response Rate: ${safeText(themes?.responseRate, "N/A")} • Avg Response Time: ${safeText(themes?.averageResponseTime, "N/A")}`);
+
+      /* =========================
+         5) SERVICE OFFERINGS & MARKET POSITIONING
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "5", "Service Offerings & Market Positioning");
+
+      const sp = report.servicesPositioning;
+
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Service Menu");
+      if (sp?.services?.length) {
+        drawTable(
+          doc,
+          ["Service", "Starting Price", "Target Market", "Description"],
+          sp.services.map((s) => [s.name, s.startingPrice, s.targetMarket, s.description]),
+          [130, 90, 120, 190],
+        );
+      } else {
+        paragraph(doc, "No service list data was detected.");
+      }
+
+      if (sp?.serviceGaps?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Service Gaps vs Market");
+        drawTable(
+          doc,
+          ["Service", "You", "Competitor A", "Competitor B", "Market Demand"],
+          sp.serviceGaps.map((g) => [g.service, g.youOffer, g.competitorA, g.competitorB, g.marketDemand]),
+          [120, 90, 90, 90, 120],
+        );
+      }
+
+      const inds = sp?.industriesServed;
+      if (inds) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Industries Served");
+        bullets(doc, normalizeStringList(inds.current), "No industries detected.");
+        paragraph(doc, safeText(inds.concentrationNote, ""));
+        if (inds.highValueTargets?.length) {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("High-Value Targets");
+          drawTable(
+            doc,
+            ["Industry", "Why High Value", "Avg Deal Size", "Readiness"],
+            inds.highValueTargets.map((t) => [t.industry, t.whyHighValue, t.avgDealSize, t.readiness]),
+            [110, 210, 90, 80],
+          );
+        }
+      }
+
+      const pos = sp?.positioning;
+      if (pos) {
+        callout(
+          doc,
+          "Positioning Snapshot",
+          `Current: ${safeText(pos.currentStatement, "N/A")}\n\nCompetitors: ${safeText(pos.competitorComparison, "N/A")}\n\nDifferentiation: ${safeText(pos.differentiation, "N/A")}`,
+        );
+      }
+
+      /* =========================
+         6) LEAD GENERATION & ACQUISITION CHANNELS
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "6", "Lead Generation & Acquisition Channels");
+
+      const lg = report.leadGeneration;
+
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Channels");
+      if (lg?.channels?.length) {
+        drawTable(
+          doc,
+          ["Channel", "Leads / Month", "Quality", "Status"],
+          lg.channels.map((c) => [c.channel, c.leadsPerMonth, c.quality, c.status]),
+          [150, 90, 90, 90],
+        );
+      } else {
+        paragraph(doc, "No channel data was detected.");
+      }
+
+      if (lg?.missingHighROIChannels?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Missing High-ROI Channels");
+        drawTable(
+          doc,
+          ["Channel", "Est. Leads", "Setup Time", "Monthly Cost", "Priority"],
+          lg.missingHighROIChannels.map((c) => [c.channel, c.estimatedLeads, c.setupTime, c.monthlyCost, c.priority]),
+          [140, 80, 80, 80, 80],
+        );
+      }
+
+      const magnets = lg?.leadMagnets;
+      if (magnets) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Lead Magnets");
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Currently Detected");
+        bullets(doc, normalizeStringList(magnets.current), "No current lead magnets detected.");
+
+        if (magnets.recommendations?.length) {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Recommended Lead Magnets");
+          drawTable(
+            doc,
+            ["Name", "Format", "Target Audience", "Est. Conversion"],
+            magnets.recommendations.map((r) => [r.name, r.format, r.targetAudience, r.estimatedConversion]),
+            [160, 90, 160, 80],
+          );
+        }
+      }
+
+      if (lg?.directoryOptimization?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Directory & Profile Optimization");
+        drawTable(
+          doc,
+          ["Directory", "Listed", "Optimized", "Reviews", "Action Needed"],
+          lg.directoryOptimization.map((d) => [d.directory, d.listed, d.optimized, d.reviews, d.actionNeeded]),
+          [130, 60, 70, 60, 200],
+        );
+      }
+
+      /* =========================
+         7) COMPETITIVE ANALYSIS
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "7", "Competitive Analysis");
+
+      const ca = report.competitiveAnalysis;
+
+      if (ca?.competitors?.length) {
+        ca.competitors.slice(0, 6).forEach((c, idx) => {
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(`${idx + 1}. ${safeText(c.name, "Competitor")}`);
+          paragraph(doc, `Location: ${safeText(c.location, "N/A")} • Team: ${safeText(c.teamSize, "N/A")} • Years: ${safeText(c.yearsInBusiness, "N/A")}`);
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Services");
+          bullets(doc, normalizeStringList(c.services), "No services detected.");
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Strengths vs You");
+          bullets(doc, normalizeStringList(c.strengthsVsYou), "No strengths detected.");
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Your Advantages");
+          bullets(doc, normalizeStringList(c.yourAdvantages), "No advantages detected.");
+          paragraph(doc, `Market Overlap: ${safeText(c.marketOverlap, "N/A")}`);
+          doc.moveDown(0.3);
+        });
+      } else {
+        paragraph(doc, "No competitor data was detected.");
+      }
+
+      if (ca?.competitiveMatrix?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Competitive Matrix");
+        drawTable(
+          doc,
+          ["Factor", "You", "Comp A", "Comp B", "Comp C", "Winner"],
+          ca.competitiveMatrix.map((m) => [m.factor, m.you, m.compA, m.compB, m.compC, m.winner]),
+          [120, 70, 70, 70, 70, 70],
+        );
+      }
+
+      if (ca?.positioningGap) {
+        callout(
+          doc,
+          "Positioning Gap",
+          `Price: ${safeText(ca.positioningGap.pricePositioning, "N/A")}\nQuality: ${safeText(ca.positioningGap.qualityPositioning, "N/A")}\nVisibility: ${safeText(ca.positioningGap.visibility, "N/A")}\nDifferentiation: ${safeText(ca.positioningGap.differentiation, "N/A")}\n\nRecommendation: ${safeText(ca.positioningGap.recommendation, "N/A")}`,
+        );
+      }
+
+      /* =========================
+         8) COST OPTIMIZATION & PROFITABILITY
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "8", "Cost Optimization & Profitability");
+
+      const co = report.costOptimization;
+
+      if (co?.estimatedCostStructure?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Estimated Cost Structure");
+        drawTable(
+          doc,
+          ["Category", "Monthly", "Annual", "% of Total"],
+          co.estimatedCostStructure.map((c) => [c.category, c.monthly, c.annual, c.percentOfTotal]),
+          [180, 100, 100, 80],
+        );
+      }
+
+      if (co?.revenueEstimate) {
+        callout(
+          doc,
+          "Revenue Estimate",
+          `Estimated Range: ${safeText(co.revenueEstimate.estimatedRange, "N/A")}\nRevenue/Employee: ${safeText(co.revenueEstimate.revenuePerEmployee, "N/A")}\nBenchmark: ${safeText(co.revenueEstimate.industryBenchmark, "N/A")}\nGap: ${safeText(co.revenueEstimate.gapAnalysis, "N/A")}`,
+        );
+      }
+
+      if (co?.costSavingOpportunities?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Cost-Saving Opportunities");
+        co.costSavingOpportunities.forEach((o, i) => {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(o.opportunity, "Opportunity")}`);
+          doc.font("Helvetica").fontSize(10).fillColor(GRAY_700).text(
+            `Current: ${safeText(o.currentCost)} • Potential Savings: ${safeText(o.potentialSavings)} • Difficulty: ${safeText(o.implementationDifficulty)}`,
+          );
+          paragraph(doc, safeText(o.details, ""));
+        });
+      }
+
+      const pa = co?.pricingAnalysis;
+      if (pa) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Pricing & Packaging Analysis");
+        paragraph(doc, `Positioning: ${safeText(pa.positioning, "N/A")}`);
+        if (pa.serviceComparisons?.length) {
+          drawTable(
+            doc,
+            ["Service", "Your Price", "Market Range", "Positioning", "Recommendation"],
+            pa.serviceComparisons.map((s) => [s.service, s.yourPrice, s.marketRange, s.positioning, s.recommendation]),
+            [120, 80, 80, 90, 140],
+          );
+        }
+        bullets(doc, [pa.overallRecommendation, pa.premiumTierOpportunity, pa.packagingOptimization].filter(Boolean) as string[], "No pricing recommendations available.");
+      }
+
+      /* =========================
+         9) TARGET MARKET & CLIENT INTELLIGENCE
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "9", "Target Market & Client Intelligence");
+
+      const tm = report.targetMarket;
+
+      const cp = tm?.currentClientProfile;
+      if (cp) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Client Profile");
+        drawTable(
+          doc,
+          ["Geo Mix (US)", "Geo Mix (UK)", "Geo Mix (Other)"],
+          [[cp.geographicMix?.us, cp.geographicMix?.uk, cp.geographicMix?.other]],
+          [170, 170, 170],
+        );
+        drawTable(
+          doc,
+          ["Client Size", "Share"],
+          [
+            ["Small", cp.clientSize?.small],
+            ["Medium", cp.clientSize?.medium],
+            ["Large", cp.clientSize?.large],
+          ],
+          [180, 160],
+        );
+        if (cp.industries?.length) {
+          drawTable(
+            doc,
+            ["Industry", "Concentration"],
+            cp.industries.map((i) => [i.industry, i.concentration]),
+            [220, 160],
+          );
+        }
+      }
+
+      const geo = tm?.geographicExpansion;
+      if (geo) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Geographic Expansion");
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Current Strong Presence");
+        bullets(doc, normalizeStringList(geo.currentStrongPresence), "No strong presence markets detected.");
+
+        if (geo.underpenetratedMarkets?.length) {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Underpenetrated Markets");
+          drawTable(
+            doc,
+            ["Region", "Reason", "Opportunity", "Entry Plan"],
+            geo.underpenetratedMarkets.map((m) => [m.region, m.reason, m.estimatedOpportunity, m.entryPlan]),
+            [90, 150, 120, 150],
+          );
+        }
+      }
+
+      const icp = tm?.idealClientProfile;
+      if (icp) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Ideal Client Profile (ICP)");
+        paragraph(doc, `Industry: ${safeText(icp.industry, "N/A")} • Size: ${safeText(icp.companySize, "N/A")} • Revenue: ${safeText(icp.revenueRange, "N/A")} • Budget: ${safeText(icp.budget, "N/A")}`);
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Pain Points");
+        bullets(doc, normalizeStringList(icp.painPoints), "No pain points detected.");
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Decision Makers");
+        bullets(doc, normalizeStringList(icp.decisionMakers), "No decision makers detected.");
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Where to Find Them");
+        bullets(doc, normalizeStringList(icp.whereToFind), "No channels detected.");
+      }
+
+      /* =========================
+         10) FINANCIAL IMPACT SUMMARY
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "10", "Financial Impact Summary");
+
+      const fi = report.financialImpact;
+
+      if (fi?.revenueOpportunities?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Revenue Opportunities");
+        drawTable(
+          doc,
+          ["Opportunity", "Monthly", "Annual", "Confidence", "Effort"],
+          fi.revenueOpportunities.map((r) => [r.opportunity, r.monthlyImpact, r.annualImpact, r.confidence, r.effort]),
+          [150, 70, 70, 80, 80],
+        );
+      }
+
+      if (fi?.costSavings?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Cost Savings");
+        drawTable(
+          doc,
+          ["Initiative", "Annual Savings", "Implementation Cost", "Net Savings"],
+          fi.costSavings.map((c) => [c.initiative, c.annualSavings, c.implementationCost, c.netSavings]),
+          [170, 90, 90, 90],
+        );
+      }
+
+      if (fi?.netImpact) {
+        callout(
+          doc,
+          "Net Impact (Modeled)",
+          `Revenue Growth: ${safeText(fi.netImpact.revenueGrowth, "N/A")}\nCost Savings: ${safeText(fi.netImpact.costSavings, "N/A")}\nTotal Impact: ${safeText(fi.netImpact.totalImpact, "N/A")}\nInvestment Needed: ${safeText(fi.netImpact.investmentNeeded, "N/A")}\nExpected Return: ${safeText(fi.netImpact.expectedReturn, "N/A")} • ROI: ${safeText(fi.netImpact.roi, "N/A")}`,
+        );
+      }
+
+      if (fi?.scenarios?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Scenarios");
+        drawTable(
+          doc,
+          ["Scenario", "Implementation", "Impact"],
+          fi.scenarios.map((s) => [s.scenario, s.implementationLevel, s.impact]),
+          [150, 140, 200],
+        );
+      }
+
+      /* =========================
+         11) 90-DAY ACTION PLAN
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "11", "90-Day Action Plan");
+
+      const ap = report.actionPlan90Days || [];
+      if (ap.length) {
+        ap.forEach((phaseObj, idx) => {
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(`${idx + 1}. ${safeText(phaseObj.phase, "Phase")}`);
+          doc.moveDown(0.2);
+          (phaseObj.weeks || []).forEach((wk) => {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text(`${safeText(wk.week, "Week")}`);
+            bullets(doc, normalizeStringList(wk.tasks), "No tasks listed.");
+          });
+          if (phaseObj.expectedImpact?.length) {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Expected Impact");
+            drawTable(
+              doc,
+              ["Metric", "Improvement"],
+              phaseObj.expectedImpact.map((m) => [m.metric, m.improvement]),
+              [220, 220],
+            );
+          }
+          addPageIfNotAtTop(doc);
+        });
+      } else {
+        paragraph(doc, "No 90-day action plan was generated for this report.");
+      }
+
+      /* =========================
+         12) COMPETITIVE ADVANTAGES TO LEVERAGE
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "12", "Competitive Advantages to Leverage");
+
+      const adv = report.competitiveAdvantages;
+      if (adv?.hiddenStrengths?.length) {
+        adv.hiddenStrengths.forEach((s, i) => {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(s.strength, "Strength")}`);
+          paragraph(doc, `Evidence: ${safeText(s.evidence, "N/A")}`);
+          paragraph(doc, `Why it matters: ${safeText(s.whyItMatters, "N/A")}`);
+          paragraph(doc, `How to leverage: ${safeText(s.howToLeverage, "N/A")}`);
+        });
+      } else {
+        paragraph(doc, "No competitive advantages were detected.");
+      }
+      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Prerequisites");
+      bullets(doc, normalizeStringList(adv?.prerequisites), "No prerequisites listed.");
+
+      /* =========================
+         13) RISK ASSESSMENT
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "13", "Risk Assessment");
+
+      const risks = report.riskAssessment?.risks || [];
+      if (risks.length) {
+        risks.forEach((r, i) => {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(r.name, "Risk")} (${safeText(r.priority, "Priority")})`);
+          paragraph(doc, safeText(r.description, ""));
+          paragraph(doc, `Impact: ${safeText(r.impact, "N/A")} • Likelihood: ${safeText(r.likelihood, "N/A")} • Timeline: ${safeText(r.timeline, "N/A")}`);
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Mitigation");
+          bullets(doc, normalizeStringList(r.mitigation), "No mitigations listed.");
+        });
+      } else {
+        paragraph(doc, "No risks were listed in this report.");
+      }
+
+      /* =========================
+         APPENDICES
+      ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "A", "Appendix A: Keyword Opportunities");
+
+      const kwTiers = report.appendices?.keywords || [];
+      if (kwTiers.length) {
+        kwTiers.forEach((tierObj) => {
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(safeText(tierObj.tier, "Tier"));
+          if (tierObj.keywords?.length) {
+            drawTable(
+              doc,
+              ["Keyword", "Monthly Searches", "Difficulty", "Intent", "Current Rank"],
+              tierObj.keywords.map((k) => [k.keyword, k.monthlySearches, k.difficulty, k.intent, k.currentRank]),
+              [160, 90, 80, 90, 70],
+            );
+          } else {
+            paragraph(doc, "No keywords listed in this tier.");
+          }
+          addPageIfNotAtTop(doc);
+        });
+      } else {
+        paragraph(doc, "No keyword appendix data was generated.");
+      }
+
+      sectionTitle(doc, "B", "Appendix B: Review Collection Templates");
+      const templates = report.appendices?.reviewTemplates || [];
+      if (templates.length) {
+        templates.forEach((t, i) => {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(t.name, "Template")}`);
+          paragraph(doc, `Subject: ${safeText(t.subject, "")}`);
+          callout(doc, "Email / Message Body", safeText(t.body, ""));
+        });
+      } else {
+        paragraph(doc, "No review templates were generated.");
+      }
+
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "C", "Appendix C: Case Study Template");
+      const cs = report.appendices?.caseStudyTemplate;
+      if (cs) {
+        drawTable(
+          doc,
+          ["Field", "Value"],
+          [
+            ["Title", cs.title],
+            ["Industry", cs.industry],
+            ["Services", cs.services],
+            ["Duration", cs.duration],
+            ["Budget", cs.budget],
+          ],
+          [140, 320],
+        );
+        callout(doc, "Challenge", safeText(cs.challenge, ""));
+        callout(doc, "Solution", safeText(cs.solution, ""));
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Results");
+        bullets(doc, normalizeStringList(cs.results), "No results listed.");
+        callout(doc, "Client Quote", safeText(cs.clientQuote, ""));
+        callout(doc, "Call To Action", safeText(cs.cta, ""));
+      } else {
+        paragraph(doc, "No case study template was generated.");
+      }
+
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "D", "Appendix D: Final Recommendations");
+      const fr = report.appendices?.finalRecommendations;
+      if (fr?.topActions?.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("If You Only Do 5 Things (Highest ROI)");
+        fr.topActions.slice(0, 5).forEach((a, i) => {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(a.action, "Action")}`);
+          paragraph(doc, `Impact: ${safeText(a.impact, "N/A")} • Effort: ${safeText(a.effort, "N/A")}`);
+          paragraph(doc, `Why: ${safeText(a.rationale, "N/A")}`);
+        });
+      } else {
+        paragraph(doc, "No top actions were generated.");
+      }
+
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Next Steps");
+      bullets(doc, normalizeStringList(fr?.nextSteps), "No next steps listed.");
+
 
       doc.end();
     } catch (e) {

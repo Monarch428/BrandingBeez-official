@@ -97,7 +97,10 @@ Rules:
 - Follow the provided schema exactly
 - Be detailed and explanatory (not bullet-only)
 - Quantify impact where possible (leads, revenue, % uplift)
-- Use realistic benchmarks for agencies
+- Use ONLY the live website signals and API outputs provided in "Website signals".
+- NEVER invent metrics, competitors, rankings, spend, revenue, reviews, DA/DR, backlinks, traffic, or conversion rates.
+- If a value cannot be verified from the provided signals, set it to 0 (or null where appropriate) and explain in the rationale/notes.
+- Do not use placeholder or static content.
 - Avoid generic advice
 
 Depth requirements:
@@ -1607,6 +1610,11 @@ export interface BusinessGrowthReport {
 type WebsiteSignals = {
   url: string;
   hostname: string;
+  reachable: boolean;
+  httpStatus: number | null;
+  finalUrl: string;
+  robotsTxtFound: boolean;
+  sitemapXmlFound: boolean;
   title: string;
   metaDescription: string;
   wordCount: number;
@@ -1683,19 +1691,34 @@ function seededNumber(seedBase: number, min: number, max: number, offset = 0) {
   return min + Math.abs((seedBase + offset) % range);
 }
 
+function safeText(v: any): string {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "string") return v;
+  try {
+    return String(v);
+  } catch {
+    return "";
+  }
+}
+
 
 async function fetchPageSpeedInsights(
   website: string,
   strategy: "mobile" | "desktop",
 ): Promise<PageSpeedMetrics> {
   const normalized = normalizeWebsiteUrl(website);
-  const apiKey = process.env.PAGESPEED_API_KEY || process.env.GOOGLE_PAGESPEED_API_KEY || "";
+  const apiKey =
+    process.env.PAGESPEED_API_KEY ||
+    process.env.GOOGLE_PAGESPEED_API_KEY ||
+    "";
   const qs = new URLSearchParams({
     url: normalized,
     strategy,
   });
   // Include common Lighthouse categories to support a richer report.
-  ["performance", "seo", "best-practices", "accessibility"].forEach((c) => qs.append("category", c));
+  ["performance", "seo", "best-practices", "accessibility"].forEach((c) =>
+    qs.append("category", c),
+  );
   if (apiKey) qs.set("key", apiKey);
 
   const endpoint = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?${qs.toString()}`;
@@ -1706,23 +1729,42 @@ async function fetchPageSpeedInsights(
     seoScore: null,
     bestPracticesScore: null,
     accessibilityScore: null,
-    metrics: { fcpMs: null, lcpMs: null, tbtMs: null, cls: null, speedIndexMs: null },
+    metrics: {
+      fcpMs: null,
+      lcpMs: null,
+      tbtMs: null,
+      cls: null,
+      speedIndexMs: null,
+    },
     opportunities: [],
     fetchedAt: new Date().toISOString(),
   };
 
   // Keep PSI calls bounded so the analysis doesn't hang.
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25_000);
+  const timeout = setTimeout(() => controller.abort(), 60_000);
 
   try {
     const res = await fetch(endpoint, {
       method: "GET",
-      headers: { "accept": "application/json" },
+      headers: { accept: "application/json" },
       signal: controller.signal,
     });
 
-    if (!res.ok) return fallback;
+    // ✅ Change #7: log the real API error instead of silently returning fallback
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.warn("[PageSpeed] runPagespeed failed", {
+        strategy,
+        status: res.status,
+        statusText: res.statusText,
+        endpoint,
+        hasApiKey: Boolean(apiKey),
+        // keep it short so logs don't explode
+        errText: errText.slice(0, 800),
+      });
+      return fallback;
+    }
 
     const json = (await res.json()) as any;
     const lighthouse = json?.lighthouseResult;
@@ -1730,7 +1772,9 @@ async function fetchPageSpeedInsights(
     const audits = lighthouse?.audits || {};
 
     const scoreTo100 = (v: any) =>
-      typeof v === "number" ? Math.round(Math.max(0, Math.min(1, v)) * 100) : null;
+      typeof v === "number"
+        ? Math.round(Math.max(0, Math.min(1, v)) * 100)
+        : null;
 
     const numOrNull = (v: any) => (typeof v === "number" ? v : null);
 
@@ -1755,7 +1799,8 @@ async function fetchPageSpeedInsights(
     for (const id of oppIds) {
       const a = audits?.[id];
       if (!a) continue;
-      const savings = a?.details?.overallSavingsMs ?? a?.details?.overallSavingsBytes ?? null;
+      const savings =
+        a?.details?.overallSavingsMs ?? a?.details?.overallSavingsBytes ?? null;
       opportunities.push({
         title: safeText(a?.title || id),
         description: safeText(a?.description || ""),
@@ -1783,12 +1828,21 @@ async function fetchPageSpeedInsights(
       },
       fetchedAt: new Date().toISOString(),
     };
-  } catch (e) {
+  } catch (e: any) {
+    // ✅ Optional but very useful: log aborts/network failures too
+    console.warn("[PageSpeed] runPagespeed exception", {
+      strategy,
+      endpoint,
+      hasApiKey: Boolean(apiKey),
+      name: e?.name,
+      message: e?.message,
+    });
     return fallback;
   } finally {
     clearTimeout(timeout);
   }
 }
+
 
 async function fetchWebsiteSignals(website: string): Promise<WebsiteSignals> {
   const normalized = normalizeWebsiteUrl(website);
@@ -1796,6 +1850,11 @@ async function fetchWebsiteSignals(website: string): Promise<WebsiteSignals> {
   const baseSignals: WebsiteSignals = {
     url: normalized,
     hostname: fallbackHostname,
+    reachable: false,
+    httpStatus: null,
+    finalUrl: normalized,
+    robotsTxtFound: false,
+    sitemapXmlFound: false,
     title: "",
     metaDescription: "",
     wordCount: 0,
@@ -1830,12 +1889,45 @@ async function fetchWebsiteSignals(website: string): Promise<WebsiteSignals> {
 
     clearTimeout(timeout);
 
-    if (!response.ok) {
-      return baseSignals;
+    const httpStatus = response.status;
+    const finalUrl = (response as any).url || normalized;
+
+    // Reachable only if we can fetch HTML successfully.
+    if (!(httpStatus >= 200 && httpStatus < 400)) {
+      return { ...baseSignals, httpStatus, finalUrl };
     }
 
     const html = await response.text();
     const url = new URL(normalized);
+
+    // Best-effort checks for robots.txt and sitemap.xml
+    const robotsUrl = `${url.origin}/robots.txt`;
+    const sitemapUrl = `${url.origin}/sitemap.xml`;
+
+    const robotsCheck = (async () => {
+      try {
+        const c = new AbortController();
+        const tt = setTimeout(() => c.abort(), 3500);
+        const r = await fetch(robotsUrl, { method: "GET", redirect: "follow", signal: c.signal });
+        clearTimeout(tt);
+        return r.status >= 200 && r.status < 400;
+      } catch {
+        return false;
+      }
+    })();
+
+    const sitemapCheck = (async () => {
+      try {
+        const c = new AbortController();
+        const tt = setTimeout(() => c.abort(), 3500);
+        const r = await fetch(sitemapUrl, { method: "GET", redirect: "follow", signal: c.signal });
+        clearTimeout(tt);
+        return r.status >= 200 && r.status < 400;
+      } catch {
+        return false;
+      }
+    })();
+
     const hostname = url.hostname.toLowerCase();
 
     const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
@@ -1897,6 +1989,11 @@ async function fetchWebsiteSignals(website: string): Promise<WebsiteSignals> {
     return {
       url: normalized,
       hostname,
+      reachable: true,
+      httpStatus,
+      finalUrl,
+      robotsTxtFound: await robotsCheck,
+      sitemapXmlFound: await sitemapCheck,
       speedTest,
       title: titleMatch?.[1]?.trim() || "",
       metaDescription: metaMatch?.[1]?.trim() || "",
@@ -1969,7 +2066,12 @@ function buildBusinessGrowthFallbackTemplate(
   const geographicMix = inferGeographicMix(input.website);
   const resolvedSignals = signals ?? {
     url: normalizeWebsiteUrl(input.website),
-    hostname: input.website.replace(/^https?:\/\//i, "").split("/")[0] || "unknown",
+    hostname: input.website.replace(/^https?:\/\//i, "").split("/")[0] || input.website || "unknown",
+    reachable: false,
+    httpStatus: null,
+    finalUrl: normalizeWebsiteUrl(input.website),
+    robotsTxtFound: false,
+    sitemapXmlFound: false,
     title: "",
     metaDescription: "",
     wordCount: 0,
@@ -1984,8 +2086,14 @@ function buildBusinessGrowthFallbackTemplate(
     hasSitemapReference: false,
     hasRobotsMeta: false,
     hasContactCTA: false,
-    speedTest: undefined,
   };
+
+
+  // Keep a short alias for template building.
+  const hostname = (resolvedSignals.hostname || input.website)
+    .replace(/^https?:\/\//i, "")
+    .split("/")[0] || "unknown";
+
   const domainSeed = hashString(resolvedSignals.hostname || input.website);
   const wordCount = resolvedSignals.wordCount;
   const hasMeta = Boolean(resolvedSignals.metaDescription);
@@ -3295,8 +3403,22 @@ export async function generateBusinessGrowthAnalysis(input: {
   companyName: string;
   website: string;
   industry?: string;
+  targetMarket?: string;
+  businessGoal?: string;
+  reportType?: "quick" | "full";
 }) {
   const signals = await fetchWebsiteSignals(input.website);
+  if (!signals.reachable) {
+    const err: any = new Error("Website is not reachable. Please enter a correct URL and try again.");
+    err.code = "WEBSITE_NOT_REACHABLE";
+    err.details = {
+      reachable: signals.reachable,
+      httpStatus: signals.httpStatus,
+      finalUrl: signals.finalUrl,
+      url: signals.url,
+    };
+    throw err;
+  }
   const fallbackTemplate = buildBusinessGrowthFallbackTemplate(input, signals);
 
   if (!process.env.OPENAI_API_KEY) {
@@ -3343,6 +3465,6 @@ ${JSON.stringify(signals, null, 2)}
     return buildBusinessGrowthFallback(input, { signals });
   }
 }
-
+// }
 // Default export for better compatibility
 export default openaiClient;

@@ -1,5 +1,5 @@
 // client/src/pages/ai-business-growth-analyzer.tsx
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ChangeEvent } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -44,8 +45,8 @@ interface FormState {
 }
 
 interface FormErrors {
-  companyName: string;
-  website: string;
+  companyName?: string;
+  website?: string;
   industry?: string;
   targetMarket?: string;
   businessGoal?: string;
@@ -88,20 +89,45 @@ type PageSpeedOpportunity = {
   description?: string;
 };
 
+// type PageSpeedDeviceResult = {
+//   performanceScore?: number; // 0-100
+//   accessibilityScore?: number;
+//   bestPracticesScore?: number;
+//   seoScore?: number;
+
+//   fcpMs?: number;
+//   lcpMs?: number;
+//   cls?: number;
+//   tbtMs?: number;
+//   speedIndexMs?: number;
+
+//   opportunities?: PageSpeedOpportunity[];
+// };
 type PageSpeedDeviceResult = {
   performanceScore?: number; // 0-100
   accessibilityScore?: number;
   bestPracticesScore?: number;
   seoScore?: number;
 
+  // ✅ Some backends send flattened metrics (older)
   fcpMs?: number;
   lcpMs?: number;
   cls?: number;
   tbtMs?: number;
   speedIndexMs?: number;
 
+  // ✅ Your current backend sends metrics nested under "metrics"
+  metrics?: {
+    fcpMs?: number | null;
+    lcpMs?: number | null;
+    cls?: number | null;
+    tbtMs?: number | null;
+    speedIndexMs?: number | null;
+  };
+
   opportunities?: PageSpeedOpportunity[];
 };
+
 
 interface BusinessGrowthReport {
   reportMetadata: {
@@ -269,9 +295,8 @@ function formatPhone(value: string) {
   return `+${digits[0]} (${digits.slice(1, 4)}) ${digits.slice(
     4,
     7,
-  )}-${digits.slice(7, 11)}${
-    digits.length > 11 ? ` ${digits.slice(11)}` : ""
-  }`;
+  )}-${digits.slice(7, 11)}${digits.length > 11 ? ` ${digits.slice(11)}` : ""
+    }`;
 }
 
 function validatePhone(phone: string) {
@@ -361,7 +386,7 @@ function StageItem({
         className={cn(
           "w-10 h-10 rounded-full flex items-center justify-center border-2",
           state === "complete" &&
-            "border-emerald-500 bg-emerald-50 text-emerald-600",
+          "border-emerald-500 bg-emerald-50 text-emerald-600",
           state === "active" && "border-primary bg-primary/10 text-primary",
           state === "pending" && "border-dashed border-gray-200 text-gray-400",
         )}
@@ -419,6 +444,18 @@ function formatMs(ms?: number) {
   return `${Math.round(ms)}ms`;
 }
 
+function getMetric(obj: PageSpeedDeviceResult | undefined, key: keyof NonNullable<PageSpeedDeviceResult["metrics"]>) {
+  // Prefer flattened first, fallback to nested
+  const flat = (obj as any)?.[key];
+  if (flat !== undefined && flat !== null) return flat as number;
+
+  const nested = obj?.metrics?.[key];
+  if (nested !== undefined && nested !== null) return nested as number;
+
+  return undefined;
+}
+
+
 export default function AIBusinessGrowthAnalyzerPage() {
   const [step, setStep] = useState<Step>("capture");
   const [formState, setFormState] = useState<FormState>({
@@ -430,7 +467,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
     reportType: "full",
   });
 
-  const [errors, setErrors] = useState<FormErrors>({} as FormErrors);
+  // const [errors, setErrors] = useState<FormErrors>({} as FormErrors);
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const [leadForm, setLeadForm] = useState<LeadFormState>({
     email: "",
@@ -600,7 +638,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
   const handleInputChange = (field: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: undefined } as FormErrors));
+    // setErrors((prev) => ({ ...prev, [field]: undefined } as FormErrors));
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const runAnalysis = async (websiteUrl: string) => {
@@ -628,7 +667,20 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
       const payload = await response.json();
 
-      if (!response.ok || !payload?.analysis) {
+      if (!response.ok) {
+        // Backend returns a strict reachability error when website is invalid/unreachable
+        if (payload?.code === "WEBSITE_NOT_REACHABLE") {
+          const msg =
+            payload?.message ||
+            "Website is not reachable. Please enter a correct URL and try again.";
+          setErrors((prev) => ({ ...(prev as FormErrors), website: msg }));
+          setStep("capture");
+          throw new Error(msg);
+        }
+        throw new Error(payload?.message || "Unable to generate analysis");
+      }
+
+      if (!payload?.analysis) {
         throw new Error(payload?.message || "Unable to generate analysis");
       }
 
@@ -636,7 +688,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
       if (payload?.analysisToken) setAnalysisToken(String(payload.analysisToken));
     } catch (error) {
       console.error("Business growth analysis failed", error);
-      setAnalysisError("We couldn't generate the live analysis. Please try again.");
+      // If website error already set, avoid overriding with generic copy.
+      setAnalysisError((prev) => prev || "We couldn't generate the live analysis. Please try again.");
       setAnalysisData(null);
     } finally {
       setIsAnalyzingBackend(false);
@@ -646,9 +699,13 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
 
+    // const nextErrors: FormErrors = {
+    //   companyName: validateCompanyName(formState.companyName) as any,
+    //   website: validateWebsite(formState.website) as any,
+    // };
     const nextErrors: FormErrors = {
-      companyName: validateCompanyName(formState.companyName) as any,
-      website: validateWebsite(formState.website) as any,
+      companyName: validateCompanyName(formState.companyName),
+      website: validateWebsite(formState.website),
     };
 
     const hasErrors = Object.values(nextErrors).some(Boolean);
@@ -661,20 +718,18 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
     const reachability = await checkWebsiteReachableViaBackendBestEffort(
       normalizedUrl,
-      6000,
+      8000,
     );
 
-    if (reachability.ok && reachability.reachable === false) {
+    // ✅ STRICT MODE:
+    // Only continue if the server confirms the website is reachable.
+    if (!reachability.ok || reachability.timedOut || reachability.reachable !== true) {
+      setIsSubmitting(false);
       setErrors((prev) => ({
         ...(prev as FormErrors),
-        website:
-          "We couldn't verify this website from the server (some sites block automated checks). We'll continue anyway.",
+        website: "Website is not reachable. Please enter a correct URL (reachable website) and try again.",
       }));
-    } else if (reachability.ok && reachability.timedOut) {
-      setErrors((prev) => ({
-        ...(prev as FormErrors),
-        website: "Website verification timed out. We'll continue anyway.",
-      }));
+      return;
     }
 
     setIsSubmitting(false);
@@ -801,7 +856,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30 text-gray-900">
-      <Header />
+      {/* <Header /> */}
 
       <main className="pt-16 pb-16">
         <section className="py-16 px-4">
@@ -939,10 +994,64 @@ export default function AIBusinessGrowthAnalyzerPage() {
                             id="websiteError"
                             className={cn(
                               "text-sm",
-                              String((errors as any).website).includes("continue anyway") ? "text-amber-600" : "text-red-500",
+                              "text-red-500",
                             )}
                           >
                             {(errors as any).website}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Industry (optional)</label>
+                        <Input
+                          placeholder="e.g., Marketing, SaaS, E-commerce"
+                          value={formState.industry || ""}
+                          onChange={(e) => handleInputChange("industry", e.target.value)}
+                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), industry: undefined }))}
+                          aria-invalid={Boolean((errors as any).industry)}
+                          aria-describedby="industryError"
+                        />
+                        {(errors as any).industry && (
+                          <p id="industryError" className="text-sm text-red-500">
+                            {(errors as any).industry}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Target Market (optional)</label>
+                        <Input
+                          placeholder="e.g., US agencies, Local businesses"
+                          value={formState.targetMarket || ""}
+                          onChange={(e) => handleInputChange("targetMarket", e.target.value)}
+                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), targetMarket: undefined }))}
+                          aria-invalid={Boolean((errors as any).targetMarket)}
+                          aria-describedby="targetMarketError"
+                        />
+                        {(errors as any).targetMarket && (
+                          <p id="targetMarketError" className="text-sm text-red-500">
+                            {(errors as any).targetMarket}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <label className="text-sm font-semibold text-gray-800">Business Goal (optional)</label>
+                        <Textarea
+                          placeholder="Tell us your primary goal (more leads, better SEO, higher conversions, etc.)"
+                          value={formState.businessGoal || ""}
+                          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                            handleInputChange("businessGoal", e.target.value)
+                          }
+                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), businessGoal: undefined }))}
+                          aria-invalid={Boolean((errors as any).businessGoal)}
+                          aria-describedby="businessGoalError"
+                          className="min-h-[96px]"
+                        />
+                        {(errors as any).businessGoal && (
+                          <p id="businessGoalError" className="text-sm text-red-500">
+                            {(errors as any).businessGoal}
                           </p>
                         )}
                       </div>
@@ -1081,8 +1190,15 @@ export default function AIBusinessGrowthAnalyzerPage() {
                                       Performance: <b>{pageSpeedMobile.performanceScore ?? "—"}</b>/100
                                     </p>
                                     <div className="mt-2 text-xs text-gray-600 space-y-1">
-                                      <div>FCP: {formatMs(pageSpeedMobile.fcpMs)} · LCP: {formatMs(pageSpeedMobile.lcpMs)}</div>
-                                      <div>TBT: {formatMs(pageSpeedMobile.tbtMs)} · CLS: {pageSpeedMobile.cls ?? "—"}</div>
+                                      {/* <div>FCP: {formatMs(pageSpeedMobile.fcpMs)} · LCP: {formatMs(pageSpeedMobile.lcpMs)}</div>
+                                      <div>TBT: {formatMs(pageSpeedMobile.tbtMs)} · CLS: {pageSpeedMobile.cls ?? "—"}</div> */}
+                                      <div>
+                                        FCP: {formatMs(getMetric(pageSpeedMobile, "fcpMs"))} · LCP: {formatMs(getMetric(pageSpeedMobile, "lcpMs"))}
+                                      </div>
+                                      <div>
+                                        TBT: {formatMs(getMetric(pageSpeedMobile, "tbtMs"))} · CLS: {getMetric(pageSpeedMobile, "cls") ?? "—"}
+                                      </div>
+
                                     </div>
                                   </div>
                                 )}
@@ -1094,8 +1210,14 @@ export default function AIBusinessGrowthAnalyzerPage() {
                                       Performance: <b>{pageSpeedDesktop.performanceScore ?? "—"}</b>/100
                                     </p>
                                     <div className="mt-2 text-xs text-gray-600 space-y-1">
-                                      <div>FCP: {formatMs(pageSpeedDesktop.fcpMs)} · LCP: {formatMs(pageSpeedDesktop.lcpMs)}</div>
-                                      <div>TBT: {formatMs(pageSpeedDesktop.tbtMs)} · CLS: {pageSpeedDesktop.cls ?? "—"}</div>
+                                      {/* <div>FCP: {formatMs(pageSpeedDesktop.fcpMs)} · LCP: {formatMs(pageSpeedDesktop.lcpMs)}</div>
+                                      <div>TBT: {formatMs(pageSpeedDesktop.tbtMs)} · CLS: {pageSpeedDesktop.cls ?? "—"}</div> */}
+                                      <div>
+                                        FCP: {formatMs(getMetric(pageSpeedDesktop, "fcpMs"))} · LCP: {formatMs(getMetric(pageSpeedDesktop, "lcpMs"))}
+                                      </div>
+                                      <div>
+                                        TBT: {formatMs(getMetric(pageSpeedDesktop, "tbtMs"))} · CLS: {getMetric(pageSpeedDesktop, "cls") ?? "—"}
+                                      </div>
                                     </div>
                                   </div>
                                 )}
@@ -1303,12 +1425,12 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                 <Card className="bg-white/90 border border-gray-100 shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-base">Why reachability can be “false”</CardTitle>
-                    <CardDescription>Even when the URL is correct</CardDescription>
+                    <CardTitle className="text-base">Website validation</CardTitle>
+                    <CardDescription>Analysis runs only for reachable websites</CardDescription>
                   </CardHeader>
                   <CardContent className="text-sm text-gray-700 space-y-2">
-                    <p>Some sites block automated checks (HEAD), use Cloudflare/WAF, or geo-restrict server probes.</p>
-                    <p className="text-gray-500">We now treat verification as a warning and continue the analysis.</p>
+                    <p>We verify the website from the server before running the AI analysis.</p>
+                    <p className="text-gray-500">If the site is unreachable, we stop and ask you to enter a correct URL.</p>
                   </CardContent>
                 </Card>
               </div>
@@ -1332,7 +1454,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
         </section>
       </main>
 
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
