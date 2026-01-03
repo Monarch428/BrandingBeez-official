@@ -267,9 +267,7 @@ function CtaButton({
 export default function WebCaseStudySlugPage(props: any) {
     const [, setLocation] = useLocation();
 
-    // ✅ change route here if your FE uses different path
-    // ex: useRoute("/case-studies/:slug")
-    const route = useRoute("/case-studies/:slug");
+    const route = useRoute("/web-case-studies/:slug");
     const slugFromRoute = route[0] ? route[1]?.slug : undefined;
     const slugFromProps = props?.params?.slug;
     const slug = String(slugFromProps ?? slugFromRoute ?? "").trim();
@@ -373,33 +371,27 @@ export default function WebCaseStudySlugPage(props: any) {
         return "";
     };
 
+    const seoTitle =
+        detail?.seo?.metaTitle ||
+        detail?.heroTitle ||
+        card.title ||
+        "Web Case Study";
+
+    const seoDescription =
+        detail?.seo?.metaDescription ||
+        card.description ||
+        "Detailed web development case study by BrandingBeez.";
+
     return (
         <>
             <Helmet>
-                <title>
-                    {`${detail?.seo?.metaTitle} | BrandingBeez Case Study`}
-                </title>
+                <title>{seoTitle} | BrandingBeez Case Study</title>
 
-                <meta name="description" content={detail?.seo?.metaDescription} />
+                <meta name="description" content={seoDescription} />
 
                 <meta property="og:type" content="article" />
-                <meta
-                    property="og:title"
-                    content={
-                        `${detail?.seo?.metaTitle}  | BrandingBeez`
-                    }
-                />
-                <meta
-                    property="og:description"
-                    content={
-                        detail?.seo?.metaDescription}
-                />
-
-                {/* {card.imageUrl ? (
-                    <meta property="og:image" content={card.imageUrl} />
-                ) : null} */}
-
-                {/* <meta property="og:url" content={window.location.href} /> */}
+                <meta property="og:title" content={`${seoTitle} | BrandingBeez`} />
+                <meta property="og:description" content={seoDescription} />
             </Helmet>
 
             <div className="min-h-screen bg-white">

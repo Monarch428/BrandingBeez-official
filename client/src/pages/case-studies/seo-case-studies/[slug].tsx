@@ -378,16 +378,25 @@ export function SeoCaseStudyPage() {
     );
   }
 
+  const seoTitle =
+    seo.seo?.metaTitle ||
+    seo.heroHeadline ||
+    seo.heroClientName ||
+    "SEO Case Study";
+
   return (
     <>
       <Helmet>
-        <title>
-          {`${seo.seo?.metaTitle} SEO Case Study | BrandingBeez`}
-        </title>
-
-        <meta name="description" content={seo.seo?.metaDescription} />
+        <title>{seoTitle} | BrandingBeez</title>
+        <meta
+          name="description"
+          content={
+            seo.seo?.metaDescription ||
+            "Detailed SEO case study by BrandingBeez."
+          }
+        />
       </Helmet>
-
+      
       <HeroSection seo={seo} />
       <CaseStudyHighlights seo={seo} />
       <CTASection seo={seo} />

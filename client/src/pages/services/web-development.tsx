@@ -320,9 +320,10 @@ export default function WebDevelopment() {
   }, []);
 
   const getCardLink = (card: WebCaseStudyCard) => {
-    if (card.link) return card.link;
-    if (card.slug) return `/web-case-study/${card.slug}`;
-    return "/web-development";
+    console.log(card.slug)
+    if (card.status !== "published") return "/web-development";
+    if (!card.slug) return "/web-development";
+    return `/web-case-study/${card.slug}`;
   };
 
   const getCardAlt = (card: WebCaseStudyCard) => {
