@@ -1246,7 +1246,7 @@ import {
 } from "lucide-react";
 import { ObjectUploader } from "./object-uploader";
 
-type BlogCategory = "SEO" | "PPC" | "Web Development" | "App Development";
+type BlogCategory = "SEO" | "PPC" | "Web Development" | "App Development" | "Dedicated Resources" | "General";
 
 interface BlogPost {
   id: number;
@@ -1317,17 +1317,9 @@ type BlogSection = {
   faqItems?: FaqItem[];
   cta: SectionCTA;
 
-  /**
-   * ✅ IMPORTANT UPDATE (as per your request):
-   * Section "References" (shown as list under section)
-   */
   links: SectionLink[];
 
-  /**
-   * ✅ IMPORTANT UPDATE:
-   * Section "Inline Word Links" (auto link inside section content)
-   * This is SEPARATE from section links/references list.
-   */
+
   inlineLinks: SectionLink[];
 };
 
@@ -2238,7 +2230,6 @@ export function BlogPostsManager() {
       metaDescription: "",
       metaTitle: "",
 
-      // ✅ NEW
       category: "SEO",
     });
     setSections([defaultSection("content")]);
@@ -2287,7 +2278,6 @@ export function BlogPostsManager() {
       metaDescription: post.metaDescription || "",
       metaTitle: (post as any).metaTitle || "",
 
-      // ✅ NEW
       category: ((post as any).category as BlogCategory) || "SEO",
     });
 
@@ -2503,6 +2493,11 @@ export function BlogPostsManager() {
       if (s.subHeading.trim()) return true;
       if (s.content.trim()) return true;
       if (Array.isArray(s.images) && s.images.length) return true;
+
+      if (!formData.category) {
+        alert("Category is required");
+        return;
+      }
 
       // references list
       if (Array.isArray(s.links) && s.links.some((l) => l.label.trim() || l.url.trim())) return true;
@@ -2944,6 +2939,8 @@ export function BlogPostsManager() {
                         <SelectItem value="PPC">PPC</SelectItem>
                         <SelectItem value="Web Development">Web Development</SelectItem>
                         <SelectItem value="App Development">App Development</SelectItem>
+                        <SelectItem value="Dedicated Resources">Dedicated Resources</SelectItem>
+                        <SelectItem value="General">General</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -3054,6 +3051,8 @@ export function BlogPostsManager() {
                         <SelectItem value="PPC">PPC</SelectItem>
                         <SelectItem value="Web Development">Web Development</SelectItem>
                         <SelectItem value="App Development">App Development</SelectItem>
+                        <SelectItem value="Dedicated Resources">Dedicated Resources</SelectItem>
+                        <SelectItem value="General">General</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -4121,7 +4120,7 @@ export function BlogPostsManager() {
                     <div className="flex items-center gap-2">
                       <CardTitle className="text-lg font-bold">{post.title}</CardTitle>
                       <Badge variant="outline" className="text-xs">
-                        {(post as any).category || "SEO"}
+                        {post.category || "SEO"}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2">
@@ -4216,7 +4215,7 @@ export function BlogPostsManager() {
                   <div>
                     <span className="font-semibold">Category:</span>{" "}
                     <Badge variant="outline" className="ml-2">
-                      {(viewingPostData as any).category || "SEO"}
+                      {viewingPostData.category || "SEO"}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2">

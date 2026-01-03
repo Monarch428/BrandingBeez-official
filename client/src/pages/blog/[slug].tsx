@@ -2029,19 +2029,13 @@ export default function DynamicBlogPost() {
                             ? `faq-${slugify(f.question)}-${sIdx + 1}-${fIdx + 1}`
                             : undefined;
 
-                          const faqInlineLinks = f.inlineLinks || [];
-                          const faqReferences = f.links || [];
+                          const faqInlineLinks = sec.inlineLinks || [];
+                          const faqReferences = sec.links || [];
 
                           return (
-                            <div
-                              key={f.id}
-                              className="bg-white p-1 sm:p-2"
-                            >
-                              {/* Question */}
+                            <div key={f.id} className="bg-white p-1 sm:p-2">
                               <div className="flex items-start gap-3">
-                                <div className="mt-0.5 flex-shrink-0">
-                                  <HelpCircle className="w-5 h-5 text-brand-purple" />
-                                </div>
+                                <HelpCircle className="w-5 h-5 text-brand-purple mt-0.5" />
 
                                 <div className="flex-1 min-w-0">
                                   <h3
@@ -2051,17 +2045,18 @@ export default function DynamicBlogPost() {
                                     {f.question || `Question ${fIdx + 1}`}
                                   </h3>
 
-                                  {/* Answer */}
                                   {f.answer?.trim() && (
                                     <div
                                       className="mt-3 text-gray-700 leading-8"
                                       dangerouslySetInnerHTML={{
-                                        __html: renderTextWithInlineLinks(f.answer, faqInlineLinks),
+                                        __html: renderTextWithInlineLinks(
+                                          f.answer,
+                                          faqInlineLinks
+                                        ),
                                       }}
                                     />
                                   )}
-{/* rounded-2xl border bg-gray-50 */}
-                                  {/* References */}
+
                                   {Array.isArray(faqReferences) && faqReferences.length > 0 && (
                                     <div className="mt-4 p-4">
                                       <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">

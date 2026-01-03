@@ -85,6 +85,8 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { HelmetProvider } from "react-helmet-async";
+
 
 const setupBasicErrorHandling = () => {
   // Minimal suppression for noisy non-actionable errors
@@ -111,7 +113,11 @@ const rootElement = document.getElementById("root");
 
 if (rootElement) {
   const root = createRoot(rootElement);
-  root.render(<App />);
+  root.render(
+    <HelmetProvider>
+      <App />
+    </HelmetProvider>
+  );
 
   // Load non-critical optimizations after app is mounted
   if (typeof window !== "undefined") {
@@ -150,7 +156,7 @@ if (rootElement) {
             optimizeFontDisplay();
 
             setTimeout(async () => {
-              const {  suppressCSPErrors } = await import(
+              const { suppressCSPErrors } = await import(
                 "./utils/csp-compliant-loader"
               ); //loadCSPCompliantScripts
 

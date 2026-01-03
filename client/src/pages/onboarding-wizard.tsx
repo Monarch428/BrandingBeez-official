@@ -21,6 +21,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { OnboardingWizardSchema } from "@/utils/all-schemas";
 import { ThankYouPopup } from "@/components/thank-you-popup";
+import { SEO } from "@/hooks/SEO";
 
 interface WizardStep {
   id: string;
@@ -262,8 +263,8 @@ export default function OnboardingWizard() {
               budget === "under-1k"
                 ? "$600-1,200 for starter websites"
                 : budget === "over-15k"
-                ? "$8,000+ for enterprise solutions"
-                : "$1,500-8,000 per project",
+                  ? "$8,000+ for enterprise solutions"
+                  : "$1,500-8,000 per project",
             timeline: "2-8 weeks depending on complexity",
           });
           break;
@@ -284,8 +285,8 @@ export default function OnboardingWizard() {
               budget === "under-1k"
                 ? "$300-800 for basic design packages"
                 : budget === "over-15k"
-                ? "$3,000+ for comprehensive branding"
-                : "$800-3,000 per project",
+                  ? "$3,000+ for comprehensive branding"
+                  : "$800-3,000 per project",
             timeline: "1-4 weeks depending on scope",
           });
           break;
@@ -306,8 +307,8 @@ export default function OnboardingWizard() {
               budget === "under-1k"
                 ? "$400-650/month"
                 : budget === "over-15k"
-                ? "$1,200+/month with advanced strategies"
-                : "$400-1,200/month",
+                  ? "$1,200+/month with advanced strategies"
+                  : "$400-1,200/month",
             timeline: "2-3 weeks to start, 3-6 months for results",
           });
           break;
@@ -328,8 +329,8 @@ export default function OnboardingWizard() {
               budget === "under-1k"
                 ? "$700-900/month"
                 : budget === "over-15k"
-                ? "$15,000+/month"
-                : "$1,000-15,000/month",
+                  ? "$15,000+/month"
+                  : "$1,000-15,000/month",
             timeline: "1-2 weeks to start",
           });
           break;
@@ -350,14 +351,14 @@ export default function OnboardingWizard() {
               budget === "under-1k"
                 ? "$1,000-2,500 for simple AI integrations"
                 : budget === "over-15k"
-                ? "$12,000+ for complex AI systems"
-                : "$2,000-12,000 per project",
+                  ? "$12,000+ for complex AI systems"
+                  : "$2,000-12,000 per project",
             timeline:
               budget === "under-1k"
                 ? "1-3 weeks for basic automation"
                 : budget === "over-15k"
-                ? "6-12 weeks for enterprise solutions"
-                : "2-6 weeks for implementation",
+                  ? "6-12 weeks for enterprise solutions"
+                  : "2-6 weeks for implementation",
           });
           break;
       }
@@ -658,13 +659,12 @@ export default function OnboardingWizard() {
               <div
                 className={`
                 grid gap-4 sm:gap-6
-                ${
-                  recommendations.length === 1
+                ${recommendations.length === 1
                     ? "grid-cols-1 max-w-xl mx-auto"
                     : recommendations.length === 2
-                    ? "grid-cols-1 md:grid-cols-2"
-                    : "grid-cols-1 md:grid-cols-3"
-                }
+                      ? "grid-cols-1 md:grid-cols-2"
+                      : "grid-cols-1 md:grid-cols-3"
+                  }
               `}
               >
                 {recommendations.map((rec, index) => (
@@ -672,11 +672,10 @@ export default function OnboardingWizard() {
                     key={index}
                     className={`
                     h-full flex flex-col border-2
-                    ${
-                      index === 0
+                    ${index === 0
                         ? "border-green-500 bg-green-50"
                         : "border-gray-200"
-                    }
+                      }
                   `}
                   >
                     <CardHeader className="px-4 sm:px-6 pb-3 sm:pb-4">
@@ -686,11 +685,10 @@ export default function OnboardingWizard() {
                             <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6 text-green-500 flex-shrink-0" />
                           )}
                           <span
-                            className={`text-lg sm:text-xl ${
-                              index === 0
+                            className={`text-lg sm:text-xl ${index === 0
                                 ? "text-green-700"
                                 : "text-gray-900"
-                            }`}
+                              }`}
                           >
                             {rec.service}
                           </span>
@@ -705,11 +703,10 @@ export default function OnboardingWizard() {
                             Confidence
                           </div>
                           <div
-                            className={`text-lg sm:text-xl font-bold ${
-                              index === 0
+                            className={`text-lg sm:text-xl font-bold ${index === 0
                                 ? "text-green-600"
                                 : "text-gray-600"
-                            }`}
+                              }`}
                           >
                             {rec.confidence}%
                           </div>
@@ -833,29 +830,14 @@ export default function OnboardingWizard() {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Find Your Perfect Service | Branding Beez Onboarding Wizard
-        </title>
-        <meta
-          name="description"
-          content="Discover which Branding Beez services fit your business best. Take our quick onboarding wizard to get personalized digital and marketing recommendations."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/onboarding-wizard"
-        />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="Find Your Perfect Service | BrandingBeez Onboarding Wizard"
+        description="Discover which BrandingBeez services fit your business best. Take our quick onboarding wizard to get personalized digital and marketing recommendations."
+      />
+
+      <SchemaMarkup type="custom" data={OnboardingWizardSchema} />
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Find Your Perfect Branding Beez Service"
-          description="Answer a few quick questions to get your personalized service recommendation in under 2 minutes."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/onboarding-wizard"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={OnboardingWizardSchema} />
+
         {/* <Header /> */}
         <div className="py-6 sm:py-12">
           <div className="container mx-auto px-3 sm:px-4 max-w-2xl">

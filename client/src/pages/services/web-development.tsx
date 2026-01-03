@@ -25,6 +25,8 @@ import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-section";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import CaseStudyScrollHandler, { scrollToCaseStudies } from "@/utils/CaseStudyScrollHandler ";
+import { SEO } from "@/hooks/SEO";
 
 export interface WebCaseStudyCardResults {
   performance: string;
@@ -259,13 +261,17 @@ export default function WebDevelopment() {
     setTouchStartX(null);
   };
 
-  const handleScrollToCaseStudies = () => {
-    if (typeof document === "undefined") return;
+  // const handleScrollToCaseStudies = () => {
+  //   if (typeof document === "undefined") return;
 
-    const section = document.getElementById("case-studies");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+  //   const section = document.getElementById("case-studies");
+  //   if (section) {
+  //     section.scrollIntoView({ behavior: "smooth", block: "start" });
+  //   }
+  // };
+
+  const handleScrollToCaseStudies = () => {
+    scrollToCaseStudies();
   };
 
   // ======================
@@ -277,7 +283,20 @@ export default function WebDevelopment() {
 
   // ✅ paginate: first 6, then next 6, ...
   const PAGE_SIZE = 6;
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+
+  // 🔥 PERSIST visibleCount (FIX)
+  const [visibleCount, setVisibleCount] = useState(() => {
+    if (typeof window === "undefined") return PAGE_SIZE;
+    const saved = sessionStorage.getItem("webVisibleCount");
+    return saved ? Number(saved) : PAGE_SIZE;
+  });
+
+  // 🔥 SAVE pagination state
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("webVisibleCount", String(visibleCount));
+    }
+  }, [visibleCount]);
 
   // ----------- Load WEB DEV -----------
   useEffect(() => {
@@ -289,10 +308,11 @@ export default function WebDevelopment() {
         setWebError(null);
 
         const res = await fetch("/api/web-case-studies");
-        if (!res.ok)
+        if (!res.ok) {
           throw new Error(
             `Failed to load Web case studies: ${res.status} ${res.statusText}`,
           );
+        }
 
         const data = (await res.json()) as WebCaseStudyCard[];
         if (cancelled) return;
@@ -300,13 +320,11 @@ export default function WebDevelopment() {
         const list = Array.isArray(data) ? data : [];
         setWebCards(list);
 
-        // ✅ reset pagination whenever data loads
-        setVisibleCount(PAGE_SIZE);
+        // ❌ DO NOT reset visibleCount here
       } catch (err: any) {
         if (!cancelled) {
           setWebError(err?.message ?? "Unable to load Web case studies");
           setWebCards([]);
-          setVisibleCount(PAGE_SIZE);
         }
       } finally {
         if (!cancelled) setLoadingWeb(false);
@@ -344,32 +362,21 @@ export default function WebDevelopment() {
   const canLoadMore = visibleCount < webCards.length;
 
   const handleLoadMore = () => {
-    setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, webCards.length));
+    setVisibleCount((prev) =>
+      Math.min(prev + PAGE_SIZE, webCards.length),
+    );
   };
 
   return (
     <>
-      <Helmet>
-        <title>White-Label Web Development for Agencies | BrandingBeez</title>
-        <meta
-          name="description"
-          content="We build agency-ready websites under your brand. White-label WordPress & custom web development — fast delivery, zero client exposure."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/services/web-development"
-        />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <CaseStudyScrollHandler />
+      <SEO
+        title="White-Label Web Development for Agencies | BrandingBeez"
+        description="We build agency-ready websites under your brand. White-label WordPress & custom web development — fast delivery, zero client exposure."
+      />
+
+      <SchemaMarkup type="custom" data={WebDevelopmentSchema} />
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Build Powerful WordPress Websites"
-          description="White-label web development for agencies and businesses. SEO-ready, mobile-optimized, and designed to scale."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/services/web-development"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={WebDevelopmentSchema} />
         {/* <Header /> */}
         <main className="pb-0">
           {/* Featured Web Development Client Section */}
@@ -424,7 +431,7 @@ export default function WebDevelopment() {
                   {/* CTA */}
                   <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                     <BookCallButtonWithModal
-                      buttonLabel="Schedule Consultation"
+                      buttonLabel="Book Free Strategy Call"
                       className="bg-white text-brand-purple hover:bg-gray-100 hover:text-brand-purple font-semibold px-6 py-3 rounded-lg shadow-md w-full sm:w-auto justify-center"
                       buttonSize="lg"
                       defaultServiceType="Website Development"
@@ -491,7 +498,7 @@ export default function WebDevelopment() {
             <div className="max-w-6xl mx-auto">
               <PhaseSliderSection
                 sectionId="web-development-process"
-                heading="How Our Web Development Process Works"
+                heading="What Is White-Label Website Development?"
                 subheading="A simple, transparent process built for agencies."
                 phases={webDevelopmentPhases}
                 badgeLabel="White-Label Web Development Process"
@@ -514,7 +521,7 @@ export default function WebDevelopment() {
             <div className="mx-auto max-w-7xl">
               {/* Header */}
               <div className="mx-auto max-w-4xl text-center mb-8 sm:mb-10 lg:mb-12">
-                <h3
+                <h2
                   className="
           text-brand-purple font-bold
           text-2xl sm:text-3xl lg:text-4xl
@@ -523,7 +530,7 @@ export default function WebDevelopment() {
         "
                 >
                   White-Label Website <span className="text-brand-coral">Case Studies &amp; Portfolio</span>
-                </h3>
+                </h2>
 
                 <p
                   className="
@@ -818,10 +825,10 @@ export default function WebDevelopment() {
           <section className="py-10 sm:py-14 lg:py-20 px-4 sm:px-6 lg:px-8 bg-white">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-                <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-3 sm:mb-5 leading-tight">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-3 sm:mb-5 leading-tight">
                   Choose Your White-Label{" "}
                   <span className="text-brand-coral">Website Development Packages</span>
-                </h3>
+                </h2>
 
                 <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
                   Agency-ready website development packages you can resell under your
@@ -851,7 +858,7 @@ export default function WebDevelopment() {
                       )}
 
                       <CardHeader className="text-center pb-4 flex-shrink-0 px-4 pt-6">
-                        <h4 className="text-xl font-bold text-brand-purple">{pkg.name}</h4>
+                        <h3 className="text-xl font-bold text-brand-purple">{pkg.name}</h3>
 
                         <div className="mt-3">
                           <span className="text-3xl font-bold text-brand-coral">
@@ -946,9 +953,9 @@ export default function WebDevelopment() {
                     )}
 
                     <CardHeader className="text-center pb-4 flex-shrink-0 px-4 sm:px-6 pt-6 sm:pt-8">
-                      <h4 className="text-xl sm:text-2xl font-bold text-brand-purple">
+                      <h3 className="text-xl sm:text-2xl font-bold text-brand-purple">
                         {pkg.name}
-                      </h4>
+                      </h3>
 
                       <div className="mt-3 sm:mt-4">
                         <span className="text-3xl sm:text-4xl font-bold text-brand-coral">
@@ -1042,13 +1049,13 @@ export default function WebDevelopment() {
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-brand-purple/10 px-0 py-2 mb-4">
                   <HelpCircle className="w-4 h-4 text-brand-purple" />
-                  <span className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
+                  <h2 className="text-xs sm:text-sm font-bold tracking-wide uppercase text-brand-purple">
                     White-Label Web Development – FAQs
-                  </span>
+                  </h2>
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-brand-purple mb-4">
+                <p className="text-2xl sm:text-3xl font-bold text-brand-purple mb-4">
                   Answers to the questions agencies ask us most.
-                </h2>
+                </p>
                 <p className="text-base sm:text-lg text-gray-600 mb-6">
                   You keep client relationships and strategy. We handle the build,
                   QA, and tech completely under your brand.

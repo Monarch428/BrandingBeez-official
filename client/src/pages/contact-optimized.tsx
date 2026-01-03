@@ -17,6 +17,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
+import { SEO } from "@/hooks/SEO";
 
 export default function Contact() {
   const { regionConfig } = useRegion();
@@ -28,33 +29,34 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-      <SEOHead
+      <SEO
         title="Contact BrandingBeez - Get Your Free Consultation | White-Label Agency Partner"
         description="Ready to scale your agency? Contact our global team for white-label digital services. Free consultation, UK/US/Germany offices. Get started today with professional white-label solutions."
-        keywords="contact white label agency, free consultation, digital marketing partnership, white label services contact, agency scaling solutions"
-        canonicalUrl="https://brandingbeez.com/contact"
-        ogType="website"
       />
-      <SchemaMarkup type="webpage" data={{
-        title: "Contact BrandingBeez - Get Your Free Consultation",
-        description: "Ready to scale your agency? Contact our global team for white-label digital services. Free consultation available.",
-        url: "https://brandingbeez.com/contact",
-        breadcrumbs: [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": "https://brandingbeez.com"
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "Contact",
-            "item": "https://brandingbeez.com/contact"
-          }
-        ]
-      }} />
 
+      <SchemaMarkup
+        type="webpage"
+        data={{
+          title: "Contact BrandingBeez - Get Your Free Consultation",
+          description:
+            "Ready to scale your agency? Contact our global team for white-label digital services. Free consultation available.",
+          url: "https://brandingbeez.co.uk/contact",
+          breadcrumbs: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: "Home",
+              item: "https://brandingbeez.co.uk",
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: "Contact",
+              item: "https://brandingbeez.co.uk/contact",
+            },
+          ],
+        }}
+      />
       {/* <Header /> */}
       <main>
         {/* Hero Section */}

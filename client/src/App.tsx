@@ -170,6 +170,7 @@ class SafePopupBoundary extends React.Component<
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import CaseStudyScrollHandler from "./utils/CaseStudyScrollHandler ";
 
 function Router() {
   const [location] = useLocation();
@@ -319,7 +320,7 @@ function App() {
                 <CriticalPathOptimizer />
 
                 <PerformanceOptimizer />
-
+                
                 <Router />
                 <CookieConsent />
 

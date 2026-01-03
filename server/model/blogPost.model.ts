@@ -4,13 +4,14 @@ import { numericIdField } from "../helpers/db-helpers";
 
 const { model, models } = mongoose;
 
-export interface BlogPostDocument extends mongoose.Document, BlogPost {}
+export interface BlogPostDocument extends mongoose.Document, BlogPost { }
 
 const blogPostSchema = new Schema<BlogPostDocument>(
   {
     id: numericIdField,
     slug: { type: String, required: true, unique: true },
     title: { type: String, required: true },
+    category: { type: String, required: true, index: true, trim: true, },
     subtitle: String,
     excerpt: String,
     content: { type: String, required: true },
