@@ -1136,6 +1136,7 @@ import { Label } from "@/components/ui/label";
 import { navigate } from "wouter/use-browser-location";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
+import { SEO } from "@/hooks/SEO";
 
 const applicationTypes = [
   "Mobile App (iOS)",
@@ -1308,30 +1309,14 @@ export default function CustomAppDevelopment() {
 
   return (
     <>
-      <Helmet>
-        <title>
-          Custom Web & Mobile App Development (AI-Powered) | Branding Beez 2025
-        </title>
-        <meta
-          name="description"
-          content="Custom web, mobile & AI-powered applications for startups and enterprises. High-performance, scalable apps with AI web agents, automation and modern UI/UX."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/services/custom-app-development"
-        />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="Custom Web & Mobile App Development (AI-Powered) | BrandingBeez"
+        description="Custom web, mobile & AI-powered applications for startups and enterprises. High-performance, scalable apps with AI web agents, automation and modern UI/UX."
+      />
+
+      <SchemaMarkup type="service" data={schemaData} />
 
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Custom Web & Mobile App Development (AI-Powered)"
-          description="Build fast, reliable, and intelligent applications for web and mobile. From MVPs to AI-powered enterprise platforms, we handle full-stack development end-to-end."
-          keywords="custom web app development, mobile app development, AI web agents, AI development, full-stack development, UI UX design, API development, react apps, native apps"
-          canonicalUrl="https://brandingbeez.co.uk/services/custom-app-development"
-          ogType="website"
-        />
-        <SchemaMarkup type="service" data={schemaData} />
 
         {/* <Header /> */}
 
@@ -2769,8 +2754,8 @@ export default function CustomAppDevelopment() {
             </div>
           </section>
 
-{/* Contact Form Section (now a reusable component) */}
-<AgencyContactSection
+          {/* Contact Form Section (now a reusable component) */}
+          <AgencyContactSection
             sectionId="contact-form"
             heading="Ready to Scale Your Agency?"
             subheading="Get a free consultation and discover how we can help you grow."

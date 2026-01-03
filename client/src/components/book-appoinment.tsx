@@ -3053,6 +3053,48 @@ type StatusType = "success" | "error" | null;
 const validateEmail = (value: string) => /^\S+@\S+\.\S+$/.test(value.trim());
 const validatePhone = (value: string) => value.trim().length >= 7;
 
+function resolveTimeZone(tz: string) {
+  if (tz === "browser") {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  return tz;
+}
+
+function formatBaseAvailabilityForTimeZone(
+  startIST: string, // "16:00"
+  endIST: string,   // "23:00"
+  date: Date,
+  timeZone: string
+) {
+  const resolvedTZ = resolveTimeZone(timeZone);
+
+  const [sh, sm] = startIST.split(":").map(Number);
+  const [eh, em] = endIST.split(":").map(Number);
+
+  // Build ISO string in IST (+05:30)
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+
+  const startISO = `${y}-${m}-${d}T${String(sh).padStart(2, "0")}:${String(sm).padStart(2, "0")}:00+05:30`;
+  const endISO = `${y}-${m}-${d}T${String(eh).padStart(2, "0")}:${String(em).padStart(2, "0")}:00+05:30`;
+
+  const startDate = new Date(startISO);
+  const endDate = new Date(endISO);
+
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: resolvedTZ,
+  });
+
+  return {
+    start: formatter.format(startDate),
+    end: formatter.format(endDate),
+  };
+}
+
 export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   defaultServiceType,
   consultantName,
@@ -3478,6 +3520,13 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
     }
   };
 
+  const baseAvailability = formatBaseAvailabilityForTimeZone(
+    "16:00", // 4:00 PM IST
+    "23:00", // 11:00 PM IST
+    effectiveSelectedDate ?? new Date(),
+    timeZone
+  );
+
   return (
     <div className="w-full">
       <Card className="bg-white border-slate-200 shadow-md w-full overflow-hidden">
@@ -3692,39 +3741,38 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
               ].join(" ")}
             >
               {/* Right header */}
-              <div className="flex items-start justify-between gap-3 mb-3 shrink-0">
-                <div className="min-w-0">
-                  <h3 className="text-sm sm:text-base font-semibold text-slate-900">
-                    {bookingStage === "form" ? "Enter Details" : "Select a Time"}
-                  </h3>
-                  <p className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5 truncate">
-                    {selectedDate
-                      ? selectedDate.toLocaleDateString("en-GB", {
-                        weekday: "short",
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })
-                      : "Pick a date to see available times"}
-                  </p>
-                </div>
+              <div className="flex flex-row items-start justify-between gap-3 mb-2 shrink-0">
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
+                  {bookingStage === "form" ? "Enter Details" : "Select a Time"}
+                </h3>
+                <p className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5 truncate">
+                  {selectedDate
+                    ? selectedDate.toLocaleDateString("en-GB", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })
+                    : "Pick a date to see available times"}
+                </p>
+              </div>
 
-                {/* ✅ Calendly-like timezone trigger + panel (Fully responsive incl. 320px) */}
-                <div
-                  className="flex flex-col items-end gap-1 shrink-0 relative"
-                  ref={tzWrapRef}
-                >
-                  {/* Trigger row */}
-                  <div className="flex items-center gap-2 max-w-full">
-                    {/* Hide on very small screens to prevent wrap issues */}
-                    <span className="text-[10px] text-slate-600 hidden sm:inline">
-                      Showing times in:
-                    </span>
+              {/* ✅ Calendly-like timezone trigger + panel (Fully responsive incl. 320px) */}
+              <div
+                className="flex flex-col items-end gap-1 shrink-0 relative mb-2"
+                ref={tzWrapRef}
+              >
+                {/* Trigger row */}
+                <div className="flex items-center gap-2 max-w-full">
+                  {/* Hide on very small screens to prevent wrap issues */}
+                  <span className="text-[10px] text-slate-600 hidden sm:inline">
+                    Showing times in:
+                  </span>
 
-                    <button
-                      type="button"
-                      onClick={() => setTzOpen((v) => !v)}
-                      className="
+                  <button
+                    type="button"
+                    onClick={() => setTzOpen((v) => !v)}
+                    className="
                         h-8 sm:h-7
                         px-2 py-1
                         text-[10px] sm:text-[11px]
@@ -3735,17 +3783,17 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                         inline-flex items-center gap-1
                         max-w-[78vw] sm:max-w-[240px]
                       "
-                      aria-label="Select timezone"
-                    >
-                      <Globe className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-                      <span className="truncate">{timeZoneLabel}</span>
-                    </button>
-                  </div>
+                    aria-label="Select timezone"
+                  >
+                    <Globe className="w-3.5 h-3.5 text-slate-600 shrink-0" />
+                    <span className="truncate">{timeZoneLabel}</span>
+                  </button>
+                </div>
 
-                  {/* Responsive panel */}
-                  {tzOpen && (
-                    <div
-                      className="
+                {/* Responsive panel */}
+                {tzOpen && (
+                  <div
+                    className="
                         absolute top-full mt-2 z-[100010]
                         rounded-lg border border-slate-200 bg-white shadow-2xl
                         p-4 sm:p-3 overflow-hidden
@@ -3757,33 +3805,32 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                         sm:w-[380px] sm:max-w-[380px]
                         md:w-[420px] md:max-w-[420px]
                       "
-                    >
-                      <TimeZonePicker
-                        value={timeZone}
-                        onChange={(tz) => {
-                          setTimeZone(tz);
-                          setTzOpen(false);
-                        }}
-                        className="w-full"
-                      />
-                    </div>
-                  )}
-
-                  {bookingStage === "form" && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setBookingStage("time");
-                        setSelectedSlot(null);
-                        setFormStep(0);
+                  >
+                    <TimeZonePicker
+                      value={timeZone}
+                      onChange={(tz) => {
+                        setTimeZone(tz);
+                        setTzOpen(false);
                       }}
-                      className="text-[11px] font-medium text-slate-600 hover:text-slate-900 inline-flex items-center gap-1"
-                    >
-                      <ChevronLeft className="w-3.5 h-3.5" />
-                      Back to times
-                    </button>
-                  )}
-                </div>
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                {bookingStage === "form" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBookingStage("time");
+                      setSelectedSlot(null);
+                      setFormStep(0);
+                    }}
+                    className="text-[11px] font-medium text-slate-600 hover:text-slate-900 inline-flex items-center gap-1"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    Back to times
+                  </button>
+                )}
               </div>
 
               {/* ✅ RIGHT BODY (Times/Form) */}
@@ -3791,10 +3838,18 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                 {/* ===== TIMES ===== */}
                 {bookingStage !== "form" && (
                   <>
-                    <p className="text-[11px] text-slate-500 mb-3 shrink-0">
+                    {/* <p className="text-[11px] text-slate-500 mb-3 shrink-0">
                       Base availability: <b>4:00 PM – 11:00 PM IST</b>. Times
                       below are shown in your selected timezone.
+                    </p> */}
+                    <p className="text-[11px] text-slate-500 mb-3 shrink-0">
+                      Base availability:{" "}
+                      <b>
+                        {baseAvailability.start} – {baseAvailability.end}
+                      </b>{" "}
+                      ({timeZoneLabel})
                     </p>
+
 
                     {!selectedDate ? (
                       <p className="text-xs text-slate-500 shrink-0">
@@ -3874,7 +3929,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                 key={slot.startTime}
                                 className="grid grid-cols-[1fr_auto] gap-2 items-stretch"
                               >
-                                <button
+                                {/* <button
                                   type="button"
                                   disabled={disabled}
                                   onClick={() => {
@@ -3893,6 +3948,34 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                   aria-pressed={isSelected}
                                 >
                                   {startLabel}
+                                </button> */}
+                                <button
+                                  type="button"
+                                  disabled={disabled}
+                                  onClick={() => {
+                                    if (disabled) return;
+                                    setSelectedSlot(slot);
+                                  }}
+                                  className={[
+                                    "w-full px-4 py-2 rounded-lg text-sm font-semibold border transition-all bg-white flex flex-col items-center justify-center",
+                                    statusClasses[slot.status],
+                                    extraPastClasses,
+                                    isSelected
+                                      ? "!bg-gray-600 !text-white !border-slate-700"
+                                      : "",
+                                    "min-h-[52px]",
+                                  ].join(" ")}
+                                  aria-pressed={isSelected}
+                                >
+                                  {/* Time label */}
+                                  <span>{startLabel}</span>
+
+                                  {/* 👇 Booked label */}
+                                  {slot.status !== "available" && (
+                                    <span className="text-[12px] text-red-500 font-bold">
+                                      Booked
+                                    </span>
+                                  )}
                                 </button>
 
                                 <div

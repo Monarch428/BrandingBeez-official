@@ -18,6 +18,7 @@ import { SEOHead } from '@/components/seo-head';
 import { SchemaMarkup } from '@/components/schema-markup';
 // import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Helmet } from 'react-helmet';
+import { SEO } from '@/hooks/SEO';
 
 interface PricingResult {
   service: string;
@@ -567,16 +568,30 @@ export default function PricingCalculator() {
 
   return (
     <>
-      <Helmet>
-        <title>Pricing Calculator | Instant Service Pricing — Branding Beez</title>
-        <meta name="description" content="Get instant, transparent pricing for Branding Beez services. Configure your package, view discounts, and request a team quote — no hidden fees." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/pricing-calculator" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="Pricing Calculator | Instant Service Pricing — BrandingBeez"
+        description="Get instant, transparent pricing for BrandingBeez services. Configure your package, view discounts, and request a team quote — no hidden fees."
+      />
+
+      <SchemaMarkup
+        type="service"
+        data={{
+          name: "White-Label Services Pricing Calculator",
+          description:
+            "Interactive pricing calculator to estimate costs for white-label digital marketing services.",
+          serviceType: "Pricing Calculator Tool",
+          hasOfferCatalog: {
+            name: "Service Pricing Options",
+            itemListElement: [
+              { name: "SEO Services Pricing" },
+              { name: "Google Ads Management Pricing" },
+              { name: "Dedicated Resources Pricing" },
+            ],
+          },
+        }}
+      />
 
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead title="Pricing Calculator | White-Label Services Cost Estimator | BrandingBeez" description="Calculate costs for white-label digital marketing services..." keywords="white label pricing calculator..." canonicalUrl="https://brandingbeez.com/pricing-calculator" ogType="webapp" />
-        <SchemaMarkup type="service" data={{ name: "White-Label Services Pricing Calculator", description: "Interactive pricing calculator...", serviceType: "Pricing Calculator Tool", hasOfferCatalog: { name: "Service Pricing Options", itemListElement: [{ name: "SEO Services Pricing" }, { name: "Google Ads Management Pricing" }, { name: "Dedicated Resources Pricing" }] } }} />
         {/* <Header /> */}
 
         <section className="py-12 sm:py-16 lg:py-20 px-4 bg-gradient-to-r from-brand-purple to-brand-coral text-white">

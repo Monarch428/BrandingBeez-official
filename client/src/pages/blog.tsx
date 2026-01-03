@@ -16,6 +16,7 @@ import { SchemaMarkup } from "@/components/schema-markup";
 import { BlogSchema } from "@/utils/all-schemas";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import BrandingBeezLoader from "@/components/BeeLoadingScreen";
+import { SEO } from "@/hooks/SEO";
 
 interface BlogPost {
   id: number;
@@ -133,24 +134,14 @@ export default function Blog() {
 
   return (
     <>
-      <Helmet>
-        <title>Digital Marketing Blog | Expert SEO, PPC & AI Insights</title>
-        <meta
-          name="description"
-          content="Explore Branding Beez insights on SEO, Google Ads, AI, and digital marketing. Actionable strategies, case studies, and expert tips to grow your business."
-        />
-        <link rel="canonical" href="https://brandingbeez.co.uk/blog" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="Digital Marketing Blog | Expert SEO, PPC & AI Insights"
+        description="Explore Branding Beez insights on SEO, Google Ads, AI, and digital marketing. Actionable strategies, case studies, and expert tips to grow your business."
+      />
+
+      <SchemaMarkup type="custom" data={BlogSchema} />
+
       <div className="min-h-screen bg-white">
-        <SEOHead
-          title="Digital Marketing Insights | Branding Beez Blog"
-          description="Stay ahead with expert strategies and actionable insights on SEO, PPC, AI, and marketing automation."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/blog"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={BlogSchema} />
         {/* <Header /> */}
 
         {/* Hero Section */}
@@ -198,7 +189,7 @@ export default function Blog() {
                     <Badge variant="secondary" className="mb-4">
                       {featuredPost.category ||
                         (Array.isArray(featuredPost.tags) &&
-                        featuredPost.tags.length > 0
+                          featuredPost.tags.length > 0
                           ? featuredPost.tags[0]
                           : "Featured")}
                     </Badge>
@@ -286,10 +277,10 @@ export default function Blog() {
                 const publishDate = post.publishedAt || post.createdAt;
                 const formattedDate = publishDate
                   ? new Date(publishDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
                   : "Recent";
 
                 return (

@@ -922,13 +922,25 @@ function ChallengeSection({
 
                 {/* points */}
                 {points.length ? (
-                    <div className="space-y-3 sm:space-y-4 mb-10 sm:mb-12 max-w-2xl mx-auto">
+                    <div className="space-y-4 mb-10 sm:mb-12 max-w-2xl mx-auto">
                         {points.map((p, idx) => (
-                            <div key={idx} className="flex items-start sm:items-center gap-3">
-                                <div className="flex items-center justify-center w-8 h-8 bg-[#ee4962] rounded-full flex-shrink-0 mt-0.5 sm:mt-0">
-                                    <IconByKey iconKey={p.iconKey} className="w-5 h-5 text-white" size={20} />
+                            <div
+                                key={idx}
+                                className="flex items-center justify-center gap-3 text-center"
+                            >
+                                {/* icon */}
+                                <div className="flex items-center justify-center w-8 h-8 bg-[#ee4962] rounded-full flex-shrink-0">
+                                    <IconByKey
+                                        iconKey={p.iconKey}
+                                        className="w-5 h-5 text-white"
+                                        size={20}
+                                    />
                                 </div>
-                                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">{p.text}</p>
+
+                                {/* text */}
+                                <p className="text-gray-700 text-sm sm:text-base leading-relaxed">
+                                    {p.text}
+                                </p>
                             </div>
                         ))}
                     </div>

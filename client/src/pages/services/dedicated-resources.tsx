@@ -42,6 +42,8 @@ import { PhaseSliderSection } from "@/components/phase-slider-section";
 import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 import Hours_24_Image from "../../../public/images/24 hour Start time.png";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import CaseStudyScrollHandler, { scrollToCaseStudies } from "@/utils/CaseStudyScrollHandler ";
+import { SEO } from "@/hooks/SEO";
 // import DR_Image from "../../../public/images/D"
 
 
@@ -163,12 +165,13 @@ export default function DedicatedResources() {
   const activePhase = phases[currentPhase];
 
   const handleScrollToCaseStudies = () => {
-    if (typeof document === "undefined") return; // safety for SSR
+    // if (typeof document === "undefined") return; // safety for SSR
 
-    const section = document.getElementById("case-studies");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // const section = document.getElementById("case-studies");
+    // if (section) {
+    //   section.scrollIntoView({ behavior: "smooth", block: "start" });
+    // }
+    scrollToCaseStudies();
   };
 
   const handleHireClick = () => {
@@ -242,27 +245,15 @@ export default function DedicatedResources() {
 
   return (
     <>
-      <Helmet>
-        <title>Dedicated White-Label Teams for Agencies | BrandingBeez</title>
-        <meta
-          name="description"
-          content="Hire dedicated white-label developers, designers, SEO & PPC specialists. Scale delivery, cut costs, and stay in control — no hiring risk."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/services/dedicated-resources"
-        />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <CaseStudyScrollHandler />
+      <SEO
+        title="Dedicated White-Label Teams for Agencies | BrandingBeez"
+        description="Hire dedicated white-label developers, designers, SEO & PPC specialists. Scale delivery, cut costs, and stay in control — no hiring risk."
+      />
+
+      <SchemaMarkup type="custom" data={DedicatedResourcesSchema} />
+
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Dedicated Development Teams — Scale Faster with Branding Beez"
-          description="Embed top-tier developers & specialists, cut costs by 60%, and boost output by 150%"
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/services/dedicated-resources"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={DedicatedResourcesSchema} />
         {/* <Header /> */}
         <main>
           {/* Hero Section */}
@@ -369,14 +360,14 @@ export default function DedicatedResources() {
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
                     {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
-                      {/* <iframe
+                    {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/o1pOaGyjVuQ"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       /> */}
-                      <LazyYouTube videoId="o1pOaGyjVuQ" />
+                    <LazyYouTube videoId="o1pOaGyjVuQ" />
                     {/* </div> */}
                   </div>
                 </div>

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Helmet } from "react-helmet";
 import AgencyContactSection from "@/components/agency-contact-section";
+import { SEO } from "@/hooks/SEO";
 
 const serviceCategories = [
   {
@@ -350,46 +351,46 @@ export default function Services() {
 
   return (
     <>
-      <Helmet>
-        <title>Dedicated Resources & White-Label Services | Branding Beez</title>
-        <meta name="description" content="Hire expert SEO, web, PPC & AI professionals from Branding Beez. Scale your agency with dedicated teams, 60% cost savings & full transparency." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/services" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
-      <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="White-Label Services for US Agencies | Dedicated Resources & Development"
-          description="Scale your US digital agency with white-label services, dedicated offshore resources, web & mobile development, SEO and Google Ads — without hiring US staff."
-          keywords="white label digital marketing, white label services, SEO services, Google Ads management, web development, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/services"
-          ogType="website"
-        />
-        <SchemaMarkup type="service" data={{
+      <SEO
+        title="Dedicated Resources & White-Label Services | BrandingBeez"
+        description="Hire expert SEO, web, PPC & AI professionals from BrandingBeez. Scale your agency with dedicated teams, 60% cost savings & full transparency."
+      />
+
+      <SchemaMarkup
+        type="service"
+        data={{
           name: "White-Label Digital Marketing Services",
-          description: "Comprehensive digital marketing services delivered under your agency's brand including SEO, Google Ads, web development, and AI solutions.",
+          description:
+            "Comprehensive digital marketing services delivered under your agency's brand including SEO, Google Ads, web development, and AI solutions.",
           serviceType: "Digital Marketing Services",
           hasOfferCatalog: {
             name: "Digital Marketing Service Portfolio",
             itemListElement: [
               {
                 name: "SEO Services",
-                description: "Technical SEO, content optimization, and link building"
+                description:
+                  "Technical SEO, content optimization, and link building",
               },
               {
                 name: "Google Ads Management",
-                description: "Performance Max, Search, and Shopping campaigns"
+                description:
+                  "Performance Max, Search, and Shopping campaigns",
               },
               {
                 name: "Web Development",
-                description: "WordPress, Shopify, and custom website development"
+                description:
+                  "WordPress, Shopify, and custom website development",
               },
               {
                 name: "AI Integration",
-                description: "ChatGPT, automation, and AI-powered solutions"
-              }
-            ]
-          }
-        }} />
+                description:
+                  "ChatGPT, automation, and AI-powered solutions",
+              },
+            ],
+          },
+        }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         {/* <Header /> */}
         <main>
           {/* Hero Section with Dual Forms */}

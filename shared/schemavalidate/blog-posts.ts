@@ -15,12 +15,14 @@ export const insertBlogPostSchema = z.object({
   isFeatured: z.boolean().optional(),
   metaDescription: z.string().optional(),
   metaTitle: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
 });
 
 export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
 
 export interface BlogPost extends InsertBlogPost {
   id: number;
+  category: string;
   tags?: string[];
   author: string;
   readTime: number;

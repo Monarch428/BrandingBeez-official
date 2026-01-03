@@ -44,6 +44,8 @@ import AgencyContactSection from "@/components/agency-contact-section";
 import { useState } from "react";
 import { PhaseSliderSection, type PhaseItem, } from "@/components/phase-slider-section";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import CaseStudyScrollHandler, { scrollToCaseStudies } from "@/utils/CaseStudyScrollHandler ";
+import { SEO } from "@/hooks/SEO";
 // import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 // import Hours_24_Image from "../../../public/images/24 hour Start time.png";
 // import SEO_Image from "../../../public/images/DEDICATED SEO RESOURCE.png"
@@ -330,12 +332,13 @@ export default function SEOServices() {
   };
 
   const handleScrollToCaseStudies = () => {
-    if (typeof document === "undefined") return;
+    // if (typeof document === "undefined") return;
 
-    const section = document.getElementById("case-studies");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // const section = document.getElementById("case-studies");
+    // if (section) {
+    //   section.scrollIntoView({ behavior: "smooth", block: "start" });
+    // }
+    scrollToCaseStudies();
   };
 
   const [search, setSearch] = useState("");
@@ -352,42 +355,42 @@ export default function SEOServices() {
 
   return (
     <>
-      <Helmet>
-        <title>White-Label SEO Services for Agencies | BrandingBeez</title>
-        <meta name="description" content="Scale your agency with white-label SEO services. Dedicated SEO specialists, agency-ready reporting, and proven results — fully under your brand." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/services/seo" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
-      <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="White-Label SEO Services for Agencies Worldwide | BrandingBeez"
-          description="Grow your agency globally with white-label SEO services from BrandingBeez. Scalable packages, proven case studies, and expert support tailored for worldwide clients."
-          keywords="white label SEO, SEO services for agencies, white label search engine optimization, technical SEO, content optimization, link building services"
-          canonicalUrl="https://brandingbeez.co.uk/services/seo"
-          ogType="service"
-        />
-        <SchemaMarkup type="service" data={{
+      <CaseStudyScrollHandler />
+      <SEO
+        title="White-Label SEO Services for Agencies | BrandingBeez"
+        description="Scale your agency with white-label SEO services. Dedicated SEO specialists, agency-ready reporting, and proven results — fully under your brand."
+      />
+
+      <SchemaMarkup
+        type="service"
+        data={{
           name: "White-Label SEO Services",
-          description: "Comprehensive search engine optimization services delivered under your agency's brand including technical SEO, content optimization, and link building.",
+          description:
+            "Comprehensive search engine optimization services delivered under your agency's brand including technical SEO, content optimization, and link building.",
           serviceType: "Search Engine Optimization",
           hasOfferCatalog: {
             name: "SEO Service Offerings",
             itemListElement: [
               {
                 name: "Technical SEO Audit",
-                description: "Comprehensive technical analysis and optimization"
+                description:
+                  "Comprehensive technical analysis and optimization",
               },
               {
                 name: "Content Optimization",
-                description: "SEO-focused content creation and optimization"
+                description:
+                  "SEO-focused content creation and optimization",
               },
               {
                 name: "Link Building",
-                description: "High-quality backlink acquisition strategies"
-              }
-            ]
-          }
-        }} />
+                description:
+                  "High-quality backlink acquisition strategies",
+              },
+            ],
+          },
+        }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         {/* <Header /> */}
         <main>
 
@@ -548,14 +551,14 @@ export default function SEOServices() {
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
                     {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[325px] rounded-xl overflow-hidden shadow-lg"> */}
-                      {/* <iframe
+                    {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/dCpAoMPSHsE"
                         title="Website Design & Development for Agencies | BrandingBeez"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       /> */}
-                      <LazyYouTube videoId="dCpAoMPSHsE" />
+                    <LazyYouTube videoId="dCpAoMPSHsE" />
                     {/* </div> */}
                   </div>
                 </div>

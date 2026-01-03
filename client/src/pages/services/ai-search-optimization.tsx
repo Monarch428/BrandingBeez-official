@@ -26,6 +26,7 @@ import { SEOHead } from "@/components/seo-head";
 import { SchemaMarkup } from "@/components/schema-markup";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
+import { SEO } from "@/hooks/SEO";
 
 const AiSearchOptimizationSchema = {
     "@context": "https://schema.org",
@@ -126,31 +127,13 @@ export default function AiSearchOptimization() {
     };
     return (
         <>
-            <Helmet>
-                <title>
-                    AI Search Optimization (AIO) Packages | Branding Beez Services 2025
-                </title>
-                <meta
-                    name="description"
-                    content="Get your brand ranked inside AI-generated results like Google SGE, Perplexity, Copilot & ChatGPT Search with our AI Search Optimization (AIO) packages."
-                />
-                <link
-                    rel="canonical"
-                    href="https://brandingbeez.co.uk/services/ai-search-optimization"
-                />
-                <meta name="robots" content="INDEX, FOLLOW" />
-            </Helmet>
+            <SEO
+                title="AI Search Optimization (AIO) Packages | BrandingBeez Services 2025"
+                description="Get your brand ranked inside AI-generated results like Google SGE, Perplexity, Copilot & ChatGPT Search with our AI Search Optimization (AIO) packages."
+            />
 
+            <SchemaMarkup type="custom" data={AiSearchOptimizationSchema} />
             <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-                <SEOHead
-                    title="AI Search Optimization (AIO) — Rank in AI Answer Engines"
-                    description="Get your brand ranked inside AI-generated results on Google SGE, Perplexity, Copilot & ChatGPT Search with structured AIO packages."
-                    keywords="AI search optimization, AIO, Google SGE optimization, Perplexity SEO, ChatGPT search visibility, AI answer engine, Branding Beez"
-                    canonicalUrl="https://brandingbeez.co.uk/services/ai-search-optimization"
-                    ogType="website"
-                />
-                <SchemaMarkup type="custom" data={AiSearchOptimizationSchema} />
-
                 {/* <Header /> */}
                 <main>
                     {/* Hero Section */}
@@ -976,15 +959,15 @@ export default function AiSearchOptimization() {
                         </div>
                     </section> */}
 
-{/* Contact Form Section (now a reusable component) */}
-<AgencyContactSection
-            sectionId="contact-form"
-            heading="Ready to Scale Your Agency?"
-            subheading="Get a free consultation and discover how we can help you grow."
-            inquiryType="service-aiso-contact-form"
-            contactFormType="service-aiso-contact-form"
-            submissionSourceLabel="Service Page Contact Form Submission"
-          />
+                    {/* Contact Form Section (now a reusable component) */}
+                    <AgencyContactSection
+                        sectionId="contact-form"
+                        heading="Ready to Scale Your Agency?"
+                        subheading="Get a free consultation and discover how we can help you grow."
+                        inquiryType="service-aiso-contact-form"
+                        contactFormType="service-aiso-contact-form"
+                        submissionSourceLabel="Service Page Contact Form Submission"
+                    />
 
                     {/* CTA Section */}
                     <section className="py-16 px-4 bg-gradient-to-r from-[#CF4163] to-[#552265] text-white">

@@ -1104,6 +1104,7 @@ import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { SEO } from "@/hooks/SEO";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export const IMAGES = {
@@ -1385,27 +1386,14 @@ export default function Home() {
         />
       )} */}
 
-      <Helmet>
-        <title>
-          White Label Digital Services | Scale Your Agency Without Hiring
-        </title>
-        <meta
-          name="description"
-          content="Scale your agency without hiring. Branding Beez offers white-label web development, SEO, PPC, and AI solutions trusted by 25+ global agencies."
-        />
-        <link rel="canonical" href="https://brandingbeez.co.uk/" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="White Label Digital Services | Scale Your Agency Without Hiring"
+        description="Scale your agency without hiring. Branding Beez offers white-label web development, SEO, PPC, and AI solutions trusted by 25+ global agencies."
+      />
+
+      <SchemaMarkup type="localBusiness" />
 
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Hire Dedicated White-Label Teams for US Agencies | BrandingBeez"
-          description="Hire dedicated developers, designers, SEO and PPC experts under your brand. Trusted white-label partner for US agencies."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/"
-          ogType="website"
-        />
-        <SchemaMarkup type="localBusiness" />
         {/* <Header /> */}
 
         <main>
@@ -1493,7 +1481,7 @@ export default function Home() {
                   <div className="min-h-[56px] sm:min-h-[64px] lg:min-h-[72px] mb-4 sm:mb-6 flex items-center justify-center">
                     <h1
                       className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-2xl">
-                      Services start from <span className="text-brand-yellow text-3xl underline"> 399$</span>
+                      White-label Solutions starting at <span className="text-brand-yellow text-3xl underline"> 399$</span>
                     </h1>
                   </div>
 
