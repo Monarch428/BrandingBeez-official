@@ -600,13 +600,16 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
     }
   }
 
+  const seoTitle =
+    detail?.seo?.metaTitle ||
+    detail?.heroTitle ||
+    card.title ||
+    "Dedicated Resource Case Study";
+
   return (
     <>
       <Helmet>
-        <title>
-          {`${detail?.seo?.metaTitle} | Dedicated Resource Case Study | BrandingBeez`}
-        </title>
-
+        <title>{seoTitle} | BrandingBeez</title>
         <meta
           name="description"
           content={
@@ -616,7 +619,6 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
           }
         />
       </Helmet>
-
 
       <div className="min-h-screen bg-white">
         {/* ================= HERO (same as web) ================= */}

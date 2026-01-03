@@ -336,13 +336,16 @@ export default function PpcCaseStudySlugPage(props: any) {
         }
     }
 
+    const seoTitle =
+        detail?.seo?.metaTitle ||
+        detail?.heroClientName ||
+        card.client ||
+        "Google Ads Case Study";
+
     return (
         <>
             <Helmet>
-                <title>
-                    {`${detail?.seo?.metaTitle} | Google Ads Case Study | BrandingBeez`}
-                </title>
-
+                <title>{seoTitle} | BrandingBeez</title>
                 <meta
                     name="description"
                     content={

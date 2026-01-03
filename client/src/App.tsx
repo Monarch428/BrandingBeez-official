@@ -191,7 +191,7 @@ function Router() {
         component={() => <LazyRoute component={BookApiontment} />}
       />
       <Route path="/" component={Home} />
-      <Route path="/loader" component={BeeLoadingScreen} />
+      {/* <Route path="/loader" component={BeeLoadingScreen} /> */}
       <Route path="/admin/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
