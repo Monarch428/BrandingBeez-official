@@ -4,6 +4,8 @@ import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
 import { Helmet } from "react-helmet";
+import BrandingBeezLoader from "@/components/BeeLoadingScreen";
+import { SEO } from "@/hooks/SEO";
 
 // ---------------- Types (mirror Web Slug style) ----------------
 type ResultItem = {
@@ -564,7 +566,9 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
   const beforeAfter = detail?.beforeAfter;
 
   if (loading) {
-    return <div className="min-h-[70vh] flex items-center justify-center text-gray-500">Loading Dedicated resource case study…</div>;
+    return <div className="min-h-[70vh] flex items-center justify-center text-gray-500">
+      <BrandingBeezLoader />
+    </div>;
   }
 
   if (error || !card) {
@@ -608,10 +612,24 @@ export default function DedicatedResourceCaseStudySlugPage(props: any) {
 
   return (
     <>
+      <SEO
+        title={`${seoTitle} | BrandingBeez Dedicated Resource Case Study`}
+        description={
+          detail?.seo?.metaDescription ||
+          detail?.heroDescription ||
+          card.description
+        }
+      />
+
+      {/* Optional: Open Graph */}
       <Helmet>
-        <title>{seoTitle} | BrandingBeez</title>
+        <meta property="og:type" content="article" />
         <meta
-          name="description"
+          property="og:title"
+          content={`${seoTitle} | BrandingBeez`}
+        />
+        <meta
+          property="og:description"
           content={
             detail?.seo?.metaDescription ||
             detail?.heroDescription ||

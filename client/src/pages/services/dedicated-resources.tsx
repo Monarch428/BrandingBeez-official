@@ -279,9 +279,9 @@ export default function DedicatedResources() {
                       </div>
                     </div>
                     <div className="bg-white/10 rounded-lg p-4 sm:p-5 text-center">
-                      <div className="text-xl sm:text-2xl font-bold">60%</div>
+                      <div className="text-xl sm:text-2xl font-bold">$100K a year</div>
                       <div className="text-xs sm:text-sm text-white/80">
-                        Cost Savings
+                        Save more than
                       </div>
                     </div>
                   </div>
@@ -297,7 +297,7 @@ export default function DedicatedResources() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        24 Hours Start Time
+                        24 hours Start Time
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -314,7 +314,7 @@ export default function DedicatedResources() {
                         size="lg"
                         className="w-full sm:w-auto bg-white font-medium text-brand-purple hover:bg-brand-coral hover:text-white"
                       >
-                        Hire Your Team
+                        Hire Someone in 7 Days
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </Link>
@@ -323,7 +323,7 @@ export default function DedicatedResources() {
                     <Button
                       variant="outline"
                       onClick={handleScrollToCaseStudies}
-                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
+                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-5 flex items-center gap-2 bg-white/10"
                     >
                       View Dedicated Resources Case Studies
                       <ExternalLink className="w-4 h-4" />
@@ -942,7 +942,7 @@ export default function DedicatedResources() {
                 {/* Social Land - Digital Marketing Agency Success */}
                 <Card className="relative bg-white h-full flex flex-col">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-brand-coral text-white">+30 Months Onwards</Badge>
+                    <Badge className="bg-brand-coral text-white">3+ Years of Partnership</Badge>
                   </div>
 
                   <CardContent className="p-6 sm:p-8 pt-10 flex-1 flex flex-col">
@@ -999,7 +999,7 @@ export default function DedicatedResources() {
                 {/* Koala Digital - Digital Marketing Agency */}
                 <Card className="relative bg-white h-full flex flex-col">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-brand-coral text-white">+24 Months Onwards</Badge>
+                    <Badge className="bg-brand-coral text-white">2+ Years of Parnership</Badge>
                   </div>
 
                   <CardContent className="p-6 sm:p-8 pt-10 flex-1 flex flex-col">
@@ -1056,7 +1056,7 @@ export default function DedicatedResources() {
                 {/* Website Architect - Web Development Agency */}
                 <Card className="relative bg-white h-full flex flex-col">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-brand-coral text-white">+12 Months Onwards</Badge>
+                    <Badge className="bg-brand-coral text-white">1+ Years of Parnership</Badge>
                   </div>
 
                   <CardContent className="p-6 sm:p-8 pt-10 flex-1 flex flex-col">
@@ -1195,7 +1195,6 @@ export default function DedicatedResources() {
               </Card>
             </div>
           </section>
-
 
           {/* Pricing Section */}
           <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
@@ -1512,7 +1511,6 @@ export default function DedicatedResources() {
               </div>
             </div>
           </section>
-
 
           {/* CTA Section */}
           <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-brand-purple text-white">

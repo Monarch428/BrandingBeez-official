@@ -4,6 +4,8 @@ import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
 import { Helmet } from "react-helmet";
+import { SEO } from "@/hooks/SEO";
+import BrandingBeezLoader from "@/components/BeeLoadingScreen";
 
 // ---------------- Types ----------------
 type WebCardResults = {
@@ -333,7 +335,7 @@ export default function WebCaseStudySlugPage(props: any) {
     if (loading) {
         return (
             <div className="min-h-[70vh] flex items-center justify-center text-gray-500 px-4 text-center">
-                Loading Web case study…
+                <BrandingBeezLoader />
             </div>
         );
     }
@@ -384,11 +386,13 @@ export default function WebCaseStudySlugPage(props: any) {
 
     return (
         <>
+            <SEO
+                title={`${seoTitle} | BrandingBeez Case Study`}
+                description={seoDescription}
+            />
+
+            {/* Open Graph (allowed separately) */}
             <Helmet>
-                <title>{seoTitle} | BrandingBeez Case Study</title>
-
-                <meta name="description" content={seoDescription} />
-
                 <meta property="og:type" content="article" />
                 <meta property="og:title" content={`${seoTitle} | BrandingBeez`} />
                 <meta property="og:description" content={seoDescription} />

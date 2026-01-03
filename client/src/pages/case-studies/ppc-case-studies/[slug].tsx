@@ -4,6 +4,8 @@ import * as LucideIcons from "lucide-react";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
 import { Helmet } from "react-helmet";
+import BrandingBeezLoader from "@/components/BeeLoadingScreen";
+import { SEO } from "@/hooks/SEO";
 
 type PpcResultItem = {
     key: string;
@@ -293,7 +295,7 @@ export default function PpcCaseStudySlugPage(props: any) {
     if (loading) {
         return (
             <div className="min-h-[70vh] flex items-center justify-center text-gray-500">
-                Loading PPC case study…
+                <BrandingBeezLoader />
             </div>
         );
     }
@@ -344,10 +346,21 @@ export default function PpcCaseStudySlugPage(props: any) {
 
     return (
         <>
+            <SEO
+                title={`${seoTitle} | BrandingBeez Case Study`}
+                description={
+                    detail?.seo?.metaDescription ||
+                    detail?.heroDescription ||
+                    card.description
+                }
+            />
+
+            {/* Optional Open Graph (safe to keep) */}
             <Helmet>
-                <title>{seoTitle} | BrandingBeez</title>
+                <meta property="og:type" content="article" />
+                <meta property="og:title" content={`${seoTitle} | BrandingBeez`} />
                 <meta
-                    name="description"
+                    property="og:description"
                     content={
                         detail?.seo?.metaDescription ||
                         detail?.heroDescription ||

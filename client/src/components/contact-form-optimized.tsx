@@ -1145,6 +1145,8 @@
 //   );
 // }
 
+
+
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -1283,6 +1285,38 @@ const regions = [
   { value: "other", label: "Other" },
 ];
 
+interface FormFieldProps {
+  id: string;
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: React.ReactNode;
+}
+
+function FormField({
+  id,
+  label,
+  required,
+  error,
+  children,
+}: FormFieldProps) {
+  return (
+    <div className="space-y-1">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-800"
+      >
+        {label}
+        {required && <span className="ml-1 text-red-500">*</span>}
+      </label>
+
+      {children}
+
+      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
 export function ContactFormOptimized() {
   const { toast } = useToast();
 
@@ -1306,10 +1340,7 @@ export function ContactFormOptimized() {
     couponCode: "",
   });
 
-  // ✅ Thank popup state
   const [thankOpen, setThankOpen] = useState(false);
-
-  // errors by "path": name, email, websiteDetails.platform, dedicated.roles.0.type, etc.
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const setError = (path: string, msg: string) => {
@@ -1816,7 +1847,7 @@ export function ContactFormOptimized() {
 
               <div>
                 <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                  Phone Number (Optional)
+                  Phone Number
                 </Label>
 
                 <PhoneInput
@@ -2236,7 +2267,7 @@ export function ContactFormOptimized() {
                 id="message"
                 value={formData.message}
                 onChange={e => handleInputChange("message", e.target.value)}
-                placeholder="Tell us about your agency and goals... (Optional)"
+                placeholder="Tell us about your agency and goals..."
                 className="min-h-[120px]"
                 rows={5}
               />
