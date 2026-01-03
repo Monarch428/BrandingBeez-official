@@ -25,7 +25,6 @@ import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
 import { PhaseSliderSection, type PhaseItem } from "@/components/phase-slider-section";
 import { LazyYouTube } from "@/components/LazyYouTube";
-import BrandingBeezLoader from "@/components/BeeLoadingScreen";
 
 export interface WebCaseStudyCardResults {
   performance: string;
@@ -321,9 +320,10 @@ export default function WebDevelopment() {
   }, []);
 
   const getCardLink = (card: WebCaseStudyCard) => {
-    if (card.link) return card.link;
-    if (card.slug) return `/web-case-study/${card.slug}`;
-    return "/web-development";
+    console.log(card.slug)
+    if (card.status !== "published") return "/web-development";
+    if (!card.slug) return "/web-development";
+    return `/web-case-study/${card.slug}`;
   };
 
   const getCardAlt = (card: WebCaseStudyCard) => {
@@ -540,8 +540,8 @@ export default function WebDevelopment() {
 
               {/* ✅ Loading / Error / Empty */}
               {loadingWeb && (
-                <div className="relative min-h-[320px] sm:min-h-[380px] lg:min-h-[420px]">
-                  <BrandingBeezLoader />
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="w-8 h-8 text-brand-purple animate-spin" />
                 </div>
               )}
 
