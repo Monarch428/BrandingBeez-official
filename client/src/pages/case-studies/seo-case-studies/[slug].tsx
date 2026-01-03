@@ -17,6 +17,8 @@ import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
 import { Helmet } from "react-helmet";
+import BrandingBeezLoader from "@/components/BeeLoadingScreen";
+import { SEO } from "@/hooks/SEO";
 
 /* ============================================================
    TYPES (API returns combined: { card, detail })
@@ -359,7 +361,7 @@ export function SeoCaseStudyPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading case study…
+        <BrandingBeezLoader />
       </div>
     );
   }
@@ -386,17 +388,28 @@ export function SeoCaseStudyPage() {
 
   return (
     <>
+      <SEO
+        title={`${seoTitle} | BrandingBeez SEO Case Study`}
+        description={
+          seo.seo?.metaDescription ||
+          "Detailed SEO case study by BrandingBeez."
+        }
+      />
+
+      {/* Optional Open Graph (safe) */}
       <Helmet>
-        <title>{seoTitle} | BrandingBeez</title>
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={`${seoTitle} | BrandingBeez`} />
         <meta
-          name="description"
+          property="og:description"
           content={
             seo.seo?.metaDescription ||
             "Detailed SEO case study by BrandingBeez."
           }
         />
       </Helmet>
-      
+
+
       <HeroSection seo={seo} />
       <CaseStudyHighlights seo={seo} />
       <CTASection seo={seo} />

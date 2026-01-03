@@ -53,22 +53,40 @@ type CacheEntry<T> = {
   time: number;
 };
 
+// ============================
+// 🔥 CACHE CONFIG (MODULE SCOPE)
+// ============================
+const LIST_TTL = 5 * 60 * 1000;   // 5 minutes
+const DETAIL_TTL = 5 * 60 * 1000; // 5 minutes
+
+let listCache: CacheEntry<any[]> | null = null;
+const detailCache = new Map<string, CacheEntry<any>>();
+
+// ============================
+// 🔥 WRITE-THROUGH REFRESH
+// ============================
+export async function refreshWebCaseStudyCache() {
+  const items = await storage.listWebCaseStudyCards();
+
+  listCache = {
+    data: items,
+    time: Date.now(),
+  };
+
+  // Details depend on cards → clear and lazy-reload
+  detailCache.clear();
+}
+
+// ============================
+// 🌐 PUBLIC ROUTER
+// ============================
 export function webCaseStudyPublicRouter(
   publicContentRateLimit: RequestHandler
 ) {
   const router = express.Router();
 
   // ============================
-  // 🔥 IN-MEMORY CACHE
-  // ============================
-  const LIST_TTL = 5 * 60 * 1000; // 5 minutes
-  const DETAIL_TTL = 5 * 60 * 1000;
-
-  let listCache: CacheEntry<any[]> | null = null;
-  const detailCache = new Map<string, CacheEntry<any>>();
-
-  // ============================
-  // 📌 LIST CARDS
+  // 📌 LIST CARDS (PUBLIC)
   // ============================
   router.get(
     "/web-case-studies",
@@ -111,7 +129,7 @@ export function webCaseStudyPublicRouter(
   );
 
   // ============================
-  // 📌 DETAIL BY SLUG
+  // 📌 DETAIL BY SLUG (PUBLIC)
   // ============================
   router.get(
     "/web-case-study/:slug",
@@ -141,7 +159,7 @@ export function webCaseStudyPublicRouter(
             .json({ message: "Website case study not found" });
         }
 
-        // 🔥 Update cache
+        // 🔥 Update detail cache
         detailCache.set(slug, {
           data: combined,
           time: now,
@@ -155,10 +173,13 @@ export function webCaseStudyPublicRouter(
         res.json(combined);
       } catch (error) {
         console.error("Error fetching Website case study:", error);
-        res.status(500).json({ message: "Failed to fetch Website case study" });
+        res
+          .status(500)
+          .json({ message: "Failed to fetch Website case study" });
       }
     }
   );
 
   return router;
 }
+
