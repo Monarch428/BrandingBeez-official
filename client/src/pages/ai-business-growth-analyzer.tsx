@@ -135,14 +135,14 @@ interface BusinessGrowthReport {
     companyName: string;
     website: string;
     analysisDate: string;
-    overallScore: number;
+    overallScore: number | null;
     subScores?: {
-      website?: number;
-      seo?: number;
-      reputation?: number;
-      leadGen?: number;
-      services?: number;
-      costEfficiency?: number;
+      website?: number | null;
+      seo?: number | null;
+      reputation?: number | null;
+      leadGen?: number | null;
+      services?: number | null;
+      costEfficiency?: number | null;
     };
   };
   executiveSummary: {
@@ -348,24 +348,27 @@ async function checkWebsiteReachableViaBackendBestEffort(
   }
 }
 
-function ScoreGauge({ score }: { score: number }) {
-  const clampedScore = Math.max(0, Math.min(100, score));
+function ScoreGauge({ score }: { score: number | null | undefined }) {
+  const numeric = typeof score === "number" && Number.isFinite(score) ? score : null;
+  const clampedScore = numeric === null ? null : Math.max(0, Math.min(100, Math.round(numeric)));
   const color =
-    clampedScore <= 40
+    clampedScore === null
+      ? "#94a3b8"
+      : clampedScore <= 40
       ? "#ef4444"
       : clampedScore <= 65
         ? "#f59e0b"
         : clampedScore <= 85
           ? "#2563eb"
           : "#10b981";
-  const gradient = `conic-gradient(${color} ${clampedScore * 3.6}deg, #e5e7eb 0deg)`;
+  const gradient = clampedScore === null ? `conic-gradient(${color} 0deg, #e5e7eb 0deg)` : `conic-gradient(${color} ${clampedScore * 3.6}deg, #e5e7eb 0deg)`;
 
   return (
     <div className="relative w-40 h-40 flex items-center justify-center">
       <div className="absolute inset-0 rounded-full" style={{ background: gradient }} />
       <div className="absolute inset-2 bg-white rounded-full shadow-inner flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-gray-900">{clampedScore}</span>
-        <span className="text-sm text-gray-500">/100</span>
+        <span className="text-4xl font-bold text-gray-900">{clampedScore === null ? "N/A" : clampedScore}</span>
+        <span className="text-sm text-gray-500">{clampedScore === null ? "" : "/100"}</span>
       </div>
     </div>
   );
@@ -490,7 +493,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [teaserIndex, setTeaserIndex] = useState(0);
 
   const [emailSuggestion, setEmailSuggestion] = useState("");
-  const [leadId, setLeadId] = useState("demo-lead-123");
+  const [leadId, setLeadId] = useState("");
 
   const [analysisData, setAnalysisData] = useState<BusinessGrowthReport | null>(null);
   const [analysisError, setAnalysisError] = useState<string | null>(null);
@@ -612,23 +615,23 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const analysisDate = report?.reportMetadata.analysisDate
     ? new Date(report.reportMetadata.analysisDate).toLocaleDateString()
     : "N/A";
-  const score = report?.reportMetadata.overallScore ?? 0;
+  const score = report?.reportMetadata.overallScore ?? null;
 
   const reportPreview = useMemo(() => {
     const subScores = report?.reportMetadata.subScores;
     if (!subScores) return [];
     const items: { title: string; description: string }[] = [];
-    if (subScores.website !== undefined)
+    if (typeof subScores.website === "number")
       items.push({ title: "Website & UX", description: `Website score: ${subScores.website}/100` });
-    if (subScores.seo !== undefined)
+    if (typeof subScores.seo === "number")
       items.push({ title: "SEO Visibility", description: `SEO score: ${subScores.seo}/100` });
-    if (subScores.reputation !== undefined)
+    if (typeof subScores.reputation === "number")
       items.push({ title: "Reputation", description: `Reputation score: ${subScores.reputation}/100` });
-    if (subScores.leadGen !== undefined)
+    if (typeof subScores.leadGen === "number")
       items.push({ title: "Lead Generation", description: `Lead gen score: ${subScores.leadGen}/100` });
-    if (subScores.services !== undefined)
+    if (typeof subScores.services === "number")
       items.push({ title: "Services & Positioning", description: `Services score: ${subScores.services}/100` });
-    if (subScores.costEfficiency !== undefined)
+    if (typeof subScores.costEfficiency === "number")
       items.push({ title: "Cost Efficiency", description: `Efficiency score: ${subScores.costEfficiency}/100` });
     return items;
   }, [report]);
@@ -656,7 +659,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          companyName: formState.companyName.trim() || "Marketing Agency",
+          companyName: formState.companyName.trim(),
           website: normalizedWebsite,
           industry: formState.industry?.trim() || undefined,
           targetMarket: formState.targetMarket?.trim() || undefined,
@@ -752,7 +755,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        companyName: formState.companyName.trim() || "Marketing Agency",
+        companyName: formState.companyName.trim(),
         website: normalizedWebsite,
         industry: formState.industry?.trim() || undefined,
         targetMarket: formState.targetMarket?.trim() || undefined,

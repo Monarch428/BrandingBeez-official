@@ -1,6 +1,6 @@
 // server/generateBusinessGrowthPdf.ts
 import PDFDocument from "pdfkit";
-import type { WebsiteSpeedTest, BusinessGrowthReport } from "./openai";
+import type { BusinessGrowthReport } from "./openai";
 
 /**
  * BrandingBeez – Business Growth Analyzer PDF Generator
@@ -53,7 +53,7 @@ function safeText(value: unknown, fallback = "N/A") {
 }
 
 function normalizeStringList(value: unknown): string[] {
-  if (Array.isArray(value)) return value.map((v) => safeText(v, "")).filter(Boolean);
+  if (Array.isArray(value)) return value.map((v: any) => safeText(v, "")).filter(Boolean);
   if (typeof value === "string" && value.trim()) return [value.trim()];
   return [];
 }
@@ -377,7 +377,7 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
 
   // Rows
   rows.forEach((r, idx) => {
-    const cells = r.map((c) => safeText(c, ""));
+    const cells = r.map((c: any) => safeText(c, ""));
     drawRow(cells, doc.y, false, idx % 2 === 0);
   });
 
@@ -385,24 +385,29 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
   resetX(doc);
 }
 
-function speedTestTable(speed: WebsiteSpeedTest | undefined) {
+function coreWebVitalsTable(core: any) {
   const rows: TableRow[] = [];
+
   const add = (label: string, m: any) => {
     rows.push([
       label,
-      m?.performanceScore ?? "—",
-      m?.seoScore ?? "—",
-      m?.metrics?.lcpMs ? `${Math.round(m.metrics.lcpMs)} ms` : "—",
-      typeof m?.metrics?.cls === "number" ? m.metrics.cls.toFixed(3) : "—",
-      m?.metrics?.tbtMs ? `${Math.round(m.metrics.tbtMs)} ms` : "—",
+      m?.lcpMs != null ? `${Math.round(Number(m.lcpMs))} ms` : "—",
+      typeof m?.cls === "number" ? Number(m.cls).toFixed(3) : "—",
+      m?.tbtMs != null ? `${Math.round(Number(m.tbtMs))} ms` : "—",
+      m?.inpMs != null ? `${Math.round(Number(m.inpMs))} ms` : "—",
+      m?.speedIndexMs != null ? `${Math.round(Number(m.speedIndexMs))} ms` : "—",
     ]);
   };
-  add("Mobile", speed?.mobile);
-  add("Desktop", speed?.desktop);
+
+  add("Mobile", core?.mobile);
+  add("Desktop", core?.desktop);
+
   return rows;
 }
 
 export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthReport): Promise<Buffer> {
+  const rep: any = report as any;
+
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({
@@ -462,7 +467,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       const strengths = normalizeStringList(report.executiveSummary?.strengths);
       const weaknesses = normalizeStringList(report.executiveSummary?.weaknesses);
-      const biggest = safeText(report.executiveSummary?.biggestOpportunity, "No single opportunity identified.");
+      const biggest = safeText((report as any).executiveSummary?.biggestOpportunity ?? (report as any).executiveSummary?.highPriorityRecommendations?.[0], "No single opportunity identified.");
 
       callout(doc, "Brutally Honest Snapshot", biggest);
 
@@ -512,24 +517,36 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       const t = report.websiteDigitalPresence?.technicalSEO;
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Technical SEO Score: ${clampScore(t?.score)}/100`);
       doc.moveDown(0.3);
-      bullets(doc, normalizeStringList(t?.strengths), "No technical strengths detected.");
+      bullets(doc, normalizeStringList((t as any)?.strengths), "No technical strengths detected.");
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Issues Found");
       bullets(doc, normalizeStringList(t?.issues), "No issues detected.");
 
-      // Speed test table
-      const speed = t?.pageSpeed as WebsiteSpeedTest | undefined;
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Page Speed & Core Web Vitals (Real Test)");
-      doc.moveDown(0.4);
-      drawTable(doc, ["Strategy", "Perf", "SEO", "LCP", "CLS", "TBT"], speedTestTable(speed), [90, 60, 60, 95, 70, 80]);
+// Speed test / Core Web Vitals (real PSI test) lives under seoVisibility.technicalSeo.coreWebVitals
+// (not under websiteDigitalPresence.technicalSEO). If this is missing, it usually means
+// PageSpeed Insights didn’t run (missing API key / blocked / timeout).
+const techSeo = report.seoVisibility?.technicalSeo as any;
+const cwv = techSeo?.coreWebVitals;
 
-      if (speed?.mobile?.opportunities?.length || speed?.desktop?.opportunities?.length) {
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Highest-Impact Speed Opportunities");
-        const opps = [
-          ...(speed?.mobile?.opportunities || []).map((o) => `Mobile: ${o.title}`),
-          ...(speed?.desktop?.opportunities || []).map((o) => `Desktop: ${o.title}`),
-        ].slice(0, 10);
-        bullets(doc, opps, "No opportunities detected.");
-      }
+doc
+  .font("Helvetica-Bold")
+  .fontSize(12)
+  .fillColor(GRAY_900)
+  .text(`Speed Test (Core Web Vitals): ${clampScore(techSeo?.score)}/100`);
+
+doc.moveDown(0.4);
+
+drawTable(
+  doc,
+  ["Strategy", "LCP", "CLS", "TBT", "INP", "Speed Index"],
+  coreWebVitalsTable(cwv),
+  [90, 95, 70, 80, 70, 90],
+);
+
+// Show top issues/opportunities already computed in openai.ts (based on live HTML + PSI if available)
+if (techSeo?.opportunities?.length) {
+  doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Highest-Impact Speed Opportunities");
+  bullets(doc, normalizeStringList(techSeo.opportunities).slice(0, 10), "No opportunities detected.");
+}
 
       const cq = report.websiteDigitalPresence?.contentQuality;
       addPageIfNotAtTop(doc);
@@ -537,9 +554,9 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Content Quality Score: ${clampScore(cq?.score)}/100`);
       bullets(doc, normalizeStringList(cq?.strengths), "No content strengths detected.");
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Gaps");
-      bullets(doc, normalizeStringList(cq?.gaps), "No gaps detected.");
+      bullets(doc, normalizeStringList((cq as any)?.gaps), "No gaps detected.");
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Recommendations");
-      bullets(doc, normalizeStringList(cq?.recommendations), "No recommendations available.");
+      bullets(doc, normalizeStringList((cq as any)?.recommendations), "No recommendations available.");
 
       const ux = report.websiteDigitalPresence?.uxConversion;
       addPageIfNotAtTop(doc);
@@ -574,61 +591,141 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
             ["Competitor A", da.benchmark.competitorA],
             ["Competitor B", da.benchmark.competitorB],
             ["Competitor C", da.benchmark.competitorC],
-            ["Industry Avg", da.benchmark.industryAverage],
+            ["Industry Avg", da.benchmark.industryAvg],
           ],
           [240, 120],
         );
       }
-      paragraph(doc, safeText(da?.rationale, ""));
+      paragraph(doc, safeText(da?.notes, ""));
 
-      const backlinks = report.seoVisibility?.backlinkProfile;
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Backlink Profile");
+      const backlinks = report.seoVisibility?.backlinks;
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Backlinks");
       drawTable(
         doc,
         ["Metric", "Value"],
         [
-          ["Total Backlinks", backlinks?.totalBacklinks],
-          ["Referring Domains", backlinks?.referringDomains],
-          ["Average DA/DR of Links", backlinks?.averageDA],
+          ["Total Backlinks", backlinks?.totalBacklinks ?? "N/A"],
+          ["Referring Domains", backlinks?.referringDomains ?? "N/A"],
+          ["Link Quality Score", backlinks?.linkQualityScore ?? "N/A"],
         ],
         [240, 120],
       );
-      bullets(doc, normalizeStringList(backlinks?.issues), "No backlink issues detected.");
+      paragraph(doc, safeText(backlinks?.notes, ""));
 
-      
-      /* =========================
+/* =========================
+         4) REPUTATION/* =========================
          4) REPUTATION & SOCIAL PROOF
       ========================= */
       addPageIfNotAtTop(doc);
       sectionTitle(doc, "4", "Reputation & Social Proof Audit");
 
-      const rep = report.reputation;
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Overall Review Score: ${safeText(rep?.reviewScore, "—")}/5`);
-      doc.font("Helvetica").fontSize(10).fillColor(GRAY_500).text(
-        "Based on publicly available review platforms detected during analysis.",
-        { lineGap: 2 },
-      );
-      doc.moveDown(0.4);
+const rep = report.reputation as any;
 
-      if (rep?.summaryTable?.length) {
-        drawTable(
-          doc,
-          ["Platform", "Reviews", "Rating", "Benchmark", "Gap"],
-          rep.summaryTable.map((r) => [r.platform, r.reviews, r.rating, r.industryBenchmark, r.gap]),
-          [140, 70, 70, 110, 110],
-        );
-      } else {
-        paragraph(doc, "No review platform data was detected for this website/company.");
-      }
+// 4.1 Online Review Score (0-100) + platform table
+const online = rep?.onlineReviews ?? null;
 
-      paragraph(doc, `Total Reviews Found: ${safeText(rep?.totalReviews, "—")} • Industry Standard: ${safeText(rep?.industryStandardRange, "—")} • Your Gap: ${safeText(rep?.yourGap, "—")}`);
+doc
+  .font("Helvetica-Bold")
+  .fontSize(12)
+  .fillColor(GRAY_900)
+  .text(`Online Review Score: ${clampScore(online?.score ?? rep?.overallScore)}/100`);
 
-      const themes = rep?.sentimentThemes;
-      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
-      bullets(doc, normalizeStringList(themes?.positive), "No positive themes detected.");
-      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
-      bullets(doc, normalizeStringList(themes?.negative), "No negative themes detected.");
-      paragraph(doc, `Response Rate: ${safeText(themes?.responseRate, "N/A")} • Avg Response Time: ${safeText(themes?.averageResponseTime, "N/A")}`);
+doc
+  .font("Helvetica")
+  .fontSize(10)
+  .fillColor(GRAY_500)
+  .text(
+    "Platforms checked: Google Business Profile, Clutch, G2, Trustpilot, GoodFirms, Yelp (if applicable), plus any industry platforms found.",
+    { lineGap: 2 },
+  );
+
+doc.moveDown(0.4);
+
+if (Array.isArray(online?.platforms) && online.platforms.length) {
+  drawTable(
+    doc,
+    ["Platform", "Reviews", "Rating", "Industry Benchmark", "Gap"],
+    online.platforms.map((p: any) => [p.platform, p.reviews ?? "—", p.rating ?? "—", p.benchmark ?? "—", p.gap ?? "—"]),
+    [140, 70, 70, 130, 90],
+  );
+
+  paragraph(
+    doc,
+    `Total Reviews: ${safeText(online?.totalReviews, "—")} • Industry Standard: ${safeText(online?.industryStandard, "—")} • Your Gap: ${safeText(online?.yourGap, "—")}`,
+  );
+
+  if (online?.notes) paragraph(doc, safeText(online.notes, ""));
+} else {
+  paragraph(
+    doc,
+    "No review platform data was detected. This usually happens when profiles can’t be auto-matched from the website (missing Google Business Profile link, no directory badges, or the brand name is ambiguous).",
+  );
+
+  // Fallback (older structure): show whatever was detected in rep.platforms
+  if (Array.isArray(rep?.platforms) && rep.platforms.length) {
+    drawTable(
+      doc,
+      ["Platform", "Rating", "Reviews", "Status", "Notes"],
+      rep.platforms.map((p: any) => [p.platform, p.currentRating ?? "—", p.reviewCount ?? "—", p.status ?? "—", p.notes ?? ""]),
+      [120, 70, 70, 90, 180],
+    );
+  }
+}
+
+// 4.2 Sentiment Analysis
+const sentiment = rep?.sentiment ?? null;
+doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Sentiment Analysis");
+doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
+bullets(doc, normalizeStringList(sentiment?.positives), "No positive themes detected.");
+doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
+bullets(doc, normalizeStringList(sentiment?.negatives), "No negative themes detected.");
+paragraph(doc, `Response Rate: ${safeText(sentiment?.responseRate, "N/A")} • Avg Response Time: ${safeText(sentiment?.avgResponseTime, "N/A")}`);
+if (sentiment?.notes) paragraph(doc, safeText(sentiment.notes, ""));
+
+// 4.3 Employee Reviews
+const emp = rep?.employeeReviews ?? null;
+doc.moveDown(0.2);
+doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Employee Reviews");
+if (Array.isArray(emp) && emp.length) {
+  drawTable(
+    doc,
+    ["Platform", "Rating", "Reviews", "Status"],
+    emp.map((e: any) => [e.platform, e.rating ?? "—", e.reviewCount ?? "—", e.status ?? "—"]),
+    [160, 80, 80, 110],
+  );
+  const empNotes = emp.map((e: any) => safeText(e.notes, "")).filter(Boolean).slice(0, 3);
+  if (empNotes.length) paragraph(doc, empNotes.join(" "));
+} else {
+  paragraph(doc, "No employee review platforms were detected (Glassdoor / AmbitionBox / Indeed).");
+}
+
+// 4.4 Client Testimonials (on-site)
+const testi = rep?.testimonials ?? null;
+doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Client Testimonials (On-Site)");
+if (testi) {
+  paragraph(doc, `Count: ${safeText(testi.onsiteCount, "—")} • Quality: ${safeText(testi.quality, "—")}`);
+  if (Array.isArray(testi.formats) && testi.formats.length) {
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(GRAY_900).text("Formats");
+    bullets(doc, normalizeStringList(testi.formats), "—");
+  }
+  if (Array.isArray(testi.credibilitySignals) && testi.credibilitySignals.length) {
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(GRAY_900).text("Credibility Signals");
+    bullets(doc, normalizeStringList(testi.credibilitySignals), "—");
+  }
+  if (Array.isArray(testi.recommendations) && testi.recommendations.length) {
+    doc.font("Helvetica-Bold").fontSize(10).fillColor(GRAY_900).text("Recommendations");
+    bullets(doc, normalizeStringList(testi.recommendations), "No recommendations available.");
+  }
+  if (testi.notes) paragraph(doc, safeText(testi.notes, ""));
+} else {
+  paragraph(doc, "No on-site testimonial signals were detected.");
+}
+
+// Extra reputation recommendations
+if (Array.isArray(rep?.recommendations) && rep.recommendations.length) {
+  doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Reputation Recommendations");
+  bullets(doc, normalizeStringList(rep.recommendations).slice(0, 10), "No recommendations available.");
+}
 
       /* =========================
          5) SERVICE OFFERINGS & MARKET POSITIONING
@@ -643,7 +740,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         drawTable(
           doc,
           ["Service", "Starting Price", "Target Market", "Description"],
-          sp.services.map((s) => [s.name, s.startingPrice, s.targetMarket, s.description]),
+          sp.services.map((s: any) => [s.name, s.startingPrice, s.targetMarket, s.description]),
           [130, 90, 120, 190],
         );
       } else {
@@ -655,7 +752,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         drawTable(
           doc,
           ["Service", "You", "Competitor A", "Competitor B", "Market Demand"],
-          sp.serviceGaps.map((g) => [g.service, g.youOffer, g.competitorA, g.competitorB, g.marketDemand]),
+          sp.serviceGaps.map((g: any) => [g.service, g.youOffer, g.competitorA, g.competitorB, g.marketDemand]),
           [120, 90, 90, 90, 120],
         );
       }
@@ -665,12 +762,12 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Industries Served");
         bullets(doc, normalizeStringList(inds.current), "No industries detected.");
         paragraph(doc, safeText(inds.concentrationNote, ""));
-        if (inds.highValueTargets?.length) {
+        if (inds.highValueIndustries?.length) {
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("High-Value Targets");
           drawTable(
             doc,
             ["Industry", "Why High Value", "Avg Deal Size", "Readiness"],
-            inds.highValueTargets.map((t) => [t.industry, t.whyHighValue, t.avgDealSize, t.readiness]),
+            inds.highValueIndustries.map((t: any) => [t.industry, t.whyHighValue, t.avgDealSize, t.readiness]),
             [110, 210, 90, 80],
           );
         }
@@ -698,7 +795,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         drawTable(
           doc,
           ["Channel", "Leads / Month", "Quality", "Status"],
-          lg.channels.map((c) => [c.channel, c.leadsPerMonth, c.quality, c.status]),
+          lg.channels.map((c: any) => [c.channel, c.leadsPerMonth, c.quality, c.status]),
           [150, 90, 90, 90],
         );
       } else {
@@ -710,39 +807,31 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         drawTable(
           doc,
           ["Channel", "Est. Leads", "Setup Time", "Monthly Cost", "Priority"],
-          lg.missingHighROIChannels.map((c) => [c.channel, c.estimatedLeads, c.setupTime, c.monthlyCost, c.priority]),
+          lg.missingHighROIChannels.map((c: any) => [c.channel, c.estimatedLeads, c.setupTime, c.monthlyCost, c.priority]),
           [140, 80, 80, 80, 80],
         );
       }
 
       const magnets = lg?.leadMagnets;
-      if (magnets) {
+      if (Array.isArray(magnets) && magnets.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Lead Magnets");
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Currently Detected");
-        bullets(doc, normalizeStringList(magnets.current), "No current lead magnets detected.");
-
-        if (magnets.recommendations?.length) {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Recommended Lead Magnets");
-          drawTable(
-            doc,
-            ["Name", "Format", "Target Audience", "Est. Conversion"],
-            magnets.recommendations.map((r) => [r.name, r.format, r.targetAudience, r.estimatedConversion]),
-            [160, 90, 160, 80],
-          );
-        }
-      }
-
-      if (lg?.directoryOptimization?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Directory & Profile Optimization");
         drawTable(
           doc,
-          ["Directory", "Listed", "Optimized", "Reviews", "Action Needed"],
-          lg.directoryOptimization.map((d) => [d.directory, d.listed, d.optimized, d.reviews, d.actionNeeded]),
-          [130, 60, 70, 60, 200],
+          ["Title", "Funnel Stage", "Description", "Est. Conv."],
+          magnets.map((m: any) => [
+            safeText(m?.title, "—"),
+            safeText(m?.funnelStage, "—"),
+            safeText(m?.description, "—"),
+            safeText(m?.estimatedConversionRate, "—"),
+          ]),
+          [140, 90, 210, 80],
         );
+      } else {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Lead Magnets");
+        paragraph(doc, "No lead magnets were detected from the available data sources.");
       }
-
       /* =========================
+         7) COMPETITIVE ANALYSIS/* =========================
          7) COMPETITIVE ANALYSIS
       ========================= */
       addPageIfNotAtTop(doc);
@@ -753,39 +842,42 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       if (ca?.competitors?.length) {
         ca.competitors.slice(0, 6).forEach((c, idx) => {
           doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(`${idx + 1}. ${safeText(c.name, "Competitor")}`);
-          paragraph(doc, `Location: ${safeText(c.location, "N/A")} • Team: ${safeText(c.teamSize, "N/A")} • Years: ${safeText(c.yearsInBusiness, "N/A")}`);
+          paragraph(doc, `Location: ${safeText((c as any).location, "N/A")} • Team: ${safeText((c as any).teamSize, "N/A")} • Years: ${safeText((c as any).yearsInBusiness, "N/A")}`);
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Services");
-          bullets(doc, normalizeStringList(c.services), "No services detected.");
+          bullets(doc, normalizeStringList((c as any).services), "No services detected.");
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Strengths vs You");
-          bullets(doc, normalizeStringList(c.strengthsVsYou), "No strengths detected.");
+          bullets(doc, normalizeStringList((c as any).strengthsVsYou), "No strengths detected.");
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Your Advantages");
-          bullets(doc, normalizeStringList(c.yourAdvantages), "No advantages detected.");
-          paragraph(doc, `Market Overlap: ${safeText(c.marketOverlap, "N/A")}`);
+          bullets(doc, normalizeStringList((c as any).yourAdvantages), "No advantages detected.");
+          paragraph(doc, `Market Overlap: ${safeText((c as any).marketOverlap, "N/A")}`);
           doc.moveDown(0.3);
         });
       } else {
         paragraph(doc, "No competitor data was detected.");
       }
 
-      if (ca?.competitiveMatrix?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Competitive Matrix");
+      // Competitive matrix & positioning gap are not available unless you integrate a dedicated competitor-data source.
+// We render the positioning matrix when provided.
+      if (Array.isArray(ca?.positioningMatrix) && ca.positioningMatrix.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Positioning Matrix");
         drawTable(
           doc,
-          ["Factor", "You", "Comp A", "Comp B", "Comp C", "Winner"],
-          ca.competitiveMatrix.map((m) => [m.factor, m.you, m.compA, m.compB, m.compC, m.winner]),
-          [120, 70, 70, 70, 70, 70],
+          ["Dimension", "You", "Competitor A", "Competitor B", "Competitor C"],
+          ca.positioningMatrix.map((m: any) => [
+            safeText(m?.dimension, "—"),
+            safeText(m?.you, "—"),
+            safeText(m?.competitorA, "—"),
+            safeText(m?.competitorB, "—"),
+            safeText(m?.competitorC, "—"),
+          ]),
+          [140, 90, 90, 90, 90],
         );
+      } else {
+        paragraph(doc, "No positioning matrix data was provided.");
       }
 
-      if (ca?.positioningGap) {
-        callout(
-          doc,
-          "Positioning Gap",
-          `Price: ${safeText(ca.positioningGap.pricePositioning, "N/A")}\nQuality: ${safeText(ca.positioningGap.qualityPositioning, "N/A")}\nVisibility: ${safeText(ca.positioningGap.visibility, "N/A")}\nDifferentiation: ${safeText(ca.positioningGap.differentiation, "N/A")}\n\nRecommendation: ${safeText(ca.positioningGap.recommendation, "N/A")}`,
-        );
-      }
-
-      /* =========================
+/* =========================
+         8) COST OPTIMIZATION/* =========================
          8) COST OPTIMIZATION & PROFITABILITY
       ========================= */
       addPageIfNotAtTop(doc);
@@ -793,188 +885,176 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       const co = report.costOptimization;
 
-      if (co?.estimatedCostStructure?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Estimated Cost Structure");
+      // Estimated monthly spend
+      if (Array.isArray(co?.estimatedMonthlySpend) && co.estimatedMonthlySpend.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Estimated Monthly Spend");
         drawTable(
           doc,
-          ["Category", "Monthly", "Annual", "% of Total"],
-          co.estimatedCostStructure.map((c) => [c.category, c.monthly, c.annual, c.percentOfTotal]),
-          [180, 100, 100, 80],
+          ["Category", "Current", "Industry Avg", "Notes"],
+          co.estimatedMonthlySpend.map((c: any) => [
+            safeText(c?.category, "—"),
+            safeText(c?.current, "—"),
+            safeText(c?.industryAvg, "—"),
+            safeText(c?.notes, ""),
+          ]),
+          [160, 90, 90, 170],
         );
       }
 
-      if (co?.revenueEstimate) {
-        callout(
+      // Waste areas
+      if (Array.isArray(co?.wasteAreas) && co.wasteAreas.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Waste Areas");
+        drawTable(
           doc,
-          "Revenue Estimate",
-          `Estimated Range: ${safeText(co.revenueEstimate.estimatedRange, "N/A")}\nRevenue/Employee: ${safeText(co.revenueEstimate.revenuePerEmployee, "N/A")}\nBenchmark: ${safeText(co.revenueEstimate.industryBenchmark, "N/A")}\nGap: ${safeText(co.revenueEstimate.gapAnalysis, "N/A")}`,
+          ["Area", "Cost/Month", "Fix", "Impact"],
+          co.wasteAreas.map((w: any) => [
+            safeText(w?.area, "—"),
+            safeText(w?.costPerMonth, "—"),
+            safeText(w?.fix, "—"),
+            safeText(w?.impact, "—"),
+          ]),
+          [140, 80, 170, 120],
         );
       }
 
-      if (co?.costSavingOpportunities?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Cost-Saving Opportunities");
-        co.costSavingOpportunities.forEach((o, i) => {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(o.opportunity, "Opportunity")}`);
-          doc.font("Helvetica").fontSize(10).fillColor(GRAY_700).text(
-            `Current: ${safeText(o.currentCost)} • Potential Savings: ${safeText(o.potentialSavings)} • Difficulty: ${safeText(o.implementationDifficulty)}`,
-          );
-          paragraph(doc, safeText(o.details, ""));
-        });
+      // Automation opportunities
+      if (Array.isArray(co?.automationOpportunities) && co.automationOpportunities.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Automation Opportunities");
+        drawTable(
+          doc,
+          ["Opportunity", "Tool", "Est. Savings", "Effort"],
+          co.automationOpportunities.map((a: any) => [
+            safeText(a?.opportunity, "—"),
+            safeText(a?.tool, "—"),
+            safeText(a?.estimatedSavings, "—"),
+            safeText(a?.effort, "—"),
+          ]),
+          [170, 90, 90, 80],
+        );
       }
 
-      const pa = co?.pricingAnalysis;
-      if (pa) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Pricing & Packaging Analysis");
-        paragraph(doc, `Positioning: ${safeText(pa.positioning, "N/A")}`);
-        if (pa.serviceComparisons?.length) {
-          drawTable(
-            doc,
-            ["Service", "Your Price", "Market Range", "Positioning", "Recommendation"],
-            pa.serviceComparisons.map((s) => [s.service, s.yourPrice, s.marketRange, s.positioning, s.recommendation]),
-            [120, 80, 80, 90, 140],
-          );
-        }
-        bullets(doc, [pa.overallRecommendation, pa.premiumTierOpportunity, pa.packagingOptimization].filter(Boolean) as string[], "No pricing recommendations available.");
-      }
+      paragraph(doc, safeText(co?.notes, ""));
 
-      /* =========================
+/* =========================
+         9) TARGET MARKET/* =========================
          9) TARGET MARKET & CLIENT INTELLIGENCE
       ========================= */
       addPageIfNotAtTop(doc);
-      sectionTitle(doc, "9", "Target Market & Client Intelligence");
+      sectionTitle(doc, "9", "Target Market & Client Segmentation");
 
       const tm = report.targetMarket;
 
-      const cp = tm?.currentClientProfile;
-      if (cp) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Client Profile");
+      // Current target segments
+      if (Array.isArray(tm?.currentTargetSegments) && tm.currentTargetSegments.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Target Segments");
         drawTable(
           doc,
-          ["Geo Mix (US)", "Geo Mix (UK)", "Geo Mix (Other)"],
-          [[cp.geographicMix?.us, cp.geographicMix?.uk, cp.geographicMix?.other]],
-          [170, 170, 170],
+          ["Segment", "Avg Budget", "Pain Points"],
+          tm.currentTargetSegments.map((s: any) => [
+            safeText(s?.segment, "—"),
+            safeText(s?.avgBudget, "—"),
+            normalizeStringList(s?.painPoints).join("; ") || "—",
+          ]),
+          [160, 90, 260],
         );
+      } else {
+        paragraph(doc, "No current target segments were provided.");
+      }
+
+      // Recommended segments
+      if (Array.isArray(tm?.recommendedSegments) && tm.recommendedSegments.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Recommended Segments");
         drawTable(
           doc,
-          ["Client Size", "Share"],
-          [
-            ["Small", cp.clientSize?.small],
-            ["Medium", cp.clientSize?.medium],
-            ["Large", cp.clientSize?.large],
-          ],
-          [180, 160],
+          ["Segment", "Why Fit", "Avg Budget", "Competition"],
+          tm.recommendedSegments.map((s: any) => [
+            safeText(s?.segment, "—"),
+            safeText(s?.whyFit, "—"),
+            safeText(s?.avgBudget, "—"),
+            safeText(s?.competitionLevel, "—"),
+          ]),
+          [130, 190, 80, 90],
         );
-        if (cp.industries?.length) {
-          drawTable(
-            doc,
-            ["Industry", "Concentration"],
-            cp.industries.map((i) => [i.industry, i.concentration]),
-            [220, 160],
-          );
-        }
       }
 
-      const geo = tm?.geographicExpansion;
-      if (geo) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Geographic Expansion");
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Current Strong Presence");
-        bullets(doc, normalizeStringList(geo.currentStrongPresence), "No strong presence markets detected.");
-
-        if (geo.underpenetratedMarkets?.length) {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Underpenetrated Markets");
-          drawTable(
-            doc,
-            ["Region", "Reason", "Opportunity", "Entry Plan"],
-            geo.underpenetratedMarkets.map((m) => [m.region, m.reason, m.estimatedOpportunity, m.entryPlan]),
-            [90, 150, 120, 150],
-          );
-        }
+      // Positioning advice
+      if (Array.isArray(tm?.positioningAdvice) && tm.positioningAdvice.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Positioning Advice");
+        bullets(doc, normalizeStringList(tm.positioningAdvice), "—");
       }
 
-      const icp = tm?.idealClientProfile;
-      if (icp) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Ideal Client Profile (ICP)");
-        paragraph(doc, `Industry: ${safeText(icp.industry, "N/A")} • Size: ${safeText(icp.companySize, "N/A")} • Revenue: ${safeText(icp.revenueRange, "N/A")} • Budget: ${safeText(icp.budget, "N/A")}`);
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Pain Points");
-        bullets(doc, normalizeStringList(icp.painPoints), "No pain points detected.");
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Decision Makers");
-        bullets(doc, normalizeStringList(icp.decisionMakers), "No decision makers detected.");
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Where to Find Them");
-        bullets(doc, normalizeStringList(icp.whereToFind), "No channels detected.");
-      }
+      paragraph(doc, safeText(tm?.notes, ""));
 
-      /* =========================
+/* =========================
+         10) FINANCIAL IMPACT/* =========================
          10) FINANCIAL IMPACT SUMMARY
       ========================= */
       addPageIfNotAtTop(doc);
-      sectionTitle(doc, "10", "Financial Impact Summary");
+      sectionTitle(doc, "10", "Financial Impact");
 
       const fi = report.financialImpact;
 
-      if (fi?.revenueOpportunities?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Revenue Opportunities");
+      paragraph(doc, safeText(fi?.notes, ""));
+
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Revenue & Profitability Summary");
+      drawTable(
+        doc,
+        ["Current Revenue Estimate", "Improvement Potential", "Projected Increase"],
+        [[safeText(fi?.currentRevenueEstimate, "—"), safeText(fi?.improvementPotential, "—"), safeText(fi?.projectedRevenueIncrease, "—")]],
+        [180, 160, 160],
+      );
+
+      if (Array.isArray(fi?.profitabilityLevers) && fi.profitabilityLevers.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Profitability Levers");
         drawTable(
           doc,
-          ["Opportunity", "Monthly", "Annual", "Confidence", "Effort"],
-          fi.revenueOpportunities.map((r) => [r.opportunity, r.monthlyImpact, r.annualImpact, r.confidence, r.effort]),
-          [150, 70, 70, 80, 80],
+          ["Lever", "Impact", "Effort"],
+          fi.profitabilityLevers.map((p: any) => [
+            safeText(p?.lever, "—"),
+            safeText(p?.impact, "—"),
+            safeText(p?.effort, "—"),
+          ]),
+          [180, 220, 100],
         );
       }
 
-      if (fi?.costSavings?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Cost Savings");
-        drawTable(
-          doc,
-          ["Initiative", "Annual Savings", "Implementation Cost", "Net Savings"],
-          fi.costSavings.map((c) => [c.initiative, c.annualSavings, c.implementationCost, c.netSavings]),
-          [170, 90, 90, 90],
-        );
-      }
+sectionTitle(doc, "11", "90-Day Action Plan");sectionTitle(doc, "11", "90-Day Action Plan");
 
-      if (fi?.netImpact) {
-        callout(
-          doc,
-          "Net Impact (Modeled)",
-          `Revenue Growth: ${safeText(fi.netImpact.revenueGrowth, "N/A")}\nCost Savings: ${safeText(fi.netImpact.costSavings, "N/A")}\nTotal Impact: ${safeText(fi.netImpact.totalImpact, "N/A")}\nInvestment Needed: ${safeText(fi.netImpact.investmentNeeded, "N/A")}\nExpected Return: ${safeText(fi.netImpact.expectedReturn, "N/A")} • ROI: ${safeText(fi.netImpact.roi, "N/A")}`,
-        );
-      }
+      const apAny = (report as any).actionPlan90Days as any;
+      const weekByWeek: any[] = Array.isArray(apAny)
+        ? apAny
+        : Array.isArray(apAny?.weekByWeek)
+          ? apAny.weekByWeek
+          : [];
 
-      if (fi?.scenarios?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Scenarios");
-        drawTable(
-          doc,
-          ["Scenario", "Implementation", "Impact"],
-          fi.scenarios.map((s) => [s.scenario, s.implementationLevel, s.impact]),
-          [150, 140, 200],
-        );
-      }
-
-      /* =========================
-         11) 90-DAY ACTION PLAN
-      ========================= */
-      addPageIfNotAtTop(doc);
-      sectionTitle(doc, "11", "90-Day Action Plan");
-
-      const ap = report.actionPlan90Days || [];
-      if (ap.length) {
-        ap.forEach((phaseObj, idx) => {
-          doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(`${idx + 1}. ${safeText(phaseObj.phase, "Phase")}`);
+      if (weekByWeek.length) {
+        weekByWeek.forEach((w: any, idx: number) => {
+          doc.font("Helvetica-Bold")
+            .fontSize(12)
+            .fillColor(BRAND_PURPLE)
+            .text(`${idx + 1}. ${safeText(w.week, "Week")}: ${safeText(w.focus, "")}`.trim());
           doc.moveDown(0.2);
-          (phaseObj.weeks || []).forEach((wk) => {
-            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text(`${safeText(wk.week, "Week")}`);
-            bullets(doc, normalizeStringList(wk.tasks), "No tasks listed.");
-          });
-          if (phaseObj.expectedImpact?.length) {
-            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Expected Impact");
-            drawTable(
-              doc,
-              ["Metric", "Improvement"],
-              phaseObj.expectedImpact.map((m) => [m.metric, m.improvement]),
-              [220, 220],
-            );
+
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Actions");
+          bullets(doc, normalizeStringList(w.actions), "No actions listed.");
+
+          if (w.expectedOutcome) {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Expected Outcome");
+            paragraph(doc, safeText(w.expectedOutcome, ""));
           }
           addPageIfNotAtTop(doc);
         });
+
+        const kpis = Array.isArray(apAny?.kpisToTrack) ? apAny.kpisToTrack : [];
+        if (kpis.length) {
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("KPIs to Track");
+          drawTable(
+            doc,
+            ["KPI", "Current", "Target"],
+            kpis.map((k: any) => [safeText(k.kpi, ""), safeText(k.current, "N/A"), safeText(k.target, "N/A")]),
+            [200, 150, 150],
+          );
+        }
       } else {
         paragraph(doc, "No 90-day action plan was generated for this report.");
       }
@@ -986,38 +1066,52 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       sectionTitle(doc, "12", "Competitive Advantages to Leverage");
 
       const adv = report.competitiveAdvantages;
-      if (adv?.hiddenStrengths?.length) {
-        adv.hiddenStrengths.forEach((s, i) => {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(s.strength, "Strength")}`);
-          paragraph(doc, `Evidence: ${safeText(s.evidence, "N/A")}`);
-          paragraph(doc, `Why it matters: ${safeText(s.whyItMatters, "N/A")}`);
-          paragraph(doc, `How to leverage: ${safeText(s.howToLeverage, "N/A")}`);
-        });
-      } else {
-        paragraph(doc, "No competitive advantages were detected.");
-      }
-      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Prerequisites");
-      bullets(doc, normalizeStringList(adv?.prerequisites), "No prerequisites listed.");
 
-      /* =========================
-         13) RISK ASSESSMENT
-      ========================= */
-      addPageIfNotAtTop(doc);
-      sectionTitle(doc, "13", "Risk Assessment");
+      if (Array.isArray(adv?.advantages) && adv.advantages.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Advantages");
+        drawTable(
+          doc,
+          ["Advantage", "Why It Matters", "How To Leverage"],
+          adv.advantages.map((a: any) => [
+            safeText(a?.advantage, "—"),
+            safeText(a?.whyItMatters, "—"),
+            safeText(a?.howToLeverage, "—"),
+          ]),
+          [150, 170, 170],
+        );
+      } else {
+        paragraph(doc, "No competitive advantages were identified from the available data sources.");
+      }
+
+      if (adv?.uniqueAngle) {
+        callout(doc, "Unique Angle", safeText(adv.uniqueAngle, "—"));
+      }
+
+      paragraph(doc, safeText(adv?.notes, ""));
+
+sectionTitle(doc, "13", "Risk Assessment");sectionTitle(doc, "13", "Risk Assessment");
 
       const risks = report.riskAssessment?.risks || [];
       if (risks.length) {
-        risks.forEach((r, i) => {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(r.name, "Risk")} (${safeText(r.priority, "Priority")})`);
-          paragraph(doc, safeText(r.description, ""));
-          paragraph(doc, `Impact: ${safeText(r.impact, "N/A")} • Likelihood: ${safeText(r.likelihood, "N/A")} • Timeline: ${safeText(r.timeline, "N/A")}`);
+        risks.forEach((r: any, i: number) => {
+          const title = safeText(r.risk ?? r.name, "Risk");
+          doc.font("Helvetica-Bold")
+            .fontSize(11)
+            .fillColor(BRAND_PURPLE)
+            .text(`${i + 1}. ${title}`);
+
+          const sev = safeText(r.severity ?? r.priority, "N/A");
+          const lik = safeText(r.likelihood, "N/A");
+          paragraph(doc, `Severity: ${sev} • Likelihood: ${lik}`);
+
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Mitigation");
-          bullets(doc, normalizeStringList(r.mitigation), "No mitigations listed.");
+          paragraph(doc, safeText(r.mitigation, "No mitigation provided."));
+
+          if (r.notes) paragraph(doc, safeText(r.notes, ""));
         });
       } else {
         paragraph(doc, "No risks were listed in this report.");
       }
-
       /* =========================
          APPENDICES
       ========================= */
@@ -1032,7 +1126,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
             drawTable(
               doc,
               ["Keyword", "Monthly Searches", "Difficulty", "Intent", "Current Rank"],
-              tierObj.keywords.map((k) => [k.keyword, k.monthlySearches, k.difficulty, k.intent, k.currentRank]),
+              tierObj.keywords.map((k: any) => [k.keyword, k.monthlySearches, k.difficulty, k.intent, k.currentRank]),
               [160, 90, 80, 90, 70],
             );
           } else {
@@ -1044,65 +1138,53 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         paragraph(doc, "No keyword appendix data was generated.");
       }
 
-      sectionTitle(doc, "B", "Appendix B: Review Collection Templates");
-      const templates = report.appendices?.reviewTemplates || [];
-      if (templates.length) {
-        templates.forEach((t, i) => {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(t.name, "Template")}`);
-          paragraph(doc, `Subject: ${safeText(t.subject, "")}`);
-          callout(doc, "Email / Message Body", safeText(t.body, ""));
-        });
-      } else {
-        paragraph(doc, "No review templates were generated.");
-      }
-
-      addPageIfNotAtTop(doc);
-      sectionTitle(doc, "C", "Appendix C: Case Study Template");
-      const cs = report.appendices?.caseStudyTemplate;
-      if (cs) {
+      sectionTitle(doc, "B", "Appendix B: Data Sources & Confidence");
+      const dataSources = report.appendices?.dataSources || [];
+      if (dataSources.length) {
         drawTable(
           doc,
-          ["Field", "Value"],
-          [
-            ["Title", cs.title],
-            ["Industry", cs.industry],
-            ["Services", cs.services],
-            ["Duration", cs.duration],
-            ["Budget", cs.budget],
-          ],
-          [140, 320],
+          ["Source", "What we used it for", "Confidence"],
+          dataSources.map((s: any) => [safeText(s.source, ""), safeText(s.usedFor, ""), safeText(s.confidence, "")]),
+          [140, 260, 90],
         );
-        callout(doc, "Challenge", safeText(cs.challenge, ""));
-        callout(doc, "Solution", safeText(cs.solution, ""));
-        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Results");
-        bullets(doc, normalizeStringList(cs.results), "No results listed.");
-        callout(doc, "Client Quote", safeText(cs.clientQuote, ""));
-        callout(doc, "Call To Action", safeText(cs.cta, ""));
       } else {
-        paragraph(doc, "No case study template was generated.");
+        paragraph(doc, "No data sources were recorded in this report output.");
       }
 
       addPageIfNotAtTop(doc);
-      sectionTitle(doc, "D", "Appendix D: Final Recommendations");
-      const fr = report.appendices?.finalRecommendations;
-      if (fr?.topActions?.length) {
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("If You Only Do 5 Things (Highest ROI)");
-        fr.topActions.slice(0, 5).forEach((a, i) => {
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${i + 1}. ${safeText(a.action, "Action")}`);
-          paragraph(doc, `Impact: ${safeText(a.impact, "N/A")} • Effort: ${safeText(a.effort, "N/A")}`);
-          paragraph(doc, `Why: ${safeText(a.rationale, "N/A")}`);
+      sectionTitle(doc, "C", "Appendix C: Data Gaps & How To Enable Tracking");
+      const dataGaps = report.appendices?.dataGaps || [];
+      if (dataGaps.length) {
+        dataGaps.forEach((g: any, idx: number) => {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_PURPLE).text(`${idx + 1}. ${safeText(g.area, "Area")}`);
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Missing");
+          bullets(doc, normalizeStringList(g.missing), "No missing items listed.");
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("How to Enable");
+          bullets(doc, normalizeStringList(g.howToEnable), "No setup steps listed.");
+          addPageIfNotAtTop(doc);
         });
       } else {
-        paragraph(doc, "No top actions were generated.");
+        paragraph(doc, "No data gaps were recorded in this report output.");
       }
 
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Next Steps");
-      bullets(doc, normalizeStringList(fr?.nextSteps), "No next steps listed.");
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "D", "Appendix D: Priority Recommendations");
 
+      const pr = report.executiveSummary?.highPriorityRecommendations;
+      if (Array.isArray(pr) && pr.length) {
+        bullets(doc, normalizeStringList(pr), "—");
+      } else {
+        paragraph(doc, "No priority recommendations were included in this report output.");
+      }
 
       doc.end();
     } catch (e) {
       reject(e);
     }
   });
+
+function asArray<T>(v: any): T[] {
+  return Array.isArray(v) ? (v as T[]) : [];
+}
+
 }

@@ -353,6 +353,15 @@ export function registerBusinessGrowthRoutes(app: Express) {
         reportType,
       });
 
+      console.log("[AI-Growth] Analysis sections snapshot", {
+        websiteDigitalPresence_keys: Object.keys(analysis.websiteDigitalPresence || {}),
+        seoVisibility_keys: Object.keys(analysis.seoVisibility || {}),
+        rep_platforms_count: analysis.reputation?.platforms?.length ?? 0,
+        rep_overallScore: analysis.reputation?.overallScore ?? null,
+        seo_coreWebVitals_mobile: !!analysis.seoVisibility?.technicalSeo?.coreWebVitals?.mobile,
+        seo_coreWebVitals_desktop: !!analysis.seoVisibility?.technicalSeo?.coreWebVitals?.desktop,
+      });
+
       const analysisToken = makeToken();
       try {
         await AiReportGeneratedModel.create({
