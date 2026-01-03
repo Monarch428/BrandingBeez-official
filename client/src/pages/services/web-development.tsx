@@ -338,7 +338,6 @@ export default function WebDevelopment() {
   }, []);
 
   const getCardLink = (card: WebCaseStudyCard) => {
-    console.log(card.slug)
     if (card.status !== "published") return "/web-development";
     if (!card.slug) return "/web-development";
     return `/web-case-study/${card.slug}`;
