@@ -185,7 +185,7 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="max-w-2xl mx-auto">
+            <div className="max-w-3xl mx-auto">
               <ContactFormOptimized />
             </div>
           </div>

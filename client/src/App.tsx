@@ -182,7 +182,7 @@ function Router() {
   // routes that should NOT show header/footer
   const hideChrome =
     location === "/loader" ||
-    location.startsWith("/admin"); // add more if needed
+    location.startsWith("/admin"); 
 
   const Content = (
     <Switch>

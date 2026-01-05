@@ -1239,14 +1239,10 @@ export default function Home() {
     {
       id: 1,
       title: "SEO Services",
+      shortCta: "SEO Services",
       description:
         "White-label SEO services built for US agencies managing multiple clients.",
       pricing: "Starting at $399/month",
-      originalPrice: "$500",
-      discountedPrice: "$399",
-      discountLabel: "20% OFF",
-      billingUnit: "/month",
-      extraNote: "Average 150% increase in organic traffic",
       features: [
         "White-label SEO reporting",
         "On-page & technical SEO",
@@ -1259,14 +1255,10 @@ export default function Home() {
     {
       id: 2,
       title: "PPC Advertising",
+      shortCta: "PPC Management",
       description:
         "Maximize ROI with expert PPC campaign management for your agency clients.",
       pricing: "Starting at $399/project",
-      originalPrice: "$399",
-      discountedPrice: "$400",
-      discountLabel: "20% OFF",
-      billingUnit: "/project",
-      extraNote: "Best for agencies managing multiple client accounts",
       features: [
         "Google Ads account setup & audit",
         "Keyword & audience targeting",
@@ -1279,14 +1271,10 @@ export default function Home() {
     {
       id: 4,
       title: "Website Design & Development",
+      shortCta: "Web Development",
       description:
         "Custom websites that turn visitors into lifelong customers for your agency clients.",
       pricing: "Starting at $599/project",
-      originalPrice: "$599",
-      discountedPrice: "$600",
-      discountLabel: "20% OFF",
-      billingUnit: "/project",
-      extraNote: "Ideal for landing pages, service sites & local businesses",
       features: [
         "Conversion-focused UX & copy structure",
         "Responsive & mobile-first design",
@@ -1299,14 +1287,10 @@ export default function Home() {
     {
       id: 5,
       title: "Custom App Development",
+      shortCta: "App Development",
       description:
         "High-performance applications built for scalability, automation, and seamless user experience.",
       pricing: "Starting at $2,799/project",
-      originalPrice: "$2,799",
-      discountedPrice: "$2,800",
-      discountLabel: "20% OFF",
-      billingUnit: "/project",
-      extraNote: "Perfect for portals, SaaS, internal tools & AI workflows",
       features: [
         "Custom Web Application Development",
         "iOS & Android Mobile App Development",
@@ -1575,11 +1559,14 @@ export default function Home() {
                           {/* BUTTON — STICKS TO BOTTOM */}
                           <div className="mt-auto pt-4">
                             <Link href={service.href}>
-                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
-                                <span className="leading-tight text-white text-sm sm:text-base">
-                                  Learn More
+                              <Button
+                                className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-medium text-sm sm:text-md flex items-center justify-center gap-2 shadow-lg overflow-hidden"
+                                aria-label={`View ${service.title} services`}
+                              >
+                                <span className="truncate max-w-[80%] font-medium">
+                                  View {service.shortCta}
                                 </span>
-                                <ArrowRight className="w-4 h-4" />
+                                <ArrowRight className="w-4 h-4 flex-shrink-0" />
                               </Button>
                             </Link>
                           </div>
