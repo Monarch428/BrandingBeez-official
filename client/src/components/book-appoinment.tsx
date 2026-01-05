@@ -3645,35 +3645,32 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                 "lg:block",
               ].join(" ")}
             >
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-2">
                   <Calendar className="w-4 h-4 text-slate-600" />
                   <h3 className="text-sm sm:text-base font-semibold text-slate-900">
                     Select a Date
                   </h3>
+              </div>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 sm:h-8 sm:w-8 border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
+                  onClick={goPrevMonth}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <div className="text-xs sm:text-sm font-semibold text-slate-900 min-w-[96px] sm:min-w-[120px] text-center">
+                  {monthLabel}
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9 sm:h-10 sm:w-10 border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
-                    onClick={goPrevMonth}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  <div className="text-xs sm:text-sm font-semibold text-slate-900 min-w-[96px] sm:min-w-[120px] text-center">
-                    {monthLabel}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9 sm:h-10 sm:w-10 border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
-                    onClick={goNextMonth}
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 sm:h-8 sm:w-8 border-slate-300 bg-white hover:bg-slate-50 text-slate-700"
+                  onClick={goNextMonth}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
 
               <div className="grid grid-cols-7 text-[11px] sm:text-[12px] text-center text-slate-500 mb-2">
@@ -3758,64 +3755,19 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
               </div>
 
               {/* ✅ Calendly-like timezone trigger + panel (Fully responsive incl. 320px) */}
-              <div
-                className="flex flex-col items-end gap-1 shrink-0 relative mb-2"
-                ref={tzWrapRef}
-              >
-                {/* Trigger row */}
+              <div className="flex flex-col items-end gap-1 shrink-0 mb-2 relative z-20">
                 <div className="flex items-center gap-2 max-w-full">
-                  {/* Hide on very small screens to prevent wrap issues */}
                   <span className="text-[10px] text-slate-600 hidden sm:inline">
                     Showing times in:
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => setTzOpen((v) => !v)}
-                    className="
-                        h-8 sm:h-7
-                        px-2 py-1
-                        text-[10px] sm:text-[11px]
-                        bg-white border border-slate-300
-                        text-slate-700
-                        rounded-md
-                        hover:bg-slate-50
-                        inline-flex items-center gap-1
-                        max-w-[78vw] sm:max-w-[240px]
-                      "
-                    aria-label="Select timezone"
-                  >
-                    <Globe className="w-3.5 h-3.5 text-slate-600 shrink-0" />
-                    <span className="truncate">{timeZoneLabel}</span>
-                  </button>
+                  {/* ✅ TimeZonePicker handles its own popover */}
+                  <TimeZonePicker
+                    value={timeZone}
+                    onChange={setTimeZone}
+                    className="max-w-[78vw] sm:max-w-[260px]"
+                  />
                 </div>
-
-                {/* Responsive panel */}
-                {tzOpen && (
-                  <div
-                    className="
-                        absolute top-full mt-2 z-[100010]
-                        rounded-lg border border-slate-200 bg-white shadow-2xl
-                        p-4 sm:p-3 overflow-hidden
-
-                        left-1/4 -translate-x-1/2
-                        w-[96vw] max-w-[96vw]
-
-                        sm:left-auto sm:translate-x-0 sm:right-0
-                        sm:w-[380px] sm:max-w-[380px]
-                        md:w-[420px] md:max-w-[420px]
-                      "
-                  >
-                    <TimeZonePicker
-                      value={timeZone}
-                      onChange={(tz) => {
-                        setTimeZone(tz);
-                        setTzOpen(false);
-                      }}
-                      className="w-full"
-                    />
-                  </div>
-                )}
 
                 {bookingStage === "form" && (
                   <button
@@ -3832,6 +3784,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   </button>
                 )}
               </div>
+
 
               {/* ✅ RIGHT BODY (Times/Form) */}
               <div className="flex flex-col min-h-0">

@@ -9,10 +9,8 @@ type SEOProps = {
 export function SEO({ title, description }: SEOProps) {
   const [location] = useLocation();
 
-  // Clean pathname (no query / hash)
   const cleanPath = location.split("?")[0].split("#")[0];
 
-  // Canonical logic
   const canonical =
     cleanPath === "/"
       ? "https://brandingbeez.co.uk/"
@@ -25,6 +23,9 @@ export function SEO({ title, description }: SEOProps) {
       <meta name="description" content={description} />
 
       <link rel="canonical" href={canonical} />
+
+      <meta property="og:url" content={canonical} />
+      <meta name="twitter:url" content={canonical} />
 
       <meta name="robots" content="index, follow" />
       <meta name="googlebot" content="index, follow" />

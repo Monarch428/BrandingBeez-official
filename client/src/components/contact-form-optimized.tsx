@@ -1147,7 +1147,7 @@
 
 
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1175,6 +1175,11 @@ interface ContactFormData {
   company: string;
   phone: string;
   service: string;
+
+  // Step-2 questions
+  monthlyRevenue: string;
+  biggestChallenge: string;
+
   websiteDetails: {
     platform: string;
     tier: string;
@@ -1263,19 +1268,17 @@ const aiTypes = [
 ];
 
 const budgets = [
-  { value: "under-5k", label: "Under $5,000" },
-  { value: "5k-15k", label: "$5,000 - $15,000" },
-  { value: "15k-50k", label: "$15,000 - $50,000" },
-  { value: "50k-100k", label: "$50,000 - $100,000" },
-  { value: "over-100k", label: "Over $100,000" },
+  { value: "not-sure", label: "Not sure yet" },
+  { value: "5k-15k", label: "$5K - $15K" },
+  { value: "15k-30k", label: "$15K - $30K" },
+  { value: "30k-50k", label: "$30K - $50K" },
+  { value: "50k-plus", label: "$50K+" },
 ];
 
 const timelines = [
-  { value: "asap", label: "ASAP" },
-  { value: "1-month", label: "Within 1 Month" },
-  { value: "3-months", label: "Within 3 Months" },
-  { value: "6-months", label: "Within 6 Months" },
-  { value: "planning", label: "Still Planning" },
+  { value: "urgent-30", label: "Next 30 days (urgent)" },
+  { value: "2-3-months", label: "2-3 months (planning ahead)" },
+  { value: "exploring", label: "Just exploring options" },
 ];
 
 const regions = [
@@ -1293,27 +1296,26 @@ interface FormFieldProps {
   children: React.ReactNode;
 }
 
-function FormField({
-  id,
-  label,
-  required,
-  error,
-  children,
-}: FormFieldProps) {
+function FormField({ id, label, required, error, children }: FormFieldProps) {
   return (
     <div className="space-y-1">
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-800"
-      >
+      <label htmlFor={id} className="block text-sm font-medium text-gray-800">
         {label}
-        {required && <span className="ml-1 text-red-500">*</span>}
+        {required && <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-red-500 align-middle" aria-hidden="true" />}
       </label>
-
       {children}
-
       {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
     </div>
+  );
+}
+
+function RequiredMark() {
+  return (
+    <span
+      className="ml-2 inline-flex items-center font-bold h-2 w-2 text-red-600 align-middle"
+      aria-hidden="true"
+    > *
+    </span>
   );
 }
 
@@ -1326,6 +1328,10 @@ export function ContactFormOptimized() {
     company: "",
     phone: "",
     service: "",
+
+    monthlyRevenue: "",
+    biggestChallenge: "",
+
     websiteDetails: { platform: "", tier: "" },
     dedicatedResourceDetails: { roles: [] },
     seoDetails: [],
@@ -1342,10 +1348,13 @@ export function ContactFormOptimized() {
 
   const [thankOpen, setThankOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  const setError = (path: string, msg: string) => {
-    setErrors(prev => ({ ...prev, [path]: msg }));
-  };
+  const progressPercent = useMemo(() => {
+    if (step === 1) return 25;
+    if (step === 2) return 75;
+    return 100;
+  }, [step]);
 
   const clearError = (path: string) => {
     setErrors(prev => {
@@ -1428,6 +1437,9 @@ export function ContactFormOptimized() {
     mutationFn: async (data: ContactFormData) => {
       let structuredMessage = data.message || "Contact form submission";
 
+      if (data.monthlyRevenue) structuredMessage += `\n\n💵 MONTHLY REVENUE: ${data.monthlyRevenue}`;
+      if (data.biggestChallenge) structuredMessage += `\n\n🧩 BIGGEST CHALLENGE: ${data.biggestChallenge}`;
+
       if (data.service) {
         structuredMessage += `\n\n📋 PRIMARY SERVICE: ${services.find(s => s.value === data.service)?.label || data.service
           }`;
@@ -1495,8 +1507,7 @@ export function ContactFormOptimized() {
         structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
       }
       if (data.timeline) {
-        structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline
-          }`;
+        structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline}`;
       }
       if (data.referral) structuredMessage += `\n\n📢 REFERRAL: ${data.referral}`;
 
@@ -1529,10 +1540,8 @@ export function ContactFormOptimized() {
     },
 
     onSuccess: () => {
-      // ✅ open popup
       setThankOpen(true);
 
-      // optional toast (keep or remove)
       toast({
         title: "Message sent successfully!",
         description: "Thank you for your inquiry. We'll get back to you within 24 hours.",
@@ -1545,6 +1554,10 @@ export function ContactFormOptimized() {
         company: "",
         phone: "",
         service: "",
+
+        monthlyRevenue: "",
+        biggestChallenge: "",
+
         websiteDetails: { platform: "", tier: "" },
         dedicatedResourceDetails: { roles: [] },
         seoDetails: [],
@@ -1559,6 +1572,7 @@ export function ContactFormOptimized() {
         couponCode: "",
       });
       setErrors({});
+      setStep(1);
     },
 
     onError: (error: any) => {
@@ -1576,7 +1590,8 @@ export function ContactFormOptimized() {
     },
   });
 
-  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
+  const isValidEmail = (email: string) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
 
   const isLikelyValidPhone = (raw: string) => {
     const digits = (raw || "").replace(/\D/g, "");
@@ -1584,68 +1599,61 @@ export function ContactFormOptimized() {
     return digits.length >= 10 && digits.length <= 16;
   };
 
-  const validateForm = (): boolean => {
+  const validateStep = (targetStep: 1 | 2 | 3): boolean => {
     const newErrors: Record<string, string> = {};
 
     const name = formData.name.trim();
     const email = formData.email.trim();
     const company = formData.company.trim();
 
-    if (!name) newErrors.name = "Name is required";
+    if (targetStep >= 1) {
+      if (!name) newErrors.name = "Full name is required";
+      if (!email) newErrors.email = "Email is required";
+      else if (!isValidEmail(email)) newErrors.email = "Please enter a valid email address";
 
-    if (!email) newErrors.email = "Email is required";
-    else if (!isValidEmail(email)) newErrors.email = "Please enter a valid email address";
-
-    if (!company) newErrors.company = "Company name is required";
-
-    if (!formData.service) newErrors.service = "Please select a service";
-
-    if (!formData.region) newErrors.region = "Please select your region";
-
-    if (!isLikelyValidPhone(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
+      if (!company) newErrors.company = "Company / Agency name is required";
+      if (!isLikelyValidPhone(formData.phone)) newErrors.phone = "Please enter a valid phone number";
     }
 
-    if (formData.service === "website-development") {
-      if (!formData.websiteDetails.platform) {
-        newErrors["websiteDetails.platform"] = "Please choose a platform";
-      }
-      if (!formData.websiteDetails.tier) {
-        newErrors["websiteDetails.tier"] = "Please choose a tier";
-      }
+    if (targetStep >= 2) {
+      if (!formData.monthlyRevenue) newErrors.monthlyRevenue = "Please choose your monthly revenue range";
+      if (!formData.biggestChallenge) newErrors.biggestChallenge = "Please choose your biggest challenge";
+      if (!formData.service) newErrors.service = "Please select a service";
     }
 
-    if (formData.service === "dedicated-resources") {
-      if (formData.dedicatedResourceDetails.roles.length === 0) {
-        newErrors["dedicatedResourceDetails.roles"] = "Please add at least one resource";
-      } else {
-        formData.dedicatedResourceDetails.roles.forEach((r, idx) => {
-          if (!r.type) newErrors[`dedicatedResourceDetails.roles.${idx}.type`] = "Select a role type";
-          if (!r.skillLevel) newErrors[`dedicatedResourceDetails.roles.${idx}.skillLevel`] = "Select a skill level";
-          if (!r.quantity || r.quantity < 1)
-            newErrors[`dedicatedResourceDetails.roles.${idx}.quantity`] = "Quantity must be at least 1";
-        });
-      }
-    }
+    if (targetStep >= 3) {
+      if (!formData.timeline) newErrors.timeline = "Please choose when you need help";
+      if (!formData.region) newErrors.region = "Please select your region";
 
-    if (formData.service === "seo") {
-      if (formData.seoDetails.length === 0) {
-        newErrors["seoDetails"] = "Please select at least one SEO service";
+      if (formData.service === "website-development") {
+        if (!formData.websiteDetails.platform) newErrors["websiteDetails.platform"] = "Please choose a platform";
+        if (!formData.websiteDetails.tier) newErrors["websiteDetails.tier"] = "Please choose a tier";
       }
-    }
 
-    if (formData.service === "google-ads") {
-      if (formData.googleAdsDetails.length === 0) {
-        newErrors["googleAdsDetails"] = "Please select at least one package";
+      if (formData.service === "dedicated-resources") {
+        if (formData.dedicatedResourceDetails.roles.length === 0) {
+          newErrors["dedicatedResourceDetails.roles"] = "Please add at least one resource";
+        } else {
+          formData.dedicatedResourceDetails.roles.forEach((r, idx) => {
+            if (!r.type) newErrors[`dedicatedResourceDetails.roles.${idx}.type`] = "Select a role type";
+            if (!r.skillLevel) newErrors[`dedicatedResourceDetails.roles.${idx}.skillLevel`] = "Select a skill level";
+            if (!r.quantity || r.quantity < 1)
+              newErrors[`dedicatedResourceDetails.roles.${idx}.quantity`] = "Quantity must be at least 1";
+          });
+        }
       }
-    }
 
-    if (formData.service === "custom-app-ai-development") {
-      if (formData.n8nDetails.length === 0) {
-        newErrors["n8nDetails"] = "Please select at least one App Scope option";
+      if (formData.service === "seo") {
+        if (formData.seoDetails.length === 0) newErrors["seoDetails"] = "Please select at least one SEO service";
       }
-      if (formData.aiDetails.length === 0) {
-        newErrors["aiDetails"] = "Please select at least one AI requirement";
+
+      if (formData.service === "google-ads") {
+        if (formData.googleAdsDetails.length === 0) newErrors["googleAdsDetails"] = "Please select at least one package";
+      }
+
+      if (formData.service === "custom-app-ai-development") {
+        if (formData.n8nDetails.length === 0) newErrors["n8nDetails"] = "Please select at least one App Scope option";
+        if (formData.aiDetails.length === 0) newErrors["aiDetails"] = "Please select at least one AI requirement";
       }
     }
 
@@ -1655,22 +1663,21 @@ export function ContactFormOptimized() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validateForm()) {
-      contactMutation.mutate({
-        ...formData,
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        company: formData.company.trim(),
-        referral: formData.referral.trim(),
-        message: formData.message.trim(),
-        couponCode: formData.couponCode.trim().toUpperCase(),
-      });
-    }
+    if (!validateStep(3)) return;
+
+    contactMutation.mutate({
+      ...formData,
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      company: formData.company.trim(),
+      referral: formData.referral.trim(),
+      message: formData.message.trim(),
+      couponCode: formData.couponCode.trim().toUpperCase(),
+    });
   };
 
-  const handleInputChange = (field: keyof ContactFormData, value: string) => {
+  const handleInputChange = (field: keyof ContactFormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-
     clearError(field as string);
 
     if (field === "service") {
@@ -1767,6 +1774,51 @@ export function ContactFormOptimized() {
     });
   };
 
+  const goNext = () => {
+    if (step === 1) {
+      if (!validateStep(1)) return;
+      setStep(2);
+      return;
+    }
+    if (step === 2) {
+      if (!validateStep(2)) return;
+      setStep(3);
+      return;
+    }
+  };
+
+  const goBack = () => setStep(prev => (prev === 3 ? 2 : 1) as 1 | 2 | 3);
+
+  const ProgressBar = () => (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-sm font-semibold text-gray-900">
+          Step {step}:{" "}
+          {step === 1
+            ? "Contact Information (30 seconds)"
+            : step === 2
+              ? "Help Us Understand Your Needs"
+              : "Timeline & Final Details (30 seconds)"}
+        </div>
+        <div className="text-xs text-gray-600">{progressPercent}%</div>
+      </div>
+
+      <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-300"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
+
+      {/* <div className="text-xs text-gray-500">
+        Progress:{" "}
+        <span className="font-mono">
+          {step === 1 ? "████░░░░░░" : step === 2 ? "█████████░" : "██████████"}
+        </span>
+      </div> */}
+    </div>
+  );
+
   return (
     <>
       {/* ✅ Thank You Popup */}
@@ -1778,7 +1830,7 @@ export function ContactFormOptimized() {
         formType="contact"
       />
 
-      <Card className="max-w-2xl mx-auto">
+      <Card className="max-w-3xl mx-auto">
         <CardContent className="p-8 relative" id="contact-form">
           {formData.couponCode && (
             <>
@@ -1799,532 +1851,700 @@ export function ContactFormOptimized() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6 p-2">
-            {/* Personal Information */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  value={formData.name}
-                  onChange={e => handleInputChange("name", e.target.value)}
-                  placeholder="Enter your full name"
-                  className={errors.name ? "border-red-500" : ""}
-                  autoComplete="name"
-                />
-                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-              </div>
+            <ProgressBar />
 
-              <div>
-                <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={e => handleInputChange("email", e.target.value)}
-                  placeholder="Enter your email address"
-                  className={errors.email ? "border-red-500" : ""}
-                  autoComplete="email"
-                />
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="company">Company Name *</Label>
-                <Input
-                  id="company"
-                  type="text"
-                  value={formData.company}
-                  onChange={e => handleInputChange("company", e.target.value)}
-                  placeholder="Enter your company name"
-                  className={errors.company ? "border-red-500" : ""}
-                  autoComplete="organization"
-                />
-                {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
-              </div>
-
-              <div>
-                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                  Phone Number
-                </Label>
-
-                <PhoneInput
-                  country={"us"}
-                  value={formData.phone}
-                  onChange={(value: string) => handleInputChange("phone", value)}
-                  inputProps={{
-                    name: "phone",
-                    id: "phone",
-                    className:
-                      "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
-                    required: false,
-                  }}
-                  containerClass="w-full"
-                />
-                {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-              </div>
-            </div>
-
-            {/* Project Details */}
-            <div>
-              <Label htmlFor="service">Service Needed *</Label>
-              <Select value={formData.service} onValueChange={value => handleInputChange("service", value)}>
-                <SelectTrigger className={errors.service ? "border-red-500" : ""}>
-                  <SelectValue placeholder="Select a service" />
-                </SelectTrigger>
-                <SelectContent>
-                  {services.map(service => (
-                    <SelectItem key={service.value} value={service.value}>
-                      {service.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.service && <p className="text-red-500 text-sm mt-1">{errors.service}</p>}
-            </div>
-
-            {/* Website Development Details */}
-            {formData.service === "website-development" && (
-              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  What are you specifically looking for in Website Development? *
-                </h3>
+            {/* ---------------- STEP 1 ---------------- */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-gray-900">Let&apos;s Get Started...</h2>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label>Platform *</Label>
+                    <Label htmlFor="name" className="inline-flex items-center">
+                      Full Name <RequiredMark />
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={formData.name}
+                      onChange={e => handleInputChange("name", e.target.value)}
+                      placeholder="Enter your full name"
+                      className={errors.name ? "border-red-500" : ""}
+                      autoComplete="name"
+                    />
+                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="email" className="inline-flex items-center">
+                      Email Address <RequiredMark />
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={e => handleInputChange("email", e.target.value)}
+                      placeholder="your@email.com"
+                      className={errors.email ? "border-red-500" : ""}
+                      autoComplete="email"
+                    />
+                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="company" className="inline-flex items-center">
+                      Company / Agency Name <RequiredMark />
+                    </Label>
+                    <Input
+                      id="company"
+                      type="text"
+                      value={formData.company}
+                      onChange={e => handleInputChange("company", e.target.value)}
+                      placeholder="Enter your company / agency name"
+                      className={errors.company ? "border-red-500" : ""}
+                      autoComplete="organization"
+                    />
+                    {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company}</p>}
+                  </div>
+
+                  <div>
+                    <Label htmlFor="phone" className="inline-flex items-center text-sm font-medium text-gray-700">
+                      Phone Number <RequiredMark />
+                    </Label>
+
+                    <PhoneInput
+                      country={"us"}
+                      value={formData.phone}
+                      onChange={(value: string) => handleInputChange("phone", value)}
+                      inputProps={{
+                        name: "phone",
+                        id: "phone",
+                        className:
+                          "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
+                        required: false,
+                      }}
+                      containerClass="w-full"
+                    />
+                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-xs text-gray-500">
+                    “No spam. We&apos;ll call you in next <span className="font-semibold">24 minutes</span>.”
+                  </p>
+
+                  <Button
+                    type="button"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold"
+                    onClick={goNext}
+                  >
+                    Continue →
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ---------------- STEP 2 ---------------- */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-gray-900">Help Us Understand Your Needs</h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="monthlyRevenue" className="inline-flex items-center">
+                      What&apos;s your current monthly revenue? <RequiredMark />
+                    </Label>
+
                     <Select
-                      value={formData.websiteDetails.platform}
-                      onValueChange={value => handleWebsiteDetailsChange("platform", value)}
+                      value={formData.monthlyRevenue}
+                      onValueChange={(value) => handleInputChange("monthlyRevenue", value)}
                     >
-                      <SelectTrigger className={errors["websiteDetails.platform"] ? "border-red-500" : ""}>
-                        <SelectValue placeholder="Choose platform..." />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select monthly revenue" />
                       </SelectTrigger>
+
                       <SelectContent>
-                        {websitePlatforms.map(platform => (
-                          <SelectItem key={platform.value} value={platform.value}>
-                            {platform.label}
+                        {[
+                          "$1K - $20K/month",
+                          "$20K - $50K/month",
+                          "$50K - $100K/month",
+                          "Over $100K/month",
+                        ].map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {v}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    {errors["websiteDetails.platform"] && (
-                      <p className="text-red-500 text-sm mt-1">{errors["websiteDetails.platform"]}</p>
+
+                    {errors.monthlyRevenue && (
+                      <p className="text-red-500 text-sm">{errors.monthlyRevenue}</p>
                     )}
                   </div>
 
-                  {formData.websiteDetails.platform && (
-                    <div>
-                      <Label>Tier *</Label>
-                      <Select
-                        value={formData.websiteDetails.tier}
-                        onValueChange={value => handleWebsiteDetailsChange("tier", value)}
-                      >
-                        <SelectTrigger className={errors["websiteDetails.tier"] ? "border-red-500" : ""}>
-                          <SelectValue placeholder="Choose tier..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {getAvailableTiers().map(tier => (
-                            <SelectItem key={tier.value} value={tier.value}>
-                              {tier.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      {errors["websiteDetails.tier"] && (
-                        <p className="text-red-500 text-sm mt-1">{errors["websiteDetails.tier"]}</p>
+                  <div className="space-y-2">
+                    <Label htmlFor="biggestChallenge" className="inline-flex items-center">
+                      What&apos;s your biggest challenge right now? <RequiredMark />
+                    </Label>
+
+                    <Select
+                      value={formData.biggestChallenge}
+                      onValueChange={(value) => handleInputChange("biggestChallenge", value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your biggest challenge" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {[
+                          "Too many clients, not enough team",
+                          "Want to add new services without hiring",
+                          "Hiring is too slow/expensive",
+                          "Delivery quality inconsistent",
+                        ].map((v) => (
+                          <SelectItem key={v} value={v}>
+                            {v}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {errors.biggestChallenge && (
+                      <p className="text-red-500 text-sm">{errors.biggestChallenge}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* ✅ SERVICE SECTION — UNCHANGED */}
+                <div>
+                  <Label htmlFor="service" className="inline-flex items-center">
+                    Service Needed <RequiredMark />
+                  </Label>
+                  <Select value={formData.service} onValueChange={value => handleInputChange("service", value)}>
+                    <SelectTrigger className={errors.service ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select a service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {services.map(service => (
+                        <SelectItem key={service.value} value={service.value}>
+                          {service.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.service && <p className="text-red-500 text-sm mt-1">{errors.service}</p>}
+                </div>
+
+                {/* Website Development Details */}
+                {formData.service === "website-development" && (
+                  <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 inline-flex items-center">
+                      What are you specifically looking for in Website Development? <RequiredMark />
+                    </h3>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="inline-flex items-center">
+                          Platform <RequiredMark />
+                        </Label>
+                        <Select
+                          value={formData.websiteDetails.platform}
+                          onValueChange={value => handleWebsiteDetailsChange("platform", value)}
+                        >
+                          <SelectTrigger className={errors["websiteDetails.platform"] ? "border-red-500" : ""}>
+                            <SelectValue placeholder="Choose platform..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {websitePlatforms.map(platform => (
+                              <SelectItem key={platform.value} value={platform.value}>
+                                {platform.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {errors["websiteDetails.platform"] && (
+                          <p className="text-red-500 text-sm mt-1">{errors["websiteDetails.platform"]}</p>
+                        )}
+                      </div>
+
+                      {formData.websiteDetails.platform && (
+                        <div>
+                          <Label className="inline-flex items-center">
+                            Tier <RequiredMark />
+                          </Label>
+                          <Select
+                            value={formData.websiteDetails.tier}
+                            onValueChange={value => handleWebsiteDetailsChange("tier", value)}
+                          >
+                            <SelectTrigger className={errors["websiteDetails.tier"] ? "border-red-500" : ""}>
+                              <SelectValue placeholder="Choose tier..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {getAvailableTiers().map(tier => (
+                                <SelectItem key={tier.value} value={tier.value}>
+                                  {tier.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {errors["websiteDetails.tier"] && (
+                            <p className="text-red-500 text-sm mt-1">{errors["websiteDetails.tier"]}</p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
 
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-700">Selected:</h4>
-                  {formData.websiteDetails.platform && (
-                    <Badge variant="outline" className="mr-2">
-                      {websitePlatforms.find(p => p.value === formData.websiteDetails.platform)?.label}
-                      {formData.websiteDetails.tier &&
-                        ` - ${getAvailableTiers().find(t => t.value === formData.websiteDetails.tier)?.label}`}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Dedicated Resources Details */}
-            {formData.service === "dedicated-resources" && (
-              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  What are you specifically looking for in Dedicated Resource? *
-                </h3>
-
-                {errors["dedicatedResourceDetails.roles"] && (
-                  <p className="text-red-500 text-sm">{errors["dedicatedResourceDetails.roles"]}</p>
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-gray-700">Selected:</h4>
+                      {formData.websiteDetails.platform && (
+                        <Badge variant="outline" className="mr-2">
+                          {websitePlatforms.find(p => p.value === formData.websiteDetails.platform)?.label}
+                          {formData.websiteDetails.tier &&
+                            ` - ${getAvailableTiers().find(t => t.value === formData.websiteDetails.tier)?.label}`}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                 )}
 
-                <div className="space-y-4">
-                  {formData.dedicatedResourceDetails.roles.map((role, index) => {
-                    const typeErr = errors[`dedicatedResourceDetails.roles.${index}.type`];
-                    const skillErr = errors[`dedicatedResourceDetails.roles.${index}.skillLevel`];
-                    const qtyErr = errors[`dedicatedResourceDetails.roles.${index}.quantity`];
+                {/* Dedicated Resources Details */}
+                {formData.service === "dedicated-resources" && (
+                  <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 inline-flex items-center">
+                      What are you specifically looking for in Dedicated Resource? <RequiredMark />
+                    </h3>
 
-                    return (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                        <div className="flex justify-between items-center">
-                          <h4 className="font-medium text-gray-700">Resource #{index + 1}</h4>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleResourceRoleRemove(index)}
-                            className="text-red-600"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </Button>
-                        </div>
+                    {errors["dedicatedResourceDetails.roles"] && (
+                      <p className="text-red-500 text-sm">{errors["dedicatedResourceDetails.roles"]}</p>
+                    )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div>
-                            <Label>Role Type *</Label>
-                            <Select
-                              value={role.type}
-                              onValueChange={value => handleResourceRoleUpdate(index, "type", value)}
-                            >
-                              <SelectTrigger className={typeErr ? "border-red-500" : ""}>
-                                <SelectValue placeholder="Choose role..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {dedicatedResourceTypes.map(type => (
-                                  <SelectItem key={type.value} value={type.value}>
-                                    {type.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {typeErr && <p className="text-red-500 text-sm mt-1">{typeErr}</p>}
-                          </div>
+                    <div className="space-y-4">
+                      {formData.dedicatedResourceDetails.roles.map((role, index) => {
+                        const typeErr = errors[`dedicatedResourceDetails.roles.${index}.type`];
+                        const skillErr = errors[`dedicatedResourceDetails.roles.${index}.skillLevel`];
+                        const qtyErr = errors[`dedicatedResourceDetails.roles.${index}.quantity`];
 
-                          {role.type && (
-                            <div>
-                              <Label>Skill Level *</Label>
-                              <Select
-                                value={role.skillLevel}
-                                onValueChange={value => handleResourceRoleUpdate(index, "skillLevel", value)}
-                              >
-                                <SelectTrigger className={skillErr ? "border-red-500" : ""}>
-                                  <SelectValue placeholder="Choose level..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {dedicatedResourceTypes
-                                    .find(t => t.value === role.type)
-                                    ?.skillLevels.map(level => (
-                                      <SelectItem key={level} value={level}>
-                                        {level.charAt(0).toUpperCase() + level.slice(1)}
-                                      </SelectItem>
-                                    ))}
-                                </SelectContent>
-                              </Select>
-                              {skillErr && <p className="text-red-500 text-sm mt-1">{skillErr}</p>}
-                            </div>
-                          )}
-
-                          <div>
-                            <Label>Quantity *</Label>
-                            <div className="flex items-center gap-2">
+                        return (
+                          <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
+                            <div className="flex justify-between items-center">
+                              <h4 className="font-medium text-gray-700">Resource #{index + 1}</h4>
                               <Button
                                 type="button"
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                  handleResourceRoleUpdate(index, "quantity", Math.max(1, role.quantity - 1))
-                                }
+                                onClick={() => handleResourceRoleRemove(index)}
+                                className="text-red-600"
                               >
                                 <Minus className="w-4 h-4" />
                               </Button>
-                              <Input
-                                type="number"
-                                min="1"
-                                value={role.quantity}
-                                onChange={e =>
-                                  handleResourceRoleUpdate(index, "quantity", parseInt(e.target.value) || 1)
-                                }
-                                className={`text-center w-16 ${qtyErr ? "border-red-500" : ""}`}
-                              />
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleResourceRoleUpdate(index, "quantity", role.quantity + 1)}
-                              >
-                                <Plus className="w-4 h-4" />
-                              </Button>
                             </div>
-                            {qtyErr && <p className="text-red-500 text-sm mt-1">{qtyErr}</p>}
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                              <div>
+                                <Label className="inline-flex items-center">
+                                  Role Type <RequiredMark />
+                                </Label>
+                                <Select
+                                  value={role.type}
+                                  onValueChange={value => handleResourceRoleUpdate(index, "type", value)}
+                                >
+                                  <SelectTrigger className={typeErr ? "border-red-500" : ""}>
+                                    <SelectValue placeholder="Choose role..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {dedicatedResourceTypes.map(type => (
+                                      <SelectItem key={type.value} value={type.value}>
+                                        {type.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                {typeErr && <p className="text-red-500 text-sm mt-1">{typeErr}</p>}
+                              </div>
+
+                              {role.type && (
+                                <div>
+                                  <Label className="inline-flex items-center">
+                                    Skill Level <RequiredMark />
+                                  </Label>
+                                  <Select
+                                    value={role.skillLevel}
+                                    onValueChange={value => handleResourceRoleUpdate(index, "skillLevel", value)}
+                                  >
+                                    <SelectTrigger className={skillErr ? "border-red-500" : ""}>
+                                      <SelectValue placeholder="Choose level..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {dedicatedResourceTypes
+                                        .find(t => t.value === role.type)
+                                        ?.skillLevels.map(level => (
+                                          <SelectItem key={level} value={level}>
+                                            {level.charAt(0).toUpperCase() + level.slice(1)}
+                                          </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {skillErr && <p className="text-red-500 text-sm mt-1">{skillErr}</p>}
+                                </div>
+                              )}
+
+                              <div>
+                                <Label className="inline-flex items-center">
+                                  Quantity <RequiredMark />
+                                </Label>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                      handleResourceRoleUpdate(index, "quantity", Math.max(1, role.quantity - 1))
+                                    }
+                                  >
+                                    <Minus className="w-4 h-4" />
+                                  </Button>
+                                  <Input
+                                    type="number"
+                                    min="1"
+                                    value={role.quantity}
+                                    onChange={e =>
+                                      handleResourceRoleUpdate(index, "quantity", parseInt(e.target.value) || 1)
+                                    }
+                                    className={`text-center w-16 ${qtyErr ? "border-red-500" : ""}`}
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleResourceRoleUpdate(index, "quantity", role.quantity + 1)}
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                                {qtyErr && <p className="text-red-500 text-sm mt-1">{qtyErr}</p>}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      <Button
+                        type="button"
+                        onClick={handleResourceRoleAdd}
+                        className="w-full bg-brand-coral text-white hover:bg-brand-coral-dark"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Another Resource
+                      </Button>
+
+                      {formData.dedicatedResourceDetails.roles.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-gray-700">Selected Resources:</h4>
+                          <div className="flex flex-wrap gap-2">
+                            {formData.dedicatedResourceDetails.roles.map(
+                              (role, index) =>
+                                role.type &&
+                                role.skillLevel && (
+                                  <Badge key={index} variant="outline">
+                                    {role.quantity}x {dedicatedResourceTypes.find(t => t.value === role.type)?.label} (
+                                    {role.skillLevel})
+                                  </Badge>
+                                )
+                            )}
                           </div>
                         </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* SEO Services Details */}
+                {formData.service === "seo" && (
+                  <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 inline-flex items-center">
+                      What are you specifically looking for in SEO Services? <RequiredMark />
+                    </h3>
+
+                    {errors["seoDetails"] && <p className="text-red-500 text-sm">{errors["seoDetails"]}</p>}
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {seoTypes.map(type => (
+                        <div key={type.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={type.value}
+                            checked={formData.seoDetails.includes(type.value)}
+                            onCheckedChange={checked =>
+                              handleCheckboxChange("seoDetails", type.value, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                            {type.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Google Ads Details */}
+                {formData.service === "google-ads" && (
+                  <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-900 inline-flex items-center">
+                      What are you specifically looking for in Google Ads? <RequiredMark />
+                    </h3>
+
+                    {errors["googleAdsDetails"] && <p className="text-red-500 text-sm">{errors["googleAdsDetails"]}</p>}
+
+                    <div className="grid grid-cols-1 gap-3">
+                      {googleAdsTiers.map(tier => (
+                        <div key={tier.value} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={tier.value}
+                            checked={formData.googleAdsDetails.includes(tier.value)}
+                            onCheckedChange={checked =>
+                              handleCheckboxChange("googleAdsDetails", tier.value, checked as boolean)
+                            }
+                          />
+                          <Label htmlFor={tier.value} className="text-sm font-normal cursor-pointer">
+                            {tier.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Custom Web & Mobile Application Development (AI-Powered) Details */}
+                {formData.service === "custom-app-ai-development" && (
+                  <div className="border-2 border-purple-200 rounded-lg p-6 space-y-6">
+                    <h3 className="text-lg font-semibold text-gray-900 inline-flex items-center">
+                      What are you specifically looking for in Custom Web & Mobile Application Development (AI-Powered)?{" "}
+                      <RequiredMark />
+                    </h3>
+
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
+                      <p className="text-yellow-800 text-sm">
+                        Tell us both the <span className="font-semibold">app scope</span> and the{" "}
+                        <span className="font-semibold">AI capabilities</span> you have in mind.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-gray-800 inline-flex items-center">
+                        App Scope (Web & Mobile) <RequiredMark />
+                      </h4>
+                      {errors["n8nDetails"] && <p className="text-red-500 text-sm">{errors["n8nDetails"]}</p>}
+
+                      <div className="grid grid-cols-1 gap-3">
+                        {appScopeTypes.map(type => (
+                          <div key={type.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={type.value}
+                              checked={formData.n8nDetails.includes(type.value)}
+                              onCheckedChange={checked =>
+                                handleCheckboxChange("n8nDetails", type.value, checked as boolean)
+                              }
+                            />
+                            <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                              {type.label}
+                            </Label>
+                          </div>
+                        ))}
                       </div>
-                    );
-                  })}
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="font-medium text-gray-800 inline-flex items-center">
+                        AI Features / Platform Requirements <RequiredMark />
+                      </h4>
+                      {errors["aiDetails"] && <p className="text-red-500 text-sm">{errors["aiDetails"]}</p>}
+
+                      <div className="grid grid-cols-1 gap-3">
+                        {aiTypes.map(type => (
+                          <div key={type.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={type.value}
+                              checked={formData.aiDetails.includes(type.value)}
+                              onCheckedChange={checked =>
+                                handleCheckboxChange("aiDetails", type.value, checked as boolean)
+                              }
+                            />
+                            <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
+                              {type.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="timeline" className="inline-flex items-center">
+                      When do you need help? <RequiredMark />
+                    </Label>
+
+                    <Select value={formData.timeline} onValueChange={(value) => handleInputChange("timeline", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select timeline" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {timelines.map((t) => (
+                          <SelectItem key={t.value} value={t.value}>
+                            {t.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {errors.timeline && <p className="text-red-500 text-sm">{errors.timeline}</p>}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="budget">
+                      Project budget range <span className="text-gray-400">(helps us prepare)</span>
+                    </Label>
+
+                    <Select value={formData.budget} onValueChange={(value) => handleInputChange("budget", value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select budget range" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {budgets.map((b) => (
+                          <SelectItem key={b.value} value={b.value}>
+                            {b.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <Button type="button" variant="outline" onClick={goBack}>
+                    ← Back
+                  </Button>
 
                   <Button
                     type="button"
-                    onClick={handleResourceRoleAdd}
-                    className="w-full bg-brand-coral text-white hover:bg-brand-coral-dark"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold"
+                    onClick={goNext}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Another Resource
+                    Continue →
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* ---------------- STEP 3 ---------------- */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="space-y-1">
+                  <h2 className="text-xl font-semibold text-gray-900">Almost Done!</h2>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="region" className="inline-flex items-center">
+                    Your Region <RequiredMark />
+                  </Label>
+                  <Select value={formData.region} onValueChange={value => handleInputChange("region", value)}>
+                    <SelectTrigger className={errors.region ? "border-red-500" : ""}>
+                      <SelectValue placeholder="Select your region" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {regions.map(region => (
+                        <SelectItem key={region.value} value={region.value}>
+                          {region.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.region && <p className="text-red-500 text-sm mt-1">{errors.region}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message">Anything else we should know? (Optional)</Label>
+                  <Textarea
+                    id="message"
+                    value={formData.message}
+                    onChange={e => handleInputChange("message", e.target.value)}
+                    placeholder="Anything else we should know?"
+                    className="min-h-[60px]"
+                    rows={2}
+                  />
+                </div>
+
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-semibold text-purple-600 mb-4 flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-pink-600" />
+                    Special Offer
+                  </h3>
+                  <div>
+                    <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="couponCode"
+                        type="text"
+                        placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
+                        value={formData.couponCode}
+                        onChange={e => handleInputChange("couponCode", e.target.value.toUpperCase())}
+                        className="flex-1"
+                      />
+                      {formData.couponCode && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleInputChange("couponCode", "")}
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    {formData.couponCode && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        You can update or clear the code here. The applied coupon is shown at the top-right of this form.
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-4">
+                  <Button type="button" variant="outline" onClick={goBack}>
+                    ← Back
                   </Button>
 
-                  {formData.dedicatedResourceDetails.roles.length > 0 && (
-                    <div className="space-y-2">
-                      <h4 className="font-medium text-gray-700">Selected Resources:</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {formData.dedicatedResourceDetails.roles.map(
-                          (role, index) =>
-                            role.type &&
-                            role.skillLevel && (
-                              <Badge key={index} variant="outline">
-                                {role.quantity}x {dedicatedResourceTypes.find(t => t.value === role.type)?.label} (
-                                {role.skillLevel})
-                              </Badge>
-                            )
-                        )}
-                      </div>
-                    </div>
-                  )}
+                  <Button
+                    type="submit"
+                    className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold"
+                    disabled={contactMutation.isPending}
+                  >
+                    {contactMutation.isPending ? "Sending..." : "Get My Custom Plan →"}
+                  </Button>
+                </div>
+
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 space-y-2">
+                  <div className="font-semibold">✓ What happens next:</div>
+                  <div>→ You’ll get an email from us within 24 hours (confirmation + details)</div>
+                  <div>→ We'll call you tomorrow morning (9-11 AM your time)</div>
+                  <div>→ Book your strategy call during that call</div>
                 </div>
               </div>
             )}
-
-            {/* SEO Services Details */}
-            {formData.service === "seo" && (
-              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  What are you specifically looking for in SEO Services? *
-                </h3>
-
-                {errors["seoDetails"] && <p className="text-red-500 text-sm">{errors["seoDetails"]}</p>}
-
-                <div className="grid grid-cols-1 gap-3">
-                  {seoTypes.map(type => (
-                    <div key={type.value} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={type.value}
-                        checked={formData.seoDetails.includes(type.value)}
-                        onCheckedChange={checked => handleCheckboxChange("seoDetails", type.value, checked as boolean)}
-                      />
-                      <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
-                        {type.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Google Ads Details */}
-            {formData.service === "google-ads" && (
-              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  What are you specifically looking for in Google Ads? *
-                </h3>
-
-                {errors["googleAdsDetails"] && <p className="text-red-500 text-sm">{errors["googleAdsDetails"]}</p>}
-
-                <div className="grid grid-cols-1 gap-3">
-                  {googleAdsTiers.map(tier => (
-                    <div key={tier.value} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={tier.value}
-                        checked={formData.googleAdsDetails.includes(tier.value)}
-                        onCheckedChange={checked =>
-                          handleCheckboxChange("googleAdsDetails", tier.value, checked as boolean)
-                        }
-                      />
-                      <Label htmlFor={tier.value} className="text-sm font-normal cursor-pointer">
-                        {tier.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Custom Web & Mobile Application Development (AI-Powered) Details */}
-            {formData.service === "custom-app-ai-development" && (
-              <div className="border-2 border-purple-200 rounded-lg p-6 space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  What are you specifically looking for in Custom Web & Mobile Application Development (AI-Powered)? *
-                </h3>
-
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-2">
-                  <p className="text-yellow-800 text-sm">
-                    Tell us both the <span className="font-semibold">app scope</span> and the{" "}
-                    <span className="font-semibold">AI capabilities</span> you have in mind.
-                  </p>
-                </div>
-
-                {/* App Scope */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-gray-800">App Scope (Web & Mobile) *</h4>
-                  {errors["n8nDetails"] && <p className="text-red-500 text-sm">{errors["n8nDetails"]}</p>}
-
-                  <div className="grid grid-cols-1 gap-3">
-                    {appScopeTypes.map(type => (
-                      <div key={type.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={type.value}
-                          checked={formData.n8nDetails.includes(type.value)}
-                          onCheckedChange={checked => handleCheckboxChange("n8nDetails", type.value, checked as boolean)}
-                        />
-                        <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
-                          {type.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* AI Features */}
-                <div className="space-y-3">
-                  <h4 className="font-medium text-gray-800">AI Features / Platform Requirements *</h4>
-                  {errors["aiDetails"] && <p className="text-red-500 text-sm">{errors["aiDetails"]}</p>}
-
-                  <div className="grid grid-cols-1 gap-3">
-                    {aiTypes.map(type => (
-                      <div key={type.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={type.value}
-                          checked={formData.aiDetails.includes(type.value)}
-                          onCheckedChange={checked => handleCheckboxChange("aiDetails", type.value, checked as boolean)}
-                        />
-                        <Label htmlFor={type.value} className="text-sm font-normal cursor-pointer">
-                          {type.label}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="region">Your Region *</Label>
-                <Select value={formData.region} onValueChange={value => handleInputChange("region", value)}>
-                  <SelectTrigger className={errors.region ? "border-red-500" : ""}>
-                    <SelectValue placeholder="Select your region" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {regions.map(region => (
-                      <SelectItem key={region.value} value={region.value}>
-                        {region.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.region && <p className="text-red-500 text-sm mt-1">{errors.region}</p>}
-              </div>
-
-              <div>
-                <Label htmlFor="budget">Project Budget</Label>
-                <Select value={formData.budget} onValueChange={value => handleInputChange("budget", value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select budget range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {budgets.map(budget => (
-                      <SelectItem key={budget.value} value={budget.value}>
-                        {budget.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="timeline">Timeline</Label>
-              <Select value={formData.timeline} onValueChange={value => handleInputChange("timeline", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timeline" />
-                </SelectTrigger>
-                <SelectContent>
-                  {timelines.map(timeline => (
-                    <SelectItem key={timeline.value} value={timeline.value}>
-                      {timeline.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="message">Message (Optional)</Label>
-              <Textarea
-                id="message"
-                value={formData.message}
-                onChange={e => handleInputChange("message", e.target.value)}
-                placeholder="Tell us about your agency and goals..."
-                className="min-h-[120px]"
-                rows={5}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="referral">How did you hear about us?</Label>
-              <Input
-                id="referral"
-                type="text"
-                value={formData.referral}
-                onChange={e => handleInputChange("referral", e.target.value)}
-                placeholder="Google, referral, social media, etc."
-              />
-            </div>
-
-            {/* Coupon Code Section */}
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-semibold text-purple-600 mb-4 flex items-center gap-2">
-                <Gift className="w-5 h-5 text-pink-600" />
-                Special Offer
-              </h3>
-              <div>
-                <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="couponCode"
-                    type="text"
-                    placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
-                    value={formData.couponCode}
-                    onChange={e => handleInputChange("couponCode", e.target.value.toUpperCase())}
-                    className="flex-1"
-                  />
-                  {formData.couponCode && (
-                    <Button type="button" variant="outline" size="sm" onClick={() => handleInputChange("couponCode", "")}>
-                      Clear
-                    </Button>
-                  )}
-                </div>
-                {formData.couponCode && (
-                  <p className="text-xs text-gray-500 mt-1">
-                    You can update or clear the code here. The applied coupon is shown at the top-right of this form.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold py-4 lg:text-lg md:text-md sm:text-md"
-              disabled={contactMutation.isPending}
-            >
-              {contactMutation.isPending ? "Sending..." : "Schedule Free Consultation"}
-            </Button>
           </form>
         </CardContent>
       </Card>
     </>
   );
 }
+
