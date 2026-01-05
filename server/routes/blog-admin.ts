@@ -13,7 +13,12 @@ type StructuredBlogContentV1 = {
         content?: string;
         images?: string[];
         links?: Array<{ label?: string; url: string }>;
-        steps?: Array<{ id: string; title?: string; description?: string; links?: Array<{ label?: string; url: string }> }>;
+        steps?: Array<{
+            id: string;
+            title?: string;
+            description?: string;
+            links?: Array<{ label?: string; url: string }>;
+        }>;
         cta?: {
             enabled?: boolean;
             heading?: string;
@@ -247,6 +252,28 @@ function normalizeContentToStoredString(content: any): string {
     return JSON.stringify(structured);
 }
 
+function normalizeTags(tags: any): string[] {
+    if (Array.isArray(tags)) return tags.map(String).map((t) => t.trim()).filter(Boolean);
+    if (typeof tags === "string" && tags.trim()) {
+        return tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter((t) => t.length > 0);
+    }
+    return [];
+}
+
+function parseBool(v: any, defaultValue: boolean) {
+    if (typeof v === "boolean") return v;
+    if (typeof v === "number") return v === 1;
+    if (typeof v === "string") {
+        const s = v.trim().toLowerCase();
+        if (s === "true" || s === "1" || s === "yes" || s === "on") return true;
+        if (s === "false" || s === "0" || s === "no" || s === "off") return false;
+    }
+    return defaultValue;
+}
+
 export function blogAdminRouter(authenticateAdmin: RequestHandler) {
     const router = express.Router();
 
@@ -298,15 +325,12 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
                 isFeatured,
                 metaDescription,
                 metaTitle,
+                category, // ✅ FIX: include category
             } = req.body;
 
-            let processedTags: string[] = [];
-            if (Array.isArray(tags)) processedTags = tags;
-            else if (typeof tags === "string" && tags.trim()) {
-                processedTags = tags
-                    .split(",")
-                    .map((t: string) => t.trim())
-                    .filter((t: string) => t.length > 0);
+            // ✅ Category is required (matches your zod + mongoose)
+            if (!category || !String(category).trim()) {
+                return res.status(400).json({ message: "Category is required" });
             }
 
             const payload = {
@@ -314,14 +338,15 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
                 title,
                 subtitle,
                 excerpt,
-                // ✅ IMPORTANT: store builder JSON string (no model change)
+                category: String(category).trim(), // ✅ FIX
+                // store builder JSON string (no model change)
                 content: normalizeContentToStoredString(content),
                 imageUrl,
-                tags: processedTags,
-                author,
-                readTime: parseInt(readTime) || 5,
-                isPublished: Boolean(isPublished),
-                isFeatured: Boolean(isFeatured),
+                tags: normalizeTags(tags),
+                author: (author && String(author).trim()) || "BrandingBeez Team",
+                readTime: Number.isFinite(parseInt(readTime)) ? parseInt(readTime) : 5,
+                isPublished: parseBool(isPublished, true),
+                isFeatured: parseBool(isFeatured, false),
                 metaDescription,
                 metaTitle,
             };
@@ -330,7 +355,10 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
             res.json(blogPost);
         } catch (error) {
             console.error("Error creating blog post:", error);
-            res.status(500).json({ message: "Failed to create blog post" });
+            res.status(500).json({
+                message: "Failed to create blog post",
+                error: (error as Error).message,
+            });
         }
     });
 
@@ -353,15 +381,11 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
                 isFeatured,
                 metaDescription,
                 metaTitle,
+                category, // ✅ FIX: include category
             } = req.body;
 
-            let processedTags: string[] = [];
-            if (Array.isArray(tags)) processedTags = tags;
-            else if (typeof tags === "string" && tags.trim()) {
-                processedTags = tags
-                    .split(",")
-                    .map((t: string) => t.trim())
-                    .filter((t: string) => t.length > 0);
+            if (!category || !String(category).trim()) {
+                return res.status(400).json({ message: "Category is required" });
             }
 
             const updateData = {
@@ -369,14 +393,14 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
                 title,
                 subtitle,
                 excerpt,
-                // ✅ IMPORTANT: store builder JSON string (no model change)
+                category: String(category).trim(), // ✅ FIX
                 content: normalizeContentToStoredString(content),
                 imageUrl,
-                tags: processedTags,
-                author,
-                readTime: parseInt(readTime) || 5,
-                isPublished: Boolean(isPublished),
-                isFeatured: Boolean(isFeatured),
+                tags: normalizeTags(tags),
+                author: (author && String(author).trim()) || "BrandingBeez Team",
+                readTime: Number.isFinite(parseInt(readTime)) ? parseInt(readTime) : 5,
+                isPublished: parseBool(isPublished, true),
+                isFeatured: parseBool(isFeatured, false),
                 metaDescription,
                 metaTitle,
             };
@@ -437,7 +461,7 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
         }
     });
 
-    // ✅ Generate a SINGLE blog (admin)
+    // Generate a SINGLE blog (admin)
     router.post("/admin/generate-single-blog", authenticateAdmin, async (req, res) => {
         try {
             const { title, keywords = [], category, targetAudience } = req.body || {};
@@ -446,13 +470,12 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
                 return res.status(400).json({ message: "title is required" });
             }
 
-            const kw =
-                Array.isArray(keywords)
-                    ? keywords.map((k: any) => String(k).trim()).filter(Boolean)
-                    : String(keywords || "")
-                        .split(",")
-                        .map((k) => k.trim())
-                        .filter(Boolean);
+            const kw = Array.isArray(keywords)
+                ? keywords.map((k: any) => String(k).trim()).filter(Boolean)
+                : String(keywords || "")
+                    .split(",")
+                    .map((k) => k.trim())
+                    .filter(Boolean);
 
             const { generateSingleBlog } = await import("../blog-generator");
 
@@ -463,9 +486,6 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
                 targetAudience: targetAudience ? String(targetAudience) : "business owners",
             });
 
-            // ✅ IMPORTANT:
-            // We return it to the admin UI for "auto fill into fields".
-            // Your UI will split it and populate builder fields.
             res.json({ success: true, blog });
         } catch (error) {
             console.error("Error generating single blog:", error);
@@ -475,7 +495,6 @@ export function blogAdminRouter(authenticateAdmin: RequestHandler) {
             });
         }
     });
-
 
     return router;
 }

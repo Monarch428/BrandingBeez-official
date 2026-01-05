@@ -180,8 +180,8 @@ export default function Contact() {
               </h2>
               <p className="text-xl text-gray-600">
                 {regionConfig.code === "DE"
-                  ? "Erzählen Sie uns von Ihrem Projekt und wir melden uns innerhalb von 4 Stunden"
-                  : "Tell us about your project and we'll get back to you within 4 hours"}
+                  ? "Erzählen Sie uns von Ihrem Projekt und wir melden uns innerhalb von 24 Stunden"
+                  : "Tell us about your project and we'll get back to you within 24 hours"}
               </p>
             </div>
 
