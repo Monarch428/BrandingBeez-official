@@ -1,6 +1,6 @@
 // server/generateBusinessGrowthPdf.ts
 import PDFDocument from "pdfkit";
-import type { BusinessGrowthReport } from "./openai";
+import type { WebsiteSpeedTest, BusinessGrowthReport } from "./openai";
 
 /**
  * BrandingBeez – Business Growth Analyzer PDF Generator
@@ -385,27 +385,44 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
   resetX(doc);
 }
 
-function coreWebVitalsTable(core: any) {
+function speedTestTable(speed: WebsiteSpeedTest | undefined) {
   const rows: TableRow[] = [];
-
   const add = (label: string, m: any) => {
     rows.push([
       label,
-      m?.lcpMs != null ? `${Math.round(Number(m.lcpMs))} ms` : "—",
-      typeof m?.cls === "number" ? Number(m.cls).toFixed(3) : "—",
-      m?.tbtMs != null ? `${Math.round(Number(m.tbtMs))} ms` : "—",
-      m?.inpMs != null ? `${Math.round(Number(m.inpMs))} ms` : "—",
-      m?.speedIndexMs != null ? `${Math.round(Number(m.speedIndexMs))} ms` : "—",
+      m?.performanceScore ?? "—",
+      m?.seoScore ?? "—",
+      m?.metrics?.lcpMs ? `${Math.round(m.metrics.lcpMs)} ms` : "—",
+      typeof m?.metrics?.cls === "number" ? m.metrics.cls.toFixed(3) : "—",
+      m?.metrics?.tbtMs ? `${Math.round(m.metrics.tbtMs)} ms` : "—",
     ]);
   };
-
-  add("Mobile", core?.mobile);
-  add("Desktop", core?.desktop);
-
+  add("Mobile", speed?.mobile);
+  add("Desktop", speed?.desktop);
   return rows;
 }
 
 export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthReport): Promise<Buffer> {
+// Debug snapshot: confirms what the PDF generator actually receives.
+try {
+  const repAny: any = report as any;
+  const t = repAny?.websiteDigitalPresence?.technicalSEO;
+  console.log("[AI-Growth][PDF] input snapshot", {
+    reportId: repAny?.reportMetadata?.reportId,
+    website: repAny?.reportMetadata?.website,
+    hasTechnicalSEO: !!t,
+    hasSpeedTest: !!t?.pageSpeed,
+    psiPerfMobile: t?.pageSpeed?.mobile?.performanceScore ?? null,
+    psiPerfDesktop: t?.pageSpeed?.desktop?.performanceScore ?? null,
+    services_count: repAny?.servicesPositioning?.services?.length ?? 0,
+    industries_count: repAny?.servicesPositioning?.industriesServed?.current?.length ?? 0,
+    channels_count: repAny?.leadGeneration?.channels?.length ?? 0,
+    leadMagnets_count: repAny?.leadGeneration?.leadMagnets?.length ?? 0,
+    reputationPlatforms_count: repAny?.reputation?.platforms?.length ?? 0,
+  });
+} catch {}
+
+
   const rep: any = report as any;
 
   return new Promise((resolve, reject) => {
@@ -521,32 +538,20 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Issues Found");
       bullets(doc, normalizeStringList(t?.issues), "No issues detected.");
 
-// Speed test / Core Web Vitals (real PSI test) lives under seoVisibility.technicalSeo.coreWebVitals
-// (not under websiteDigitalPresence.technicalSEO). If this is missing, it usually means
-// PageSpeed Insights didn’t run (missing API key / blocked / timeout).
-const techSeo = report.seoVisibility?.technicalSeo as any;
-const cwv = techSeo?.coreWebVitals;
+      // Speed test table
+      const speed = (t as any)?.pageSpeed as WebsiteSpeedTest | undefined;
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Page Speed & Core Web Vitals (Real Test)");
+      doc.moveDown(0.4);
+      drawTable(doc, ["Strategy", "Perf", "SEO", "LCP", "CLS", "TBT"], speedTestTable(speed), [90, 60, 60, 95, 70, 80]);
 
-doc
-  .font("Helvetica-Bold")
-  .fontSize(12)
-  .fillColor(GRAY_900)
-  .text(`Speed Test (Core Web Vitals): ${clampScore(techSeo?.score)}/100`);
-
-doc.moveDown(0.4);
-
-drawTable(
-  doc,
-  ["Strategy", "LCP", "CLS", "TBT", "INP", "Speed Index"],
-  coreWebVitalsTable(cwv),
-  [90, 95, 70, 80, 70, 90],
-);
-
-// Show top issues/opportunities already computed in openai.ts (based on live HTML + PSI if available)
-if (techSeo?.opportunities?.length) {
-  doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Highest-Impact Speed Opportunities");
-  bullets(doc, normalizeStringList(techSeo.opportunities).slice(0, 10), "No opportunities detected.");
-}
+      if (speed?.mobile?.opportunities?.length || speed?.desktop?.opportunities?.length) {
+        doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Highest-Impact Speed Opportunities");
+        const opps = [
+          ...(speed?.mobile?.opportunities || []).map((o: any) => `Mobile: ${o.title}`),
+          ...(speed?.desktop?.opportunities || []).map((o: any) => `Desktop: ${o.title}`),
+        ].slice(0, 10);
+        bullets(doc, opps, "No opportunities detected.");
+      }
 
       const cq = report.websiteDigitalPresence?.contentQuality;
       addPageIfNotAtTop(doc);
@@ -619,113 +624,33 @@ if (techSeo?.opportunities?.length) {
       addPageIfNotAtTop(doc);
       sectionTitle(doc, "4", "Reputation & Social Proof Audit");
 
-const rep = report.reputation as any;
+      const rep = report.reputation;
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Overall Review Score: ${safeText((rep as any)?.reviewScore, "—")}/5`);
+      doc.font("Helvetica").fontSize(10).fillColor(GRAY_500).text(
+        "Based on publicly available review platforms detected during analysis.",
+        { lineGap: 2 },
+      );
+      doc.moveDown(0.4);
 
-// 4.1 Online Review Score (0-100) + platform table
-const online = rep?.onlineReviews ?? null;
+      if ((rep as any)?.summaryTable?.length) {
+        drawTable(
+          doc,
+          ["Platform", "Reviews", "Rating", "Benchmark", "Gap"],
+          (rep as any).summaryTable.map((r: any) => [r.platform, r.reviews, r.rating, r.industryBenchmark, r.gap]),
+          [140, 70, 70, 110, 110],
+        );
+      } else {
+        paragraph(doc, "No review platform data was detected for this website/company.");
+      }
 
-doc
-  .font("Helvetica-Bold")
-  .fontSize(12)
-  .fillColor(GRAY_900)
-  .text(`Online Review Score: ${clampScore(online?.score ?? rep?.overallScore)}/100`);
+      paragraph(doc, `Total Reviews Found: ${safeText((rep as any)?.totalReviews, "—")} • Industry Standard: ${safeText((rep as any)?.industryStandardRange, "—")} • Your Gap: ${safeText((rep as any)?.yourGap, "—")}`);
 
-doc
-  .font("Helvetica")
-  .fontSize(10)
-  .fillColor(GRAY_500)
-  .text(
-    "Platforms checked: Google Business Profile, Clutch, G2, Trustpilot, GoodFirms, Yelp (if applicable), plus any industry platforms found.",
-    { lineGap: 2 },
-  );
-
-doc.moveDown(0.4);
-
-if (Array.isArray(online?.platforms) && online.platforms.length) {
-  drawTable(
-    doc,
-    ["Platform", "Reviews", "Rating", "Industry Benchmark", "Gap"],
-    online.platforms.map((p: any) => [p.platform, p.reviews ?? "—", p.rating ?? "—", p.benchmark ?? "—", p.gap ?? "—"]),
-    [140, 70, 70, 130, 90],
-  );
-
-  paragraph(
-    doc,
-    `Total Reviews: ${safeText(online?.totalReviews, "—")} • Industry Standard: ${safeText(online?.industryStandard, "—")} • Your Gap: ${safeText(online?.yourGap, "—")}`,
-  );
-
-  if (online?.notes) paragraph(doc, safeText(online.notes, ""));
-} else {
-  paragraph(
-    doc,
-    "No review platform data was detected. This usually happens when profiles can’t be auto-matched from the website (missing Google Business Profile link, no directory badges, or the brand name is ambiguous).",
-  );
-
-  // Fallback (older structure): show whatever was detected in rep.platforms
-  if (Array.isArray(rep?.platforms) && rep.platforms.length) {
-    drawTable(
-      doc,
-      ["Platform", "Rating", "Reviews", "Status", "Notes"],
-      rep.platforms.map((p: any) => [p.platform, p.currentRating ?? "—", p.reviewCount ?? "—", p.status ?? "—", p.notes ?? ""]),
-      [120, 70, 70, 90, 180],
-    );
-  }
-}
-
-// 4.2 Sentiment Analysis
-const sentiment = rep?.sentiment ?? null;
-doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Sentiment Analysis");
-doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
-bullets(doc, normalizeStringList(sentiment?.positives), "No positive themes detected.");
-doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
-bullets(doc, normalizeStringList(sentiment?.negatives), "No negative themes detected.");
-paragraph(doc, `Response Rate: ${safeText(sentiment?.responseRate, "N/A")} • Avg Response Time: ${safeText(sentiment?.avgResponseTime, "N/A")}`);
-if (sentiment?.notes) paragraph(doc, safeText(sentiment.notes, ""));
-
-// 4.3 Employee Reviews
-const emp = rep?.employeeReviews ?? null;
-doc.moveDown(0.2);
-doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Employee Reviews");
-if (Array.isArray(emp) && emp.length) {
-  drawTable(
-    doc,
-    ["Platform", "Rating", "Reviews", "Status"],
-    emp.map((e: any) => [e.platform, e.rating ?? "—", e.reviewCount ?? "—", e.status ?? "—"]),
-    [160, 80, 80, 110],
-  );
-  const empNotes = emp.map((e: any) => safeText(e.notes, "")).filter(Boolean).slice(0, 3);
-  if (empNotes.length) paragraph(doc, empNotes.join(" "));
-} else {
-  paragraph(doc, "No employee review platforms were detected (Glassdoor / AmbitionBox / Indeed).");
-}
-
-// 4.4 Client Testimonials (on-site)
-const testi = rep?.testimonials ?? null;
-doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Client Testimonials (On-Site)");
-if (testi) {
-  paragraph(doc, `Count: ${safeText(testi.onsiteCount, "—")} • Quality: ${safeText(testi.quality, "—")}`);
-  if (Array.isArray(testi.formats) && testi.formats.length) {
-    doc.font("Helvetica-Bold").fontSize(10).fillColor(GRAY_900).text("Formats");
-    bullets(doc, normalizeStringList(testi.formats), "—");
-  }
-  if (Array.isArray(testi.credibilitySignals) && testi.credibilitySignals.length) {
-    doc.font("Helvetica-Bold").fontSize(10).fillColor(GRAY_900).text("Credibility Signals");
-    bullets(doc, normalizeStringList(testi.credibilitySignals), "—");
-  }
-  if (Array.isArray(testi.recommendations) && testi.recommendations.length) {
-    doc.font("Helvetica-Bold").fontSize(10).fillColor(GRAY_900).text("Recommendations");
-    bullets(doc, normalizeStringList(testi.recommendations), "No recommendations available.");
-  }
-  if (testi.notes) paragraph(doc, safeText(testi.notes, ""));
-} else {
-  paragraph(doc, "No on-site testimonial signals were detected.");
-}
-
-// Extra reputation recommendations
-if (Array.isArray(rep?.recommendations) && rep.recommendations.length) {
-  doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Reputation Recommendations");
-  bullets(doc, normalizeStringList(rep.recommendations).slice(0, 10), "No recommendations available.");
-}
+      const themes = (rep as any)?.sentimentThemes;
+      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
+      bullets(doc, normalizeStringList(themes?.positive), "No positive themes detected.");
+      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
+      bullets(doc, normalizeStringList(themes?.negative), "No negative themes detected.");
+      paragraph(doc, `Response Rate: ${safeText(themes?.responseRate, "N/A")} • Avg Response Time: ${safeText(themes?.averageResponseTime, "N/A")}`);
 
       /* =========================
          5) SERVICE OFFERINGS & MARKET POSITIONING

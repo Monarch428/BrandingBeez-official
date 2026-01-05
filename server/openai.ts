@@ -1,68 +1,12 @@
+import OpenAI from "openai";
 import crypto from "crypto";
 
-/**
- * Minimal OpenAI Chat Completions REST client (avoids SDK dependency).
- * Requires: process.env.OPENAI_API_KEY
- */
-type OpenAIChatMessage = { role: "system" | "user" | "assistant"; content: string };
+// Initialize OpenAI with API key from environment
+const openaiClient = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-async function openaiChatCompletionsCreate(args: {
-  model: string;
-  messages: OpenAIChatMessage[];
-  response_format?: any;
-  temperature?: number;
-  max_tokens?: number;
-
-  // Optional legacy + modern tool/function-calling fields.
-  // Kept as `any` to avoid tight coupling to a specific OpenAI SDK type version.
-  functions?: any;
-  function_call?: any;
-  tools?: any;
-  tool_choice?: any;
-}): Promise<any> {
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) throw new Error("OPENAI_API_KEY is missing");
-
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: args.model,
-      messages: args.messages,
-      response_format: args.response_format,
-      temperature: args.temperature,
-      max_tokens: args.max_tokens,
-    }),
-  });
-
-  if (!res.ok) {
-    const t = await res.text().catch(() => "");
-    throw new Error(t || `OpenAI request failed (${res.status})`);
-  }
-  return res.json();
-}
-
-// ------------------------------------------------------------
-// Compatibility shim: previous code used the OpenAI SDK pattern
-// `openai.chat.completions.create(...)` and exported `openaiClient`.
-// We provide a minimal client that calls the REST helper above.
-// ------------------------------------------------------------
-type OpenAICompatClient = {
-  chat: { completions: { create: typeof openaiChatCompletionsCreate } };
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const openaiClient: OpenAICompatClient = {
-  chat: { completions: { create: openaiChatCompletionsCreate } },
-};
-
-// Some parts of the file reference `openai` directly.
-// Keep an alias so we don't need to touch hundreds of call sites.
-const openai = openaiClient;
-
+export const openai = openaiClient;
 /**
  * Robust JSON parsing for model outputs.
  * Even with response_format=json_object, the model can occasionally emit invalid JSON (e.g., unterminated strings).
@@ -126,7 +70,7 @@ CONTENT TO REPAIR:
 ${raw}
 `.trim();
 
-  const repairRes = await openaiChatCompletionsCreate({
+  const repairRes = await openaiClient.chat.completions.create({
     model: process.env.OPENAI_MODEL || "gpt-4.1-mini",
     messages: [
       { role: "system", content: "Return ONLY valid JSON. No markdown. No commentary." },
@@ -1720,6 +1664,7 @@ export interface BusinessGrowthReport {
       score: NullableNumber;
       issues: string[];
       opportunities: string[];
+      pageSpeed?: WebsiteSpeedTest;
       notes?: string | null;
     };
     contentQuality: {
@@ -1926,7 +1871,6 @@ type PageSpeedMetrics = {
     cls: number | null;
     speedIndexMs: number | null;
   };
-  coreWebVitals?: CoreWebVitalsSummary;
   opportunities: PageSpeedOpportunity[];
   diagnostics?: Record<string, any>;
   fetchedAt: string; // ISO
@@ -2111,13 +2055,6 @@ async function fetchPageSpeedInsights(
         tbtMs: numOrNull(audits?.["total-blocking-time"]?.numericValue),
         cls: numOrNull(audits?.["cumulative-layout-shift"]?.numericValue),
         speedIndexMs: numOrNull(audits?.["speed-index"]?.numericValue),
-      },
-      coreWebVitals: {
-        lcpMs: numOrNull(audits?.["largest-contentful-paint"]?.numericValue),
-        cls: numOrNull(audits?.["cumulative-layout-shift"]?.numericValue),
-        tbtMs: numOrNull(audits?.["total-blocking-time"]?.numericValue),
-        speedIndexMs: numOrNull(audits?.["speed-index"]?.numericValue),
-        inpMs: numOrNull(audits?.["interaction-to-next-paint"]?.numericValue),
       },
       opportunities: opportunities.slice(0, 10),
       diagnostics: {
@@ -2442,6 +2379,52 @@ function buildBusinessGrowthFallbackTemplate(
     },
   ];
 
+  // Extracted lists (filled by deep-crawl pipeline in the full analyzer).
+  // In fallback mode we keep them empty but strongly typed to satisfy strict TypeScript.
+  const extractedReputationPlatforms: BusinessGrowthReport["reputation"]["platforms"] = [];
+  const extractedServices: BusinessGrowthReport["servicesPositioning"]["services"] = [];
+  const extractedIndustries: string[] = [];
+  const extractedChannels: BusinessGrowthReport["leadGeneration"]["channels"] = [];
+  const extractedLeadMagnets: BusinessGrowthReport["leadGeneration"]["leadMagnets"] = [];
+
+// Merge detected reputation platforms into an existing list (dedupe by platform name + normalize).
+function mergeReputationPlatforms(
+  base: BusinessGrowthReport["reputation"]["platforms"],
+  detected: BusinessGrowthReport["reputation"]["platforms"],
+): BusinessGrowthReport["reputation"]["platforms"] {
+  const norm = (s: string) => (s || "").trim().toLowerCase();
+  const byKey = new Map<string, BusinessGrowthReport["reputation"]["platforms"][number]>();
+
+  const add = (p: BusinessGrowthReport["reputation"]["platforms"][number]) => {
+    const key = norm(p.platform);
+    if (!key) return;
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, p);
+      return;
+    }
+    // Prefer the entry that has a notes/url hint if one exists
+    const existingNotes = (existing.notes || "").trim();
+    const nextNotes = (p.notes || "").trim();
+    byKey.set(key, {
+      ...existing,
+      ...p,
+      notes: nextNotes || existingNotes || null,
+    });
+  };
+
+  (base || []).forEach(add);
+  (detected || []).forEach(add);
+  return Array.from(byKey.values());
+}
+
+// Values derived from deep crawl extraction (already validated / typed)
+const servicesFromCrawl: BusinessGrowthReport["servicesPositioning"]["services"] = extractedServices;
+const channelsFromCrawl: BusinessGrowthReport["leadGeneration"]["channels"] = extractedChannels;
+const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"] = extractedLeadMagnets;
+
+
+
   const report: BusinessGrowthReport = {
     reportMetadata: {
       reportId,
@@ -2527,7 +2510,7 @@ function buildBusinessGrowthFallbackTemplate(
 
     reputation: {
       overallScore: null,
-      platforms: [],
+      platforms: extractedReputationPlatforms,
       sentiment: { positives: [], negatives: [], responseRate: null, avgResponseTime: null, notes: null },
       recommendations: [],
       notes: "Not measured (requires review platform integrations).",
@@ -2542,17 +2525,17 @@ function buildBusinessGrowthFallbackTemplate(
     },
 
     servicesPositioning: {
-      services: [],
+      services: extractedServices,
       serviceGaps: [],
-      industriesServed: { current: [], concentrationNote: null, highValueIndustries: [] },
+      industriesServed: { current: extractedIndustries, concentrationNote: null, highValueIndustries: [] },
       positioning: { currentStatement: null, competitorComparison: null, differentiation: null, notes: null },
       notes: null,
     },
 
     leadGeneration: {
-      channels: [],
+      channels: extractedChannels,
       missingHighROIChannels: [],
-      leadMagnets: [],
+      leadMagnets: extractedLeadMagnets,
       crmAutomation: { currentTools: [], recommendedTools: [], automationOpportunities: [], notes: null },
       notes: null,
     },
@@ -2591,6 +2574,14 @@ function buildBusinessGrowthFallbackTemplate(
       ],
     },
   };
+
+  console.log("[DeepCrawl] mapped-to-analysis", {
+    services: report.servicesPositioning?.services?.length ?? 0,
+    industries: report.servicesPositioning?.industriesServed?.current?.length ?? 0,
+    channels: report.leadGeneration?.channels?.length ?? 0,
+    leadMagnets: report.leadGeneration?.leadMagnets?.length ?? 0,
+    reputationPlatforms: report.reputation?.platforms?.length ?? 0,
+  });
 
   return report;
 }
@@ -2812,6 +2803,464 @@ export async function buildBusinessGrowthFallback(
   return buildBusinessGrowthFallbackTemplate(input, signals);
 }
 
+/* -------------------------------------------------------------------------- */
+/*                 Deep crawl (HTML + optional Headless render)               */
+/* -------------------------------------------------------------------------- */
+
+type DeepCrawledPage = {
+  url: string;
+  title?: string | null;
+  metaDescription?: string | null;
+  h1?: string | null;
+  textSnippet?: string | null;
+  htmlBytes?: number | null;
+  usedHeadless?: boolean;
+};
+
+type DeepCrawlOptions = {
+  maxPages: number;
+  perPageTimeoutMs: number;
+  maxDepth: number;
+  enableHeadless: boolean;
+  maxHeadlessPages: number;
+};
+
+/** Normalize user website input into an absolute https? URL (best-effort). */
+function normalizeWebsiteUrlLite(inputUrl: string): string {
+  const raw = String(inputUrl || "").trim();
+  if (!raw) return "";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return "https://" + raw.replace(/^\/+/, "");
+}
+
+function sameOriginUrl(base: URL, candidate: string): string | null {
+  try {
+    const u = new URL(candidate, base);
+    if (!/^https?:$/i.test(u.protocol)) return null;
+    if (u.hostname.toLowerCase() !== base.hostname.toLowerCase()) return null;
+    u.hash = "";
+    return u.toString();
+  } catch {
+    return null;
+  }
+}
+
+function uniq<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr));
+}
+
+async function fetchWithAbort(url: string, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { method: "GET", redirect: "follow", signal: controller.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+/**
+ * Render HTML using a headless browser if available.
+ * - Does NOT hard-require a dependency at compile time (avoids TS2307).
+ * - Tries Playwright first, then Puppeteer.
+ * If neither exists, returns null.
+ */
+async function renderHtmlHeadless(url: string, timeoutMs: number): Promise<string | null> {
+  const dynamicImport = (moduleName: string) =>
+    (new Function("m", "return import(m)") as any)(moduleName) as Promise<any>;
+
+  // Try Playwright
+  try {
+    const pw = await dynamicImport("playwright");
+    const chromium = pw?.chromium;
+    if (!chromium) throw new Error("Playwright chromium not available");
+
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      page.setDefaultTimeout(timeoutMs);
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      // Best-effort wait for JS apps to hydrate
+      await page.waitForTimeout(800).catch(() => {});
+      const html = await page.content();
+      await context.close().catch(() => {});
+      return html || null;
+    } finally {
+      await browser.close().catch(() => {});
+    }
+  } catch {
+    // ignore and try puppeteer
+  }
+
+  // Try Puppeteer
+  try {
+    const pp = await dynamicImport("puppeteer");
+    const launch = pp?.launch || pp?.default?.launch;
+    if (!launch) throw new Error("Puppeteer launch not available");
+
+    const browser = await launch({ headless: "new" as any });
+    try {
+      const page = await browser.newPage();
+      page.setDefaultNavigationTimeout(timeoutMs);
+      await page.goto(url, { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(800).catch(() => {});
+      const html = await page.content();
+      return html || null;
+    } finally {
+      await browser.close().catch(() => {});
+    }
+  } catch {
+    return null;
+  }
+}
+
+function looksLikeJsApp(html: string): boolean {
+  const h = html.toLowerCase();
+  // common SPA roots
+  if (h.includes('id="root"') || h.includes("id='root'") || h.includes('id="__next"') || h.includes("data-reactroot")) return true;
+  // lots of scripts + tiny text
+  const scripts = (h.match(/<script\b/g) || []).length;
+  const text = h.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<\/?[^>]+>/g, " ");
+  const compact = text.replace(/\s+/g, " ").trim();
+  return scripts >= 8 && compact.length < 700;
+}
+
+function extractInternalLinks(base: URL, html: string): string[] {
+  const out: string[] = [];
+  const reHref = /<a\b[^>]*\bhref=["']([^"']+)["'][^>]*>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = reHref.exec(html))) {
+    const href = m[1]?.trim();
+    if (!href) continue;
+    // ignore mailto/tel/js
+    if (/^(mailto:|tel:|javascript:|#)/i.test(href)) continue;
+    const u = sameOriginUrl(base, href);
+    if (u) out.push(u);
+  }
+  return uniq(out);
+}
+
+async function discoverSitemapUrls(base: URL, timeoutMs: number): Promise<string[]> {
+  const candidates = [new URL("/sitemap.xml", base).toString(), new URL("/sitemap_index.xml", base).toString()];
+  for (const sm of candidates) {
+    try {
+      const r = await fetchWithAbort(sm, timeoutMs);
+      if (!r.ok) continue;
+      const xml = await r.text().catch(() => "");
+      if (!xml) continue;
+      const locs = Array.from(xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)).map((x) => x[1]?.trim()).filter(Boolean) as string[];
+      const normalized = locs
+        .map((l) => sameOriginUrl(base, l))
+        .filter(Boolean) as string[];
+      if (normalized.length) return uniq(normalized);
+    } catch {
+      continue;
+    }
+  }
+  return [];
+}
+
+function parsePageBasics(url: string, html: string, usedHeadless: boolean): DeepCrawledPage {
+  const title = (html.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] || "").trim() || null;
+  const metaDescription =
+    (html.match(/<meta\s+name=["']description["']\s+content=["']([^"']*)["'][^>]*>/i)?.[1] || "").trim() || null;
+
+  const rawH1 = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i)?.[1] || "";
+  const h1 = rawH1
+    .replace(/<\/?[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() || null;
+
+  const text = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<\/?[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const textSnippet = text ? text.slice(0, 1200) : null;
+
+  return {
+    url,
+    title,
+    metaDescription,
+    h1,
+    textSnippet,
+    htmlBytes: html ? Buffer.byteLength(html, "utf8") : null,
+    usedHeadless,
+  };
+}
+
+async function fetchHtmlBestEffort(url: string, opts: DeepCrawlOptions, headlessBudget: { used: number }): Promise<{ html: string | null; usedHeadless: boolean }> {
+  // 1) Static fetch
+  try {
+    const r = await fetchWithAbort(url, opts.perPageTimeoutMs);
+    if (r.ok) {
+      const html = await r.text().catch(() => "");
+      if (html) {
+        const tinyText = html.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<\/?[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        const needsHeadless = opts.enableHeadless && headlessBudget.used < opts.maxHeadlessPages && (tinyText.length < 700 || looksLikeJsApp(html));
+        if (!needsHeadless) return { html, usedHeadless: false };
+
+        const rendered = await renderHtmlHeadless(url, Math.min(15000, opts.perPageTimeoutMs + 8000));
+        if (rendered) {
+          headlessBudget.used += 1;
+          return { html: rendered, usedHeadless: true };
+        }
+        return { html, usedHeadless: false };
+      }
+    }
+  } catch {
+    // ignore and try headless (if enabled)
+  }
+
+  // 2) Headless fallback
+  if (opts.enableHeadless && headlessBudget.used < opts.maxHeadlessPages) {
+    const rendered = await renderHtmlHeadless(url, Math.min(18000, opts.perPageTimeoutMs + 10000));
+    if (rendered) {
+      headlessBudget.used += 1;
+      return { html: rendered, usedHeadless: true };
+    }
+  }
+
+  return { html: null, usedHeadless: false };
+}
+
+/**
+ * Deep crawl: sitemap-first + internal link discovery.
+ * Extracts a limited set of pages and returns normalized page basics.
+ */
+async function deepCrawlSite(inputWebsite: string, options: Partial<DeepCrawlOptions> = {}): Promise<DeepCrawledPage[]> {
+  const normalized = normalizeWebsiteUrlLite(inputWebsite);
+  let base: URL;
+  try {
+    base = new URL(normalized);
+  } catch {
+    return [];
+  }
+
+  const opts: DeepCrawlOptions = {
+    maxPages: Math.max(5, Math.min(options.maxPages ?? 25, 80)),
+    perPageTimeoutMs: Math.max(1500, Math.min(options.perPageTimeoutMs ?? 5500, 10000)),
+    maxDepth: Math.max(1, Math.min(options.maxDepth ?? 3, 5)),
+    enableHeadless: !!(options.enableHeadless ?? false),
+    maxHeadlessPages: Math.max(0, Math.min(options.maxHeadlessPages ?? 6, 20)),
+  };
+
+  // 1) Seed URLs: sitemap or homepage
+  const seedsFromSitemap = await discoverSitemapUrls(base, Math.min(7000, opts.perPageTimeoutMs + 1500));
+  const seedUrls = seedsFromSitemap.length ? seedsFromSitemap.slice(0, Math.min(opts.maxPages, seedsFromSitemap.length)) : [base.toString()];
+
+  // 2) BFS crawl with depth limit
+  const queue: Array<{ url: string; depth: number }> = seedUrls.map((u) => ({ url: u, depth: 0 }));
+  const seen = new Set<string>();
+  const pages: DeepCrawledPage[] = [];
+  const headlessBudget = { used: 0 };
+
+  while (queue.length && pages.length < opts.maxPages) {
+    const item = queue.shift();
+    if (!item) break;
+    if (!item.url || seen.has(item.url)) continue;
+    seen.add(item.url);
+
+    const { html, usedHeadless } = await fetchHtmlBestEffort(item.url, opts, headlessBudget);
+    if (!html) continue;
+
+    pages.push(parsePageBasics(item.url, html, usedHeadless));
+
+    // Only expand internal links when we're not using sitemap seeds
+    const canExpand = !seedsFromSitemap.length && item.depth < opts.maxDepth;
+    if (canExpand) {
+      const links = extractInternalLinks(base, html);
+      for (const link of links) {
+        if (pages.length + queue.length >= opts.maxPages * 2) break; // prevent runaway queue
+        if (!seen.has(link)) queue.push({ url: link, depth: item.depth + 1 });
+      }
+    }
+  }
+
+  return pages;
+}
+
+/* --------------------------- Extraction helpers --------------------------- */
+
+function uniqNonEmptyStrings(items: string[], max: number): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const raw of items) {
+    const v = String(raw || "").trim();
+    if (!v) continue;
+    const key = v.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(v);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+
+function extractServicesFromPages(pages: DeepCrawledPage[]): string[] {
+  const candidates: string[] = [];
+  const serviceHints = [
+    "seo",
+    "search engine optimization",
+    "ppc",
+    "google ads",
+    "meta ads",
+    "facebook ads",
+    "performance marketing",
+    "web design",
+    "website design",
+    "ui ux",
+    "development",
+    "branding",
+    "content marketing",
+    "email marketing",
+    "social media",
+    "marketing automation",
+    "conversion rate optimization",
+    "cro",
+    "lead generation",
+    "local seo",
+    "ecommerce",
+    "shopify",
+    "webflow",
+  ];
+
+  for (const p of pages) {
+    const blob = `${p.title || ""} ${p.h1 || ""} ${p.textSnippet || ""}`.toLowerCase();
+    for (const hint of serviceHints) {
+      if (blob.includes(hint)) {
+        // map to label-ish
+        candidates.push(
+          hint
+            .replace(/\bppc\b/i, "PPC")
+            .replace(/\bseo\b/i, "SEO")
+            .replace(/\bui ux\b/i, "UI/UX")
+            .replace(/\bcro\b/i, "CRO")
+            .replace(/\bgoogle ads\b/i, "Google Ads")
+        );
+      }
+    }
+  }
+
+  // Prefer page H1 for /service(s) paths
+  for (const p of pages) {
+    if (!p.h1) continue;
+    if (/\/services?\b/i.test(p.url)) candidates.push(p.h1);
+  }
+
+  return uniqNonEmptyStrings(candidates.map((s) => s.replace(/\s+/g, " ").trim()), 18);
+}
+
+function extractIndustriesFromPages(pages: DeepCrawledPage[]): string[] {
+  const industryHints = [
+    "healthcare",
+    "dental",
+    "real estate",
+    "saas",
+    "software",
+    "ecommerce",
+    "retail",
+    "construction",
+    "legal",
+    "law",
+    "education",
+    "finance",
+    "insurance",
+    "hospitality",
+    "restaurants",
+    "automotive",
+    "manufacturing",
+    "fitness",
+    "beauty",
+  ];
+  const candidates: string[] = [];
+  for (const p of pages) {
+    const blob = `${p.title || ""} ${p.h1 || ""} ${p.textSnippet || ""}`.toLowerCase();
+    for (const hint of industryHints) {
+      if (blob.includes(hint)) candidates.push(hint);
+    }
+  }
+  // simple label map
+  const label: Record<string, string> = {
+    saas: "SaaS",
+    ecommerce: "E-commerce",
+    law: "Legal",
+    legal: "Legal",
+    dental: "Dental",
+    restaurants: "Restaurants",
+  };
+  return uniqNonEmptyStrings(candidates.map((k) => label[k] || k.replace(/\b\w/g, (c) => c.toUpperCase())), 12);
+}
+
+function extractLeadMagnetsFromPages(pages: DeepCrawledPage[]): string[] {
+  const candidates: string[] = [];
+  const patterns = [
+    { re: /\bfree\s+(audit|analysis|consultation|strategy|proposal)\b/i, label: "Free Audit / Consultation" },
+    { re: /\b(download|get)\b.*\b(guide|ebook|whitepaper|checklist|template)\b/i, label: "Downloadable Guide / Asset" },
+    { re: /\b(case studies|case study)\b/i, label: "Case Studies" },
+    { re: /\b(newsletter|subscribe)\b/i, label: "Newsletter / Email Capture" },
+    { re: /\.pdf(\?|#|$)/i, label: "PDF Resource" },
+  ];
+  for (const p of pages) {
+    const blob = `${p.title || ""} ${p.h1 || ""} ${p.textSnippet || ""}`;
+    for (const pat of patterns) {
+      if (pat.re.test(blob)) candidates.push(pat.label);
+    }
+  }
+  return uniqNonEmptyStrings(candidates, 10);
+}
+
+function extractLeadChannelsFromPages(pages: DeepCrawledPage[]): string[] {
+  const channels: string[] = [];
+  for (const p of pages) {
+    const b = (p.textSnippet || "").toLowerCase();
+    const u = p.url.toLowerCase();
+    if (b.includes("calendly") || u.includes("calendly")) channels.push("Calendly / Booking");
+    if (b.includes("whatsapp") || u.includes("wa.me")) channels.push("WhatsApp");
+    if (b.includes("chat") || b.includes("livechat") || b.includes("intercom")) channels.push("Live Chat");
+    if (b.includes("contact us") || u.includes("/contact")) channels.push("Contact Form");
+    if (b.includes("@") || b.includes("mailto:")) channels.push("Email");
+    if (b.includes("tel:") || b.includes("call us") || b.includes("phone")) channels.push("Phone");
+  }
+  return uniqNonEmptyStrings(channels, 10);
+}
+
+function extractReputationPlatformLinksFromPages(pages: DeepCrawledPage[]): Array<{ platform: string; url: string }> {
+  const out: Array<{ platform: string; url: string }> = [];
+  const platformMatchers: Array<{ platform: string; re: RegExp }> = [
+    { platform: "Google", re: /google\.(com|co\.\w+).*\/maps|g\.page|google\.com\/search\?.*q=.*reviews/i },
+    { platform: "Trustpilot", re: /trustpilot\.com/i },
+    { platform: "Clutch", re: /clutch\.co/i },
+    { platform: "G2", re: /g2\.com/i },
+    { platform: "Facebook", re: /facebook\.com/i },
+    { platform: "Yelp", re: /yelp\.com/i },
+  ];
+
+  for (const p of pages) {
+    const blob = `${p.textSnippet || ""}`.toLowerCase();
+    // we only have snippet here; add heuristic by scanning url too
+    for (const pm of platformMatchers) {
+      if (pm.re.test(blob) || pm.re.test(p.url)) {
+        out.push({ platform: pm.platform, url: p.url });
+      }
+    }
+  }
+
+  // de-dupe by platform
+  const seen = new Set<string>();
+  const deduped: Array<{ platform: string; url: string }> = [];
+  for (const r of out) {
+    const key = r.platform.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(r);
+  }
+  return deduped.slice(0, 8);
+}
+
 export async function generateBusinessGrowthAnalysis(input: {
   companyName: string;
   website: string;
@@ -2834,49 +3283,151 @@ export async function generateBusinessGrowthAnalysis(input: {
     throw err;
   }
 
-  
   // PageSpeed Insights is the only "external" performance test we run today.
   // If there is no API key, Google may still allow limited unauthenticated usage; otherwise it will return null scores.
-  // const [psiMobile, psiDesktop] = await Promise.all([
-  //   fetchPageSpeedInsights(input.website, "mobile").catch(() => null as any),
-  //   fetchPageSpeedInsights(input.website, "desktop").catch(() => null as any),
-  // ]);
-  console.log("[AI-Growth] Starting PageSpeed", { url: input.website });
+  const [psiMobile, psiDesktop] = await Promise.all([
+    fetchPageSpeedInsights(input.website, "mobile").catch(() => null as any),
+    fetchPageSpeedInsights(input.website, "desktop").catch(() => null as any),
+  ]);
 
-const t0 = Date.now();
+// ---------------------------------------------------------------------
+// Deep crawl (HTML + optional headless) to fill Services / Industries /
+// Lead Channels / Lead Magnets / basic reputation platform links.
+// NOTE: This does NOT use paid APIs. It is best-effort and respects
+// server resource limits via caps below.
+// ---------------------------------------------------------------------
+const deepCrawlEnabled =
+  (input.reportType || "quick") === "full" && process.env.BB_AI_DEEP_CRAWL !== "0";
 
-const psiResults = await Promise.allSettled([
-  fetchPageSpeedInsights(input.website, "mobile"),
-  fetchPageSpeedInsights(input.website, "desktop"),
-]);
+const deepCrawlEnableHeadless =
+  process.env.BB_AI_DEEP_CRAWL_HEADLESS === "1" || process.env.BB_AI_HEADLESS === "1";
 
-const tookMs = Date.now() - t0;
+const deepCrawlOpts: DeepCrawlOptions = {
+  maxPages: process.env.BB_AI_DEEP_CRAWL_PAGES ? Number(process.env.BB_AI_DEEP_CRAWL_PAGES) : 25,
+  perPageTimeoutMs: process.env.BB_AI_DEEP_CRAWL_TIMEOUT_MS ? Number(process.env.BB_AI_DEEP_CRAWL_TIMEOUT_MS) : 5500,
+  maxDepth: process.env.BB_AI_DEEP_CRAWL_DEPTH ? Number(process.env.BB_AI_DEEP_CRAWL_DEPTH) : 3,
+  enableHeadless: deepCrawlEnableHeadless,
+  maxHeadlessPages: process.env.BB_AI_DEEP_CRAWL_HEADLESS_PAGES ? Number(process.env.BB_AI_DEEP_CRAWL_HEADLESS_PAGES) : 6,
+};
 
-const psiMobile =
-  psiResults[0].status === "fulfilled" ? psiResults[0].value : null;
-const psiDesktop =
-  psiResults[1].status === "fulfilled" ? psiResults[1].value : null;
+let crawledPages: DeepCrawledPage[] = [];
+if (deepCrawlEnabled) {
+  console.log("[DeepCrawl] start", {
+    website: input.website,
+    reportType: input.reportType || "quick",
+    enableHeadless: deepCrawlOpts.enableHeadless,
+    maxPages: deepCrawlOpts.maxPages,
+    maxDepth: deepCrawlOpts.maxDepth,
+    perPageTimeoutMs: deepCrawlOpts.perPageTimeoutMs,
+    maxHeadlessPages: deepCrawlOpts.maxHeadlessPages,
+  });
 
-console.log("[AI-Growth] PageSpeed finished", {
-  tookMs,
-  mobile: {
-    ok: !!psiMobile,
-    perf: psiMobile?.performanceScore ?? null,
-    seo: psiMobile?.seoScore ?? null,
-    lcp: psiMobile?.coreWebVitals?.lcpMs ?? null,
-  },
-  desktop: {
-    ok: !!psiDesktop,
-    perf: psiDesktop?.performanceScore ?? null,
-    seo: psiDesktop?.seoScore ?? null,
-    lcp: psiDesktop?.coreWebVitals?.lcpMs ?? null,
-  },
-  rejected: psiResults
-    .map((r, i) => (r.status === "rejected" ? { idx: i, reason: String(r.reason) } : null))
-    .filter(Boolean),
+  crawledPages = await deepCrawlSite(input.website, deepCrawlOpts).catch(() => []);
+
+  const usedHeadlessCount = crawledPages.reduce((acc, p) => acc + (p.usedHeadless ? 1 : 0), 0);
+  console.log("[DeepCrawl] done", {
+    pages: crawledPages.length,
+    usedHeadlessCount,
+  });
+} else {
+  console.log("[DeepCrawl] skipped", { reportType: input.reportType || "quick", env: process.env.BB_AI_DEEP_CRAWL });
+}
+
+const extractedServices = extractServicesFromPages(crawledPages);
+const extractedIndustries = extractIndustriesFromPages(crawledPages);
+const extractedLeadMagnets = extractLeadMagnetsFromPages(crawledPages);
+const extractedChannels = extractLeadChannelsFromPages(crawledPages);
+const extractedReputationPlatforms = extractReputationPlatformLinksFromPages(crawledPages);
+
+console.log("[DeepCrawl] extracted", {
+  services: extractedServices.length,
+  industries: extractedIndustries.length,
+  leadMagnets: extractedLeadMagnets.length,
+  channels: extractedChannels.length,
+  reputationPlatforms: extractedReputationPlatforms.length,
 });
 
-  const issues: string[] = [];
+// Normalize PSI results into the exact shape our PDF generator expects.
+// (PSI fetch can fail; in that case we keep null metrics but still keep a stable object shape.)
+const asPageSpeedMetrics = (raw: any, strategy: "mobile" | "desktop"): PageSpeedMetrics => ({
+  strategy,
+  performanceScore: typeof raw?.performanceScore === "number" ? raw.performanceScore : null,
+  seoScore: typeof raw?.seoScore === "number" ? raw.seoScore : null,
+  bestPracticesScore: typeof raw?.bestPracticesScore === "number" ? raw.bestPracticesScore : null,
+  accessibilityScore: typeof raw?.accessibilityScore === "number" ? raw.accessibilityScore : null,
+  metrics: {
+    fcpMs: typeof raw?.metrics?.fcpMs === "number" ? raw.metrics.fcpMs : null,
+    lcpMs: typeof raw?.metrics?.lcpMs === "number" ? raw.metrics.lcpMs : null,
+    tbtMs: typeof raw?.metrics?.tbtMs === "number" ? raw.metrics.tbtMs : null,
+    cls: typeof raw?.metrics?.cls === "number" ? raw.metrics.cls : null,
+    speedIndexMs: typeof raw?.metrics?.speedIndexMs === "number" ? raw.metrics.speedIndexMs : null,
+  },
+  opportunities: Array.isArray(raw?.opportunities) ? raw.opportunities : [],
+  diagnostics: raw?.diagnostics && typeof raw.diagnostics === "object" ? raw.diagnostics : undefined,
+  fetchedAt: typeof raw?.fetchedAt === "string" ? raw.fetchedAt : analysisDate,
+});
+
+const speedTest: WebsiteSpeedTest = {
+  source: "pagespeed_insights_v5",
+  mobile: asPageSpeedMetrics(psiMobile, "mobile"),
+  desktop: asPageSpeedMetrics(psiDesktop, "desktop"),
+};
+
+// Deep crawl outputs mapped into the report (best-effort; no paid APIs involved).
+const servicesFromCrawl: BusinessGrowthReport["servicesPositioning"]["services"] =
+  (extractedServices || []).map((name) => ({ name }));
+
+const industriesFromCrawl: string[] = Array.isArray(extractedIndustries) ? extractedIndustries : [];
+
+const channelsFromCrawl: BusinessGrowthReport["leadGeneration"]["channels"] =
+  (extractedChannels || []).map((channel) => ({
+    channel,
+    leadsPerMonth: null,
+    quality: null,
+    status: "Detected",
+    notes: "Detected via deep crawl (heuristic).",
+  }));
+
+const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"] =
+  (extractedLeadMagnets || []).map((leadMagnet) => ({
+    title: leadMagnet,
+    funnelStage: "Unknown",
+    description: "Detected via deep crawl (heuristic).",
+    estimatedConversionRate: null,
+    notes: "Detected via deep crawl (heuristic).",
+  }));
+
+// Merge detected reputation platform links into the platforms list (no ratings/counts without APIs).
+const mergeReputationPlatforms = (
+  seeded: BusinessGrowthReport["reputation"]["platforms"],
+  detected: Array<{ platform: string; url: string }>,
+): BusinessGrowthReport["reputation"]["platforms"] => {
+  const out: BusinessGrowthReport["reputation"]["platforms"] = [...(seeded || [])];
+  const key = (s: string) => (s || "").trim().toLowerCase();
+
+  // Mark seeded platforms as detected when a matching link is found.
+  for (const d of detected || []) {
+    const i = out.findIndex((p) => key(p.platform) === key(d.platform));
+    if (i >= 0) {
+      out[i] = {
+        ...out[i],
+        status: "Detected",
+        notes: `${out[i].notes ? out[i].notes + " " : ""}Detected link: ${d.url}`,
+      };
+    } else {
+      out.push({
+        platform: d.platform,
+        currentRating: null,
+        reviewCount: null,
+        status: "Detected",
+        notes: `Detected link: ${d.url}`,
+      });
+    }
+  }
+  return out;
+};
+
+const issues: string[] = [];
   const highlights: string[] = [];
 
   if (!signals.title) issues.push("Missing <title> tag on homepage (or could not be extracted).");
@@ -3092,7 +3643,8 @@ console.log("[AI-Growth] PageSpeed finished", {
       ].filter(Boolean),
       technicalSEO: {
         score: seoTechScore,
-        issues: [
+        pageSpeed: speedTest,
+                issues: [
           ...(!signals.robotsTxtFound ? ["robots.txt missing/unreachable."] : []),
           ...(!signals.sitemapXmlFound ? ["sitemap.xml missing/unreachable."] : []),
           ...(!signals.hasStructuredData ? ["Structured data not detected on homepage."] : []),
@@ -3100,7 +3652,7 @@ console.log("[AI-Growth] PageSpeed finished", {
           ...(signals.h1Count > 1 ? ["Multiple H1s detected on homepage."] : []),
         ],
         opportunities: (psiMobile?.opportunities || []).slice(0, 8).map((o: any) => safeText(o?.title)).filter(Boolean),
-        notes: "Derived from collected homepage signals + PSI opportunities (no guessed data).",
+        notes: "Derived from collected homepage signals + PageSpeed Insights (no guessed data).",
       },
       contentQuality: {
         score: signals.wordCount ? Math.max(0, Math.min(100, Math.round(Math.min(100, (signals.wordCount / 6))))) : null,
@@ -3138,12 +3690,12 @@ console.log("[AI-Growth] PageSpeed finished", {
 
     reputation: {
       overallScore: null,
-      platforms: [
+      platforms: mergeReputationPlatforms([
         { platform: "Google Business Profile", currentRating: null, reviewCount: null, status: "Unknown", notes: "Requires Place ID + Google Places API." },
         { platform: "Clutch", currentRating: null, reviewCount: null, status: "Unknown", notes: "Requires review source integration or manual input." },
         { platform: "G2", currentRating: null, reviewCount: null, status: "Unknown", notes: "Requires review source integration or manual input." },
         { platform: "Facebook", currentRating: null, reviewCount: null, status: "Unknown", notes: "Requires review source integration or manual input." },
-      ],
+      ], extractedReputationPlatforms),
       sentiment: { positives: [], negatives: [], responseRate: null, avgResponseTime: null, notes: "Not available: requires real review text." },
       recommendations: ["Connect review data sources to calculate real reputation metrics and run sentiment analysis from actual review text."],
       notes: "No seeded ratings/review counts are used.",
@@ -3158,19 +3710,19 @@ console.log("[AI-Growth] PageSpeed finished", {
     },
 
     servicesPositioning: {
-      services: [],
+      services: servicesFromCrawl,
       serviceGaps: [],
-      industriesServed: { current: [], concentrationNote: null, highValueIndustries: [] },
+      industriesServed: { current: industriesFromCrawl, concentrationNote: null, highValueIndustries: [] },
       positioning: { currentStatement: null, competitorComparison: null, differentiation: null, notes: "Requires manual input or extraction from site + competitor data." },
-      notes: "Not available: service catalog/positioning is not reliably extractable without a structured input or deeper crawl.",
+      notes: servicesFromCrawl.length ? "Detected via deep crawl (best-effort heuristics; no paid APIs)." : "Not available: service catalog/positioning is not reliably extractable without a structured input or deeper crawl.",
     },
 
     leadGeneration: {
-      channels: [],
+      channels: channelsFromCrawl,
       missingHighROIChannels: [],
-      leadMagnets: [],
+      leadMagnets: leadMagnetsFromCrawl,
       crmAutomation: { currentTools: [], recommendedTools: [], automationOpportunities: [], notes: "Requires CRM/analytics connection or manual input." },
-      notes: "Not available: lead/channel metrics require analytics and CRM data.",
+      notes: (channelsFromCrawl.length || leadMagnetsFromCrawl.length) ? "Some channels/lead magnets were detected via deep crawl (heuristics). Quantitative metrics still require analytics/CRM." : "Not available: lead/channel metrics require analytics and CRM data.",
     },
 
     costOptimization: { estimatedMonthlySpend: [], wasteAreas: [], automationOpportunities: [], notes: "Not available: requires spend inputs (tools/payroll/ad spend) or integrations." },
@@ -3236,6 +3788,14 @@ console.log("[AI-Growth] PageSpeed finished", {
       dataGaps,
     },
   };
+
+  console.log("[DeepCrawl] mapped-to-analysis", {
+    services: report.servicesPositioning?.services?.length ?? 0,
+    industries: report.servicesPositioning?.industriesServed?.current?.length ?? 0,
+    channels: report.leadGeneration?.channels?.length ?? 0,
+    leadMagnets: report.leadGeneration?.leadMagnets?.length ?? 0,
+    reputationPlatforms: report.reputation?.platforms?.length ?? 0,
+  });
 
   return report;
 }
