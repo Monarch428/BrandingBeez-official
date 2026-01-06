@@ -39,17 +39,35 @@ export interface CreateAppointmentPayload {
 export async function fetchSlots(date: string): Promise<SlotsResponse> {
   console.log("Fetching slots for date:", date);
 
-  const res = await fetch(`/api/appointments/slots?date=${date}`);
+  const res = await fetch(
+    `/api/appointments/slots?date=${encodeURIComponent(date)}`,
+    {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 
-  // console.log("Slots response HTTP status:", res.status);
-
-  if (!res.ok) {
-    const errBody = await res.json().catch(() => null);
-    console.error("Failed to load slots, body:", errBody);
-    throw new Error(errBody?.message || "Failed to load slots");
+  // Try to parse JSON once (works for both ok and error)
+  let body: any = null;
+  try {
+    body = await res.json();
+  } catch {
+    body = null;
   }
 
-  const data = (await res.json()) as SlotsResponse;
+  if (!res.ok) {
+    console.error("Failed to load slots, body:", body);
+
+    const msg =
+      body?.message ||
+      `Failed to load slots (HTTP ${res.status})`;
+
+    const err = new Error(msg);
+    (err as any).status = res.status; // optional for UI logic
+    throw err;
+  }
+
+  const data = body as SlotsResponse;
   console.log("Slots response JSON:", data);
 
   return data;

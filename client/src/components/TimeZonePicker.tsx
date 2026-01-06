@@ -96,7 +96,7 @@ const TimeZonePicker: React.FC<Props> = ({
                         {/* Mobile backdrop */}
                         {open && (
                             <div
-                                className="fixed inset-0 z-[9998] bg-black/20 sm:hidden"
+                                className="fixed inset-0 z-[100001] bg-black/20 sm:hidden"
                                 onClick={close}
                             />
                         )}
@@ -107,12 +107,12 @@ const TimeZonePicker: React.FC<Props> = ({
                             sideOffset={10}
                             collisionPadding={12}
                             className="
-                z-[9999]
-                w-[min(92vw,420px)]
-                rounded-lg border border-slate-200 bg-white
-                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-                overflow-hidden
-                focus:outline-none
+    z-[100002]
+    w-[min(92vw,420px)]
+    rounded-lg border border-slate-200 bg-white
+    shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+    overflow-hidden
+    focus:outline-none
               "
                         >
                             {/* Search */}
@@ -168,7 +168,11 @@ const TimeZonePicker: React.FC<Props> = ({
                             </div>
 
                             {/* List */}
-                            <div className="max-h-[60vh] sm:max-h-[360px] overflow-auto scrollbar-thin">
+                            <div
+                                data-radix-scroll-lock-ignore
+                                onWheelCapture={(e) => e.stopPropagation()}
+                                className="max-h-[60vh] sm:max-h-[360px] overflow-auto scrollbar-thin"
+                            >
                                 {grouped.keys.map((group) => {
                                     const items = grouped.map.get(group) || [];
                                     if (!items.length) return null;
@@ -191,9 +195,7 @@ const TimeZonePicker: React.FC<Props> = ({
                                                         }}
                                                         className={[
                                                             "w-full px-3 py-2.5 flex flex-col sm:flex-row justify-between text-left",
-                                                            active
-                                                                ? "bg-blue-600 text-white"
-                                                                : "hover:bg-blue-50",
+                                                            active ? "bg-blue-600 text-white" : "hover:bg-blue-50",
                                                         ].join(" ")}
                                                     >
                                                         <span>{tz.label}</span>
@@ -207,6 +209,7 @@ const TimeZonePicker: React.FC<Props> = ({
                                     );
                                 })}
                             </div>
+
                         </Popover.Content>
                     </>
                 </Popover.Portal>

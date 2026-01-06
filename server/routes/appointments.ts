@@ -1,3 +1,380 @@
+// // src/server/appointments-router.ts
+// import express, { Request, Response } from "express";
+// import { storage } from "../storage";
+// import {
+//   sendAppointmentNotification,
+//   sendAppointmentConfirmationEmails,
+// } from "../email-service";
+// import {
+//   createGoogleMeetEvent,
+//   getBusyTimeRangesForDate,
+//   isSlotOverlappingBusy,
+// } from "./google-calendar";
+// import { AppointmentStatus } from "@shared/schema";
+
+// const router = express.Router();
+
+// // --- Types -------------------------------------------------------
+
+// type SlotStatus = "available" | AppointmentStatus;
+
+// interface AppointmentSlot {
+//   startTime: string;
+//   endTime: string;
+//   status: SlotStatus;
+//   appointmentId?: number;
+//   blockedByCalendar?: boolean;
+// }
+
+// interface CreateAppointmentBody {
+//   name: string;
+//   email: string;
+//   phone?: string;
+//   serviceType?: string;
+//   notes?: string;
+//   date: string;
+//   startTime: string;
+//   endTime: string;
+
+//   // ✅ NEW
+//   guestEmails?: string[];
+// }
+
+// // Generates 30-minute slots between 16:00 (4 PM) and 23:00 (11 PM)
+// function generateDailySlots(): Array<
+//   Pick<AppointmentSlot, "startTime" | "endTime">
+// > {
+//   const slots: { startTime: string; endTime: string }[] = [];
+//   let hour = 16;
+//   let minute = 0;
+
+//   while (hour < 23) {
+//     const start = `${hour.toString().padStart(2, "0")}:${minute
+//       .toString()
+//       .padStart(2, "0")}`;
+
+//     let endHour = hour;
+//     let endMinute = minute + 30;
+//     if (endMinute >= 60) {
+//       endMinute -= 60;
+//       endHour += 1;
+//     }
+
+//     const end = `${endHour.toString().padStart(2, "0")}:${endMinute
+//       .toString()
+//       .padStart(2, "0")}`;
+
+//     slots.push({ startTime: start, endTime: end });
+
+//     hour = endHour;
+//     minute = endMinute;
+//   }
+
+//   return slots;
+// }
+
+// // --- GET /api/appointments/slots?date=YYYY-MM-DD ------------------
+// router.get("/appointments/slots", async (req: Request, res: Response) => {
+//   try {
+//     const date = (req.query.date as string) || "";
+
+//     if (!date) {
+//       return res.status(400).json({ message: "date query param is required" });
+//     }
+
+//     const [appointments, busyRanges] = await Promise.all([
+//       storage.getAppointmentsByDate(date),
+//       getBusyTimeRangesForDate(date),
+//     ]);
+
+//     const baseSlots = generateDailySlots();
+
+//     const slots: AppointmentSlot[] = baseSlots.map((slot) => {
+//       // 1) Existing appointment in DB (booked/completed) wins
+//       const found = appointments.find(
+//         (a) =>
+//           a.startTime === slot.startTime &&
+//           a.endTime === slot.endTime &&
+//           a.status !== "cancelled",
+//       );
+
+//       if (found) {
+//         return {
+//           ...slot,
+//           status: found.status as AppointmentStatus,
+//           appointmentId: found.id,
+//         };
+//       }
+
+//       // 2) If Google Calendar is busy in this window, treat as booked
+//       const busyInCalendar = isSlotOverlappingBusy(
+//         date,
+//         slot.startTime,
+//         slot.endTime,
+//         busyRanges,
+//       );
+
+//       if (busyInCalendar) {
+//         return {
+//           ...slot,
+//           status: "booked",
+//         };
+//       }
+
+//       // 3) Else available
+//       return {
+//         ...slot,
+//         status: "available",
+//       };
+//     });
+
+//     return res.json({ date, slots });
+//   } catch (err) {
+//     console.error("Error getting slots", err);
+//     return res.status(500).json({ message: "Error fetching slots" });
+//   }
+// });
+
+// // --- POST /api/appointments ---------------------------------------
+// router.post("/appointments", async (req: Request, res: Response) => {
+//   try {
+//     const {
+//       name,
+//       email,
+//       phone,
+//       serviceType,
+//       notes,
+//       date,
+//       startTime,
+//       endTime,
+//       guestEmails,
+//     } = (req.body || {}) as CreateAppointmentBody;
+
+//     // Basic validation
+//     if (!name || !email || !date || !startTime || !endTime) {
+//       return res.status(400).json({ message: "Missing required fields" });
+//     }
+
+//     // Normalise guest emails array
+//     const cleanGuestEmails: string[] = Array.isArray(guestEmails)
+//       ? guestEmails
+//         .map((g) => (typeof g === "string" ? g.trim() : ""))
+//         .filter((g) => !!g)
+//       : [];
+
+//     // Check if slot already booked (booked or completed – ignore cancelled)
+//     const [existing, busyRanges] = await Promise.all([
+//       storage.getAppointmentsByDate(date),
+//       getBusyTimeRangesForDate(date),
+//     ]);
+
+//     const clash = existing.find(
+//       (a) =>
+//         a.startTime === startTime &&
+//         a.endTime === endTime &&
+//         a.status !== "cancelled",
+//     );
+
+//     if (clash) {
+//       return res
+//         .status(409)
+//         .json({ message: "This time slot is already booked" });
+//     }
+
+//     // ✅ NEW: Block if Google Calendar already busy during this window
+//     const busyInCalendar = isSlotOverlappingBusy(
+//       date,
+//       startTime,
+//       endTime,
+//       busyRanges,
+//     );
+
+//     if (busyInCalendar) {
+//       return res.status(409).json({
+//         message:
+//           "This time slot is already booked in calendar. Please choose another time.",
+//       });
+//     }
+
+//     // ✅ Try to create Google Meet event (with main attendee + guests)
+//     let meetingLink: string | undefined;
+
+//     try {
+//       const summary = serviceType
+//         ? `BrandingBeez – ${serviceType} with ${name}`
+//         : `BrandingBeez – Consultation with ${name}`;
+
+//       const descriptionLines: string[] = [];
+//       descriptionLines.push(`Name: ${name}`);
+//       descriptionLines.push(`Email: ${email}`);
+//       if (phone) descriptionLines.push(`Phone: ${phone}`);
+//       if (serviceType) descriptionLines.push(`Service: ${serviceType}`);
+//       if (notes) descriptionLines.push(`Notes: ${notes}`);
+//       if (cleanGuestEmails.length) {
+//         descriptionLines.push(`Guests: ${cleanGuestEmails.join(", ")}`);
+//       }
+//       const description = descriptionLines.join("\n");
+
+//       const { meetingLink: createdLink } = await createGoogleMeetEvent({
+//         summary,
+//         description,
+//         date,
+//         startTime,
+//         endTime,
+//         attendeeEmail: email,
+//         attendeeName: name,
+//         guestEmails: cleanGuestEmails,
+//       });
+
+//       meetingLink = createdLink;
+//     } catch (gErr) {
+//       console.error(
+//         "[Appointments] Failed to create Google Meet event (booking continues):",
+//         gErr,
+//       );
+//       // do NOT throw; booking should still succeed
+//     }
+
+//     const created = await storage.createAppointment({
+//       name,
+//       email,
+//       phone,
+//       serviceType,
+//       notes,
+//       date,
+//       startTime,
+//       endTime,
+//       meetingLink,
+//       guestEmails: cleanGuestEmails,
+//     });
+
+//     const payload = {
+//       id: created.id,
+//       name: created.name,
+//       email: created.email,
+//       phone: created.phone,
+//       serviceType: (created as any).serviceType,
+//       notes: (created as any).notes,
+//       date: created.date,
+//       startTime: created.startTime,
+//       endTime: created.endTime,
+//       meetingLink: (created as any).meetingLink,
+//       createdAt: (created as any).createdAt || new Date(),
+//       guestEmails: (created as any).guestEmails || cleanGuestEmails,
+//     };
+
+//     // 📧 Admin notification
+//     try {
+//       await sendAppointmentNotification(payload);
+//     } catch (mailErr) {
+//       console.error("Error sending appointment notification:", mailErr);
+//     }
+
+//     // 📧 Attendee + guest confirmation emails
+//     try {
+//       await sendAppointmentConfirmationEmails(payload);
+//     } catch (mailErr) {
+//       console.error("Error sending attendee/guest confirmations:", mailErr);
+//     }
+
+//     return res.status(201).json(created);
+//   } catch (err) {
+//     console.error("Error creating appointment", err);
+//     return res.status(500).json({ message: "Error creating appointment" });
+//   }
+// });
+
+// // --- Admin: list appointments with filters ------------------------
+// // GET /api/admin/appointments?date=...&fromDate=...&toDate=...&status=booked&serviceType=seo&search=john
+// router.get("/admin/appointments", async (req: Request, res: Response) => {
+//   try {
+//     const {
+//       date,
+//       fromDate,
+//       toDate,
+//       status,
+//       serviceType,
+//       search,
+//     } = req.query as {
+//       date?: string;
+//       fromDate?: string;
+//       toDate?: string;
+//       status?: AppointmentStatus;
+//       serviceType?: string;
+//       search?: string;
+//     };
+
+//     const appts = await storage.getAppointmentsFiltered({
+//       date,
+//       fromDate,
+//       toDate,
+//       status,
+//       serviceType,
+//       search,
+//     });
+
+//     return res.json(appts);
+//   } catch (err) {
+//     console.error("Error fetching appointments", err);
+//     return res.status(500).json({ message: "Error fetching appointments" });
+//   }
+// });
+
+// // --- Admin: update status -----------------------------------------
+// router.patch(
+//   "/admin/appointments/:id/status",
+//   async (req: Request, res: Response) => {
+//     try {
+//       const id = Number(req.params.id);
+//       const { status } = req.body as { status?: AppointmentStatus };
+
+//       if (!status || !["booked", "cancelled", "completed"].includes(status)) {
+//         return res.status(400).json({ message: "Invalid status" });
+//       }
+
+//       const updated = await storage.updateAppointmentStatus(id, status);
+//       return res.json(updated);
+//     } catch (err) {
+//       console.error("Error updating appointment status", err);
+//       return res
+//         .status(500)
+//         .json({ message: "Error updating appointment status" });
+//     }
+//   },
+// );
+
+// // --- Admin: delete appointment -----------------------------------
+// router.delete(
+//   "/admin/appointments/:id",
+//   async (req: Request, res: Response) => {
+//     try {
+//       const id = Number(req.params.id);
+
+//       if (Number.isNaN(id) || id <= 0) {
+//         return res.status(400).json({ message: "Invalid appointment id" });
+//       }
+
+//       const deleted = await storage.deleteAppointment(id);
+
+//       if (!deleted) {
+//         return res
+//           .status(404)
+//           .json({ message: "Appointment not found or already deleted" });
+//       }
+
+//       return res.status(204).send();
+//     } catch (err) {
+//       console.error("Error deleting appointment", err);
+//       return res
+//         .status(500)
+//         .json({ message: "Error deleting appointment" });
+//     }
+//   },
+// );
+
+// export default router;
+
+
 // src/server/appointments-router.ts
 import express, { Request, Response } from "express";
 import { storage } from "../storage";
@@ -73,6 +450,24 @@ function generateDailySlots(): Array<
   return slots;
 }
 
+function isCalendarAuthError(err: unknown): boolean {
+  const msg = String((err as any)?.message || "").toLowerCase();
+
+  // Keep this broad because auth failures can surface in different ways
+  // depending on googleapis / token state.
+  return (
+    msg.includes("google") &&
+    (msg.includes("oauth") ||
+      msg.includes("token") ||
+      msg.includes("invalid_grant") ||
+      msg.includes("unauthorized") ||
+      msg.includes("not connected") ||
+      msg.includes("login") ||
+      msg.includes("auth")) ||
+    msg.includes("invalid_grant")
+  );
+}
+
 // --- GET /api/appointments/slots?date=YYYY-MM-DD ------------------
 router.get("/appointments/slots", async (req: Request, res: Response) => {
   try {
@@ -82,10 +477,30 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
       return res.status(400).json({ message: "date query param is required" });
     }
 
-    const [appointments, busyRanges] = await Promise.all([
-      storage.getAppointmentsByDate(date),
-      getBusyTimeRangesForDate(date),
-    ]);
+    // 1) Load DB appointments
+    const appointments = await storage.getAppointmentsByDate(date);
+
+    // 2) Load busy ranges from HOST Google Calendar
+    let busyRanges: any[] = [];
+    try {
+      busyRanges = await getBusyTimeRangesForDate(date);
+    } catch (gErr) {
+      console.error("[Slots] Calendar busy lookup failed:", gErr);
+
+      // ✅ Important: if calendar isn't connected, do NOT return "all available"
+      // because it will cause double booking.
+      if (isCalendarAuthError(gErr)) {
+        return res.status(503).json({
+          message:
+            "Host Google Calendar is not connected or authorization expired. Please connect Google Calendar to show availability.",
+          date,
+          slots: [],
+        });
+      }
+
+      // Unknown error -> 500
+      return res.status(500).json({ message: "Error fetching calendar busy time" });
+    }
 
     const baseSlots = generateDailySlots();
 
@@ -103,6 +518,7 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
           ...slot,
           status: found.status as AppointmentStatus,
           appointmentId: found.id,
+          blockedByCalendar: false,
         };
       }
 
@@ -118,6 +534,7 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
         return {
           ...slot,
           status: "booked",
+          blockedByCalendar: true,
         };
       }
 
@@ -125,6 +542,7 @@ router.get("/appointments/slots", async (req: Request, res: Response) => {
       return {
         ...slot,
         status: "available",
+        blockedByCalendar: false,
       };
     });
 
@@ -163,10 +581,7 @@ router.post("/appointments", async (req: Request, res: Response) => {
       : [];
 
     // Check if slot already booked (booked or completed – ignore cancelled)
-    const [existing, busyRanges] = await Promise.all([
-      storage.getAppointmentsByDate(date),
-      getBusyTimeRangesForDate(date),
-    ]);
+    const existing = await storage.getAppointmentsByDate(date);
 
     const clash = existing.find(
       (a) =>
@@ -181,7 +596,24 @@ router.post("/appointments", async (req: Request, res: Response) => {
         .json({ message: "This time slot is already booked" });
     }
 
-    // ✅ NEW: Block if Google Calendar already busy during this window
+    // ✅ NEW: Block if HOST Google Calendar already busy during this window
+    let busyRanges: any[] = [];
+    try {
+      busyRanges = await getBusyTimeRangesForDate(date);
+    } catch (gErr) {
+      console.error("[Booking] Calendar busy lookup failed:", gErr);
+
+      // Safer: if calendar auth is missing, refuse booking (prevents double booking)
+      if (isCalendarAuthError(gErr)) {
+        return res.status(503).json({
+          message:
+            "Host Google Calendar is not connected or authorization expired. Please connect Google Calendar before booking.",
+        });
+      }
+
+      return res.status(500).json({ message: "Error fetching calendar busy time" });
+    }
+
     const busyInCalendar = isSlotOverlappingBusy(
       date,
       startTime,
@@ -365,7 +797,7 @@ router.delete(
       return res.status(204).send();
     } catch (err) {
       console.error("Error deleting appointment", err);
-      return res
+      return res  
         .status(500)
         .json({ message: "Error deleting appointment" });
     }

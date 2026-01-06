@@ -3929,6 +3929,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                       Booked
                                     </span>
                                   )}
+                                  
                                 </button>
 
                                 <div
