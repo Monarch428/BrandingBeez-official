@@ -16,9 +16,11 @@ export interface Appointment {
 
   meetingLink?: string;
 
-  // NEW: guests
   guestEmails?: string[];
   event?: string;
+
+  bookedFromTimeZone?: string;
+  bookedFromTimeZoneLabel?: string;
 
   status: AppointmentStatus;
 

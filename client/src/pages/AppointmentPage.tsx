@@ -26,14 +26,14 @@ export default function AppointmentPage() {
           <div className="mx-auto w-full max-w-5xl space-y-8 sm:space-y-10">
             {/* Header block */}
             <section className="text-center">
-              <h1 className="text-[24px] leading-tight sm:text-4xl lg:text-[44px] font-bold text-brand-coral">
+              <h1 className="text-[24px] leading-tight sm:text-4xl lg:text-[36px] font-bold text-brand-coral">
                 Book Your Appointment with BrandingBeez
               </h1>
 
-              <div className="mt-6 sm:mt-8 mx-auto w-full max-w-3xl">
+              <div className="mt-4 sm:mt-4 mx-auto w-full max-w-3xl">
                 {/* Card-style info area */}
                 <div
-                  className="px-4 py-4 sm:px-6 sm:py-5 backdrop-blur">
+                  className="px-4 py-2 sm:px-3 sm:py-4 backdrop-blur">
                   {/*  shadow-[0_10px_30px_rgba(0,0,0,0.35)] rounded-2xl border border-white/10 bg-white/5 */}
                   {/* Mobile: stack; Tablet/Desktop: row */}
                   <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-5 text-left">
@@ -45,9 +45,9 @@ export default function AppointmentPage() {
                           alt="Raje"
                           className="
                             block object-cover
-                            w-[72px] h-[72px]
-                            sm:w-[80px] sm:h-[80px]
-                            lg:w-[88px] lg:h-[88px]
+                            w-[64px] h-[64px]
+                            sm:w-[72px] sm:h-[72px]
+                            lg:w-[80px] lg:h-[80px]
                           "
                         />
                       </div>
@@ -71,7 +71,7 @@ export default function AppointmentPage() {
 
             {/* Calendar wrapper for consistent spacing on all screens */}
             <section className="w-full">
-              <div className="py-3 sm:py-4 lg:py-6 backdrop-blur">
+              <div className="py-2 sm:py-3 lg:py-4 backdrop-blur">
                 <AppointmentCalendar />
               </div>
             </section>

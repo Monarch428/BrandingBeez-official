@@ -9,12 +9,19 @@ interface AppointmentNotificationPayload {
   phone?: string;
   serviceType?: string;
   notes?: string;
-  date: string;
-  startTime: string;
-  endTime: string;
+
+  // Host slot (IST-based slots)
+  date: string;      // YYYY-MM-DD
+  startTime: string; // HH:mm
+  endTime: string;   // HH:mm
+
   createdAt?: Date;
   meetingLink?: string;
   guestEmails?: string[];
+
+  // ✅ NEW: which timezone user selected in booking UI
+  bookedFromTimeZone?: string;       // IANA e.g. "Asia/Dubai"
+  bookedFromTimeZoneLabel?: string;  // Friendly label e.g. "Dubai Time"
 }
 
 interface ContactSubmission {
@@ -39,6 +46,56 @@ const FROM_NEWSLETTER = (email?: string) =>
 
 const FROM_QUESTIONNAIRE = (email?: string) =>
   `"BrandingBeez – Custom Apps" <${email || "info@brandingbeez.co.uk"}>`;
+
+/**
+ * ✅ Date/time formatting helpers
+ * Host slot is in IST (Asia/Kolkata).
+ * Attendee email must show the time in bookedFromTimeZone (or fallback).
+ */
+
+const HOST_TZ = process.env.HOST_TIMEZONE || "Asia/Kolkata";
+
+function buildHostSlotInstantISO(date: string, timeHHMM: string) {
+  // Date/time is IST slot -> pin with +05:30
+  return `${date}T${timeHHMM}:00+05:30`;
+}
+
+function safeTimeZone(tz?: string) {
+  return typeof tz === "string" && tz.trim().length > 0 ? tz.trim() : "";
+}
+
+function formatDateLabel(dateISO: string, timeZone: string) {
+  // input YYYY-MM-DD -> build noon-ish to avoid edge issues
+  const d = new Date(`${dateISO}T12:00:00Z`);
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone,
+  }).format(d);
+}
+
+function formatTimeRangeInTimeZone(
+  date: string,
+  startTime: string,
+  endTime: string,
+  timeZone: string,
+) {
+  const tz = safeTimeZone(timeZone) || HOST_TZ;
+
+  const start = new Date(buildHostSlotInstantISO(date, startTime));
+  const end = new Date(buildHostSlotInstantISO(date, endTime));
+
+  const fmt = new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: tz,
+  });
+
+  return `${fmt.format(start)} – ${fmt.format(end)}`;
+}
 
 function getSmtpConfig() {
   let host = process.env.SMTP_HOST || "";
@@ -317,13 +374,6 @@ export async function sendEmailViaGmail(submission: {
   }
 }
 
-// OLD version of sendAppointmentNotification kept commented for reference
-// export async function sendAppointmentNotification(
-//   appt: AppointmentNotificationPayload,
-// ) {
-//   ...
-// }
-
 export async function sendAppointmentNotification(
   appt: AppointmentNotificationPayload,
 ) {
@@ -341,6 +391,10 @@ export async function sendAppointmentNotification(
       meetingLink: appt.meetingLink,
       guestEmails: appt.guestEmails,
       createdAt: appt.createdAt || new Date(),
+
+      // ✅ NEW
+      bookedFromTimeZone: appt.bookedFromTimeZone,
+      bookedFromTimeZoneLabel: appt.bookedFromTimeZoneLabel,
     });
   } catch (err) {
     console.error("Failed to add in-memory appointment notification:", err);
@@ -348,8 +402,8 @@ export async function sendAppointmentNotification(
 
   const { host, port, user, pass } = getSmtpConfig();
 
-  const adminEmail = "raje@brandingbeez.co.uk";
-  // const adminEmail = "pradeep.brandingbeez@gmail.com";
+  // const adminEmail = "raje@brandingbeez.co.uk";
+  const adminEmail = "pradeep.brandingbeez@gmail.com";
 
   if (!user || !pass) {
     console.log("SMTP not configured. Appointment notification:");
@@ -368,13 +422,31 @@ export async function sendAppointmentNotification(
       },
     });
 
-    const prettyDate = appt.date;
-    const prettyTime = `${appt.startTime} – ${appt.endTime}`;
+    // ✅ ADMIN gets HOST time (IST) always
+    const prettyDateHost = formatDateLabel(appt.date, HOST_TZ);
+    const prettyTimeHost = formatTimeRangeInTimeZone(
+      appt.date,
+      appt.startTime,
+      appt.endTime,
+      HOST_TZ,
+    );
+
+      const attendeeTZ = safeTimeZone(appt.bookedFromTimeZone) || HOST_TZ;
+  const attendeeTZLabel =
+    appt.bookedFromTimeZoneLabel || attendeeTZ || "Selected timezone";
+
+
+  const prettyTimeAttendee = formatTimeRangeInTimeZone(
+    appt.date,
+    appt.startTime,
+    appt.endTime,
+    attendeeTZ,
+  );
 
     const mailOptions = {
       from: FROM_APPOINTMENTS(user),
       to: adminEmail,
-      subject: `New appointment booked – ${prettyDate} @ ${prettyTime}`,
+      subject: `New appointment booked – ${prettyDateHost} @ ${prettyTimeHost} (IST)`,
       html: `
       <!DOCTYPE html>
       <html lang="en">
@@ -383,11 +455,29 @@ export async function sendAppointmentNotification(
           <h2 style="margin-top:0;color:#ff6b81;">New Appointment Booked</h2>
           <p>You have a new appointment booked via the BrandingBeez website.</p>
 
-          <h3 style="margin-bottom:8px;color:#ffffff;">Slot Details</h3>
+          <h3 style="margin-bottom:8px;color:#ffffff;">Slot Details (Host Time)</h3>
           <ul style="list-style:none;padding-left:0;font-size:14px;">
-            <li><b>Date:</b> ${prettyDate}</li>
-            <li><b>Time:</b> ${prettyTime}</li>
+            <li><b>Date:</b> ${prettyDateHost}</li>
+            <li><b>Time:</b> ${prettyTimeHost} <span style="color:#9ca3af;">(IST)</span></li>
           </ul>
+
+          ${
+            appt.bookedFromTimeZoneLabel || appt.bookedFromTimeZone
+              ? `
+              <h3 style="margin-bottom:8px;color:#ffffff;">Customer Selected Timezone</h3>
+              <p style="font-size:14px;color:#e5e7eb;">
+                ${appt.bookedFromTimeZoneLabel || "(label not set)"}
+                ${
+                  appt.bookedFromTimeZone
+                    ? `<br/><span style="font-size:12px;color:#9ca3af;">${appt.bookedFromTimeZone}</span>`
+                    : ""
+                }
+                        <li><b>Time:</b> ${prettyTimeAttendee} <span style="color:#6b7280;">(${attendeeTZLabel})</span></li>
+
+              </p>
+              `
+              : ""
+          }
 
           ${
             appt.meetingLink
@@ -444,7 +534,7 @@ export async function sendAppointmentNotification(
   }
 }
 
-// ✅ Send confirmation to main attendee
+// ✅ Send confirmation to main attendee (SHOW USER-SELECTED TIMEZONE)
 export async function sendAppointmentConfirmationToAttendee(
   appt: AppointmentNotificationPayload,
 ) {
@@ -465,9 +555,20 @@ export async function sendAppointmentConfirmationToAttendee(
     auth: { user, pass },
   });
 
-  const prettyDate = appt.date;
-  const prettyTime = `${appt.startTime} – ${appt.endTime}`;
-  const subject = `Your BrandingBeez call is confirmed – ${prettyDate} @ ${prettyTime}`;
+  // ✅ attendee timezone (what they selected). fallback = their browser timezone unknown here -> use host tz.
+  const attendeeTZ = safeTimeZone(appt.bookedFromTimeZone) || HOST_TZ;
+  const attendeeTZLabel =
+    appt.bookedFromTimeZoneLabel || attendeeTZ || "Selected timezone";
+
+  const prettyDateAttendee = formatDateLabel(appt.date, attendeeTZ);
+  const prettyTimeAttendee = formatTimeRangeInTimeZone(
+    appt.date,
+    appt.startTime,
+    appt.endTime,
+    attendeeTZ,
+  );
+
+  const subject = `Your BrandingBeez call is confirmed – ${prettyDateAttendee} @ ${prettyTimeAttendee}`;
 
   const html = `
   <!DOCTYPE html>
@@ -484,8 +585,8 @@ export async function sendAppointmentConfirmationToAttendee(
 
       <h3 style="margin-bottom:8px;color:#111827;">Call details</h3>
       <ul style="list-style:none;padding-left:0;font-size:14px;color:#374151;">
-        <li><b>Date:</b> ${prettyDate}</li>
-        <li><b>Time:</b> ${prettyTime} (IST base, converted in your calendar)</li>
+        <li><b>Date:</b> ${prettyDateAttendee}</li>
+        <li><b>Time:</b> ${prettyTimeAttendee} <span style="color:#6b7280;">(${attendeeTZLabel})</span></li>
         <li><b>Topic:</b> ${appt.serviceType || "Strategy / consultation call"}</li>
       </ul>
 
@@ -522,6 +623,10 @@ export async function sendAppointmentConfirmationToAttendee(
           : ""
       }
 
+      <p style="margin-top:18px;font-size:12px;color:#9ca3af;">
+        Your calendar invite will automatically adjust if you travel or change timezone.
+      </p>
+
       <p style="margin-top:24px;font-size:12px;color:#9ca3af;">
         Appointment ID: ${appt.id}<br/>
         Created at: ${(appt.createdAt || new Date()).toLocaleString()}
@@ -542,7 +647,7 @@ export async function sendAppointmentConfirmationToAttendee(
   return { success: true, method: "smtp" };
 }
 
-// ✅ Send confirmation to each guest
+// ✅ Send confirmation to each guest (SHOW USER-SELECTED TIMEZONE)
 export async function sendAppointmentConfirmationToGuests(
   appt: AppointmentNotificationPayload,
 ) {
@@ -567,9 +672,19 @@ export async function sendAppointmentConfirmationToGuests(
     auth: { user, pass },
   });
 
-  const prettyDate = appt.date;
-  const prettyTime = `${appt.startTime} – ${appt.endTime}`;
-  const subject = `You've been added as a guest – ${prettyDate} @ ${prettyTime}`;
+  const attendeeTZ = safeTimeZone(appt.bookedFromTimeZone) || HOST_TZ;
+  const attendeeTZLabel =
+    appt.bookedFromTimeZoneLabel || attendeeTZ || "Selected timezone";
+
+  const prettyDateAttendee = formatDateLabel(appt.date, attendeeTZ);
+  const prettyTimeAttendee = formatTimeRangeInTimeZone(
+    appt.date,
+    appt.startTime,
+    appt.endTime,
+    attendeeTZ,
+  );
+
+  const subject = `You've been added as a guest – ${prettyDateAttendee} @ ${prettyTimeAttendee}`;
 
   const html = (guestEmail: string) => `
   <!DOCTYPE html>
@@ -586,8 +701,8 @@ export async function sendAppointmentConfirmationToGuests(
 
       <h3 style="margin-bottom:8px;color:#111827;">Call details</h3>
       <ul style="list-style:none;padding-left:0;font-size:14px;color:#374151;">
-        <li><b>Date:</b> ${prettyDate}</li>
-        <li><b>Time:</b> ${prettyTime} (IST base, converted in your calendar)</li>
+        <li><b>Date:</b> ${prettyDateAttendee}</li>
+        <li><b>Time:</b> ${prettyTimeAttendee} <span style="color:#6b7280;">(${attendeeTZLabel})</span></li>
         <li><b>Main attendee:</b> ${appt.name} &lt;${appt.email}&gt;</li>
         <li><b>Topic:</b> ${appt.serviceType || "Strategy / consultation call"}</li>
       </ul>
@@ -615,7 +730,6 @@ export async function sendAppointmentConfirmationToGuests(
   </html>
   `;
 
-  // send to each guest (no need for await-all concurrency here)
   for (const guestEmail of guestEmails) {
     await transporter.sendMail({
       from: FROM_APPOINTMENTS(user),

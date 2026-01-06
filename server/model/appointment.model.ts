@@ -24,6 +24,9 @@ const appointmentSchema = new Schema<AppointmentDocument>(
 
     guestEmails: { type: [String], default: [] },
 
+    bookedFromTimeZone: { type: String },
+    bookedFromTimeZoneLabel: { type: String },
+
     status: {
       type: String,
       enum: ["booked", "cancelled", "completed"],

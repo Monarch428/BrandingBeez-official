@@ -3426,6 +3426,8 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
         date: selectedDateKey,
         startTime: selectedSlot.startTime,
         endTime: selectedSlot.endTime,
+        bookedFromTimeZone: resolveTimeZone(timeZone),
+        bookedFromTimeZoneLabel: timeZoneLabel,
       });
 
       const meetText = result?.meetingLink
@@ -3645,11 +3647,11 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                 "lg:block",
               ].join(" ")}
             >
-                <div className="flex items-center gap-2 mb-2">
-                  <Calendar className="w-4 h-4 text-slate-600" />
-                  <h3 className="text-sm sm:text-base font-semibold text-slate-900">
-                    Select a Date
-                  </h3>
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="w-4 h-4 text-slate-600" />
+                <h3 className="text-sm sm:text-base font-semibold text-slate-900">
+                  Select a Date
+                </h3>
               </div>
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Button
@@ -3924,11 +3926,17 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                   <span>{startLabel}</span>
 
                                   {/* 👇 Booked label */}
-                                  {slot.status !== "available" && (
+                                  {/* {slot.status !== "available" && (
                                     <span className="text-[12px] text-red-500 font-bold">
                                       Booked
                                     </span>
+                                  )} */}
+                                  {slot.status !== "available" && (
+                                    <span className="text-[12px] text-red-500 font-bold">
+                                      {slot.blockedByCalendar ? "Booked (Calendar)" : "Booked"}
+                                    </span>
                                   )}
+
                                 </button>
 
                                 <div
