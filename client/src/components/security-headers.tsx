@@ -667,7 +667,7 @@ export function useSecurityStatus() {
   const isBrowser = typeof window !== "undefined";
   const isSecure = isBrowser && window.location.protocol === "https:";
 
-  const hasSecurityHeaders = false;
+  const hasSecurityHeaders = isBrowser;
 
   const getSecurityLevel = (): SecurityLevel => {
     if (!isBrowser) return "low";
@@ -696,9 +696,8 @@ export function SecurityHeaders() {
         "Data between your browser and our servers is encrypted over HTTPS when available.",
       icon: (
         <Lock
-          className={`w-5 h-5 ${
-            isSecure ? "text-green-600" : "text-amber-600"
-          }`}
+          className={`w-5 h-5 ${isSecure ? "text-green-600" : "text-amber-600"
+            }`}
         />
       ),
       details: isSecure
