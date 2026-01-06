@@ -415,6 +415,9 @@ interface CreateAppointmentBody {
 
   // ✅ NEW
   guestEmails?: string[];
+
+  bookedFromTimeZone?: string;
+  bookedFromTimeZoneLabel?: string;
 }
 
 // Generates 30-minute slots between 16:00 (4 PM) and 23:00 (11 PM)
@@ -566,6 +569,10 @@ router.post("/appointments", async (req: Request, res: Response) => {
       startTime,
       endTime,
       guestEmails,
+
+      // ✅ NEW
+      bookedFromTimeZone,
+      bookedFromTimeZoneLabel,
     } = (req.body || {}) as CreateAppointmentBody;
 
     // Basic validation
@@ -596,14 +603,13 @@ router.post("/appointments", async (req: Request, res: Response) => {
         .json({ message: "This time slot is already booked" });
     }
 
-    // ✅ NEW: Block if HOST Google Calendar already busy during this window
+    // ✅ Block if HOST Google Calendar already busy during this window
     let busyRanges: any[] = [];
     try {
       busyRanges = await getBusyTimeRangesForDate(date);
     } catch (gErr) {
       console.error("[Booking] Calendar busy lookup failed:", gErr);
 
-      // Safer: if calendar auth is missing, refuse booking (prevents double booking)
       if (isCalendarAuthError(gErr)) {
         return res.status(503).json({
           message:
@@ -645,6 +651,15 @@ router.post("/appointments", async (req: Request, res: Response) => {
       if (cleanGuestEmails.length) {
         descriptionLines.push(`Guests: ${cleanGuestEmails.join(", ")}`);
       }
+
+      // ✅ NEW: include what timezone user booked from (reference only)
+      if (bookedFromTimeZoneLabel || bookedFromTimeZone) {
+        descriptionLines.push(
+          `Booked from timezone: ${bookedFromTimeZoneLabel || ""} ${bookedFromTimeZone ? `(${bookedFromTimeZone})` : ""
+            }`.trim(),
+        );
+      }
+
       const description = descriptionLines.join("\n");
 
       const { meetingLink: createdLink } = await createGoogleMeetEvent({
@@ -664,7 +679,6 @@ router.post("/appointments", async (req: Request, res: Response) => {
         "[Appointments] Failed to create Google Meet event (booking continues):",
         gErr,
       );
-      // do NOT throw; booking should still succeed
     }
 
     const created = await storage.createAppointment({
@@ -678,6 +692,10 @@ router.post("/appointments", async (req: Request, res: Response) => {
       endTime,
       meetingLink,
       guestEmails: cleanGuestEmails,
+
+      // ✅ NEW
+      bookedFromTimeZone: typeof bookedFromTimeZone === "string" ? bookedFromTimeZone : undefined,
+      bookedFromTimeZoneLabel: typeof bookedFromTimeZoneLabel === "string" ? bookedFromTimeZoneLabel : undefined,
     });
 
     const payload = {
@@ -693,16 +711,18 @@ router.post("/appointments", async (req: Request, res: Response) => {
       meetingLink: (created as any).meetingLink,
       createdAt: (created as any).createdAt || new Date(),
       guestEmails: (created as any).guestEmails || cleanGuestEmails,
+
+      // ✅ NEW
+      bookedFromTimeZone: (created as any).bookedFromTimeZone,
+      bookedFromTimeZoneLabel: (created as any).bookedFromTimeZoneLabel,
     };
 
-    // 📧 Admin notification
     try {
       await sendAppointmentNotification(payload);
     } catch (mailErr) {
       console.error("Error sending appointment notification:", mailErr);
     }
 
-    // 📧 Attendee + guest confirmation emails
     try {
       await sendAppointmentConfirmationEmails(payload);
     } catch (mailErr) {
@@ -797,7 +817,7 @@ router.delete(
       return res.status(204).send();
     } catch (err) {
       console.error("Error deleting appointment", err);
-      return res  
+      return res
         .status(500)
         .json({ message: "Error deleting appointment" });
     }
