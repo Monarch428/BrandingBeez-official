@@ -1147,7 +1147,7 @@
 
 
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -1169,6 +1169,10 @@ import { Plus, Minus, Gift } from "lucide-react";
 import PhoneInput from "react-phone-input-2";
 import { ThankYouPopup } from "./thank-you-popup";
 
+// ✅ NEW
+import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
+import { isDisposableEmail } from "@/utils/disposable-email";
+
 interface ContactFormData {
   name: string;
   email: string;
@@ -1176,7 +1180,6 @@ interface ContactFormData {
   phone: string;
   service: string;
 
-  // Step-2 questions
   monthlyRevenue: string;
   biggestChallenge: string;
 
@@ -1288,33 +1291,13 @@ const regions = [
   { value: "other", label: "Other" },
 ];
 
-interface FormFieldProps {
-  id: string;
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: React.ReactNode;
-}
-
-function FormField({ id, label, required, error, children }: FormFieldProps) {
-  return (
-    <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-medium text-gray-800">
-        {label}
-        {required && <span className="ml-2 inline-flex h-2 w-2 rounded-full bg-red-500 align-middle" aria-hidden="true" />}
-      </label>
-      {children}
-      {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-    </div>
-  );
-}
-
 function RequiredMark() {
   return (
     <span
       className="ml-2 inline-flex items-center font-bold h-2 w-2 text-red-600 align-middle"
       aria-hidden="true"
-    > *
+    >
+      *
     </span>
   );
 }
@@ -1322,16 +1305,18 @@ function RequiredMark() {
 export function ContactFormOptimized() {
   const { toast } = useToast();
 
+  const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY as string;
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileError, setTurnstileError] = useState<string>("");
+
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
     company: "",
     phone: "",
     service: "",
-
     monthlyRevenue: "",
     biggestChallenge: "",
-
     websiteDetails: { platform: "", tier: "" },
     dedicatedResourceDetails: { roles: [] },
     seoDetails: [],
@@ -1349,6 +1334,82 @@ export function ContactFormOptimized() {
   const [thankOpen, setThankOpen] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // ─────────────────────────────────────────────
+  // ✅ Session Storage Draft (persist on refresh)
+  // - store on step/formData changes
+  // - clear on successful submit
+  // - clear when navigating away (component unmount)
+  // ─────────────────────────────────────────────
+  const DRAFT_KEY =
+    typeof window !== "undefined"
+      ? `bb_contact_form_draft::${window.location.pathname}`
+      : "bb_contact_form_draft";
+
+  const hydratedRef = useRef(false);
+
+  const safeParseDraft = (raw: string | null): { formData?: ContactFormData; step?: 1 | 2 | 3 } | null => {
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed !== "object") return null;
+
+      const s = parsed.step;
+      const fd = parsed.formData;
+
+      const validStep = s === 1 || s === 2 || s === 3 ? (s as 1 | 2 | 3) : undefined;
+      const validFormData = fd && typeof fd === "object" ? (fd as ContactFormData) : undefined;
+
+      return { step: validStep, formData: validFormData };
+    } catch {
+      return null;
+    }
+  };
+
+  const clearDraft = useCallback(() => {
+    if (typeof window === "undefined") return;
+    try {
+      sessionStorage.removeItem(DRAFT_KEY);
+    } catch {
+      // ignore
+    }
+  }, [DRAFT_KEY]);
+
+  // Load draft on mount (refresh should restore)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const draft = safeParseDraft(sessionStorage.getItem(DRAFT_KEY));
+    if (draft?.formData) setFormData(draft.formData);
+    if (draft?.step) setStep(draft.step);
+
+    hydratedRef.current = true;
+
+    // ✅ If user navigates to another page (component unmount), clear the state
+    return () => {
+      clearDraft();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Persist draft whenever step/formData changes (after hydration)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!hydratedRef.current) return;
+
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          step,
+          formData,
+          savedAt: Date.now(),
+        })
+      );
+    } catch {
+      // ignore
+    }
+  }, [DRAFT_KEY, formData, step]);
 
   const progressPercent = useMemo(() => {
     if (step === 1) return 25;
@@ -1375,19 +1436,14 @@ export function ContactFormOptimized() {
     });
   };
 
-  // URL: coupon + hash scroll
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     const { hash, search } = window.location;
     const params = new URLSearchParams(search);
     const couponFromUrl = params.get("coupon");
 
     if (couponFromUrl) {
-      setFormData(prev => ({
-        ...prev,
-        couponCode: couponFromUrl.toUpperCase(),
-      }));
+      setFormData(prev => ({ ...prev, couponCode: prev.couponCode || couponFromUrl.toUpperCase() }));
       clearError("couponCode");
     }
 
@@ -1402,35 +1458,56 @@ export function ContactFormOptimized() {
         }
       }, 150);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // URL: coupon + service mapping (backwards compatible)
   React.useEffect(() => {
     if (typeof window === "undefined") return;
-
     const urlParams = new URLSearchParams(window.location.search);
     const couponFromUrl = urlParams.get("coupon");
     const serviceFromUrl = urlParams.get("service");
 
     setFormData(prev => {
       let service = prev.service;
-
-      if (serviceFromUrl) {
+      if (serviceFromUrl && !prev.service) {
         if (serviceFromUrl === "custom-app-development" || serviceFromUrl === "ai-development") {
           service = "custom-app-ai-development";
         } else {
           service = serviceFromUrl;
         }
       }
-
       return {
         ...prev,
-        couponCode: couponFromUrl ? couponFromUrl.toUpperCase() : prev.couponCode,
+        couponCode: prev.couponCode || (couponFromUrl ? couponFromUrl.toUpperCase() : prev.couponCode),
         service,
       };
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (step !== 3) {
+      setTurnstileToken("");
+      setTurnstileError("");
+      clearError("turnstile");
+    }
+  }, [step]);
+
+  const handleTurnstileToken = useCallback(
+    (token: string) => {
+      setTurnstileToken(token);
+      setTurnstileError("");
+      clearError("turnstile");
+    },
+    []
+  );
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please try again.");
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
   }, []);
 
   const contactMutation = useMutation({
@@ -1447,8 +1524,7 @@ export function ContactFormOptimized() {
 
       if (data.service === "website-development" && data.websiteDetails.platform) {
         structuredMessage += `\n\n🌐 WEBSITE DETAILS:`;
-        structuredMessage += `\n• Platform: ${websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label
-          }`;
+        structuredMessage += `\n• Platform: ${websitePlatforms.find(p => p.value === data.websiteDetails.platform)?.label}`;
         if (data.websiteDetails.tier) {
           structuredMessage += `\n• Tier: ${websiteTiers.find(t => t.value === data.websiteDetails.tier)?.label}`;
         }
@@ -1503,12 +1579,8 @@ export function ContactFormOptimized() {
         }
       }
 
-      if (data.budget) {
-        structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
-      }
-      if (data.timeline) {
-        structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline}`;
-      }
+      if (data.budget) structuredMessage += `\n\n💰 BUDGET: ${budgets.find(b => b.value === data.budget)?.label || data.budget}`;
+      if (data.timeline) structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find(t => t.value === data.timeline)?.label || data.timeline}`;
       if (data.referral) structuredMessage += `\n\n📢 REFERRAL: ${data.referral}`;
 
       const submissionData = {
@@ -1534,6 +1606,9 @@ export function ContactFormOptimized() {
           n8nDetails: data.n8nDetails,
           aiDetails: data.aiDetails,
         },
+
+        // ✅ Turnstile token
+        turnstileToken,
       };
 
       return await apiRequest("/api/contacts", "POST", submissionData);
@@ -1548,16 +1623,17 @@ export function ContactFormOptimized() {
         duration: 3000,
       });
 
+      // ✅ erase stored state after successful submission
+      clearDraft();
+
       setFormData({
         name: "",
         email: "",
         company: "",
         phone: "",
         service: "",
-
         monthlyRevenue: "",
         biggestChallenge: "",
-
         websiteDetails: { platform: "", tier: "" },
         dedicatedResourceDetails: { roles: [] },
         seoDetails: [],
@@ -1571,8 +1647,13 @@ export function ContactFormOptimized() {
         referral: "",
         couponCode: "",
       });
+
       setErrors({});
       setStep(1);
+
+      // ✅ reset turnstile
+      setTurnstileToken("");
+      setTurnstileError("");
     },
 
     onError: (error: any) => {
@@ -1590,12 +1671,11 @@ export function ContactFormOptimized() {
     },
   });
 
-  const isValidEmail = (email: string) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(email.trim());
 
   const isLikelyValidPhone = (raw: string) => {
     const digits = (raw || "").replace(/\D/g, "");
-    if (!digits) return true; // optional
+    if (!digits) return true;
     return digits.length >= 10 && digits.length <= 16;
   };
 
@@ -1608,10 +1688,13 @@ export function ContactFormOptimized() {
 
     if (targetStep >= 1) {
       if (!name) newErrors.name = "Full name is required";
+
       if (!email) newErrors.email = "Email is required";
       else if (!isValidEmail(email)) newErrors.email = "Please enter a valid email address";
+      else if (isDisposableEmail(email))
+        newErrors.email = "Please use a business email (temporary emails are blocked)";
 
-      if (!company) newErrors.company = "Company / Agency name is required";
+      if (!company) newErrors.company = "Website URL is required";
       if (!isLikelyValidPhone(formData.phone)) newErrors.phone = "Please enter a valid phone number";
     }
 
@@ -1624,6 +1707,8 @@ export function ContactFormOptimized() {
     if (targetStep >= 3) {
       if (!formData.timeline) newErrors.timeline = "Please choose when you need help";
       if (!formData.region) newErrors.region = "Please select your region";
+
+      if (!turnstileToken) newErrors.turnstile = "Please verify you are not a robot";
 
       if (formData.service === "website-development") {
         if (!formData.websiteDetails.platform) newErrors["websiteDetails.platform"] = "Please choose a platform";
@@ -1680,6 +1765,10 @@ export function ContactFormOptimized() {
     setFormData(prev => ({ ...prev, [field]: value }));
     clearError(field as string);
 
+    if (field === "email") {
+      clearError("email");
+    }
+
     if (field === "service") {
       clearErrorsByPrefix("websiteDetails.");
       clearErrorsByPrefix("dedicatedResourceDetails.");
@@ -1707,10 +1796,7 @@ export function ContactFormOptimized() {
 
   const handleWebsiteDetailsChange = (field: keyof ContactFormData["websiteDetails"], value: string) => {
     setFormData(prev => {
-      const next = {
-        ...prev,
-        websiteDetails: { ...prev.websiteDetails, [field]: value },
-      };
+      const next = { ...prev, websiteDetails: { ...prev.websiteDetails, [field]: value } };
       if (field === "platform") next.websiteDetails.tier = "";
       return next;
     });
@@ -1788,17 +1874,17 @@ export function ContactFormOptimized() {
   };
 
   const goBack = () => setStep(prev => (prev === 3 ? 2 : 1) as 1 | 2 | 3);
-
+  // (30 seconds) (30 seconds)
   const ProgressBar = () => (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <div className="text-sm font-semibold text-gray-900">
           Step {step}:{" "}
           {step === 1
-            ? "Contact Information (30 seconds)"
+            ? "Contact Information "
             : step === 2
               ? "Help Us Understand Your Needs"
-              : "Timeline & Final Details (30 seconds)"}
+              : "Timeline & Final Details "}
         </div>
         <div className="text-xs text-gray-600">{progressPercent}%</div>
       </div>
@@ -1809,19 +1895,11 @@ export function ContactFormOptimized() {
           style={{ width: `${progressPercent}%` }}
         />
       </div>
-
-      {/* <div className="text-xs text-gray-500">
-        Progress:{" "}
-        <span className="font-mono">
-          {step === 1 ? "████░░░░░░" : step === 2 ? "█████████░" : "██████████"}
-        </span>
-      </div> */}
     </div>
   );
 
   return (
     <>
-      {/* ✅ Thank You Popup */}
       <ThankYouPopup
         isOpen={thankOpen}
         onClose={() => setThankOpen(false)}
@@ -1897,14 +1975,15 @@ export function ContactFormOptimized() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="company" className="inline-flex items-center">
-                      Company / Agency Name <RequiredMark />
+                       Company Website URL <RequiredMark /> 
+                       {/* Company / Agency Name */}
                     </Label>
                     <Input
                       id="company"
                       type="text"
                       value={formData.company}
                       onChange={e => handleInputChange("company", e.target.value)}
-                      placeholder="Enter your company / agency name"
+                      placeholder="Enter your company website URL"
                       className={errors.company ? "border-red-500" : ""}
                       autoComplete="organization"
                     />
@@ -1962,10 +2041,7 @@ export function ContactFormOptimized() {
                       What&apos;s your current monthly revenue? <RequiredMark />
                     </Label>
 
-                    <Select
-                      value={formData.monthlyRevenue}
-                      onValueChange={(value) => handleInputChange("monthlyRevenue", value)}
-                    >
+                    <Select value={formData.monthlyRevenue} onValueChange={(value) => handleInputChange("monthlyRevenue", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select monthly revenue" />
                       </SelectTrigger>
@@ -1984,9 +2060,7 @@ export function ContactFormOptimized() {
                       </SelectContent>
                     </Select>
 
-                    {errors.monthlyRevenue && (
-                      <p className="text-red-500 text-sm">{errors.monthlyRevenue}</p>
-                    )}
+                    {errors.monthlyRevenue && <p className="text-red-500 text-sm">{errors.monthlyRevenue}</p>}
                   </div>
 
                   <div className="space-y-2">
@@ -1994,10 +2068,7 @@ export function ContactFormOptimized() {
                       What&apos;s your biggest challenge right now? <RequiredMark />
                     </Label>
 
-                    <Select
-                      value={formData.biggestChallenge}
-                      onValueChange={(value) => handleInputChange("biggestChallenge", value)}
-                    >
+                    <Select value={formData.biggestChallenge} onValueChange={(value) => handleInputChange("biggestChallenge", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select your biggest challenge" />
                       </SelectTrigger>
@@ -2016,9 +2087,7 @@ export function ContactFormOptimized() {
                       </SelectContent>
                     </Select>
 
-                    {errors.biggestChallenge && (
-                      <p className="text-red-500 text-sm">{errors.biggestChallenge}</p>
-                    )}
+                    {errors.biggestChallenge && <p className="text-red-500 text-sm">{errors.biggestChallenge}</p>}
                   </div>
                 </div>
 
@@ -2453,6 +2522,7 @@ export function ContactFormOptimized() {
                   <h2 className="text-xl font-semibold text-gray-900">Almost Done!</h2>
                 </div>
 
+                {/* region */}
                 <div className="space-y-2">
                   <Label htmlFor="region" className="inline-flex items-center">
                     Your Region <RequiredMark />
@@ -2472,6 +2542,7 @@ export function ContactFormOptimized() {
                   {errors.region && <p className="text-red-500 text-sm mt-1">{errors.region}</p>}
                 </div>
 
+                {/* message */}
                 <div className="space-y-2">
                   <Label htmlFor="message">Anything else we should know? (Optional)</Label>
                   <Textarea
@@ -2484,39 +2555,29 @@ export function ContactFormOptimized() {
                   />
                 </div>
 
-                <div className="border-t pt-6">
-                  <h3 className="text-lg font-semibold text-purple-600 mb-4 flex items-center gap-2">
-                    <Gift className="w-5 h-5 text-pink-600" />
-                    Special Offer
-                  </h3>
-                  <div>
-                    <Label htmlFor="couponCode">Coupon Code (Optional)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        id="couponCode"
-                        type="text"
-                        placeholder="Enter coupon code (e.g. SEO50, WEB20, ADS15)"
-                        value={formData.couponCode}
-                        onChange={e => handleInputChange("couponCode", e.target.value.toUpperCase())}
-                        className="flex-1"
+                <div className="space-y-2">
+                  <Label className="inline-flex items-center">
+                    Security Verification <RequiredMark />
+                  </Label>
+
+                  <div className={errors.turnstile || turnstileError ? "p-3" : "p-3"}>
+                    {TURNSTILE_SITE_KEY ? (
+                      <TurnstileWidget
+                        siteKey={TURNSTILE_SITE_KEY}
+                        onToken={handleTurnstileToken}
+                        onExpire={handleTurnstileExpire}
+                        onError={handleTurnstileError}
                       />
-                      {formData.couponCode && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleInputChange("couponCode", "")}
-                        >
-                          Clear
-                        </Button>
-                      )}
-                    </div>
-                    {formData.couponCode && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        You can update or clear the code here. The applied coupon is shown at the top-right of this form.
+                    ) : (
+                      <p className="text-sm text-red-600">
+                        Turnstile site key missing. Set <b>VITE_TURNSTILE_SITE_KEY</b>.
                       </p>
                     )}
                   </div>
+
+                  {(errors.turnstile || turnstileError) && (
+                    <p className="text-sm text-red-500">{errors.turnstile || turnstileError}</p>
+                  )}
                 </div>
 
                 <div className="flex items-center justify-between gap-4">
@@ -2527,17 +2588,10 @@ export function ContactFormOptimized() {
                   <Button
                     type="submit"
                     className="bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold"
-                    disabled={contactMutation.isPending}
+                    disabled={contactMutation.isPending || !turnstileToken}
                   >
                     {contactMutation.isPending ? "Sending..." : "Get My Custom Plan →"}
                   </Button>
-                </div>
-
-                <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900 space-y-2">
-                  <div className="font-semibold">✓ What happens next:</div>
-                  <div>→ You’ll get an email from us within 24 hours (confirmation + details)</div>
-                  <div>→ We'll call you tomorrow morning (9-11 AM your time)</div>
-                  <div>→ Book your strategy call during that call</div>
                 </div>
               </div>
             )}
@@ -2547,4 +2601,3 @@ export function ContactFormOptimized() {
     </>
   );
 }
-
