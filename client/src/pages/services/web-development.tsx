@@ -484,7 +484,11 @@ export default function WebDevelopment() {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       /> */}
-                    <LazyYouTube videoId="h2P606wR_Jk" />
+                    <LazyYouTube videoId="h2P606wR_Jk" autoplay
+                      // mute
+                      loop
+                      controls={true}
+                      className="rounded-none" />
                     {/* </div> */}
                   </div>
                 </div>

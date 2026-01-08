@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -16,6 +16,9 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Star } from "lucide-react";
+
+// ✅ Turnstile widget (same one as your contact form)
+import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 
 interface CustomQuoteModalProps {
   isOpen: boolean;
@@ -50,20 +53,50 @@ export function CustomQuoteModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
+  // ✅ Turnstile env + state
+  const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY as
+    | string
+    | undefined;
+
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileError, setTurnstileError] = useState<string>("");
+
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError("");
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please try again.");
+  }, []);
+
+  const handleTurnstileFail = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
+  }, []);
+
+  // ✅ Reset Turnstile when modal closes/opens (fresh verification each time)
+  useEffect(() => {
+    if (!isOpen) {
+      setTurnstileToken("");
+      setTurnstileError("");
+    }
+  }, [isOpen]);
+
   const submitMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const formattedMessage = `CUSTOM QUOTE REQUEST FROM SURVEY
 
 📋 PRIMARY RECOMMENDED SERVICE: ${recommendedService} (${confidence}% confidence match)
 
-${
-  data.additionalServices.length > 0
-    ? `
+${data.additionalServices.length > 0
+          ? `
 🎯 ADDITIONAL SERVICES OF INTEREST:
 ${data.additionalServices.map((service) => `• ${service}`).join("\n")}
 `
-    : ""
-}
+          : ""
+        }
 
 🌐 COMPANY WEBSITE: ${data.companyWebsite}
 
@@ -80,13 +113,15 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
         topPriority: recommendedService,
         contactFormType: "survey-custom-quote",
         servicesSelected: [recommendedService, ...data.additionalServices],
+
+        // ✅ include turnstile token
+        turnstileToken,
       });
     },
     onSuccess: () => {
       toast({
         title: "Quote Request Submitted!",
-        description:
-          "We'll get back to you within 24 hours with a custom quote.",
+        description: "We'll get back to you within 24 hours with a custom quote.",
       });
 
       // ✅ Tell parent to show ThankYouPopup
@@ -95,7 +130,7 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
       // ✅ Close the quote form modal
       onClose();
 
-      // reset form + errors
+      // ✅ reset form + errors + captcha
       setFormData({
         name: "",
         email: "",
@@ -103,6 +138,8 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
         additionalServices: [],
       });
       setErrors({});
+      setTurnstileToken("");
+      setTurnstileError("");
     },
     onError: (error: any) => {
       console.error("Quote submission error:", error);
@@ -131,9 +168,7 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
     } else {
       setFormData((prev) => ({
         ...prev,
-        additionalServices: prev.additionalServices.filter(
-          (s) => s !== service
-        ),
+        additionalServices: prev.additionalServices.filter((s) => s !== service),
       }));
     }
   };
@@ -157,7 +192,18 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
       newErrors.companyWebsite = "Please enter a valid website URL";
     }
 
+    // ✅ Turnstile required
+    if (!TURNSTILE_SITE_KEY) {
+      newErrors.turnstile = "Captcha not configured (missing site key)";
+    } else if (!turnstileToken) {
+      newErrors.turnstile = "Please verify you are not a robot";
+    }
+
     setErrors(newErrors);
+
+    // Show small helper text for captcha area too
+    if (newErrors.turnstile) setTurnstileError(newErrors.turnstile);
+
     return Object.keys(newErrors).length === 0;
   };
 
@@ -165,6 +211,14 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
     e.preventDefault();
     if (validateForm()) {
       submitMutation.mutate(formData);
+    } else {
+      if (!turnstileToken) {
+        toast({
+          title: "Captcha required",
+          description: "Please complete the security verification.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -183,8 +237,8 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
               Get Quote
             </DialogTitle>
             <DialogDescription>
-              Based on your survey answers, we'll create a personalized quote
-              for your business needs.
+              Based on your survey answers, we'll create a personalized quote for
+              your business needs.
             </DialogDescription>
           </DialogHeader>
 
@@ -201,9 +255,7 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
                     {confidence}% Confidence
                   </Badge>
                 </div>
-                <p className="text-green-800 font-medium">
-                  {recommendedService}
-                </p>
+                <p className="text-green-800 font-medium">{recommendedService}</p>
                 <p className="text-sm text-green-600 mt-1">
                   Based on your survey responses, this service is the best fit
                   for your business goals.
@@ -222,9 +274,7 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
                     id="name"
                     type="text"
                     value={formData.name}
-                    onChange={(e) =>
-                      handleInputChange("name", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("name", e.target.value)}
                     placeholder="Enter your full name"
                     className={errors.name ? "border-red-500" : ""}
                   />
@@ -239,9 +289,7 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
                     id="email"
                     type="email"
                     value={formData.email}
-                    onChange={(e) =>
-                      handleInputChange("email", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     placeholder="Enter your email address"
                     className={errors.email ? "border-red-500" : ""}
                   />
@@ -302,6 +350,34 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
               </div>
             </div>
 
+            {/* ✅ Turnstile */}
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-gray-900">
+                Security Verification{" "}
+                <span className="text-red-500 font-bold">*</span>
+              </Label>
+
+              {TURNSTILE_SITE_KEY ? (
+                <TurnstileWidget
+                  siteKey={TURNSTILE_SITE_KEY}
+                  onToken={handleTurnstileToken}
+                  onExpire={handleTurnstileExpire}
+                  onError={handleTurnstileFail}
+                />
+              ) : (
+                <p className="text-sm text-red-600">
+                  Turnstile site key missing. Set{" "}
+                  <b>VITE_TURNSTILE_SITE_KEY</b>.
+                </p>
+              )}
+
+              {turnstileError && (
+                <p className="text-xs text-red-600 font-medium">
+                  {turnstileError}
+                </p>
+              )}
+            </div>
+
             {/* Actions */}
             <div className="flex gap-3 pt-6 border-t">
               <Button
@@ -316,7 +392,7 @@ This lead came from the "Find Your Service" survey and requested a custom quote.
               <Button
                 type="submit"
                 className="flex-1 bg-gradient-to-r from-brand-coral-darker to-pink-600 hover:from-brand-coral-dark hover:to-pink-700 text-white font-semibold"
-                disabled={submitMutation.isPending}
+                disabled={submitMutation.isPending || !turnstileToken}
               >
                 {submitMutation.isPending ? "Submitting..." : "Get Custom Quote"}
               </Button>

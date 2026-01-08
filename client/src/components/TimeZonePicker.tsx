@@ -76,9 +76,7 @@ const TimeZonePicker: React.FC<Props> = ({
                     >
                         <span className="inline-flex items-center gap-2 min-w-0">
                             <Globe className="h-4 w-4 shrink-0 text-slate-500" />
-                            <span className="truncate text-slate-800">
-                                {selected.label}
-                            </span>
+                            <span className="truncate text-slate-800">{selected.label}</span>
                         </span>
 
                         <span className="inline-flex items-center gap-2 shrink-0">
@@ -107,12 +105,12 @@ const TimeZonePicker: React.FC<Props> = ({
                             sideOffset={10}
                             collisionPadding={12}
                             className="
-    z-[100002]
-    w-[min(92vw,420px)]
-    rounded-lg border border-slate-200 bg-white
-    shadow-[0_20px_60px_rgba(0,0,0,0.25)]
-    overflow-hidden
-    focus:outline-none
+                z-[100002]
+                w-[min(92vw,420px)]
+                rounded-lg border border-slate-200 bg-white
+                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+                overflow-hidden
+                focus:outline-none
               "
                         >
                             {/* Search */}
@@ -143,9 +141,7 @@ const TimeZonePicker: React.FC<Props> = ({
 
                                         <button
                                             type="button"
-                                            onClick={() =>
-                                                setMode((m) => (m === "ampm" ? "24h" : "ampm"))
-                                            }
+                                            onClick={() => setMode((m) => (m === "ampm" ? "24h" : "ampm"))}
                                             className={`
                         relative inline-flex items-center h-5 w-9 rounded-full transition-colors
                         ${mode === "24h" ? "bg-blue-600" : "bg-gray-300"}
@@ -170,8 +166,18 @@ const TimeZonePicker: React.FC<Props> = ({
                             {/* List */}
                             <div
                                 data-radix-scroll-lock-ignore
+                                // ✅ desktop wheel
                                 onWheelCapture={(e) => e.stopPropagation()}
-                                className="max-h-[60vh] sm:max-h-[360px] overflow-auto scrollbar-thin"
+                                // ✅ mobile touch scroll (this is the missing part)
+                                onTouchMoveCapture={(e) => e.stopPropagation()}
+                                className="
+                  max-h-[60vh] sm:max-h-[360px]
+                  overflow-y-auto
+                  overscroll-contain
+                  touch-pan-y
+                  [-webkit-overflow-scrolling:touch]
+                  scrollbar-thin
+                "
                             >
                                 {grouped.keys.map((group) => {
                                     const items = grouped.map.get(group) || [];
@@ -195,7 +201,9 @@ const TimeZonePicker: React.FC<Props> = ({
                                                         }}
                                                         className={[
                                                             "w-full px-3 py-2.5 flex flex-col sm:flex-row justify-between text-left",
-                                                            active ? "bg-blue-600 text-white" : "hover:bg-blue-50",
+                                                            active
+                                                                ? "bg-blue-600 text-white"
+                                                                : "hover:bg-blue-50",
                                                         ].join(" ")}
                                                     >
                                                         <span>{tz.label}</span>
@@ -209,7 +217,6 @@ const TimeZonePicker: React.FC<Props> = ({
                                     );
                                 })}
                             </div>
-
                         </Popover.Content>
                     </>
                 </Popover.Portal>

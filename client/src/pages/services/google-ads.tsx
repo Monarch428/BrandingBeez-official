@@ -515,7 +515,11 @@ export default function GoogleAds() {
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                         /> */}
-                      <LazyYouTube videoId="8CRaG4x_IXA" />
+                      <LazyYouTube videoId="8CRaG4x_IXA" autoplay
+                        // mute
+                        loop
+                        controls={true}
+                        className="rounded-none" />
                       {/* </div> */}
                     </div>
                   </div>

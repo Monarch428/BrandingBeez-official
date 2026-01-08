@@ -175,14 +175,26 @@ import CaseStudyScrollHandler from "./utils/CaseStudyScrollHandler ";
 function Router() {
   const [location] = useLocation();
 
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  // }, [location]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "page_view", {
+        page_location: window.location.href,
+        page_path: window.location.pathname + window.location.search,
+        page_title: document.title,
+      });
+    }
   }, [location]);
 
   // routes that should NOT show header/footer
   const hideChrome =
     location === "/loader" ||
-    location.startsWith("/admin"); 
+    location.startsWith("/admin");
 
   const Content = (
     <Switch>
@@ -289,12 +301,21 @@ function App() {
     closeMobilePopup,
   } = usePopupManager();
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const gclid = params.get("gclid");
+
+    if (gclid && !sessionStorage.getItem("bb_gclid")) {
+      sessionStorage.setItem("bb_gclid", gclid);
+    }
+  }, []);
+
   // Add global error handling
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-      // ✅ IMPORTANT: do NOT preventDefault here — it hides real runtime errors and chunk-load issues
-      // event.preventDefault();
     };
 
     const handleError = (event: ErrorEvent) => {
@@ -320,7 +341,7 @@ function App() {
                 <CriticalPathOptimizer />
 
                 <PerformanceOptimizer />
-                
+
                 <Router />
                 <CookieConsent />
 
