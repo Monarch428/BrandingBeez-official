@@ -1,4 +1,4 @@
-import React, { useEffect, useState, lazy, Suspense } from "react";
+import React, { useEffect, useState, lazy, Suspense, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,9 @@ import { useRegion } from "@/hooks/use-region";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+
+// ✅ Turnstile widget (same one you used in ContactFormOptimized)
+import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 
 // ✅ Lazy-load heavy phone input library (reduces initial JS)
 const PhoneInput = lazy(() => import("react-phone-input-2"));
@@ -60,6 +63,13 @@ type FormState = {
   servicesInterested: string;
   subServices: string[];
   message: string;
+
+  // ✅ UTM hidden fields
+  utm_campaign_name: string;
+  utm_adgroup_name: string;
+  utm_keyword: string;
+  utm_location: string;
+  utm_device: string;
 };
 
 type FormErrors = {
@@ -68,6 +78,7 @@ type FormErrors = {
   phone?: string;
   servicesInterested?: string;
   subServices?: string;
+  turnstile?: string;
 };
 
 // ✅ Phone placeholders per country (extend as needed)
@@ -90,6 +101,16 @@ interface AgencyContactSectionProps {
   thankYouFormType?: string;
 }
 
+/* ===========================
+   ✅ Small UI helpers (same style vibe as your ContactFormOptimized)
+=========================== */
+const RequiredMark = () => <span className="text-red-500 font-bold"> *</span>;
+
+const FieldShell: React.FC<{ className?: string; children: React.ReactNode }> = ({
+  className = "",
+  children,
+}) => <div className={`space-y-1.5 ${className}`}>{children}</div>;
+
 const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   sectionId = "contact-form",
   heading = "Ready to Scale Your Agency?",
@@ -104,9 +125,20 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   const { regionConfig } = useRegion();
   const { toast } = useToast();
 
+  // ✅ Turnstile env
+  const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY as
+    | string
+    | undefined;
+
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileError, setTurnstileError] = useState<string>("");
+
   // ✅ Default country always US + persist user selection
   const DEFAULT_COUNTRY = "us";
   const COUNTRY_STORAGE_KEY = "bb_phone_country";
+
+  // ✅ UTM session storage key
+  const UTM_KEY = "bb_utm_params";
 
   const [countryCode, setCountryCode] = useState<string>(DEFAULT_COUNTRY);
 
@@ -139,9 +171,83 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     servicesInterested: "",
     subServices: [],
     message: "",
+
+    // ✅ UTM defaults
+    utm_campaign_name: "",
+    utm_adgroup_name: "",
+    utm_keyword: "",
+    utm_location: "",
+    utm_device: "",
   });
 
+  // ---------------------------
+  // ✅ UTM CAPTURE (URL → sessionStorage → formData)
+  // ---------------------------
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const read = (k: string) => (params.get(k) || "").trim();
+
+    const utmFromUrl = {
+      utm_campaign_name: read("utm_campaign_name"),
+      utm_adgroup_name: read("utm_adgroup_name"),
+      utm_keyword: read("utm_keyword"),
+      utm_location: read("utm_location"),
+      utm_device: read("utm_device"),
+    };
+
+    let stored: any = {};
+    try {
+      const raw = sessionStorage.getItem(UTM_KEY);
+      stored = raw ? JSON.parse(raw) : {};
+    } catch {
+      stored = {};
+    }
+
+    const merged = {
+      ...stored,
+      ...Object.fromEntries(
+        Object.entries(utmFromUrl).filter(([, v]) => typeof v === "string" && v.length > 0),
+      ),
+    };
+
+    try {
+      sessionStorage.setItem(UTM_KEY, JSON.stringify(merged));
+    } catch {
+      // ignore
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      utm_campaign_name: prev.utm_campaign_name || merged.utm_campaign_name || "",
+      utm_adgroup_name: prev.utm_adgroup_name || merged.utm_adgroup_name || "",
+      utm_keyword: prev.utm_keyword || merged.utm_keyword || "",
+      utm_location: prev.utm_location || merged.utm_location || "",
+      utm_device: prev.utm_device || merged.utm_device || "",
+    }));
+  }, []);
+
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // ✅ UI tokens
+  const fieldLabelClass = "text-sm font-semibold text-gray-900";
+  const fieldHintClass = "text-xs text-gray-500 leading-relaxed";
+  const errorTextClass = "text-xs text-red-600 font-medium";
+  const inputBaseClass =
+    "h-12 rounded-xl border border-gray-200 bg-white px-4 text-gray-900 placeholder:text-gray-400 shadow-sm transition focus:border-purple-300 focus:ring-2 focus:ring-purple-200";
+  const selectTriggerClass =
+    "h-12 rounded-xl border border-gray-200 bg-white px-4 shadow-sm transition focus:border-purple-300 focus:ring-2 focus:ring-purple-200";
+  const errorRingClass = "border-red-300 focus:border-red-400 focus:ring-red-200";
+
+  const clearError = (key: keyof FormErrors) => {
+    setErrors((prev) => {
+      if (!prev[key]) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  };
 
   const handleInputChange = (field: keyof FormState, value: string) => {
     setFormData((prev) => {
@@ -152,6 +258,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     });
 
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+    if (field === "servicesInterested") setErrors((prev) => ({ ...prev, subServices: undefined }));
   };
 
   const handleSubServiceChange = (subService: string, checked: boolean) => {
@@ -172,7 +279,6 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       const parsed = parsePhoneNumberFromString(`+${phone}`);
       return parsed?.isValid() ?? false;
     } catch {
-      // If the lib fails to load for some reason, be safe and treat as invalid
       return false;
     }
   };
@@ -181,53 +287,69 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     const newErrors: FormErrors = {};
 
     // Name
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required.";
-    } else if (formData.name.trim().length < 2) {
-      newErrors.name = "Name must be at least 2 characters.";
-    }
+    if (!formData.name.trim()) newErrors.name = "Name is required.";
+    else if (formData.name.trim().length < 2) newErrors.name = "Name must be at least 2 characters.";
 
     // Email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!emailRegex.test(formData.email.trim())) {
-      newErrors.email = "Enter a valid email address.";
-    }
+    if (!formData.email.trim()) newErrors.email = "Email is required.";
+    else if (!emailRegex.test(formData.email.trim())) newErrors.email = "Enter a valid email address.";
 
     // Phone
-    if (!formData.phone) {
-      newErrors.phone = "Phone number is required.";
-    } else {
+    if (!formData.phone) newErrors.phone = "Phone number is required.";
+    else {
       const ok = await isValidPhone(formData.phone);
-      if (!ok) {
-        newErrors.phone = "Enter a valid phone number.";
-      }
+      if (!ok) newErrors.phone = "Enter a valid phone number.";
     }
 
     // Service
-    if (!formData.servicesInterested) {
-      newErrors.servicesInterested = "Select a service.";
-    }
+    if (!formData.servicesInterested) newErrors.servicesInterested = "Select a service.";
 
     // Sub-services
     if (formData.servicesInterested && formData.subServices.length === 0) {
       newErrors.subServices = "Select at least one option.";
     }
 
+    // Turnstile
+    if (!TURNSTILE_SITE_KEY) {
+      newErrors.turnstile = "Turnstile site key missing. Set VITE_TURNSTILE_SITE_KEY.";
+    } else if (!turnstileToken) {
+      newErrors.turnstile = "Please verify you are not a robot.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // ---------------------------
+  // ✅ Turnstile handlers (same behavior)
+  // ---------------------------
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError("");
+    clearError("turnstile");
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please try again.");
+  }, []);
+
+  const handleTurnstileFail = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
+  }, []);
 
   const contactMutation = useMutation({
     mutationFn: async (data: any) => {
       return await apiRequest("/api/contacts", "POST", data);
     },
     onSuccess: () => {
-      // ✅ Fire Google Ads conversion only after successful submission
+      // ✅ Fire conversion only after success
       triggerGoogleAdsConversion();
 
       setShowThankYouPopup(true);
+
       setFormData({
         name: "",
         email: "",
@@ -237,14 +359,22 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
         servicesInterested: "",
         subServices: [],
         message: "",
+
+        utm_campaign_name: "",
+        utm_adgroup_name: "",
+        utm_keyword: "",
+        utm_location: "",
+        utm_device: "",
       });
+
       setErrors({});
+      setTurnstileToken("");
+      setTurnstileError("");
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description:
-          error.message || "Failed to send message. Please try again.",
+        description: error.message || "Failed to send message. Please try again.",
         variant: "destructive",
       });
     },
@@ -267,9 +397,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
     if (formData.servicesInterested) {
       comprehensiveMessage += `\n\n📋 SERVICES REQUESTED:\n• Primary Service: ${formData.servicesInterested}`;
       if (formData.subServices.length > 0) {
-        comprehensiveMessage += `\n• Sub-services: ${formData.subServices.join(
-          ", ",
-        )}`;
+        comprehensiveMessage += `\n• Sub-services: ${formData.subServices.join(", ")}`;
       }
     }
 
@@ -291,198 +419,203 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       topPriority: formData.servicesInterested || "general-inquiry",
       agencyName: formData.agencyName,
       service: formData.servicesInterested,
-      servicesSelected:
-        formData.subServices.length > 0 ? formData.subServices : undefined,
+      servicesSelected: formData.subServices.length > 0 ? formData.subServices : undefined,
       contactFormType,
       phoneCountry: formData.countryCode || countryCode,
+
+      // ✅ Turnstile token (send to backend)
+      turnstileToken,
+
+      // ✅ UTM tracking fields
+      utm_campaign_name: formData.utm_campaign_name,
+      utm_adgroup_name: formData.utm_adgroup_name,
+      utm_keyword: formData.utm_keyword,
+      utm_location: formData.utm_location,
+      utm_device: formData.utm_device,
     };
 
     contactMutation.mutate(submissionData);
   };
 
+  const subServiceError = errors.subServices;
+
   return (
     <section id={sectionId} className="py-14 sm:py-16 px-4 sm:px-6 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-            {heading}
-          </h2>
-          <p className="text-sm sm:text-base md:text-lg text-gray-700 px-2 sm:px-0 max-w-2xl mx-auto">
-            {subheading}
-          </p>
+      {/* ✅ Premium background blobs like your contact form */}
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-24 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-purple-200/40 blur-3xl" />
+          <div className="absolute -bottom-24 left-12 h-56 w-56 rounded-full bg-pink-200/40 blur-3xl" />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
-          {/* ✅ Right Column - Contact Form (shows FIRST on mobile <768px, second on lg+) */}
-          <div className="order-1 lg:order-2">
-            <Card className="shadow-xl">
-              <CardHeader>
-                <CardTitle className="text-center font-bold text-brand-coral text-lg sm:text-xl">
-                  Schedule Strategy Call
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label
-                        htmlFor="name"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Name *
-                      </Label>
-                      <Input
-                        id="name"
-                        type="text"
-                        value={formData.name}
-                        onChange={(e) =>
-                          handleInputChange("name", e.target.value)
-                        }
-                      />
-                      {errors.name && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.name}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <Label
-                        htmlFor="email"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Email *
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          handleInputChange("email", e.target.value)
-                        }
-                      />
-                      {errors.email && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.email}
-                        </p>
-                      )}
-                    </div>
-                  </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-10 lg:mb-12">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
+              {heading}
+            </h2>
+            <p className="text-sm sm:text-base md:text-lg text-gray-700 px-2 sm:px-0 max-w-2xl mx-auto">
+              {subheading}
+            </p>
+          </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label
-                        htmlFor="phone"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Phone *
-                      </Label>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+            {/* ✅ Right Column - Contact Form */}
+            <div className="order-1 lg:order-2">
+              <Card className="rounded-2xl border border-gray-200/70 shadow-lg overflow-hidden">
+                <CardHeader className="bg-gradient-to-br from-white to-gray-50 border-b border-gray-200/70">
+                  <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl">
+                    Schedule Strategy Call
+                  </CardTitle>
+                  <p className="text-center text-sm text-gray-600">
+                    Answer a few questions — we’ll reply within 24 hours.
+                  </p>
+                </CardHeader>
 
-                      <Suspense
-                        fallback={
-                          <div className="w-full h-10 rounded-md bg-gray-100 border border-gray-200" />
-                        }
-                      >
-                        <PhoneInput
-                          country={countryCode as any}
-                          value={formData.phone}
-                          onChange={(value: string, data: any) => {
-                            if (data?.countryCode) {
-                              const cc = String(data.countryCode).toLowerCase();
-                              setCountryPersisted(cc);
-                              handleInputChange("countryCode", cc);
-                            }
-                            handleInputChange("phone", value);
-                          }}
-                          inputProps={{
-                            name: "phone",
-                            className:
-                              "w-full h-10 rounded-md border border-gray-300 pl-12 pr-3 text-gray-900 focus:border-brand-coral focus:ring-1 focus:ring-brand-coral",
-                            placeholder:
-                              phonePlaceholders[countryCode] ||
-                              "Enter your phone number",
-                          }}
-                          containerClass="w-full"
+                <CardContent className="p-5 sm:p-8">
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* ✅ Hidden UTM fields */}
+                    <input type="hidden" name="utm_campaign_name" value={formData.utm_campaign_name} />
+                    <input type="hidden" name="utm_adgroup_name" value={formData.utm_adgroup_name} />
+                    <input type="hidden" name="utm_keyword" value={formData.utm_keyword} />
+                    <input type="hidden" name="utm_location" value={formData.utm_location} />
+                    <input type="hidden" name="utm_device" value={formData.utm_device} />
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                      <FieldShell>
+                        <Label htmlFor="name" className={fieldLabelClass}>
+                          Name <RequiredMark />
+                        </Label>
+                        <Input
+                          id="name"
+                          type="text"
+                          value={formData.name}
+                          onChange={(e) => handleInputChange("name", e.target.value)}
+                          className={`${inputBaseClass} ${errors.name ? errorRingClass : ""}`}
+                          placeholder="Enter your full name"
+                          autoComplete="name"
                         />
-                      </Suspense>
+                        {errors.name && <p className={errorTextClass}>{errors.name}</p>}
+                      </FieldShell>
 
-                      {errors.phone && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.phone}
+                      <FieldShell>
+                        <Label htmlFor="email" className={fieldLabelClass}>
+                          Email <RequiredMark />
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          className={`${inputBaseClass} ${errors.email ? errorRingClass : ""}`}
+                          placeholder="you@company.com"
+                          autoComplete="email"
+                        />
+                        {errors.email && <p className={errorTextClass}>{errors.email}</p>}
+                      </FieldShell>
+
+                      <FieldShell>
+                        <Label htmlFor="phone" className={fieldLabelClass}>
+                          Phone <RequiredMark />
+                        </Label>
+
+                        <Suspense
+                          fallback={<div className="w-full h-12 rounded-xl bg-gray-100 border border-gray-200" />}
+                        >
+                          <div
+                            className={`rounded-xl border bg-white shadow-sm ${errors.phone ? "border-red-300" : "border-gray-200"
+                              } focus-within:ring-2 focus-within:ring-purple-200 focus-within:border-purple-300`}
+                          >
+                            <PhoneInput
+                              country={countryCode as any}
+                              value={formData.phone}
+                              onChange={(value: string, data: any) => {
+                                if (data?.countryCode) {
+                                  const cc = String(data.countryCode).toLowerCase();
+                                  setCountryPersisted(cc);
+                                  handleInputChange("countryCode", cc);
+                                }
+                                handleInputChange("phone", value);
+                              }}
+                              inputProps={{
+                                name: "phone",
+                                id: "phone",
+                                autoComplete: "tel",
+                                placeholder: phonePlaceholders[countryCode] || "Enter your phone number",
+                              }}
+                              containerClass="w-full"
+                              inputClass="!w-full !h-12 !border-0 !shadow-none !rounded-xl !pl-14 !pr-4 !text-gray-900 placeholder:!text-gray-400 focus:!ring-0"
+                              buttonClass="!border-0 !bg-transparent !rounded-xl"
+                              dropdownClass="!rounded-xl !z-[9999] !shadow-xl"
+                            />
+                          </div>
+                        </Suspense>
+
+                        {errors.phone && <p className={errorTextClass}>{errors.phone}</p>}
+                        <p className={fieldHintClass}>We’ll only use this to contact you about your request.</p>
+                      </FieldShell>
+
+                      <FieldShell>
+                        <Label htmlFor="agencyName" className={fieldLabelClass}>
+                          Agency Name <span className="text-gray-400 font-medium">(optional)</span>
+                        </Label>
+                        <Input
+                          id="agencyName"
+                          type="text"
+                          value={formData.agencyName}
+                          onChange={(e) => handleInputChange("agencyName", e.target.value)}
+                          className={inputBaseClass}
+                          placeholder="Your agency name"
+                          autoComplete="organization"
+                        />
+                      </FieldShell>
+
+                      <FieldShell className="md:col-span-2">
+                        <Label htmlFor="servicesInterested" className={fieldLabelClass}>
+                          Services Interested In <RequiredMark />
+                        </Label>
+                        <Select
+                          value={formData.servicesInterested}
+                          onValueChange={(value) => handleInputChange("servicesInterested", value)}
+                        >
+                          <SelectTrigger
+                            aria-label="Select services interested in"
+                            className={`${selectTriggerClass} ${errors.servicesInterested ? "border-red-300" : ""
+                              }`}
+                          >
+                            <SelectValue placeholder="Select services" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="SEO Services">SEO/AIO Services</SelectItem>
+                            <SelectItem value="PPC/Google Ads">PPC/Google Ads</SelectItem>
+                            <SelectItem value="Website Development">Website Development</SelectItem>
+                            <SelectItem value="Custom Web & Mobile Application Development (AI-Powered)">
+                              Custom Web & Mobile Application Development (AI-Powered)
+                            </SelectItem>
+                            <SelectItem value="Dedicated Resource">Dedicated Resource</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        {errors.servicesInterested && (
+                          <p className={errorTextClass}>{errors.servicesInterested}</p>
+                        )}
+                        <p className={fieldHintClass}>
+                          Choose the primary service. Then select what you’re specifically looking for.
                         </p>
-                      )}
+                      </FieldShell>
                     </div>
-                    <div>
-                      <Label
-                        htmlFor="agencyName"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        Agency Name
-                      </Label>
-                      <Input
-                        id="agencyName"
-                        type="text"
-                        value={formData.agencyName}
-                        onChange={(e) =>
-                          handleInputChange("agencyName", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
 
-                  <div>
-                    <Label
-                      htmlFor="servicesInterested"
-                      className="text-sm font-medium text-gray-700"
-                    >
-                      Services Interested In *
-                    </Label>
-                    <Select
-                      value={formData.servicesInterested}
-                      onValueChange={(value) =>
-                        handleInputChange("servicesInterested", value)
-                      }
-                    >
-                      <SelectTrigger aria-label="Select services interested in">
-                        <SelectValue placeholder="Select services" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="SEO Services">
-                          SEO/AIO Services
-                        </SelectItem>
-                        <SelectItem value="PPC/Google Ads">
-                          PPC/Google Ads
-                        </SelectItem>
-                        <SelectItem value="Website Development">
-                          Website Development
-                        </SelectItem>
-                        <SelectItem value="Custom Web & Mobile Application Development (AI-Powered)">
-                          Custom Web & Mobile Application Development
-                          (AI-Powered)
-                        </SelectItem>
-                        <SelectItem value="Dedicated Resource">
-                          Dedicated Resource
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.servicesInterested && (
-                      <p className="text-xs text-red-500 mt-1">
-                        {errors.servicesInterested}
-                      </p>
-                    )}
-                  </div>
+                    {/* Sub-Service Selection */}
+                    {formData.servicesInterested && (
+                      <div className="rounded-2xl border border-purple-200 bg-purple-50/40 p-5 space-y-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <Label className="text-sm font-semibold text-gray-900">
+                            What are you specifically looking for in {formData.servicesInterested}? <RequiredMark />
+                          </Label>
+                          {subServiceError && <p className={errorTextClass}>{subServiceError}</p>}
+                        </div>
 
-                  {/* Sub-Service Selection */}
-                  {formData.servicesInterested && (
-                    <div className="space-y-4">
-                      <Label className="text-sm font-medium text-gray-700">
-                        What are you specifically looking for in{" "}
-                        {formData.servicesInterested}? *
-                      </Label>
-                      <div className="grid grid-cols-1 gap-3">
-                        {/* SEO Services Options */}
-                        {formData.servicesInterested === "SEO Services" && (
-                          <>
-                            {[
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {formData.servicesInterested === "SEO Services" &&
+                            [
                               "Link building",
                               "Local SEO",
                               "Technical SEO audit & fixes",
@@ -491,97 +624,55 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                             ].map((option) => (
                               <div
                                 key={option}
-                                className="flex items-center space-x-2"
+                                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
                               >
                                 <Checkbox
                                   id={option}
-                                  checked={formData.subServices.includes(
-                                    option,
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
+                                  checked={formData.subServices.includes(option)}
+                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
                                 />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
-                                >
+                                <Label htmlFor={option} className="text-sm font-medium cursor-pointer text-gray-800">
                                   {option}
                                 </Label>
                               </div>
                             ))}
-                          </>
-                        )}
 
-                        {/* PPC/Google Ads Options */}
-                        {formData.servicesInterested === "PPC/Google Ads" && (
-                          <>
-                            {[
-                              "Starter Package",
-                              "Growth Package",
-                              "Scale Package",
-                            ].map((option) => (
+                          {formData.servicesInterested === "PPC/Google Ads" &&
+                            ["Starter Package", "Growth Package", "Scale Package"].map((option) => (
                               <div
                                 key={option}
-                                className="flex items-center space-x-2"
+                                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
                               >
                                 <Checkbox
                                   id={option}
-                                  checked={formData.subServices.includes(
-                                    option,
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
+                                  checked={formData.subServices.includes(option)}
+                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
                                 />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
-                                >
+                                <Label htmlFor={option} className="text-sm font-medium cursor-pointer text-gray-800">
                                   {option}
                                 </Label>
                               </div>
                             ))}
-                          </>
-                        )}
 
-                        {/* Website Development Options */}
-                        {formData.servicesInterested === "Website Development" && (
-                          <>
-                            {[
-                              "WordPress",
-                              "Shopify",
-                              "BigCommerce",
-                              "Custom Coded",
-                            ].map((option) => (
+                          {formData.servicesInterested === "Website Development" &&
+                            ["WordPress", "Shopify", "BigCommerce", "Custom Coded"].map((option) => (
                               <div
                                 key={option}
-                                className="flex items-center space-x-2"
+                                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
                               >
                                 <Checkbox
                                   id={option}
-                                  checked={formData.subServices.includes(
-                                    option,
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
+                                  checked={formData.subServices.includes(option)}
+                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
                                 />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
-                                >
+                                <Label htmlFor={option} className="text-sm font-medium cursor-pointer text-gray-800">
                                   {option}
                                 </Label>
                               </div>
                             ))}
-                          </>
-                        )}
 
-                        {/* Dedicated Resource Options */}
-                        {formData.servicesInterested === "Dedicated Resource" && (
-                          <>
-                            {[
+                          {formData.servicesInterested === "Dedicated Resource" &&
+                            [
                               "Graphic Designer",
                               "Video Editor",
                               "SEO Specialist",
@@ -592,175 +683,182 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                             ].map((option) => (
                               <div
                                 key={option}
-                                className="flex items-center space-x-2"
+                                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
                               >
                                 <Checkbox
                                   id={option}
-                                  checked={formData.subServices.includes(
-                                    option,
-                                  )}
-                                  onCheckedChange={(checked) =>
-                                    handleSubServiceChange(option, !!checked)
-                                  }
+                                  checked={formData.subServices.includes(option)}
+                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
                                 />
-                                <Label
-                                  htmlFor={option}
-                                  className="text-sm font-medium text-gray-700 cursor-pointer"
-                                >
+                                <Label htmlFor={option} className="text-sm font-medium cursor-pointer text-gray-800">
                                   {option}
                                 </Label>
                               </div>
                             ))}
-                          </>
-                        )}
 
-                        {/* Custom Web & Mobile Application Development (AI-Powered) Options */}
-                        {formData.servicesInterested ===
-                          "Custom Web & Mobile Application Development (AI-Powered)" && (
-                            <>
-                              {[
-                                "AI Powered web app/Mobile app development",
-                                "AI Agentic Platform development",
-                                "AI Integration into existing platforms",
-                                "Prototype / MVP Mobile App",
-                                "Full-Scale Production App",
-                                "iOS & Android App (Native/Hybrid)",
-                                "Web + Mobile App Bundle",
-                                "Redesign / Rebuild Existing App",
-                                "Ongoing Maintenance & Feature Updates",
-                              ].map((option) => (
-                                <div
-                                  key={option}
-                                  className="flex items-center space-x-2"
-                                >
-                                  <Checkbox
-                                    id={option}
-                                    checked={formData.subServices.includes(
-                                      option,
-                                    )}
-                                    onCheckedChange={(checked) =>
-                                      handleSubServiceChange(option, !!checked)
-                                    }
-                                  />
-                                  <Label
-                                    htmlFor={option}
-                                    className="text-sm font-medium text-gray-700 cursor-pointer"
-                                  >
-                                    {option}
-                                  </Label>
-                                </div>
-                              ))}
-                            </>
-                          )}
+                          {formData.servicesInterested ===
+                            "Custom Web & Mobile Application Development (AI-Powered)" &&
+                            [
+                              "AI Powered web app/Mobile app development",
+                              "AI Agentic Platform development",
+                              "AI Integration into existing platforms",
+                              "Prototype / MVP Mobile App",
+                              "Full-Scale Production App",
+                              "iOS & Android App (Native/Hybrid)",
+                              "Web + Mobile App Bundle",
+                              "Redesign / Rebuild Existing App",
+                              "Ongoing Maintenance & Feature Updates",
+                            ].map((option) => (
+                              <div
+                                key={option}
+                                className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white p-3 shadow-sm"
+                              >
+                                <Checkbox
+                                  id={option}
+                                  checked={formData.subServices.includes(option)}
+                                  onCheckedChange={(checked) => handleSubServiceChange(option, !!checked)}
+                                />
+                                <Label htmlFor={option} className="text-sm font-medium cursor-pointer text-gray-800">
+                                  {option}
+                                </Label>
+                              </div>
+                            ))}
+                        </div>
+
+                        {subServiceError && <p className={errorTextClass}>{subServiceError}</p>}
                       </div>
-                      {errors.subServices && (
-                        <p className="text-xs text-red-500 mt-1">
-                          {errors.subServices}
+                    )}
+
+                    <FieldShell>
+                      <Label htmlFor="message" className={fieldLabelClass}>
+                        Message <span className="text-gray-400 font-medium">(optional)</span>
+                      </Label>
+                      <Textarea
+                        id="message"
+                        rows={4}
+                        value={formData.message}
+                        onChange={(e) => handleInputChange("message", e.target.value)}
+                        placeholder="Tell us about your agency and goals..."
+                        className="min-h-[120px] rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm transition focus:border-purple-300 focus:ring-2 focus:ring-purple-200 placeholder:text-gray-400"
+                      />
+                      <p className={fieldHintClass}>
+                        Share links, goals, or anything that helps us understand your needs.
+                      </p>
+                    </FieldShell>
+
+                    {/* ✅ Turnstile block (same style) */}
+                    <div className="space-y-3">
+                      <Label className={fieldLabelClass}>
+                        Security Verification <RequiredMark />
+                      </Label>
+
+                      {TURNSTILE_SITE_KEY ? (
+                        <TurnstileWidget
+                          siteKey={TURNSTILE_SITE_KEY}
+                          onToken={handleTurnstileToken}
+                          onExpire={handleTurnstileExpire}
+                          onError={handleTurnstileFail}
+                        />
+                      ) : (
+                        <p className="text-sm text-red-600">
+                          Turnstile site key missing. Set <b>VITE_TURNSTILE_SITE_KEY</b>.
                         </p>
                       )}
-                    </div>
-                  )}
 
-                  <div>
-                    <Label
-                      htmlFor="message"
-                      className="text-sm font-medium text-gray-700"
+                      {(errors.turnstile || turnstileError) && (
+                        <p className={errorTextClass}>{errors.turnstile || turnstileError}</p>
+                      )}
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={contactMutation.isPending || !turnstileToken}
+                      className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold shadow-sm hover:opacity-95"
                     >
-                      Message
-                    </Label>
-                    <Textarea
-                      id="message"
-                      rows={4}
-                      value={formData.message}
-                      onChange={(e) =>
-                        handleInputChange("message", e.target.value)
-                      }
-                      placeholder="Tell us about your agency and goals..."
-                    />
-                  </div>
+                      {contactMutation.isPending ? "Submitting..." : "Schedule Strategy Call →"}
+                    </Button>
 
-                  <Button
-                    type="submit"
-                    disabled={contactMutation.isPending}
-                    className="w-full font-bold py-3 text-white bg-gradient-to-r from-brand-coral-dark to-brand-coral-darker hover:from-brand-coral hover:to-brand-coral-dark shadow-lg text-sm sm:text-base"
-                  >
-                    {contactMutation.isPending
-                      ? "Submitting..."
-                      : "Schedule Strategy Call"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </div>
+                    <p className="text-xs text-gray-500 leading-relaxed">
+                      By submitting this form, you agree to our{" "}
+                      <a
+                        href="/privacy-policy"
+                        className="underline underline-offset-2 text-gray-700 hover:text-gray-900"
+                      >
+                        Privacy Policy
+                      </a>{" "}
+                      and consent to the processing of your personal data for the purpose of responding to your inquiry.
+                    </p>
+                  </form>
+                </CardContent>
+              </Card>
+            </div>
 
-          {/* ✅ Left Column - Strategy Call Agenda (shows SECOND on mobile <768px, first on lg+) */}
-          <div className="order-2 lg:order-1 space-y-6">
-            <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 sm:p-8 rounded-xl border border-purple-100">
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-                What to Expect in Your 30-Minute Strategy Call
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  {
-                    title: "Business Discovery",
-                    desc: "Understanding your agency model, services, and growth goals",
-                  },
-                  {
-                    title: "Challenge Identification",
-                    desc: "Identifying delivery bottlenecks and scaling challenges",
-                  },
-                  {
-                    title: "Collaboration Opportunities",
-                    desc: "Exploring where our white-label services fit your offering",
-                  },
-                  {
-                    title: "Resource Assessment",
-                    desc: "Recommending the right talent and service mix",
-                  },
-                  {
-                    title: "Partnership Benefits",
-                    desc: "Aligning for long-term, white-label collaboration",
-                  },
-                  {
-                    title: "Delivery & Workflow Alignment",
-                    desc: "Defining communication, timelines, and quality benchmarks",
-                  },
-                  {
-                    title: "Next Steps",
-                    desc: "Clear action plan if there’s a strong mutual fit",
-                  },
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start space-x-3">
-                    <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
-                    <div>
-                      <span className="font-semibold text-gray-900 text-sm sm:text-base">
-                        {item.title}
-                      </span>
-                      <p className="text-gray-700 text-xs sm:text-sm mt-1">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+            {/* ✅ Left Column - Strategy Call Agenda */}
+            <div className="order-2 lg:order-1 space-y-6">
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 p-6 sm:p-8 rounded-2xl border border-purple-100 shadow-sm">
+                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                  What to Expect in Your 30-Minute Strategy Call
+                </h3>
+                <ul className="space-y-4">
+                  {[
+                    {
+                      title: "Business Discovery",
+                      desc: "Understanding your agency model, services, and growth goals",
+                    },
+                    {
+                      title: "Challenge Identification",
+                      desc: "Identifying delivery bottlenecks and scaling challenges",
+                    },
+                    {
+                      title: "Collaboration Opportunities",
+                      desc: "Exploring where our white-label services fit your offering",
+                    },
+                    {
+                      title: "Resource Assessment",
+                      desc: "Recommending the right talent and service mix",
+                    },
+                    {
+                      title: "Partnership Benefits",
+                      desc: "Aligning for long-term, white-label collaboration",
+                    },
+                    {
+                      title: "Delivery & Workflow Alignment",
+                      desc: "Defining communication, timelines, and quality benchmarks",
+                    },
+                    {
+                      title: "Next Steps",
+                      desc: "Clear action plan if there’s a strong mutual fit",
+                    },
+                  ].map((item, idx) => (
+                    <li key={idx} className="flex items-start space-x-3">
+                      <div className="w-2 h-2 bg-brand-coral rounded-full mt-2 flex-shrink-0"></div>
+                      <div>
+                        <span className="font-semibold text-gray-900 text-sm sm:text-base">
+                          {item.title}
+                        </span>
+                        <p className="text-gray-700 text-xs sm:text-sm mt-1">{item.desc}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
 
-              <div className="mt-6 pt-2 border-t border-purple-200">
-                <p className="text-xs sm:text-sm text-gray-700 italic">
-                  This call is a genuine B2B discussion focused on partnership
-                  and growth.
-                </p>
+                <div className="mt-6 pt-2 border-t border-purple-200">
+                  <p className="text-xs sm:text-sm text-gray-700 italic">
+                    This call is a genuine B2B discussion focused on partnership and growth.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <ThankYouPopup
-          isOpen={showThankYouPopup}
-          onClose={() => setShowThankYouPopup(false)}
-          title={thankYouTitle}
-          message={thankYouMessage}
-          formType={thankYouFormType}
-        />
+          <ThankYouPopup
+            isOpen={showThankYouPopup}
+            onClose={() => setShowThankYouPopup(false)}
+            title={thankYouTitle}
+            message={thankYouMessage}
+            formType={thankYouFormType}
+          />
+        </div>
       </div>
     </section>
   );

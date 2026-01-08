@@ -3787,7 +3787,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                 )}
               </div>
 
-
               {/* ✅ RIGHT BODY (Times/Form) */}
               <div className="flex flex-col min-h-0">
                 {/* ===== TIMES ===== */}

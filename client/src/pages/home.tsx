@@ -1486,7 +1486,14 @@ export default function Home() {
                           allowFullScreen
                           loading="lazy"
                         /> */}
-                      <LazyYouTube videoId="BMcrZHzRaeg" />
+                      <LazyYouTube
+                        videoId="BMcrZHzRaeg"
+                        autoplay
+                        // mute
+                        loop
+                        controls={true}
+                        className="rounded-none"
+                      />
                       {/* </div> */}
                     </div>
                   </div>
@@ -1599,16 +1606,13 @@ export default function Home() {
           </section> */}
 
           {/* Who We Work With Section */}
-          <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+          {/* <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto">
-              {/* Header */}
               <div className="mb-10 sm:mb-14 md:mb-16">
-                {/* <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-6 sm:mb-8 mx-auto w-fit">
-                  <span className="font-medium">Who We Work With</span>
-                </div> */}
+
 
                 <h1 className="mb-4 sm:mb-6 text-black max-w-3xl text-center mx-auto font-bold text-2xl sm:text-3xl lg:text-4xl">
-                  Built for Growing Digital Marketing Agencies
+                     
                 </h1>
 
                 <p className="text-slate-700 leading-relaxed max-w-2xl text-center mx-auto text-sm sm:text-base">
@@ -1619,9 +1623,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Content Grid */}
               <div className="grid lg:grid-cols-2 gap-8">
-                {/* Services Section */}
                 <div className="px-0">
                   <h3 className="text-[rgba(0,0,0,0.82)] mb-5 sm:mb-8 flex items-center gap-3 font-bold">
                     If your agency needs to deliver:
@@ -1653,7 +1655,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Benefits Section */}
                 <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[30px]">
                   <h3 className="text-white mt-5 sm:mt-6 mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
@@ -1675,6 +1676,53 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </div>
+          </section> */}
+
+          {/* Testimonials – Card + Screenshot Style */}
+          <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
+            <div className="max-w-7xl mx-auto">
+              {/* Heading Button */}
+              <div className="flex justify-center mb-6">
+                {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
+                <span className="text-black text-2xl sm:text-2xl lg:text-4xl text-center font-bold">What Our Clients Say</span>
+                {/* </div> */}
+              </div>
+
+              {/* Subheading */}
+              <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
+                Agencies and brands trust BrandingBeez to deliver high-impact,
+                white-label solutions with care, speed, and attention to detail.
+              </p>
+
+              {/* --- MOBILE SLIDER (ONLY ≤ 480px) --- */}
+              <div className="hidden max-[480px]:flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="min-w-[85%] snap-center">
+                    <TestimonialCard
+                      name={t.name}
+                      company={t.company}
+                      testimonial={t.testimonial}
+                      imageUrl={t.imageUrl}
+                      logoUrl={t.logoUrl}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* --- TABLET + DESKTOP GRID ( > 480px ) --- */}
+              <div className="grid max-[480px]:hidden grid-cols-1 md:grid-cols-3 gap-6 text-justify">
+                {testimonials.map((t) => (
+                  <TestimonialCard
+                    key={t.id}
+                    name={t.name}
+                    company={t.company}
+                    testimonial={t.testimonial}
+                    imageUrl={t.imageUrl}
+                    logoUrl={t.logoUrl}
+                  />
+                ))}
               </div>
             </div>
           </section>
@@ -2020,53 +2068,6 @@ export default function Home() {
                 consultantTitle="CEO, BrandingBeez"
                 consultantImage={RajeStroke}
               />
-            </div>
-          </section>
-
-          {/* Testimonials – Card + Screenshot Style */}
-          <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
-            <div className="max-w-7xl mx-auto">
-              {/* Heading Button */}
-              <div className="flex justify-center mb-6">
-                {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
-                <span className="text-black text-2xl sm:text-2xl lg:text-4xl text-center font-bold">What Our Clients Say</span>
-                {/* </div> */}
-              </div>
-
-              {/* Subheading */}
-              <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
-                Agencies and brands trust BrandingBeez to deliver high-impact,
-                white-label solutions with care, speed, and attention to detail.
-              </p>
-
-              {/* --- MOBILE SLIDER (ONLY ≤ 480px) --- */}
-              <div className="hidden max-[480px]:flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
-                {testimonials.map((t) => (
-                  <div key={t.id} className="min-w-[85%] snap-center">
-                    <TestimonialCard
-                      name={t.name}
-                      company={t.company}
-                      testimonial={t.testimonial}
-                      imageUrl={t.imageUrl}
-                      logoUrl={t.logoUrl}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* --- TABLET + DESKTOP GRID ( > 480px ) --- */}
-              <div className="grid max-[480px]:hidden grid-cols-1 md:grid-cols-3 gap-6 text-justify">
-                {testimonials.map((t) => (
-                  <TestimonialCard
-                    key={t.id}
-                    name={t.name}
-                    company={t.company}
-                    testimonial={t.testimonial}
-                    imageUrl={t.imageUrl}
-                    logoUrl={t.logoUrl}
-                  />
-                ))}
-              </div>
             </div>
           </section>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 // import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Calculator, Users, DollarSign, CheckCircle, Trophy, AlertCircle, Plus, } from 'lucide-react';
+import { Calculator, Users, DollarSign, CheckCircle, Trophy, AlertCircle, Plus } from 'lucide-react';
 import { useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +19,9 @@ import { SchemaMarkup } from '@/components/schema-markup';
 // import { Breadcrumbs } from '@/components/breadcrumbs';
 import { Helmet } from 'react-helmet';
 import { SEO } from '@/hooks/SEO';
+
+// ✅ Turnstile widget (same one as contact form)
+import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 
 interface PricingResult {
   service: string;
@@ -42,6 +45,34 @@ export default function PricingCalculator() {
     website: ''
   });
   const { toast } = useToast();
+
+  // ✅ Turnstile env + state
+  const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY as string | undefined;
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileError, setTurnstileError] = useState<string>("");
+
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError("");
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please try again.");
+  }, []);
+
+  const handleTurnstileFail = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
+  }, []);
+
+  // ✅ reset Turnstile when modal closes/opens (fresh verification each time)
+  useEffect(() => {
+    if (!showContactModal) {
+      setTurnstileToken("");
+      setTurnstileError("");
+    }
+  }, [showContactModal]);
 
   // AUTO SELECT SERVICE FROM URL + OPEN MODAL
   useEffect(() => {
@@ -104,6 +135,11 @@ export default function PricingCalculator() {
       });
       setContactForm({ name: '', email: '', phone: '', website: '' });
       setShowContactModal(false);
+
+      // ✅ reset captcha after success
+      setTurnstileToken("");
+      setTurnstileError("");
+
       setTimeout(() => {
         window.open("/book-appointment", "_blank");
       }, 1000);
@@ -468,7 +504,9 @@ export default function PricingCalculator() {
         }
 
         result = {
-          service: websiteType === 'ecommerce-store' ? `${ecommercePlatform?.charAt(0).toUpperCase()}${ecommercePlatform?.slice(1)} E-commerce Store` : 'Web Development',
+          service: websiteType === 'ecommerce-store'
+            ? `${ecommercePlatform?.charAt(0).toUpperCase()}${ecommercePlatform?.slice(1)} E-commerce Store`
+            : 'Web Development',
           monthlyPrice: Math.round(webPrice),
           setupFee: 0,
           features: webFeatures,
@@ -529,10 +567,23 @@ export default function PricingCalculator() {
 
   const pricing = calculatePricing();
 
+  // ✅ UPDATED: Turnstile validation added
   const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!contactForm.name || !contactForm.email) {
       toast({ title: "Missing Information", description: "Please fill in your name and email address.", variant: "destructive" });
+      return;
+    }
+
+    if (!TURNSTILE_SITE_KEY) {
+      toast({ title: "Captcha not configured", description: "Turnstile site key missing.", variant: "destructive" });
+      return;
+    }
+
+    if (!turnstileToken) {
+      setTurnstileError("Please verify you are not a robot.");
+      toast({ title: "Captcha required", description: "Please complete the security verification.", variant: "destructive" });
       return;
     }
 
@@ -560,7 +611,10 @@ export default function PricingCalculator() {
       topPriority: selectedService,
       couponCode: null,
       service: selectedService,
-      serviceDetails: { service: selectedService, pricing, dedicatedTeam: selectedTeam, googleAdsClients: clients, seoClients, calculatorData: { totalMonthlyPrice: pricing?.monthlyPrice || 0 } }
+      serviceDetails: { service: selectedService, pricing, dedicatedTeam: selectedTeam, googleAdsClients: clients, seoClients, calculatorData: { totalMonthlyPrice: pricing?.monthlyPrice || 0 } },
+
+      // ✅ send Turnstile token to backend
+      turnstileToken,
     };
 
     contactMutation.mutate(submissionData);
@@ -716,71 +770,6 @@ export default function PricingCalculator() {
                       </div>
                     )}
 
-                    {selectedService === 'google-ads' && clients.length > 0 && (
-                      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <h4 className="font-semibold text-blue-900 mb-3">Individual Client Pricing:</h4>
-                        <div className="space-y-3">
-                          {clients.map((client) => (
-                            <div key={client.id} className="bg-white p-3 rounded border border-blue-200">
-                              <div className="flex justify-between items-start mb-2">
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-900">{client.name}</div>
-                                  <div className="text-sm text-gray-600">
-                                    ${client.monthlyAdSpend.toLocaleString()}/month • {client.campaigns} campaigns
-                                  </div>
-                                </div>
-                                <div className="font-semibold text-blue-600">
-                                  ${calculateClientPrice(client).toLocaleString()}/month
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                          <div className="border-t border-blue-300 pt-3 flex justify-between font-semibold text-blue-900">
-                            <span>Total Monthly Price:</span>
-                            <span>${pricing.monthlyPrice.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedService === 'seo' && seoClients.length > 0 && (
-                      <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                        <h4 className="font-semibold text-green-900 mb-3">Individual Website Pricing:</h4>
-                        <div className="space-y-3">
-                          {seoClients.map((client) => (
-                            <div key={client.id} className="bg-white p-3 rounded border border-green-200">
-                              <div className="flex justify-between items-start mb-2">
-                                <div className="flex-1">
-                                  <div className="font-medium text-gray-900">{client.name}</div>
-                                  <div className="text-sm text-gray-600 space-y-1">
-                                    <div>Website: {client.website}</div>
-                                    <div>Keywords: {client.targetKeywords}</div>
-                                    <div>Competition: {client.competitionLevel}</div>
-                                    <div>Current Ranking: {client.currentRanking.replace('-', ' ')}</div>
-                                    <div>Industry: {client.industry || 'Not specified'}</div>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <div className="text-right">
-                                    <div className="font-semibold text-green-600">
-                                      ${calculateSeoClientPrice(client).toLocaleString()}/month
-                                    </div>
-                                  </div>
-                                  <Button type="button" variant="ghost" size="sm" onClick={() => removeSeoClient(client.id)} className="text-red-600">
-                                    Remove
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                          <div className="border-t border-green-300 pt-3 flex justify-between font-semibold text-green-900">
-                            <span>Total Monthly Price:</span>
-                            <span>${pricing.monthlyPrice.toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     <div className="space-y-3">
                       <h4 className="font-semibold text-gray-900">What's Included:</h4>
                       <ul className="space-y-2">
@@ -803,6 +792,7 @@ export default function PricingCalculator() {
           </div>
         </section>
 
+        {/* Service Modal... (unchanged) */}
         <Dialog open={showServiceModal} onOpenChange={setShowServiceModal}>
           <DialogContent className="max-w-5xl w-full h-[90vh] overflow-y-auto z-50">
             <DialogHeader>
@@ -1766,7 +1756,6 @@ export default function PricingCalculator() {
 
             <div className="mt-6 flex justify-end">
               <div className="flex gap-3">
-                {/* Apply & Continue — just closes modal, right panel already updated */}
                 <Button type="button" className="bg-brand-purple text-white" onClick={() => setShowServiceModal(false)}>
                   Apply &amp; Continue
                 </Button>
@@ -1778,7 +1767,7 @@ export default function PricingCalculator() {
           </DialogContent>
         </Dialog>
 
-        {/* Contact Modal */}
+        {/* ✅ Contact Modal (UPDATED with Turnstile) */}
         <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
           <DialogContent className="max-w-2xl z-50">
             <DialogHeader>
@@ -1840,43 +1829,27 @@ export default function PricingCalculator() {
                 </div>
               </div>
 
-              {/* Quote Summary */}
-              {pricing && (
-                <div className="bg-gray-50 p-4 rounded-lg border">
-                  <h4 className="font-semibold text-gray-900 mb-3">Your Quote Summary:</h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Service:</span>
-                      <span className="font-medium">{pricing.service}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Monthly Price:</span>
-                      <span className="font-medium">
-                        ${(pricing.monthlyPrice || 0).toLocaleString()}
-                        {(selectedService === 'web-development' || selectedService === 'ai-development') ? ' project' : ''}
-                      </span>
-                    </div>
-                    {pricing.setupFee > 0 && (
-                      <div className="flex justify-between">
-                        <span>Setup Fee:</span>
-                        <span className="font-medium">${pricing.setupFee.toLocaleString()}</span>
-                      </div>
-                    )}
-                    {pricing.teamDiscount && (
-                      <div className="flex justify-between text-green-600">
-                        <span>Team Discount:</span>
-                        <span className="font-medium">-{pricing.teamDiscount}%</span>
-                      </div>
-                    )}
-                    {pricing.savings && (
-                      <div className="flex justify-between text-green-600">
-                        <span>Annual Savings:</span>
-                        <span className="font-medium">${pricing.savings.toLocaleString()}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+              {/* ✅ Turnstile block */}
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-gray-900">
+                  Security Verification <span className="text-red-500 font-bold">*</span>
+                </Label>
+
+                {TURNSTILE_SITE_KEY ? (
+                  <TurnstileWidget
+                    siteKey={TURNSTILE_SITE_KEY}
+                    onToken={handleTurnstileToken}
+                    onExpire={handleTurnstileExpire}
+                    onError={handleTurnstileFail}
+                  />
+                ) : (
+                  <p className="text-sm text-red-600">
+                    Turnstile site key missing. Set <b>VITE_TURNSTILE_SITE_KEY</b>.
+                  </p>
+                )}
+
+                {turnstileError && <p className="text-xs text-red-600 font-medium">{turnstileError}</p>}
+              </div>
 
               <div className="flex gap-3 pt-4">
                 <Button
@@ -1891,14 +1864,22 @@ export default function PricingCalculator() {
                   type="submit"
                   className="flex-1 bg-gradient-to-r from-brand-coral to-pink-500 text-white"
                   size="lg"
-                  disabled={contactSubmitting}
+                  disabled={contactSubmitting || !turnstileToken}
                 >
                   {contactSubmitting ? "Sending..." : "Get Quote"}
                 </Button>
               </div>
+
+              <p className="text-xs text-gray-500 leading-relaxed">
+                By submitting, you agree to our{" "}
+                <a href="/privacy-policy" className="underline underline-offset-2 text-gray-700 hover:text-gray-900">
+                  Privacy Policy
+                </a>.
+              </p>
             </form>
           </DialogContent>
         </Dialog>
+
         {/* <Footer /> */}
       </div>
     </>

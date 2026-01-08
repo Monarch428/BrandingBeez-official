@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Star, Users, TrendingUp, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+
+// ✅ Turnstile widget (same as contact form)
+import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 
 interface EntryPopupProps {
   isOpen: boolean;
@@ -64,6 +67,38 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
   // ✅ NEW: 5s delay gate
   const [canShowAfterDelay, setCanShowAfterDelay] = useState(false);
 
+  // ✅ Turnstile env + state
+  const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY as
+    | string
+    | undefined;
+
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileError, setTurnstileError] = useState<string>("");
+
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError("");
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please verify again.");
+  }, []);
+
+  const handleTurnstileFail = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
+  }, []);
+
+  // ✅ Reset popup state when it closes
+  const resetPopup = () => {
+    setStep(1);
+    setEmail("");
+    setInterest("");
+    setTurnstileToken("");
+    setTurnstileError("");
+  };
+
   useEffect(() => {
     if (!isOpen) {
       setCanShowAfterDelay(false);
@@ -77,6 +112,12 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
     return () => window.clearTimeout(timer);
   }, [isOpen]);
 
+  // ✅ Reset captcha whenever step changes (fresh verification for Step 2 submit)
+  useEffect(() => {
+    setTurnstileToken("");
+    setTurnstileError("");
+  }, [step]);
+
   const leadCaptureMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await fetch("/api/contacts", {
@@ -89,6 +130,9 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
           service: data.interest,
           message: `Entry popup submission - Selected Interest: ${data.interest}`,
           region: "US",
+
+          // ✅ include captcha token
+          turnstileToken: data.turnstileToken,
         }),
       });
       if (!response.ok) {
@@ -135,13 +179,27 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
 
   const handleSubmit = () => {
     if (!email || !interest) return;
-    leadCaptureMutation.mutate({ email, interest });
-  };
 
-  const resetPopup = () => {
-    setStep(1);
-    setEmail("");
-    setInterest("");
+    // ✅ Turnstile required
+    if (!TURNSTILE_SITE_KEY) {
+      toast({
+        title: "Captcha not configured",
+        description: "Missing VITE_TURNSTILE_SITE_KEY.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!turnstileToken) {
+      setTurnstileError("Please verify you are not a robot.");
+      toast({
+        title: "Captcha required",
+        description: "Please complete the security verification.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    leadCaptureMutation.mutate({ email, interest, turnstileToken });
   };
 
   const handleClose = () => {
@@ -279,10 +337,11 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                     <button
                       key={item.id}
                       onClick={() => setInterest(item.id)}
-                      className={`p-3 rounded-lg border-2 text-center transition-all ${interest === item.id
+                      className={`p-3 rounded-lg border-2 text-center transition-all ${
+                        interest === item.id
                           ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
                           : "border-gray-200 dark:border-gray-600 hover:border-orange-300"
-                        }`}
+                      }`}
                     >
                       <div className="text-lg mb-1">{item.icon}</div>
                       <span className="text-xs font-medium text-gray-900 dark:text-white">
@@ -301,9 +360,41 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                     className="w-full"
                   />
 
+                  {/* ✅ Turnstile captcha (same contact form vibe) */}
+                  <div className="space-y-2">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Security Verification <span className="text-red-500">*</span>
+                    </div>
+
+                    {TURNSTILE_SITE_KEY ? (
+                      <TurnstileWidget
+                        siteKey={TURNSTILE_SITE_KEY}
+                        onToken={handleTurnstileToken}
+                        onExpire={handleTurnstileExpire}
+                        onError={handleTurnstileFail}
+                      />
+                    ) : (
+                      <p className="text-sm text-red-600">
+                        Turnstile site key missing. Set{" "}
+                        <b>VITE_TURNSTILE_SITE_KEY</b>.
+                      </p>
+                    )}
+
+                    {turnstileError && (
+                      <p className="text-xs text-red-600 font-medium">
+                        {turnstileError}
+                      </p>
+                    )}
+                  </div>
+
                   <Button
                     onClick={handleSubmit}
-                    disabled={!email || !interest || leadCaptureMutation.isPending}
+                    disabled={
+                      !email ||
+                      !interest ||
+                      leadCaptureMutation.isPending ||
+                      !turnstileToken
+                    }
                     className="w-full bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-orange-600 hover:to-yellow-600 text-white"
                   >
                     {leadCaptureMutation.isPending
@@ -372,10 +463,11 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${i <= step
+                    className={`w-2 h-2 rounded-full ${
+                      i <= step
                         ? "bg-orange-500"
                         : "bg-gray-300 dark:bg-gray-500"
-                      }`}
+                    }`}
                   />
                 ))}
               </div>
@@ -384,6 +476,6 @@ export function EntryPopup({ isOpen, onClose }: EntryPopupProps) {
         </div>
       </div>
     </div>,
-    (document.body || document.documentElement)
+    document.body || document.documentElement
   );
 }

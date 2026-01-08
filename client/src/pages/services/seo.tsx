@@ -558,7 +558,11 @@ export default function SEOServices() {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       /> */}
-                    <LazyYouTube videoId="dCpAoMPSHsE" />
+                    <LazyYouTube videoId="dCpAoMPSHsE" autoplay
+                      // mute
+                      loop
+                      controls={true}
+                      className="rounded-none" />
                     {/* </div> */}
                   </div>
                 </div>

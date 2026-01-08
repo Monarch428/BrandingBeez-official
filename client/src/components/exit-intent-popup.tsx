@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { X, Gift, ArrowRight, Clock, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+// ✅ Turnstile widget (same as contact form)
+import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 
 interface ExitIntentPopupProps {
   isOpen: boolean;
@@ -54,10 +57,43 @@ function hasExitClosedThisSession() {
 
 export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
   const [step, setStep] = useState(1);
+
+  // ✅ NEW: required name field
+  const [name, setName] = useState("");
+
   const [email, setEmail] = useState("");
   const [selectedService, setSelectedService] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // ✅ Turnstile env + state
+  const TURNSTILE_SITE_KEY = (import.meta as any).env?.VITE_TURNSTILE_SITE_KEY as
+    | string
+    | undefined;
+
+  const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileError, setTurnstileError] = useState<string>("");
+
+  const handleTurnstileToken = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError("");
+  }, []);
+
+  const handleTurnstileExpire = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification expired. Please verify again.");
+  }, []);
+
+  const handleTurnstileFail = useCallback(() => {
+    setTurnstileToken("");
+    setTurnstileError("Verification failed. Please try again.");
+  }, []);
+
+  // ✅ Reset captcha when step changes (fresh verification on Step 3)
+  useEffect(() => {
+    setTurnstileToken("");
+    setTurnstileError("");
+  }, [step, isOpen]);
 
   const leadCaptureMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -101,17 +137,47 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
   ];
 
   const handleSubmit = () => {
+    // ✅ Require name
+    if (!name.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!email || !selectedService) return;
+
+    // ✅ Turnstile required
+    if (!TURNSTILE_SITE_KEY) {
+      toast({
+        title: "Captcha not configured",
+        description: "Missing VITE_TURNSTILE_SITE_KEY.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!turnstileToken) {
+      setTurnstileError("Please verify you are not a robot.");
+      toast({
+        title: "Captcha required",
+        description: "Please complete the security verification.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     const selectedServiceData = services.find((s) => s.id === selectedService);
 
     leadCaptureMutation.mutate({
-      name: "Exit Intent Lead",
+      // ✅ store real user name
+      name: name.trim(),
       email,
       company: "Unknown",
       phone: "",
       service: selectedServiceData?.name || "General Inquiry",
-      message: `Exit intent popup submission - Selected Service: ${selectedServiceData?.name} | Discount Offered: ${selectedServiceData?.discount} | Email: ${email} | Popup Type: Exit Intent with Discount Offer`,
+      message: `Exit intent popup submission - Name: ${name.trim()} | Selected Service: ${selectedServiceData?.name} | Discount Offered: ${selectedServiceData?.discount} | Email: ${email} | Popup Type: Exit Intent with Discount Offer`,
       source: "exit_intent_popup",
       region: "US",
       inquiry_type: "exit-popup-contact-form",
@@ -119,13 +185,19 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
       country: "US",
       topPriority: "exit-popup-lead",
       contactFormType: "exit-popup-contact-form",
+
+      // ✅ captcha token
+      turnstileToken,
     });
   };
 
   const resetPopup = () => {
     setStep(1);
+    setName("");
     setEmail("");
     setSelectedService("");
+    setTurnstileToken("");
+    setTurnstileError("");
   };
 
   const handleClose = () => {
@@ -206,10 +278,11 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                     <button
                       key={service.id}
                       onClick={() => setSelectedService(service.id)}
-                      className={`w-full p-3 rounded-lg border-2 text-left transition-all ${selectedService === service.id
+                      className={`w-full p-3 rounded-lg border-2 text-left transition-all ${
+                        selectedService === service.id
                           ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
                           : "border-gray-200 dark:border-gray-600 hover:border-gray-300"
-                        }`}
+                      }`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="font-medium text-gray-900 dark:text-white">
@@ -241,7 +314,7 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                     Almost There! 🎁
                   </h2>
                   <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
-                    Enter your email to receive your exclusive discount code
+                    Enter your details to receive your exclusive discount code
                   </p>
                   {selectedService && (
                     <div className="bg-gradient-to-r from-green-100 to-blue-100 dark:from-green-900/20 dark:to-blue-900/20 p-3 rounded-lg">
@@ -256,6 +329,15 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                 </div>
 
                 <div className="space-y-4">
+                  {/* ✅ NEW: Name field (required) */}
+                  <Input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full"
+                  />
+
                   <Input
                     type="email"
                     placeholder="Enter your email address"
@@ -264,9 +346,41 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                     className="w-full"
                   />
 
+                  {/* ✅ Turnstile captcha (same contact form) */}
+                  <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/20 p-4 space-y-2">
+                    <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Security Verification <span className="text-red-500">*</span>
+                    </div>
+
+                    {TURNSTILE_SITE_KEY ? (
+                      <TurnstileWidget
+                        siteKey={TURNSTILE_SITE_KEY}
+                        onToken={handleTurnstileToken}
+                        onExpire={handleTurnstileExpire}
+                        onError={handleTurnstileFail}
+                      />
+                    ) : (
+                      <p className="text-sm text-red-600">
+                        Turnstile site key missing. Set{" "}
+                        <b>VITE_TURNSTILE_SITE_KEY</b>.
+                      </p>
+                    )}
+
+                    {turnstileError && (
+                      <p className="text-xs text-red-600 font-medium">
+                        {turnstileError}
+                      </p>
+                    )}
+                  </div>
+
                   <Button
                     onClick={handleSubmit}
-                    disabled={!email || leadCaptureMutation.isPending}
+                    disabled={
+                      !name.trim() ||
+                      !email ||
+                      leadCaptureMutation.isPending ||
+                      !turnstileToken
+                    }
                     className="w-full bg-green-600 hover:bg-green-700 text-white"
                   >
                     {leadCaptureMutation.isPending
@@ -302,8 +416,9 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
                 {[1, 2, 3, 4].map((i) => (
                   <div
                     key={i}
-                    className={`w-2 h-2 rounded-full ${i <= step ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"
-                      }`}
+                    className={`w-2 h-2 rounded-full ${
+                      i <= step ? "bg-blue-500" : "bg-gray-300 dark:bg-gray-500"
+                    }`}
                   />
                 ))}
               </div>
@@ -312,6 +427,6 @@ export function ExitIntentPopup({ isOpen, onClose }: ExitIntentPopupProps) {
         </div>
       </div>
     </div>,
-    (document.body || document.documentElement)
+    document.body || document.documentElement
   );
 }

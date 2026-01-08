@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./db-init";
 import dotenv from "dotenv";
+import path from "path";
 // import https from "https";
 // import fs from "fs";
 
@@ -341,6 +342,11 @@ app.use(express.static('public', {
     }
   }
 }));
+
+app.use(
+  "/email",
+  express.static(path.join(process.cwd(), "server", "assests"))
+);
 
 app.use((req, res, next) => {
   const start = Date.now();

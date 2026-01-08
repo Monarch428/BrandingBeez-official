@@ -9,7 +9,7 @@ import { z } from "zod";
 import { storage } from "../storage";
 import { contactRateLimit, formRateLimit, validateContactForm, spamDetection } from "../security";
 import { insertContactSchema, insertClientSchema, insertDedicatedResourcesLeadSchema } from "@shared/schema";
-import { sendContactNotification, sendEmailViaGmail, sendQuestionnaireToAdmin } from "../email-service";
+import { sendContactNotification, sendEmailViaGmail, sendQuestionnaireToAdmin, sendContactAutoReplyEmail } from "../email-service";
 
 // ✅ NEW
 import { requireTurnstile } from "../security/turnstile";
@@ -75,6 +75,13 @@ export function registerContactsAndLeadsRoutes(app: Express, authenticateAdmin: 
           n8nDetails,
           aiDetails,
           automationDetails,
+
+          // ✅ NEW: UTM hidden fields
+          utm_campaign_name,
+          utm_adgroup_name,
+          utm_keyword,
+          utm_location,
+          utm_device,
         } = req.body;
 
         if (!name || !email) {
@@ -145,6 +152,23 @@ export function registerContactsAndLeadsRoutes(app: Express, authenticateAdmin: 
         if (timeline) fullMessage += `\n\n⏰ TIMELINE: ${timeline}`;
         if (referral) fullMessage += `\n\n📢 REFERRAL SOURCE: ${referral}`;
 
+        // ✅ NEW: UTM tracking block (stored inside message so no schema change needed)
+        const utmPairs: Array<[string, any]> = [
+          ["utm_campaign_name", utm_campaign_name],
+          ["utm_adgroup_name", utm_adgroup_name],
+          ["utm_keyword", utm_keyword],
+          ["utm_location", utm_location],
+          ["utm_device", utm_device],
+        ];
+
+        const utmLines = utmPairs
+          .filter(([, v]) => typeof v === "string" && v.trim().length > 0)
+          .map(([k, v]) => `• ${k}: ${String(v).trim()}`);
+
+        if (utmLines.length) {
+          fullMessage += `\n\n📈 UTM TRACKING:\n${utmLines.join("\n")}`;
+        }
+
         const contactData: any = {
           name,
           email,
@@ -167,6 +191,17 @@ export function registerContactsAndLeadsRoutes(app: Express, authenticateAdmin: 
 
         const validatedData = insertContactSchema.parse(contactData);
         const contact = await storage.createContact(validatedData);
+
+        try {
+          await sendContactAutoReplyEmail({
+            name: validatedData.name,
+            email: validatedData.email,
+            service: service ? service.replace(/-/g, " ") : formType.replace(/-/g, " "),
+            challenge: message || "",
+          });
+        } catch (e) {
+          console.warn("Auto-reply email failed:", e);
+        }
 
         // Notify
         try {
