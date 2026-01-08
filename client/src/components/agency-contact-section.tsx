@@ -462,16 +462,11 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
             {/* ✅ Right Column - Contact Form */}
             <div className="order-1 lg:order-2">
               <Card className="rounded-2xl border border-gray-200/70 shadow-lg overflow-hidden">
-                <CardHeader className="bg-gradient-to-br from-white to-gray-50 border-b border-gray-200/70">
-                  <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl">
-                    Schedule Strategy Call
-                  </CardTitle>
-                  <p className="text-center text-sm text-gray-600">
-                    Answer a few questions — we’ll reply within 24 hours.
-                  </p>
-                </CardHeader>
+                <CardTitle className="text-center font-bold text-gray-900 text-lg sm:text-xl mt-4">
+                  Schedule Strategy Call
+                </CardTitle>
 
-                <CardContent className="p-5 sm:p-8">
+                <CardContent className="p-5 sm:p-8 !pt-0">
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* ✅ Hidden UTM fields */}
                     <input type="hidden" name="utm_campaign_name" value={formData.utm_campaign_name} />
