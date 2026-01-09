@@ -44,10 +44,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
   const [currentPhase, setCurrentPhase] = useState(0);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
-  // Guard: if no phases, don't render
-  if (!phases || phases.length === 0) {
-    return null;
-  }
+  if (!phases || phases.length === 0) return null;
 
   const totalPhases = phases.length;
   const activePhase = phases[currentPhase] ?? phases[0];
@@ -69,12 +66,8 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
     const endX = e.changedTouches[0].clientX;
     const diff = touchStartX - endX;
 
-    // basic swipe threshold
-    if (diff > 50 && currentPhase < totalPhases - 1) {
-      goToNextPhase();
-    } else if (diff < -50 && currentPhase > 0) {
-      goToPrevPhase();
-    }
+    if (diff > 50 && currentPhase < totalPhases - 1) goToNextPhase();
+    else if (diff < -50 && currentPhase > 0) goToPrevPhase();
 
     setTouchStartX(null);
   };
@@ -87,10 +80,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
     .filter(Boolean)
     .join(" ");
 
-  const wrapperClasses = [
-    "max-w-5xl lg:max-w-6xl mx-auto",
-    wrapperClassName,
-  ]
+  const wrapperClasses = ["max-w-5xl lg:max-w-6xl mx-auto", wrapperClassName]
     .filter(Boolean)
     .join(" ");
 
@@ -100,8 +90,9 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
     "text-white border-none shadow-lg",
     "px-4 sm:px-8 md:px-10 py-6 sm:py-6",
     "rounded-2xl",
-    "flex flex-col", 
-    cardHeightClass || "min-h-[320px] sm:min-h-[360px] md:min-h-[380px]",
+    "flex flex-col",
+    cardHeightClass ||
+    "h-[440px] ",
     cardClassName,
   ]
     .filter(Boolean)
@@ -112,23 +103,6 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
       <div className={wrapperClasses}>
         {/* Heading */}
         <div className="text-center mb-8 sm:mb-10">
-          {/* {badgeLabel && (
-            <div className="flex items-center justify-center mb-4">
-              <div
-                className={[
-                  "inline-flex items-center gap-2 rounded-full",
-                  "bg-brand-coral px-4 py-1.5 border border-brand-purple/15",
-                  "text-xs sm:text-sm font-medium text-white",
-                  badgeClassName,
-                ]
-                  .filter(Boolean)
-                  .join(" ")}
-              >
-                <span>{badgeLabel}</span>
-              </div>
-            </div>
-          )} */}
-
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-purple mb-3">
             {heading}
           </h2>
@@ -146,7 +120,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
           onTouchEnd={handleTouchEnd}
         >
           <Card className={cardClasses}>
-            {/* Header – phase + title */}
+            {/* Header */}
             <CardHeader className="pb-3 sm:pb-4 px-0">
               <div className="flex flex-col items-start gap-1 pl-4 sm:pl-8 md:pl-10">
                 <p className="text-[14px] md:text-[16px] font-bold uppercase tracking-[0.18em] text-yellow-400">
@@ -158,9 +132,27 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
               </div>
             </CardHeader>
 
-            <CardContent className="flex-1 flex flex-col px-1 sm:px-4 md:px-6">
-              {/* Top content block (intro + points + extra) */}
-              <div className="space-y-5 sm:space-y-6">
+            {/* ✅ CardContent must be flex-col + min-h-0 */}
+            <CardContent className="flex-1 min-h-0 flex flex-col px-1 sm:px-4 md:px-6">
+              {/* ✅ Fixed height for scrollable content area per breakpoint */}
+              <div
+                className={[
+                  "overflow-y-auto space-y-5 sm:space-y-6 pr-1",
+                  "min-h-0",
+                  // 320px: smaller scroll region
+                  "h-[280px]",
+                  // Mobile
+                  "xs:h-[280px]",
+                  // Small tablet
+                  "sm:h-[200px]",
+                  // Tablet
+                  "md:h-[200px]",
+                  // Laptop
+                  "lg:h-[140px]",
+                  // Desktop
+                  "xl:h-[140px]",
+                ].join(" ")}
+              >
                 {/* Main points */}
                 <div className="pl-4 sm:pl-8 md:pl-10">
                   <p className="text-sm md:text-base font-medium text-white mb-3">
@@ -179,7 +171,7 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
                   </ul>
                 </div>
 
-                {/* Optional extra block (e.g. “You get: …”) */}
+                {/* Optional extra block */}
                 {activePhase.extraIntro && activePhase.extraPoints?.length ? (
                   <div className="pt-4 border-t border-white/15 pl-4 sm:pl-8 md:pl-10">
                     <p className="text-sm md:text-base font-medium text-white mb-2">
@@ -199,12 +191,12 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
                   </div>
                 ) : null}
               </div>
+              <p className="text-xs md:text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-3 sm:mb-4 text-center px-2">
+                <span>{activePhase.outcome}</span>
+              </p>
 
-              {/* Bottom block: always sticks to bottom of card */}
-              <div className="pt-4 border-t border-white/15 mt-6">
-                <p className="text-xs md:text-sm text-white/90 font-medium flex items-center justify-center gap-2 mb-3 sm:mb-4 text-center px-2">
-                  <span>{activePhase.outcome}</span>
-                </p>
+              {/* ✅ Bottom block fixed */}
+              <div className="mt-4 pt-4 border-t border-white/15">
 
                 {/* Dots */}
                 <div className="flex items-center justify-center gap-2 mb-3 sm:mb-4">
@@ -226,7 +218,6 @@ export const PhaseSliderSection: React.FC<PhaseSliderSectionProps> = ({
 
                 {/* Prev / Next buttons */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  {/* Left: text hint on small screens if you ever want it – currently omitted */}
                   <div className="hidden sm:block text-xs text-white/80">
                     Swipe or use buttons to navigate phases
                   </div>

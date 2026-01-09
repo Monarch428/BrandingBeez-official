@@ -1172,6 +1172,9 @@ import { ThankYouPopup } from "./thank-you-popup";
 import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 import { isDisposableEmail } from "@/utils/disposable-email";
 
+// ✅ NEW: reusable UTM helpers (service)
+import { initUtmCapture, getUtmParams } from "@/lib/tracking/utm";
+
 interface ContactFormData {
   name: string;
   email: string;
@@ -1383,7 +1386,10 @@ function normalizeDraftFormData(raw: any): ContactFormData {
   const websiteDetails =
     safe.websiteDetails && typeof safe.websiteDetails === "object"
       ? {
-        platform: typeof safe.websiteDetails.platform === "string" ? safe.websiteDetails.platform : "",
+        platform:
+          typeof safe.websiteDetails.platform === "string"
+            ? safe.websiteDetails.platform
+            : "",
         tier: typeof safe.websiteDetails.tier === "string" ? safe.websiteDetails.tier : "",
       }
       : { ...defaultFormData.websiteDetails };
@@ -1465,56 +1471,22 @@ export function ContactFormOptimized() {
   const errorRingClass = "border-red-300 focus:border-red-400 focus:ring-red-200";
 
   // ---------------------------
-  // ✅ UTM CAPTURE (URL → sessionStorage → formData)
+  // ✅ UTM CAPTURE (service-based)
+  // URL → sessionStorage → formData
   // ---------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const UTM_KEY = "bb_utm_params";
-    const params = new URLSearchParams(window.location.search);
+    initUtmCapture();
+    const utm = getUtmParams();
 
-    const read = (k: string) => (params.get(k) || "").trim();
-
-    const utmFromUrl = {
-      utm_campaign_name: read("utm_campaign_name"),
-      utm_adgroup_name: read("utm_adgroup_name"),
-      utm_keyword: read("utm_keyword"),
-      utm_location: read("utm_location"),
-      utm_device: read("utm_device"),
-    };
-
-    // Load stored UTMs (if any)
-    let stored: any = {};
-    try {
-      const raw = sessionStorage.getItem(UTM_KEY);
-      stored = raw ? JSON.parse(raw) : {};
-    } catch {
-      stored = {};
-    }
-
-    // If URL has values, they override storage (current visit is source of truth)
-    const merged = {
-      ...stored,
-      ...Object.fromEntries(
-        Object.entries(utmFromUrl).filter(([, v]) => typeof v === "string" && v.length > 0)
-      ),
-    };
-
-    // Save merged
-    try {
-      sessionStorage.setItem(UTM_KEY, JSON.stringify(merged));
-    } catch {
-      // ignore
-    }
-
-    // Hydrate into formData (don’t clobber if already set)
     setFormData((prev) => ({
       ...prev,
-      utm_campaign_name: prev.utm_campaign_name || merged.utm_campaign_name || "",
-      utm_adgroup_name: prev.utm_adgroup_name || merged.utm_adgroup_name || "",
-      utm_keyword: prev.utm_keyword || merged.utm_keyword || "",
-      utm_location: prev.utm_location || merged.utm_location || "",
-      utm_device: prev.utm_device || merged.utm_device || "",
+      utm_campaign_name: prev.utm_campaign_name || utm.utm_campaign_name || "",
+      utm_adgroup_name: prev.utm_adgroup_name || utm.utm_adgroup_name || "",
+      utm_keyword: prev.utm_keyword || utm.utm_keyword || "",
+      utm_location: prev.utm_location || utm.utm_location || "",
+      utm_device: prev.utm_device || utm.utm_device || "",
     }));
   }, []);
 
@@ -1564,19 +1536,23 @@ export function ContactFormOptimized() {
 
     const draft = safeParseDraft(sessionStorage.getItem(DRAFT_KEY));
 
-    // ✅ FIX: Restore draft safely (no undefined fields)
+    // ✅ Restore draft safely (no undefined fields) + preserve captured UTMs
     if (draft?.formData) {
       setFormData((prev) => {
         const normalized = normalizeDraftFormData(draft.formData);
 
-        // ✅ preserve any UTMs already captured in current state
+        // ✅ Preserve UTM from (1) normalized draft OR (2) current captured state OR (3) session UTMs
+        const utm = getUtmParams();
+
         return {
           ...normalized,
-          utm_campaign_name: normalized.utm_campaign_name || prev.utm_campaign_name || "",
-          utm_adgroup_name: normalized.utm_adgroup_name || prev.utm_adgroup_name || "",
-          utm_keyword: normalized.utm_keyword || prev.utm_keyword || "",
-          utm_location: normalized.utm_location || prev.utm_location || "",
-          utm_device: normalized.utm_device || prev.utm_device || "",
+          utm_campaign_name:
+            normalized.utm_campaign_name || prev.utm_campaign_name || utm.utm_campaign_name || "",
+          utm_adgroup_name:
+            normalized.utm_adgroup_name || prev.utm_adgroup_name || utm.utm_adgroup_name || "",
+          utm_keyword: normalized.utm_keyword || prev.utm_keyword || utm.utm_keyword || "",
+          utm_location: normalized.utm_location || prev.utm_location || utm.utm_location || "",
+          utm_device: normalized.utm_device || prev.utm_device || utm.utm_device || "",
         };
       });
     }
@@ -1854,7 +1830,8 @@ export function ContactFormOptimized() {
         structuredMessage += `\n• Platform: ${websitePlatforms.find((p) => p.value === data.websiteDetails.platform)?.label
           }`;
         if (data.websiteDetails.tier) {
-          structuredMessage += `\n• Tier: ${websiteTiers.find((t) => t.value === data.websiteDetails.tier)?.label}`;
+          structuredMessage += `\n• Tier: ${websiteTiers.find((t) => t.value === data.websiteDetails.tier)?.label
+            }`;
         }
       }
 
@@ -1908,7 +1885,8 @@ export function ContactFormOptimized() {
       }
 
       if (data.budget) {
-        structuredMessage += `\n\n💰 BUDGET: ${budgets.find((b) => b.value === data.budget)?.label || data.budget}`;
+        structuredMessage += `\n\n💰 BUDGET: ${budgets.find((b) => b.value === data.budget)?.label || data.budget
+          }`;
       }
       if (data.timeline) {
         structuredMessage += `\n\n⏰ TIMELINE: ${timelines.find((t) => t.value === data.timeline)?.label || data.timeline
@@ -2030,7 +2008,10 @@ export function ContactFormOptimized() {
     if (field === "phone") clearError("phone");
   };
 
-  const handleWebsiteDetailsChange = (field: keyof ContactFormData["websiteDetails"], value: string) => {
+  const handleWebsiteDetailsChange = (
+    field: keyof ContactFormData["websiteDetails"],
+    value: string
+  ) => {
     setFormData((prev) => {
       const next = { ...prev, websiteDetails: { ...prev.websiteDetails, [field]: value } };
       if (field === "platform") next.websiteDetails.tier = "";
@@ -2179,7 +2160,7 @@ export function ContactFormOptimized() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* ✅ NEW: Hidden UTM fields */}
+              {/* ✅ Hidden UTM fields */}
               <input type="hidden" name="utm_campaign_name" value={formData.utm_campaign_name} />
               <input type="hidden" name="utm_adgroup_name" value={formData.utm_adgroup_name} />
               <input type="hidden" name="utm_keyword" value={formData.utm_keyword} />
@@ -2235,7 +2216,7 @@ export function ContactFormOptimized() {
                       {errors.email && <p className={errorTextClass}>{errors.email}</p>}
                     </FieldShell>
 
-                    {/* Company Website – full width */}
+                    {/* Company Website */}
                     <FieldShell>
                       <Label htmlFor="company" className={fieldLabelClass}>
                         Company Website URL <RequiredMark />
@@ -2255,7 +2236,7 @@ export function ContactFormOptimized() {
                       </p>
                     </FieldShell>
 
-                    {/* Phone – full width */}
+                    {/* Phone */}
                     <FieldShell>
                       <Label htmlFor="phone" className={fieldLabelClass}>
                         Phone Number <RequiredMark />

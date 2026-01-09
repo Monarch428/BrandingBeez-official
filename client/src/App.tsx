@@ -350,9 +350,9 @@ function App() {
                   <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
                 </SafePopupBoundary> */}
 
-                <SafePopupBoundary name="ExitIntentPopup">
+                {/* <SafePopupBoundary name="ExitIntentPopup">
                   <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
-                </SafePopupBoundary>
+                </SafePopupBoundary> */}
 
                 {/* <SafePopupBoundary name="MobilePopup">
                   <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />

@@ -145,7 +145,7 @@ const webDevelopmentPhases: PhaseItem[] = [
     points: [
       "Client goals & target audience",
       "Website structure & functionality",
-      "Platform selection (WordPress, custom build, web apps)",
+      "Platform selection (WordPress, custom web build)",
     ],
     outcome: "This keeps delivery on-time and on-budget.",
   },
@@ -382,15 +382,23 @@ export default function WebDevelopment() {
           <section className="relative overflow-hidden py-12 sm:py-16 lg:py-20 bg-gradient-to-r from-brand-purple via-brand-purple/95 to-brand-coral text-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-                {/* Left: Copy + CTA */}
-                <div className="max-w-2xl">
-                  {/* Badge */}
-                  {/* <div className="flex justify-center lg:justify-start">
-                    <Badge className="inline-flex items-center justify-center rounded-full bg-brand-coral font-medium text-xs sm:text-sm text-white mb-6 px-4 py-1.5 backdrop-blur-sm shadow-sm">
-                      Featured White-Label Website Partner for Agencies
-                    </Badge>
-                  </div> */}
 
+                {/* ✅ Right: Achievements Card (VIDEO FIRST ON MOBILE) */}
+                <div className="order-1 lg:order-2 bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-0 lg:mt-0">
+                  <div className="mb-0">
+                    <LazyYouTube
+                      videoId="h2P606wR_Jk"
+                      autoplay
+                      // mute
+                      loop
+                      controls={true}
+                      className="rounded-none"
+                    />
+                  </div>
+                </div>
+
+                {/* ✅ Left: Copy + CTA (SHOWS BELOW VIDEO ON MOBILE) */}
+                <div className="order-2 lg:order-1 max-w-2xl">
                   {/* Heading */}
                   <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-5">
                     White-Label Website Development for Digital Agencies
@@ -435,7 +443,7 @@ export default function WebDevelopment() {
                       buttonSize="lg"
                       defaultServiceType="Website Development"
                     />
-                    {/* Secondary CTA */}
+
                     <Button
                       variant="outline"
                       onClick={handleScrollToCaseStudies}
@@ -445,56 +453,12 @@ export default function WebDevelopment() {
                       <ExternalLink className="w-4 h-4" />
                     </Button>
                   </div>
-                  {/* <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-center text-white">
-                    <div className="flex justify-end">
-                      <img
-                        src={Whitelabel_Image}
-                        alt="White Label Delivery"
-                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
-                      />
-                    </div>
-
-                    <div className="flex justify-center px-0">
-                      <img
-                        src={Hours_24_Image}
-                        alt="24 Hours Start Time"
-                        className="h-18 sm:h-20 md:h-24 w-auto object-contain"
-                      />
-                    </div>
-
-                    <div className="flex justify-start">
-                      <img
-                        src={WEB_Image}
-                        alt="Dedicated SEO Resource"
-                        className="h-16 sm:h-18 md:h-20 w-auto object-contain"
-                      />
-                    </div>
-                  </div> */}
                 </div>
 
-                {/* Right: Achievements Card */}
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-8 lg:mt-0">
-                  {/* VIDEO ALWAYS SHOWN */}
-                  <div className="mb-0">
-                    {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[305px] rounded-xl overflow-hidden shadow-lg"> */}
-                    {/* <iframe
-                        className="w-full h-full"
-                        src="https://www.youtube.com/embed/h2P606wR_Jk"
-                        title="Website Design & Development for Agencies | BrandingBeez"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      /> */}
-                    <LazyYouTube videoId="h2P606wR_Jk" autoplay
-                      // mute
-                      loop
-                      controls={true}
-                      className="rounded-none" />
-                    {/* </div> */}
-                  </div>
-                </div>
               </div>
             </div>
           </section>
+
 
           {/* Process Section */}
           <section className="py-10 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 via-white to-white">
