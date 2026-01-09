@@ -19,6 +19,9 @@ const GRAY_700 = "#374151";
 const GRAY_500 = "#6b7280";
 const GRAY_200 = "#e5e7eb";
 const BG_LIGHT = "#f8fafc";
+const GRAY_50 = "#F8FAFC";
+const GRAY_600 = "#e5e7eb";
+
 
 const MARGINS = { top: 54, left: 54, right: 54, bottom: 54 };
 
@@ -105,94 +108,94 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
       // Skip cover page header/footer
       if (pageNumber === 1) return;
 
-    const { left, right, top, bottom } = doc.page.margins;
-    const w = doc.page.width;
-    const h = doc.page.height;
+      const { left, right, top, bottom } = doc.page.margins;
+      const w = doc.page.width;
+      const h = doc.page.height;
 
-    // Header/Footer should NEVER change doc.x/doc.y for the main content flow,
-    // otherwise PDFKit may think it is out of space and recursively add pages.
-    const prevX = doc.x;
-    const prevY = doc.y;
+      // Header/Footer should NEVER change doc.x/doc.y for the main content flow,
+      // otherwise PDFKit may think it is out of space and recursively add pages.
+      const prevX = doc.x;
+      const prevY = doc.y;
 
-    // Header
-    doc.save();
-    const headerW = w - left - right;
-    const leftTitle = truncateToWidth("AI BUSINESS GROWTH ANALYZER", headerW * 0.62);
-    const rightCompany = truncateToWidth(company, headerW * 0.38);
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(9)
-      .fillColor(GRAY_700)
-      .text(leftTitle, left, top - 28, {
-        width: headerW,
-        align: "left",
-        lineBreak: false,
-        continued: false,
-      });
-    doc
-      .font("Helvetica")
-      .fontSize(9)
-      .fillColor(GRAY_500)
-      .text(rightCompany, left, top - 28, {
-        width: headerW,
-        align: "right",
-        lineBreak: false,
-        continued: false,
-      });
+      // Header
+      doc.save();
+      const headerW = w - left - right;
+      const leftTitle = truncateToWidth("AI BUSINESS GROWTH ANALYZER", headerW * 0.62);
+      const rightCompany = truncateToWidth(company, headerW * 0.38);
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(9)
+        .fillColor(GRAY_700)
+        .text(leftTitle, left, top - 28, {
+          width: headerW,
+          align: "left",
+          lineBreak: false,
+          continued: false,
+        });
+      doc
+        .font("Helvetica")
+        .fontSize(9)
+        .fillColor(GRAY_500)
+        .text(rightCompany, left, top - 28, {
+          width: headerW,
+          align: "right",
+          lineBreak: false,
+          continued: false,
+        });
 
-    doc
-      .moveTo(left, top - 10)
-      .lineTo(w - right, top - 10)
-      .lineWidth(1)
-      .strokeColor(GRAY_200)
-      .stroke();
-    doc.restore();
+      doc
+        .moveTo(left, top - 10)
+        .lineTo(w - right, top - 10)
+        .lineWidth(1)
+        .strokeColor(GRAY_200)
+        .stroke();
+      doc.restore();
 
-    // Restore cursor
-    doc.x = prevX;
-    doc.y = prevY;
+      // Restore cursor
+      doc.x = prevX;
+      doc.y = prevY;
 
-    // Footer
-    // IMPORTANT: In PDFKit, any text drawn with a Y position BELOW
-    // (page.height - margins.bottom) can trigger an automatic page break.
-    // Your previous footer Y (h - bottom + …) was below that threshold,
-    // which caused an extra page to be inserted that contained ONLY the
-    // header/footer, and then the actual content started on the next page.
-    //
-    // Fix: draw footer INSIDE the safe content box, just above the bottom margin.
-    doc.save();
+      // Footer
+      // IMPORTANT: In PDFKit, any text drawn with a Y position BELOW
+      // (page.height - margins.bottom) can trigger an automatic page break.
+      // Your previous footer Y (h - bottom + …) was below that threshold,
+      // which caused an extra page to be inserted that contained ONLY the
+      // header/footer, and then the actual content started on the next page.
+      //
+      // Fix: draw footer INSIDE the safe content box, just above the bottom margin.
+      doc.save();
 
-    const contentBottomY = h - bottom; // max Y before PDFKit auto-adds a new page
-    const footerRuleY = contentBottomY - 22;
-    const footerTextY = contentBottomY - 16;
+      const contentBottomY = h - bottom; // max Y before PDFKit auto-adds a new page
+      const footerRuleY = contentBottomY - 22;
+      const footerTextY = contentBottomY - 16;
 
-    doc
-      .moveTo(left, footerRuleY)
-      .lineTo(w - right, footerRuleY)
-      .lineWidth(1)
-      .strokeColor(GRAY_200)
-      .stroke();
+      doc
+        .moveTo(left, footerRuleY)
+        .lineTo(w - right, footerRuleY)
+        .lineWidth(1)
+        .strokeColor(GRAY_200)
+        .stroke();
 
-    doc
-      .font("Helvetica")
-      .fontSize(9)
-      .fillColor(GRAY_500)
-      .text(`Page ${pageNumber - 1}`, left, footerTextY, { align: "left", lineBreak: false });
+      doc
+        .font("Helvetica")
+        .fontSize(9)
+        .fillColor(GRAY_500)
+        .text(`Page ${pageNumber - 1}`, left, footerTextY, { align: "left", lineBreak: false });
 
-    // doc
-    //   .font("Helvetica")
-    //   .fontSize(9)
-    //   .fillColor(GRAY_500)
-    //   .text(`Report ID: ${reportId}`, left, footerTextY, { width: w - left - right, align: "center", lineBreak: false });
+      // doc
+      //   .font("Helvetica")
+      //   .fontSize(9)
+      //   .fillColor(GRAY_500)
+      //   .text(`Report ID: ${reportId}`, left, footerTextY, { width: w - left - right, align: "center", lineBreak: false });
 
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(9)
-      .fillColor(GRAY_500)
-      .text("CONFIDENTIAL", left, footerTextY, { width: w - left - right, align: "right", lineBreak: false });
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(9)
+        .fillColor(GRAY_500)
+        .text("CONFIDENTIAL", left, footerTextY, { width: w - left - right, align: "right", lineBreak: false });
 
-    doc.restore();
-    doc.restore();
+      doc.restore();
+      doc.restore();
 
       // Restore cursor
       doc.x = prevX;
@@ -296,6 +299,59 @@ function callout(doc: PDFKit.PDFDocument, title: string, body: string) {
   resetX(doc);
 }
 
+function keyMetricsBox(
+  doc: PDFKit.PDFDocument,
+  rows: { label: string; value: string }[],
+  opts?: { labelWidth?: number },
+) {
+  resetX(doc);
+
+  const labelW = opts?.labelWidth ?? 150;
+  const w = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+
+  const paddingX = 12;
+  const paddingY = 10;
+  const lineH = 16;
+  const gapY = 6;
+
+  const boxH = paddingY * 2 + rows.length * lineH + (rows.length - 1) * gapY;
+
+  ensureSpace(doc, boxH + 16);
+
+  const x = doc.page.margins.left;
+  const y = doc.y;
+
+  // Background card
+  doc.save();
+  doc.roundedRect(x, y, w, boxH, 10).fillColor(GRAY_50).fill();
+  doc.roundedRect(x, y, w, boxH, 10).lineWidth(1).strokeColor(GRAY_200).stroke();
+  doc.restore();
+
+  let cy = y + paddingY;
+
+  rows.forEach((r) => {
+    const label = (r.label || "").toUpperCase();
+    const value = safeText(r.value, "—");
+
+    // Label (block letters)
+    doc.font("Helvetica-Bold").fontSize(9).fillColor(GRAY_600).text(label, x + paddingX, cy, {
+      width: labelW,
+      align: "left",
+    });
+
+    // Value aligned column
+    doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(value, x + paddingX + labelW, cy - 2, {
+      width: w - paddingX * 2 - labelW,
+      align: "left",
+    });
+
+    cy += lineH + gapY;
+  });
+
+  doc.y = y + boxH;
+  doc.moveDown(0.6);
+}
+
 function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[], colWidths?: number[]) {
   const x = doc.page.margins.left;
   const yStart = doc.y;
@@ -305,9 +361,9 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
   const widths = colWidths && colWidths.length === headers.length
     ? colWidths
     : (() => {
-        const equal = Math.floor(w / headers.length);
-        return headers.map(() => equal);
-      })();
+      const equal = Math.floor(w / headers.length);
+      return headers.map(() => equal);
+    })();
 
   const rowPaddingY = 6;
   const cellPaddingX = 6;
@@ -403,24 +459,24 @@ function speedTestTable(speed: WebsiteSpeedTest | undefined) {
 }
 
 export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthReport): Promise<Buffer> {
-// Debug snapshot: confirms what the PDF generator actually receives.
-try {
-  const repAny: any = report as any;
-  const t = repAny?.websiteDigitalPresence?.technicalSEO;
-  console.log("[AI-Growth][PDF] input snapshot", {
-    reportId: repAny?.reportMetadata?.reportId,
-    website: repAny?.reportMetadata?.website,
-    hasTechnicalSEO: !!t,
-    hasSpeedTest: !!t?.pageSpeed,
-    psiPerfMobile: t?.pageSpeed?.mobile?.performanceScore ?? null,
-    psiPerfDesktop: t?.pageSpeed?.desktop?.performanceScore ?? null,
-    services_count: repAny?.servicesPositioning?.services?.length ?? 0,
-    industries_count: repAny?.servicesPositioning?.industriesServed?.current?.length ?? 0,
-    channels_count: repAny?.leadGeneration?.channels?.length ?? 0,
-    leadMagnets_count: repAny?.leadGeneration?.leadMagnets?.length ?? 0,
-    reputationPlatforms_count: repAny?.reputation?.platforms?.length ?? 0,
-  });
-} catch {}
+  // Debug snapshot: confirms what the PDF generator actually receives.
+  try {
+    const repAny: any = report as any;
+    const t = repAny?.websiteDigitalPresence?.technicalSEO;
+    console.log("[AI-Growth][PDF] input snapshot", {
+      reportId: repAny?.reportMetadata?.reportId,
+      website: repAny?.reportMetadata?.website,
+      hasTechnicalSEO: !!t,
+      hasSpeedTest: !!t?.pageSpeed,
+      psiPerfMobile: t?.pageSpeed?.mobile?.performanceScore ?? null,
+      psiPerfDesktop: t?.pageSpeed?.desktop?.performanceScore ?? null,
+      services_count: repAny?.servicesPositioning?.services?.length ?? 0,
+      industries_count: repAny?.servicesPositioning?.industriesServed?.current?.length ?? 0,
+      channels_count: repAny?.leadGeneration?.channels?.length ?? 0,
+      leadMagnets_count: repAny?.leadGeneration?.leadMagnets?.length ?? 0,
+      reputationPlatforms_count: repAny?.reputation?.platforms?.length ?? 0,
+    });
+  } catch { }
 
 
   const rep: any = report as any;
@@ -617,10 +673,10 @@ try {
       );
       paragraph(doc, safeText(backlinks?.notes, ""));
 
-/* =========================
-         4) REPUTATION/* =========================
-         4) REPUTATION & SOCIAL PROOF
-      ========================= */
+      /* =========================
+               4) REPUTATION/* =========================
+               4) REPUTATION & SOCIAL PROOF
+            ========================= */
       addPageIfNotAtTop(doc);
       sectionTitle(doc, "4", "Reputation & Social Proof Audit");
 
@@ -643,7 +699,13 @@ try {
         paragraph(doc, "No review platform data was detected for this website/company.");
       }
 
-      paragraph(doc, `Total Reviews Found: ${safeText((rep as any)?.totalReviews, "—")} • Industry Standard: ${safeText((rep as any)?.industryStandardRange, "—")} • Your Gap: ${safeText((rep as any)?.yourGap, "—")}`);
+      // paragraph(doc, `Total Reviews Found: ${safeText((rep as any)?.totalReviews, "—")} • Industry Standard: ${safeText((rep as any)?.industryStandardRange, "—")} • Your Gap: ${safeText((rep as any)?.yourGap, "—")}`);
+      keyMetricsBox(doc, [
+        { label: "Total Reviews Found", value: String((rep as any)?.totalReviews ?? "—") },
+        { label: "Industry Standard", value: safeText((rep as any)?.industryStandardRange, "—") },
+        { label: "Your Gap", value: safeText((rep as any)?.yourGap, "—") },
+      ]);
+
 
       const themes = (rep as any)?.sentimentThemes;
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
@@ -782,7 +844,7 @@ try {
       }
 
       // Competitive matrix & positioning gap are not available unless you integrate a dedicated competitor-data source.
-// We render the positioning matrix when provided.
+      // We render the positioning matrix when provided.
       if (Array.isArray(ca?.positioningMatrix) && ca.positioningMatrix.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Positioning Matrix");
         drawTable(
@@ -801,10 +863,10 @@ try {
         paragraph(doc, "No positioning matrix data was provided.");
       }
 
-/* =========================
-         8) COST OPTIMIZATION/* =========================
-         8) COST OPTIMIZATION & PROFITABILITY
-      ========================= */
+      /* =========================
+               8) COST OPTIMIZATION/* =========================
+               8) COST OPTIMIZATION & PROFITABILITY
+            ========================= */
       addPageIfNotAtTop(doc);
       sectionTitle(doc, "8", "Cost Optimization & Profitability");
 
@@ -860,10 +922,10 @@ try {
 
       paragraph(doc, safeText(co?.notes, ""));
 
-/* =========================
-         9) TARGET MARKET/* =========================
-         9) TARGET MARKET & CLIENT INTELLIGENCE
-      ========================= */
+      /* =========================
+               9) TARGET MARKET/* =========================
+               9) TARGET MARKET & CLIENT INTELLIGENCE
+            ========================= */
       addPageIfNotAtTop(doc);
       sectionTitle(doc, "9", "Target Market & Client Segmentation");
 
@@ -910,10 +972,10 @@ try {
 
       paragraph(doc, safeText(tm?.notes, ""));
 
-/* =========================
-         10) FINANCIAL IMPACT/* =========================
-         10) FINANCIAL IMPACT SUMMARY
-      ========================= */
+      /* =========================
+               10) FINANCIAL IMPACT/* =========================
+               10) FINANCIAL IMPACT SUMMARY
+            ========================= */
       addPageIfNotAtTop(doc);
       sectionTitle(doc, "10", "Financial Impact");
 
@@ -943,7 +1005,7 @@ try {
         );
       }
 
-sectionTitle(doc, "11", "90-Day Action Plan");sectionTitle(doc, "11", "90-Day Action Plan");
+      sectionTitle(doc, "11", "90-Day Action Plan"); sectionTitle(doc, "11", "90-Day Action Plan");
 
       const apAny = (report as any).actionPlan90Days as any;
       const weekByWeek: any[] = Array.isArray(apAny)
@@ -1014,7 +1076,7 @@ sectionTitle(doc, "11", "90-Day Action Plan");sectionTitle(doc, "11", "90-Day Ac
 
       paragraph(doc, safeText(adv?.notes, ""));
 
-sectionTitle(doc, "13", "Risk Assessment");sectionTitle(doc, "13", "Risk Assessment");
+      sectionTitle(doc, "13", "Risk Assessment"); sectionTitle(doc, "13", "Risk Assessment");
 
       const risks = report.riskAssessment?.risks || [];
       if (risks.length) {
@@ -1108,8 +1170,8 @@ sectionTitle(doc, "13", "Risk Assessment");sectionTitle(doc, "13", "Risk Assessm
     }
   });
 
-function asArray<T>(v: any): T[] {
-  return Array.isArray(v) ? (v as T[]) : [];
-}
+  function asArray<T>(v: any): T[] {
+    return Array.isArray(v) ? (v as T[]) : [];
+  }
 
 }

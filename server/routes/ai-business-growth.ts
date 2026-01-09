@@ -5,411 +5,225 @@ import path from "path";
 import crypto from "crypto";
 // import PDFDocument from "pdfkit";
 
-// import { generateBusinessGrowthAnalysis } from "../openai";
-import { generateBusinessGrowthAnalysis, mergeBusinessGrowthReport, type BusinessGrowthReport } from "../openai";
+import { mergeBusinessGrowthReport, type BusinessGrowthReport } from "../openai";
 import { AiReportGeneratedModel } from "../models";
 import { sendBusinessGrowthReportEmailWithDownload, sendContactNotification } from "../email-service";
-
-// interface QuickWin {
-//   title: string;
-//   impact?: string;
-//   time?: string;
-//   cost?: string;
-//   details?: string;
-// }
-
-// interface BusinessGrowthReport {
-//   reportMetadata: {
-//     reportId?: string;
-//     companyName?: string;
-//     website?: string;
-//     analysisDate?: string;
-//     overallScore?: number;
-//     subScores?: Record<string, number>;
-//   };
-//   executiveSummary: {
-//     strengths?: string[];
-//     weaknesses?: string[];
-//     biggestOpportunity?: string;
-//     quickWins?: QuickWin[];
-//   };
-// }
 import { generateBusinessGrowthPdfBuffer } from "../generateBusinessGrowthPdf";
 
 /**
  * Normalize website URL (ensures https:// and no trailing slash).
  */
-function normalizeWebsiteUrl(url: string) {
-  const trimmed = String(url || "").trim();
-  if (!trimmed) return "";
-  const hasProtocol = /^https?:\/\//i.test(trimmed);
-  const withProtocol = hasProtocol ? trimmed : `https://${trimmed}`;
-  return withProtocol.replace(/\/+$/, "");
+function normalizeWebsiteUrl(website: string): string {
+  let url = website.trim();
+  if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
+  url = url.replace(/\/+$/, "");
+  return url;
 }
 
 /**
- * Strict reachability check.
- * Analysis/report generation should ONLY run if the website is reachable.
+ * Strict reachability check:
+ * - makes sure it can actually load the website
+ * - catches typos early
  */
-async function checkWebsiteReachableStrict(
-  website: string,
-  timeoutMs = 8000,
-): Promise<{
-  reachable: boolean;
-  inputUrl: string;
-  normalizedUrl: string;
-  finalUrl?: string;
-  httpStatus?: number;
-  error?: string;
-}> {
-  const normalizedUrl = normalizeWebsiteUrl(website);
-  const inputUrl = String(website || "").trim();
+async function checkWebsiteReachableStrict(website: string) {
+  const url = normalizeWebsiteUrl(website);
 
-  if (!normalizedUrl) {
-    return { reachable: false, inputUrl, normalizedUrl, error: "EMPTY_URL" };
+  // Prefer global fetch (Node 18+). Fallback to undici if needed.
+  const fetchFn: any = (globalThis as any).fetch;
+  if (!fetchFn) {
+    throw new Error(
+      "Global fetch is not available. Use Node 18+ (recommended) or polyfill fetch in your server runtime.",
+    );
   }
-
-  // Basic format guard
-  const isValidFormat = /^https?:\/\/[^\s]+\.[^\s]+$/i.test(normalizedUrl);
-  if (!isValidFormat) {
-    return { reachable: false, inputUrl, normalizedUrl, error: "INVALID_URL_FORMAT" };
-  }
-
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(normalizedUrl, {
+    const resp = await fetchFn(url, {
       method: "GET",
       redirect: "follow",
-      signal: controller.signal,
       headers: {
-        "User-Agent": "BrandingBeezBot/1.0 (+https://brandingbeez.co.uk)",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "User-Agent": "Mozilla/5.0 (compatible; BrandingBeezAI/1.0; +https://brandingbeez.co.uk)",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
     });
 
-    const httpStatus = res.status;
-    const finalUrl = (res as any).url || normalizedUrl;
-
-    if (httpStatus >= 200 && httpStatus < 400) {
-      return { reachable: true, inputUrl, normalizedUrl, finalUrl, httpStatus };
-    }
-
-    return { reachable: false, inputUrl, normalizedUrl, finalUrl, httpStatus, error: `HTTP_${httpStatus}` };
-  } catch (err: any) {
-    const isAbort = err?.name === "AbortError";
-    return {
-      reachable: false,
-      inputUrl,
-      normalizedUrl,
-      error: isAbort ? "TIMEOUT" : (err?.message || "FETCH_FAILED"),
-    };
-  } finally {
-    clearTimeout(t);
+    const ok = resp && resp.status >= 200 && resp.status < 400;
+    return { reachable: !!ok, httpStatus: resp?.status ?? null, finalUrl: resp?.url ?? url };
+  } catch (err) {
+    return { reachable: false, httpStatus: null, finalUrl: url };
   }
 }
 
-function slugify(value: string) {
-  return (
-    value
-      ?.toLowerCase?.()
-      ?.replace?.(/https?:\/\//g, "")
-      ?.replace?.(/[^a-z0-9]+/g, "-")
-      ?.replace?.(/(^-|-$)+/g, "")
-      ?.replace?.(/--+/g, "-")
-      ?.slice?.(0, 80) || "ai-business-growth-report"
-  );
+/**
+ * Make a short token for DB + download URLs.
+ */
+function makeToken() {
+  return crypto.randomBytes(16).toString("hex");
 }
 
-/**
- * Generates a nicer PDF buffer with cover + footer style similar to your sample.
- */
-// async function createBusinessGrowthPdf(analysis: BusinessGrowthReport): Promise<Buffer> {
-//   const metadata = analysis.reportMetadata || ({} as any);
-//   const summary = analysis.executiveSummary || ({} as any);
-
-//   const reportId = metadata.reportId || `BB-${Date.now()}`;
-//   const companyName = metadata.companyName || "Your business";
-//   const website = metadata.website || "N/A";
-//   const score = typeof metadata.overallScore === "number" ? metadata.overallScore : 0;
-
-//   const analysisDate = metadata.analysisDate
-//     ? new Date(metadata.analysisDate).toLocaleDateString("en-GB")
-//     : new Date().toLocaleDateString("en-GB");
-
-//   const strengths = (summary.strengths || []).filter(Boolean);
-//   const weaknesses = (summary.weaknesses || []).filter(Boolean);
-//   const quickWins = (summary.quickWins || []).filter(Boolean);
-
-//   return await new Promise((resolve, reject) => {
-//     try {
-//       const doc = new PDFDocument({
-//         size: "A4",
-//         margins: { top: 54, left: 54, right: 54, bottom: 54 },
-//       });
-
-//       const chunks: Buffer[] = [];
-//       doc.on("data", (c) => chunks.push(Buffer.isBuffer(c) ? c : Buffer.from(c)));
-//       doc.on("end", () => resolve(Buffer.concat(chunks)));
-
-//       const addFooter = () => {
-//         const pageNum = (doc as any).page?.pageNumber || 1;
-//         const y = doc.page.height - doc.page.margins.bottom + 12;
-//         doc.save();
-//         doc.fontSize(9).fillColor("#6b7280");
-//         doc.text(`Page ${pageNum} | Report ID: ${reportId} | CONFIDENTIAL`, doc.page.margins.left, y, {
-//           width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
-//           align: "center",
-//         });
-//         doc.restore();
-//       };
-
-//       const sectionTitle = (title: string) => {
-//         doc.moveDown(0.8);
-//         doc.font("Helvetica-Bold").fontSize(14).fillColor("#2563eb").text(title);
-//         doc.moveDown(0.3);
-//         doc
-//           .moveTo(doc.page.margins.left, doc.y)
-//           .lineTo(doc.page.width - doc.page.margins.right, doc.y)
-//           .strokeColor("#e5e7eb")
-//           .stroke();
-//         doc.moveDown(0.6);
-//       };
-
-//       const bulletList = (items: string[]) => {
-//         doc.font("Helvetica").fontSize(11).fillColor("#111827");
-//         items.forEach((it) => {
-//           doc.text(`• ${it}`, { indent: 10 });
-//           doc.moveDown(0.2);
-//         });
-//       };
-
-//       /* =========================
-//          COVER PAGE
-//       ========================= */
-//       doc.font("Helvetica-Bold").fontSize(30).fillColor("#111827").text("BUSINESS GROWTH", 54, 110);
-//       doc.font("Helvetica-Bold").fontSize(30).text("ANALYSIS", 54, 145);
-
-//       doc.font("Helvetica").fontSize(14).fillColor("#111827").text(companyName, 54, 210);
-//       doc.moveDown(0.2);
-//       doc.font("Helvetica").fontSize(11).fillColor("#2563eb").text(website);
-
-//       doc.moveDown(1.0);
-//       doc.font("Helvetica").fontSize(11).fillColor("#111827");
-//       doc.text(`Analysis Date: ${analysisDate}`);
-//       doc.text(`Report ID: ${reportId}`);
-
-//       doc.moveDown(0.8);
-//       doc.font("Helvetica-Bold").fontSize(16).fillColor("#111827").text(`Overall Score: ${score}/100`);
-
-//       // Score bar
-//       const barX = 54;
-//       const barW = doc.page.width - 108;
-//       const barH = 10;
-//       const barY = doc.y + 14;
-//       const pct = Math.max(0, Math.min(100, score)) / 100;
-
-//       doc.roundedRect(barX, barY, barW, barH, 5).fill("#e5e7eb");
-//       doc
-//         .roundedRect(barX, barY, barW * pct, barH, 5)
-//         .fill(score < 41 ? "#ef4444" : score < 66 ? "#f59e0b" : "#10b981");
-
-//       addFooter();
-
-//       /* =========================
-//          PAGE 2 - SUMMARY
-//       ========================= */
-//       doc.addPage();
-//       sectionTitle("BUSINESS GROWTH ANALYSIS REPORT");
-
-//       doc.font("Helvetica-Bold").fontSize(12).fillColor("#111827").text("Report Details");
-//       doc.font("Helvetica").fontSize(11).fillColor("#111827");
-//       doc.text(`Company: ${companyName}`);
-//       doc.text(`Website: ${website}`);
-//       doc.text(`Analysis Date: ${analysisDate}`);
-//       doc.text(`Report ID: ${reportId}`);
-//       doc.moveDown(0.6);
-
-//       doc.font("Helvetica-Bold").fontSize(13).fillColor("#111827").text("EXECUTIVE SUMMARY");
-//       doc.moveDown(0.4);
-//       doc.font("Helvetica-Bold").fontSize(12).text(`Overall Business Growth Score: ${score}/100`);
-//       doc.moveDown(0.6);
-
-//       if (strengths.length) {
-//         doc.font("Helvetica-Bold").fontSize(12).fillColor("#111827").text("✅ KEY STRENGTHS:");
-//         bulletList(strengths.slice(0, 10));
-//         doc.moveDown(0.2);
-//       }
-
-//       if (weaknesses.length) {
-//         doc.font("Helvetica-Bold").fontSize(12).fillColor("#111827").text("⚠ CRITICAL WEAKNESSES:");
-//         bulletList(weaknesses.slice(0, 10));
-//         doc.moveDown(0.2);
-//       }
-
-//       if (summary.biggestOpportunity) {
-//         doc.font("Helvetica-Bold").fontSize(12).fillColor("#111827").text("🚀 BIGGEST OPPORTUNITY:");
-//         doc.font("Helvetica").fontSize(11).fillColor("#111827").text(String(summary.biggestOpportunity));
-//       }
-
-//       addFooter();
-
-//       /* =========================
-//          PAGE 3 - QUICK WINS
-//       ========================= */
-//       doc.addPage();
-//       sectionTitle("TOP IMMEDIATE ACTIONS (90-Day Plan)");
-
-//       if (!quickWins.length) {
-//         doc.font("Helvetica").fontSize(11).fillColor("#111827").text("No quick wins were provided by the analysis engine.");
-//       } else {
-//         quickWins.slice(0, 10).forEach((win: QuickWin, idx: number) => {
-//           doc.font("Helvetica-Bold").fontSize(12).fillColor("#111827").text(`${idx + 1}. ${win.title || "Quick win"}`);
-//           doc.font("Helvetica").fontSize(11).fillColor("#111827");
-//           if (win.impact) doc.text(`Impact: ${win.impact}`);
-//           if (win.time) doc.text(`Time: ${win.time}`);
-//           if (win.cost) doc.text(`Cost: ${win.cost}`);
-//           if (win.details) doc.text(`Details: ${win.details}`);
-//           doc.moveDown(0.6);
-//         });
-//       }
-
-//       addFooter();
-
-//       // Optional: sub scores
-//       if (metadata.subScores && Object.keys(metadata.subScores).length) {
-//         doc.addPage();
-//         sectionTitle("SUB-SCORE BREAKDOWN");
-
-//         doc.font("Helvetica").fontSize(11).fillColor("#111827");
-//         for (const [k, v] of Object.entries(metadata.subScores)) {
-//           if (typeof v !== "number") continue;
-//           doc.font("Helvetica-Bold").text(`${k}: `, { continued: true });
-//           doc.font("Helvetica").text(`${v}/100`);
-//           doc.moveDown(0.2);
-//         }
-
-//         addFooter();
-//       }
-
-//       doc.end();
-//     } catch (e) {
-//       reject(e);
-//     }
-//   });
-// }
+const REPORT_DIR = path.join(process.cwd(), "tmp", "business-growth-reports");
 
 /**
- * Disk storage for generated PDFs (short-lived)
- * Render allows writing to the filesystem, but it’s ephemeral. Good for lead downloads.
+ * Ensure report dir exists.
  */
-const REPORT_DIR = process.env.REPORT_DIR || path.join(process.cwd(), "tmp", "ai-growth-reports");
 function ensureReportDir() {
   if (!fs.existsSync(REPORT_DIR)) fs.mkdirSync(REPORT_DIR, { recursive: true });
 }
-function makeToken() {
-  return crypto.randomBytes(18).toString("hex");
-}
+
 function getBaseUrl(req: any) {
   const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
   const host = req.headers["x-forwarded-host"] || req.get("host");
   return `${proto}://${host}`;
 }
 
+/**
+ * Call the Python AI Engine (crawl + LLM + report JSON + Mongo save).
+ * Configure:
+ *   PY_AI_ENGINE_URL="http://127.0.0.1:8010"  (no trailing slash)
+ *   PY_AI_ENGINE_KEY="optional-shared-secret"
+ */
+async function callPythonAiEngineAnalyze(input: {
+  companyName: string;
+  website: string;
+  industry?: string;
+  email?: string;
+  name?: string;
+  reportType?: "quick" | "full";
+  criteria?: Record<string, any>;
+}) {
+  const base = (process.env.PY_AI_ENGINE_URL || "").replace(/\/$/, "");
+  if (!base) {
+    throw new Error("PY_AI_ENGINE_URL is not configured");
+  }
+
+  // Prefer global fetch (Node 18+). Fallback to undici if needed.
+  const fetchFn: any = (globalThis as any).fetch;
+  if (!fetchFn) {
+    throw new Error(
+      "Global fetch is not available. Use Node 18+ (recommended) or polyfill fetch in your server runtime.",
+    );
+  }
+
+  const resp = await fetchFn(`${base}/api/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(process.env.PY_AI_ENGINE_KEY ? { "X-AI-ENGINE-KEY": process.env.PY_AI_ENGINE_KEY } : {}),
+    },
+    body: JSON.stringify(input),
+  });
+
+  const text = await resp.text();
+  let data: any = null;
+  try {
+    data = text ? JSON.parse(text) : null;
+  } catch {
+    // keep raw text
+  }
+
+  if (!resp.ok) {
+    const msg = data?.detail || data?.message || text || `Python AI Engine error (${resp.status})`;
+    const err: any = new Error(msg);
+    err.status = resp.status;
+    err.payload = data || text;
+    throw err;
+  }
+
+  return data as {
+    ok: boolean;
+    token: string;
+    reportId: string;
+    reportJson: BusinessGrowthReport;
+    meta?: Record<string, any>;
+  };
+}
+
 export function registerBusinessGrowthRoutes(app: Express) {
   /**
-   * Analyze route should just return analysis
-   * (Email + PDF handled in /report step after lead submit).
+   * Analyze route: calls Python AI Engine which performs crawl + criteria checks + LLM report generation
+   * and persists the report JSON into Mongo. Node returns { analysis, analysisToken } to the frontend.
    */
   app.post("/api/ai-business-growth/analyze", async (req, res) => {
-    const { companyName, website, industry, targetMarket, businessGoal, reportType } = req.body || {};
+    const { companyName, website, industry, email, name, reportType, criteria } = req.body || {};
 
     if (!website || typeof website !== "string") {
       return res.status(400).json({ success: false, message: "Website is required" });
     }
 
-
-    const reach = await checkWebsiteReachableStrict(website);
-    if (!reach.reachable) {
-      return res.status(400).json({
-        success: false,
-        code: "WEBSITE_NOT_REACHABLE",
-        message:
-          reach.error === "INVALID_URL_FORMAT"
-            ? "Please enter a valid website URL (e.g., https://example.com)."
-            : "Website is not reachable. Please enter a correct URL and try again.",
-        details: reach,
-      });
-    }
-
     try {
-      const analysis = await generateBusinessGrowthAnalysis({
+      const py = await callPythonAiEngineAnalyze({
         companyName: companyName || "Marketing Agency",
         website,
         industry,
-        targetMarket,
-        businessGoal,
+        email,
+        name,
         reportType,
+        criteria,
       });
 
-      console.log("[AI-Growth] Analysis sections snapshot", {
-        websiteDigitalPresence_keys: Object.keys(analysis.websiteDigitalPresence || {}),
-        seoVisibility_keys: Object.keys(analysis.seoVisibility || {}),
-        rep_platforms_count: analysis.reputation?.platforms?.length ?? 0,
-        rep_overallScore: analysis.reputation?.overallScore ?? null,
-        seo_coreWebVitals_mobile: !!analysis.seoVisibility?.technicalSeo?.coreWebVitals?.mobile,
-        seo_coreWebVitals_desktop: !!analysis.seoVisibility?.technicalSeo?.coreWebVitals?.desktop,
-      });
+      const analysis = py.reportJson;
+      const analysisToken = py.token;
 
-      const analysisToken = makeToken();
+      // Safety net: if Python DB write failed for any reason, persist from Node as fallback.
+      // (Normally Python already saved it with the same token.)
       try {
-        await AiReportGeneratedModel.create({
-          token: analysisToken,
-          analysis,
-          website: analysis?.reportMetadata?.website || website,
-          companyName: analysis?.reportMetadata?.companyName || companyName,
-          industry,
-        });
+        const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
+        if (!existing) {
+          await AiReportGeneratedModel.create({
+            token: analysisToken,
+            analysis,
+            website: analysis?.reportMetadata?.website || website,
+            companyName: analysis?.reportMetadata?.companyName || companyName,
+            industry,
+            email,
+            name,
+          });
+        }
       } catch (dbError) {
-        console.error("Failed to persist AI growth analysis", dbError);
+        console.error("[AI-Growth] Node fallback persist failed", dbError);
       }
 
-      res.json({ success: true, analysis, analysisToken });
-    } catch (error: any) {
-      console.error("Business growth analysis route error:", error);
+      return res.json({ success: true, analysis, analysisToken, reportId: py.reportId, meta: py.meta || {} });
+    } catch (err: any) {
+      console.error("[AI-Growth] Python engine error", err);
 
-      if (error?.code === "WEBSITE_NOT_REACHABLE") {
-        return res.status(400).json({
-          success: false,
-          code: "WEBSITE_NOT_REACHABLE",
-          message: error?.message || "Website is not reachable. Please enter a correct URL and try again.",
-          details: error?.details,
-        });
-      }
-
-      return res.status(500).json({ success: false, message: "Failed to generate analysis" });
+      const msg = err?.payload?.detail || err?.message || "Failed to generate analysis. Please try again.";
+      return res.status(err?.status || 500).json({
+        success: false,
+        message: msg,
+        code: err?.code || "PY_AI_ENGINE_ERROR",
+        details: err?.payload || null,
+      });
     }
   });
 
   /**
-   * NEW: Generate PDF + email + return downloadUrl
-   * Request: { analysis, email, name? }
+   * Generate PDF + email + return downloadUrl
+   * Request: { analysisToken, email, name? }  (analysis optional fallback)
    */
   app.post("/api/ai-business-growth/report", async (req, res) => {
     const { analysis, analysisToken, email, name, website, companyName, industry } = req.body || {};
+
     const storedReport =
       analysisToken && typeof analysisToken === "string"
         ? await AiReportGeneratedModel.findOne({ token: analysisToken })
         : null;
+
     const analysisSource = storedReport?.analysis || analysis;
-    const reportMetadata = analysisSource?.reportMetadata;
+    const reportMetadata = (analysisSource as any)?.reportMetadata;
     const resolvedWebsite = reportMetadata?.website || storedReport?.website || website;
+
+    if (!analysisSource) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing analysis data. Provide analysisToken (recommended) or analysis payload.",
+      });
+    }
 
     if (!resolvedWebsite || typeof resolvedWebsite !== "string") {
       return res.status(400).json({ success: false, message: "Website is required for PDF generation" });
     }
 
+    // Optional strict check (keeps your old behavior)
     const reach = await checkWebsiteReachableStrict(resolvedWebsite);
     if (!reach.reachable) {
       return res.status(400).json({
@@ -420,37 +234,35 @@ export function registerBusinessGrowthRoutes(app: Express) {
       });
     }
 
-    if (!analysisSource) {
-      return res.status(404).json({ success: false, message: "Analysis not found or expired" });
-    }
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ success: false, message: "Email is required" });
-    }
-
     try {
       ensureReportDir();
 
+      // ✅ FIX: mergeBusinessGrowthReport expects (input, reportPartial)
       const normalizedReport = mergeBusinessGrowthReport(
         {
           companyName:
             reportMetadata?.companyName ||
             storedReport?.companyName ||
-            companyName ||
-            name ||
-            "Marketing Agency",
+            (typeof companyName === "string" ? companyName : "") ||
+            "Unknown",
           website: resolvedWebsite,
-          industry,
+          industry:
+            (typeof industry === "string" ? industry : undefined) ||
+            storedReport?.industry ||
+            undefined,
         },
-        analysisSource,
+        analysisSource as any,
       );
 
       // Generate PDF buffer
       const pdfBuffer = await generateBusinessGrowthPdfBuffer(normalizedReport as BusinessGrowthReport);
 
-      // Store with token
+      // Store PDF with download token
       const t = makeToken();
       const filePath = path.join(REPORT_DIR, `${t}.pdf`);
       fs.writeFileSync(filePath, pdfBuffer);
+
+      // Persist download token/email/name into the existing report doc
       if (storedReport) {
         storedReport.email = email;
         storedReport.name = name;
@@ -459,71 +271,66 @@ export function registerBusinessGrowthRoutes(app: Express) {
         await storedReport.save();
       }
 
-      const downloadUrl = `/api/ai-business-growth/report/${t}.pdf`;
-      const absoluteDownloadUrl = `${getBaseUrl(req)}${downloadUrl}`;
+      // Build download url
+      const baseUrl = getBaseUrl(req);
+      const downloadUrl = `${baseUrl}/api/ai-business-growth/report/${t}.pdf`;
 
-      // ✅ Send email with PDF + download link
-      try {
-        await sendBusinessGrowthReportEmailWithDownload({
-          toEmail: email,
-          toName: name || normalizedReport?.reportMetadata?.companyName || "there",
-          analysis: normalizedReport as BusinessGrowthReport,
-          pdfBuffer,
-          downloadUrl: absoluteDownloadUrl,
-        });
-      } catch (emailError) {
-        console.error("Failed to send AI growth report email", emailError);
-        // Still allow download even if email fails
-      }
-
-      // Optional: notify admin (like you already do)
-      if (email && name) {
+      // Send email (optional)
+      if (email && typeof email === "string") {
         try {
+          await sendBusinessGrowthReportEmailWithDownload({
+            toEmail: email,
+            toName: typeof name === "string" && name.trim() ? name.trim() : "Client",
+            analysis: normalizedReport,
+            pdfBuffer,
+            downloadUrl,
+          });
+
+          // Internal notification (optional)
           await sendContactNotification({
             name,
             email,
-            company: normalizedReport?.reportMetadata?.companyName || undefined,
-            phone: undefined,
-            message: `AI BUSINESS GROWTH ANALYZER: ${normalizedReport?.reportMetadata?.website} | Score ${normalizedReport?.reportMetadata?.overallScore}/100`,
+            phone: (req.body || {}).phone,
+            company: companyName,
+            message: `AI Business Growth report generated. Download: ${downloadUrl}`,
             submittedAt: new Date(),
           });
-        } catch (err) {
-          console.error("Failed to send contact notification for report", err);
+        } catch (mailErr) {
+          console.error("Failed to send business growth report email", mailErr);
+          // still return success (PDF is generated)
         }
       }
 
       return res.json({
         success: true,
-        downloadUrl: absoluteDownloadUrl,
+        downloadUrl,
+        reportDownloadToken: t,
+        analysisToken: analysisToken || storedReport?.token || null,
       });
-    } catch (error) {
-      console.error("Business growth PDF/email failed", error);
-      return res.status(500).json({ success: false, message: "Failed to generate or send report" });
+    } catch (err: any) {
+      console.error("Failed to generate AI growth PDF", err);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to generate report PDF.",
+        details: err?.message || String(err),
+      });
     }
   });
 
   /**
-   * NEW: Download by token (the frontend uses this URL)
+   * Download PDF by token
    */
   app.get("/api/ai-business-growth/report/:token.pdf", async (req, res) => {
-    try {
-      const token = String(req.params.token || "");
-      if (!token) return res.status(400).json({ success: false, message: "Invalid token" });
+    const { token } = req.params || {};
+    if (!token) return res.status(400).send("Missing token");
 
-      ensureReportDir();
-
-      const filePath = path.join(REPORT_DIR, `${token}.pdf`);
-      if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ success: false, message: "Report not found or expired" });
-      }
-
-      const filename = slugify("business-growth-report") + ".pdf";
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-      return res.sendFile(filePath);
-    } catch (e) {
-      console.error("Report download failed", e);
-      return res.status(500).json({ success: false, message: "Failed to download report" });
+    const filePath = path.join(REPORT_DIR, `${token}.pdf`);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).send("Report not found");
     }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `inline; filename="business-growth-report-${token}.pdf"`);
+    return fs.createReadStream(filePath).pipe(res);
   });
 }
