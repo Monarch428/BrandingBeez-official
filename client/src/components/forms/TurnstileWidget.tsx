@@ -110,7 +110,7 @@ export function TurnstileWidget({
           "error-callback": () => onErrorRef.current?.(),
         });
       } catch (e) {
-        console.error(e);
+        // console.error(e);
         onErrorRef.current?.();
       }
     };

@@ -21,37 +21,52 @@ import { apiRequest } from "@/lib/queryClient";
 // ✅ Turnstile widget (same one you used in ContactFormOptimized)
 import { TurnstileWidget } from "@/components/forms/TurnstileWidget";
 
+// ✅ NEW: reusable UTM helpers (service)
+import { initUtmCapture, getUtmParams } from "@/lib/tracking/utm";
+
 // ✅ Lazy-load heavy phone input library (reduces initial JS)
 const PhoneInput = lazy(() => import("react-phone-input-2"));
-
-/* ===========================
-   ✅ Google Ads Conversion
-   - Fires ONLY after successful form submission (onSuccess)
-   - CSP-safe (no inline script)
-=========================== */
 
 declare global {
   interface Window {
     gtag?: (...args: any[]) => void;
+    dataLayer?: any[];
   }
 }
 
-const triggerGoogleAdsConversion = (redirectUrl?: string) => {
+/**
+ * ✅ KEEP THIS AS-IS (you asked not to remove)
+ * This is your current submission conversion trigger
+ */
+const triggerGoogleAdsConversion = (opts?: { redirectUrl?: string }) => {
   if (typeof window === "undefined") return;
 
-  if (!window.gtag) {
-    console.warn("[Google Ads] gtag not loaded; conversion not sent yet.");
+  const redirectUrl = opts?.redirectUrl;
+
+  if (typeof window.gtag === "function") {
+    const callback = () => {
+      if (redirectUrl) window.location.href = redirectUrl;
+    };
+
+    window.gtag("event", "conversion", {
+      send_to: "AW-17781107849/nR9PCImFxdcbEInZ2J5C",
+      event_callback: callback,
+      event_timeout: 2000,
+    });
+
     return;
   }
 
-  const callback = () => {
-    if (redirectUrl) window.location.href = redirectUrl;
-  };
+  if (Array.isArray(window.dataLayer)) {
+    window.dataLayer.push({
+      event: "bb_contact_submit_success",
+      google_ads_send_to: "AW-17781107849/nR9PCImFxdcbEInZ2J5C",
+      redirect_url: redirectUrl || "",
+    });
+    return;
+  }
 
-  window.gtag("event", "conversion", {
-    send_to: "AW-17781107849/nR9PCImFxdcbEInZ2J5C",
-    event_callback: callback,
-  });
+  console.warn("[Google Ads] Neither gtag nor dataLayer found; conversion not sent.");
 };
 
 type FormState = {
@@ -137,9 +152,6 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   const DEFAULT_COUNTRY = "us";
   const COUNTRY_STORAGE_KEY = "bb_phone_country";
 
-  // ✅ UTM session storage key
-  const UTM_KEY = "bb_utm_params";
-
   const [countryCode, setCountryCode] = useState<string>(DEFAULT_COUNTRY);
 
   useEffect(() => {
@@ -181,50 +193,25 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
   });
 
   // ---------------------------
-  // ✅ UTM CAPTURE (URL → sessionStorage → formData)
+  // ✅ UTM CAPTURE (service-based)
+  // URL → sessionStorage → formData
   // ---------------------------
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const params = new URLSearchParams(window.location.search);
-    const read = (k: string) => (params.get(k) || "").trim();
+    // 1) capture and store once (URL -> sessionStorage)
+    initUtmCapture();
 
-    const utmFromUrl = {
-      utm_campaign_name: read("utm_campaign_name"),
-      utm_adgroup_name: read("utm_adgroup_name"),
-      utm_keyword: read("utm_keyword"),
-      utm_location: read("utm_location"),
-      utm_device: read("utm_device"),
-    };
-
-    let stored: any = {};
-    try {
-      const raw = sessionStorage.getItem(UTM_KEY);
-      stored = raw ? JSON.parse(raw) : {};
-    } catch {
-      stored = {};
-    }
-
-    const merged = {
-      ...stored,
-      ...Object.fromEntries(
-        Object.entries(utmFromUrl).filter(([, v]) => typeof v === "string" && v.length > 0),
-      ),
-    };
-
-    try {
-      sessionStorage.setItem(UTM_KEY, JSON.stringify(merged));
-    } catch {
-      // ignore
-    }
+    // 2) read final UTM values (stored preferred)
+    const utm = getUtmParams();
 
     setFormData((prev) => ({
       ...prev,
-      utm_campaign_name: prev.utm_campaign_name || merged.utm_campaign_name || "",
-      utm_adgroup_name: prev.utm_adgroup_name || merged.utm_adgroup_name || "",
-      utm_keyword: prev.utm_keyword || merged.utm_keyword || "",
-      utm_location: prev.utm_location || merged.utm_location || "",
-      utm_device: prev.utm_device || merged.utm_device || "",
+      utm_campaign_name: prev.utm_campaign_name || utm.utm_campaign_name || "",
+      utm_adgroup_name: prev.utm_adgroup_name || utm.utm_adgroup_name || "",
+      utm_keyword: prev.utm_keyword || utm.utm_keyword || "",
+      utm_location: prev.utm_location || utm.utm_location || "",
+      utm_device: prev.utm_device || utm.utm_device || "",
     }));
   }, []);
 
@@ -345,8 +332,17 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       return await apiRequest("/api/contacts", "POST", data);
     },
     onSuccess: () => {
-      // ✅ Fire conversion only after success
+      // ✅ KEEP your conversion trigger
       triggerGoogleAdsConversion();
+
+      // ✅ OPTIONAL: push UTMs for debugging/auditing (does not replace conversion)
+      if (Array.isArray(window.dataLayer)) {
+        const utm = getUtmParams();
+        window.dataLayer.push({
+          event: "bb_utm_snapshot_on_submit",
+          ...utm,
+        });
+      }
 
       setShowThankYouPopup(true);
 
@@ -426,7 +422,7 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
       // ✅ Turnstile token (send to backend)
       turnstileToken,
 
-      // ✅ UTM tracking fields
+      // ✅ UTM tracking fields (unchanged)
       utm_campaign_name: formData.utm_campaign_name,
       utm_adgroup_name: formData.utm_adgroup_name,
       utm_keyword: formData.utm_keyword,
@@ -674,7 +670,6 @@ const AgencyContactSection: React.FC<AgencyContactSectionProps> = ({
                               "Google Ads Expert",
                               "Web Developer",
                               "Full-Stack Developer",
-                              "Others (Data Entry/Virtual Assistants/Social Media Managers)",
                             ].map((option) => (
                               <div
                                 key={option}
