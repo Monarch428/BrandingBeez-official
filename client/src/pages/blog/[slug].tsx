@@ -1930,7 +1930,7 @@ export default function DynamicBlogPost() {
                 <img
                   src={resolvedImageUrl}
                   alt={blogPost.title}
-                  className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover"
+                  className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover"                 
                   loading="eager"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
