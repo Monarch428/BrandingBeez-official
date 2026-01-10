@@ -1104,6 +1104,7 @@ import { TestimonialCard } from "@/components/TestimonialCard";
 // import ChristmasEffects from "@/components/FestiveSnowOverlay";
 import { navigate } from "wouter/use-browser-location";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { SEO } from "@/hooks/SEO";
 // import PortfolioCtaSection from "@/components/portfolioimagecta";
 
 export const IMAGES = {
@@ -1238,14 +1239,10 @@ export default function Home() {
     {
       id: 1,
       title: "SEO Services",
+      shortCta: "SEO Services",
       description:
         "White-label SEO services built for US agencies managing multiple clients.",
       pricing: "Starting at $399/month",
-      originalPrice: "$500",
-      discountedPrice: "$399",
-      discountLabel: "20% OFF",
-      billingUnit: "/month",
-      extraNote: "Average 150% increase in organic traffic",
       features: [
         "White-label SEO reporting",
         "On-page & technical SEO",
@@ -1258,14 +1255,10 @@ export default function Home() {
     {
       id: 2,
       title: "PPC Advertising",
+      shortCta: "PPC Management",
       description:
         "Maximize ROI with expert PPC campaign management for your agency clients.",
       pricing: "Starting at $399/project",
-      originalPrice: "$399",
-      discountedPrice: "$400",
-      discountLabel: "20% OFF",
-      billingUnit: "/project",
-      extraNote: "Best for agencies managing multiple client accounts",
       features: [
         "Google Ads account setup & audit",
         "Keyword & audience targeting",
@@ -1278,14 +1271,10 @@ export default function Home() {
     {
       id: 4,
       title: "Website Design & Development",
+      shortCta: "Web Development",
       description:
         "Custom websites that turn visitors into lifelong customers for your agency clients.",
       pricing: "Starting at $599/project",
-      originalPrice: "$599",
-      discountedPrice: "$600",
-      discountLabel: "20% OFF",
-      billingUnit: "/project",
-      extraNote: "Ideal for landing pages, service sites & local businesses",
       features: [
         "Conversion-focused UX & copy structure",
         "Responsive & mobile-first design",
@@ -1298,14 +1287,10 @@ export default function Home() {
     {
       id: 5,
       title: "Custom App Development",
+      shortCta: "App Development",
       description:
         "High-performance applications built for scalability, automation, and seamless user experience.",
       pricing: "Starting at $2,799/project",
-      originalPrice: "$2,799",
-      discountedPrice: "$2,800",
-      discountLabel: "20% OFF",
-      billingUnit: "/project",
-      extraNote: "Perfect for portals, SaaS, internal tools & AI workflows",
       features: [
         "Custom Web Application Development",
         "iOS & Android Mobile App Development",
@@ -1385,27 +1370,14 @@ export default function Home() {
         />
       )} */}
 
-      <Helmet>
-        <title>
-          White Label Digital Services | Scale Your Agency Without Hiring
-        </title>
-        <meta
-          name="description"
-          content="Scale your agency without hiring. Branding Beez offers white-label web development, SEO, PPC, and AI solutions trusted by 25+ global agencies."
-        />
-        <link rel="canonical" href="https://brandingbeez.co.uk/" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="White Label Digital Services | Scale Your Agency Without Hiring"
+        description="Scale your agency without hiring. Branding Beez offers white-label web development, SEO, PPC, and AI solutions trusted by 25+ global agencies."
+      />
+
+      <SchemaMarkup type="localBusiness" />
 
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Hire Dedicated White-Label Teams for US Agencies | BrandingBeez"
-          description="Hire dedicated developers, designers, SEO and PPC experts under your brand. Trusted white-label partner for US agencies."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/"
-          ogType="website"
-        />
-        <SchemaMarkup type="localBusiness" />
         {/* <Header /> */}
 
         <main>
@@ -1493,7 +1465,7 @@ export default function Home() {
                   <div className="min-h-[56px] sm:min-h-[64px] lg:min-h-[72px] mb-4 sm:mb-6 flex items-center justify-center">
                     <h1
                       className="text-center font-bold text-white leading-tight text-xl sm:text-2xl lg:text-2xl">
-                      Services start from <span className="text-brand-yellow text-3xl underline"> 399$</span>
+                      White-label Solutions starting at <span className="text-brand-yellow text-3xl underline"> 399$</span>
                     </h1>
                   </div>
 
@@ -1514,7 +1486,14 @@ export default function Home() {
                           allowFullScreen
                           loading="lazy"
                         /> */}
-                      <LazyYouTube videoId="BMcrZHzRaeg" />
+                      <LazyYouTube
+                        videoId="BMcrZHzRaeg"
+                        autoplay
+                        // mute
+                        loop
+                        controls={true}
+                        className="rounded-none"
+                      />
                       {/* </div> */}
                     </div>
                   </div>
@@ -1587,11 +1566,14 @@ export default function Home() {
                           {/* BUTTON — STICKS TO BOTTOM */}
                           <div className="mt-auto pt-4">
                             <Link href={service.href}>
-                              <Button className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg whitespace-nowrap">
-                                <span className="leading-tight text-white text-sm sm:text-base">
-                                  Learn More
+                              <Button
+                                className="w-full h-11 bg-gradient-to-r from-brand-coral to-brand-coral-dark hover:from-brand-coral-dark hover:to-brand-coral-darker text-white font-medium text-sm sm:text-md flex items-center justify-center gap-2 shadow-lg overflow-hidden"
+                                aria-label={`View ${service.title} services`}
+                              >
+                                <span className="truncate max-w-[80%] font-medium">
+                                  View {service.shortCta}
                                 </span>
-                                <ArrowRight className="w-4 h-4" />
+                                <ArrowRight className="w-4 h-4 flex-shrink-0" />
                               </Button>
                             </Link>
                           </div>
@@ -1624,16 +1606,13 @@ export default function Home() {
           </section> */}
 
           {/* Who We Work With Section */}
-          <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
+          {/* <section className="bg-[rgb(255,255,255)] px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20">
             <div className="max-w-6xl mx-auto">
-              {/* Header */}
               <div className="mb-10 sm:mb-14 md:mb-16">
-                {/* <div className="flex items-center gap-2 bg-brand-coral text-white px-6 py-2 rounded-full mb-6 sm:mb-8 mx-auto w-fit">
-                  <span className="font-medium">Who We Work With</span>
-                </div> */}
+
 
                 <h1 className="mb-4 sm:mb-6 text-black max-w-3xl text-center mx-auto font-bold text-2xl sm:text-3xl lg:text-4xl">
-                  Built for Growing Digital Marketing Agencies
+                     
                 </h1>
 
                 <p className="text-slate-700 leading-relaxed max-w-2xl text-center mx-auto text-sm sm:text-base">
@@ -1644,9 +1623,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Content Grid */}
               <div className="grid lg:grid-cols-2 gap-8">
-                {/* Services Section */}
                 <div className="px-0">
                   <h3 className="text-[rgba(0,0,0,0.82)] mb-5 sm:mb-8 flex items-center gap-3 font-bold">
                     If your agency needs to deliver:
@@ -1678,7 +1655,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Benefits Section */}
                 <div className="bg-gradient-to-tl from-brand-purple via-brand-purple/90 to-brand-coral rounded-2xl p-6 sm:p-8 md:px-[32px] md:py-[30px]">
                   <h3 className="text-white mt-5 sm:mt-6 mb-5 sm:mb-8 uppercase font-medium tracking-wider">
                     Our agency partners come to us when they want:
@@ -1700,6 +1676,53 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
+              </div>
+            </div>
+          </section> */}
+
+          {/* Testimonials – Card + Screenshot Style */}
+          <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
+            <div className="max-w-7xl mx-auto">
+              {/* Heading Button */}
+              <div className="flex justify-center mb-6">
+                {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
+                <span className="text-black text-2xl sm:text-2xl lg:text-4xl text-center font-bold">What Our Clients Say</span>
+                {/* </div> */}
+              </div>
+
+              {/* Subheading */}
+              <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
+                Agencies and brands trust BrandingBeez to deliver high-impact,
+                white-label solutions with care, speed, and attention to detail.
+              </p>
+
+              {/* --- MOBILE SLIDER (ONLY ≤ 480px) --- */}
+              <div className="hidden max-[480px]:flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
+                {testimonials.map((t) => (
+                  <div key={t.id} className="min-w-[85%] snap-center">
+                    <TestimonialCard
+                      name={t.name}
+                      company={t.company}
+                      testimonial={t.testimonial}
+                      imageUrl={t.imageUrl}
+                      logoUrl={t.logoUrl}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* --- TABLET + DESKTOP GRID ( > 480px ) --- */}
+              <div className="grid max-[480px]:hidden grid-cols-1 md:grid-cols-3 gap-6 text-justify">
+                {testimonials.map((t) => (
+                  <TestimonialCard
+                    key={t.id}
+                    name={t.name}
+                    company={t.company}
+                    testimonial={t.testimonial}
+                    imageUrl={t.imageUrl}
+                    logoUrl={t.logoUrl}
+                  />
+                ))}
               </div>
             </div>
           </section>
@@ -2027,7 +2050,7 @@ export default function Home() {
                   Book a free strategy call
                 </p> */}
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
-                  Ready to see what BrandingBeez can do for you?
+                  Ready to see what <span className="text-brand-coral">BrandingBeez</span> can do for you?
                 </h2>
                 <p className="text-sm md:text-base text-slate-400 leading-relaxed">
                   Pick an available slot with our lead consultant and we&apos;ll
@@ -2045,53 +2068,6 @@ export default function Home() {
                 consultantTitle="CEO, BrandingBeez"
                 consultantImage={RajeStroke}
               />
-            </div>
-          </section>
-
-          {/* Testimonials – Card + Screenshot Style */}
-          <section className="bg-gray-50 py-12 sm:py-16 md:py-20 px-4">
-            <div className="max-w-7xl mx-auto">
-              {/* Heading Button */}
-              <div className="flex justify-center mb-6">
-                {/* <div className="inline-flex items-center gap-2 bg-brand-coral text-white font-medium px-6 py-2 rounded-full shadow-lg"> */}
-                <span className="text-black text-2xl sm:text-2xl lg:text-4xl text-center font-bold">What Our Clients Say</span>
-                {/* </div> */}
-              </div>
-
-              {/* Subheading */}
-              <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto text-[18px]">
-                Agencies and brands trust BrandingBeez to deliver high-impact,
-                white-label solutions with care, speed, and attention to detail.
-              </p>
-
-              {/* --- MOBILE SLIDER (ONLY ≤ 480px) --- */}
-              <div className="hidden max-[480px]:flex overflow-x-auto gap-4 snap-x snap-mandatory pb-4">
-                {testimonials.map((t) => (
-                  <div key={t.id} className="min-w-[85%] snap-center">
-                    <TestimonialCard
-                      name={t.name}
-                      company={t.company}
-                      testimonial={t.testimonial}
-                      imageUrl={t.imageUrl}
-                      logoUrl={t.logoUrl}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              {/* --- TABLET + DESKTOP GRID ( > 480px ) --- */}
-              <div className="grid max-[480px]:hidden grid-cols-1 md:grid-cols-3 gap-6 text-justify">
-                {testimonials.map((t) => (
-                  <TestimonialCard
-                    key={t.id}
-                    name={t.name}
-                    company={t.company}
-                    testimonial={t.testimonial}
-                    imageUrl={t.imageUrl}
-                    logoUrl={t.logoUrl}
-                  />
-                ))}
-              </div>
             </div>
           </section>
 

@@ -158,7 +158,7 @@
   }
 
   // --- strategy ---
-  onIdle(loadGTM, 2500);
+  onIdle(loadGTM, 500);
 
   afterDelay(1500, function () {
     onIdle(loadMetaPixel, 3000);

@@ -75,6 +75,11 @@ export interface DrVideoTestimonial {
   videoUrl?: string;
 }
 
+export interface DedicatedResourceSeoMeta {
+  metaTitle?: string;
+  metaDescription?: string;
+}
+
 // ---------- main ----------
 export interface DedicatedResourceCaseStudyDetail {
   cardId: Types.ObjectId; // FK to DedicatedResourceCaseStudyCard
@@ -161,13 +166,15 @@ export interface DedicatedResourceCaseStudyDetail {
     formTitle?: string;
   };
 
+  seo?: DedicatedResourceSeoMeta;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 export interface DedicatedResourceCaseStudyDetailDocument
   extends Document,
-    DedicatedResourceCaseStudyDetail {}
+  DedicatedResourceCaseStudyDetail { }
 
 // ---------- sub schemas ----------
 const heroStatSchema = new Schema<DrHeroStat>(
@@ -244,6 +251,14 @@ const testimonialSchema = new Schema<DrTestimonial>(
 
 const videoTestimonialSchema = new Schema<DrVideoTestimonial>(
   { thumbnailUrl: String, title: String, description: String, videoUrl: String },
+  { _id: false }
+);
+
+const seoMetaSchema = new Schema(
+  {
+    metaTitle: { type: String, maxlength: 60 },
+    metaDescription: { type: String, maxlength: 160 },
+  },
   { _id: false }
 );
 
@@ -330,6 +345,8 @@ const dedicatedResourceCaseStudyDetailSchema = new Schema<DedicatedResourceCaseS
       phoneValue: String,
       formTitle: String,
     },
+
+    seo: { type: seoMetaSchema },
   },
   {
     collection: "dedicated_resource_case_study_details",

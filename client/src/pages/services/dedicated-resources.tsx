@@ -42,6 +42,8 @@ import { PhaseSliderSection } from "@/components/phase-slider-section";
 import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 import Hours_24_Image from "../../../public/images/24 hour Start time.png";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import CaseStudyScrollHandler, { scrollToCaseStudies } from "@/utils/CaseStudyScrollHandler ";
+import { SEO } from "@/hooks/SEO";
 // import DR_Image from "../../../public/images/D"
 
 
@@ -163,12 +165,13 @@ export default function DedicatedResources() {
   const activePhase = phases[currentPhase];
 
   const handleScrollToCaseStudies = () => {
-    if (typeof document === "undefined") return; // safety for SSR
+    // if (typeof document === "undefined") return; // safety for SSR
 
-    const section = document.getElementById("case-studies");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // const section = document.getElementById("case-studies");
+    // if (section) {
+    //   section.scrollIntoView({ behavior: "smooth", block: "start" });
+    // }
+    scrollToCaseStudies();
   };
 
   const handleHireClick = () => {
@@ -242,27 +245,15 @@ export default function DedicatedResources() {
 
   return (
     <>
-      <Helmet>
-        <title>Dedicated White-Label Teams for Agencies | BrandingBeez</title>
-        <meta
-          name="description"
-          content="Hire dedicated white-label developers, designers, SEO & PPC specialists. Scale delivery, cut costs, and stay in control — no hiring risk."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/services/dedicated-resources"
-        />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <CaseStudyScrollHandler />
+      <SEO
+        title="Dedicated White-Label Teams for Agencies | BrandingBeez"
+        description="Hire dedicated white-label developers, designers, SEO & PPC specialists. Scale delivery, cut costs, and stay in control — no hiring risk."
+      />
+
+      <SchemaMarkup type="custom" data={DedicatedResourcesSchema} />
+
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Dedicated Development Teams — Scale Faster with Branding Beez"
-          description="Embed top-tier developers & specialists, cut costs by 60%, and boost output by 150%"
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/services/dedicated-resources"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={DedicatedResourcesSchema} />
         {/* <Header /> */}
         <main>
           {/* Hero Section */}
@@ -288,9 +279,9 @@ export default function DedicatedResources() {
                       </div>
                     </div>
                     <div className="bg-white/10 rounded-lg p-4 sm:p-5 text-center">
-                      <div className="text-xl sm:text-2xl font-bold">60%</div>
+                      <div className="text-xl sm:text-2xl font-bold">$100K a year</div>
                       <div className="text-xs sm:text-sm text-white/80">
-                        Cost Savings
+                        Save more than
                       </div>
                     </div>
                   </div>
@@ -306,7 +297,7 @@ export default function DedicatedResources() {
                     <div className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-brand-yellow" />
                       <span className="text-sm sm:text-base text-white">
-                        24 Hours Start Time
+                        24 hours Start Time
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -323,7 +314,7 @@ export default function DedicatedResources() {
                         size="lg"
                         className="w-full sm:w-auto bg-white font-medium text-brand-purple hover:bg-brand-coral hover:text-white"
                       >
-                        Hire Your Team
+                        Hire Someone in 7 Days
                         <ArrowRight className="w-5 h-5 ml-2" />
                       </Button>
                     </Link>
@@ -332,7 +323,7 @@ export default function DedicatedResources() {
                     <Button
                       variant="outline"
                       onClick={handleScrollToCaseStudies}
-                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-2 bg-white/10"
+                      className="border-white/70 text-white hover:bg-white hover:text-brand-purple text-sm sm:text-base px-6 sm:px-8 py-3 sm:py-5 flex items-center gap-2 bg-white/10"
                     >
                       View Dedicated Resources Case Studies
                       <ExternalLink className="w-4 h-4" />
@@ -369,14 +360,18 @@ export default function DedicatedResources() {
                   {/* VIDEO ALWAYS SHOWN */}
                   <div className="mb-0">
                     {/* <div className="w-full h-50 sm:h-30 md:h-76 lg:h-[330px] rounded-xl overflow-hidden shadow-lg"> */}
-                      {/* <iframe
+                    {/* <iframe
                         className="w-full h-full"
                         src="https://www.youtube.com/embed/o1pOaGyjVuQ"
                         title="Dedicated Resources Overview"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       /> */}
-                      <LazyYouTube videoId="o1pOaGyjVuQ" />
+                    <LazyYouTube videoId="o1pOaGyjVuQ" autoplay
+                      // mute
+                      loop
+                      controls={true}
+                      className="rounded-none" />
                     {/* </div> */}
                   </div>
                 </div>
@@ -951,7 +946,7 @@ export default function DedicatedResources() {
                 {/* Social Land - Digital Marketing Agency Success */}
                 <Card className="relative bg-white h-full flex flex-col">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-brand-coral text-white">+30 Months Onwards</Badge>
+                    <Badge className="bg-brand-coral text-white">3+ Years of Partnership</Badge>
                   </div>
 
                   <CardContent className="p-6 sm:p-8 pt-10 flex-1 flex flex-col">
@@ -1008,7 +1003,7 @@ export default function DedicatedResources() {
                 {/* Koala Digital - Digital Marketing Agency */}
                 <Card className="relative bg-white h-full flex flex-col">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-brand-coral text-white">+24 Months Onwards</Badge>
+                    <Badge className="bg-brand-coral text-white">2+ Years of Parnership</Badge>
                   </div>
 
                   <CardContent className="p-6 sm:p-8 pt-10 flex-1 flex flex-col">
@@ -1065,7 +1060,7 @@ export default function DedicatedResources() {
                 {/* Website Architect - Web Development Agency */}
                 <Card className="relative bg-white h-full flex flex-col">
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-brand-coral text-white">+12 Months Onwards</Badge>
+                    <Badge className="bg-brand-coral text-white">1+ Years of Parnership</Badge>
                   </div>
 
                   <CardContent className="p-6 sm:p-8 pt-10 flex-1 flex flex-col">
@@ -1204,7 +1199,6 @@ export default function DedicatedResources() {
               </Card>
             </div>
           </section>
-
 
           {/* Pricing Section */}
           <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
@@ -1521,7 +1515,6 @@ export default function DedicatedResources() {
               </div>
             </div>
           </section>
-
 
           {/* CTA Section */}
           <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 bg-brand-purple text-white">

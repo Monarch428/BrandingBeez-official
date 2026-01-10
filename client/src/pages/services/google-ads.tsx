@@ -38,6 +38,8 @@ import Whitelabel_Image from "../../../public/images/1OO_WHITE-LABEL.png";
 import Hours_24_Image from "../../../public/images/24 hour Start time.png";
 import PPC_Image from "../../../public/images/DEDICATED PPC SPECIALIST.png"
 import { LazyYouTube } from "@/components/LazyYouTube";
+import CaseStudyScrollHandler, { scrollToCaseStudies } from "@/utils/CaseStudyScrollHandler ";
+import { SEO } from "@/hooks/SEO";
 
 
 // Featured Google Ads client data
@@ -77,20 +79,20 @@ const caseStudies = [
     description: "Achieved exceptional results for UK family law firm with Performance Max and Search campaigns optimization.",
     link: "/case-studies/arlingsworth-solicitors-case-study"
   },
-  {
-    id: 2,
-    title: "Waste Management Transformation",
-    client: "JunksAway",
-    industry: "Waste Management",
-    results: {
-      cpaReduction: "82% CPA reduction",
-      conversions: "706 Total Conversions",
-      roas: "1.28x ROAS achieved"
-    },
-    description: "Dramatically reduced CPA from $34 to $6 for US junk removal company through strategic campaign restructure.",
-    // description: "Dramatically reduced CPA from $34.37 to $6.09 for US junk removal company through strategic campaign restructure.",
-    link: "/case-studies/junksaway-case-study"
-  },
+  // {
+  //   id: 2,
+  //   title: "Waste Management Transformation",
+  //   client: "JunksAway",
+  //   industry: "Waste Management",
+  //   results: {
+  //     cpaReduction: "82% CPA reduction",
+  //     conversions: "706 Total Conversions",
+  //     roas: "1.28x ROAS achieved"
+  //   },
+  //   description: "Dramatically reduced CPA from $34 to $6 for US junk removal company through strategic campaign restructure.",
+  //   // description: "Dramatically reduced CPA from $34.37 to $6.09 for US junk removal company through strategic campaign restructure.",
+  //   link: "/case-studies/junksaway-case-study"
+  // },
   {
     id: 3,
     title: "Pet Services Success",
@@ -331,52 +333,53 @@ export default function GoogleAds() {
 
 
   const handleScrollToCaseStudies = () => {
-    if (typeof document === "undefined") return;
+    // if (typeof document === "undefined") return;
 
-    const section = document.getElementById("case-studies");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // const section = document.getElementById("case-studies");
+    // if (section) {
+    //   section.scrollIntoView({ behavior: "smooth", block: "start" });
+    // }
+    scrollToCaseStudies();
   };
 
   return (
     <>
-      <Helmet>
-        <title>White-Label Google Ads Management for Agencies | BrandingBeez</title>
-        <meta name="description" content="White-label Google Ads management for agencies. Scale PPC services with expert strategy, lower CPAs & branded reporting. Trusted by US & UK agencies." />
-        <link rel="canonical" href="https://brandingbeez.co.uk/services/google-ads" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
-      <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="White-Label Google Ads Services | £6.51 CPA | Expert PPC for Agencies"
-          description="Professional white-label Google Ads management for agencies. Proven results with £6.51 CPA and 18.95% conversion rates. Performance Max, Search, and Shopping campaigns delivered under your brand."
-          keywords="white label Google Ads, PPC services for agencies, white label pay per click, Google Ads management, Performance Max campaigns, Search campaigns"
-          canonicalUrl="https://brandingbeez.com/services/google-ads"
-          ogType="service"
-        />
-        <SchemaMarkup type="service" data={{
+      <CaseStudyScrollHandler />
+      <SEO
+        title="White-Label Google Ads Management for Agencies | BrandingBeez"
+        description="White-label Google Ads management for agencies. Scale PPC services with expert strategy, lower CPAs & branded reporting. Trusted by US & UK agencies."
+      />
+
+      <SchemaMarkup
+        type="service"
+        data={{
           name: "White-Label Google Ads Services",
-          description: "Performance-focused Google Ads campaigns with conversion optimization and detailed reporting delivered under your agency's brand.",
+          description:
+            "Performance-focused Google Ads campaigns with conversion optimization and detailed reporting delivered under your agency's brand.",
           serviceType: "Pay-Per-Click Advertising",
           hasOfferCatalog: {
             name: "Google Ads Service Offerings",
             itemListElement: [
               {
                 name: "Performance Max Campaigns",
-                description: "AI-powered campaigns across all Google properties"
+                description:
+                  "AI-powered campaigns across all Google properties",
               },
               {
                 name: "Search Campaigns",
-                description: "Targeted search advertising with keyword optimization"
+                description:
+                  "Targeted search advertising with keyword optimization",
               },
               {
                 name: "Shopping Campaigns",
-                description: "E-commerce focused product advertising"
-              }
-            ]
-          }
-        }} />
+                description:
+                  "E-commerce focused product advertising",
+              },
+            ],
+          },
+        }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
         {/* <Header /> */}
         <main className="pt-0">
 
@@ -512,7 +515,11 @@ export default function GoogleAds() {
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                         /> */}
-                      <LazyYouTube videoId="8CRaG4x_IXA" />
+                      <LazyYouTube videoId="8CRaG4x_IXA" autoplay
+                        // mute
+                        loop
+                        controls={true}
+                        className="rounded-none" />
                       {/* </div> */}
                     </div>
                   </div>

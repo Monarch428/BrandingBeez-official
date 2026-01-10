@@ -16,6 +16,9 @@ import network_icon from "@assets/networkicon.png";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { Helmet } from "react-helmet";
+import BrandingBeezLoader from "@/components/BeeLoadingScreen";
+import { SEO } from "@/hooks/SEO";
 
 /* ============================================================
    TYPES (API returns combined: { card, detail })
@@ -82,6 +85,11 @@ interface KeywordMetric {
   label: string;
   value: string;
   percentage: string;
+}
+
+interface SeoMeta {
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface SeoCaseStudyCard {
@@ -166,6 +174,8 @@ export interface SeoCaseStudyDetail {
   bottomPrimaryCtaHref?: string;
   bottomSecondaryCtaText: string;
   bottomSecondaryCtaHref?: string;
+
+  seo?: SeoMeta;
 }
 
 export type SeoCaseStudyCombined = {
@@ -275,6 +285,8 @@ function buildSeoFallbackFromCard(card: SeoCaseStudyCard): SeoCaseStudyDetail {
     bottomPrimaryCtaHref: "/seo-audit",
     bottomSecondaryCtaText: "See Pricing",
     bottomSecondaryCtaHref: "/pricing",
+
+    seo: {},
   };
 }
 
@@ -349,7 +361,7 @@ export function SeoCaseStudyPage() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
-        Loading case study…
+        <BrandingBeezLoader />
       </div>
     );
   }
@@ -368,8 +380,36 @@ export function SeoCaseStudyPage() {
     );
   }
 
+  const seoTitle =
+    seo.seo?.metaTitle ||
+    seo.heroHeadline ||
+    seo.heroClientName ||
+    "SEO Case Study";
+
   return (
     <>
+      <SEO
+        title={`${seoTitle} | BrandingBeez SEO Case Study`}
+        description={
+          seo.seo?.metaDescription ||
+          "Detailed SEO case study by BrandingBeez."
+        }
+      />
+
+      {/* Optional Open Graph (safe) */}
+      <Helmet>
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={`${seoTitle} | BrandingBeez`} />
+        <meta
+          property="og:description"
+          content={
+            seo.seo?.metaDescription ||
+            "Detailed SEO case study by BrandingBeez."
+          }
+        />
+      </Helmet>
+
+
       <HeroSection seo={seo} />
       <CaseStudyHighlights seo={seo} />
       <CTASection seo={seo} />
@@ -866,8 +906,8 @@ function ClientTestimonialsSection({ seo }: { seo: SeoCaseStudyDetail }) {
                         iconKey="Star"
                         size={20}
                         className={`w-5 h-5 ${i < (primary.rating || 0)
-                            ? "text-yellow-400 fill-yellow-400"
-                            : "text-white/25"
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-white/25"
                           }`}
                       />
                     ))}

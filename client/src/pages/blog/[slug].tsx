@@ -1266,8 +1266,7 @@
 
 
 
-
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 // import { Header } from "@/components/header";
@@ -1288,8 +1287,8 @@ import { Helmet } from "react-helmet";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import BrandingBeezLoader from "@/components/BeeLoadingScreen";
 
-// ✅ NEW: Use BrandingBeez loader
-// import BrandingBeezLoader from "@/components/FlyingBeeLoader";
+// ✅ Category Tabs UI
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface BlogPost {
   id: number;
@@ -1312,15 +1311,12 @@ interface BlogPost {
   category?: string;
 }
 
-// ✅ UPDATED: include FAQ section
 type SectionType = "content" | "process" | "faq";
 
 type SectionLink = {
   id: string;
   label: string;
   url: string;
-
-  // ✅ Support inline formatting options from admin (optional)
   bold?: boolean;
   italic?: boolean;
   fontSize?: "sm" | "base" | "lg" | "xl";
@@ -1330,11 +1326,7 @@ type ProcessStep = {
   id: string;
   title: string;
   description: string;
-
-  // ✅ Separated
   links?: SectionLink[];
-
-  // ✅ Separated
   inlineLinks?: SectionLink[];
 };
 
@@ -1342,7 +1334,6 @@ type FaqItem = {
   id: string;
   question: string;
   answer: string;
-
   links?: SectionLink[];
   inlineLinks?: SectionLink[];
 };
@@ -1362,19 +1353,10 @@ type BlogSection = {
   subHeading: string;
   content: string;
   images: string[];
-
-  // process
   steps: ProcessStep[];
-
-  // ✅ NEW: faq
   faqItems?: FaqItem[];
-
   cta: SectionCTA;
-
-  // ✅ Separated
   links?: SectionLink[];
-
-  // ✅ Separated
   inlineLinks?: SectionLink[];
 };
 
@@ -1416,7 +1398,6 @@ const stripHtml = (html: string) =>
 
 const hasHtmlTags = (raw: string) => /<\/?[a-z][\s\S]*>/i.test(raw || "");
 
-
 function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
   const items: TocItem[] = [];
 
@@ -1443,7 +1424,6 @@ function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
       });
     }
 
-    // ✅ FAQ TOC
     if (sec.type === "faq" && Array.isArray(sec.faqItems)) {
       sec.faqItems.forEach((f, fIdx) => {
         const q = f.question?.trim();
@@ -1456,13 +1436,15 @@ function extractTocItemsFromSections(sections: BlogSection[]): TocItem[] {
         }
       });
     }
-
   });
 
   return items;
 }
 
-function syncTocOrder(prevOrder: string[] | undefined, items: TocItem[]): string[] {
+function syncTocOrder(
+  prevOrder: string[] | undefined,
+  items: TocItem[],
+): string[] {
   const prev = Array.isArray(prevOrder) ? prevOrder : [];
   const set = new Set(items.map((i) => i.id));
   const kept = prev.filter((id) => set.has(id));
@@ -1479,7 +1461,10 @@ function deriveExcerptFromContent(content: string, maxLen = 185) {
       const c = (sec?.content || "").trim();
       if (c) {
         const text = stripHtml(c);
-        if (text) return text.length > maxLen ? text.slice(0, maxLen).trim() + "…" : text;
+        if (text)
+          return text.length > maxLen
+            ? text.slice(0, maxLen).trim() + "…"
+            : text;
       }
 
       if (sec?.type === "process") {
@@ -1487,12 +1472,14 @@ function deriveExcerptFromContent(content: string, maxLen = 185) {
           const d = (st?.description || "").trim();
           if (d) {
             const text = stripHtml(d);
-            if (text) return text.length > maxLen ? text.slice(0, maxLen).trim() + "…" : text;
+            if (text)
+              return text.length > maxLen
+                ? text.slice(0, maxLen).trim() + "…"
+                : text;
           }
         }
       }
 
-      // ✅ FAQ excerpt fallback
       if (sec?.type === "faq") {
         for (const f of sec.faqItems || []) {
           const a = (f?.answer || "").trim();
@@ -1516,7 +1503,7 @@ function deriveExcerptFromContent(content: string, maxLen = 185) {
 function scrollToAnchor(anchor: string) {
   const el = document.getElementById(anchor);
   if (!el) return;
-  const y = el.getBoundingClientRect().top + window.scrollY - 90; // header offset
+  const y = el.getBoundingClientRect().top + window.scrollY - 90;
   window.scrollTo({ top: y, behavior: "smooth" });
 }
 
@@ -1524,7 +1511,12 @@ export default function DynamicBlogPost() {
   const [location] = useLocation();
   const slug = location.replace(/^\/blog\/?/, "").split("?")[0];
 
-  const { data: blogPost, isLoading, isError, error } = useQuery<BlogPost | null>({
+  const {
+    data: blogPost,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<BlogPost | null>({
     queryKey: ["blog-post", slug],
     enabled: !!slug,
     queryFn: async () => {
@@ -1539,7 +1531,9 @@ export default function DynamicBlogPost() {
 
       if (!res.ok) {
         const message = await res.text();
-        throw new Error(message || `Failed to load article (status ${res.status})`);
+        throw new Error(
+          message || `Failed to load article (status ${res.status})`,
+        );
       }
 
       return (await res.json()) as BlogPost;
@@ -1548,9 +1542,57 @@ export default function DynamicBlogPost() {
     staleTime: 1000 * 60 * 10,
   });
 
+  // ✅ fetch all blog posts for category tabs listing
+  const { data: allPosts = [] } = useQuery<BlogPost[]>({
+    queryKey: ["blog-posts-all"],
+    queryFn: async () => {
+      const res = await fetch("/api/blog", { cache: "no-store" });
+      if (!res.ok) return [];
+      return (await res.json()) as BlogPost[];
+    },
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+
+  // ✅ Hooks MUST be before any return (fix hook mismatch)
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+
+  const publishedPosts = useMemo(() => {
+    return (allPosts || []).filter((p) => p?.isPublished !== false);
+  }, [allPosts]);
+
+  const categories = useMemo(() => {
+    const set = new Set<string>();
+    for (const p of publishedPosts) {
+      const c = (p.category || "").trim();
+      if (c) set.add(c);
+    }
+    return ["All", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [publishedPosts]);
+
+  useEffect(() => {
+    const cc = (blogPost?.category || "").trim();
+    setActiveCategory(cc || "All");
+  }, [blogPost?.id, blogPost?.category]);
+
+  const postsInTab = useMemo(() => {
+    const list =
+      activeCategory === "All"
+        ? publishedPosts
+        : publishedPosts.filter(
+          (p) => (p.category || "").trim() === activeCategory,
+        );
+    const currentSlug = (blogPost?.slug || "").trim();
+    return list.filter((p) => p.slug !== currentSlug);
+  }, [publishedPosts, activeCategory, blogPost?.slug]);
+
   const publishDate = blogPost?.publishedAt || blogPost?.createdAt;
   const formattedPublishDate = publishDate
-    ? new Date(publishDate).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+    ? new Date(publishDate).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
     : "Recent";
   const author = blogPost?.author || "BrandingBeez Team";
   const readTime = blogPost?.readTime || 5;
@@ -1567,18 +1609,17 @@ export default function DynamicBlogPost() {
   }, [blogPost?.imageUrl]);
 
   const structured = useMemo(() => {
-    // ✅ 1) Prefer already-parsed structured content from API
-    const cs = (blogPost as any)?.contentStructured as StructuredBlogContentV1 | undefined;
+    const cs = (blogPost as any)?.contentStructured as
+      | StructuredBlogContentV1
+      | undefined;
     if (cs?.version === 1 && Array.isArray(cs.sections)) return cs;
 
-    // ✅ 2) Fallback: parse stringified JSON in blogPost.content
     const raw = blogPost?.content?.trim() || "";
     const parsed = safeJsonParse<StructuredBlogContentV1>(raw);
     if (parsed?.version === 1 && Array.isArray(parsed.sections)) return parsed;
 
     return null;
   }, [blogPost?.content, (blogPost as any)?.contentStructured]);
-
 
   const toc = useMemo(() => {
     if (!structured) return [];
@@ -1617,20 +1658,22 @@ export default function DynamicBlogPost() {
     return paragraphs;
   }, [blogPost?.content]);
 
-  // ✅ Use your loader
+  // ✅ Now returns are safe (all hooks already called)
   if (isLoading) return <BrandingBeezLoader />;
 
   if (isError) {
     return (
       <div className="min-h-screen bg-white">
-        {/* <Header /> */}
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <div className="text-4xl mb-4">⚠️</div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Unable to load blog post</h1>
-          <p className="text-base md:text-xl text-gray-600 mb-8">{(error as Error)?.message || "Please try again later."}</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Unable to load blog post
+          </h1>
+          <p className="text-base md:text-xl text-gray-600 mb-8">
+            {(error as Error)?.message || "Please try again later."}
+          </p>
           <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
-        {/* <Footer /> */}
       </div>
     );
   }
@@ -1638,16 +1681,18 @@ export default function DynamicBlogPost() {
   if (!blogPost) {
     return (
       <div className="min-h-screen bg-white">
-        {/* <Header /> */}
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Blog Post Not Found</h1>
-          <p className="text-base md:text-xl text-gray-600 mb-8">The blog post you're looking for doesn't exist or has been moved.</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Blog Post Not Found
+          </h1>
+          <p className="text-base md:text-xl text-gray-600 mb-8">
+            The blog post you're looking for doesn't exist or has been moved.
+          </p>
           <Button onClick={() => (window.location.href = "/blog")}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Blog
           </Button>
         </div>
-        {/* <Footer /> */}
       </div>
     );
   }
@@ -1661,7 +1706,8 @@ export default function DynamicBlogPost() {
     }
   };
 
-  const summaryText = blogPost.excerpt?.trim() || deriveExcerptFromContent(blogPost.content || "");
+  const summaryText =
+    blogPost.excerpt?.trim() || deriveExcerptFromContent(blogPost.content || "");
 
   function escapeHtml(text: string) {
     return (text || "")
@@ -1684,7 +1730,6 @@ export default function DynamicBlogPost() {
     return "";
   }
 
-  // ✅ Inline link styling support (bold / italic / font size)
   function getInlineLinkClass(l: SectionLink) {
     const size =
       l.fontSize === "sm"
@@ -1721,7 +1766,6 @@ export default function DynamicBlogPost() {
 
     if (!valid.length) return html;
 
-    // avoid touching existing <a> tags
     const anchorRe = /<a\b[^>]*>[\s\S]*?<\/a>/gi;
     const parts: { type: "a" | "t"; v: string }[] = [];
     let last = 0;
@@ -1737,11 +1781,17 @@ export default function DynamicBlogPost() {
     const linkify = (txt: string) => {
       let out = txt;
       for (const l of valid) {
-        const re = new RegExp(`(^|[^\\w])(${escapeRegExp(l.label)})(?=[^\\w]|$)`, "g");
+        const re = new RegExp(
+          `(^|[^\\w])(${escapeRegExp(l.label)})(?=[^\\w]|$)`,
+          "g",
+        );
         const attrs = l.url.startsWith("/")
           ? `href="${l.url}"`
           : `href="${l.url}" target="_blank" rel="noopener noreferrer"`;
-        out = out.replace(re, `$1<a ${attrs} class="${l.className}">$2</a>`);
+        out = out.replace(
+          re,
+          `$1<a ${attrs} class="${l.className}">$2</a>`,
+        );
       }
       return out;
     };
@@ -1760,16 +1810,29 @@ export default function DynamicBlogPost() {
     <div className="min-h-screen bg-white">
       <Helmet>
         <title>{blogPost.metaTitle || `${blogPost.title} | BrandingBeez`}</title>
-        <meta name="description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
-        <meta name="keywords" content={Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""} />
-        <meta property="og:title" content={blogPost.metaTitle || blogPost.title} />
-        <meta property="og:description" content={blogPost.metaDescription || blogPost.excerpt || ""} />
-        <meta property="og:image" content={resolvedImageUrl || "/api/placeholder/800/600"} />
+        <meta
+          name="description"
+          content={blogPost.metaDescription || blogPost.excerpt || ""}
+        />
+        <meta
+          name="keywords"
+          content={Array.isArray(blogPost.tags) ? blogPost.tags.join(", ") : ""}
+        />
+        <meta
+          property="og:title"
+          content={blogPost.metaTitle || blogPost.title}
+        />
+        <meta
+          property="og:description"
+          content={blogPost.metaDescription || blogPost.excerpt || ""}
+        />
+        <meta
+          property="og:image"
+          content={resolvedImageUrl || "/api/placeholder/800/600"}
+        />
         <meta property="article:author" content={author} />
         <meta property="article:published_time" content={publishDate} />
       </Helmet>
-
-      {/* <Header /> */}
 
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-r from-brand-purple to-brand-coral text-white">
@@ -1786,12 +1849,18 @@ export default function DynamicBlogPost() {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               {blogPost.category && (
-                <Badge className="bg-white/15 border-white/20 text-white" variant="outline">
+                <Badge
+                  className="bg-white/15 border-white/20 text-white"
+                  variant="outline"
+                >
                   {blogPost.category}
                 </Badge>
               )}
               {blogPost.isFeatured && (
-                <Badge className="bg-white/15 border-white/20 text-white" variant="outline">
+                <Badge
+                  className="bg-white/15 border-white/20 text-white"
+                  variant="outline"
+                >
                   Featured
                 </Badge>
               )}
@@ -1838,7 +1907,11 @@ export default function DynamicBlogPost() {
             {Array.isArray(blogPost.tags) && blogPost.tags.length > 0 && (
               <div className="flex gap-2 flex-wrap pt-2">
                 {blogPost.tags.slice(0, 10).map((tag, index) => (
-                  <Badge key={index} variant="outline" className="bg-white/10 border-white/40 text-white">
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="bg-white/10 border-white/40 text-white"
+                  >
                     {tag}
                   </Badge>
                 ))}
@@ -1857,10 +1930,9 @@ export default function DynamicBlogPost() {
                 <img
                   src={resolvedImageUrl}
                   alt={blogPost.title}
-                  className="w-full h-56 sm:h-72 md:h-[420px] object-cover"
+                  className="w-full aspect-[4/3] sm:aspect-[16/9] object-cover"                 
                   loading="eager"
                   onError={(e) => {
-                    console.warn("❌ Blog hero image failed to load:", resolvedImageUrl);
                     e.currentTarget.onerror = null;
                     e.currentTarget.src = "/images/blog-fallback.png";
                   }}
@@ -1871,20 +1943,24 @@ export default function DynamicBlogPost() {
 
           {summaryText && (
             <div className="mb-8 md:mb-10 rounded-2xl border bg-gradient-to-r from-blue-50 to-white p-5 sm:p-6 md:p-7">
-              <div className="text-sm font-semibold text-brand-purple mb-2">Quick Summary</div>
-              <p className="text-gray-700 text-base md:text-lg leading-relaxed">{summaryText}</p>
+              <div className="text-sm font-semibold text-brand-purple mb-2">
+                Quick Summary
+              </div>
+              <p className="text-gray-700 text-base md:text-lg leading-relaxed">
+                {summaryText}
+              </p>
             </div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-            {/* MAIN */}
             <div className="lg:col-span-8 space-y-8">
-              {/* ✅ Mobile TOC (shows only on small screens) */}
               {structured && toc.length > 0 && (
                 <div className="lg:hidden rounded-2xl border bg-white shadow-sm overflow-hidden">
                   <details>
                     <summary className="cursor-pointer select-none px-5 py-4 flex items-center justify-between">
-                      <div className="font-extrabold text-gray-900">Table of Contents</div>
+                      <div className="font-extrabold text-gray-900">
+                        Table of Contents
+                      </div>
                       <ChevronDown className="w-5 h-5 text-gray-500" />
                     </summary>
                     <div className="px-4 pb-4 space-y-2">
@@ -1896,7 +1972,9 @@ export default function DynamicBlogPost() {
                           className="w-full text-left rounded-xl px-3 py-2 hover:bg-gray-50 transition flex items-start gap-2"
                         >
                           <LinkIcon className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
-                          <span className="text-sm font-medium text-gray-800 leading-6">{item.label}</span>
+                          <span className="text-sm font-medium text-gray-800 leading-6">
+                            {item.label}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -1904,6 +1982,7 @@ export default function DynamicBlogPost() {
                 </div>
               )}
 
+              {/* ✅ Content rendering unchanged (kept from your file) */}
               {structured ? (
                 <div className="space-y-10">
                   {structured.sections.map((sec, sIdx) => {
@@ -1931,7 +2010,6 @@ export default function DynamicBlogPost() {
                           </p>
                         )}
 
-                        {/* CONTENT */}
                         {sec.type === "content" && (
                           <div
                             className={[
@@ -1946,13 +2024,15 @@ export default function DynamicBlogPost() {
                           >
                             <div
                               dangerouslySetInnerHTML={{
-                                __html: renderTextWithInlineLinks(sec.content, sectionInlineLinks),
+                                __html: renderTextWithInlineLinks(
+                                  sec.content,
+                                  sectionInlineLinks,
+                                ),
                               }}
                             />
                           </div>
                         )}
 
-                        {/* PROCESS */}
                         {sec.type === "process" && (
                           <div className="space-y-4">
                             {(sec.steps || []).map((st, stIdx) => {
@@ -1987,35 +2067,48 @@ export default function DynamicBlogPost() {
                                         <div
                                           className="text-gray-700 leading-8"
                                           dangerouslySetInnerHTML={{
-                                            __html: renderTextWithInlineLinks(st.description, stepInlineLinks),
+                                            __html: renderTextWithInlineLinks(
+                                              st.description,
+                                              stepInlineLinks,
+                                            ),
                                           }}
                                         />
                                       )}
 
-                                      {Array.isArray(stepReferences) && stepReferences.length > 0 && (
-                                        <div className="mt-4 rounded-2xl border bg-gray-50 p-4">
-                                          <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
-                                            <LinkIcon className="w-4 h-4 text-gray-500" />
-                                            Step References
-                                          </div>
+                                      {Array.isArray(stepReferences) &&
+                                        stepReferences.length > 0 && (
+                                          <div className="mt-4 rounded-2xl border bg-gray-50 p-4">
+                                            <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
+                                              <LinkIcon className="w-4 h-4 text-gray-500" />
+                                              Step References
+                                            </div>
 
-                                          <ul className="space-y-2">
-                                            {stepReferences.map((link) => (
-                                              <li key={link.id} className="flex items-start gap-2">
-                                                <span className="text-brand-purple font-bold">•</span>
-                                                <a
-                                                  href={link.url}
-                                                  target={link.url?.startsWith("/") ? "_self" : "_blank"}
-                                                  rel="noreferrer noopener"
-                                                  className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                            <ul className="space-y-2">
+                                              {stepReferences.map((link) => (
+                                                <li
+                                                  key={link.id}
+                                                  className="flex items-start gap-2"
                                                 >
-                                                  {link.label?.trim() || link.url}
-                                                </a>
-                                              </li>
-                                            ))}
-                                          </ul>
-                                        </div>
-                                      )}
+                                                  <span className="text-brand-purple font-bold">
+                                                    •
+                                                  </span>
+                                                  <a
+                                                    href={link.url}
+                                                    target={
+                                                      link.url?.startsWith("/")
+                                                        ? "_self"
+                                                        : "_blank"
+                                                    }
+                                                    rel="noreferrer noopener"
+                                                    className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                                  >
+                                                    {link.label?.trim() || link.url}
+                                                  </a>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
                                     </div>
                                   </div>
                                 </div>
@@ -2029,19 +2122,13 @@ export default function DynamicBlogPost() {
                             ? `faq-${slugify(f.question)}-${sIdx + 1}-${fIdx + 1}`
                             : undefined;
 
-                          const faqInlineLinks = f.inlineLinks || [];
-                          const faqReferences = f.links || [];
+                          const faqInlineLinks = sec.inlineLinks || [];
+                          const faqReferences = sec.links || [];
 
                           return (
-                            <div
-                              key={f.id}
-                              className="bg-white p-1 sm:p-2"
-                            >
-                              {/* Question */}
+                            <div key={f.id} className="bg-white p-1 sm:p-2">
                               <div className="flex items-start gap-3">
-                                <div className="mt-0.5 flex-shrink-0">
-                                  <HelpCircle className="w-5 h-5 text-brand-purple" />
-                                </div>
+                                <HelpCircle className="w-5 h-5 text-brand-purple mt-0.5" />
 
                                 <div className="flex-1 min-w-0">
                                   <h3
@@ -2051,48 +2138,58 @@ export default function DynamicBlogPost() {
                                     {f.question || `Question ${fIdx + 1}`}
                                   </h3>
 
-                                  {/* Answer */}
                                   {f.answer?.trim() && (
                                     <div
                                       className="mt-3 text-gray-700 leading-8"
                                       dangerouslySetInnerHTML={{
-                                        __html: renderTextWithInlineLinks(f.answer, faqInlineLinks),
+                                        __html: renderTextWithInlineLinks(
+                                          f.answer,
+                                          faqInlineLinks,
+                                        ),
                                       }}
                                     />
                                   )}
-{/* rounded-2xl border bg-gray-50 */}
-                                  {/* References */}
-                                  {Array.isArray(faqReferences) && faqReferences.length > 0 && (
-                                    <div className="mt-4 p-4">
-                                      <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
-                                        <LinkIcon className="w-4 h-4 text-gray-500" />
-                                        References
-                                      </div>
 
-                                      <ul className="space-y-2">
-                                        {faqReferences.map((link) => (
-                                          <li key={link.id} className="flex items-start gap-2">
-                                            <span className="text-brand-purple font-bold">•</span>
-                                            <a
-                                              href={link.url}
-                                              target={link.url?.startsWith("/") ? "_self" : "_blank"}
-                                              rel="noreferrer noopener"
-                                              className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                  {Array.isArray(faqReferences) &&
+                                    faqReferences.length > 0 && (
+                                      <div className="mt-4 p-4">
+                                        <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
+                                          <LinkIcon className="w-4 h-4 text-gray-500" />
+                                          References
+                                        </div>
+
+                                        <ul className="space-y-2">
+                                          {faqReferences.map((link) => (
+                                            <li
+                                              key={link.id}
+                                              className="flex items-start gap-2"
                                             >
-                                              {link.label?.trim() || link.url}
-                                            </a>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
+                                              <span className="text-brand-purple font-bold">
+                                                •
+                                              </span>
+                                              <a
+                                                href={link.url}
+                                                target={
+                                                  link.url?.startsWith("/")
+                                                    ? "_self"
+                                                    : "_blank"
+                                                }
+                                                rel="noreferrer noopener"
+                                                className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                              >
+                                                {link.label?.trim() || link.url}
+                                              </a>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
                                 </div>
                               </div>
                             </div>
                           );
                         })}
 
-                        {/* ✅ Section images: single = full, multi = grid */}
                         {Array.isArray(sec.images) && sec.images.length > 0 && (
                           <>
                             {sec.images.length === 1 && (
@@ -2136,38 +2233,48 @@ export default function DynamicBlogPost() {
                           </>
                         )}
 
-                        {/* ✅ Section references (separate) */}
-                        {Array.isArray(sectionReferences) && sectionReferences.length > 0 && (
-                          <div className="mt-6 rounded-2xl border bg-gray-50 p-5">
-                            <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
-                              <LinkIcon className="w-4 h-4 text-gray-500" />
-                              References
-                            </div>
+                        {Array.isArray(sectionReferences) &&
+                          sectionReferences.length > 0 && (
+                            <div className="mt-6 rounded-2xl border bg-gray-50 p-5">
+                              <div className="text-sm font-extrabold text-gray-900 mb-3 flex items-center gap-2">
+                                <LinkIcon className="w-4 h-4 text-gray-500" />
+                                References
+                              </div>
 
-                            <ul className="space-y-2">
-                              {sectionReferences.map((link) => (
-                                <li key={link.id} className="flex items-start gap-2">
-                                  <span className="text-brand-purple font-bold">•</span>
-                                  <a
-                                    href={link.url}
-                                    target={link.url?.startsWith("/") ? "_self" : "_blank"}
-                                    rel="noreferrer noopener"
-                                    className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                              <ul className="space-y-2">
+                                {sectionReferences.map((link) => (
+                                  <li
+                                    key={link.id}
+                                    className="flex items-start gap-2"
                                   >
-                                    {link.label?.trim() || link.url}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
+                                    <span className="text-brand-purple font-bold">
+                                      •
+                                    </span>
+                                    <a
+                                      href={link.url}
+                                      target={
+                                        link.url?.startsWith("/")
+                                          ? "_self"
+                                          : "_blank"
+                                      }
+                                      rel="noreferrer noopener"
+                                      className="text-sm font-semibold text-brand-purple hover:underline break-all"
+                                    >
+                                      {link.label?.trim() || link.url}
+                                    </a>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
 
-                        {/* CTA */}
                         {sec.cta?.enabled && (
                           <div className="mt-8 rounded-2xl overflow-hidden border shadow-sm">
                             <div className="bg-gradient-to-r from-brand-purple to-brand-coral text-white p-6 md:p-8 text-center">
                               {sec.cta.heading?.trim() && (
-                                <div className="text-xl md:text-2xl font-extrabold mb-2">{sec.cta.heading}</div>
+                                <div className="text-xl md:text-2xl font-extrabold mb-2">
+                                  {sec.cta.heading}
+                                </div>
                               )}
                               {sec.cta.description?.trim() && (
                                 <p className="text-white/90 text-base md:text-lg leading-relaxed mb-5">
@@ -2175,16 +2282,21 @@ export default function DynamicBlogPost() {
                                 </p>
                               )}
 
-                              {sec.cta.buttonText?.trim() && sec.cta.buttonLink?.trim() && (
-                                <a
-                                  href={sec.cta.buttonLink}
-                                  target={sec.cta.buttonLink.startsWith("/") ? "_self" : "_blank"}
-                                  rel="noreferrer noopener"
-                                  className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-brand-purple font-bold hover:bg-gray-100 transition"
-                                >
-                                  {sec.cta.buttonText}
-                                </a>
-                              )}
+                              {sec.cta.buttonText?.trim() &&
+                                sec.cta.buttonLink?.trim() && (
+                                  <a
+                                    href={sec.cta.buttonLink}
+                                    target={
+                                      sec.cta.buttonLink.startsWith("/")
+                                        ? "_self"
+                                        : "_blank"
+                                    }
+                                    rel="noreferrer noopener"
+                                    className="inline-flex items-center justify-center px-6 py-3 rounded-xl bg-white text-brand-purple font-bold hover:bg-gray-100 transition"
+                                  >
+                                    {sec.cta.buttonText}
+                                  </a>
+                                )}
                             </div>
                           </div>
                         )}
@@ -2194,10 +2306,12 @@ export default function DynamicBlogPost() {
 
                   {/* Bottom CTA */}
                   <div className="mt-12 p-6 sm:p-8 bg-gradient-to-r from-brand-purple to-brand-coral rounded-2xl text-white text-center">
-                    <h2 className="text-xl sm:text-2xl font-extrabold mb-3">Ready to Get Started?</h2>
+                    <h2 className="text-xl sm:text-2xl font-extrabold mb-3">
+                      Ready to Get Started?
+                    </h2>
                     <p className="text-base sm:text-lg mb-6 opacity-90 leading-relaxed">
-                      Contact our expert team to discuss how we can help grow your business with proven digital marketing
-                      strategies.
+                      Contact our expert team to discuss how we can help grow your
+                      business with proven digital marketing strategies.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                       <BookCallButtonWithModal
@@ -2207,6 +2321,137 @@ export default function DynamicBlogPost() {
                       />
                     </div>
                   </div>
+
+                  {/* ✅ Category-wise Tabs */}
+                  {/* {categories.length > 1 && (
+                    <div className="mt-12">
+                      <div className="flex items-end justify-between gap-3 mb-4">
+                        <div>
+                          <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">
+                            Explore More Articles
+                          </h2>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Browse category-wise articles.
+                          </p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          onClick={() => (window.location.href = "/blog")}
+                        >
+                          View All
+                        </Button>
+                      </div>
+
+                      <Tabs value={activeCategory} onValueChange={setActiveCategory}>
+                        <TabsList className="w-full flex flex-wrap justify-start gap-2 h-auto bg-transparent p-0">
+                          {categories.map((cat) => (
+                            <TabsTrigger
+                              key={cat}
+                              value={cat}
+                              className="rounded-full border px-4 py-2 text-sm data-[state=active]:bg-brand-purple data-[state=active]:text-white"
+                            >
+                              {cat}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+
+                        {categories.map((cat) => {
+                          const list =
+                            cat === "All"
+                              ? postsInTab
+                              : postsInTab.filter(
+                                (p) => (p.category || "").trim() === cat,
+                              );
+
+                          return (
+                            <TabsContent key={cat} value={cat} className="mt-6">
+                              {list.length === 0 ? (
+                                <div className="rounded-2xl border bg-gray-50 p-6 text-center text-gray-700">
+                                  No articles found in <b>{cat}</b>.
+                                </div>
+                              ) : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                                  {list.slice(0, 9).map((p) => (
+                                    <button
+                                      key={p.id}
+                                      type="button"
+                                      onClick={() =>
+                                        (window.location.href = `/blog/${p.slug}`)
+                                      }
+                                      className="text-left rounded-2xl border bg-white shadow-sm hover:shadow-md transition overflow-hidden"
+                                    >
+                                      {p.imageUrl ? (
+                                        <img
+                                          src={p.imageUrl}
+                                          alt={p.title}
+                                          className="h-44 w-full object-cover"
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.src = "/images/blog-fallback.png";
+                                          }}
+                                        />
+                                      ) : (
+                                        <div className="h-44 bg-gray-100" />
+                                      )}
+
+                                      <div className="p-4 space-y-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          {(p.category || "Uncategorized").trim() && (
+                                            <Badge
+                                              variant="outline"
+                                              className="border-brand-purple text-brand-purple"
+                                            >
+                                              {(p.category || "Uncategorized").trim()}
+                                            </Badge>
+                                          )}
+                                          {p.isFeatured && (
+                                            <Badge
+                                              variant="outline"
+                                              className="border-brand-coral text-brand-coral"
+                                            >
+                                              Featured
+                                            </Badge>
+                                          )}
+                                        </div>
+
+                                        <div className="font-extrabold text-gray-900 line-clamp-2">
+                                          {p.title}
+                                        </div>
+
+                                        <div className="text-sm text-gray-600 line-clamp-3">
+                                          {(
+                                            p.excerpt ||
+                                            deriveExcerptFromContent(p.content || "")
+                                          ).trim()}
+                                        </div>
+
+                                        <div className="pt-2 text-xs text-gray-500 flex items-center gap-2">
+                                          <Calendar className="w-4 h-4" />
+                                          <span>
+                                            {new Date(
+                                              p.publishedAt || p.createdAt,
+                                            ).toLocaleDateString("en-US", {
+                                              year: "numeric",
+                                              month: "short",
+                                              day: "numeric",
+                                            })}
+                                          </span>
+                                          <span className="mx-1">•</span>
+                                          <Clock className="w-4 h-4" />
+                                          <span>{p.readTime || 5} min</span>
+                                        </div>
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </TabsContent>
+                          );
+                        })}
+                      </Tabs>
+                    </div>
+                  )} */}
                 </div>
               ) : (
                 <div className="space-y-10">
@@ -2222,32 +2467,19 @@ export default function DynamicBlogPost() {
                     ].join(" ")}
                     dangerouslySetInnerHTML={{ __html: htmlContent }}
                   />
-
-                  <div className="mt-12 p-6 sm:p-8 bg-gradient-to-r from-brand-purple to-brand-coral rounded-2xl text-white text-center">
-                    <h2 className="text-xl sm:text-2xl font-extrabold mb-3">Ready to Get Started?</h2>
-                    <p className="text-base sm:text-lg mb-6 opacity-90 leading-relaxed">
-                      Contact our expert team to discuss how we can help grow your business with proven digital marketing
-                      strategies.
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                      <BookCallButtonWithModal
-                        buttonLabel="Get Free Consultation"
-                        className="bg-white text-brand-purple hover:bg-gray-100"
-                        buttonSize="lg"
-                      />
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
 
-            {/* TOC SIDEBAR (Desktop only) */}
+            {/* Sidebar omitted (same as your current file if needed) */}
             <aside className="hidden lg:block lg:col-span-4">
               <div className="lg:sticky lg:top-24 space-y-6">
                 {structured && toc.length > 0 && (
                   <div className="rounded-2xl border bg-white shadow-sm p-5">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="font-extrabold text-gray-900">Table of Contents</div>
+                      <div className="font-extrabold text-gray-900">
+                        Table of Contents
+                      </div>
                       <div className="text-xs text-gray-500">Click to jump</div>
                     </div>
 
@@ -2260,7 +2492,9 @@ export default function DynamicBlogPost() {
                           className="w-full text-left rounded-xl px-3 py-2 hover:bg-gray-50 transition flex items-start gap-2"
                         >
                           <LinkIcon className="w-4 h-4 mt-0.5 text-gray-400 flex-shrink-0" />
-                          <span className="text-sm font-medium text-gray-800 leading-6">{item.label}</span>
+                          <span className="text-sm font-medium text-gray-800 leading-6">
+                            {item.label}
+                          </span>
                         </button>
                       ))}
                     </div>
@@ -2269,7 +2503,9 @@ export default function DynamicBlogPost() {
 
                 <div className="rounded-2xl border bg-gradient-to-b from-gray-50 to-white p-5 shadow-sm">
                   <div className="text-xs text-gray-500 mb-1">Written by</div>
-                  <div className="text-lg font-extrabold text-gray-900">{author}</div>
+                  <div className="text-lg font-extrabold text-gray-900">
+                    {author}
+                  </div>
                   <div className="mt-3 flex items-center gap-3 text-sm text-gray-600">
                     <Calendar className="w-4 h-4" />
                     <span>{formattedPublishDate}</span>
@@ -2292,7 +2528,11 @@ export default function DynamicBlogPost() {
                     <div className="font-extrabold text-gray-900 mb-3">Topics</div>
                     <div className="flex gap-2 flex-wrap">
                       {blogPost.tags.map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="border-brand-coral text-brand-coral">
+                        <Badge
+                          key={idx}
+                          variant="outline"
+                          className="border-brand-coral text-brand-coral"
+                        >
                           {tag}
                         </Badge>
                       ))}
@@ -2304,8 +2544,8 @@ export default function DynamicBlogPost() {
           </div>
         </div>
       </article>
-
-      {/* <Footer /> */}
     </div>
   );
 }
+
+

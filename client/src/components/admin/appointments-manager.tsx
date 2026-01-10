@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   CalendarClock,
-  CheckCircle2,
-  XCircle,
   RotateCcw,
   Link as LinkIcon,
   MoreHorizontal,
@@ -25,6 +23,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+
+// ✅ shadcn Popover (AntD-like behavior)
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type AppointmentStatus = "booked" | "cancelled" | "completed";
 
@@ -61,13 +66,15 @@ export function AppointmentsManager() {
     useState<Appointment | null>(null);
   const [editStatus, setEditStatus] = useState<AppointmentStatus>("booked");
 
+  // ✅ Notes Popover state (only one open at a time)
+  const [openNotesId, setOpenNotesId] = useState<number | null>(null);
+
   const {
     data: appointments = [],
     isLoading,
     isError,
     refetch,
   } = useQuery<Appointment[]>({
-    // include filters in the key so query refires when they change
     queryKey: ["/api/admin/appointments", { statusFilter, dateFilter }],
     queryFn: async () => {
       const token = localStorage.getItem("adminToken");
@@ -147,9 +154,6 @@ export function AppointmentsManager() {
     setCurrentPage(1);
   }, [statusFilter, dateFilter, pageSize]);
 
-  // Backend is already filtering by date/status, but we:
-  // 1) apply same filters defensively
-  // 2) SORT so latest createdAt is on top
   const filteredAppointments = useMemo(() => {
     const filtered = appointments.filter((appt) => {
       if (statusFilter !== "all" && appt.status !== statusFilter) {
@@ -161,7 +165,6 @@ export function AppointmentsManager() {
       return true;
     });
 
-    // Latest entry on top – sort by createdAt DESC
     return [...filtered].sort((a, b) => {
       const aTime = new Date(a.createdAt).getTime();
       const bTime = new Date(b.createdAt).getTime();
@@ -221,7 +224,6 @@ export function AppointmentsManager() {
   const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
-  // Build simple page number array (max 5 pages visible)
   const pageNumbers = useMemo(() => {
     const pages: number[] = [];
     const maxButtons = 5;
@@ -236,7 +238,6 @@ export function AppointmentsManager() {
     return pages;
   }, [currentPage, totalPages]);
 
-  // Open edit dialog with current row/status
   const openEditDialog = (appt: Appointment) => {
     setEditingAppointment(appt);
     setEditStatus(appt.status);
@@ -248,6 +249,8 @@ export function AppointmentsManager() {
     handleStatusChange(editingAppointment.id, editStatus);
     setEditDialogOpen(false);
   };
+
+  const safeNotes = (notes?: string) => (notes || "").trim();
 
   return (
     <>
@@ -333,8 +336,7 @@ export function AppointmentsManager() {
                         >
                           {status === "all"
                             ? "All"
-                            : status.charAt(0).toUpperCase() +
-                            status.slice(1)}
+                            : status.charAt(0).toUpperCase() + status.slice(1)}
                         </Button>
                       ),
                     )}
@@ -375,7 +377,6 @@ export function AppointmentsManager() {
               </div>
             </div>
 
-            {/* Content states */}
             {isLoading && (
               <div className="text-center py-10 text-gray-500">
                 Loading appointments...
@@ -394,7 +395,6 @@ export function AppointmentsManager() {
               </div>
             )}
 
-            {/* Table + pagination */}
             {!isLoading && !isError && filteredAppointments.length > 0 && (
               <>
                 <div className="overflow-x-auto border border-gray-100 rounded-xl bg-white">
@@ -428,122 +428,202 @@ export function AppointmentsManager() {
                       </tr>
                     </thead>
                     <tbody>
-                      {paginatedAppointments.map((appt) => (
-                        <tr key={appt.id} className="border-t border-gray-100">
-                          <td className="px-4 py-3 align-top">
-                            <div className="font-medium text-gray-900">
-                              {appt.date}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {appt.startTime} – {appt.endTime}
-                            </div>
-                            <div className="text-[11px] text-gray-400 mt-1">
-                              Created:{" "}
-                              {new Date(appt.createdAt).toLocaleString("en-GB")}
-                            </div>
-                          </td>
+                      {paginatedAppointments.map((appt) => {
+                        const notes = safeNotes(appt.notes);
+                        const hasNotes = notes.length > 0;
 
-                          <td className="px-4 py-3 align-top max-w-[200px]">
-                            <div className="font-medium text-gray-900">
-                              {appt.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {appt.email}
-                            </div>
-                            {appt.phone && (
-                              <div className="text-xs text-gray-400">
-                                {appt.phone}
+                        return (
+                          <tr key={appt.id} className="border-t border-gray-100">
+                            <td className="px-4 py-3 align-top">
+                              <div className="font-medium text-gray-900">
+                                {appt.date}
                               </div>
-                            )}
-                          </td>
-
-                          {/* Guests column */}
-                          <td className="px-4 py-3 text-left align-top max-w-[180px]">
-                            {appt.guestEmails && appt.guestEmails.length > 0 ? (
-                              <div className="text-xs text-gray-700 break-words">
-                                {appt.guestEmails.join(", ")}
+                              <div className="text-xs text-gray-500">
+                                {appt.startTime} – {appt.endTime}
                               </div>
-                            ) : (
-                              <span className="text-xs text-gray-400">—</span>
-                            )}
-                          </td>
+                              <div className="text-[11px] text-gray-400 mt-1">
+                                Created:{" "}
+                                {new Date(appt.createdAt).toLocaleString(
+                                  "en-GB",
+                                )}
+                              </div>
+                            </td>
 
-                          <td className="px-4 py-3 align-top max-w-[180px]">
-                            <div className="text-sm text-gray-800 whitespace-normal break-words">
-                              {appt.serviceType || "—"}
-                            </div>
-                          </td>
+                            <td className="px-4 py-3 align-top max-w-[200px]">
+                              <div className="font-medium text-gray-900">
+                                {appt.name}
+                              </div>
+                              <div className="text-xs text-gray-500">
+                                {appt.email}
+                              </div>
+                              {appt.phone && (
+                                <div className="text-xs text-gray-400">
+                                  {appt.phone}
+                                </div>
+                              )}
+                            </td>
 
-                          {/* Meeting link column */}
-                          <td className="px-4 py-3 align-top">
-                            {appt.meetingLink ? (
-                              <a
-                                href={appt.meetingLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
-                              >
-                                <LinkIcon className="w-3 h-3" />
-                                Join link
-                              </a>
-                            ) : (
-                              <span className="text-xs text-gray-400">—</span>
-                            )}
-                          </td>
+                            <td className="px-4 py-3 text-left align-top max-w-[180px]">
+                              {appt.guestEmails && appt.guestEmails.length > 0 ? (
+                                <div className="text-xs text-gray-700 break-words">
+                                  {appt.guestEmails.join(", ")}
+                                </div>
+                              ) : (
+                                <span className="text-xs text-gray-400">—</span>
+                              )}
+                            </td>
 
-                          <td className="px-4 py-3 align-top">
-                            <Badge className={getStatusBadgeStyle(appt.status)}>
-                              {appt.status.charAt(0).toUpperCase() +
-                                appt.status.slice(1)}
-                            </Badge>
-                          </td>
+                            <td className="px-4 py-3 align-top max-w-[180px]">
+                              <div className="text-sm text-gray-800 whitespace-normal break-words">
+                                {appt.serviceType || "—"}
+                              </div>
+                            </td>
 
-                          <td className="px-4 py-3 align-top max-w-sm">
-                            <div className="text-xs text-gray-600 line-clamp-3">
-                              {appt.notes || "—"}
-                            </div>
-                          </td>
+                            <td className="px-4 py-3 align-top">
+                              {appt.meetingLink ? (
+                                <a
+                                  href={appt.meetingLink}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                                >
+                                  <LinkIcon className="w-3 h-3" />
+                                  Join link
+                                </a>
+                              ) : (
+                                <span className="text-xs text-gray-400">—</span>
+                              )}
+                            </td>
 
-                          {/* Actions: 3-dot dropdown with Edit + Delete */}
-                          <td className="px-4 py-3 align-top">
-                            <div className="flex justify-end">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 p-0"
+                            <td className="px-4 py-3 align-top">
+                              <Badge className={getStatusBadgeStyle(appt.status)}>
+                                {appt.status.charAt(0).toUpperCase() +
+                                  appt.status.slice(1)}
+                              </Badge>
+                            </td>
+
+                            {/* ✅ AntD-like Popover Notes */}
+                            <td className="px-4 py-3 align-top max-w-sm">
+                              {!hasNotes ? (
+                                <span className="text-xs text-gray-400">—</span>
+                              ) : (
+                                <div className="space-y-1">
+                                  <div className="text-xs text-gray-700 whitespace-pre-wrap break-words line-clamp-2">
+                                    {notes}
+                                  </div>
+
+                                  <Popover
+                                    open={openNotesId === appt.id}
+                                    onOpenChange={(open) =>
+                                      setOpenNotesId(open ? appt.id : null)
+                                    }
                                   >
-                                    <MoreHorizontal className="h-4 w-4" />
-                                    <span className="sr-only">
-                                      Open actions
-                                    </span>
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => openEditDialog(appt)}
-                                  >
-                                    Edit status
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem
-                                    className="text-red-600 focus:text-red-600"
-                                    onClick={() => handleDelete(appt.id)}
-                                  >
-                                    Delete appointment
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                                    <PopoverTrigger asChild>
+                                      <button
+                                        type="button"
+                                        className="text-[11px] font-medium text-brand-purple hover:underline"
+                                      >
+                                        View notes
+                                      </button>
+                                    </PopoverTrigger>
+
+                                    {/* PopoverContent behaves like AntD popover */}
+                                    <PopoverContent
+                                      side="top"
+                                      align="start"
+                                      className="w-[340px] p-0"
+                                    >
+                                      {/* Header */}
+                                      <div className="px-3 py-2 border-b border-gray-200 bg-white">
+                                        <div className="text-xs font-semibold text-gray-900">
+                                          Notes
+                                        </div>
+                                        <div className="text-[11px] text-gray-500">
+                                          {appt.name} • {appt.date} •{" "}
+                                          {appt.startTime}-{appt.endTime}
+                                        </div>
+                                      </div>
+
+                                      {/* Body */}
+                                      <div className="px-3 py-2 bg-gray-50">
+                                        <div className="text-xs text-gray-800 whitespace-pre-wrap break-words max-h-[220px] overflow-auto rounded-md border border-gray-200 bg-white p-2">
+                                          {notes}
+                                        </div>
+
+                                        <div className="mt-2 flex items-center justify-between">
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-8 text-xs"
+                                            onClick={async () => {
+                                              try {
+                                                await navigator.clipboard.writeText(
+                                                  notes,
+                                                );
+                                              } catch {
+                                                // ignore
+                                              }
+                                            }}
+                                          >
+                                            Copy
+                                          </Button>
+
+                                          <Button
+                                            type="button"
+                                            size="sm"
+                                            className="h-8 text-xs bg-brand-purple text-white"
+                                            onClick={() => setOpenNotesId(null)}
+                                          >
+                                            Close
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </PopoverContent>
+                                  </Popover>
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="px-4 py-3 align-top">
+                              <div className="flex justify-end">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 p-0"
+                                    >
+                                      <MoreHorizontal className="h-4 w-4" />
+                                      <span className="sr-only">
+                                        Open actions
+                                      </span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => openEditDialog(appt)}
+                                    >
+                                      Edit status
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      className="text-red-600 focus:text-red-600"
+                                      onClick={() => handleDelete(appt.id)}
+                                    >
+                                      Delete appointment
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                 </div>
 
-                {/* Pagination bar */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-1 pt-3">
                   <div className="text-xs sm:text-sm text-gray-600">
                     Showing{" "}
@@ -572,9 +652,7 @@ export function AppointmentsManager() {
                           key={page}
                           type="button"
                           size="sm"
-                          variant={
-                            page === currentPage ? "default" : "outline"
-                          }
+                          variant={page === currentPage ? "default" : "outline"}
                           className={
                             page === currentPage
                               ? "bg-brand-purple text-white px-3"
@@ -605,7 +683,7 @@ export function AppointmentsManager() {
         </Card>
       </div>
 
-      {/* Edit status "popover" dialog */}
+      {/* Edit status dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -617,8 +695,7 @@ export function AppointmentsManager() {
               <div className="text-gray-700">
                 <div className="font-medium">{editingAppointment.name}</div>
                 <div className="text-xs text-gray-500">
-                  {editingAppointment.date} •{" "}
-                  {editingAppointment.startTime} –{" "}
+                  {editingAppointment.date} • {editingAppointment.startTime} –{" "}
                   {editingAppointment.endTime}
                 </div>
               </div>
@@ -628,26 +705,24 @@ export function AppointmentsManager() {
                   Select new status
                 </p>
                 <div className="flex gap-2 flex-wrap">
-                  {(["booked", "completed", "cancelled"] as AppointmentStatus[]).map(
-                    (status) => (
-                      <Button
-                        key={status}
-                        type="button"
-                        variant={
-                          editStatus === status ? "default" : "outline"
-                        }
-                        size="sm"
-                        className={
-                          editStatus === status
-                            ? "bg-brand-purple text-white"
-                            : "text-gray-700"
-                        }
-                        onClick={() => setEditStatus(status)}
-                      >
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                      </Button>
-                    ),
-                  )}
+                  {(
+                    ["booked", "completed", "cancelled"] as AppointmentStatus[]
+                  ).map((status) => (
+                    <Button
+                      key={status}
+                      type="button"
+                      variant={editStatus === status ? "default" : "outline"}
+                      size="sm"
+                      className={
+                        editStatus === status
+                          ? "bg-brand-purple text-white"
+                          : "text-gray-700"
+                      }
+                      onClick={() => setEditStatus(status)}
+                    >
+                      {status.charAt(0).toUpperCase() + status.slice(1)}
+                    </Button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -664,9 +739,7 @@ export function AppointmentsManager() {
             <Button
               type="button"
               onClick={handleSaveStatus}
-              disabled={
-                !editingAppointment || updateStatusMutation.isPending
-              }
+              disabled={!editingAppointment || updateStatusMutation.isPending}
             >
               {updateStatusMutation.isPending ? "Saving..." : "Save status"}
             </Button>

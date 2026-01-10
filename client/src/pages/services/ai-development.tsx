@@ -38,6 +38,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import AgencyContactSection from "@/components/agency-contact-section";
+import { SEO } from "@/hooks/SEO";
 
 const aiServices = [
   {
@@ -440,27 +441,14 @@ export default function AIDevelopment() {
 
   return (
     <>
-      <Helmet>
-        <title>AI Development & Web Agents Services | Branding Beez 2025</title>
-        <meta
-          name="description"
-          content="Build intelligent AI systems — from chatbots to multi-agent platforms. Automate workflows, personalize experiences & drive growth with expert AI developers."
-        />
-        <link
-          rel="canonical"
-          href="https://brandingbeez.co.uk/services/ai-development"
-        />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="AI Development & Web Agents Services | BrandingBeez 2025"
+        description="Build intelligent AI systems — from chatbots to multi-agent platforms. Automate workflows, personalize experiences & drive growth with expert AI developers."
+      />
+
+      <SchemaMarkup type="custom" data={AIDevelopmentSchema} />
+
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="Transform Your Business with AI Web Agents"
-          description="Build intelligent, automated AI systems — from chatbots to enterprise AI platforms. Free AI strategy consultation."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/services/ai-development"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={AIDevelopmentSchema} />
         {/* <SchemaMarkup type="service" data={schemaData} /> */}
         {/* <Header /> */}
         <main>
@@ -1319,11 +1307,10 @@ export default function AIDevelopment() {
                                     industry: ind,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.industry === ind
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.industry === ind
                                     ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                     : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                  }`}
                               >
                                 {ind === "Digital Marketing Agency" && "📈 "}
                                 {ind === "Real Estate" && "🏡 "}
@@ -1378,11 +1365,10 @@ export default function AIDevelopment() {
                                     companySize: size,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.companySize === size
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.companySize === size
                                     ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                     : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                  }`}
                               >
                                 {size}
                               </button>
@@ -1397,8 +1383,8 @@ export default function AIDevelopment() {
                             {formData.industry === "Digital Marketing Agency"
                               ? "What's your biggest operational bottleneck?"
                               : formData.industry === "Property Management"
-                              ? "What's costing you the most time/money?"
-                              : "What's your biggest operational bottleneck right now?"}
+                                ? "What's costing you the most time/money?"
+                                : "What's your biggest operational bottleneck right now?"}
                           </Label>
                           <p className="text-xs text-gray-500 mb-1">
                             Options are tailored based on your industry selection.
@@ -1414,11 +1400,10 @@ export default function AIDevelopment() {
                                     painPoint: p,
                                   }))
                                 }
-                                className={`w-full text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.painPoint === p
+                                className={`w-full text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.painPoint === p
                                     ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                     : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                  }`}
                               >
                                 {p}
                               </button>
@@ -1441,11 +1426,10 @@ export default function AIDevelopment() {
                                 key={opt}
                                 type="button"
                                 onClick={() => toggleArrayValue("tools", opt)}
-                                className={`w-full flex items-start gap-2 border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.tools.includes(opt)
+                                className={`w-full flex items-start gap-2 border rounded-xl px-4 py-3 text-sm transition-all ${formData.tools.includes(opt)
                                     ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                     : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                  }`}
                               >
                                 <span className="mt-0.5">
                                   {formData.tools.includes(opt) ? "✅" : "⬜"}
@@ -1512,13 +1496,12 @@ export default function AIDevelopment() {
                                       3
                                     )
                                   }
-                                  className={`w-full flex items-start gap-2 border rounded-xl px-4 py-3 text-sm transition-all ${
-                                    selected
+                                  className={`w-full flex items-start gap-2 border rounded-xl px-4 py-3 text-sm transition-all ${selected
                                       ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                       : reachedLimit
-                                      ? "border-gray-200 opacity-60 cursor-not-allowed"
-                                      : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                  }`}
+                                        ? "border-gray-200 opacity-60 cursor-not-allowed"
+                                        : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
+                                    }`}
                                 >
                                   <span className="mt-0.5">
                                     {selected ? "✅" : "⬜"}
@@ -1548,11 +1531,10 @@ export default function AIDevelopment() {
                                     budgetRange: range,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.budgetRange === range
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.budgetRange === range
                                     ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                     : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                  }`}
                               >
                                 {range}
                               </button>
@@ -1577,11 +1559,10 @@ export default function AIDevelopment() {
                                     timeline: t,
                                   }))
                                 }
-                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${
-                                  formData.timeline === t
+                                className={`text-left border rounded-xl px-4 py-3 text-sm transition-all ${formData.timeline === t
                                     ? "border-brand-coral bg-brand-coral/5 shadow-sm"
                                     : "border-gray-200 hover:border-brand-coral/60 hover:bg-gray-50"
-                                }`}
+                                  }`}
                               >
                                 {t}
                               </button>
@@ -1702,8 +1683,8 @@ export default function AIDevelopment() {
             </div>
           </section>
 
-{/* Contact Form Section (now a reusable component) */}
-<AgencyContactSection
+          {/* Contact Form Section (now a reusable component) */}
+          <AgencyContactSection
             sectionId="contact-form"
             heading="Ready to Scale Your Agency?"
             subheading="Get a free consultation and discover how we can help you grow."

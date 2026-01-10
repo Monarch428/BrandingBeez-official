@@ -16,6 +16,7 @@ import { SchemaMarkup } from "@/components/schema-markup";
 import { BlogSchema } from "@/utils/all-schemas";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import BrandingBeezLoader from "@/components/BeeLoadingScreen";
+import { SEO } from "@/hooks/SEO";
 
 interface BlogPost {
   id: number;
@@ -40,7 +41,9 @@ interface BlogPost {
 
 export default function Blog() {
   const { regionConfig } = useRegion();
-  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  // ✅ Default to "General" tab (which is "All posts" view)
+  const [selectedCategory, setSelectedCategory] = useState<AllowedCategoryId>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
   const {
@@ -76,32 +79,105 @@ export default function Blog() {
 
   const openCalendly = () => window.open(regionConfig.calendlyUrl, "_blank");
 
-  const categories = useMemo(() => {
-    const categoryMap = new Map();
+  // ============================================================
+  // ✅ ONLY show these tabs (General, SEO, Website Development, PPC Advertising, Dedicated Resources)
+  // ============================================================
+  type AllowedCategoryId =
+    | "all"
+    | "seo"
+    | "website-development"
+    | "ppc-advertising"
+    | "dedicated-resources";
+
+  const ALLOWED_TABS: Array<{ id: AllowedCategoryId; name: string }> = [
+    { id: "all", name: "General" }, // ✅ This means "All posts"
+    { id: "seo", name: "SEO" },
+    { id: "website-development", name: "Website Development" },
+    { id: "ppc-advertising", name: "PPC Advertising" },
+    { id: "dedicated-resources", name: "Dedicated Resources" },
+  ];
+
+  // ✅ Normalize API category into one of the allowed IDs (or "other")
+  const normalizeCategory = (raw?: string): AllowedCategoryId | "other" => {
+    const v = String(raw || "").trim().toLowerCase();
+
+    if (!v) return "all"; // empty treated as general (all)
+
+    if (v === "seo") return "seo";
+
+    // website dev variants
+    if (v === "web development" || v === "website development" || v === "web-dev" || v === "website-dev") {
+      return "website-development";
+    }
+
+    // ppc variants
+    if (v === "ppc" || v === "ppc advertising" || v === "paid ads" || v === "google ads" || v === "ppc-advertising") {
+      return "ppc-advertising";
+    }
+
+    // dedicated resources variants
+    if (
+      v === "dedicated resources" ||
+      v === "dedicated resource" ||
+      v === "dedicated team" ||
+      v === "dedicated teams" ||
+      v === "dedicated-resources"
+    ) {
+      return "dedicated-resources";
+    }
+
+    // ✅ Anything else shouldn't become a tab
+    return "other";
+  };
+
+  // ✅ Count posts per allowed tab (General = total)
+  const categoryCounts = useMemo(() => {
+    const counts: Record<AllowedCategoryId, number> = {
+      all: blogPosts.length,
+      seo: 0,
+      "website-development": 0,
+      "ppc-advertising": 0,
+      "dedicated-resources": 0,
+    };
+
     blogPosts.forEach((post: BlogPost) => {
-      const cat = post.category || post.tags?.[0] || "General";
-      categoryMap.set(cat.toLowerCase(), {
-        id: cat.toLowerCase(),
-        name: cat,
-        count: (categoryMap.get(cat.toLowerCase())?.count || 0) + 1,
-      });
+      const apiCat = post.category || post.tags?.[0] || "";
+      const normalized = normalizeCategory(apiCat);
+
+      if (normalized !== "other" && normalized !== "all") {
+        counts[normalized] = (counts[normalized] || 0) + 1;
+      }
     });
-    return [
-      { id: "all", name: "All Posts", count: blogPosts.length },
-      ...Array.from(categoryMap.values()).sort((a, b) => b.count - a.count),
-    ];
+
+    return counts;
   }, [blogPosts]);
+
+  const categories = useMemo(() => {
+    return ALLOWED_TABS.map((t) => ({
+      id: t.id,
+      name: t.name,
+      count: categoryCounts[t.id],
+    }));
+  }, [categoryCounts]);
 
   const filteredPosts = useMemo(() => {
     return blogPosts.filter((post: BlogPost) => {
-      const postCategory = post.category || post.tags?.[0] || "General";
+      const apiCat = post.category || post.tags?.[0] || "";
+      const normalizedCat = normalizeCategory(apiCat);
+
+      // ✅ Category filter
       const matchesCategory =
-        selectedCategory === "all" ||
-        postCategory.toLowerCase().includes(selectedCategory);
+        selectedCategory === "all"
+          ? true
+          : normalizedCat === selectedCategory;
+
+      // ✅ Search filter
+      const q = (searchQuery || "").trim().toLowerCase();
       const matchesSearch =
-        !searchQuery ||
-        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+        !q ||
+        (post.title || "").toLowerCase().includes(q) ||
+        (post.excerpt || "").toLowerCase().includes(q);
+
       return matchesCategory && matchesSearch;
     });
   }, [blogPosts, selectedCategory, searchQuery]);
@@ -133,24 +209,14 @@ export default function Blog() {
 
   return (
     <>
-      <Helmet>
-        <title>Digital Marketing Blog | Expert SEO, PPC & AI Insights</title>
-        <meta
-          name="description"
-          content="Explore Branding Beez insights on SEO, Google Ads, AI, and digital marketing. Actionable strategies, case studies, and expert tips to grow your business."
-        />
-        <link rel="canonical" href="https://brandingbeez.co.uk/blog" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="Digital Marketing Blog | Expert SEO, PPC & AI Insights"
+        description="Explore Branding Beez insights on SEO, Google Ads, AI, and digital marketing. Actionable strategies, case studies, and expert tips to grow your business."
+      />
+
+      <SchemaMarkup type="custom" data={BlogSchema} />
+
       <div className="min-h-screen bg-white">
-        <SEOHead
-          title="Digital Marketing Insights | Branding Beez Blog"
-          description="Stay ahead with expert strategies and actionable insights on SEO, PPC, AI, and marketing automation."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/blog"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={BlogSchema} />
         {/* <Header /> */}
 
         {/* Hero Section */}
@@ -198,7 +264,7 @@ export default function Blog() {
                     <Badge variant="secondary" className="mb-4">
                       {featuredPost.category ||
                         (Array.isArray(featuredPost.tags) &&
-                        featuredPost.tags.length > 0
+                          featuredPost.tags.length > 0
                           ? featuredPost.tags[0]
                           : "Featured")}
                     </Badge>
@@ -244,52 +310,51 @@ export default function Blog() {
         {/* Search & Category Filter */}
         <section className="py-12 px-4">
           <div className="max-w-6xl mx-auto">
-            {/* Search + Filters */}
-            <div className="flex flex-col md:flex-row gap-6 mb-8">
-              <div className="relative flex-1">
+            {/* ✅ FIXED ALIGNMENT: search + tabs aligned nicely */}
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
+              {/* Search */}
+              <div className="relative w-full md:flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-11"
                 />
               </div>
 
-              <div className="flex gap-2 flex-wrap">
-                {categories.map((category) => (
-                  <Button
-                    key={category.id}
-                    variant={
-                      selectedCategory === category.id ? "default" : "outline"
-                    }
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={
-                      selectedCategory === category.id
-                        ? "bg-brand-purple hover:bg-brand-purple/90"
-                        : "hover:border-brand-purple/40"
-                    }
-                  >
-                    {category.name} ({category.count})
-                  </Button>
-                ))}
+              {/* Tabs (ONLY allowed list) */}
+              <div className="w-full md:w-auto">
+                <div className="flex gap-2 overflow-x-auto md:overflow-visible whitespace-nowrap pb-1 md:pb-0">
+                  {categories.map((category) => (
+                    <Button
+                      key={category.id}
+                      variant={selectedCategory === category.id ? "default" : "outline"}
+                      onClick={() => setSelectedCategory(category.id as AllowedCategoryId)}
+                      className={[
+                        "h-11",
+                        selectedCategory === category.id
+                          ? "bg-brand-purple hover:bg-brand-purple/90"
+                          : "hover:border-brand-purple/40",
+                      ].join(" ")}
+                    >
+                      {category.name} ({category.count})
+                    </Button>
+                  ))}
+                </div>
               </div>
             </div>
 
             {/* Blog Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredPosts.map((post: BlogPost) => {
-                const displayCategory =
-                  post.category ||
-                  post.tags?.[0] ||
-                  "Digital Marketing";
                 const publishDate = post.publishedAt || post.createdAt;
                 const formattedDate = publishDate
                   ? new Date(publishDate).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
                   : "Recent";
 
                 return (
@@ -366,6 +431,7 @@ export default function Blog() {
             </div>
           </div>
         </section>
+
         {/* <Footer /> */}
       </div>
     </>

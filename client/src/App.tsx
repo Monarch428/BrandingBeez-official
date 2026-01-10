@@ -171,18 +171,31 @@ class SafePopupBoundary extends React.Component<
 
 import Header from "@/components/header";
 import Footer from "@/components/footer";
+import CaseStudyScrollHandler from "./utils/CaseStudyScrollHandler ";
 
 function Router() {
   const [location] = useLocation();
 
+  // useEffect(() => {
+  //   window.scrollTo(0, 0);
+  // }, [location]);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "page_view", {
+        page_location: window.location.href,
+        page_path: window.location.pathname + window.location.search,
+        page_title: document.title,
+      });
+    }
   }, [location]);
 
   // routes that should NOT show header/footer
   const hideChrome =
     location === "/loader" ||
-    location.startsWith("/admin"); // add more if needed
+    location.startsWith("/admin");
 
   const Content = (
     <Switch>
@@ -192,7 +205,7 @@ function Router() {
         component={() => <LazyRoute component={BookApiontment} />}
       />
       <Route path="/" component={Home} />
-      <Route path="/loader" component={BeeLoadingScreen} />
+      {/* <Route path="/loader" component={BeeLoadingScreen} /> */}
       <Route path="/admin/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
@@ -293,12 +306,21 @@ function App() {
     closeMobilePopup,
   } = usePopupManager();
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const gclid = params.get("gclid");
+
+    if (gclid && !sessionStorage.getItem("bb_gclid")) {
+      sessionStorage.setItem("bb_gclid", gclid);
+    }
+  }, []);
+
   // Add global error handling
   useEffect(() => {
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       console.error("Unhandled promise rejection:", event.reason);
-      // ✅ IMPORTANT: do NOT preventDefault here — it hides real runtime errors and chunk-load issues
-      // event.preventDefault();
     };
 
     const handleError = (event: ErrorEvent) => {
@@ -333,9 +355,9 @@ function App() {
                   <EntryPopup isOpen={entryPopupOpen} onClose={closeEntryPopup} />
                 </SafePopupBoundary> */}
 
-                <SafePopupBoundary name="ExitIntentPopup">
+                {/* <SafePopupBoundary name="ExitIntentPopup">
                   <ExitIntentPopup isOpen={exitPopupOpen} onClose={closeExitPopup} />
-                </SafePopupBoundary>
+                </SafePopupBoundary> */}
 
                 {/* <SafePopupBoundary name="MobilePopup">
                   <MobilePopup isOpen={mobilePopupOpen} onClose={closeMobilePopup} />

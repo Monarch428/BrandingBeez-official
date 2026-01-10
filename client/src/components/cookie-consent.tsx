@@ -714,10 +714,24 @@ export function CookieConsent() {
   };
 
   const handleOpenSettings = () => {
-    // ✅ When Customize opens, hide banner behind (no footer-like behavior)
+    const localConsent = localStorage.getItem("cookie-consent");
+    const sessionConsent = sessionStorage.getItem("cookie-consent");
+
+    // ✅ If NO prior decision → default ALL selected
+    if (!localConsent && !sessionConsent) {
+      setPreferences({
+        essential: true,
+        analytics: true,
+        marketing: true,
+        functional: true,
+      });
+    }
+
+    // Hide banner and open modal
     setShowBanner(false);
     setShowSettings(true);
   };
+
 
   const handleSettingsOpenChange = (open: boolean) => {
     if (open) {

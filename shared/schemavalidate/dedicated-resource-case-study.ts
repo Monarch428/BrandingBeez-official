@@ -106,6 +106,11 @@ const videoTestimonialSchema = z.object({
     videoUrl: z.string().optional(),
 });
 
+const seoMetaSchema = z.object({
+    metaTitle: z.string().max(60).optional(),
+    metaDescription: z.string().max(160).optional(),
+});
+
 export const insertDedicatedResourceCaseStudyDetailSchema = z.object({
     cardId: z.string().min(1), // FK from card _id
 
@@ -180,4 +185,6 @@ export const insertDedicatedResourceCaseStudyDetailSchema = z.object({
         phoneValue: z.string().optional(),
         formTitle: z.string().optional(),
     }),
+
+    seo: seoMetaSchema.optional(),
 });

@@ -804,6 +804,7 @@ import { Helmet } from "react-helmet";
 import { SEOHead } from "@/components/seo-head";
 import { AboutPageSchema } from "@/utils/all-schemas";
 import { LazyYouTube } from "@/components/LazyYouTube";
+import { SEO } from "@/hooks/SEO";
 
 const teamMembers = [
   {
@@ -1126,24 +1127,14 @@ export default function About() {
 
   return (
     <>
-      <Helmet>
-        <title>About Branding Beez | Trusted White-Label Digital Partner</title>
-        <meta
-          name="description"
-          content="Discover Branding Beez — your trusted white-label digital partner helping agencies scale since 2020. 25+ partners, 99% satisfaction, and global delivery."
-        />
-        <link rel="canonical" href="https://brandingbeez.co.uk/about" />
-        <meta name="robots" content="INDEX, FOLLOW" />
-      </Helmet>
+      <SEO
+        title="About Branding Beez | Trusted White-Label Digital Partner"
+        description="Discover Branding Beez — your trusted white-label digital partner helping agencies scale since 2020. 25+ partners, 99% satisfaction, and global delivery."
+      />
+
+      <SchemaMarkup type="custom" data={AboutPageSchema} />
+
       <div className="min-h-screen bg-gradient-to-br from-brand-wings via-white to-brand-wings/30">
-        <SEOHead
-          title="About Branding Beez — Your White-Label Growth Partner"
-          description="Founded by agency owners to help others scale — trusted by 25+ global partners since 2020."
-          keywords="white label digital marketing, white label SEO, white label web development, white label Google Ads, agency growth, digital marketing agency services"
-          canonicalUrl="https://brandingbeez.co.uk/about"
-          ogType="website"
-        />
-        <SchemaMarkup type="custom" data={AboutPageSchema} />
         {/* <Header /> */}
         <main>
           {/* Hero Section */}

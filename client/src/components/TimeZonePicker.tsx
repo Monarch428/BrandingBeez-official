@@ -1,11 +1,15 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import * as Popover from "@radix-ui/react-popover";
+import { Globe, ChevronDown } from "lucide-react";
+
 import type { TimeFormatMode, TimeZoneOptionId } from "@/utils/timezone-utils";
 import {
     groupTimeZones,
     searchTimeZones,
     getTimeZonePreviewTime,
+    timeZoneOptions,
 } from "@/utils/timezone-utils";
 
 type Props = {
@@ -15,21 +19,26 @@ type Props = {
     className?: string;
 };
 
-export const TimeZonePicker: React.FC<Props> = ({
+const TimeZonePicker: React.FC<Props> = ({
     value,
     onChange,
     initialMode = "ampm",
     className = "",
 }) => {
+    const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [mode, setMode] = useState<TimeFormatMode>(initialMode);
 
-    // ⏱️ refresh preview time every minute (Calendly-like)
+    // refresh preview time every minute
     const [, forceTick] = useState(0);
     useEffect(() => {
         const t = setInterval(() => forceTick((x) => x + 1), 60_000);
         return () => clearInterval(t);
     }, []);
+
+    const selected =
+        timeZoneOptions.find((t) => t.id === value) ||
+        timeZoneOptions.find((t) => t.id === "browser")!;
 
     const filtered = useMemo(() => searchTimeZones(query), [query]);
 
@@ -45,137 +54,173 @@ export const TimeZonePicker: React.FC<Props> = ({
         return { map, keys };
     }, [filtered]);
 
+    const close = () => {
+        setOpen(false);
+        setQuery("");
+    };
+
     return (
         <div className={`w-full ${className}`}>
-            {/* Search */}
-            <div className="w-full">
-                <input
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search..."
-                    className="
-            w-full rounded-md border border-blue-500/80 bg-white
-            px-3 py-2.5 text-[13px]
-            sm:px-4 sm:py-3 sm:text-sm
-            outline-none
-            focus:border-blue-600 focus:ring-2 focus:ring-blue-500/30
-          "
-                />
-            </div>
-
-            {/* Header row: TIME ZONE + toggle */}
-            <div className="mt-3 sm:mt-4 flex items-center justify-between gap-3">
-                <div className="text-[11px] sm:text-xs font-semibold tracking-widest text-gray-800">
-                    TIME ZONE
-                </div>
-
-                {/* Wrap-safe for 320px */}
-                <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-700 shrink-0">
-                    <span className={mode === "ampm" ? "font-semibold text-gray-900" : ""}>
-                        am/pm
-                    </span>
-
+            <Popover.Root open={open} onOpenChange={setOpen}>
+                {/* Trigger MUST be a single element */}
+                <Popover.Trigger asChild>
                     <button
                         type="button"
-                        onClick={() => setMode((m) => (m === "ampm" ? "24h" : "ampm"))}
-                        className={`
-              relative inline-flex h-5 w-9 items-center rounded-full
-              transition-colors
-              ${mode === "24h" ? "bg-blue-600" : "bg-gray-300"}
-            `}
-                        aria-label="Toggle time format"
+                        className="
+              w-full inline-flex items-center justify-between gap-3
+              rounded-md border border-slate-200 bg-white
+              px-3 py-2 text-[13px] sm:text-sm
+              shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-500/40
+            "
                     >
-                        <span
-                            className={`
-                inline-block h-4 w-4 transform rounded-full bg-white shadow
-                transition-transform
-                ${mode === "24h" ? "translate-x-4" : "translate-x-1"}
-              `}
-                        />
+                        <span className="inline-flex items-center gap-2 min-w-0">
+                            <Globe className="h-4 w-4 shrink-0 text-slate-500" />
+                            <span className="truncate text-slate-800">{selected.label}</span>
+                        </span>
+
+                        <span className="inline-flex items-center gap-2 shrink-0">
+                            <span className="text-[12px] text-slate-500 tabular-nums">
+                                {getTimeZonePreviewTime(selected.id, mode)}
+                            </span>
+                            <ChevronDown className="h-4 w-4 text-slate-500" />
+                        </span>
                     </button>
+                </Popover.Trigger>
 
-                    <span className={mode === "24h" ? "font-semibold text-gray-900" : ""}>
-                        24h
-                    </span>
-                </div>
-            </div>
-
-            {/* Scroll list */}
-            <div
-                className="
-          mt-3 w-full overflow-auto rounded-md border border-gray-200 bg-white
-          max-h-[65vh] sm:max-h-72
-        "
-            >
-                {grouped.keys.map((groupKey) => {
-                    const items = grouped.map.get(groupKey) || [];
-                    if (!items.length) return null;
-
-                    return (
-                        <div key={groupKey}>
-                            {/* Group heading */}
+                {/* ✅ Portal MUST have ONE child → Fragment */}
+                <Popover.Portal>
+                    <>
+                        {/* Mobile backdrop */}
+                        {open && (
                             <div
-                                className="
-                  sticky top-0 z-10 bg-white
-                  px-3 py-2 sm:px-4
-                  text-[12px] sm:text-sm font-bold text-gray-900
-                  border-b border-gray-100
-                "
-                            >
-                                {groupKey}
+                                className="fixed inset-0 z-[100001] bg-black/20 sm:hidden"
+                                onClick={close}
+                            />
+                        )}
+
+                        <Popover.Content
+                            side="bottom"
+                            align="end"
+                            sideOffset={10}
+                            collisionPadding={12}
+                            className="
+                z-[100002]
+                w-[min(92vw,420px)]
+                rounded-lg border border-slate-200 bg-white
+                shadow-[0_20px_60px_rgba(0,0,0,0.25)]
+                overflow-hidden
+                focus:outline-none
+              "
+                        >
+                            {/* Search */}
+                            <div className="p-3 sm:p-4 border-b border-slate-100">
+                                <input
+                                    value={query}
+                                    onChange={(e) => setQuery(e.target.value)}
+                                    placeholder="Search..."
+                                    className="
+                    w-full rounded-md border border-blue-500/80 bg-white
+                    px-3 py-2.5 text-[13px]
+                    sm:px-4 sm:py-3 sm:text-sm
+                    outline-none
+                    focus:border-blue-600 focus:ring-2 focus:ring-blue-500/30
+                  "
+                                />
+
+                                {/* Header + toggle */}
+                                <div className="mt-3 flex items-center justify-between gap-3">
+                                    <div className="text-[11px] sm:text-xs font-semibold tracking-widest text-gray-800">
+                                        TIME ZONE
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-[11px] sm:text-xs text-gray-700">
+                                        <span className={mode === "ampm" ? "font-semibold" : ""}>
+                                            am/pm
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => setMode((m) => (m === "ampm" ? "24h" : "ampm"))}
+                                            className={`
+                        relative inline-flex items-center h-5 w-9 rounded-full transition-colors
+                        ${mode === "24h" ? "bg-blue-600" : "bg-gray-300"}
+                      `}
+                                        >
+                                            <span
+                                                className={`
+                          inline-block h-4 w-4 rounded-full bg-white shadow
+                          transition-transform
+                          ${mode === "24h" ? "translate-x-4" : "translate-x-1"}
+                        `}
+                                            />
+                                        </button>
+
+                                        <span className={mode === "24h" ? "font-semibold" : ""}>
+                                            24h
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
 
-                            {/* Items */}
-                            <div className="py-1">
-                                {items.map((tz) => {
-                                    const isSelected = tz.id === value;
+                            {/* List */}
+                            <div
+                                data-radix-scroll-lock-ignore
+                                // ✅ desktop wheel
+                                onWheelCapture={(e) => e.stopPropagation()}
+                                // ✅ mobile touch scroll (this is the missing part)
+                                onTouchMoveCapture={(e) => e.stopPropagation()}
+                                className="
+                  max-h-[60vh] sm:max-h-[360px]
+                  overflow-y-auto
+                  overscroll-contain
+                  touch-pan-y
+                  [-webkit-overflow-scrolling:touch]
+                  scrollbar-thin
+                "
+                            >
+                                {grouped.keys.map((group) => {
+                                    const items = grouped.map.get(group) || [];
+                                    if (!items.length) return null;
 
                                     return (
-                                        <button
-                                            key={tz.id}
-                                            type="button"
-                                            onClick={() => onChange(tz.id)}
-                                            className={[
-                                                // Layout switches at xs for 320px:
-                                                // - xs: label + time stacked (no overflow)
-                                                // - sm+: row layout like Calendly
-                                                "w-full text-left transition-colors",
-                                                "px-3 py-2.5 sm:px-4 sm:py-3",
-                                                "flex flex-col items-start gap-1",
-                                                "sm:flex-row sm:items-center sm:justify-between sm:gap-3",
-                                                isSelected
-                                                    ? "bg-blue-600 text-white"
-                                                    : "text-gray-900 hover:bg-blue-50",
-                                            ].join(" ")}
-                                        >
-                                            <span className="text-[13px] sm:text-sm font-medium leading-snug break-words">
-                                                {tz.label}
-                                            </span>
+                                        <div key={group}>
+                                            <div className="sticky top-0 bg-white px-3 py-2 text-xs font-bold border-b">
+                                                {group}
+                                            </div>
 
-                                            <span
-                                                className={[
-                                                    "text-[12px] sm:text-sm tabular-nums",
-                                                    // On mobile align right visually without forcing overflow
-                                                    "sm:shrink-0",
-                                                    isSelected ? "text-white" : "text-gray-600",
-                                                ].join(" ")}
-                                            >
-                                                {getTimeZonePreviewTime(tz.id, mode)}
-                                            </span>
-                                        </button>
+                                            {items.map((tz) => {
+                                                const active = tz.id === value;
+                                                return (
+                                                    <button
+                                                        key={tz.id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            onChange(tz.id);
+                                                            close();
+                                                        }}
+                                                        className={[
+                                                            "w-full px-3 py-2.5 flex flex-col sm:flex-row justify-between text-left",
+                                                            active
+                                                                ? "bg-blue-600 text-white"
+                                                                : "hover:bg-blue-50",
+                                                        ].join(" ")}
+                                                    >
+                                                        <span>{tz.label}</span>
+                                                        <span className="text-xs tabular-nums">
+                                                            {getTimeZonePreviewTime(tz.id, mode)}
+                                                        </span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
                                     );
                                 })}
                             </div>
-                        </div>
-                    );
-                })}
-
-                {!filtered.length && (
-                    <div className="px-3 sm:px-4 py-6 text-sm text-gray-500">
-                        No time zones found.
-                    </div>
-                )}
-            </div>
+                        </Popover.Content>
+                    </>
+                </Popover.Portal>
+            </Popover.Root>
         </div>
     );
 };

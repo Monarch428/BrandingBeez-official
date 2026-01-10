@@ -22,7 +22,6 @@ export const appointmentStorage = {
       id,
       status: "booked",
       event: "booking_success",
-
       ...appointment,
     });
     return toPlain<Appointment>(created);
@@ -113,7 +112,6 @@ export const appointmentStorage = {
     return updated;
   },
 
-  // ✅ NEW: hard-delete an appointment
   async deleteAppointment(id: number): Promise<Appointment | null> {
     await ensureConnection();
 
@@ -121,7 +119,6 @@ export const appointmentStorage = {
       id,
     }).lean<Appointment>();
 
-    // Can be null if not found
     return deleted ?? null;
   },
 
