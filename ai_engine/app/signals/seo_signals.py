@@ -1,24 +1,28 @@
 """SEO signals builder.
 
-The orchestrator calls ``build_seo_signals(homepage, robots_sitemap, pagespeed)``.
-Older versions of this file defined ``build_seo_signals()`` with no parameters,
-which causes a runtime TypeError (the crash you're seeing).
+The orchestrator calls ``build_seo_signals(homepage, robots_sitemap, pagespeed, website_url=...)``.
 
 We keep the output conservative (no third-party provider = N/A) but we *do*
 surface on-page hygiene + Lighthouse SEO score (if PageSpeed ran).
 
-NEW:
-- Optional DataForSEO Backlinks enrichment (if DATAFORSEO_BASIC_B64 is configured).
-  This will fill:
-  - domainAuthority.score (best-effort mapping based on available response fields)
+Optional enrichments:
+- DataForSEO Backlinks API (if DATAFORSEO_BASIC_B64 or DATAFORSEO_LOGIN/PASSWORD is configured)
   - backlinks.totalBacklinks
   - backlinks.referringDomains
+- DataForSEO Labs Domain Rank Overview (if available in your plan)
+  - domainAuthority.score (authority-like metric)
+
+Note:
+- This file also contains SE Ranking helper code you may use elsewhere; it is NOT
+  automatically invoked here to avoid changing existing behavior.
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
 from app.core.config import settings
 from app.integrations.se_ranking_client import SERankingClient
-import os
 
 
 def _bool(v: Any) -> bool:
@@ -53,39 +57,42 @@ def _extract_domain_from_website(homepage: Dict[str, Any], robots_sitemap: Dict[
         v = homepage.get(k) or robots_sitemap.get(k)
         if _bool(v):
             s = str(v).strip()
-            # crude parse: strip scheme and path
             s = s.replace("https://", "").replace("http://", "")
-            s = s.split("/")[0]
+            s = s.split("/")[0].strip()
             return s or None
 
     return None
 
 
-def enrich_seo_visibility_with_se_ranking(website: str, out: dict):
+def enrich_seo_visibility_with_se_ranking(website: str, out: dict) -> None:
+    """Helper to enrich a *different* schema (seoVisibility.*).
+
+    Keeping for compatibility with your older report schema. Not called by default.
+    """
     try:
         domain = website.replace("https://", "").replace("http://", "").rstrip("/")
-
         client = SERankingClient()
 
         backlinks_resp = client.backlinks_overview(domain)
         authority_resp = client.domain_authority(domain)
 
-        backlinks_data = backlinks_resp.get("data", {})
-        authority_data = authority_resp.get("data", {})
+        backlinks_data = backlinks_resp.get("data", {}) if isinstance(backlinks_resp, dict) else {}
+        authority_data = authority_resp.get("data", {}) if isinstance(authority_resp, dict) else {}
 
         total_backlinks = backlinks_data.get("total", 0)
         referring_domains = backlinks_data.get("referring_domains", 0)
 
         domain_trust = authority_data.get("domain_trust")
-        page_trust = authority_data.get("page_trust")
+        # page_trust kept for future use:
+        _ = authority_data.get("page_trust")
 
+        out.setdefault("seoVisibility", {})
         out["seoVisibility"]["backlinks"] = {
             "totalBacklinks": total_backlinks,
             "referringDomains": referring_domains,
             "linkQualityScore": domain_trust,
             "notes": "Fetched from SE Ranking API",
         }
-
         out["seoVisibility"]["domainAuthority"] = {
             "score": domain_trust,
             "benchmark": None,
@@ -93,6 +100,9 @@ def enrich_seo_visibility_with_se_ranking(website: str, out: dict):
         }
 
     except Exception as e:
+        out.setdefault("seoVisibility", {})
+        out["seoVisibility"].setdefault("backlinks", {})
+        out["seoVisibility"].setdefault("domainAuthority", {})
         out["seoVisibility"]["backlinks"]["notes"] = f"SE Ranking failed: {str(e)}"
         out["seoVisibility"]["domainAuthority"]["notes"] = f"SE Ranking failed: {str(e)}"
 
@@ -122,9 +132,7 @@ def build_seo_signals(
     has_robots = _bool(robots_sitemap.get("robotsTxt")) or _bool(robots_sitemap.get("robots"))
     has_sitemap = _bool(robots_sitemap.get("sitemapXml")) or _bool(robots_sitemap.get("sitemap"))
 
-    # Base output (same as your current behavior)
     out: Dict[str, Any] = {
-        # External authority/backlinks need providers (Ahrefs/Semrush/Moz/etc.)
         "domainAuthority": {
             "score": None,
             "benchmark": None,
@@ -136,7 +144,6 @@ def build_seo_signals(
             "linkQualityScore": None,
             "notes": "Not available: requires backlink provider integration.",
         },
-        # Useful without any paid provider
         "onPage": {
             "hasTitle": _bool(title),
             "hasMetaDescription": _bool(meta_desc),
@@ -153,40 +160,40 @@ def build_seo_signals(
     # ----------------------------
     # Optional: DataForSEO enrich
     # ----------------------------
-    # We only attempt this if credentials exist. If anything fails, we keep the conservative output.
     basic_b64 = (settings.DATAFORSEO_BASIC_B64 or "").strip()
-    if basic_b64:
+    login = (settings.DATAFORSEO_LOGIN or "").strip()
+    password = (settings.DATAFORSEO_PASSWORD or "").strip()
+
+    if basic_b64 or (login and password):
         try:
-            # Import lazily so your app still runs if integration file isn't present yet.
             from app.integrations.dataforseo_client import DataForSEOClient  # type: ignore
 
             target = _extract_domain_from_website(homepage, robots_sitemap)
+            if not target and website_url:
+                target = website_url.replace("https://", "").replace("http://", "").split("/")[0].strip()
+
             if target:
-                client = DataForSEOClient(basic_b64=basic_b64)
+                client = DataForSEOClient(
+                    basic_b64=basic_b64 or None,
+                    login=login or None,
+                    password=password or None,
+                    timeout_s=getattr(settings, "DATAFORSEO_TIMEOUT_SEC", 45),
+                )
 
-                # ----------------------------
-                # Labs: Domain Rank Overview (preferred for Domain Authority-like score)
-                # ----------------------------
+                # 1) Labs: Domain Rank Overview (preferred for Domain Authority-like score)
                 try:
-                    target_domain = (website_url or homepage.get("url") or "").strip()
-                    if not target_domain:
-                        # fallback: derive from robots_sitemap.finalUrl if present
-                        target_domain = str((robots_sitemap or {}).get("finalUrl") or "")
-                    target_domain = target_domain.replace("https://", "").replace("http://", "").split("/")[0].strip()
-
-                    if target_domain and hasattr(client, "labs_domain_rank_overview_live"):
+                    if hasattr(client, "labs_domain_rank_overview_live"):
                         loc = getattr(settings, "DATAFORSEO_DEFAULT_LOCATION_CODE", 2840)
                         lang = getattr(settings, "DATAFORSEO_DEFAULT_LANGUAGE_CODE", "en")
                         labs = client.labs_domain_rank_overview_live(
-                            target_domain, location_code=int(loc), language_code=str(lang), limit=100
+                            target, location_code=int(loc), language_code=str(lang), limit=100
                         )
 
                         # Some client implementations return {"json": <api_json>, ...}
                         labs_json = labs.get("json") if isinstance(labs, dict) and "json" in labs else labs
-
-                        # Expected: tasks[0].result[0].domain_rank
                         tasks = (labs_json or {}).get("tasks") or []
                         res0 = (tasks[0].get("result") or [])[0] if tasks and isinstance(tasks[0], dict) else {}
+
                         authority = (
                             _safe_num(res0.get("domain_rank"))
                             or _safe_num(res0.get("rank"))
@@ -196,17 +203,12 @@ def build_seo_signals(
                             out["domainAuthority"]["score"] = int(round(authority))
                             out["domainAuthority"]["notes"] = "Fetched from DataForSEO Labs: Domain Rank Overview."
                 except Exception:
-                    # Ignore labs errors; backlinks may still work
+                    # ignore labs errors; backlinks may still work
                     pass
 
-
-                # Prefer a "live" method when available. If your client uses task_post/task_get,
-                # you can swap this call to the task-based version.
+                # 2) Backlinks summary (best-effort)
                 resp = client.create_backlinks_summary_task(target)
 
-                # DataForSEO responses vary; we parse defensively.
-                # Typical structure:
-                # { "status_code":..., "tasks":[{ "result":[{ ...fields... }]}] }
                 result_obj: Dict[str, Any] = {}
                 if isinstance(resp, dict):
                     tasks = resp.get("tasks") or []
@@ -218,10 +220,8 @@ def build_seo_signals(
                             if isinstance(r0, dict):
                                 result_obj = r0
 
-                # Common fields (best-effort):
-                # backlinks / referring domains:
                 total_backlinks = (
-                    _safe_num(result_obj.get("backlinks"))  # some methods
+                    _safe_num(result_obj.get("backlinks"))
                     or _safe_num(result_obj.get("total_backlinks"))
                     or _safe_num((result_obj.get("summary") or {}).get("backlinks"))
                 )
@@ -231,61 +231,27 @@ def build_seo_signals(
                     or _safe_num((result_obj.get("summary") or {}).get("referring_domains"))
                 )
 
-                # Authority-like metric:
-                # DataForSEO may expose "rank"/"domain_rank"/"domain_rating"/etc depending on endpoint.
-                authority = (
-                    _safe_num(result_obj.get("domain_rank"))
-                    or _safe_num(result_obj.get("rank"))
-                    or _safe_num(result_obj.get("domain_rating"))
-                    or _safe_num((result_obj.get("summary") or {}).get("domain_rank"))
-                )
-
-                # Update output only if we got actual numbers
-                if authority is not None:
-                    out["domainAuthority"]["score"] = int(round(authority))
-                    out["domainAuthority"]["notes"] = "Derived from DataForSEO backlinks data (metric availability depends on your plan/endpoint)."
-
                 if total_backlinks is not None or referring_domains is not None:
                     out["backlinks"]["totalBacklinks"] = int(round(total_backlinks)) if total_backlinks is not None else None
                     out["backlinks"]["referringDomains"] = int(round(referring_domains)) if referring_domains is not None else None
                     out["backlinks"]["notes"] = "Fetched from DataForSEO Backlinks API."
 
+                # If labs didn't fill authority, try deriving from backlinks response
+                if out["domainAuthority"]["score"] is None:
+                    authority = (
+                        _safe_num(result_obj.get("domain_rank"))
+                        or _safe_num(result_obj.get("rank"))
+                        or _safe_num(result_obj.get("domain_rating"))
+                        or _safe_num((result_obj.get("summary") or {}).get("domain_rank"))
+                    )
+                    if authority is not None:
+                        out["domainAuthority"]["score"] = int(round(authority))
+                        out["domainAuthority"]["notes"] = (
+                            "Derived from DataForSEO backlinks data (metric availability depends on your plan/endpoint)."
+                        )
+
         except Exception as e:
-            # Keep output conservative; just explain why provider enrichment isn't present.
             out["domainAuthority"]["notes"] = f"{out['domainAuthority'].get('notes')} (DataForSEO enrichment failed: {e})"
             out["backlinks"]["notes"] = f"{out['backlinks'].get('notes')} (DataForSEO enrichment failed: {e})"
 
     return out
-
-                # # Labs: Domain Rank Overview (preferred for Domain Authority-like score)
-                # try:
-                #     target_domain = (website_url or homepage.get("url") or "").strip()
-                #     if not target_domain:
-                #         # fallback: derive from robots_sitemap.finalUrl if present
-                #         target_domain = str((robots_sitemap or {}).get("finalUrl") or "")
-                #     target_domain = target_domain.replace("https://", "").replace("http://", "").split("/")[0].strip()
-
-                #     if target_domain:
-                #         loc = getattr(settings, "DATAFORSEO_DEFAULT_LOCATION_CODE", 2840)
-                #         lang = getattr(settings, "DATAFORSEO_DEFAULT_LANGUAGE_CODE", "en")
-                #         labs = client.labs_domain_rank_overview_live(
-                #             target_domain, location_code=int(loc), language_code=str(lang), limit=100
-                #         )
-                #         labs_json = labs.get("json") if isinstance(labs, dict) else None
-                #         # tasks[0].result[0].domain_rank
-                #         try:
-                #             tasks = (labs_json or {}).get("tasks") or []
-                #             res0 = (tasks[0].get("result") or [])[0] if tasks and isinstance(tasks[0], dict) else {}
-                #             authority = (
-                #                 _safe_num(res0.get("domain_rank"))
-                #                 or _safe_num(res0.get("rank"))
-                #                 or _safe_num((res0.get("summary") or {}).get("domain_rank"))
-                #             )
-                #             if authority is not None:
-                #                 out["domainAuthority"]["score"] = int(round(authority))
-                #                 out["domainAuthority"]["notes"] = "Fetched from DataForSEO Labs: Domain Rank Overview."
-                #         except Exception:
-                #             pass
-                # except Exception:
-                #     # Ignore labs errors; backlinks may still work
-                #     pass
