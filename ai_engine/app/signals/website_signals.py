@@ -73,6 +73,8 @@ def build_website_signals(
             "score": score,
             "issues": issues,
             "strengths": strengths,
+            # ✅ Canonical key expected by Node PDF + UI
+            "pageSpeed": pagespeed if isinstance(pagespeed, dict) else None,
         },
         "speedPerformance": {
             "score": speed_score if speed_score is not None else "—",

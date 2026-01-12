@@ -311,31 +311,31 @@ function keyMetricsBox(
 
   const paddingX = 12;
   const paddingY = 10;
-  const gapY = 6;
-
-  // IMPORTANT: values can wrap (e.g., long Industry Standard / Gap strings).
-  // The old fixed line height caused text to overlap/collapse.
-  // We calculate per-row height using PDFKit's heightOfString.
-  const valueW = w - paddingX * 2 - labelW;
-  const rowHeights = rows.map((r) => {
-    const label = (r.label || "").toUpperCase();
-    const value = safeText(r.value, "—");
-
-    // Match the fonts we use below
-    doc.font("Helvetica-Bold").fontSize(9);
-    const lh = doc.heightOfString(label, { width: labelW, lineGap: 2 });
-    doc.font("Helvetica").fontSize(11);
-    const vh = doc.heightOfString(value, { width: valueW, lineGap: 2 });
-
-    return Math.max(lh, vh) + 4; // +4 for breathing room
-  });
-
-  const boxH = paddingY * 2 + rowHeights.reduce((a, b) => a + b, 0) + (rows.length - 1) * gapY;
-
-  ensureSpace(doc, boxH + 16);
+  const gapY = 8;
 
   const x = doc.page.margins.left;
   const y = doc.y;
+
+  // Measure row heights (labels rarely wrap, values often do)
+  const availableValueW = w - paddingX * 2 - labelW - 10;
+
+  const rowHeights = rows.map((r) => {
+    const labelText = (r.label || "").trim();
+    const valueText = (r.value || "").trim();
+
+    const labelH = doc.heightOfString(labelText, { width: labelW, align: "left" });
+    const valueH = doc.heightOfString(valueText, { width: availableValueW, align: "left" });
+
+    // Keep a sensible minimum height
+    return Math.max(18, Math.max(labelH, valueH));
+  });
+
+  const boxH =
+    paddingY * 2 +
+    rowHeights.reduce((sum, h) => sum + h, 0) +
+    (rows.length > 0 ? (rows.length - 1) * gapY : 0);
+
+  ensureSpace(doc, boxH + 16);
 
   // Background card
   doc.save();
@@ -345,29 +345,30 @@ function keyMetricsBox(
 
   let cy = y + paddingY;
 
-  rows.forEach((r, idx) => {
-    const label = (r.label || "").toUpperCase();
-    const value = safeText(r.value, "—");
+  rows.forEach((r, i) => {
+    const label = (r.label || "").trim();
+    const value = (r.value || "").trim();
 
-    // Label (block letters)
-    doc.font("Helvetica-Bold").fontSize(9).fillColor(GRAY_600).text(label, x + paddingX, cy, {
-      width: labelW,
-      align: "left",
-    });
+    // ✅ Row label should be black (as requested)
+    doc.font("Helvetica-Bold")
+      .fontSize(10)
+      .fillColor(GRAY_900)
+      .text(label, x + paddingX, cy, { width: labelW, align: "left" });
 
-    // Value aligned column
-    doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(value, x + paddingX + labelW, cy - 2, {
-      width: valueW,
-      align: "left",
-      lineGap: 2,
-    });
+    doc.font("Helvetica")
+      .fontSize(10)
+      .fillColor(GRAY_900)
+      .text(value, x + paddingX + labelW + 10, cy, {
+        width: availableValueW,
+        align: "left",
+      });
 
-    cy += rowHeights[idx] + gapY;
+    cy += rowHeights[i] + gapY;
   });
 
-  doc.y = y + boxH;
-  doc.moveDown(0.6);
+  doc.y = y + boxH + 12;
 }
+
 
 function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[], colWidths?: number[]) {
   const x = doc.page.margins.left;
@@ -461,19 +462,24 @@ function drawTable(doc: PDFKit.PDFDocument, headers: string[], rows: TableRow[],
 function speedTestTable(speed: WebsiteSpeedTest | undefined) {
   const rows: TableRow[] = [];
   const add = (label: string, m: any) => {
+    const lcpMs = m?.metrics?.lcpMs ?? m?.lcpMs;
+    const cls = m?.metrics?.cls ?? m?.cls;
+    const tbtMs = m?.metrics?.tbtMs ?? m?.tbtMs;
+
     rows.push([
       label,
       m?.performanceScore ?? "—",
       m?.seoScore ?? "—",
-      m?.metrics?.lcpMs ? `${Math.round(m.metrics.lcpMs)} ms` : "—",
-      typeof m?.metrics?.cls === "number" ? m.metrics.cls.toFixed(3) : "—",
-      m?.metrics?.tbtMs ? `${Math.round(m.metrics.tbtMs)} ms` : "—",
+      typeof lcpMs === "number" ? `${Math.round(lcpMs)} ms` : "—",
+      typeof cls === "number" ? Number(cls).toFixed(3) : "—",
+      typeof tbtMs === "number" ? `${Math.round(tbtMs)} ms` : "—",
     ]);
   };
   add("Mobile", speed?.mobile);
   add("Desktop", speed?.desktop);
   return rows;
 }
+
 
 export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthReport): Promise<Buffer> {
   // Debug snapshot: confirms what the PDF generator actually receives.
@@ -573,12 +579,12 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         doc,
         ["Category", "Score / 100", "What it means"],
         [
-          ["Website", ss?.website ?? "N/A", "Technical foundation & UX"],
-          ["SEO", ss?.seo ?? "N/A", "Visibility & demand capture"],
-          ["Reputation", ss?.reputation ?? "N/A", "Trust & social proof"],
-          ["Lead Gen", ss?.leadGen ?? "N/A", "Acquisition channels & conversion"],
-          ["Services", ss?.services ?? "N/A", "Offer clarity & positioning"],
-          ["Cost Efficiency", ss?.costEfficiency ?? "N/A", "Margins & scalability"],
+          ["Website", ss?.website ?? "—", "Technical foundation & UX"],
+          ["SEO", ss?.seo ?? "—", "Visibility & demand capture"],
+          ["Reputation", ss?.reputation ?? "—", "Trust & social proof"],
+          ["Lead Gen", ss?.leadGen ?? "—", "Acquisition channels & conversion"],
+          ["Services", ss?.services ?? "—", "Offer clarity & positioning"],
+          ["Cost Efficiency", ss?.costEfficiency ?? "—", "Margins & scalability"],
         ],
         [120, 90, 280],
       );
@@ -659,7 +665,8 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       sectionTitle(doc, "3", "SEO & Organic Visibility");
 
       const da = report.seoVisibility?.domainAuthority;
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Domain Authority Score: ${clampScore(da?.score)}/100`);
+      const daScore = typeof da?.score === "number" ? clampScore(da.score) : null;
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Domain Authority Score: ${daScore !== null ? `${daScore}/100` : "N/A"}`);
       if (da?.benchmark) {
         drawTable(
           doc,
@@ -1022,7 +1029,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         );
       }
 
-      sectionTitle(doc, "11", "90-Day Action Plan"); sectionTitle(doc, "11", "90-Day Action Plan");
+      sectionTitle(doc, "11", "90-Day Action Plan"); //sectionTitle(doc, "11", "90-Day Action Plan");
 
       const apAny = (report as any).actionPlan90Days as any;
       const weekByWeek: any[] = Array.isArray(apAny)
@@ -1033,10 +1040,15 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       if (weekByWeek.length) {
         weekByWeek.forEach((w: any, idx: number) => {
+          // Support both shapes:
+          // - Node schema: { week, focus, actions, expectedOutcome }
+          // - Python/or legacy: { weekRange, title, actions, expectedOutcome }
+          const weekLabel = safeText(w.week ?? w.weekRange, `Week ${idx + 1}`);
+          const focusLabel = safeText(w.focus ?? w.title, "");
           doc.font("Helvetica-Bold")
             .fontSize(12)
             .fillColor(BRAND_PURPLE)
-            .text(`${idx + 1}. ${safeText(w.week, "Week")}: ${safeText(w.focus, "")}`.trim());
+            .text(`${idx + 1}. ${weekLabel}: ${focusLabel}`.trim());
           doc.moveDown(0.2);
 
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Actions");

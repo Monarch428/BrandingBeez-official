@@ -2812,6 +2812,152 @@ export function mergeBusinessGrowthReport(
   merged.appendices.dataSources = ensureArray(merged.appendices.dataSources);
   merged.appendices.dataGaps = ensureArray(merged.appendices.dataGaps);
 
+  // -----------------------------
+  // Option A fallback (deterministic):
+  // Ensure sections 11–13 are populated using available signals.
+  // This prevents "No ... was generated" in the PDF when the LLM is conservative
+  // or when upstream Python uses a slightly different shape.
+  // -----------------------------
+
+  // If Python sent actionPlan90Days as an array, convert it.
+  if (Array.isArray((r as any)?.actionPlan90Days) && merged.actionPlan90Days.weekByWeek.length === 0) {
+    merged.actionPlan90Days.weekByWeek = (r as any).actionPlan90Days.map((w: any, idx: number) => ({
+      week: w?.week || w?.weekRange || `Week ${idx + 1}`,
+      focus: w?.focus || w?.title || "",
+      actions: ensureArray<string>(w?.actions),
+      expectedOutcome: w?.expectedOutcome || w?.outcome || null,
+      kpis: ensureArray<string>(w?.kpis),
+    }));
+  }
+
+  const pushUnique = (arr: string[], ...items: (string | null | undefined)[]) => {
+    for (const it of items) {
+      const s = (it || "").trim();
+      if (!s) continue;
+      if (!arr.some((x) => x.toLowerCase() === s.toLowerCase())) arr.push(s);
+    }
+  };
+
+  const mobilePerf = merged.websiteDigitalPresence?.websiteHealth?.score;
+  const desktopPerf = merged.seoVisibility?.technicalSeo?.coreWebVitals?.desktop;
+  const contentGaps = ensureArray<string>(merged.websiteDigitalPresence?.contentGaps);
+  const techIssues = ensureArray<string>(merged.websiteDigitalPresence?.technicalSEO?.issues);
+  const missingChannels = ensureArray<string>(merged.leadGeneration?.missingHighROIChannels);
+
+  // ---- 11) 90-day action plan ----
+  if (merged.actionPlan90Days.weekByWeek.length === 0) {
+    const w: any[] = [];
+
+    w.push({
+      week: "Weeks 1–2",
+      focus: "Baseline + tracking",
+      actions: [
+        "Connect Google Search Console + Analytics (GA4) and verify tracking",
+        "Create a KPI baseline (traffic, leads, CWV, indexed pages)",
+        "Fix critical crawl blockers (robots/sitemap/canonical) if identified",
+      ],
+      expectedOutcome: "Clear baseline and tracking in place so improvements can be measured.",
+    });
+
+    const perfActions: string[] = [];
+    if (typeof mobilePerf === "number" && mobilePerf < 70) pushUnique(perfActions, "Improve mobile performance (images, render-blocking JS/CSS, caching)");
+    if (typeof desktopPerf === "number" && desktopPerf < 70) pushUnique(perfActions, "Improve desktop performance (bundle splitting, caching, fonts) ");
+    pushUnique(perfActions, ...techIssues.slice(0, 4));
+    if (perfActions.length) {
+      w.push({
+        week: "Weeks 3–4",
+        focus: "Technical fixes + Core Web Vitals",
+        actions: perfActions,
+        expectedOutcome: "Better UX and improved crawl efficiency; foundations for higher conversion rates.",
+      });
+    }
+
+    const contentActions: string[] = [];
+    if (contentGaps.length) pushUnique(contentActions, ...contentGaps.slice(0, 6).map((x) => `Create/Improve: ${x}`));
+    pushUnique(contentActions, "Strengthen internal linking between service, blog and contact pages", "Add trust assets (case studies/testimonials) where missing");
+    w.push({
+      week: "Weeks 5–8",
+      focus: "Content + conversion assets",
+      actions: contentActions,
+      expectedOutcome: "Expanded keyword coverage and stronger trust signals to increase enquiries.",
+    });
+
+    const growthActions: string[] = [];
+    if (missingChannels.length) pushUnique(growthActions, ...missingChannels.slice(0, 6).map((x) => `Launch/Improve channel: ${x}`));
+    pushUnique(growthActions, "Set up lead capture offers (lead magnets) and email follow-up automation", "Run a small paid search test (if relevant) using tracked landing pages");
+    w.push({
+      week: "Weeks 9–12",
+      focus: "Acquisition + iteration",
+      actions: growthActions,
+      expectedOutcome: "Consistent lead flow with tracking and iterative improvements based on KPIs.",
+    });
+
+    merged.actionPlan90Days.weekByWeek = w;
+    merged.actionPlan90Days.notes = merged.actionPlan90Days.notes || "Option A fallback generated from verified crawl/speed/lead-gen signals.";
+  }
+
+  // ---- 12) Competitive advantages ----
+  if (merged.competitiveAdvantages.advantages.length === 0) {
+    const adv: any[] = [];
+    // Reputation-derived
+    const google = ensureArray<any>(merged.reputation?.platforms).find((p) => (p?.platform || "").toLowerCase() === "google");
+    if (google?.rating && Number(google.rating) >= 4.5) {
+      adv.push({
+        advantage: "Strong Google rating",
+        whyItMatters: "High ratings increase trust and improve conversion rates, especially for local intent.",
+        howToLeverage: "Add review snippets on key pages and request reviews after delivery milestones.",
+      });
+    }
+    if (ensureArray<string>(merged.executiveSummary?.strengths).length) {
+      adv.push({
+        advantage: "Clear strengths already present",
+        whyItMatters: "These are defensible proof points you can amplify in messaging.",
+        howToLeverage: "Convert top strengths into homepage/landing-page headlines and case-study bullets.",
+      });
+    }
+    if (adv.length) {
+      merged.competitiveAdvantages.advantages = adv;
+      merged.competitiveAdvantages.notes = merged.competitiveAdvantages.notes || "Option A fallback generated from verified reputation + report strengths.";
+    }
+  }
+
+  // ---- 13) Risk assessment ----
+  if (merged.riskAssessment.risks.length === 0) {
+    const risks: any[] = [];
+    if (typeof mobilePerf === "number" && mobilePerf < 70) {
+      risks.push({
+        risk: "Mobile performance may suppress conversions",
+        severity: mobilePerf < 50 ? "High" : "Medium",
+        likelihood: "High",
+        mitigation: "Optimise images/scripts, reduce render-blocking resources, and monitor CWV after fixes.",
+        notes: `Observed website health score (proxy for mobile performance): ${mobilePerf}.`,
+      });
+    }
+    if (contentGaps.length) {
+      risks.push({
+        risk: "Missing/weak core content reduces trust and ranking coverage",
+        severity: "Medium",
+        likelihood: "High",
+        mitigation: "Publish complete service/location pages, add trust assets, and strengthen internal linking.",
+        notes: `Detected content gaps: ${contentGaps.slice(0, 4).join(", ")}.`,
+      });
+    }
+    if (!ensureArray<any>(merged.appendices?.dataGaps).some((g) => (g?.area || "").toLowerCase().includes("search console"))) {
+      // do nothing
+    } else {
+      risks.push({
+        risk: "Limited analytics/SEO data can hide organic issues",
+        severity: "Medium",
+        likelihood: "High",
+        mitigation: "Connect Search Console/SEO provider APIs to measure rankings, queries and opportunities.",
+      });
+    }
+    if (risks.length) {
+      merged.riskAssessment.risks = risks;
+      merged.riskAssessment.notes = merged.riskAssessment.notes || "Option A fallback generated from verified speed/content/data-gap signals.";
+    }
+  }
+
   return merged as BusinessGrowthReport;
 }
 
