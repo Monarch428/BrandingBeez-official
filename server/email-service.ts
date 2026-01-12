@@ -549,6 +549,7 @@ export async function sendAppointmentNotification(
   const { host, port, user, pass } = getSmtpConfig();
 
   const adminEmail = "raje@brandingbeez.co.uk";
+  // const adminEmail = "info@brandingbeez.co.uk";
   // const adminEmail = "pradeep.brandingbeez@gmail.com";
 
   if (!user || !pass) {
