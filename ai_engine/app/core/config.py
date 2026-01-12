@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     # Crawl limits
     HTTP_TIMEOUT_SEC: int = 20
     MAX_INTERNAL_LINKS: int = 60
+    MAX_CONTENT_PAGES: int = 6
+
+    # Content extraction
+    USE_PLAYWRIGHT_FOR_CONTENT_PAGES: bool = True
 
     # Link extraction (universal_links)
     LINK_EXTRACT_TIMEOUT_SEC: int = 90

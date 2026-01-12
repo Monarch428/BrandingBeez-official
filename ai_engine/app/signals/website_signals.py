@@ -1,12 +1,26 @@
-from typing import Any, Dict, List
 
-def build_website_signals(homepage: Dict[str, Any], robots_sitemap: Dict[str, Any], pagespeed: Dict[str, Any] | None) -> Dict[str, Any]:
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
+
+from app.signals.content_quality import compute_content_quality
+
+
+def build_website_signals(
+    homepage: Dict[str, Any],
+    robots_sitemap: Dict[str, Any],
+    pagespeed: Optional[Dict[str, Any]] = None,
+    content_pages: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
     issues: List[str] = []
     strengths: List[str] = []
 
-    if not robots_sitemap.get("robots", {}).get("ok"):
+    robots = (robots_sitemap or {}).get("robots", {}) or {}
+    sitemap = (robots_sitemap or {}).get("sitemap", {}) or {}
+
+    if not robots.get("ok"):
         issues.append("robots.txt missing/unreachable.")
-    if not robots_sitemap.get("sitemap", {}).get("ok"):
+    if not sitemap.get("ok"):
         issues.append("sitemap.xml missing/unreachable.")
     if not homepage.get("hasStructuredData"):
         issues.append("Structured data not detected on homepage.")
@@ -20,54 +34,58 @@ def build_website_signals(homepage: Dict[str, Any], robots_sitemap: Dict[str, An
 
     # Technical SEO score (simple baseline)
     score = 100
-    score -= 20 if "robots.txt" in " ".join(issues).lower() else 0
-    score -= 20 if "sitemap.xml" in " ".join(issues).lower() else 0
-    score -= 20 if "Structured data" in " ".join(issues) else 0
+    joined = " ".join(issues).lower()
+    score -= 20 if "robots.txt" in joined else 0
+    score -= 20 if "sitemap.xml" in joined else 0
+    score -= 20 if "structured data" in joined else 0
     score = max(0, min(100, score))
 
-    # Content quality
-    cq_strengths = []
-    if homepage.get("homepageTextLength", 0) > 500:
-        cq_strengths.append("Adequate homepage text content")
-    if homepage.get("h1Count", 0) == 1:
-        cq_strengths.append("Single clear H1 structure")
+    # Speed section
+    speed_score = None
+    if pagespeed and isinstance(pagespeed, dict):
+        mobile = (pagespeed.get("mobile") or {}) if isinstance(pagespeed.get("mobile"), dict) else {}
+        desktop = (pagespeed.get("desktop") or {}) if isinstance(pagespeed.get("desktop"), dict) else {}
+        m = mobile.get("performanceScore")
+        d = desktop.get("performanceScore")
+        vals = [v for v in [m, d] if isinstance(v, int)]
+        if vals:
+            speed_score = int(round(sum(vals) / len(vals)))
 
-    content_score = 100 if cq_strengths else 60
+    # UX/Conversion (light heuristics)
+    ux_highlights: List[str] = []
+    ux_issues: List[str] = []
+    ux_score = 70
+    if homepage.get("contactCTA"):
+        ux_highlights.append("Clear CTA detected on homepage.")
+    else:
+        ux_issues.append("No clear primary CTA detected on homepage.")
+        ux_score -= 10
+    if speed_score is not None and speed_score < 50:
+        ux_issues.append("PageSpeed performance is low; may harm conversions.")
+        ux_score -= 10
+    ux_score = max(0, min(100, ux_score))
 
-    # UX conversion (use page speed if available)
-    ux_score = 80
-    ux_issues = []
-    ux_highlights = []
-
-    if pagespeed:
-        mob = pagespeed.get("mobile", {})
-        desk = pagespeed.get("desktop", {})
-        if mob.get("performanceScore") is not None:
-            ux_highlights.append(f"Mobile performance score: {mob['performanceScore']}/100")
-            ux_score = int((ux_score + mob["performanceScore"]) / 2)
-        if desk.get("performanceScore") is not None:
-            ux_highlights.append(f"Desktop performance score: {desk['performanceScore']}/100")
-            ux_score = int((ux_score + desk["performanceScore"]) / 2)
-
-        # map top opportunities
-        for o in (mob.get("opportunities") or [])[:5]:
-            ux_issues.append(o.get("title"))
-        for o in (desk.get("opportunities") or [])[:5]:
-            if o.get("title") not in ux_issues:
-                ux_issues.append(o.get("title"))
+    # Content Quality (NEW: multi-page analysis)
+    cq = compute_content_quality(homepage, content_pages or [])
 
     return {
         "technicalSEO": {
             "score": score,
-            "strengths": strengths,
             "issues": issues,
-            "pageSpeed": pagespeed,
+            "strengths": strengths,
+        },
+        "speedPerformance": {
+            "score": speed_score if speed_score is not None else "—",
+            "notes": "Derived from PageSpeed if configured." if speed_score is not None else "Not available (no PageSpeed API key).",
+            "mobile": (pagespeed or {}).get("mobile") if isinstance(pagespeed, dict) else None,
+            "desktop": (pagespeed or {}).get("desktop") if isinstance(pagespeed, dict) else None,
         },
         "contentQuality": {
-            "score": content_score,
-            "strengths": cq_strengths,
-            "gaps": [],
-            "recommendations": [],
+            "score": cq.get("score", 0),
+            "strengths": cq.get("strengths", []),
+            "gaps": cq.get("gaps", []),
+            "recommendations": cq.get("recommendations", []),
+            "meta": cq.get("meta", {}),
         },
         "uxConversion": {
             "score": ux_score,
@@ -75,5 +93,5 @@ def build_website_signals(homepage: Dict[str, Any], robots_sitemap: Dict[str, An
             "issues": ux_issues,
             "estimatedUplift": "N/A",
         },
-        "contentGaps": [],
+        "contentGaps": cq.get("gaps", []),
     }

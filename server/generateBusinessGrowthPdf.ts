@@ -311,10 +311,26 @@ function keyMetricsBox(
 
   const paddingX = 12;
   const paddingY = 10;
-  const lineH = 16;
   const gapY = 6;
 
-  const boxH = paddingY * 2 + rows.length * lineH + (rows.length - 1) * gapY;
+  // IMPORTANT: values can wrap (e.g., long Industry Standard / Gap strings).
+  // The old fixed line height caused text to overlap/collapse.
+  // We calculate per-row height using PDFKit's heightOfString.
+  const valueW = w - paddingX * 2 - labelW;
+  const rowHeights = rows.map((r) => {
+    const label = (r.label || "").toUpperCase();
+    const value = safeText(r.value, "—");
+
+    // Match the fonts we use below
+    doc.font("Helvetica-Bold").fontSize(9);
+    const lh = doc.heightOfString(label, { width: labelW, lineGap: 2 });
+    doc.font("Helvetica").fontSize(11);
+    const vh = doc.heightOfString(value, { width: valueW, lineGap: 2 });
+
+    return Math.max(lh, vh) + 4; // +4 for breathing room
+  });
+
+  const boxH = paddingY * 2 + rowHeights.reduce((a, b) => a + b, 0) + (rows.length - 1) * gapY;
 
   ensureSpace(doc, boxH + 16);
 
@@ -329,7 +345,7 @@ function keyMetricsBox(
 
   let cy = y + paddingY;
 
-  rows.forEach((r) => {
+  rows.forEach((r, idx) => {
     const label = (r.label || "").toUpperCase();
     const value = safeText(r.value, "—");
 
@@ -341,11 +357,12 @@ function keyMetricsBox(
 
     // Value aligned column
     doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(value, x + paddingX + labelW, cy - 2, {
-      width: w - paddingX * 2 - labelW,
+      width: valueW,
       align: "left",
+      lineGap: 2,
     });
 
-    cy += lineH + gapY;
+    cy += rowHeights[idx] + gapY;
   });
 
   doc.y = y + boxH;
@@ -556,12 +573,12 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         doc,
         ["Category", "Score / 100", "What it means"],
         [
-          ["Website", ss?.website ?? "—", "Technical foundation & UX"],
-          ["SEO", ss?.seo ?? "—", "Visibility & demand capture"],
-          ["Reputation", ss?.reputation ?? "—", "Trust & social proof"],
-          ["Lead Gen", ss?.leadGen ?? "—", "Acquisition channels & conversion"],
-          ["Services", ss?.services ?? "—", "Offer clarity & positioning"],
-          ["Cost Efficiency", ss?.costEfficiency ?? "—", "Margins & scalability"],
+          ["Website", ss?.website ?? "N/A", "Technical foundation & UX"],
+          ["SEO", ss?.seo ?? "N/A", "Visibility & demand capture"],
+          ["Reputation", ss?.reputation ?? "N/A", "Trust & social proof"],
+          ["Lead Gen", ss?.leadGen ?? "N/A", "Acquisition channels & conversion"],
+          ["Services", ss?.services ?? "N/A", "Offer clarity & positioning"],
+          ["Cost Efficiency", ss?.costEfficiency ?? "N/A", "Margins & scalability"],
         ],
         [120, 90, 280],
       );

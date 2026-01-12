@@ -2724,7 +2724,28 @@ export function mergeBusinessGrowthReport(
     ...r,
     reportMetadata: { ...base.reportMetadata, ...(r.reportMetadata || {}) },
     executiveSummary: { ...base.executiveSummary, ...(r.executiveSummary || {}) },
-    websiteDigitalPresence: { ...base.websiteDigitalPresence, ...(r.websiteDigitalPresence || {}) },
+    websiteDigitalPresence: {
+      ...base.websiteDigitalPresence,
+      ...(r.websiteDigitalPresence || {}),
+
+      // ✅ Deep-merge nested objects so Python-computed metrics (e.g. PageSpeed) are not lost
+      websiteHealth: {
+        ...base.websiteDigitalPresence.websiteHealth,
+        ...(r.websiteDigitalPresence?.websiteHealth || {}),
+      },
+      uxConversion: {
+        ...base.websiteDigitalPresence.uxConversion,
+        ...(r.websiteDigitalPresence?.uxConversion || {}),
+      },
+      technicalSEO: {
+        ...base.websiteDigitalPresence.technicalSEO,
+        ...(r.websiteDigitalPresence?.technicalSEO || {}),
+      },
+      contentQuality: {
+        ...base.websiteDigitalPresence.contentQuality,
+        ...(r.websiteDigitalPresence?.contentQuality || {}),
+      },
+    },
     seoVisibility: { ...base.seoVisibility, ...(r.seoVisibility || {}) },
     reputation: { ...base.reputation, ...(r.reputation || {}) },
     competitiveAnalysis: { ...base.competitiveAnalysis, ...(r.competitiveAnalysis || {}) },
