@@ -840,9 +840,9 @@ export async function sendAppointmentNotification(
 
   const { host, port, secure, requireTLS, user, pass } = getSmtpConfig();
 
-  // ✅ To admin: env first; fallback to main admin email; then fallback to smtp user
-  const adminEmail =
-    process.env.APPOINTMENT_NOTIFY_TO || "raje@brandingbeez.co.uk" || user || "";
+  const adminEmail = "raje@brandingbeez.co.uk";
+  // const adminEmail = "info@brandingbeez.co.uk";
+  // const adminEmail = "pradeep.brandingbeez@gmail.com";
 
   if (!user || !pass) {
     console.log("SMTP not configured. Appointment notification:");

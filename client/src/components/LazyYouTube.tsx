@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export function LazyYouTube({
   videoId,
@@ -6,8 +6,7 @@ export function LazyYouTube({
   aspectRatio = "16/9",
   thumbnailQuality = "hqdefault",
 
-  // ✅ Defaults set here
-  autoplay = true,
+  autoplay = true, // ✅ default autoplay ON
   mute = true,
   startAt = 0,
   loop = false,
@@ -15,6 +14,8 @@ export function LazyYouTube({
 
   privacyEnhanced = true,
   preloadOnHover = true,
+
+  eagerIframeOnAutoplay = true, // ✅ when autoplay default ON, make this ON too
 }: {
   videoId: string;
   className?: string;
@@ -29,22 +30,36 @@ export function LazyYouTube({
 
   privacyEnhanced?: boolean;
   preloadOnHover?: boolean;
+  eagerIframeOnAutoplay?: boolean;
 }) {
   const [loaded, setLoaded] = useState(false);
+  const [userUnmuted, setUserUnmuted] = useState(false);
+  const preconnectedRef = useRef(false);
 
-  // ✅ Autoplay requires muted video in modern browsers
-  const effectiveMute = autoplay ? true : mute;
+  // ✅ NEW: set fetchpriority safely (no React warning + no TS error)
+  const imgRef = useRef<HTMLImageElement | null>(null);
 
-  // ✅ Auto-load iframe if autoplay is enabled
   useEffect(() => {
-    if (autoplay) setLoaded(true);
-  }, [autoplay]);
+    if (imgRef.current) {
+      // Property (supported in some browsers)
+      (imgRef.current as any).fetchPriority = "low";
+      // Attribute (safe fallback)
+      imgRef.current.setAttribute("fetchpriority", "low");
+    }
+  }, []);
 
   if (!videoId) return null;
 
+  const embedHost = privacyEnhanced
+    ? "https://www.youtube-nocookie.com"
+    : "https://www.youtube.com";
+
+  // ✅ Autoplay with sound is blocked in most browsers, so enforce mute on autoplay
+  const effectiveMute = autoplay ? (userUnmuted ? false : true) : mute;
+
   const params = useMemo(() => {
     const p = new URLSearchParams({
-      autoplay: autoplay ? "1" : "0",
+      autoplay: loaded && autoplay ? "1" : "0",
       mute: effectiveMute ? "1" : "0",
       start: startAt > 0 ? String(startAt) : "0",
       controls: controls ? "1" : "0",
@@ -61,35 +76,66 @@ export function LazyYouTube({
     }
 
     return p;
-  }, [autoplay, effectiveMute, startAt, controls, loop, videoId]);
+  }, [loaded, autoplay, effectiveMute, startAt, controls, loop, videoId]);
 
-  const embedHost = privacyEnhanced
-    ? "https://www.youtube-nocookie.com"
-    : "https://www.youtube.com";
+  const preconnect = () => {
+    if (preconnectedRef.current) return;
+    preconnectedRef.current = true;
+
+    const links: Array<{ rel: string; href: string; crossOrigin?: string }> = [
+      { rel: "preconnect", href: embedHost, crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://i.ytimg.com", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://www.google.com", crossOrigin: "anonymous" },
+      { rel: "preconnect", href: "https://www.gstatic.com", crossOrigin: "anonymous" },
+    ];
+
+    links.forEach(({ rel, href, crossOrigin }) => {
+      if (document.querySelector(`link[rel="${rel}"][href="${href}"]`)) return;
+      const link = document.createElement("link");
+      link.rel = rel;
+      link.href = href;
+      if (crossOrigin) link.crossOrigin = crossOrigin;
+      document.head.appendChild(link);
+    });
+  };
+
+  // ✅ If autoplay + eager, load iframe immediately so autoplay works
+  useEffect(() => {
+    if (autoplay && eagerIframeOnAutoplay) {
+      preconnect();
+      setLoaded(true);
+    }
+  }, [autoplay, eagerIframeOnAutoplay]);
+
+  const thumbnailSrc = `https://i.ytimg.com/vi/${videoId}/${thumbnailQuality}.jpg`;
 
   return (
     <div
       className={`relative w-full overflow-hidden rounded-xl bg-black ${className}`}
       style={{ aspectRatio }}
+      onMouseEnter={() => preloadOnHover && preconnect()}
+      onFocus={() => preloadOnHover && preconnect()}
     >
       {!loaded ? (
         <button
           type="button"
           aria-label="Play video"
-          onClick={() => setLoaded(true)}
-          onMouseEnter={() => preloadOnHover && setLoaded(true)}
-          onFocus={() => preloadOnHover && setLoaded(true)}
+          onClick={() => {
+            preconnect();
+            setLoaded(true);
+          }}
           className="absolute inset-0 group"
         >
           <img
-            src={`https://i.ytimg.com/vi/${videoId}/${thumbnailQuality}.jpg`}
+            ref={imgRef}
+            src={thumbnailSrc}
             alt="Video thumbnail"
             className="w-full h-full object-cover"
             loading="lazy"
             decoding="async"
           />
 
-          {/* ▶ Play overlay (still useful if autoplay blocked) */}
+          {/* ▶ Play overlay */}
           <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <span className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
               <svg
@@ -103,15 +149,29 @@ export function LazyYouTube({
           </span>
         </button>
       ) : (
-        <iframe
-          className="absolute inset-0 w-full h-full"
-          src={`${embedHost}/embed/${videoId}?${params.toString()}`}
-          title="YouTube video"
-          loading="lazy"
-          referrerPolicy="strict-origin-when-cross-origin"
-          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
+        <div className="absolute inset-0">
+          <iframe
+            className="absolute inset-0 w-full h-full"
+            src={`${embedHost}/embed/${videoId}?${params.toString()}`}
+            title="YouTube video"
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+          />
+
+          {/* ✅ Unmute button (needed because autoplay starts muted) */}
+          {autoplay && !userUnmuted && (
+            <button
+              type="button"
+              onClick={() => setUserUnmuted(true)}
+              className="absolute bottom-3 left-3 z-10 bg-black/70 text-white text-sm px-3 py-2 rounded-md hover:bg-black/80"
+              aria-label="Unmute video"
+            >
+              Unmute
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

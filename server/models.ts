@@ -26,3 +26,4 @@ export * from "./model/casestudy/web/web-case-study-card";
 export * from "./model/casestudy/web/web-case-study-detail";
 export * from "./model/casestudy/dr/dedicated-resource-case-study-card";
 export * from "./model/casestudy/dr/dedicated-resource-case-study-detail";
+export * from "./model/authApi.model";
