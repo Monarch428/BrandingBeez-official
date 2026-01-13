@@ -36,6 +36,18 @@ export function LazyYouTube({
   const [userUnmuted, setUserUnmuted] = useState(false);
   const preconnectedRef = useRef(false);
 
+  // ✅ NEW: set fetchpriority safely (no React warning + no TS error)
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  useEffect(() => {
+    if (imgRef.current) {
+      // Property (supported in some browsers)
+      (imgRef.current as any).fetchPriority = "low";
+      // Attribute (safe fallback)
+      imgRef.current.setAttribute("fetchpriority", "low");
+    }
+  }, []);
+
   if (!videoId) return null;
 
   const embedHost = privacyEnhanced
@@ -115,12 +127,12 @@ export function LazyYouTube({
           className="absolute inset-0 group"
         >
           <img
+            ref={imgRef}
             src={thumbnailSrc}
             alt="Video thumbnail"
             className="w-full h-full object-cover"
             loading="lazy"
             decoding="async"
-            fetchPriority="low"
           />
 
           {/* ▶ Play overlay */}

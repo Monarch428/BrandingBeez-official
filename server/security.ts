@@ -6,18 +6,40 @@ import helmet from "helmet";
 //   return helmet({
 //     contentSecurityPolicy: {
 //       directives: {
-//         defaultSrc: ["'self'", "data:", "blob:"],
+//         defaultSrc: ["'self'"],
 
+//         // ✅ Explicit hardening
+//         baseUri: ["'self'"],
+//         objectSrc: ["'none'"],
+//         frameAncestors: ["'self'"], // clickjacking protection (replaces X-Frame-Options)
+//         formAction: ["'self'"],
+
+//         // ✅ Turnstile + embeds need frames
+//         frameSrc: [
+//           "'self'",
+//           "https://challenges.cloudflare.com",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+//           "https://www.youtube.com",
+//           "https://youtube.com",
+//           "https://youtu.be",
+//           "https://www.youtube-nocookie.com",
+//           "https://tagassistant.google.com",
+//           "https://*.tagassistant.google.com",
+//           "https://www.googletagmanager.com",
+//           "https://googletagmanager.com",
+//           "https://*.googleusercontent.com",
+//           "https://www.gstatic.com",
+//           "https://*.gstatic.com",
+//         ],
+
+//         // ✅ Scripts
 //         scriptSrc: [
 //           "'self'",
 //           "'unsafe-inline'",
-//           "'unsafe-eval'",
-//           "data:",
-
-//           // ✅ Cloudflare Turnstile
+//           "'unsafe-eval'", // keep ONLY if you truly need it (often required by some tools)
 //           "https://challenges.cloudflare.com",
 
-//           // Google / GTM / GA
 //           "https://*.google.com",
 //           "https://*.googleapis.com",
 //           "https://*.googletagmanager.com",
@@ -25,114 +47,64 @@ import helmet from "helmet";
 //           "https://googletagmanager.com",
 //           "https://www.google-analytics.com",
 
-//           // Tag Assistant static assets
 //           "https://www.gstatic.com",
 //           "https://*.gstatic.com",
 
-//           // Google Ads / DoubleClick
 //           "https://googleads.g.doubleclick.net",
 //           "https://www.googleadservices.com",
 //           "https://stats.g.doubleclick.net",
 
-//           // Tag Assistant Preview
 //           "https://tagassistant.google.com",
 //           "https://*.tagassistant.google.com",
 
-//           // Calendly
 //           "https://assets.calendly.com",
 //           "https://calendly.com",
 //           "https://*.calendly.com",
 
-//           // Microsoft Clarity
 //           "https://www.clarity.ms",
 //           "https://c.clarity.ms",
 //           "https://scripts.clarity.ms",
 
-//           // Hotjar
 //           "https://static.hotjar.com",
 //           "https://script.hotjar.com",
 
-//           // CDN / tooling
 //           "https://cdn.jsdelivr.net",
-//           "https://replit.com",
-//           "https://*.replit.com",
 
-//           // LinkedIn Insight Tag
 //           "https://snap.licdn.com",
 //           "https://*.licdn.com",
 
-//           // Meta / Facebook Pixel
 //           "https://connect.facebook.net",
 //           "https://*.facebook.net",
-
 //         ],
 
-//         scriptSrcElem: [
+//         // ✅ Inline script attributes (onclick= etc). If you never use them, remove this.
+//         scriptSrcAttr: ["'unsafe-inline'"],
+
+//         // ✅ Styles / fonts (this will prevent future CSP breakages)
+//         styleSrc: [
 //           "'self'",
 //           "'unsafe-inline'",
-//           "data:",
-
-//           // ✅ Cloudflare Turnstile
-//           "https://challenges.cloudflare.com",
-
-//           // Google / GTM / GA
-//           "https://*.google.com",
-//           "https://*.googleapis.com",
-//           "https://*.googletagmanager.com",
-//           "https://www.googletagmanager.com",
-//           "https://googletagmanager.com",
-//           "https://www.google-analytics.com",
-
-//           // Tag Assistant static assets
-//           "https://www.gstatic.com",
-//           "https://*.gstatic.com",
-
-//           // Google Ads / DoubleClick
-//           "https://googleads.g.doubleclick.net",
-//           "https://www.googleadservices.com",
-//           "https://stats.g.doubleclick.net",
-
-//           // Tag Assistant Preview
-//           "https://tagassistant.google.com",
-//           "https://*.tagassistant.google.com",
-
-//           // Calendly
+//           "https://fonts.googleapis.com",
 //           "https://assets.calendly.com",
-//           "https://calendly.com",
-//           "https://*.calendly.com",
-
-//           // Microsoft Clarity
-//           "https://www.clarity.ms",
-//           "https://c.clarity.ms",
-//           "https://scripts.clarity.ms",
-
-//           // Hotjar
 //           "https://static.hotjar.com",
-//           "https://script.hotjar.com",
-
-//           // CDN / tooling
-//           "https://cdn.jsdelivr.net",
-//           "https://replit.com",
-//           "https://*.replit.com",
-
-//           // LinkedIn Insight Tag
-//           "https://snap.licdn.com",
-//           "https://*.licdn.com",
-
-//           // Meta / Facebook Pixel
-//           "https://connect.facebook.net",
-//           "https://*.facebook.net",
+//         ],
+//         fontSrc: [
+//           "'self'",
+//           "data:",
+//           "https://fonts.gstatic.com",
+//           "https://assets.calendly.com",
 //         ],
 
+//         // ✅ Images
 //         imgSrc: [
 //           "'self'",
 //           "data:",
 //           "blob:",
+//           "https:",
 
 //           "https://brandingbeez.co.uk",
 //           "https://www.brandingbeez.co.uk",
 
-//           // Cloudinary
 //           "https://res.cloudinary.com",
 //           "https://*.res.cloudinary.com",
 
@@ -140,12 +112,7 @@ import helmet from "helmet";
 //           "https://*.hotjar.com",
 //           "https://*.hotjar.io",
 
-//           // Google
-//           "https://www.google.com",
-//           "https://www.google.co.in",
 //           "https://*.google.com",
-
-//           // GTM / GA
 //           "https://www.googletagmanager.com",
 //           "https://*.googletagmanager.com",
 //           "https://www.google-analytics.com",
@@ -153,7 +120,6 @@ import helmet from "helmet";
 //           "https://www.gstatic.com",
 //           "https://*.gstatic.com",
 
-//           // Google Ads / DoubleClick
 //           "https://googleads.g.doubleclick.net",
 //           "https://stats.g.doubleclick.net",
 //           "https://*.doubleclick.net",
@@ -161,47 +127,35 @@ import helmet from "helmet";
 //           "https://pagead2.googlesyndication.com",
 //           "https://*.googlesyndication.com",
 
-//           // Clarity
 //           "https://www.clarity.ms",
 //           "https://c.clarity.ms",
 
-//           // LinkedIn
 //           "https://px.ads.linkedin.com",
 //           "https://*.linkedin.com",
 
-//           // Meta / Facebook Pixel
 //           "https://www.facebook.com",
 //           "https://*.facebook.com",
 //           "https://*.fbcdn.net",
 
-//           // ✅ YouTube thumbnails (FIX)
 //           "https://img.youtube.com",
 //           "https://i.ytimg.com",
 //         ],
 
+//         // ✅ Network calls / XHR / beacon
 //         connectSrc: [
 //           "'self'",
-
-//           // ✅ Cloudflare Turnstile (needed for widget + challenge calls)
 //           "https://challenges.cloudflare.com",
 
-//           // Cloudinary
 //           "https://res.cloudinary.com",
 //           "https://*.res.cloudinary.com",
 
-//           // Hotjar
 //           "https://*.hotjar.com",
 //           "https://*.hotjar.io",
 //           "https://static.hotjar.com",
 //           "https://script.hotjar.com",
-
-//           // ✅ Hotjar WebSocket
 //           "wss://ws.hotjar.com",
 //           "wss://*.hotjar.com",
 
-//           // Google / GA / Ads
-//           "https://www.google.com",
-//           "https://google.com",
 //           "https://*.google.com",
 //           "https://*.googleapis.com",
 //           "https://www.google-analytics.com",
@@ -209,7 +163,6 @@ import helmet from "helmet";
 //           "https://*.google-analytics.com",
 //           "https://region1.google-analytics.com",
 
-//           // Ads endpoints
 //           "https://www.googleadservices.com",
 //           "https://googleads.g.doubleclick.net",
 //           "https://stats.g.doubleclick.net",
@@ -217,7 +170,6 @@ import helmet from "helmet";
 //           "https://pagead2.googlesyndication.com",
 //           "https://*.googlesyndication.com",
 
-//           // GTM / Tag Assistant
 //           "https://www.googletagmanager.com",
 //           "https://googletagmanager.com",
 //           "https://*.googletagmanager.com",
@@ -227,88 +179,47 @@ import helmet from "helmet";
 //           "https://www.gstatic.com",
 //           "https://*.gstatic.com",
 
-//           // Microsoft Clarity 
-//           "https://www.clarity.ms",
-//           "https://e.clarity.ms",
-//           "https://c.clarity.ms",
-//           "https://k.clarity.ms",
-//           "https://o.clarity.ms",
-//           "https://s.clarity.ms",
-//           "https://q.clarity.ms",
-//           "https://y.clarity.ms",
-//           // optional but safe future-proof:
 //           "https://*.clarity.ms",
 
-//           // Calendly
 //           "https://calendly.com",
 //           "https://*.calendly.com",
 
-//           // LinkedIn
 //           "https://px.ads.linkedin.com",
 //           "https://snap.licdn.com",
 //           "https://*.linkedin.com",
 //           "https://*.licdn.com",
 
-//           // Meta / Facebook Pixel
 //           "https://www.facebook.com",
 //           "https://*.facebook.com",
 
-//           // ✅ Stape / Facebook CAPI (FIX)
 //           "https://capig.stape.nz",
 //           "https://*.stape.nz",
 //         ],
 
-//         frameSrc: [
-//           "'self'",
+//         // ✅ Workers (some libs use blob workers)
+//         workerSrc: ["'self'", "blob:"],
 
-//           // ✅ Cloudflare Turnstile (iframe used by widget)
-//           "https://challenges.cloudflare.com",
-
-//           // Calendly
-//           "https://calendly.com",
-//           "https://*.calendly.com",
-
-//           // YouTube
-//           "https://www.google.com",
-//           "https://www.youtube.com",
-//           "https://youtube.com",
-//           "https://youtu.be",
-//           "https://www.youtube-nocookie.com",
-
-//           // GTM / Tag Assistant
-//           "https://tagassistant.google.com",
-//           "https://*.tagassistant.google.com",
-//           "https://www.googletagmanager.com",
-//           "https://googletagmanager.com",
-//           "https://*.googleusercontent.com",
-
-//           // Static assets
-//           "https://www.gstatic.com",
-//           "https://*.gstatic.com"
-//         ],
-
-//         objectSrc: ["'none'"],
-//         upgradeInsecureRequests: []
-//       }
+//         // keep your current behavior
+//         upgradeInsecureRequests: [],
+//       },
 //     },
 
 //     hsts: {
 //       maxAge: 31536000,
 //       includeSubDomains: true,
-//       preload: true
+//       preload: true,
 //     },
 
+//     // You already disabled frameguard; frame-ancestors is better anyway
 //     frameguard: false,
 //     noSniff: true,
 //     xssFilter: true,
 
 //     referrerPolicy: {
-//       policy: "strict-origin-when-cross-origin"
-//     }
+//       policy: "strict-origin-when-cross-origin",
+//     },
 //   });
 // }
-
-// Rate limiting for general API endpoints
 
 export function securityHeaders() {
   return helmet({
@@ -528,6 +439,7 @@ export function securityHeaders() {
     },
   });
 }
+
 
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes

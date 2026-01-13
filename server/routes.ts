@@ -2106,6 +2106,7 @@ import { registerAuditRoutes } from "./routes/audits";
 import { registerChatRoutes } from "./routes/chat";
 import { blogAdminRouter } from "./routes/blog-admin";
 import { blogPublicRouter } from "./routes/blog-public";
+import { authApiRouter } from "./routes/auth-api-router";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ✅ Admin auth (login + authenticateAdmin middleware)
@@ -2137,6 +2138,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/google", googleAuthRoutes);
   app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
   app.use("/api", blogPublicRouter(publicContentRateLimit));
+  app.use("/api/oauthapi", authApiRouter);
 
   // -----------------------------
   // ADMIN ROUTES (case studies)
