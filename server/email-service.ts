@@ -488,7 +488,7 @@ export async function sendEmailViaGmail(submission: {
                        <tr><td>✅ AI & automation tips</td></tr>
                        <tr><td>✅ Real stories from agencies like yours</td></tr>
                      </table>
-                     <a href="#" 
+                    <a href="https://brandingbeez.co.uk/" target="_blank"
                        style="display:inline-block; background:#fff; color:#552265; 
                        text-decoration:none; padding:12px 24px; border-radius:8px; 
                        font-weight:bold; margin-top:16px;">
