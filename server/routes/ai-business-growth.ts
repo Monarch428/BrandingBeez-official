@@ -3,12 +3,19 @@ import type { Express } from "express";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
-// import PDFDocument from "pdfkit";
 
 import { mergeBusinessGrowthReport, type BusinessGrowthReport } from "../openai";
 import { AiReportGeneratedModel } from "../models";
-import { sendBusinessGrowthReportEmailWithDownload, sendContactNotification } from "../email-service";
+
+import {
+  sendBusinessGrowthReportEmailWithDownload,
+  sendContactNotification,
+} from "../email-service";
+
 import { generateBusinessGrowthPdfBuffer } from "../generateBusinessGrowthPdf";
+
+// ✅ Python AI Engine
+import { callPythonAiEngineAnalyze } from "../utils/pythonAiEngineClient";
 
 /**
  * Normalize website URL (ensures https:// and no trailing slash).
@@ -20,51 +27,17 @@ function normalizeWebsiteUrl(website: string): string {
   return url;
 }
 
-/**
- * Strict reachability check:
- * - makes sure it can actually load the website
- * - catches typos early
- */
-async function checkWebsiteReachableStrict(website: string) {
-  const url = normalizeWebsiteUrl(website);
-
-  // Prefer global fetch (Node 18+). Fallback to undici if needed.
-  const fetchFn: any = (globalThis as any).fetch;
-  if (!fetchFn) {
-    throw new Error(
-      "Global fetch is not available. Use Node 18+ (recommended) or polyfill fetch in your server runtime.",
-    );
-  }
-
-  try {
-    const resp = await fetchFn(url, {
-      method: "GET",
-      redirect: "follow",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; BrandingBeezAI/1.0; +https://brandingbeez.co.uk)",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-    });
-
-    const ok = resp && resp.status >= 200 && resp.status < 400;
-    return { reachable: !!ok, httpStatus: resp?.status ?? null, finalUrl: resp?.url ?? url };
-  } catch (err) {
-    return { reachable: false, httpStatus: null, finalUrl: url };
-  }
+/** Escape string for use inside a RegExp */
+function escapeRegExp(input: string) {
+  return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/**
- * Make a short token for DB + download URLs.
- */
 function makeToken() {
   return crypto.randomBytes(16).toString("hex");
 }
 
 const REPORT_DIR = path.join(process.cwd(), "tmp", "business-growth-reports");
 
-/**
- * Ensure report dir exists.
- */
 function ensureReportDir() {
   if (!fs.existsSync(REPORT_DIR)) fs.mkdirSync(REPORT_DIR, { recursive: true });
 }
@@ -75,262 +48,429 @@ function getBaseUrl(req: any) {
   return `${proto}://${host}`;
 }
 
-/**
- * Call the Python AI Engine (crawl + LLM + report JSON + Mongo save).
- * Configure:
- *   PY_AI_ENGINE_URL="http://127.0.0.1:8010"  (no trailing slash)
- *   PY_AI_ENGINE_KEY="optional-shared-secret"
- */
-async function callPythonAiEngineAnalyze(input: {
-  companyName: string;
-  website: string;
-  industry?: string;
-  email?: string;
-  name?: string;
-  reportType?: "quick" | "full";
-  criteria?: Record<string, any>;
-}) {
-  const base = (process.env.PY_AI_ENGINE_URL || "").replace(/\/$/, "");
-  if (!base) {
-    throw new Error("PY_AI_ENGINE_URL is not configured");
-  }
-
-  // Prefer global fetch (Node 18+). Fallback to undici if needed.
-  const fetchFn: any = (globalThis as any).fetch;
-  if (!fetchFn) {
-    throw new Error(
-      "Global fetch is not available. Use Node 18+ (recommended) or polyfill fetch in your server runtime.",
-    );
-  }
-
-  const resp = await fetchFn(`${base}/api/analyze`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(process.env.PY_AI_ENGINE_KEY ? { "X-AI-ENGINE-KEY": process.env.PY_AI_ENGINE_KEY } : {}),
-    },
-    body: JSON.stringify(input),
-  });
-
-  const text = await resp.text();
-  let data: any = null;
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch {
-    // keep raw text
-  }
-
-  if (!resp.ok) {
-    const msg = data?.detail || data?.message || text || `Python AI Engine error (${resp.status})`;
-    const err: any = new Error(msg);
-    err.status = resp.status;
-    err.payload = data || text;
-    throw err;
-  }
-
-  return data as {
-    ok: boolean;
-    token: string;
-    reportId: string;
-    reportJson: BusinessGrowthReport;
-    meta?: Record<string, any>;
-  };
-}
-
 export function registerBusinessGrowthRoutes(app: Express) {
   /**
-   * Analyze route: calls Python AI Engine which performs crawl + criteria checks + LLM report generation
-   * and persists the report JSON into Mongo. Node returns { analysis, analysisToken } to the frontend.
+   * ✅ NEW: Check for latest stored AI report for a website (BEFORE running analysis)
+   */
+  app.post("/api/ai-business-growth/latest", async (req, res) => {
+    try {
+      const { website, companyName } = req.body || {};
+
+      if (!website || typeof website !== "string") {
+        return res
+          .status(400)
+          .json({ success: false, message: "Website is required" });
+      }
+
+      const normalizedWebsite = normalizeWebsiteUrl(website);
+
+      const filter: any = { website: normalizedWebsite };
+      if (companyName && typeof companyName === "string" && companyName.trim()) {
+        const q = companyName.trim();
+        filter.companyName = new RegExp(`^${escapeRegExp(q)}$`, "i");
+      }
+
+      const latest = await AiReportGeneratedModel.findOne(filter).sort({
+        createdAt: -1,
+      });
+
+      if (!latest) {
+        return res.json({ success: true, exists: false });
+      }
+
+      // Frontend expects "updatedAt" (we map it here)
+      const updatedAt =
+        (latest.reportGeneratedAt ? latest.reportGeneratedAt.toISOString() : null) ||
+        (latest.createdAt ? latest.createdAt.toISOString() : null);
+
+      return res.json({
+        success: true,
+        exists: true,
+        analysisToken: latest.token,
+        updatedAt,
+        reportGeneratedAt: latest.reportGeneratedAt || null,
+        hasPdf: !!latest.reportDownloadToken,
+        downloadUrl: latest.reportDownloadToken
+          ? `${getBaseUrl(req)}/api/ai-business-growth/report/${latest.reportDownloadToken}.pdf`
+          : null,
+      });
+    } catch (err) {
+      console.error("[AI-Growth] latest check failed", err);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to check existing report",
+      });
+    }
+  });
+
+  /**
+   * ✅ Analyze route (calls Python AI Engine)
+   * FIX: pass apiKey header to avoid 401 Unauthorized
    */
   app.post("/api/ai-business-growth/analyze", async (req, res) => {
-    const { companyName, website, industry, email, name, reportType, criteria } = req.body || {};
+    req.setTimeout(0);
+    res.setTimeout(0);
+
+    const { companyName, website, industry, email, name, reportType, criteria, forceNewAnalysis } =
+      req.body || {};
 
     if (!website || typeof website !== "string") {
-      return res.status(400).json({ success: false, message: "Website is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Website is required" });
     }
 
     try {
-      const py = await callPythonAiEngineAnalyze({
+      const baseUrl =
+        process.env.AI_ENGINE_BASE_URL ||
+        process.env.PY_AI_ENGINE_URL ||
+        "http://127.0.0.1:8010";
+
+      const apiKey =
+        process.env.PY_AI_ENGINE_KEY ||
+        process.env.AI_ENGINE_KEY ||
+        process.env.AI_ENGINE_API_KEY ||
+        "";
+
+      const payload = {
         companyName: companyName || "Marketing Agency",
         website,
+        // ✅ When true, Python engine will bypass its Mongo-based analysis cache and re-crawl.
+        forceNewAnalysis: Boolean(forceNewAnalysis),
+        estimationMode: Boolean(req.body.estimationMode),
+        estimationInputs: req.body.estimationInputs || undefined,
         industry,
         email,
         name,
         reportType,
         criteria,
+      };
+
+      const py = await callPythonAiEngineAnalyze({
+        baseUrl,
+        apiKey, // ✅ IMPORTANT (fixes 401)
+        payload,
+        timeoutMs: 180 * 60_000,
       });
 
       const analysis = py.reportJson;
       const analysisToken = py.token;
 
-      // Safety net: if Python DB write failed for any reason, persist from Node as fallback.
-      // (Normally Python already saved it with the same token.)
-      try {
-        const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
-        if (!existing) {
-          await AiReportGeneratedModel.create({
-            token: analysisToken,
-            analysis,
-            website: analysis?.reportMetadata?.website || website,
-            companyName: analysis?.reportMetadata?.companyName || companyName,
-            industry,
-            email,
-            name,
-          });
-        }
-      } catch (dbError) {
-        console.error("[AI-Growth] Node fallback persist failed", dbError);
-      }
+      const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
 
-      return res.json({ success: true, analysis, analysisToken, reportId: py.reportId, meta: py.meta || {} });
-    } catch (err: any) {
-      console.error("[AI-Growth] Python engine error", err);
-
-      const msg = err?.payload?.detail || err?.message || "Failed to generate analysis. Please try again.";
-      return res.status(err?.status || 500).json({
-        success: false,
-        message: msg,
-        code: err?.code || "PY_AI_ENGINE_ERROR",
-        details: err?.payload || null,
-      });
-    }
-  });
-
-  /**
-   * Generate PDF + email + return downloadUrl
-   * Request: { analysisToken, email, name? }  (analysis optional fallback)
-   */
-  app.post("/api/ai-business-growth/report", async (req, res) => {
-    const { analysis, analysisToken, email, name, website, companyName, industry } = req.body || {};
-
-    const storedReport =
-      analysisToken && typeof analysisToken === "string"
-        ? await AiReportGeneratedModel.findOne({ token: analysisToken })
-        : null;
-
-    const analysisSource = storedReport?.analysis || analysis;
-    const reportMetadata = (analysisSource as any)?.reportMetadata;
-    const resolvedWebsite = reportMetadata?.website || storedReport?.website || website;
-
-    if (!analysisSource) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing analysis data. Provide analysisToken (recommended) or analysis payload.",
-      });
-    }
-
-    if (!resolvedWebsite || typeof resolvedWebsite !== "string") {
-      return res.status(400).json({ success: false, message: "Website is required for PDF generation" });
-    }
-
-    // Optional strict check (keeps your old behavior)
-    const reach = await checkWebsiteReachableStrict(resolvedWebsite);
-    if (!reach.reachable) {
-      return res.status(400).json({
-        success: false,
-        code: "WEBSITE_NOT_REACHABLE",
-        message: "Website is not reachable. Please enter a correct URL and try again.",
-        details: reach,
-      });
-    }
-
-    try {
-      ensureReportDir();
-
-      // ✅ FIX: mergeBusinessGrowthReport expects (input, reportPartial)
-      const normalizedReport = mergeBusinessGrowthReport(
-        {
-          companyName:
-            reportMetadata?.companyName ||
-            storedReport?.companyName ||
-            (typeof companyName === "string" ? companyName : "") ||
-            "Unknown",
-          website: resolvedWebsite,
-          industry:
-            (typeof industry === "string" ? industry : undefined) ||
-            storedReport?.industry ||
-            undefined,
-        },
-        analysisSource as any,
-      );
-
-      // Generate PDF buffer
-      const pdfBuffer = await generateBusinessGrowthPdfBuffer(normalizedReport as BusinessGrowthReport);
-
-      // Store PDF with download token
-      const t = makeToken();
-      const filePath = path.join(REPORT_DIR, `${t}.pdf`);
-      fs.writeFileSync(filePath, pdfBuffer);
-
-      // Persist download token/email/name into the existing report doc
-      if (storedReport) {
-        storedReport.email = email;
-        storedReport.name = name;
-        storedReport.reportDownloadToken = t;
-        storedReport.reportGeneratedAt = new Date();
-        await storedReport.save();
-      }
-
-      // Build download url
-      const baseUrl = getBaseUrl(req);
-      const downloadUrl = `${baseUrl}/api/ai-business-growth/report/${t}.pdf`;
-
-      // Send email (optional)
-      if (email && typeof email === "string") {
-        try {
-          await sendBusinessGrowthReportEmailWithDownload({
-            toEmail: email,
-            toName: typeof name === "string" && name.trim() ? name.trim() : "Client",
-            analysis: normalizedReport,
-            pdfBuffer,
-            downloadUrl,
-          });
-
-          // Internal notification (optional)
-          await sendContactNotification({
-            name,
-            email,
-            phone: (req.body || {}).phone,
-            company: companyName,
-            message: `AI Business Growth report generated. Download: ${downloadUrl}`,
-            submittedAt: new Date(),
-          });
-        } catch (mailErr) {
-          console.error("Failed to send business growth report email", mailErr);
-          // still return success (PDF is generated)
-        }
+      if (!existing) {
+        await AiReportGeneratedModel.create({
+          token: analysisToken,
+          analysis,
+          website: analysis?.reportMetadata?.website || normalizeWebsiteUrl(website),
+          companyName: analysis?.reportMetadata?.companyName || companyName,
+          industry,
+          email,
+          name,
+        });
       }
 
       return res.json({
         success: true,
-        downloadUrl,
-        reportDownloadToken: t,
-        analysisToken: analysisToken || storedReport?.token || null,
+        analysis,
+        analysisToken,
+        reportId: py.reportId,
+        meta: py.meta || {},
       });
     } catch (err: any) {
-      console.error("Failed to generate AI growth PDF", err);
+      console.error("[AI-Growth] Python engine error", err);
       return res.status(500).json({
         success: false,
-        message: "Failed to generate report PDF.",
-        details: err?.message || String(err),
+        message: err?.message || "Analysis failed",
       });
     }
   });
 
   /**
-   * Download PDF by token
+   * ✅ Generate PDF only (DB-only, NO email)
+   * Uses analysisToken -> pulls analysis from DB -> generates PDF -> returns downloadUrl
    */
-  app.get("/api/ai-business-growth/report/:token.pdf", async (req, res) => {
-    const { token } = req.params || {};
-    if (!token) return res.status(400).send("Missing token");
+  app.post("/api/ai-business-growth/report/generate", async (req, res) => {
+    const { analysisToken, website, companyName, industry } = req.body || {};
 
-    const filePath = path.join(REPORT_DIR, `${token}.pdf`);
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).send("Report not found");
+    try {
+      if (!analysisToken || typeof analysisToken !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "analysisToken is required",
+        });
+      }
+
+      ensureReportDir();
+
+      const storedReport = await AiReportGeneratedModel.findOne({ token: analysisToken });
+
+      if (!storedReport || !storedReport.analysis) {
+        return res.status(400).json({
+          success: false,
+          message: "Analysis not found for the given token. Please run analysis first.",
+        });
+      }
+
+      const analysisSource = storedReport.analysis as any;
+      const reportMetadata = analysisSource?.reportMetadata;
+
+      const resolvedWebsite =
+        reportMetadata?.website || storedReport.website || website || "Unknown";
+
+      const resolvedCompany =
+        reportMetadata?.companyName ||
+        storedReport.companyName ||
+        companyName ||
+        "Unknown";
+
+      // ✅ do NOT block on reachability here (analysis already exists)
+      const normalizedReport = mergeBusinessGrowthReport(
+        {
+          companyName: resolvedCompany,
+          website: resolvedWebsite,
+          industry: industry || storedReport.industry,
+        },
+        analysisSource,
+      );
+
+      const pdfBuffer = await generateBusinessGrowthPdfBuffer(
+        normalizedReport as BusinessGrowthReport,
+      );
+
+      const t = makeToken();
+      const filePath = path.join(REPORT_DIR, `${t}.pdf`);
+      fs.writeFileSync(filePath, pdfBuffer);
+
+      storedReport.website = normalizeWebsiteUrl(resolvedWebsite);
+      storedReport.companyName = resolvedCompany;
+      storedReport.industry = industry || storedReport.industry;
+      storedReport.reportDownloadToken = t;
+      storedReport.reportGeneratedAt = new Date();
+      await storedReport.save();
+
+      const downloadUrl = `${getBaseUrl(req)}/api/ai-business-growth/report/${t}.pdf`;
+
+      return res.json({
+        success: true,
+        downloadUrl,
+        analysisToken: storedReport.token,
+        reportDownloadToken: t,
+        reportGeneratedAt: storedReport.reportGeneratedAt,
+      });
+    } catch (err: any) {
+      console.error("[AI-Growth] PDF generation failed", err);
+      return res.status(500).json({
+        success: false,
+        message: err?.message || "Failed to generate report PDF",
+      });
+    }
+  });
+
+  /**
+   * ✅ Send Email only (separate from PDF generation)
+   * - ensures PDF exists (generates if missing)
+   * - sends mail with attachment + download link
+   */
+  app.post("/api/ai-business-growth/report/send-email", async (req, res) => {
+    const { analysisToken, email, name } = req.body || {};
+
+    if (!analysisToken || typeof analysisToken !== "string") {
+      return res
+        .status(400)
+        .json({ success: false, message: "analysisToken is required" });
+    }
+    if (!email || typeof email !== "string") {
+      return res
+        .status(400)
+        .json({ success: false, message: "email is required" });
     }
 
+    try {
+      const storedReport = await AiReportGeneratedModel.findOne({ token: analysisToken });
+      if (!storedReport || !storedReport.analysis) {
+        return res.status(400).json({
+          success: false,
+          message: "Analysis not found for the given token. Please run analysis first.",
+        });
+      }
+
+      ensureReportDir();
+
+      const analysisSource = storedReport.analysis as any;
+      const reportMetadata = analysisSource?.reportMetadata;
+
+      const resolvedWebsite =
+        reportMetadata?.website || storedReport.website || "Unknown";
+      const resolvedCompany =
+        reportMetadata?.companyName || storedReport.companyName || "Unknown";
+
+      // ✅ Ensure PDF exists; if missing, generate once (NO analysis rerun)
+      let pdfBuffer: Buffer;
+
+      if (!storedReport.reportDownloadToken) {
+        const normalizedReport = mergeBusinessGrowthReport(
+          {
+            companyName: resolvedCompany,
+            website: resolvedWebsite,
+            industry: storedReport.industry,
+          },
+          analysisSource,
+        );
+
+        pdfBuffer = await generateBusinessGrowthPdfBuffer(
+          normalizedReport as BusinessGrowthReport,
+        );
+
+        const t = makeToken();
+        const filePath = path.join(REPORT_DIR, `${t}.pdf`);
+        fs.writeFileSync(filePath, pdfBuffer);
+
+        storedReport.reportDownloadToken = t;
+        storedReport.reportGeneratedAt = new Date();
+        await storedReport.save();
+      } else {
+        const existingPath = path.join(
+          REPORT_DIR,
+          `${storedReport.reportDownloadToken}.pdf`,
+        );
+
+        if (fs.existsSync(existingPath)) {
+          pdfBuffer = fs.readFileSync(existingPath);
+        } else {
+          // fallback regenerate if file missing
+          const normalizedReport = mergeBusinessGrowthReport(
+            {
+              companyName: resolvedCompany,
+              website: resolvedWebsite,
+              industry: storedReport.industry,
+            },
+            analysisSource,
+          );
+
+          pdfBuffer = await generateBusinessGrowthPdfBuffer(
+            normalizedReport as BusinessGrowthReport,
+          );
+
+          const t = makeToken();
+          const filePath = path.join(REPORT_DIR, `${t}.pdf`);
+          fs.writeFileSync(filePath, pdfBuffer);
+
+          storedReport.reportDownloadToken = t;
+          storedReport.reportGeneratedAt = new Date();
+          await storedReport.save();
+        }
+      }
+
+      const downloadUrl = `${getBaseUrl(req)}/api/ai-business-growth/report/${storedReport.reportDownloadToken}.pdf`;
+
+      // ✅ This signature matches your email-service typing
+      await sendBusinessGrowthReportEmailWithDownload({
+        toEmail: email,
+        toName: typeof name === "string" ? name : "",
+        analysis: analysisSource,
+        pdfBuffer,
+        downloadUrl,
+      });
+
+      await sendContactNotification({
+        name: typeof name === "string" ? name : "",
+        email,
+        company: storedReport.companyName || "Unknown",
+        message: "AI Business Growth report emailed",
+        submittedAt: new Date(),
+      });
+
+      // ✅ store contact info (NO null assignment -> fixes TS)
+      storedReport.email = email;
+      storedReport.name = typeof name === "string" ? name : undefined;
+      await storedReport.save();
+
+      return res.json({ success: true, message: "Email sent", downloadUrl });
+    } catch (err: any) {
+      console.error("[AI-Growth] Email sending failed", err);
+      return res.status(500).json({
+        success: false,
+        message: err?.message || "Failed to send report email",
+      });
+    }
+  });
+
+  /**
+   * ✅ Legacy endpoint (backward compatibility)
+   * Now: only generates PDF (no email)
+   */
+  app.post("/api/ai-business-growth/report", async (req, res) => {
+    const { analysisToken } = req.body || {};
+
+    try {
+      if (!analysisToken || typeof analysisToken !== "string") {
+        return res.status(400).json({
+          success: false,
+          message: "analysisToken is required",
+        });
+      }
+
+      const storedReport = await AiReportGeneratedModel.findOne({ token: analysisToken });
+
+      if (!storedReport || !storedReport.analysis) {
+        return res.status(400).json({
+          success: false,
+          message: "Analysis not found for the given token. Please run analysis first.",
+        });
+      }
+
+      ensureReportDir();
+
+      const analysisSource = storedReport.analysis as any;
+      const reportMetadata = analysisSource?.reportMetadata;
+
+      const resolvedWebsite =
+        reportMetadata?.website || storedReport.website || "Unknown";
+      const resolvedCompany =
+        reportMetadata?.companyName || storedReport.companyName || "Unknown";
+
+      const normalizedReport = mergeBusinessGrowthReport(
+        {
+          companyName: resolvedCompany,
+          website: resolvedWebsite,
+          industry: storedReport.industry,
+        },
+        analysisSource,
+      );
+
+      const pdfBuffer = await generateBusinessGrowthPdfBuffer(
+        normalizedReport as BusinessGrowthReport,
+      );
+
+      const t = makeToken();
+      const filePath = path.join(REPORT_DIR, `${t}.pdf`);
+      fs.writeFileSync(filePath, pdfBuffer);
+
+      storedReport.reportDownloadToken = t;
+      storedReport.reportGeneratedAt = new Date();
+      await storedReport.save();
+
+      const downloadUrl = `${getBaseUrl(req)}/api/ai-business-growth/report/${t}.pdf`;
+      return res.json({ success: true, downloadUrl, analysisToken: storedReport.token });
+    } catch (err: any) {
+      console.error("[AI-Growth] Legacy report generation failed", err);
+      return res.status(500).json({
+        success: false,
+        message: err?.message || "Failed to generate report PDF",
+      });
+    }
+  });
+
+  /**
+   * ✅ PDF download
+   */
+  app.get("/api/ai-business-growth/report/:token.pdf", async (req, res) => {
+    const filePath = path.join(REPORT_DIR, `${req.params.token}.pdf`);
+    if (!fs.existsSync(filePath)) return res.status(404).send("Report not found");
+
     res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `inline; filename="business-growth-report-${token}.pdf"`);
+    res.setHeader("Content-Disposition", "inline");
     return fs.createReadStream(filePath).pipe(res);
   });
 }

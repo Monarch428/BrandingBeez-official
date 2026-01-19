@@ -203,7 +203,22 @@ class DataForSEOClient:
     def get_task(self, task_id: str) -> Dict[str, Any]:
         return self._get(f"/backlinks/summary/task_get/{task_id}")
 
-    def wait_for_task(self, task_id: str, max_wait_s: int = 60, poll_s: int = 5) -> Dict[str, Any]:
+    
+    def create_backlinks_summary_task(self, target: str, include_subdomains: bool = True, limit: int = 100) -> Dict[str, Any]:
+        """Backlinks Summary via LIVE endpoint.
+
+        Returns DataForSEO response (status_code, tasks, result, etc.) directly.
+        This avoids async task_post/task_get complexity and is best for synchronous API usage.
+        """
+        payload = [{
+            "target": target,
+            "include_subdomains": include_subdomains,
+            "limit": limit,
+        }]
+        return self._post("/backlinks/summary/live", payload)
+
+
+def wait_for_task(self, task_id: str, max_wait_s: int = 60, poll_s: int = 5) -> Dict[str, Any]:
         deadline = time.time() + max_wait_s
         last = None
         while time.time() < deadline:

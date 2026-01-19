@@ -266,14 +266,21 @@ function callout(doc: PDFKit.PDFDocument, title: string, body: string) {
   const padding = 12;
   const innerW = w - padding * 2;
 
+  // Mentor style: if the model provides a "Bottom Line:" segment, we render it as a separate paragraph.
+  const raw = (body || "").trim();
+  const m = raw.match(/([\s\S]*?)(?:\n\n)?(?:The\s+Bottom\s+Line:|Bottom\s+Line:)([\s\S]*)/i);
+  const pre = (m?.[1] || raw).trim();
+  const bottom = (m?.[2] || "").trim();
+
   const titleH = doc.heightOfString(title || "", { width: innerW, lineGap: 2 });
-  const bodyH = doc.heightOfString(body || "", { width: innerW, lineGap: 2 });
+  const preH = doc.heightOfString(pre || "", { width: innerW, lineGap: 2 });
+  const bottomLabel = bottom ? "The Bottom Line:" : "";
+  const bottomLabelH = bottom ? doc.heightOfString(bottomLabel, { width: innerW, lineGap: 2 }) : 0;
+  const bottomH = bottom ? doc.heightOfString(bottom, { width: innerW, lineGap: 2 }) : 0;
 
-  const boxH = padding + titleH + 6 + bodyH + padding;
+  const boxH = padding + titleH + 6 + preH + (bottom ? (10 + bottomLabelH + 2 + bottomH) : 0) + padding;
 
-  // Prevent overlap/misalignment near page bottom
   ensureSpace(doc, boxH + 10);
-
   const startY = doc.y;
 
   doc.save();
@@ -289,10 +296,23 @@ function callout(doc: PDFKit.PDFDocument, title: string, body: string) {
 
   doc.moveDown(0.3);
 
-  doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(body, x + padding, doc.y, {
+  doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(pre, x + padding, doc.y, {
     width: innerW,
     lineGap: 2,
   });
+
+  if (bottom) {
+    doc.moveDown(0.6);
+    doc.font("Helvetica-Bold").fontSize(11).fillColor(BRAND_CORAL).text(bottomLabel, x + padding, doc.y, {
+      width: innerW,
+      lineGap: 2,
+    });
+    doc.moveDown(0.1);
+    doc.font("Helvetica").fontSize(11).fillColor(GRAY_900).text(bottom, x + padding, doc.y, {
+      width: innerW,
+      lineGap: 2,
+    });
+  }
 
   doc.y = startY + boxH;
   doc.moveDown(0.8);
@@ -565,7 +585,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       const weaknesses = normalizeStringList(report.executiveSummary?.weaknesses);
       const biggest = safeText((report as any).executiveSummary?.biggestOpportunity ?? (report as any).executiveSummary?.highPriorityRecommendations?.[0], "No single opportunity identified.");
 
-      callout(doc, "Brutally Honest Snapshot", biggest);
+      callout(doc, "Mentor Snapshot", biggest);
 
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("✅ Key Strengths");
       bullets(doc, strengths, "No strengths detected.");
@@ -696,6 +716,68 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         [240, 120],
       );
       paragraph(doc, safeText(backlinks?.notes, ""));
+
+      // Google Search Console (optional)
+      const gsc = (report.seoVisibility as any)?.searchConsole;
+      if (gsc && (gsc?.totals || (gsc?.topQueries && gsc.topQueries.length) || (gsc?.topPages && gsc.topPages.length))) {
+        doc.moveDown(0.8);
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Google Search Console");
+        const range = gsc?.dateRange ? `${safeText(gsc.dateRange.start, "")} to ${safeText(gsc.dateRange.end, "")}` : "";
+        if (range || gsc?.property) {
+          paragraph(
+            doc,
+            `${gsc?.property ? `Property: ${safeText(gsc.property, "")}` : ""}${gsc?.property && range ? " • " : ""}${range ? `Date range: ${range}` : ""}`,
+          );
+        }
+
+        if (gsc?.totals) {
+          drawTable(
+            doc,
+            ["Metric", "Value"],
+            [
+              ["Clicks", gsc.totals.clicks ?? "N/A"],
+              ["Impressions", gsc.totals.impressions ?? "N/A"],
+              ["CTR", gsc.totals.ctr != null ? `${Math.round(gsc.totals.ctr * 1000) / 10}%` : "N/A"],
+              ["Avg Position", gsc.totals.position != null ? `${Math.round(gsc.totals.position * 10) / 10}` : "N/A"],
+            ],
+            [240, 120],
+          );
+        }
+
+        if (gsc?.topQueries?.length) {
+          doc.moveDown(0.4);
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Top Queries");
+          drawTable(
+            doc,
+            ["Query", "Clicks", "Impr.", "CTR", "Pos"],
+            gsc.topQueries.slice(0, 10).map((r: any) => [
+              safeText(r.query, "N/A"),
+              r.clicks ?? "N/A",
+              r.impressions ?? "N/A",
+              r.ctr != null ? `${Math.round(r.ctr * 1000) / 10}%` : "N/A",
+              r.position != null ? `${Math.round(r.position * 10) / 10}` : "N/A",
+            ]),
+            [220, 60, 60, 50, 50],
+          );
+        }
+
+        if (gsc?.topPages?.length) {
+          doc.moveDown(0.4);
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Top Pages");
+          drawTable(
+            doc,
+            ["Page", "Clicks", "Impr.", "CTR", "Pos"],
+            gsc.topPages.slice(0, 10).map((r: any) => [
+              safeText(r.page, "N/A"),
+              r.clicks ?? "N/A",
+              r.impressions ?? "N/A",
+              r.ctr != null ? `${Math.round(r.ctr * 1000) / 10}%` : "N/A",
+              r.position != null ? `${Math.round(r.position * 10) / 10}` : "N/A",
+            ]),
+            [220, 60, 60, 50, 50],
+          );
+        }
+      }
 
       /* =========================
                4) REPUTATION/* =========================
@@ -853,14 +935,65 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       if (ca?.competitors?.length) {
         ca.competitors.slice(0, 6).forEach((c, idx) => {
           doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text(`${idx + 1}. ${safeText(c.name, "Competitor")}`);
-          paragraph(doc, `Location: ${safeText((c as any).location, "N/A")} • Team: ${safeText((c as any).teamSize, "N/A")} • Years: ${safeText((c as any).yearsInBusiness, "N/A")}`);
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Services");
-          bullets(doc, normalizeStringList((c as any).services), "No services detected.");
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Strengths vs You");
-          bullets(doc, normalizeStringList((c as any).strengthsVsYou), "No strengths detected.");
-          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Your Advantages");
-          bullets(doc, normalizeStringList((c as any).yourAdvantages), "No advantages detected.");
-          paragraph(doc, `Market Overlap: ${safeText((c as any).marketOverlap, "N/A")}`);
+
+          // Backward-compatible rendering:
+          // - If competitor came from Google Places mapping, show rating/address/phone.
+          // - Else, keep supporting the older fields (location/team/years/services...).
+          const addr = safeText((c as any).formattedAddress || (c as any).address || (c as any).location, "N/A");
+          const rating = (c as any).rating;
+          const reviews = (c as any).userRatingsTotal;
+          const phone = safeText((c as any).internationalPhoneNumber || (c as any).phone, "N/A");
+          const website = safeText((c as any).website, "N/A");
+          const team = safeText((c as any).teamSize, "N/A");
+          const years = safeText((c as any).yearsInBusiness, "N/A");
+
+          const metaParts: string[] = [];
+          if (addr && addr !== "N/A") metaParts.push(`Location: ${addr}`);
+          if (typeof rating === "number") metaParts.push(`Rating: ${rating.toFixed(1)}${typeof reviews === "number" ? ` (${reviews})` : ""}`);
+          if (website && website !== "N/A") metaParts.push(`Website: ${website}`);
+          if (phone && phone !== "N/A") metaParts.push(`Phone: ${phone}`);
+          if (team && team !== "N/A") metaParts.push(`Team: ${team}`);
+          if (years && years !== "N/A") metaParts.push(`Years: ${years}`);
+          paragraph(doc, metaParts.length ? metaParts.join(" • ") : "N/A");
+
+          // Prefer explicit competitive analysis fields if they exist.
+          const services = normalizeStringList((c as any).services);
+          if (services.length) {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Services");
+            bullets(doc, services, "No services detected.");
+          }
+
+          const strengthsVsYou = normalizeStringList((c as any).strengthsVsYou);
+          const yourAdvantages = normalizeStringList((c as any).yourAdvantages);
+          if (strengthsVsYou.length) {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Strengths vs You");
+            bullets(doc, strengthsVsYou, "No strengths detected.");
+          }
+          if (yourAdvantages.length) {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Your Advantages");
+            bullets(doc, yourAdvantages, "No advantages detected.");
+          }
+
+          // If mapped from Places, show a couple of recent reviews (optional).
+          const topReviews = Array.isArray((c as any).topReviews) ? (c as any).topReviews : [];
+          if (topReviews.length) {
+            doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Recent Reviews (sample)");
+            const rvLines = topReviews
+              .slice(0, 2)
+              .map((r: any) => {
+                const a = safeText(r?.author_name, "Anonymous");
+                const rt = typeof r?.rating === "number" ? `${r.rating}/5` : "—";
+                const when = safeText(r?.relative_time_description, "");
+                const txt = safeText(r?.text, "").replace(/\s+/g, " ").trim();
+                const short = txt.length > 140 ? `${txt.slice(0, 140)}…` : txt;
+                return `${a} (${rt}${when ? `, ${when}` : ""}): ${short || "—"}`;
+              })
+              .filter(Boolean);
+            bullets(doc, rvLines, "No reviews available.");
+          }
+
+          const overlap = safeText((c as any).marketOverlap, "");
+          if (overlap) paragraph(doc, `Market Overlap: ${overlap}`);
           doc.moveDown(0.3);
         });
       } else {
@@ -895,6 +1028,30 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       sectionTitle(doc, "8", "Cost Optimization & Profitability");
 
       const co = report.costOptimization;
+
+      // Estimation Mode meta (optional)
+      const coAny: any = co as any;
+      if (coAny?.estimationDisclaimer) {
+        callout(doc, "Estimation Mode Disclaimer", safeText(coAny.estimationDisclaimer, ""));
+      }
+      if (typeof coAny?.confidenceScore === "number") {
+        paragraph(doc, `Confidence Score: ${coAny.confidenceScore}/100`);
+      }
+      if (Array.isArray(coAny?.scenarios) && coAny.scenarios.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Scenarios");
+        drawTable(
+          doc,
+          ["Scenario", "Assumptions", "Modeled Outcomes"],
+          coAny.scenarios.map((s: any) => [
+            safeText(s?.name, "—"),
+            normalizeStringList(s?.assumptions).join("; ") || "—",
+            Array.isArray(s?.outcomes)
+              ? s.outcomes.map((o: any) => `${safeText(o?.label, "")}: ${safeText(o?.value, "")}`.trim()).filter(Boolean).join("; ") || "—"
+              : "—",
+          ]),
+          [90, 210, 220],
+        );
+      }
 
       // Estimated monthly spend
       if (Array.isArray(co?.estimatedMonthlySpend) && co.estimatedMonthlySpend.length) {
@@ -955,6 +1112,33 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       const tm = report.targetMarket;
 
+      // Estimation Mode meta (optional)
+      const tmAny: any = tm as any;
+      if (tmAny?.estimationDisclaimer) {
+        callout(doc, "Estimation Mode Disclaimer", safeText(tmAny.estimationDisclaimer, ""));
+      }
+      if (typeof tmAny?.confidenceScore === "number") {
+        paragraph(doc, `Confidence Score: ${tmAny.confidenceScore}/100`);
+      }
+      if (Array.isArray(tmAny?.scenarios) && tmAny.scenarios.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Scenarios");
+        drawTable(
+          doc,
+          ["Scenario", "Assumptions", "Modeled Outcomes"],
+          tmAny.scenarios.map((s: any) => [
+            safeText(s?.name, "—"),
+            normalizeStringList(s?.assumptions).join("; ") || "—",
+            Array.isArray(s?.outcomes)
+              ? s.outcomes
+                  .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
+                  .filter(Boolean)
+                  .join("; ") || "—"
+              : "—",
+          ]),
+          [90, 210, 220],
+        );
+      }
+
       // Current target segments
       if (Array.isArray(tm?.currentTargetSegments) && tm.currentTargetSegments.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Target Segments");
@@ -1004,6 +1188,33 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       sectionTitle(doc, "10", "Financial Impact");
 
       const fi = report.financialImpact;
+
+      // Estimation Mode meta (optional)
+      const fiAny: any = fi as any;
+      if (fiAny?.estimationDisclaimer) {
+        callout(doc, "Estimation Mode Disclaimer", safeText(fiAny.estimationDisclaimer, ""));
+      }
+      if (typeof fiAny?.confidenceScore === "number") {
+        paragraph(doc, `Confidence Score: ${fiAny.confidenceScore}/100`);
+      }
+      if (Array.isArray(fiAny?.scenarios) && fiAny.scenarios.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Scenarios");
+        drawTable(
+          doc,
+          ["Scenario", "Assumptions", "Modeled Outcomes"],
+          fiAny.scenarios.map((s: any) => [
+            safeText(s?.name, "—"),
+            normalizeStringList(s?.assumptions).join("; ") || "—",
+            Array.isArray(s?.outcomes)
+              ? s.outcomes
+                  .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
+                  .filter(Boolean)
+                  .join("; ") || "—"
+              : "—",
+          ]),
+          [90, 210, 220],
+        );
+      }
 
       paragraph(doc, safeText(fi?.notes, ""));
 
@@ -1105,7 +1316,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       paragraph(doc, safeText(adv?.notes, ""));
 
-      sectionTitle(doc, "13", "Risk Assessment"); sectionTitle(doc, "13", "Risk Assessment");
+      sectionTitle(doc, "13", "Risk Assessment"); //sectionTitle(doc, "13", "Risk Assessment");
 
       const risks = report.riskAssessment?.risks || [];
       if (risks.length) {
@@ -1132,7 +1343,48 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
          APPENDICES
       ========================= */
       addPageIfNotAtTop(doc);
-      sectionTitle(doc, "A", "Appendix A: Keyword Opportunities");
+      sectionTitle(doc, "A", "Appendix A: Evidence & Crawl Snapshot");
+
+      // Evidence (screenshots / crawl list / timestamps)
+      const evidence = report.appendices?.evidence || {};
+      const pagesCrawled = Array.isArray(report.appendices?.pagesCrawled) ? report.appendices.pagesCrawled : [];
+      const psiAt = evidence?.pagespeed?.fetchedAt || report.pagespeed?.fetchedAt;
+
+      if (psiAt) {
+        callout(doc, "PageSpeed Snapshot", `Fetched at: ${safeText(psiAt, "—")}`);
+      }
+
+      if (pagesCrawled.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Pages crawled (sample)");
+        bullets(doc, pagesCrawled.slice(0, 25), "—");
+      } else {
+        paragraph(doc, "No crawl list was captured.");
+      }
+
+      // Screenshots (base64 PNGs)
+      try {
+        const shots = evidence?.screenshots?.screenshots || evidence?.screenshots || {};
+        const desktopB64 = shots?.desktop?.b64 || shots?.desktop;
+        const mobileB64 = shots?.mobile?.b64 || shots?.mobile;
+
+        if (desktopB64) {
+          addPageIfNotAtTop(doc);
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Desktop screenshot");
+          const buf = Buffer.from(desktopB64, "base64");
+          doc.image(buf, { fit: [520, 300], align: "center" });
+        }
+        if (mobileB64) {
+          addPageIfNotAtTop(doc);
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Mobile screenshot");
+          const buf = Buffer.from(mobileB64, "base64");
+          doc.image(buf, { fit: [320, 520], align: "center" });
+        }
+      } catch (e) {
+        paragraph(doc, "Screenshots were not available for this run.");
+      }
+
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "B", "Appendix B: Keyword Opportunities");
 
       const kwTiers = report.appendices?.keywords || [];
       if (kwTiers.length) {
@@ -1154,13 +1406,13 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         paragraph(doc, "No keyword appendix data was generated.");
       }
 
-      sectionTitle(doc, "B", "Appendix B: Data Sources & Confidence");
+      sectionTitle(doc, "C", "Appendix C: Data Sources & Confidence");
       const dataSources = report.appendices?.dataSources || [];
       if (dataSources.length) {
         drawTable(
           doc,
           ["Source", "What we used it for", "Confidence"],
-          dataSources.map((s: any) => [safeText(s.source, ""), safeText(s.usedFor, ""), safeText(s.confidence, "")]),
+          dataSources.map((s: any) => [safeText(s.source, ""), safeText(s.usedFor ?? s.use, ""), safeText(s.confidence, "")]),
           [140, 260, 90],
         );
       } else {
@@ -1168,7 +1420,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       }
 
       addPageIfNotAtTop(doc);
-      sectionTitle(doc, "C", "Appendix C: Data Gaps & How To Enable Tracking");
+      sectionTitle(doc, "D", "Appendix D: Data Gaps & How To Enable Tracking");
       const dataGaps = report.appendices?.dataGaps || [];
       if (dataGaps.length) {
         dataGaps.forEach((g: any, idx: number) => {
@@ -1184,7 +1436,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       }
 
       addPageIfNotAtTop(doc);
-      sectionTitle(doc, "D", "Appendix D: Priority Recommendations");
+      sectionTitle(doc, "E", "Appendix E: Priority Recommendations");
 
       const pr = report.executiveSummary?.highPriorityRecommendations;
       if (Array.isArray(pr) && pr.length) {

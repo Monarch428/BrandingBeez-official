@@ -94,7 +94,7 @@ ${raw}
 ========================= */
 
 const BUSINESS_GROWTH_SYSTEM_PROMPT = `
-You are a senior growth consultant specialising in digital agencies.
+You are a senior growth mentor specialising in digital agencies and service businesses.
 
 Generate a LONG-FORM, CONSULTING-GRADE Business Growth Analysis.
 
@@ -106,6 +106,15 @@ Rules:
 - Use ONLY the live website signals and API outputs provided in "Website signals".
 - NEVER invent metrics, competitors, rankings, spend, revenue, reviews, DA/DR, backlinks, traffic, or conversion rates.
 - If a value cannot be verified from the provided signals, set it to 0 (or null where appropriate) and explain in the rationale/notes.
+
+Estimation Mode (Sections 8–10 only):
+- If the user enables estimationMode and provides estimationInputs, you MAY generate scenario-based, modeled outputs for:
+  costOptimization, targetMarket, financialImpact.
+- You must include:
+  - estimationDisclaimer (exact string supplied)
+  - confidenceScore (0–100)
+  - scenarios: Conservative/Base/Aggressive with assumptions + outcomes
+- If estimationMode is off, keep Sections 8–10 as "Not available" (or empty arrays) and state what input/integration is needed.
 - Do not use placeholder or static content.
 - Avoid generic advice
 
@@ -116,10 +125,15 @@ Depth requirements:
 - Each quick win must include Impact, Time, Cost, Details
 
 Tone:
-- Strategic
-- Direct
+- Friendly, mentor-like
+- Direct but constructive
+- Uses simple language
+- Uses short paragraphs and labels like "The Bottom Line:" and "Recommendation:" where helpful
 - Executive-friendly
 `.trim();
+
+export const ESTIMATION_DISCLAIMER =
+  "Estimation Mode is ON: Sections 8–10 include modeled estimates based on the information you provided plus publicly available signals (website + listings). These numbers are directional, not audited financials, and should not be used as the sole basis for budgeting or investment decisions. For higher accuracy, provide real spend/revenue inputs or connect Ads/Analytics/CRM.";
 
 // Comprehensive SEO Website Analyzer
 export async function analyzeWebsiteSEO(websiteUrl: string): Promise<{
@@ -938,7 +952,7 @@ Note: File type is ${fileData.type}. Provide analysis based on common business d
 
   } catch (error) {
     console.error("Document analysis error:", error);
-    
+
     // Fallback analysis based on file type
     return {
       analysis: `I've reviewed your ${fileData.type} document. Based on the file type and content, I can see potential opportunities for improvement.`,
@@ -1002,7 +1016,7 @@ Key Guidelines:
 
     // Smart parsing of user message to extract information
     const messageText = userMessage.toLowerCase();
-    
+
     // Extract name from user message if they provide it
     let extractedName = "";
     if (messageText.includes("my name is") || messageText.includes("i'm ") || messageText.includes("i am ")) {
@@ -1017,30 +1031,30 @@ Key Guidelines:
         // Check context to see if we just asked for their name
         const recentMessages = context.messages || [];
         const lastBotMessage = recentMessages.filter((msg: any) => msg.type === 'bot').pop();
-        if (lastBotMessage && lastBotMessage.content && 
-            (lastBotMessage.content.includes("What's your name") || lastBotMessage.content.includes("share your name"))) {
+        if (lastBotMessage && lastBotMessage.content &&
+          (lastBotMessage.content.includes("What's your name") || lastBotMessage.content.includes("share your name"))) {
           extractedName = trimmedMessage;
         }
       }
     }
-    
+
     // Extract email if provided
     let extractedEmail = "";
     const emailMatch = userMessage.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
     if (emailMatch) {
       extractedEmail = emailMatch[1];
     }
-    
+
     // Current state from context
     const leadInfo = context.leadInfo || {};
     const currentName = extractedName || leadInfo.name || "";
     const currentEmail = extractedEmail || leadInfo.email || "";
     const currentChallenge = leadInfo.challenge || "";
-    
+
     const hasName = currentName.trim().length > 2 && !currentName.includes("having issues"); // Exclude obviously wrong names
     const hasEmail = currentEmail.includes("@");
     const hasChallenge = currentChallenge.trim().length > 0;
-    
+
     // Debug logging
     console.log('Smart Chat Analysis:', {
       userMessage,
@@ -1087,7 +1101,7 @@ Key Guidelines:
       aiContent = `Perfect, ${currentName}! 🎯\n\nWhat's your biggest business challenge right now? Website traffic? Lead generation? Something else?`;
       recommendations = [
         "Not enough website traffic",
-        "Need more qualified leads", 
+        "Need more qualified leads",
         "Want to automate processes",
         "Need a new website"
       ];
@@ -1170,7 +1184,7 @@ Key Guidelines:
 
     // Prioritize the structured response, but fall back to dynamic if it's significantly better or provides missing info
     if (aiResponseContent && aiResponseContent.length > 50 && aiResponseContent.length < aiContent.length * 1.5) {
-       // Only use dynamic response if it's not a generic fallback and adds value
+      // Only use dynamic response if it's not a generic fallback and adds value
       if (!aiResponseContent.includes("What would you like to know") && !aiResponseContent.includes("biggest business challenge")) {
         aiContent = aiResponseContent;
       }
@@ -1712,6 +1726,15 @@ export interface BusinessGrowthReport {
       opportunities: string[];
       notes?: string | null;
     };
+    searchConsole?: {
+      property?: string | null;
+      dateRange?: { start: string; end: string; days: number } | null;
+      totals?: { clicks: NullableNumber; impressions: NullableNumber; ctr: NullableNumber; position: NullableNumber } | null;
+      topQueries?: { query: string | null; clicks: NullableNumber; impressions: NullableNumber; ctr: NullableNumber; position: NullableNumber }[];
+      topPages?: { page: string | null; clicks: NullableNumber; impressions: NullableNumber; ctr: NullableNumber; position: NullableNumber }[];
+      notes?: string | null;
+    };
+
     localSeo: {
       score: NullableNumber;
       currentListings: string[];
@@ -1736,7 +1759,23 @@ export interface BusinessGrowthReport {
   };
 
   competitiveAnalysis: {
-    competitors: { name: string; website?: string | null; primaryChannel?: string | null; strengths?: string[]; weaknesses?: string[]; notes?: string | null }[];
+    competitors: {
+      name: string;
+      website?: string | null;
+      primaryChannel?: string | null;
+      strengths?: string[];
+      weaknesses?: string[];
+      notes?: string | null;
+
+      /** Optional Google Places-derived competitor fields (when available) */
+      placeId?: string | null;
+      formattedAddress?: string | null;
+      rating?: number | null;
+      userRatingsTotal?: number | null;
+      internationalPhoneNumber?: string | null;
+      types?: string[];
+      topReviews?: { author_name?: string | null; rating?: number | null; relative_time_description?: string | null; text?: string | null }[];
+    }[];
     positioningMatrix: { dimension: string; you: string; competitorA: string; competitorB: string; competitorC: string; notes?: string | null }[];
     opportunities: string[];
     threats: string[];
@@ -1767,6 +1806,9 @@ export interface BusinessGrowthReport {
     estimatedMonthlySpend: { category: string; current: string | null; industryAvg: string | null; notes?: string | null }[];
     wasteAreas: { area: string; costPerMonth: string | null; fix: string; impact: string; notes?: string | null }[];
     automationOpportunities: { process: string; tool: string; timeSavedPerMonth: string | null; costSaved: string | null; notes?: string | null }[];
+    estimationDisclaimer?: string | null;
+    confidenceScore?: NullableNumber;
+    scenarios?: { name: "Conservative" | "Base" | "Aggressive"; assumptions: string[]; outcomes: { label: string; value: string }[] }[];
     notes?: string | null;
   };
 
@@ -1775,6 +1817,9 @@ export interface BusinessGrowthReport {
     improvementPotential: string | null;
     projectedRevenueIncrease: string | null;
     profitabilityLevers: { lever: string; impact: string; effort: string; notes?: string | null }[];
+    estimationDisclaimer?: string | null;
+    confidenceScore?: NullableNumber;
+    scenarios?: { name: "Conservative" | "Base" | "Aggressive"; assumptions: string[]; outcomes: { label: string; value: string }[] }[];
     notes?: string | null;
   };
 
@@ -1782,6 +1827,9 @@ export interface BusinessGrowthReport {
     currentTargetSegments: { segment: string; painPoints: string[]; avgBudget: string | null; notes?: string | null }[];
     recommendedSegments: { segment: string; whyFit: string; avgBudget: string | null; competitionLevel: string | null; notes?: string | null }[];
     positioningAdvice: string | null;
+    estimationDisclaimer?: string | null;
+    confidenceScore?: NullableNumber;
+    scenarios?: { name: "Conservative" | "Base" | "Aggressive"; assumptions: string[]; outcomes: { label: string; value: string }[] }[];
     notes?: string | null;
   };
 
@@ -2387,41 +2435,41 @@ function buildBusinessGrowthFallbackTemplate(
   const extractedChannels: BusinessGrowthReport["leadGeneration"]["channels"] = [];
   const extractedLeadMagnets: BusinessGrowthReport["leadGeneration"]["leadMagnets"] = [];
 
-// Merge detected reputation platforms into an existing list (dedupe by platform name + normalize).
-function mergeReputationPlatforms(
-  base: BusinessGrowthReport["reputation"]["platforms"],
-  detected: BusinessGrowthReport["reputation"]["platforms"],
-): BusinessGrowthReport["reputation"]["platforms"] {
-  const norm = (s: string) => (s || "").trim().toLowerCase();
-  const byKey = new Map<string, BusinessGrowthReport["reputation"]["platforms"][number]>();
+  // Merge detected reputation platforms into an existing list (dedupe by platform name + normalize).
+  function mergeReputationPlatforms(
+    base: BusinessGrowthReport["reputation"]["platforms"],
+    detected: BusinessGrowthReport["reputation"]["platforms"],
+  ): BusinessGrowthReport["reputation"]["platforms"] {
+    const norm = (s: string) => (s || "").trim().toLowerCase();
+    const byKey = new Map<string, BusinessGrowthReport["reputation"]["platforms"][number]>();
 
-  const add = (p: BusinessGrowthReport["reputation"]["platforms"][number]) => {
-    const key = norm(p.platform);
-    if (!key) return;
-    const existing = byKey.get(key);
-    if (!existing) {
-      byKey.set(key, p);
-      return;
-    }
-    // Prefer the entry that has a notes/url hint if one exists
-    const existingNotes = (existing.notes || "").trim();
-    const nextNotes = (p.notes || "").trim();
-    byKey.set(key, {
-      ...existing,
-      ...p,
-      notes: nextNotes || existingNotes || null,
-    });
-  };
+    const add = (p: BusinessGrowthReport["reputation"]["platforms"][number]) => {
+      const key = norm(p.platform);
+      if (!key) return;
+      const existing = byKey.get(key);
+      if (!existing) {
+        byKey.set(key, p);
+        return;
+      }
+      // Prefer the entry that has a notes/url hint if one exists
+      const existingNotes = (existing.notes || "").trim();
+      const nextNotes = (p.notes || "").trim();
+      byKey.set(key, {
+        ...existing,
+        ...p,
+        notes: nextNotes || existingNotes || null,
+      });
+    };
 
-  (base || []).forEach(add);
-  (detected || []).forEach(add);
-  return Array.from(byKey.values());
-}
+    (base || []).forEach(add);
+    (detected || []).forEach(add);
+    return Array.from(byKey.values());
+  }
 
-// Values derived from deep crawl extraction (already validated / typed)
-const servicesFromCrawl: BusinessGrowthReport["servicesPositioning"]["services"] = extractedServices;
-const channelsFromCrawl: BusinessGrowthReport["leadGeneration"]["channels"] = extractedChannels;
-const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"] = extractedLeadMagnets;
+  // Values derived from deep crawl extraction (already validated / typed)
+  const servicesFromCrawl: BusinessGrowthReport["servicesPositioning"]["services"] = extractedServices;
+  const channelsFromCrawl: BusinessGrowthReport["leadGeneration"]["channels"] = extractedChannels;
+  const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"] = extractedLeadMagnets;
 
 
 
@@ -2587,7 +2635,7 @@ const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"
 }
 
 async function generateBusinessGrowthFallbackViaAgent(
-  input: { companyName: string; website: string; industry?: string; },
+  input: { companyName: string; website: string; industry?: string; estimationMode?: boolean; estimationInputs?: Record<string, any> },
   fallbackTemplate: BusinessGrowthReport,
   signals: WebsiteSignals,
 ): Promise<Partial<BusinessGrowthReport> | null> {
@@ -2601,6 +2649,10 @@ Generate a Business Growth Analysis report using the website signals below.
 Company: ${input.companyName}
 Website: ${input.website}
 Industry: ${input.industry || "Digital agency"}
+Estimation Mode: ${input.estimationMode ? "true" : "false"}
+Estimation Inputs: ${JSON.stringify(input.estimationInputs || {}, null, 2)}
+If Estimation Mode is true, set estimationDisclaimer to this exact string:
+${ESTIMATION_DISCLAIMER}
 
 Website signals (derived from the live page):
 ${JSON.stringify(signals, null, 2)}
@@ -2780,6 +2832,58 @@ export function mergeBusinessGrowthReport(
   merged.competitiveAnalysis.opportunities = ensureArray(merged.competitiveAnalysis.opportunities);
   merged.competitiveAnalysis.threats = ensureArray(merged.competitiveAnalysis.threats);
 
+  // ------------------------------------------------------------
+  // Competitor mapping preference:
+  // If Google Places competitors were collected (live run OR loaded
+  // from cache), prefer them over any SERP/DataForSEO competitor list.
+  // This ensures the PDF uses local, business-profile competitors.
+  // ------------------------------------------------------------
+  try {
+    // const placesCompetitors: any[] =
+    // (r as any)?.places?.competitors ||
+    // (r as any)?.places?.value?.competitors ||
+    // (r as any)?.sections?.places?.value?.competitors ||
+    // (r as any)?.cache?.sections?.places?.value?.competitors ||
+    // (r as any)?.cached?.sections?.places?.value?.competitors ||
+    // [];
+    const placesCompetitors: any[] =
+      // ✅ NEW: Python response shape (what you showed)
+      (r as any)?.reputation?.googlePlaces?.competitors ||
+
+      // older/alternate shapes (keep for compatibility)
+      (r as any)?.places?.competitors ||
+      (r as any)?.places?.value?.competitors ||
+      (r as any)?.sections?.places?.value?.competitors ||
+      (r as any)?.cache?.sections?.places?.value?.competitors ||
+      (r as any)?.cached?.sections?.places?.value?.competitors ||
+      [];
+
+    if (Array.isArray(placesCompetitors) && placesCompetitors.length) {
+      merged.competitiveAnalysis.competitors = placesCompetitors.map((c: any) => ({
+        name: safeText(c?.name, "Competitor"),
+        website: c?.website ? String(c.website) : null,
+        primaryChannel: "Google Business Profile",
+        placeId: c?.place_id ? String(c.place_id) : null,
+        formattedAddress: c?.formatted_address ? String(c.formatted_address) : null,
+        rating: typeof c?.rating === "number" ? c.rating : null,
+        userRatingsTotal: typeof c?.user_ratings_total === "number" ? c.user_ratings_total : null,
+        internationalPhoneNumber: c?.international_phone_number ? String(c.international_phone_number) : null,
+        types: Array.isArray(c?.types) ? c.types.map((t: any) => safeText(t)).filter(Boolean) : [],
+        topReviews: Array.isArray(c?.reviews)
+          ? c.reviews.slice(0, 5).map((rv: any) => ({
+            author_name: rv?.author_name ? String(rv.author_name) : null,
+            rating: typeof rv?.rating === "number" ? rv.rating : null,
+            relative_time_description: rv?.relative_time_description ? String(rv.relative_time_description) : null,
+            text: rv?.text ? String(rv.text) : null,
+          }))
+          : [],
+        notes: "Competitor list derived from Google Places search.",
+      }));
+    }
+  } catch {
+    // Never fail report merge due to optional competitor mapping.
+  }
+
   merged.servicesPositioning.services = ensureArray(merged.servicesPositioning.services);
   merged.servicesPositioning.serviceGaps = ensureArray(merged.servicesPositioning.serviceGaps);
   merged.servicesPositioning.industriesServed.current = ensureArray(merged.servicesPositioning.industriesServed.current);
@@ -2792,11 +2896,14 @@ export function mergeBusinessGrowthReport(
   merged.costOptimization.estimatedMonthlySpend = ensureArray(merged.costOptimization.estimatedMonthlySpend);
   merged.costOptimization.wasteAreas = ensureArray(merged.costOptimization.wasteAreas);
   merged.costOptimization.automationOpportunities = ensureArray(merged.costOptimization.automationOpportunities);
+  (merged.costOptimization as any).scenarios = ensureArray((merged.costOptimization as any).scenarios);
 
   merged.financialImpact.profitabilityLevers = ensureArray(merged.financialImpact.profitabilityLevers);
+  (merged.financialImpact as any).scenarios = ensureArray((merged.financialImpact as any).scenarios);
 
   merged.targetMarket.currentTargetSegments = ensureArray(merged.targetMarket.currentTargetSegments);
   merged.targetMarket.recommendedSegments = ensureArray(merged.targetMarket.recommendedSegments);
+  (merged.targetMarket as any).scenarios = ensureArray((merged.targetMarket as any).scenarios);
 
   merged.riskAssessment.risks = ensureArray(merged.riskAssessment.risks);
   merged.riskAssessment.compliance = ensureArray(merged.riskAssessment.compliance);
@@ -3049,12 +3156,12 @@ async function renderHtmlHeadless(url: string, timeoutMs: number): Promise<strin
       page.setDefaultTimeout(timeoutMs);
       await page.goto(url, { waitUntil: "domcontentloaded" });
       // Best-effort wait for JS apps to hydrate
-      await page.waitForTimeout(800).catch(() => {});
+      await page.waitForTimeout(800).catch(() => { });
       const html = await page.content();
-      await context.close().catch(() => {});
+      await context.close().catch(() => { });
       return html || null;
     } finally {
-      await browser.close().catch(() => {});
+      await browser.close().catch(() => { });
     }
   } catch {
     // ignore and try puppeteer
@@ -3071,11 +3178,11 @@ async function renderHtmlHeadless(url: string, timeoutMs: number): Promise<strin
       const page = await browser.newPage();
       page.setDefaultNavigationTimeout(timeoutMs);
       await page.goto(url, { waitUntil: "domcontentloaded" });
-      await page.waitForTimeout(800).catch(() => {});
+      await page.waitForTimeout(800).catch(() => { });
       const html = await page.content();
       return html || null;
     } finally {
-      await browser.close().catch(() => {});
+      await browser.close().catch(() => { });
     }
   } catch {
     return null;
@@ -3457,144 +3564,144 @@ export async function generateBusinessGrowthAnalysis(input: {
     fetchPageSpeedInsights(input.website, "desktop").catch(() => null as any),
   ]);
 
-// ---------------------------------------------------------------------
-// Deep crawl (HTML + optional headless) to fill Services / Industries /
-// Lead Channels / Lead Magnets / basic reputation platform links.
-// NOTE: This does NOT use paid APIs. It is best-effort and respects
-// server resource limits via caps below.
-// ---------------------------------------------------------------------
-const deepCrawlEnabled =
-  (input.reportType || "quick") === "full" && process.env.BB_AI_DEEP_CRAWL !== "0";
+  // ---------------------------------------------------------------------
+  // Deep crawl (HTML + optional headless) to fill Services / Industries /
+  // Lead Channels / Lead Magnets / basic reputation platform links.
+  // NOTE: This does NOT use paid APIs. It is best-effort and respects
+  // server resource limits via caps below.
+  // ---------------------------------------------------------------------
+  const deepCrawlEnabled =
+    (input.reportType || "quick") === "full" && process.env.BB_AI_DEEP_CRAWL !== "0";
 
-const deepCrawlEnableHeadless =
-  process.env.BB_AI_DEEP_CRAWL_HEADLESS === "1" || process.env.BB_AI_HEADLESS === "1";
+  const deepCrawlEnableHeadless =
+    process.env.BB_AI_DEEP_CRAWL_HEADLESS === "1" || process.env.BB_AI_HEADLESS === "1";
 
-const deepCrawlOpts: DeepCrawlOptions = {
-  maxPages: process.env.BB_AI_DEEP_CRAWL_PAGES ? Number(process.env.BB_AI_DEEP_CRAWL_PAGES) : 25,
-  perPageTimeoutMs: process.env.BB_AI_DEEP_CRAWL_TIMEOUT_MS ? Number(process.env.BB_AI_DEEP_CRAWL_TIMEOUT_MS) : 5500,
-  maxDepth: process.env.BB_AI_DEEP_CRAWL_DEPTH ? Number(process.env.BB_AI_DEEP_CRAWL_DEPTH) : 3,
-  enableHeadless: deepCrawlEnableHeadless,
-  maxHeadlessPages: process.env.BB_AI_DEEP_CRAWL_HEADLESS_PAGES ? Number(process.env.BB_AI_DEEP_CRAWL_HEADLESS_PAGES) : 6,
-};
+  const deepCrawlOpts: DeepCrawlOptions = {
+    maxPages: process.env.BB_AI_DEEP_CRAWL_PAGES ? Number(process.env.BB_AI_DEEP_CRAWL_PAGES) : 25,
+    perPageTimeoutMs: process.env.BB_AI_DEEP_CRAWL_TIMEOUT_MS ? Number(process.env.BB_AI_DEEP_CRAWL_TIMEOUT_MS) : 5500,
+    maxDepth: process.env.BB_AI_DEEP_CRAWL_DEPTH ? Number(process.env.BB_AI_DEEP_CRAWL_DEPTH) : 3,
+    enableHeadless: deepCrawlEnableHeadless,
+    maxHeadlessPages: process.env.BB_AI_DEEP_CRAWL_HEADLESS_PAGES ? Number(process.env.BB_AI_DEEP_CRAWL_HEADLESS_PAGES) : 6,
+  };
 
-let crawledPages: DeepCrawledPage[] = [];
-if (deepCrawlEnabled) {
-  console.log("[DeepCrawl] start", {
-    website: input.website,
-    reportType: input.reportType || "quick",
-    enableHeadless: deepCrawlOpts.enableHeadless,
-    maxPages: deepCrawlOpts.maxPages,
-    maxDepth: deepCrawlOpts.maxDepth,
-    perPageTimeoutMs: deepCrawlOpts.perPageTimeoutMs,
-    maxHeadlessPages: deepCrawlOpts.maxHeadlessPages,
-  });
+  let crawledPages: DeepCrawledPage[] = [];
+  if (deepCrawlEnabled) {
+    console.log("[DeepCrawl] start", {
+      website: input.website,
+      reportType: input.reportType || "quick",
+      enableHeadless: deepCrawlOpts.enableHeadless,
+      maxPages: deepCrawlOpts.maxPages,
+      maxDepth: deepCrawlOpts.maxDepth,
+      perPageTimeoutMs: deepCrawlOpts.perPageTimeoutMs,
+      maxHeadlessPages: deepCrawlOpts.maxHeadlessPages,
+    });
 
-  crawledPages = await deepCrawlSite(input.website, deepCrawlOpts).catch(() => []);
+    crawledPages = await deepCrawlSite(input.website, deepCrawlOpts).catch(() => []);
 
-  const usedHeadlessCount = crawledPages.reduce((acc, p) => acc + (p.usedHeadless ? 1 : 0), 0);
-  console.log("[DeepCrawl] done", {
-    pages: crawledPages.length,
-    usedHeadlessCount,
-  });
-} else {
-  console.log("[DeepCrawl] skipped", { reportType: input.reportType || "quick", env: process.env.BB_AI_DEEP_CRAWL });
-}
-
-const extractedServices = extractServicesFromPages(crawledPages);
-const extractedIndustries = extractIndustriesFromPages(crawledPages);
-const extractedLeadMagnets = extractLeadMagnetsFromPages(crawledPages);
-const extractedChannels = extractLeadChannelsFromPages(crawledPages);
-const extractedReputationPlatforms = extractReputationPlatformLinksFromPages(crawledPages);
-
-console.log("[DeepCrawl] extracted", {
-  services: extractedServices.length,
-  industries: extractedIndustries.length,
-  leadMagnets: extractedLeadMagnets.length,
-  channels: extractedChannels.length,
-  reputationPlatforms: extractedReputationPlatforms.length,
-});
-
-// Normalize PSI results into the exact shape our PDF generator expects.
-// (PSI fetch can fail; in that case we keep null metrics but still keep a stable object shape.)
-const asPageSpeedMetrics = (raw: any, strategy: "mobile" | "desktop"): PageSpeedMetrics => ({
-  strategy,
-  performanceScore: typeof raw?.performanceScore === "number" ? raw.performanceScore : null,
-  seoScore: typeof raw?.seoScore === "number" ? raw.seoScore : null,
-  bestPracticesScore: typeof raw?.bestPracticesScore === "number" ? raw.bestPracticesScore : null,
-  accessibilityScore: typeof raw?.accessibilityScore === "number" ? raw.accessibilityScore : null,
-  metrics: {
-    fcpMs: typeof raw?.metrics?.fcpMs === "number" ? raw.metrics.fcpMs : null,
-    lcpMs: typeof raw?.metrics?.lcpMs === "number" ? raw.metrics.lcpMs : null,
-    tbtMs: typeof raw?.metrics?.tbtMs === "number" ? raw.metrics.tbtMs : null,
-    cls: typeof raw?.metrics?.cls === "number" ? raw.metrics.cls : null,
-    speedIndexMs: typeof raw?.metrics?.speedIndexMs === "number" ? raw.metrics.speedIndexMs : null,
-  },
-  opportunities: Array.isArray(raw?.opportunities) ? raw.opportunities : [],
-  diagnostics: raw?.diagnostics && typeof raw.diagnostics === "object" ? raw.diagnostics : undefined,
-  fetchedAt: typeof raw?.fetchedAt === "string" ? raw.fetchedAt : analysisDate,
-});
-
-const speedTest: WebsiteSpeedTest = {
-  source: "pagespeed_insights_v5",
-  mobile: asPageSpeedMetrics(psiMobile, "mobile"),
-  desktop: asPageSpeedMetrics(psiDesktop, "desktop"),
-};
-
-// Deep crawl outputs mapped into the report (best-effort; no paid APIs involved).
-const servicesFromCrawl: BusinessGrowthReport["servicesPositioning"]["services"] =
-  (extractedServices || []).map((name) => ({ name }));
-
-const industriesFromCrawl: string[] = Array.isArray(extractedIndustries) ? extractedIndustries : [];
-
-const channelsFromCrawl: BusinessGrowthReport["leadGeneration"]["channels"] =
-  (extractedChannels || []).map((channel) => ({
-    channel,
-    leadsPerMonth: null,
-    quality: null,
-    status: "Detected",
-    notes: "Detected via deep crawl (heuristic).",
-  }));
-
-const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"] =
-  (extractedLeadMagnets || []).map((leadMagnet) => ({
-    title: leadMagnet,
-    funnelStage: "Unknown",
-    description: "Detected via deep crawl (heuristic).",
-    estimatedConversionRate: null,
-    notes: "Detected via deep crawl (heuristic).",
-  }));
-
-// Merge detected reputation platform links into the platforms list (no ratings/counts without APIs).
-const mergeReputationPlatforms = (
-  seeded: BusinessGrowthReport["reputation"]["platforms"],
-  detected: Array<{ platform: string; url: string }>,
-): BusinessGrowthReport["reputation"]["platforms"] => {
-  const out: BusinessGrowthReport["reputation"]["platforms"] = [...(seeded || [])];
-  const key = (s: string) => (s || "").trim().toLowerCase();
-
-  // Mark seeded platforms as detected when a matching link is found.
-  for (const d of detected || []) {
-    const i = out.findIndex((p) => key(p.platform) === key(d.platform));
-    if (i >= 0) {
-      out[i] = {
-        ...out[i],
-        status: "Detected",
-        notes: `${out[i].notes ? out[i].notes + " " : ""}Detected link: ${d.url}`,
-      };
-    } else {
-      out.push({
-        platform: d.platform,
-        currentRating: null,
-        reviewCount: null,
-        status: "Detected",
-        notes: `Detected link: ${d.url}`,
-      });
-    }
+    const usedHeadlessCount = crawledPages.reduce((acc, p) => acc + (p.usedHeadless ? 1 : 0), 0);
+    console.log("[DeepCrawl] done", {
+      pages: crawledPages.length,
+      usedHeadlessCount,
+    });
+  } else {
+    console.log("[DeepCrawl] skipped", { reportType: input.reportType || "quick", env: process.env.BB_AI_DEEP_CRAWL });
   }
-  return out;
-};
 
-const issues: string[] = [];
+  const extractedServices = extractServicesFromPages(crawledPages);
+  const extractedIndustries = extractIndustriesFromPages(crawledPages);
+  const extractedLeadMagnets = extractLeadMagnetsFromPages(crawledPages);
+  const extractedChannels = extractLeadChannelsFromPages(crawledPages);
+  const extractedReputationPlatforms = extractReputationPlatformLinksFromPages(crawledPages);
+
+  console.log("[DeepCrawl] extracted", {
+    services: extractedServices.length,
+    industries: extractedIndustries.length,
+    leadMagnets: extractedLeadMagnets.length,
+    channels: extractedChannels.length,
+    reputationPlatforms: extractedReputationPlatforms.length,
+  });
+
+  // Normalize PSI results into the exact shape our PDF generator expects.
+  // (PSI fetch can fail; in that case we keep null metrics but still keep a stable object shape.)
+  const asPageSpeedMetrics = (raw: any, strategy: "mobile" | "desktop"): PageSpeedMetrics => ({
+    strategy,
+    performanceScore: typeof raw?.performanceScore === "number" ? raw.performanceScore : null,
+    seoScore: typeof raw?.seoScore === "number" ? raw.seoScore : null,
+    bestPracticesScore: typeof raw?.bestPracticesScore === "number" ? raw.bestPracticesScore : null,
+    accessibilityScore: typeof raw?.accessibilityScore === "number" ? raw.accessibilityScore : null,
+    metrics: {
+      fcpMs: typeof raw?.metrics?.fcpMs === "number" ? raw.metrics.fcpMs : null,
+      lcpMs: typeof raw?.metrics?.lcpMs === "number" ? raw.metrics.lcpMs : null,
+      tbtMs: typeof raw?.metrics?.tbtMs === "number" ? raw.metrics.tbtMs : null,
+      cls: typeof raw?.metrics?.cls === "number" ? raw.metrics.cls : null,
+      speedIndexMs: typeof raw?.metrics?.speedIndexMs === "number" ? raw.metrics.speedIndexMs : null,
+    },
+    opportunities: Array.isArray(raw?.opportunities) ? raw.opportunities : [],
+    diagnostics: raw?.diagnostics && typeof raw.diagnostics === "object" ? raw.diagnostics : undefined,
+    fetchedAt: typeof raw?.fetchedAt === "string" ? raw.fetchedAt : analysisDate,
+  });
+
+  const speedTest: WebsiteSpeedTest = {
+    source: "pagespeed_insights_v5",
+    mobile: asPageSpeedMetrics(psiMobile, "mobile"),
+    desktop: asPageSpeedMetrics(psiDesktop, "desktop"),
+  };
+
+  // Deep crawl outputs mapped into the report (best-effort; no paid APIs involved).
+  const servicesFromCrawl: BusinessGrowthReport["servicesPositioning"]["services"] =
+    (extractedServices || []).map((name) => ({ name }));
+
+  const industriesFromCrawl: string[] = Array.isArray(extractedIndustries) ? extractedIndustries : [];
+
+  const channelsFromCrawl: BusinessGrowthReport["leadGeneration"]["channels"] =
+    (extractedChannels || []).map((channel) => ({
+      channel,
+      leadsPerMonth: null,
+      quality: null,
+      status: "Detected",
+      notes: "Detected via deep crawl (heuristic).",
+    }));
+
+  const leadMagnetsFromCrawl: BusinessGrowthReport["leadGeneration"]["leadMagnets"] =
+    (extractedLeadMagnets || []).map((leadMagnet) => ({
+      title: leadMagnet,
+      funnelStage: "Unknown",
+      description: "Detected via deep crawl (heuristic).",
+      estimatedConversionRate: null,
+      notes: "Detected via deep crawl (heuristic).",
+    }));
+
+  // Merge detected reputation platform links into the platforms list (no ratings/counts without APIs).
+  const mergeReputationPlatforms = (
+    seeded: BusinessGrowthReport["reputation"]["platforms"],
+    detected: Array<{ platform: string; url: string }>,
+  ): BusinessGrowthReport["reputation"]["platforms"] => {
+    const out: BusinessGrowthReport["reputation"]["platforms"] = [...(seeded || [])];
+    const key = (s: string) => (s || "").trim().toLowerCase();
+
+    // Mark seeded platforms as detected when a matching link is found.
+    for (const d of detected || []) {
+      const i = out.findIndex((p) => key(p.platform) === key(d.platform));
+      if (i >= 0) {
+        out[i] = {
+          ...out[i],
+          status: "Detected",
+          notes: `${out[i].notes ? out[i].notes + " " : ""}Detected link: ${d.url}`,
+        };
+      } else {
+        out.push({
+          platform: d.platform,
+          currentRating: null,
+          reviewCount: null,
+          status: "Detected",
+          notes: `Detected link: ${d.url}`,
+        });
+      }
+    }
+    return out;
+  };
+
+  const issues: string[] = [];
   const highlights: string[] = [];
 
   if (!signals.title) issues.push("Missing <title> tag on homepage (or could not be extracted).");
@@ -3811,7 +3918,7 @@ const issues: string[] = [];
       technicalSEO: {
         score: seoTechScore,
         pageSpeed: speedTest,
-                issues: [
+        issues: [
           ...(!signals.robotsTxtFound ? ["robots.txt missing/unreachable."] : []),
           ...(!signals.sitemapXmlFound ? ["sitemap.xml missing/unreachable."] : []),
           ...(!signals.hasStructuredData ? ["Structured data not detected on homepage."] : []),

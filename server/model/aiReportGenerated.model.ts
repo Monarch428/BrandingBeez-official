@@ -4,6 +4,8 @@ export interface AiReportGeneratedDocument extends mongoose.Document {
   token: string;
   analysis: Record<string, unknown>;
   website?: string;
+  /** Normalized host (no protocol/www). Used for stable lookups */
+  domain?: string;
   companyName?: string;
   industry?: string;
   email?: string;
@@ -18,6 +20,7 @@ const aiReportGeneratedSchema = new Schema<AiReportGeneratedDocument>(
     token: { type: String, required: true, unique: true, index: true },
     analysis: { type: Schema.Types.Mixed, required: true },
     website: String,
+    domain: { type: String, index: true },
     companyName: String,
     industry: String,
     email: String,

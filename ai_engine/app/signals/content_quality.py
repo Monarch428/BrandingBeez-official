@@ -1,7 +1,85 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
+
+import re
+from difflib import SequenceMatcher
+
+
+def _norm(s: Any) -> str:
+    if not isinstance(s, str):
+        return ""
+    return re.sub(r"\s+", " ", s).strip().lower()
+
+
+def _similar(a: str, b: str) -> float:
+    if not a or not b:
+        return 0.0
+    return SequenceMatcher(a=a, b=b).ratio()
+
+
+def _contains_fuzzy(hay: str, needles: List[str], threshold: float = 0.82) -> bool:
+    """Return True if hay contains a token similar to any of needles.
+
+    This is intentionally lightweight (no extra deps). It helps catch:
+    - "What we do" -> Services
+    - "Solutions" -> Services
+    - "Get in touch" -> Contact
+    """
+    h = _norm(hay)
+    if not h:
+        return False
+    for n in needles:
+        n2 = _norm(n)
+        if not n2:
+            continue
+        if n2 in h:
+            return True
+        # Compare against words and short phrases in the haystack
+        parts = re.split(r"[^a-z0-9]+", h)
+        parts = [p for p in parts if p]
+        for p in parts:
+            if _similar(p, n2) >= threshold:
+                return True
+    return False
+
+
+def _page_text_for_intent(p: Dict[str, Any]) -> str:
+    bits: List[str] = []
+    for k in ("url", "title", "h1", "firstH1", "textSnippet"):
+        v = p.get(k)
+        if isinstance(v, str) and v.strip():
+            bits.append(v)
+    nav = p.get("navLabels")
+    if isinstance(nav, list):
+        bits.extend([x for x in nav if isinstance(x, str)])
+    return "\n".join(bits)
+
+
+def _is_category(p: Dict[str, Any], cat: str) -> bool:
+    txt = _page_text_for_intent(p)
+    url = _norm(p.get("url"))
+    if cat == "services":
+        return (
+            any(x in url for x in ("/services", "/service", "/what-we-do", "/solutions", "/offer"))
+            or _contains_fuzzy(txt, ["services", "service", "solutions", "offerings", "what we do", "capabilities"], 0.8)
+        )
+    if cat == "about":
+        return any(x in url for x in ("/about", "/our-story", "/company", "/team")) or _contains_fuzzy(txt, ["about", "our story", "company", "team"], 0.82)
+    if cat == "contact":
+        return any(x in url for x in ("/contact", "/get-in-touch", "/getintouch")) or _contains_fuzzy(txt, ["contact", "get in touch", "talk to", "book a call"], 0.8)
+    if cat == "blog":
+        return any(x in url for x in ("/blog", "/insights", "/resources", "/news")) or _contains_fuzzy(txt, ["blog", "insights", "resources"], 0.82)
+    if cat == "pricing":
+        return any(x in url for x in ("/pricing", "/packages", "/plans")) or bool(p.get("hasPricing") or p.get("hasPricingSignals")) or _contains_fuzzy(txt, ["pricing", "packages", "plans"], 0.82)
+    if cat == "faq":
+        return bool(p.get("hasFaq") or p.get("hasFAQ")) or _contains_fuzzy(txt, ["faq", "frequently asked"], 0.82)
+    if cat == "case":
+        return bool(p.get("hasCaseStudies") or p.get("hasCaseStudySignals")) or any(x in url for x in ("/case", "/case-studies", "/portfolio", "/work", "/projects")) or _contains_fuzzy(txt, ["case study", "portfolio", "our work"], 0.78)
+    if cat == "testimonials":
+        return bool(p.get("hasTestimonials") or p.get("hasTestimonialsSignals")) or _contains_fuzzy(txt, ["testimonials", "reviews"], 0.82)
+    return False
 
 
 def _pick(pages: List[Dict[str, Any]], predicate) -> bool:
@@ -35,14 +113,14 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
     all_pages.extend(pages or [])
 
     # Coverage checks
-    has_services = _pick(all_pages, lambda p: "service" in (p.get("url", "").lower()) or "services" in (p.get("url", "").lower()))
-    has_about = _pick(all_pages, lambda p: "about" in (p.get("url", "").lower()))
-    has_contact = _pick(all_pages, lambda p: "contact" in (p.get("url", "").lower()))
-    has_blog = _pick(all_pages, lambda p: "blog" in (p.get("url", "").lower()) or "insights" in (p.get("url", "").lower()))
-    has_pricing = _pick(all_pages, lambda p: bool(p.get("hasPricing")))
-    has_faq = _pick(all_pages, lambda p: bool(p.get("hasFaq")))
-    has_case = _pick(all_pages, lambda p: bool(p.get("hasCaseStudies")))
-    has_testimonials = _pick(all_pages, lambda p: bool(p.get("hasTestimonials")))
+    has_services = _pick(all_pages, lambda p: _is_category(p, "services"))
+    has_about = _pick(all_pages, lambda p: _is_category(p, "about"))
+    has_contact = _pick(all_pages, lambda p: _is_category(p, "contact"))
+    has_blog = _pick(all_pages, lambda p: _is_category(p, "blog"))
+    has_pricing = _pick(all_pages, lambda p: _is_category(p, "pricing"))
+    has_faq = _pick(all_pages, lambda p: _is_category(p, "faq"))
+    has_case = _pick(all_pages, lambda p: _is_category(p, "case"))
+    has_testimonials = _pick(all_pages, lambda p: _is_category(p, "testimonials"))
 
     # Depth checks (word count)
     word_counts = [int(p.get("wordCount") or 0) for p in pages or [] if isinstance(p, dict)]

@@ -174,14 +174,24 @@ class CompetitiveAnalysis(BaseModel):
 class CostOptimization(BaseModel):
     notes: Optional[str] = None
     opportunities: List[Dict[str, Any]] = Field(default_factory=list)
+    # Estimation Mode (optional)
+    estimationDisclaimer: Optional[str] = None
+    confidenceScore: Optional[int] = None  # 0-100
+    scenarios: List[Dict[str, Any]] = Field(default_factory=list)
 
 class TargetMarket(BaseModel):
     notes: Optional[str] = None
     segments: List[Dict[str, Any]] = Field(default_factory=list)
+    estimationDisclaimer: Optional[str] = None
+    confidenceScore: Optional[int] = None
+    scenarios: List[Dict[str, Any]] = Field(default_factory=list)
 
 class FinancialImpact(BaseModel):
     notes: Optional[str] = None
     revenueTable: List[Dict[str, Any]] = Field(default_factory=list)
+    estimationDisclaimer: Optional[str] = None
+    confidenceScore: Optional[int] = None
+    scenarios: List[Dict[str, Any]] = Field(default_factory=list)
 
 class ActionPlanWeek(BaseModel):
     weekRange: str
@@ -216,6 +226,9 @@ class Appendices(BaseModel):
     keywords: List[Dict[str, Any]] = Field(default_factory=list)
     dataSources: List[AppendixDataSource] = Field(default_factory=list)
     dataGaps: List[DataGap] = Field(default_factory=list)
+    # Evidence helps the PDF feel "premium" and trustworthy
+    pagesCrawled: List[str] = Field(default_factory=list)
+    evidence: Optional[Dict[str, Any]] = None
 
 class BusinessGrowthReport(BaseModel):
     reportMetadata: ReportMetadata
