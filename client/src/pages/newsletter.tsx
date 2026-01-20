@@ -545,9 +545,9 @@ export default function Newsletter() {
       <ThankYouPopup
         isOpen={showThankYouPopup}
         onClose={() => setShowThankYouPopup(false)}
-        title="You’re in."
+        title="Thanks for Subscribing!"
         message="Your first issue will arrive soon. Each edition focuses on how business owners think, decide, and adjust as they scale so growth feels more intentional and less like guesswork."
-        formType="inquiry"
+        formType="newsletter"
       />
     </>
   );

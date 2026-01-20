@@ -2163,7 +2163,7 @@ export default function Home() {
               isOpen={showNewsletterThankYou}
               onClose={() => setShowNewsletterThankYou(false)}
               title="Thanks for Subscribing!"
-              message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
+              message="Your first issue will arrive soon. Each edition focuses on how business owners think, decide, and adjust as they scale so growth feels more intentional and less like guesswork."
               formType="newsletter"
             />
           </section>
