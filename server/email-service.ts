@@ -449,64 +449,68 @@ export async function sendEmailViaGmail(submission: {
       },
     });
 
-    const mailOptions = {
-      from: FROM_NEWSLETTER(user),
-      to: submission.email,
-      subject: "Newsletter Subscription Confirmation",
-      html: `
-       <!DOCTYPE html>
-       <html lang="en">
-       <head>
-         <meta charset="UTF-8" />
-         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-         <title>Subscription Confirmation</title>
-       </head>
-       <body style="margin:0; padding:0; font-family: 'Inter', Arial, sans-serif; 
-         background: linear-gradient(to right, #CF4163, #552265); color:#fff;">
-         <table width="100%" cellspacing="0" cellpadding="0">
-           <tr>
-             <td align="center" style="padding: 40px 0;">
-               <table width="600" cellpadding="20" cellspacing="0" 
-                 style="background: rgba(255,255,255,0.1); border-radius:12px; 
-                 box-shadow:0 4px 12px rgba(0,0,0,0.2); backdrop-filter: blur(6px);">
-                 <tr>
-                   <td align="center" style="text-align:center;">
-                     <h1 style="color:#fff; margin-bottom:8px; font-size:24px;">
-                       Welcome to Our Newsletter 🎉
-                     </h1>
-                     <p style="color:#f3f3f3; font-size:16px; margin:0;">
-                       Hello <b>${submission.name}</b>, thanks for subscribing!
-                     </p>
-                     <p style="color:#ddd; font-size:14px; margin:16px 0;">
-                       You'll now receive short, practical tips and tools to grow your agency – 
-                       all in a quick 1-minute read.
-                     </p>
-                     <table cellpadding="8" cellspacing="0" width="100%" 
-                       style="margin:20px 0; text-align:left; font-size:14px; color:#fff;">
-                       <tr><td>✅ Fast client-winning strategies</td></tr>
-                       <tr><td>✅ Pricing & proposal hacks</td></tr>
-                       <tr><td>✅ AI & automation tips</td></tr>
-                       <tr><td>✅ Real stories from agencies like yours</td></tr>
-                     </table>
-                    <a href="https://brandingbeez.co.uk/" target="_blank"
-                       style="display:inline-block; background:#fff; color:#552265; 
-                       text-decoration:none; padding:12px 24px; border-radius:8px; 
-                       font-weight:bold; margin-top:16px;">
-                       Explore Resources
-                     </a>
-                     <p style="margin-top:24px; font-size:12px; color:#ccc;">
-                       Subscribed at: ${submission.submittedAt.toLocaleString()}
-                     </p>
-                   </td>
-                 </tr>
-               </table>
-             </td>
-           </tr>
-         </table>
-       </body>
-       </html>
-       `,
-    };
+const mailOptions = {
+  from: FROM_NEWSLETTER(user),
+  to: submission.email,
+  subject: "You’re subscribed — here’s what to expect 👋",
+  html: `
+<!DOCTYPE html>
+<html>
+  <body style="margin:0; padding:0; font-family: Arial, sans-serif; color:#111; line-height:1.6;">
+    
+    <p>Hi ${submission.name},</p>
+
+    <p>You’re subscribed.</p>
+
+    <p>
+      This newsletter exists for one simple reason: 
+      to help business owners make better growth decisions.
+    </p>
+
+    <p>
+      Not motivation.<br/>
+      Not random tips.<br/>
+      Not noise.
+    </p>
+
+    <p>Each week, you’ll get a short read that breaks down:</p>
+
+    <p>
+      ~ what’s working across real businesses right now<br/>
+      ~ what’s quietly failing and hurting growth<br/>
+      ~ what’s changing in the business world and why it matters<br/>
+      ~ tools, products, and shifts worth paying attention to<br/>
+      ~ what to focus on next as you scale
+    </p>
+
+    <p>
+      Think of it as a weekly briefing.
+    </p>
+
+    <p>
+      Something you can read quickly, step back, and think:<br/>
+      <em>“Okay, that makes sense.”</em>
+    </p>
+
+    <p>You don’t need to do anything right now.</p>
+
+    <p>Your first issue will arrive soon.</p>
+
+    <p>
+      Until then, just know this was built for people who care about 
+      earning more, scaling cleanly, and avoiding expensive guesswork.
+    </p>
+
+    <p>
+      Talk soon,<br/>
+      <strong>BrandingBeez</strong>
+    </p>
+
+  </body>
+</html>
+  `,
+};
+
 
     await transporter.sendMail(mailOptions);
     console.log("Email sent via SMTP to", submission.email);
