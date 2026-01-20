@@ -1,4 +1,4 @@
-// src/server/google-oauth-router.ts (or whatever this file is)
+// src/server/google-oauth-router.ts
 import express from "express";
 import { storage } from "../storage";
 import axios from "axios";

@@ -41,6 +41,7 @@ import { SeoCaseStudiesManager } from "@/components/admin/seo-case-study/SeoCase
 import { PpcCaseStudiesManager } from "@/components/admin/ppc-case-study/PpcCaseStudiesManager";
 import { WebCaseStudiesManager } from "@/components/admin/web-case-study/WebCaseStudiesManager";
 import { DedicatedResourceCaseStudiesManager } from "@/components/admin/dr-case-study/DedicatedResourceCaseStudiesManager";
+import { AuthApiConnectButton } from "@/components/admin/settingpage";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("overview");
@@ -660,6 +661,25 @@ export default function Admin() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* <Card className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
+                        🔐
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <div className="text-md font-bold text-brand-purple">
+                          Google Auth API
+                        </div>
+
+                        <AuthApiConnectButton />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card> */}
+
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

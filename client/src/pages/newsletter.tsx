@@ -148,6 +148,8 @@
 
 
 
+
+
 import { SchemaMarkup } from "@/components/schema-markup";
 import { SEOHead } from "@/components/seo-head";
 import { ThankYouPopup } from "@/components/thank-you-popup";
@@ -206,14 +208,16 @@ export default function Newsletter() {
         <meta name="robots" content="INDEX, FOLLOW" />
       </Helmet>
 
-      <div className="
-  min-h-screen
-  bg-gradient-to-br from-[#CF4163] via-[#7B2C5C] to-[#552265]
-  text-white font-['Inter']
-  md:h-screen md:overflow-hidden
-">
+      <div
+        className="
+      min-h-screen
+      bg-gradient-to-br from-[#CF4163] via-[#7B2C5C] to-[#552265]
+      text-white font-['Inter']
+      md:h-screen md:overflow-hidden
+    "
+      >
         <SEOHead
-          title="HERO — Weekly Insights for Business Owners"
+          title="Weekly Insights for Business Owners"
           description="Short, practical insights on how businesses actually grow."
           canonicalUrl="https://brandingbeez.co.uk/newsletter"
           ogType="website"
@@ -222,29 +226,31 @@ export default function Newsletter() {
 
         <div
           className="
-      max-w-7xl mx-auto
-      px-4 sm:px-6 lg:px-8
-      py-12 md:py-0
-      md:h-full
-      grid
-      grid-cols-1
-      md:grid-cols-12
-      gap-10
-      items-center
-    "
+        max-w-7xl mx-auto
+        px-4 sm:px-6 lg:px-8
+        py-12 md:py-0
+        md:h-full
+        grid
+        grid-cols-1
+        md:grid-cols-12
+        gap-10
+        items-center
+      "
         >
 
           {/* LEFT CONTENT */}
           <div className="md:col-span-7 space-y-4 sm:space-y-5">
 
-            <h1 className="
-        text-2xl
-        sm:text-3xl
-        lg:text-4xl
-        xl:text-5xl
-        font-bold
-        leading-tight
-      ">
+            <h1
+              className="
+            text-2xl
+            sm:text-3xl
+            lg:text-4xl
+            xl:text-5xl
+            font-bold
+            leading-tight
+          "
+            >
               A weekly newsletter for business owners
               <span className="text-brand-yellow"> who want to earn more</span>
             </h1>
@@ -262,21 +268,130 @@ export default function Newsletter() {
               No noise. No motivation talk.
             </p>
 
+            {/* LEFT FORM — MOBILE ONLY (≤ 480px) */}
+            <div className="block max-[480px]:block min-[481px]:hidden mt-6">
+              <div className="relative w-full max-w-sm mx-auto">
+                <div className="absolute -inset-1 bg-gradient-to-r from-brand-coral to-purple-500 rounded-2xl blur opacity-30" />
+
+                <div
+                  className="
+                relative
+                bg-[#1B0F22]/85
+                backdrop-blur-xl
+                border border-white/10
+                rounded-2xl
+                p-5
+                shadow-xl
+              "
+                >
+                  <h2 className="text-base font-bold text-center mb-1">
+                    Join the newsletter
+                  </h2>
+
+                  <p className="text-gray-300 text-[11px] text-center mb-4">
+                    Join 1,000+ business owners reading this every week.
+                  </p>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSubscribe();
+                    }}
+                    className="space-y-3"
+                  >
+                    <input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your name"
+                      required
+                      className="
+                    w-full px-3 py-2
+                    rounded-lg
+                    bg-white/10
+                    border border-white/20
+                    text-sm
+                    text-white
+                    placeholder-gray-400
+                    focus:outline-none focus:ring-1 focus:ring-brand-coral
+                  "
+                    />
+
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Your email"
+                      required
+                      className="
+                    w-full px-3 py-2
+                    rounded-lg
+                    bg-white/10
+                    border border-white/20
+                    text-sm
+                    text-white
+                    placeholder-gray-400
+                    focus:outline-none focus:ring-1 focus:ring-brand-coral
+                  "
+                    />
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className={`
+                    w-full py-2 rounded-lg
+                    text-sm font-semibold
+                    transition
+                    ${loading
+                          ? "bg-white/40 text-gray-700 cursor-not-allowed"
+                          : "bg-white text-[#552265] hover:bg-brand-coral hover:text-white"
+                        }
+                  `}
+                    >
+                      {loading ? "Joining..." : "Join"}
+                    </button>
+
+                    {status && (
+                      <p className="text-[11px] text-center text-gray-300">
+                        {status}
+                      </p>
+                    )}
+                  </form>
+
+                  <p className="text-[11px] text-gray-400 text-center mt-3">
+                    One email per week. Unsubscribe anytime.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Compact bullets */}
-            <div className="
-        grid
-        grid-cols-1
-        sm:grid-cols-2
-        gap-2 sm:gap-3
-        pt-2
-      ">
+            <div
+              className="
+    grid
+    grid-cols-1
+    sm:grid-cols-2
+    gap-0 sm:gap-3
+    pt-2
+  "
+            >
               {[
                 "What’s working across real businesses",
                 "What’s quietly failing and hurting growth",
                 "How experienced owners think about scaling",
                 "What’s changing and why it matters",
               ].map((item) => (
-                <div key={item} className="flex items-start gap-2">
+                <div
+                  key={item}
+                  className="
+        flex items-start gap-2
+        pl-2 py-2 pr-2
+        rounded-xl
+        md:bg-white/5
+        md:border md:border-white/10
+        md:backdrop-blur-sm
+      "
+                >
                   <span className="text-green-300 text-sm font-bold">✓</span>
                   <span className="text-sm text-gray-100 leading-snug">
                     {item}
@@ -285,51 +400,65 @@ export default function Newsletter() {
               ))}
             </div>
 
+
             {/* Who it’s for */}
-            <div className="pt-2">
+            <div className="pt-3">
               <h3 className="text-sm sm:text-base font-medium mb-2">
                 This is for you if:
               </h3>
 
-              <ul className="
-          grid
-          grid-cols-1
-          sm:grid-cols-2
-          gap-x-4 gap-y-2
-          text-xs sm:text-sm
-          text-gray-200
-        ">
+              <ul
+                className="
+      grid
+      grid-cols-1
+      sm:grid-cols-2
+      gap-x-4 gap-0 sm:gap-3
+      text-xs sm:text-sm
+      text-gray-200
+    "
+              >
                 {[
                   "You run a business or an agency",
                   "You want growth without added chaos",
                   "You care about margins, not busyness",
                   "You want clearer decisions as you scale",
                 ].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
+                  <li
+                    key={item}
+                    className="
+          flex items-start gap-2
+          px-3 py-2
+          rounded-xl
+          md:bg-white/5
+          md:border md:border-white/10
+          md:backdrop-blur-sm
+        "
+                  >
                     <span className="text-green-300">✓</span>
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
+
           </div>
 
-          {/* RIGHT – SUBSCRIBE CARD */}
-          <div className="md:col-span-5 flex justify-center md:justify-end">
+          {/* RIGHT FORM — TABLET / DESKTOP ONLY (≥ 481px) */}
+          <div className="hidden max-[480px]:hidden min-[481px]:flex md:col-span-5 justify-center md:justify-end">
             <div className="relative w-full max-w-sm">
-
               <div className="absolute -inset-1 bg-gradient-to-r from-brand-coral to-purple-500 rounded-2xl blur opacity-30" />
 
-              <div className="
-          relative
-          bg-[#1B0F22]/85
-          backdrop-blur-xl
-          border border-white/10
-          rounded-2xl
-          p-5 sm:p-6
-          shadow-xl
-        ">
-
+              <div
+                className="
+              relative
+              bg-[#1B0F22]/85
+              backdrop-blur-xl
+              border border-white/10
+              rounded-2xl
+              p-5 sm:p-6
+              shadow-xl
+            "
+              >
                 <h2 className="text-base sm:text-lg font-bold text-center mb-1">
                   Join the newsletter
                 </h2>
@@ -352,15 +481,15 @@ export default function Newsletter() {
                     placeholder="Your name"
                     required
                     className="
-                w-full px-3 py-2
-                rounded-lg
-                bg-white/10
-                border border-white/20
-                text-sm
-                text-white
-                placeholder-gray-400
-                focus:outline-none focus:ring-1 focus:ring-brand-coral
-              "
+                  w-full px-3 py-2
+                  rounded-lg
+                  bg-white/10
+                  border border-white/20
+                  text-sm
+                  text-white
+                  placeholder-gray-400
+                  focus:outline-none focus:ring-1 focus:ring-brand-coral
+                "
                   />
 
                   <input
@@ -370,28 +499,29 @@ export default function Newsletter() {
                     placeholder="Your email"
                     required
                     className="
-                w-full px-3 py-2
-                rounded-lg
-                bg-white/10
-                border border-white/20
-                text-sm
-                text-white
-                placeholder-gray-400
-                focus:outline-none focus:ring-1 focus:ring-brand-coral
-              "
+                  w-full px-3 py-2
+                  rounded-lg
+                  bg-white/10
+                  border border-white/20
+                  text-sm
+                  text-white
+                  placeholder-gray-400
+                  focus:outline-none focus:ring-1 focus:ring-brand-coral
+                "
                   />
 
                   <button
                     type="submit"
                     disabled={loading}
                     className={`
-                w-full py-2 rounded-lg
-                text-sm font-semibold
-                transition
-                ${loading
+                  w-full py-2 rounded-lg
+                  text-sm font-semibold
+                  transition
+                  ${loading
                         ? "bg-white/40 text-gray-700 cursor-not-allowed"
-                        : "bg-white text-[#552265] hover:bg-brand-coral hover:text-white"}
-              `}
+                        : "bg-white text-[#552265] hover:bg-brand-coral hover:text-white"
+                      }
+                `}
                   >
                     {loading ? "Joining..." : "Join"}
                   </button>
@@ -416,7 +546,7 @@ export default function Newsletter() {
         isOpen={showThankYouPopup}
         onClose={() => setShowThankYouPopup(false)}
         title="You’re in."
-        message="Your first issue will arrive soon. Each edition focuses on how business owners think, decide, and adjust as they scale — so growth feels more intentional and less like guesswork."
+        message="Your first issue will arrive soon. Each edition focuses on how business owners think, decide, and adjust as they scale so growth feels more intentional and less like guesswork."
         formType="inquiry"
       />
     </>

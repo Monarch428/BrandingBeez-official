@@ -142,9 +142,6 @@ const LazyRoute = ({
   </Suspense>
 );
 
-/**
- * ✅ NEW: isolates popup layer so popup crash never white-screens the full site
- */
 class SafePopupBoundary extends React.Component<
   { children: React.ReactNode; name: string },
   { hasError: boolean }
@@ -183,7 +180,7 @@ function Router() {
     window.scrollTo(0, 0);
 
     if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "page_view", {
+      (window as any).gtag("event", "page_load", {
         page_location: window.location.href,
         page_path: window.location.pathname + window.location.search,
         page_title: document.title,

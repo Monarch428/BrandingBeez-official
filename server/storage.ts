@@ -20,28 +20,30 @@ import type { SeoCaseStudyStorage } from "./Istorage/storage-seo-case-study";
 import { PpcCaseStudyStorage } from "./Istorage/storage-ppc-case-study";
 import { WebCaseStudyStorage } from "./Istorage/storage-web-case-study";
 import { DedicatedResourceCaseStudyStorage } from "./Istorage/dedicated-resource-case-study-storage";
+import { GoogleApiAuthStorage } from "./Istorage/auth-api-token";
 
 export interface IStorage
   extends UserStorage,
-    ContactStorage,
-    ClientStorage,
-    SeoAuditStorage,
-    ChatStorage,
-    FeaturedClientStorage,
-    CaseStudyStorage,
-    PricingStorage,
-    ServicePageStorage,
-    CouponStorage,
-    DedicatedResourcesStorage,
-    BlogStorage,
-    NewsletterStorage,
-    PortfolioStorage,
-    AppointmentStorage,
-    SeoCaseStudyStorage,
-    PpcCaseStudyStorage,
-    WebCaseStudyStorage,
-    DedicatedResourceCaseStudyStorage,
-    GoogleAuthStorage {}  
+  ContactStorage,
+  ClientStorage,
+  SeoAuditStorage,
+  ChatStorage,
+  FeaturedClientStorage,
+  CaseStudyStorage,
+  PricingStorage,
+  ServicePageStorage,
+  CouponStorage,
+  DedicatedResourcesStorage,
+  BlogStorage,
+  NewsletterStorage,
+  PortfolioStorage,
+  AppointmentStorage,
+  SeoCaseStudyStorage,
+  PpcCaseStudyStorage,
+  WebCaseStudyStorage,
+  DedicatedResourceCaseStudyStorage,
+  GoogleAuthStorage,
+  GoogleApiAuthStorage {}
 
 // Hook the composed db-storage into this module
 export const storage: IStorage = dbStorage;
