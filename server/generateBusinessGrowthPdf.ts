@@ -581,6 +581,11 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       ========================= */
       sectionTitle(doc, "1", "Executive Summary");
 
+      const overview = safeText((report as any).executiveSummary?.overview, "");
+      if (overview) {
+        callout(doc, "Executive Overview", overview);
+      }
+
       const strengths = normalizeStringList(report.executiveSummary?.strengths);
       const weaknesses = normalizeStringList(report.executiveSummary?.weaknesses);
       const biggest = safeText((report as any).executiveSummary?.biggestOpportunity ?? (report as any).executiveSummary?.highPriorityRecommendations?.[0], "No single opportunity identified.");
@@ -1130,9 +1135,9 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
             normalizeStringList(s?.assumptions).join("; ") || "—",
             Array.isArray(s?.outcomes)
               ? s.outcomes
-                  .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
-                  .filter(Boolean)
-                  .join("; ") || "—"
+                .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
+                .filter(Boolean)
+                .join("; ") || "—"
               : "—",
           ]),
           [90, 210, 220],
@@ -1207,9 +1212,9 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
             normalizeStringList(s?.assumptions).join("; ") || "—",
             Array.isArray(s?.outcomes)
               ? s.outcomes
-                  .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
-                  .filter(Boolean)
-                  .join("; ") || "—"
+                .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
+                .filter(Boolean)
+                .join("; ") || "—"
               : "—",
           ]),
           [90, 210, 220],
@@ -1346,9 +1351,17 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       sectionTitle(doc, "A", "Appendix A: Evidence & Crawl Snapshot");
 
       // Evidence (screenshots / crawl list / timestamps)
-      const evidence = report.appendices?.evidence || {};
-      const pagesCrawled = Array.isArray(report.appendices?.pagesCrawled) ? report.appendices.pagesCrawled : [];
-      const psiAt = evidence?.pagespeed?.fetchedAt || report.pagespeed?.fetchedAt;
+      // const evidence = report.appendices?.evidence || {};
+      // const pagesCrawled = Array.isArray(report.appendices?.pagesCrawled) ? report.appendices.pagesCrawled : [];
+      // const psiAt = evidence?.pagespeed?.fetchedAt || report.pagespeed?.fetchedAt;
+      const appendices = (report as any)?.appendices || {};
+      const evidence = appendices?.evidence || {};
+      const pagesCrawled = Array.isArray(appendices?.pagesCrawled) ? appendices.pagesCrawled : [];
+
+      const psiAt =
+        evidence?.pagespeed?.fetchedAt ||
+        (report as any)?.pagespeed?.fetchedAt;
+
 
       if (psiAt) {
         callout(doc, "PageSpeed Snapshot", `Fetched at: ${safeText(psiAt, "—")}`);

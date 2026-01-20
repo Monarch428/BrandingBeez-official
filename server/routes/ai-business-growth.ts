@@ -132,6 +132,19 @@ export function registerBusinessGrowthRoutes(app: Express) {
         process.env.AI_ENGINE_API_KEY ||
         "";
 
+      const targetMarket =
+        typeof req.body?.targetMarket === "string" ? req.body.targetMarket.trim() : "";
+
+      const businessGoal =
+        typeof req.body?.businessGoal === "string" ? req.body.businessGoal.trim() : "";
+
+      // safe merge into criteria without breaking existing shape
+      const mergedCriteria = {
+        ...(criteria && typeof criteria === "object" ? criteria : {}),
+        ...(targetMarket ? { targetMarket } : {}),
+        ...(businessGoal ? { businessGoal } : {}),
+      };
+
       const payload = {
         companyName: companyName || "Marketing Agency",
         website,
@@ -143,7 +156,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
         email,
         name,
         reportType,
-        criteria,
+        // criteria,
+        criteria: mergedCriteria,
       };
 
       const py = await callPythonAiEngineAnalyze({

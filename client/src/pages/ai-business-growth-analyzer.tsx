@@ -1092,7 +1092,7 @@ const runAnalysis = async (websiteUrl: string, opts?: { forceNewAnalysis?: boole
                         )}
                       </div>
 
-                      <div className="space-y-2 md:col-span-2">
+                      <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-800">Company Website URL</label>
                         <Input
                           placeholder="https://youragency.com"
@@ -1111,6 +1111,34 @@ const runAnalysis = async (websiteUrl: string, opts?: { forceNewAnalysis?: boole
                       </div>
 
                       <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Location (required)</label>
+                        <Input
+                          placeholder="e.g., London, UK"
+                          value={formState.location || ""}
+                          onChange={(e) => handleInputChange("location", e.target.value)}
+                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), location: undefined }))}
+                          aria-invalid={Boolean((errors as any).location)}
+                          aria-describedby="locationError"
+                        />
+                        {(errors as any).location && (
+                          <p id="locationError" className="text-sm text-red-500">
+                            {(errors as any).location}
+                          </p>
+                        )}
+                        <p className="text-xs text-gray-500">Used to fetch Google reviews & local competitors for reputation scoring.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Primary Service (recommended)</label>
+                        <Input
+                          placeholder="e.g., SEO Agency / Web Development / Google Ads"
+                          value={formState.primaryService || ""}
+                          onChange={(e) => handleInputChange("primaryService", e.target.value)}
+                        />
+                        <p className="text-xs text-gray-500">Helps detect service pages, competitors, and better action plan recommendations.</p>
+                      </div>
+
+                      <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-800">Industry (optional)</label>
                         <Input placeholder="e.g., Marketing, SaaS, E-commerce" value={formState.industry || ""} onChange={(e) => handleInputChange("industry", e.target.value)} />
                       </div>
@@ -1120,7 +1148,25 @@ const runAnalysis = async (websiteUrl: string, opts?: { forceNewAnalysis?: boole
                         <Input placeholder="e.g., US agencies, Local businesses" value={formState.targetMarket || ""} onChange={(e) => handleInputChange("targetMarket", e.target.value)} />
                       </div>
 
-                      <div className="space-y-2 md:col-span-2">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Competitor Websites (optional)</label>
+                        <Input placeholder="e.g., competitor1.com, competitor2.co.uk" value={formState.competitorWebsites || ""} onChange={(e) => handleInputChange("competitorWebsites", e.target.value)} />
+                        <p className="text-xs text-gray-500">If provided, Competitive Analysis will include these even without SERP APIs.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Target Keywords (optional)</label>
+                        <Input placeholder="e.g., seo london, website design agency, google ads management" value={formState.targetKeywords || ""} onChange={(e) => handleInputChange("targetKeywords", e.target.value)} />
+                        <p className="text-xs text-gray-500">Improves keyword/competitor context when Search Console is not connected.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-800">Deep Crawl Pages (optional)</label>
+                        <Input type="number" min={3} max={20} placeholder="8" value={formState.contentMaxPages || ""} onChange={(e) => handleInputChange("contentMaxPages", e.target.value)} />
+                        <p className="text-xs text-gray-500">Higher value gives deeper services & UX insights (slightly slower).</p>
+                      </div>
+
+                       <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-800">Business Goal (optional)</label>
                         <Textarea
                           placeholder="Tell us your primary goal (more leads, better SEO, higher conversions, etc.)"
@@ -1237,52 +1283,6 @@ const runAnalysis = async (websiteUrl: string, opts?: { forceNewAnalysis?: boole
                             </div>
                           </div>
                         )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Location (required)</label>
-                        <Input
-                          placeholder="e.g., London, UK"
-                          value={formState.location || ""}
-                          onChange={(e) => handleInputChange("location", e.target.value)}
-                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), location: undefined }))}
-                          aria-invalid={Boolean((errors as any).location)}
-                          aria-describedby="locationError"
-                        />
-                        {(errors as any).location && (
-                          <p id="locationError" className="text-sm text-red-500">
-                            {(errors as any).location}
-                          </p>
-                        )}
-                        <p className="text-xs text-gray-500">Used to fetch Google reviews & local competitors for reputation scoring.</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Primary Service (recommended)</label>
-                        <Input
-                          placeholder="e.g., SEO Agency / Web Development / Google Ads"
-                          value={formState.primaryService || ""}
-                          onChange={(e) => handleInputChange("primaryService", e.target.value)}
-                        />
-                        <p className="text-xs text-gray-500">Helps detect service pages, competitors, and better action plan recommendations.</p>
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm font-semibold text-gray-800">Competitor Websites (optional)</label>
-                        <Input placeholder="e.g., competitor1.com, competitor2.co.uk" value={formState.competitorWebsites || ""} onChange={(e) => handleInputChange("competitorWebsites", e.target.value)} />
-                        <p className="text-xs text-gray-500">If provided, Competitive Analysis will include these even without SERP APIs.</p>
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm font-semibold text-gray-800">Target Keywords (optional)</label>
-                        <Input placeholder="e.g., seo london, website design agency, google ads management" value={formState.targetKeywords || ""} onChange={(e) => handleInputChange("targetKeywords", e.target.value)} />
-                        <p className="text-xs text-gray-500">Improves keyword/competitor context when Search Console is not connected.</p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Deep Crawl Pages (optional)</label>
-                        <Input type="number" min={3} max={20} placeholder="8" value={formState.contentMaxPages || ""} onChange={(e) => handleInputChange("contentMaxPages", e.target.value)} />
-                        <p className="text-xs text-gray-500">Higher value gives deeper services & UX insights (slightly slower).</p>
                       </div>
 
                       <div className="md:col-span-2 flex flex-col gap-3">

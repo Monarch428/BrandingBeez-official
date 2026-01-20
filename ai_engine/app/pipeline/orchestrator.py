@@ -5,6 +5,7 @@ import sys
 import logging
 import time
 
+
 # Windows + Python 3.13: Playwright (subprocess) requires Proactor loop
 if sys.platform.startswith("win"):
     try:
@@ -16,6 +17,7 @@ from app.core.utils import normalize_url, make_token
 from app.core.config import settings
 from app.extractors.homepage_fetch import fetch_homepage_html, parse_homepage
 from app.extractors.robots_sitemap import check_robots_and_sitemap
+
 
 # ✅ OLD simple extractor (kept as fallback)
 from app.extractors.link_extractor import extract_links as extract_links_simple
@@ -43,7 +45,8 @@ from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
 from app.signals.dataforseo_signals import build_dataforseo_enrichment
-from app.llm.report_builder import build_report_with_llm
+# from app.llm.report_builder import build_report_with_llm
+from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
@@ -319,6 +322,64 @@ def should_use_playwright_for_site(homepage_html: str, links_payload: Dict[str, 
     except Exception:
         return True
 
+def _truncate_str(s: Any, n: int) -> Any:
+    if not isinstance(s, str):
+        return s
+    s = s.strip()
+    return s if len(s) <= n else s[:n] + "…"
+
+def _compact_for_full_llm(ctx: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Keeps the full-report LLM useful but avoids huge token payloads.
+    """
+    out = dict(ctx)
+
+    # Biggest token offenders:
+    out["contentPages"] = (ctx.get("contentPages") or [])[:6]  # reduce from 12
+    for p in out["contentPages"]:
+        if isinstance(p, dict):
+            # keep only small fields, drop large text if present
+            for k in list(p.keys()):
+                if k.lower() in ("html", "content", "raw_html", "rawtext", "fulltext"):
+                    p.pop(k, None)
+            if "textSnippet" in p:
+                p["textSnippet"] = _truncate_str(p.get("textSnippet"), 600)
+
+    # Reduce raw blobs
+    out["dataforseo"] = {"summary": "omitted_for_token_safety"}  # keep minimal placeholder
+    out["competitorsEnrichment"] = {"summary": "omitted_for_token_safety"}
+    out["pagespeed"] = {
+        "url": (ctx.get("pagespeed") or {}).get("url") if isinstance(ctx.get("pagespeed"), dict) else None,
+        "mobile": (ctx.get("pagespeed") or {}).get("mobile") if isinstance(ctx.get("pagespeed"), dict) else None,
+        "desktop": (ctx.get("pagespeed") or {}).get("desktop") if isinstance(ctx.get("pagespeed"), dict) else None,
+    }
+
+    return out
+
+def _compact_for_estimation_llm(ctx: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Tiny context used only for sections 8–10.
+    """
+    return {
+        "companyName": ctx.get("companyName"),
+        "website": ctx.get("website"),
+        "targetMarket": ctx.get("targetMarket"),
+        "businessGoal": ctx.get("businessGoal"),
+        "estimationMode": True,
+        "estimationInputs": ctx.get("estimationInputs"),
+        "subScores": ctx.get("subScores"),
+        # keep small signals that help scenarios
+        "services": (ensure_dict(ctx.get("servicesSignals")).get("services") if isinstance(ctx.get("servicesSignals"), dict) else None),
+        "leadGen": ensure_dict(ctx.get("leadGenSignals")),
+        "seo": ensure_dict(ctx.get("seoSignals")),
+        "reputation": ensure_dict(ctx.get("reputationSignals")),
+        "pagespeedSummary": {
+            "mobilePerformanceScore": ensure_dict(ensure_dict(ctx.get("pagespeed")).get("mobile")).get("performanceScore")
+            if isinstance(ctx.get("pagespeed"), dict) else None,
+            "desktopPerformanceScore": ensure_dict(ensure_dict(ctx.get("pagespeed")).get("desktop")).get("performanceScore")
+            if isinstance(ctx.get("pagespeed"), dict) else None,
+        },
+    }
 
 def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     website = normalize_url(payload.website)
@@ -326,6 +387,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     # ✅ IMPORTANT: define criteria ONCE so it is always available
     criteria = ensure_dict(getattr(payload, "criteria", {}) or {})
+    target_market = (criteria.get("targetMarket") or "").strip()
+    business_goal = (criteria.get("businessGoal") or "").strip()
 
     # Cache
     cache_repo = AnalysisCacheRepository()
@@ -1409,6 +1472,9 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "dataGaps": base_report["appendices"]["dataGaps"],
         "competitiveAnalysisSeed": competitive_analysis,
         "competitorsEnrichment": competitor_evidence,
+        "targetMarket": target_market or None,
+        "businessGoal": business_goal or None,
+
 
         # Extra evidence for mentor-style, specific recommendations
         "contentPages": own_pages[:12],
@@ -1430,12 +1496,49 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             if getattr(payload, "estimationInputs", None) is not None
             else None
         ),
+        "analysisGuidance": (
+            "Use targetMarket and businessGoal (if provided) to prioritize recommendations, "
+            "choose the most relevant acquisition channels, and tailor positioning."
+            if (target_market or business_goal)
+            else None
+        ),
     }
 
+    # try:
+    #     llm_report = build_report_with_llm(base_report, llm_context)
+    # except Exception:
+    #     llm_report = None
+    # try:
+    #     llm_report = build_report_with_llm(base_report, llm_context)
+    # except Exception as e:
+    #     logger.exception("[LLM] build_report_with_llm failed")
+    #     llm_report = None
+
+    llm_report = None
+
+# Step 1: Full report LLM (compact context to avoid 429)
     try:
-        llm_report = build_report_with_llm(base_report, llm_context)
+        llm_report = build_report_with_llm(base_report, _compact_for_full_llm(llm_context))
     except Exception:
+        logger.exception("[LLM] build_report_with_llm failed")
         llm_report = None
+# Merge whatever we got (or fallback to base)
+        llm_report = ensure_dict(llm_report)
+        merged = sanitize_with_template(base_report, llm_report)
+        merged = patch_required_metadata(merged, base_report)
+
+# Step 2 (Option A): If estimationMode=true, run estimation-only LLM for sections 8–10
+    if bool(getattr(payload, "estimationMode", False)):
+        try:
+            est_sections = build_sections_8_10_with_llm(_compact_for_estimation_llm(llm_context))
+        # overwrite only 8–10 with the estimation-specific output
+            merged["costOptimization"] = est_sections.get("costOptimization") or merged.get("costOptimization")
+            merged["targetMarket"] = est_sections.get("targetMarket") or merged.get("targetMarket")
+            merged["financialImpact"] = est_sections.get("financialImpact") or merged.get("financialImpact")
+        except Exception:
+            logger.exception("[LLM] build_sections_8_10_with_llm failed (keeping fallback/base for 8–10)")
+
+
 
     llm_report = ensure_dict(llm_report)
     merged = sanitize_with_template(base_report, llm_report)
