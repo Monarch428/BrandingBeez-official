@@ -662,15 +662,13 @@ export default function Admin() {
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow">
+                {/* <Card className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      {/* Icon */}
                       <div className="w-12 h-12 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
                         🔐
                       </div>
 
-                      {/* Content */}
                       <div className="flex flex-col gap-2">
                         <div className="text-md font-bold text-brand-purple">
                           Google Auth API
@@ -680,7 +678,7 @@ export default function Admin() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+                </Card> */}
 
               </div>
 

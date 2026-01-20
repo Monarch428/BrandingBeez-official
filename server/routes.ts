@@ -2136,6 +2136,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", createPortfolioRouter(authenticateAdmin, publicContentRateLimit));
   app.use("/api", appointmentsRouter);
   app.use("/api/google", googleAuthRoutes);
+  app.use("/api/newsletter", newsletterRoutes);
   app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
   app.use("/api", blogPublicRouter(publicContentRateLimit));
   app.use("/api/oauthapi", authApiRouter);

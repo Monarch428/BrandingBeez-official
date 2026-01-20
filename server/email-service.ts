@@ -449,64 +449,204 @@ export async function sendEmailViaGmail(submission: {
       },
     });
 
-    const mailOptions = {
-      from: FROM_NEWSLETTER(user),
-      to: submission.email,
-      subject: "Newsletter Subscription Confirmation",
-      html: `
-       <!DOCTYPE html>
-       <html lang="en">
-       <head>
-         <meta charset="UTF-8" />
-         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-         <title>Subscription Confirmation</title>
-       </head>
-       <body style="margin:0; padding:0; font-family: 'Inter', Arial, sans-serif; 
-         background: linear-gradient(to right, #CF4163, #552265); color:#fff;">
-         <table width="100%" cellspacing="0" cellpadding="0">
-           <tr>
-             <td align="center" style="padding: 40px 0;">
-               <table width="600" cellpadding="20" cellspacing="0" 
-                 style="background: rgba(255,255,255,0.1); border-radius:12px; 
-                 box-shadow:0 4px 12px rgba(0,0,0,0.2); backdrop-filter: blur(6px);">
-                 <tr>
-                   <td align="center" style="text-align:center;">
-                     <h1 style="color:#fff; margin-bottom:8px; font-size:24px;">
-                       Welcome to Our Newsletter 🎉
-                     </h1>
-                     <p style="color:#f3f3f3; font-size:16px; margin:0;">
-                       Hello <b>${submission.name}</b>, thanks for subscribing!
-                     </p>
-                     <p style="color:#ddd; font-size:14px; margin:16px 0;">
-                       You'll now receive short, practical tips and tools to grow your agency – 
-                       all in a quick 1-minute read.
-                     </p>
-                     <table cellpadding="8" cellspacing="0" width="100%" 
-                       style="margin:20px 0; text-align:left; font-size:14px; color:#fff;">
-                       <tr><td>✅ Fast client-winning strategies</td></tr>
-                       <tr><td>✅ Pricing & proposal hacks</td></tr>
-                       <tr><td>✅ AI & automation tips</td></tr>
-                       <tr><td>✅ Real stories from agencies like yours</td></tr>
-                     </table>
-                     <a href="#" 
-                       style="display:inline-block; background:#fff; color:#552265; 
-                       text-decoration:none; padding:12px 24px; border-radius:8px; 
-                       font-weight:bold; margin-top:16px;">
-                       Explore Resources
-                     </a>
-                     <p style="margin-top:24px; font-size:12px; color:#ccc;">
-                       Subscribed at: ${submission.submittedAt.toLocaleString()}
-                     </p>
-                   </td>
-                 </tr>
-               </table>
-             </td>
-           </tr>
-         </table>
-       </body>
-       </html>
-       `,
-    };
+const mailOptions = {
+  from: FROM_NEWSLETTER(user),
+  to: submission.email,
+  subject: "You’re subscribed — here’s what to expect 👋",
+html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>You’re subscribed</title>
+</head>
+<body style="
+  margin:0;
+  padding:0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(to right, #CF4163, #552265);
+  color:#111;
+">
+
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr>
+      <td align="center" style="padding:40px 16px;">
+
+        <!-- Card -->
+        <table width="600" cellpadding="0" cellspacing="0" style="
+          background: rgba(255,255,255,0.12);
+          border-radius:14px;
+          padding:32px;
+          backdrop-filter: blur(6px);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        ">
+
+          <tr>
+            <td style="color:#ffffff; font-size:18px; font-weight:bold; padding-bottom:16px;">
+              You’re subscribed — here’s what to expect
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              Hi ${submission.name},
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              You’re subscribed.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              This newsletter exists for one simple reason:
+              to help business owners make better growth decisions.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#dddddd; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              Not motivation.<br/>
+              Not random tips.<br/>
+              Not noise.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:10px;">
+              Each week, you’ll get a short read that breaks down:
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.8; padding-left:8px; padding-bottom:16px;">
+              ~ what’s working across real businesses right now<br/>
+              ~ what’s quietly failing and hurting growth<br/>
+              ~ what’s changing in the business world and why it matters<br/>
+              ~ tools, products, and shifts worth paying attention to<br/>
+              ~ what to focus on next as you scale
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              Think of it as a weekly briefing.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              Something you can read quickly, step back, and think:<br/>
+              <em>“Okay, that makes sense.”</em>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:14px;">
+              You don’t need to do anything right now.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#f5f5f5; font-size:14px; line-height:1.7; padding-bottom:18px;">
+              Your first issue will arrive soon.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#dddddd; font-size:14px; line-height:1.7; padding-bottom:24px;">
+              Until then, just know this was built for people who care about
+              earning more, scaling cleanly, and avoiding expensive guesswork.
+            </td>
+          </tr>
+
+          <tr>
+            <td style="color:#ffffff; font-size:14px; line-height:1.7; padding-bottom:24px;">
+              Talk soon,<br/>
+              <strong>BrandingBeez</strong>
+            </td>
+          </tr>
+
+          <!-- Divider -->
+          <tr>
+            <td style="border-top:1px solid rgba(255,255,255,0.25); padding-top:20px;">
+            </td>
+          </tr>
+
+        <!-- Social Links -->
+        <tr>
+          <td style="text-align:center; padding-top:16px;">
+
+            <p style="font-size:13px; color:#eeeeee; margin-bottom:12px;">
+              Follow BrandingBeez
+            </p>
+
+            <a href="https://www.linkedin.com/company/brandingbeez/" target="_blank" style="margin:0 6px; display:inline-block;">
+              <img
+                src="https://brandingbeez.co.uk/email-icons/linkedin.png"
+                alt="LinkedIn"
+                width="28"
+                height="28"
+                style="display:block; border-radius:6px;"
+              />
+            </a>
+
+            <a href="https://www.facebook.com/Brandingbeezuk" target="_blank" style="margin:0 6px; display:inline-block;">
+              <img
+                src="https://brandingbeez.co.uk/email-icons/facebook.png"
+                alt="Facebook"
+                width="28"
+                height="28"
+                style="display:block; border-radius:6px;"
+              />
+            </a>
+
+            <a href="https://www.instagram.com/brandingbeez/?igsh=ZHY0eGtvY2p3bm5p#" target="_blank" style="margin:0 6px; display:inline-block;">
+              <img
+                src="https://brandingbeez.co.uk/email-icons/instagram.png"
+                alt="Instagram"
+                width="28"
+                height="28"
+                style="display:block; border-radius:6px;"
+              />
+            </a>
+
+            <a href="https://www.behance.net/brandingbeez" target="_blank" style="margin:0 6px; display:inline-block;">
+              <img
+                src="https://brandingbeez.co.uk/email-icons/behance.png"
+                alt="Behance"
+                width="28"
+                height="28"
+                style="display:block; border-radius:6px;"
+              />
+            </a>
+
+            <a href="https://in.pinterest.com/brandingbeez/_created/" target="_blank" style="margin:0 6px; display:inline-block;">
+              <img
+                src="https://brandingbeez.co.uk/email-icons/social.png"
+                alt="Pinterest"
+                width="28"
+                height="28"
+                style="display:block; border-radius:6px;"
+              />
+            </a>
+          </td>
+        </tr>
+
+        </table>
+        <!-- End Card -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>
+`
+};
 
     await transporter.sendMail(mailOptions);
     console.log("Email sent via SMTP to", submission.email);

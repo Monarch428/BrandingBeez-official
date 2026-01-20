@@ -227,13 +227,11 @@ export function securityHeaders() {
       directives: {
         defaultSrc: ["'self'"],
 
-        // ✅ Explicit hardening
         baseUri: ["'self'"],
         objectSrc: ["'none'"],
-        frameAncestors: ["'self'"], // clickjacking protection (replaces X-Frame-Options)
+        frameAncestors: ["'self'"],
         formAction: ["'self'"],
 
-        // ✅ Turnstile + embeds need frames
         frameSrc: [
           "'self'",
           "https://challenges.cloudflare.com",
@@ -252,11 +250,11 @@ export function securityHeaders() {
           "https://*.gstatic.com",
         ],
 
-        // ✅ Scripts
+        // Scripts (inline + eval currently allowed in your policy)
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
-          "'unsafe-eval'", // keep ONLY if you truly need it (often required by some tools)
+          "'unsafe-eval'",
           "https://challenges.cloudflare.com",
 
           "https://*.google.com",
@@ -270,8 +268,12 @@ export function securityHeaders() {
           "https://*.gstatic.com",
 
           "https://googleads.g.doubleclick.net",
-          "https://www.googleadservices.com",
           "https://stats.g.doubleclick.net",
+          "https://www.googleadservices.com",
+
+          // Google Ads conversion script domain
+          "https://pagead2.googlesyndication.com",
+          "https://*.googlesyndication.com",
 
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
@@ -296,10 +298,44 @@ export function securityHeaders() {
           "https://*.facebook.net",
         ],
 
-        // ✅ Inline script attributes (onclick= etc). If you never use them, remove this.
+        scriptSrcElem: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://challenges.cloudflare.com",
+          "https://*.google.com",
+          "https://*.googleapis.com",
+          "https://*.googletagmanager.com",
+          "https://www.googletagmanager.com",
+          "https://googletagmanager.com",
+          "https://www.google-analytics.com",
+          "https://www.gstatic.com",
+          "https://*.gstatic.com",
+          "https://googleads.g.doubleclick.net",
+          "https://stats.g.doubleclick.net",
+          "https://www.googleadservices.com",
+
+          "https://pagead2.googlesyndication.com",
+          "https://*.googlesyndication.com",
+
+          "https://tagassistant.google.com",
+          "https://*.tagassistant.google.com",
+          "https://assets.calendly.com",
+          "https://calendly.com",
+          "https://*.calendly.com",
+          "https://www.clarity.ms",
+          "https://c.clarity.ms",
+          "https://scripts.clarity.ms",
+          "https://static.hotjar.com",
+          "https://script.hotjar.com",
+          "https://cdn.jsdelivr.net",
+          "https://snap.licdn.com",
+          "https://*.licdn.com",
+          "https://connect.facebook.net",
+          "https://*.facebook.net",
+        ],
+
         scriptSrcAttr: ["'unsafe-inline'"],
 
-        // ✅ Styles / fonts (this will prevent future CSP breakages)
         styleSrc: [
           "'self'",
           "'unsafe-inline'",
@@ -307,14 +343,8 @@ export function securityHeaders() {
           "https://assets.calendly.com",
           "https://static.hotjar.com",
         ],
-        fontSrc: [
-          "'self'",
-          "data:",
-          "https://fonts.gstatic.com",
-          "https://assets.calendly.com",
-        ],
+        fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://assets.calendly.com"],
 
-        // ✅ Images
         imgSrc: [
           "'self'",
           "data:",
@@ -360,7 +390,6 @@ export function securityHeaders() {
           "https://i.ytimg.com",
         ],
 
-        // ✅ Network calls / XHR / beacon
         connectSrc: [
           "'self'",
           "https://challenges.cloudflare.com",
@@ -415,31 +444,18 @@ export function securityHeaders() {
           "https://*.stape.nz",
         ],
 
-        // ✅ Workers (some libs use blob workers)
         workerSrc: ["'self'", "blob:"],
-
-        // keep your current behavior
         upgradeInsecureRequests: [],
       },
     },
 
-    hsts: {
-      maxAge: 31536000,
-      includeSubDomains: true,
-      preload: true,
-    },
-
-    // You already disabled frameguard; frame-ancestors is better anyway
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
     frameguard: false,
     noSniff: true,
     xssFilter: true,
-
-    referrerPolicy: {
-      policy: "strict-origin-when-cross-origin",
-    },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
   });
 }
-
 
 export const apiRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
