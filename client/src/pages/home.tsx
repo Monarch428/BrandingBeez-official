@@ -2083,8 +2083,7 @@ export default function Home() {
                   Subscribe to Our Newsletter!
                 </h2>
                 <p className="text-xs sm:text-sm md:text-base text-white/90 max-w-2xl mx-auto">
-                  Join 1000+ marketers &amp; agencies getting exclusive tips on
-                  SEO, AI, and growth strategies.
+                  Most businesses don’t fail. They just make slow, expensive decisions.
                 </p>
               </div>
 
@@ -2095,12 +2094,13 @@ export default function Home() {
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
 
-                  <p className="text-sm text-gray-100 leading-normal">
-                    Get actionable tips, pricing tricks, automation tactics,
-                    fast client-winning strategies, proposal hacks, AI
-                    workflows, and real stories from growing agencies all
-                    delivered in simple 1-minute reads to help you scale smarter
-                    every week.
+                  <p className="text-gray-200 text-sm sm:text-base">
+                    2-minute reads on how businesses actually grow.
+                    What’s working. What’s not. And what to focus on next.
+                  </p>
+
+                  <p className="text-gray-300 text-xs sm:text-sm italic font-medium">
+                    No noise. No motivation talk.
                   </p>
                 </div>
 
@@ -2110,7 +2110,7 @@ export default function Home() {
                     Subscribe Free
                   </h3>
                   <p className="text-gray-200 text-center text-xs sm:text-sm mb-4">
-                    Join 3,000+ agency owners no spam.
+                    Join 1,000+ business owners reading this every week.
                   </p>
 
                   <form
