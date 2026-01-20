@@ -5,7 +5,6 @@ import sys
 import logging
 import time
 
-
 # Windows + Python 3.13: Playwright (subprocess) requires Proactor loop
 if sys.platform.startswith("win"):
     try:
@@ -17,7 +16,6 @@ from app.core.utils import normalize_url, make_token
 from app.core.config import settings
 from app.extractors.homepage_fetch import fetch_homepage_html, parse_homepage
 from app.extractors.robots_sitemap import check_robots_and_sitemap
-
 
 # ✅ OLD simple extractor (kept as fallback)
 from app.extractors.link_extractor import extract_links as extract_links_simple
@@ -45,8 +43,7 @@ from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
 from app.signals.dataforseo_signals import build_dataforseo_enrichment
-# from app.llm.report_builder import build_report_with_llm
-from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm
+from app.llm.report_builder import build_report_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
@@ -64,7 +61,19 @@ except Exception:
     fetch_gsc_summary = None  # type: ignore
 
 import requests
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit, urlunsplit
+
+# ✅ Unified page registry (Option B)
+try:
+    from app.pipeline.page_registry import build_page_registry as build_page_registry_unified  # type: ignore
+except Exception:
+    build_page_registry_unified = None  # type: ignore
+
+# ✅ Key page selector (optional)
+try:
+    from app.extractors.sitemap_key_pages import select_key_pages  # type: ignore
+except Exception:
+    select_key_pages = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +109,282 @@ def ensure_dict(value: Any) -> Dict[str, Any]:
 
 def ensure_list(value: Any) -> list:
     return value if isinstance(value, list) else []
+
+
+def _normalize_url_key(u: Any) -> str:
+    """Normalize URLs so different variants merge into a single key."""
+    if not isinstance(u, str):
+        return ""
+    s = u.strip()
+    if not s:
+        return ""
+    # Ensure scheme
+    if not s.startswith("http://") and not s.startswith("https://"):
+        s = "https://" + s
+    try:
+        parts = urlsplit(s)
+        scheme = parts.scheme.lower() or "https"
+        netloc = (parts.netloc or "").lower()
+        if netloc.startswith("www."):
+            netloc = netloc[4:]
+        # drop query + fragment (canonicalize)
+        path = parts.path or "/"
+        # normalize trailing slash for path-like URLs
+        if path != "/" and not path.endswith("/"):
+            path = path + "/"
+        return urlunsplit((scheme, netloc, path, "", ""))
+    except Exception:
+        # fallback
+        s2 = s.split("#", 1)[0].split("?", 1)[0]
+        return s2.rstrip("/") + "/" if s2 and not s2.endswith("/") else s2
+
+
+def _extract_sitemap_urls(robots_sitemap: Dict[str, Any]) -> list[str]:
+    """Best-effort extraction of sitemap URLs list from robots_sitemap payload."""
+    rs = ensure_dict(robots_sitemap)
+    sm = ensure_dict(rs.get("sitemap"))
+    for k in ("urls", "pages", "links", "items"):
+        v = sm.get(k)
+        if isinstance(v, list):
+            return [str(x) for x in v if isinstance(x, str) and x.strip()]
+    # Sometimes checker may return a single sitemap URL only
+    return []
+
+
+def _classify_page_type(url: str) -> str | None:
+    """Classify a URL into a key page type using URL patterns."""
+    u = (url or "").lower()
+    # strip scheme/host
+    try:
+        p = urlsplit(u)
+        path = (p.path or "").strip("/")
+    except Exception:
+        path = u
+
+    # About
+    if any(x in path for x in ["about", "company", "who-we-are", "our-story", "team"]):
+        return "about"
+    # Contact
+    if any(x in path for x in ["contact", "get-in-touch", "enquiry", "inquiry"]):
+        return "contact"
+    # Services
+    if any(x in path for x in ["services", "what-we-do", "solutions", "seo", "ppc", "google-ads", "web-design", "development", "branding", "social-media", "marketing"]):
+        return "services"
+    # Proof
+    if any(x in path for x in ["case-stud", "portfolio", "work", "projects", "clients", "success-stor"]):
+        return "proof"
+    # Pricing
+    if any(x in path for x in ["pricing", "plans", "packages", "fees", "cost"]):
+        return "pricing"
+    # FAQ
+    if "faq" in path or "faqs" in path:
+        return "faq"
+    # Blog / Insights
+    if any(x in path for x in ["blog", "insights", "news", "articles"]):
+        return "blog"
+    return None
+
+
+def build_page_registry(
+    website_url: str,
+    crawl_pages: list[str],
+    sitemap_urls: list[str],
+    internal_links: list[str],
+    service_candidates: list[str],
+) -> Dict[str, Any]:
+    """Merge 4 sources into a single deterministic page registry.
+
+    Priority (highest -> lowest):
+      1) crawl_pages (actually fetched)
+      2) sitemap_urls
+      3) internal_links
+      4) service_candidates (heuristic)
+    """
+    def _dedupe_keep_order(items: list[str]) -> list[str]:
+        seen: set[str] = set()
+        out: list[str] = []
+        for it in items or []:
+            k = _normalize_url_key(it)
+            if not k or k in seen:
+                continue
+            seen.add(k)
+            out.append(k)
+        return out
+
+    crawl_n = _dedupe_keep_order(crawl_pages)
+    sm_n = _dedupe_keep_order(sitemap_urls)
+    links_n = _dedupe_keep_order(internal_links)
+    cand_n = _dedupe_keep_order(service_candidates)
+
+    # Map url -> source labels
+    sources_by_url: dict[str, set[str]] = {}
+    for u in crawl_n:
+        sources_by_url.setdefault(u, set()).add("crawl")
+    for u in sm_n:
+        sources_by_url.setdefault(u, set()).add("sitemap")
+    for u in links_n:
+        sources_by_url.setdefault(u, set()).add("links")
+    for u in cand_n:
+        sources_by_url.setdefault(u, set()).add("service_candidates")
+
+    # Classify key pages
+    buckets: dict[str, list[str]] = {
+        "home": [_normalize_url_key(website_url)],
+        "about": [],
+        "contact": [],
+        "services": [],
+        "proof": [],
+        "pricing": [],
+        "faq": [],
+        "blog": [],
+    }
+
+    all_urls = crawl_n + sm_n + links_n + cand_n
+    for u in all_urls:
+        t = _classify_page_type(u)
+        if t and t in buckets:
+            if u not in buckets[t]:
+                buckets[t].append(u)
+
+    def _pick_primary(urls: list[str]) -> str | None:
+        if not urls:
+            return None
+        # Choose by priority of source
+        def pri(u: str) -> int:
+            src = sources_by_url.get(u, set())
+            if "crawl" in src:
+                return 1
+            if "sitemap" in src:
+                return 2
+            if "links" in src:
+                return 3
+            if "service_candidates" in src:
+                return 4
+            return 9
+
+        urls2 = sorted(urls, key=lambda x: (pri(x), urls.index(x)))
+        return urls2[0] if urls2 else None
+
+    registry_pages: dict[str, Any] = {
+        "home": {"url": buckets["home"][0], "sources": ["homepage"]},
+    }
+    for t in ["about", "contact", "pricing", "faq", "proof", "blog"]:
+        primary = _pick_primary(buckets[t])
+        registry_pages[t] = {
+            "present": bool(primary),
+            "primary": primary,
+            "candidates": buckets[t][:5],
+        }
+
+    # Services gets special handling (multiple URLs can be valid)
+    services_primary = _pick_primary(buckets["services"])
+    registry_pages["services"] = {
+        "servicesPagePresent": bool(services_primary),
+        "primary": services_primary,
+        "candidates": buckets["services"][:8],
+    }
+
+    missing: list[str] = []
+    if not registry_pages["about"]["present"]:
+        missing.append("about")
+    if not registry_pages["contact"]["present"]:
+        missing.append("contact")
+    if not registry_pages["services"]["servicesPagePresent"]:
+        missing.append("services")
+
+    return {
+        "priority": ["crawl", "sitemap", "links", "service_candidates"],
+        "pages": registry_pages,
+        "missing": missing,
+        "sourcesByUrl": {k: sorted(list(v)) for k, v in sources_by_url.items()},
+    }
+
+
+def build_candidate_urls_for_content_pages(
+    website_url: str,
+    internal_links: list[str],
+    sitemap_urls: list[str],
+    max_candidates: int = 20,
+) -> list[str]:
+    """Seed fetch_content_pages() with key pages first to reduce false 'missing page' gaps."""
+    seeds: list[str] = []
+    all_urls = (sitemap_urls or []) + (internal_links or [])
+
+    # Prefer dedicated key pages first
+    key_types_order = ["services", "about", "contact", "proof", "pricing", "faq", "blog"]
+
+    if select_key_pages is not None:
+        try:
+            selected = select_key_pages(all_urls, base_url=website_url)  # type: ignore
+            if isinstance(selected, list):
+                seeds.extend([u for u in selected if isinstance(u, str)])
+        except Exception:
+            pass
+
+    # Fallback pattern selection
+    if not seeds:
+        for t in key_types_order:
+            for u in all_urls:
+                u2 = _normalize_url_key(u)
+                if not u2:
+                    continue
+                if _classify_page_type(u2) == t and u2 not in seeds:
+                    seeds.append(u2)
+                    break
+
+    # Fill remaining with internal links order
+    for u in all_urls:
+        u2 = _normalize_url_key(u)
+        if not u2 or u2 in seeds:
+            continue
+        seeds.append(u2)
+        if len(seeds) >= max_candidates:
+            break
+
+    return seeds[: max(5, min(max_candidates, 50))]
+
+
+def _reconcile_content_gaps_with_registry(
+    existing_gaps: list[str],
+    page_registry: Dict[str, Any],
+    services_detected: bool,
+) -> list[str]:
+    """Remove false negatives (e.g., 'no about page') when registry confirms presence.
+
+    Also replaces the services wording when services are detected but no dedicated page exists.
+    """
+    gaps = [g for g in (existing_gaps or []) if isinstance(g, str) and g.strip()]
+    pr = ensure_dict(page_registry)
+    pages = ensure_dict(pr.get("pages"))
+    about_present = bool(ensure_dict(pages.get("about")).get("present"))
+    contact_present = bool(ensure_dict(pages.get("contact")).get("present"))
+    services_page_present = bool(ensure_dict(pages.get("services")).get("servicesPagePresent"))
+
+    def _drop_if_contains(substrs: list[str], keep: bool) -> None:
+        nonlocal gaps
+        if keep:
+            gaps = [g for g in gaps if not any(s in g.lower() for s in substrs)]
+
+    # Remove false negatives
+    _drop_if_contains(["about page", "about us"], about_present)
+    _drop_if_contains(["contact page", "contact us"], contact_present)
+    _drop_if_contains(["service page", "services page"], services_page_present)
+
+    # Replace services gap message when services exist but page is unclear
+    if services_detected and not services_page_present:
+        gaps = [g for g in gaps if "service" not in g.lower()]
+        gaps.insert(0, "No dedicated Services page detected, but services are mentioned across sections. Consider consolidating into a clear Services page.")
+
+    # De-dupe
+    out: list[str] = []
+    seen: set[str] = set()
+    for g in gaps:
+        k = g.strip().lower()
+        if not k or k in seen:
+            continue
+        seen.add(k)
+        out.append(g.strip())
+    return out
 
 
 def compute_overall(subscores: Dict[str, Any]) -> int | None:
@@ -322,64 +607,6 @@ def should_use_playwright_for_site(homepage_html: str, links_payload: Dict[str, 
     except Exception:
         return True
 
-def _truncate_str(s: Any, n: int) -> Any:
-    if not isinstance(s, str):
-        return s
-    s = s.strip()
-    return s if len(s) <= n else s[:n] + "…"
-
-def _compact_for_full_llm(ctx: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Keeps the full-report LLM useful but avoids huge token payloads.
-    """
-    out = dict(ctx)
-
-    # Biggest token offenders:
-    out["contentPages"] = (ctx.get("contentPages") or [])[:6]  # reduce from 12
-    for p in out["contentPages"]:
-        if isinstance(p, dict):
-            # keep only small fields, drop large text if present
-            for k in list(p.keys()):
-                if k.lower() in ("html", "content", "raw_html", "rawtext", "fulltext"):
-                    p.pop(k, None)
-            if "textSnippet" in p:
-                p["textSnippet"] = _truncate_str(p.get("textSnippet"), 600)
-
-    # Reduce raw blobs
-    out["dataforseo"] = {"summary": "omitted_for_token_safety"}  # keep minimal placeholder
-    out["competitorsEnrichment"] = {"summary": "omitted_for_token_safety"}
-    out["pagespeed"] = {
-        "url": (ctx.get("pagespeed") or {}).get("url") if isinstance(ctx.get("pagespeed"), dict) else None,
-        "mobile": (ctx.get("pagespeed") or {}).get("mobile") if isinstance(ctx.get("pagespeed"), dict) else None,
-        "desktop": (ctx.get("pagespeed") or {}).get("desktop") if isinstance(ctx.get("pagespeed"), dict) else None,
-    }
-
-    return out
-
-def _compact_for_estimation_llm(ctx: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Tiny context used only for sections 8–10.
-    """
-    return {
-        "companyName": ctx.get("companyName"),
-        "website": ctx.get("website"),
-        "targetMarket": ctx.get("targetMarket"),
-        "businessGoal": ctx.get("businessGoal"),
-        "estimationMode": True,
-        "estimationInputs": ctx.get("estimationInputs"),
-        "subScores": ctx.get("subScores"),
-        # keep small signals that help scenarios
-        "services": (ensure_dict(ctx.get("servicesSignals")).get("services") if isinstance(ctx.get("servicesSignals"), dict) else None),
-        "leadGen": ensure_dict(ctx.get("leadGenSignals")),
-        "seo": ensure_dict(ctx.get("seoSignals")),
-        "reputation": ensure_dict(ctx.get("reputationSignals")),
-        "pagespeedSummary": {
-            "mobilePerformanceScore": ensure_dict(ensure_dict(ctx.get("pagespeed")).get("mobile")).get("performanceScore")
-            if isinstance(ctx.get("pagespeed"), dict) else None,
-            "desktopPerformanceScore": ensure_dict(ensure_dict(ctx.get("pagespeed")).get("desktop")).get("performanceScore")
-            if isinstance(ctx.get("pagespeed"), dict) else None,
-        },
-    }
 
 def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     website = normalize_url(payload.website)
@@ -387,8 +614,6 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     # ✅ IMPORTANT: define criteria ONCE so it is always available
     criteria = ensure_dict(getattr(payload, "criteria", {}) or {})
-    target_market = (criteria.get("targetMarket") or "").strip()
-    business_goal = (criteria.get("businessGoal") or "").strip()
 
     # Cache
     cache_repo = AnalysisCacheRepository()
@@ -407,6 +632,9 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     homepage = ensure_dict(parse_homepage(html))
     robots_sitemap = ensure_dict(check_robots_and_sitemap(final_url or website))
+
+    # Best-effort sitemap URL list (used for page registry + key page seeding)
+    sitemap_urls: list[str] = _extract_sitemap_urls(robots_sitemap)
 
     # ✅ Links (cached)
     links = None
@@ -553,6 +781,9 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         site_max_pages = int(criteria.get("siteMaxPages") or 10)
         site_max_pages = max(3, min(site_max_pages, 15))
 
+        # Seed content-page fetching with key pages first (reduces false gaps like "no services/about page")
+        candidate_urls = build_candidate_urls_for_content_pages(final_url or website, internal_links_site, sitemap_urls)
+
         cached_pages = None
         if cache_enabled:
             cached_pages = cache_repo.get_section_if_fresh(cache_key, "content_pages", ttl_days=int(getattr(settings, "CACHE_TTL_CRAWL_DAYS", 7)))
@@ -561,13 +792,24 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         else:
             use_pw_for_pages = _should_use_playwright(html, homepage, ensure_dict(links))
             # Force PW only when needed to keep generation fast
-            own_pages = fetch_content_pages(
-                final_url or website,
-                internal_links_site,
-                max_pages=site_max_pages,
-                timeout=45,
-                use_playwright=use_pw_for_pages,
-            ) or []
+            try:
+                own_pages = fetch_content_pages(
+                    final_url or website,
+                    internal_links_site,
+                    max_pages=site_max_pages,
+                    timeout=45,
+                    use_playwright=use_pw_for_pages,
+                    candidate_urls=candidate_urls,
+                ) or []
+            except TypeError:
+                # Back-compat with older fetch_content_pages signatures
+                own_pages = fetch_content_pages(
+                    final_url or website,
+                    internal_links_site,
+                    max_pages=site_max_pages,
+                    timeout=45,
+                    use_playwright=use_pw_for_pages,
+                ) or []
             if cache_enabled and own_pages:
                 cache_repo.upsert_section(cache_key, "content_pages", own_pages)
     except Exception:
@@ -615,6 +857,88 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     services_section = ensure_dict(build_services_signals(homepage, own_pages, scraped_services=scraped_services))
     leadgen_section = ensure_dict(build_leadgen_signals(homepage, links))
+
+    # ----------------------------
+    # Page Registry (Option B): merge 4 sources and reconcile false content gaps
+    # ----------------------------
+    crawl_urls: list[str] = []
+    try:
+        crawl_urls = [str(p.get("url")) for p in (own_pages or []) if isinstance(p, dict) and p.get("url")]
+    except Exception:
+        crawl_urls = []
+
+    service_candidate_urls: list[str] = []
+    try:
+        for s in (scraped_services or []):
+            if isinstance(s, dict):
+                u = s.get("url") or s.get("pageUrl") or s.get("sourceUrl")
+                if isinstance(u, str) and u.strip():
+                    service_candidate_urls.append(u)
+            elif isinstance(s, str) and s.strip():
+                service_candidate_urls.append(s)
+    except Exception:
+        service_candidate_urls = []
+
+    _build_registry = build_page_registry_unified or build_page_registry
+    page_registry = _build_registry(
+        website_url=(final_url or website),
+        crawl_pages=crawl_urls,
+        sitemap_urls=sitemap_urls,
+        internal_links=internal_links_site,
+        service_candidates=service_candidate_urls,
+    )
+
+    # try:
+    #     logger.info(
+    #         "[Pipeline] page_registry built urls=%s buckets=%s",
+    #         len(ensure_list(page_registry.get("allUrls"))),
+    #         {k: len(v) for k, v in ensure_dict(page_registry.get("byType")).items()},
+    #     )
+    # except Exception:
+    #     logger.info("[Pipeline] page_registry built")
+    try:
+        counts = ensure_dict(page_registry.get("counts"))
+        pages = ensure_dict(page_registry.get("pages"))
+        logger.info(
+            "[Pipeline] page_registry built merged=%s crawl=%s sitemap=%s links=%s service_candidates=%s missing=%s",
+            counts.get("merged"),
+            counts.get("crawl"),
+            counts.get("sitemap"),
+            counts.get("links"),
+            counts.get("service_candidates"),
+            ensure_list(page_registry.get("missing")),
+        )
+        logger.info(
+            "[Pipeline] page_registry key pages: about=%s contact=%s services=%s",
+            ensure_dict(pages.get("about")).get("primary"),
+            ensure_dict(pages.get("contact")).get("primary"),
+            ensure_dict(pages.get("services")).get("primary"),
+        )
+    except Exception:
+        logger.info("[Pipeline] page_registry built (log parse failed)")
+
+
+    # Reconcile gaps: if registry confirms pages exist, remove "missing" statements.
+    # If services are detected but a dedicated Services page is missing, replace wording.
+    services_detected = False
+    try:
+        services_detected = bool(scraped_services) or bool(ensure_list(services_section.get("services")))
+    except Exception:
+        services_detected = bool(scraped_services)
+
+    try:
+        cq = ensure_dict(ensure_dict(website_section.get("contentQuality")))
+        cq_gaps = ensure_list(cq.get("gaps"))
+        cq["gaps"] = _reconcile_content_gaps_with_registry(cq_gaps, page_registry, services_detected)
+        website_section["contentQuality"] = cq
+    except Exception:
+        pass
+
+    try:
+        cg = ensure_list(website_section.get("contentGaps"))
+        website_section["contentGaps"] = _reconcile_content_gaps_with_registry(cg, page_registry, services_detected)
+    except Exception:
+        pass
 
     # ----------------------------
     # Deterministic extraction helpers (so PDF never shows empty competitor/services blocks)
@@ -1378,8 +1702,10 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                 {"source": final_url or website, "use": f"Link extraction (site_type={links.get('site_type')})", "confidence": "medium"},
             ],
             "dataGaps": [],
-            "pagesCrawled": ensure_list(internal_links_site)[:25],
+            # Prefer actually fetched pages; fallback to discovered links.
+            "pagesCrawled": (crawl_urls or ensure_list(internal_links_site))[:25],
             "evidence": {
+                "pageRegistry": page_registry,
                 "pagespeed": {
                     "fetchedAt": ensure_dict(pagespeed).get("fetchedAt") if isinstance(pagespeed, dict) else None,
                     "url": (ensure_dict(pagespeed).get("url") if isinstance(pagespeed, dict) else (final_url or website)),
@@ -1464,6 +1790,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "robotsSitemap": robots_sitemap,
         "pagespeed": pagespeed,
         "links": links,
+        "pageRegistry": page_registry,
         "reviewStatuses": ensure_dict(reviews_scraped.get("statuses")),
         "reviewSummary": ensure_dict(reviews_scraped.get("summary")),
         "googlePlaces": ensure_dict(google_places_bundle) if google_places_bundle else {},
@@ -1472,9 +1799,6 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "dataGaps": base_report["appendices"]["dataGaps"],
         "competitiveAnalysisSeed": competitive_analysis,
         "competitorsEnrichment": competitor_evidence,
-        "targetMarket": target_market or None,
-        "businessGoal": business_goal or None,
-
 
         # Extra evidence for mentor-style, specific recommendations
         "contentPages": own_pages[:12],
@@ -1496,49 +1820,12 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             if getattr(payload, "estimationInputs", None) is not None
             else None
         ),
-        "analysisGuidance": (
-            "Use targetMarket and businessGoal (if provided) to prioritize recommendations, "
-            "choose the most relevant acquisition channels, and tailor positioning."
-            if (target_market or business_goal)
-            else None
-        ),
     }
 
-    # try:
-    #     llm_report = build_report_with_llm(base_report, llm_context)
-    # except Exception:
-    #     llm_report = None
-    # try:
-    #     llm_report = build_report_with_llm(base_report, llm_context)
-    # except Exception as e:
-    #     logger.exception("[LLM] build_report_with_llm failed")
-    #     llm_report = None
-
-    llm_report = None
-
-# Step 1: Full report LLM (compact context to avoid 429)
     try:
-        llm_report = build_report_with_llm(base_report, _compact_for_full_llm(llm_context))
+        llm_report = build_report_with_llm(base_report, llm_context)
     except Exception:
-        logger.exception("[LLM] build_report_with_llm failed")
         llm_report = None
-# Merge whatever we got (or fallback to base)
-        llm_report = ensure_dict(llm_report)
-        merged = sanitize_with_template(base_report, llm_report)
-        merged = patch_required_metadata(merged, base_report)
-
-# Step 2 (Option A): If estimationMode=true, run estimation-only LLM for sections 8–10
-    if bool(getattr(payload, "estimationMode", False)):
-        try:
-            est_sections = build_sections_8_10_with_llm(_compact_for_estimation_llm(llm_context))
-        # overwrite only 8–10 with the estimation-specific output
-            merged["costOptimization"] = est_sections.get("costOptimization") or merged.get("costOptimization")
-            merged["targetMarket"] = est_sections.get("targetMarket") or merged.get("targetMarket")
-            merged["financialImpact"] = est_sections.get("financialImpact") or merged.get("financialImpact")
-        except Exception:
-            logger.exception("[LLM] build_sections_8_10_with_llm failed (keeping fallback/base for 8–10)")
-
-
 
     llm_report = ensure_dict(llm_report)
     merged = sanitize_with_template(base_report, llm_report)

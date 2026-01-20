@@ -1,145 +1,89 @@
+import logging
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Dict
 
-# from app.models.report_schema import BusinessGrowthReport
-from app.llm.client import call_openai_json
-# from app.llm.prompts import SYSTEM_PROMPT, build_user_prompt
 from app.models.report_schema import (
     BusinessGrowthReport,
     CostOptimization,
     TargetMarket,
     FinancialImpact,
 )
+from app.llm.client import call_openai_json
 from app.llm.prompts import (
-    SYSTEM_PROMPT,
-    build_user_prompt,
-    ESTIMATION_ONLY_SYSTEM_PROMPT,
-    build_estimation_only_prompt,
+    SYSTEM_PROMPT_RECONCILE,
+    SYSTEM_PROMPT_ESTIMATION_8_10,
+    build_user_prompt_reconcile,
+    build_user_prompt_estimation_8_10,
 )
 
-def _normalize_scenarios(section: dict) -> dict:
+logger = logging.getLogger(__name__)
+
+
+def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
+    """Deep merge dict->dict only. Lists/scalars overwrite.
+
+    We use this to apply a JSON PATCH-like object returned by the LLM without
+    destroying the existing base report structure.
     """
-    Accept both:
-      scenarios: [ {...}, {...} ]
-    and:
-      scenarios: { "Conservative": {...}, "Base": {...} }
-    Convert dict -> list with scenarioName.
-    """
-    if not isinstance(section, dict):
-        return section
-    sc = section.get("scenarios")
-    if isinstance(sc, dict):
-        out_list = []
-        for name, payload in sc.items():
-            item = payload if isinstance(payload, dict) else {"notes": str(payload)}
-            item = {**item, "scenarioName": name}
-            out_list.append(item)
-        section["scenarios"] = out_list
-    return section
+    out: Dict[str, Any] = dict(base or {})
+    for k, v in (patch or {}).items():
+        if isinstance(v, dict) and isinstance(out.get(k), dict):
+            out[k] = _deep_merge(out[k], v)  # type: ignore[arg-type]
+        else:
+            out[k] = v
+    return out
 
-
-def build_appendices(context: Dict[str, Any]) -> Dict[str, Any]:
-    sources = []
-    for s in context.get("dataSources", []):
-        sources.append({"source": s.get("source"), "use": s.get("use"), "confidence": s.get("confidence")})
-
-    data_gaps = context.get("dataGaps", [])
-    return {
-        "keywords": [],
-        "dataSources": sources,
-        "dataGaps": data_gaps,
-    }
-
-# def merge_fallback_report(base: Dict[str, Any], llm_json: Dict[str, Any]) -> Dict[str, Any]:
-#     # Keep llm sections if present; otherwise fallback
-#     out = dict(base)
-#     for k, v in llm_json.items():
-#         out[k] = v
-#     return out
-
-def merge_fallback_report(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Template-safe deep merge:
-    - Only accepts patch values if the type matches the base template type.
-    - Recursively merges dicts.
-    - Lists must remain lists (we do not try to coerce list item schemas here).
-    - Prevents LLM from breaking schema by overwriting objects with strings etc.
-    """
-    def _merge(b: Any, p: Any) -> Any:
-        # If base is dict, patch must be dict to merge
-        if isinstance(b, dict):
-            if not isinstance(p, dict):
-                return b
-            out = dict(b)
-            for k, pv in p.items():
-                if k not in b:
-                    # Allow new keys only if they are dict/list/scalar; but safest is to allow
-                    # (your schema allows some optional keys).
-                    out[k] = pv
-                else:
-                    out[k] = _merge(b[k], pv)
-            return out
-
-        # If base is list, patch must be list
-        if isinstance(b, list):
-            if isinstance(p, list):
-                return p
-            return b
-
-        # Scalars: accept patch only if same type OR base is None
-        if b is None:
-            return p
-        if type(p) is type(b):
-            return p
-
-        # Special case: allow int/float interchange
-        if isinstance(b, (int, float)) and isinstance(p, (int, float)):
-            return p
-
-        return b
-
-    return _merge(base, patch)
 
 def build_report_with_llm(base_report: Dict[str, Any], llm_context: Dict[str, Any]) -> Dict[str, Any]:
-    prompt = build_user_prompt(llm_context)
-    # llm_json = call_openai_json(SYSTEM_PROMPT, prompt)
-    llm_json = call_openai_json(SYSTEM_PROMPT, prompt, max_tokens=5000)
-    for k in ("reportMetadata", "seoVisibility", "appendices"):
-        llm_json.pop(k, None)
+    """Option B: Multi-step LLM enrichment.
 
-    combined = merge_fallback_report(base_report, llm_json)
+    Step 1) Reconcile contradictions + strengthen narrative in Sections 1–7.
+            (Keeps base metrics; fixes false negatives using pageRegistry)
+
+    NOTE: Sections 8–10 are handled separately by build_sections_8_10_with_llm
+          when estimationMode=true.
+    """
+    logger.info("[LLM] build_report_with_llm (reconcile) start")
+
+    prompt = build_user_prompt_reconcile(base_report, llm_context)
+    llm_patch = call_openai_json(SYSTEM_PROMPT_RECONCILE, prompt, max_tokens=2200)
+
+    if not isinstance(llm_patch, dict):
+        raise RuntimeError("LLM reconcile returned non-object JSON")
+
+    combined = _deep_merge(base_report, llm_patch)
 
     # Validate with Pydantic (ensures PDF generator shape)
     _ = BusinessGrowthReport.model_validate(combined)
+    logger.info("[LLM] build_report_with_llm (reconcile) ok")
     return combined
 
+
 def build_sections_8_10_with_llm(llm_context: Dict[str, Any]) -> Dict[str, Any]:
+    """Generate ONLY Sections 8–10 when estimationMode=true.
+
+    Returns a dict with keys: costOptimization, targetMarket, financialImpact.
     """
-    Generates ONLY sections 8–10:
-      - costOptimization
-      - targetMarket
-      - financialImpact
-    """
-    prompt = build_estimation_only_prompt(llm_context)
-    llm_json = call_openai_json(ESTIMATION_ONLY_SYSTEM_PROMPT, prompt)
+    logger.info("[LLM] build_sections_8_10_with_llm start")
 
-    cost_raw = _normalize_scenarios(llm_json.get("costOptimization", {}) or {})
-    targ_raw = _normalize_scenarios(llm_json.get("targetMarket", {}) or {})
-    fin_raw = _normalize_scenarios(llm_json.get("financialImpact", {}) or {})
+    prompt = build_user_prompt_estimation_8_10(llm_context)
+    llm_json = call_openai_json(SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=2000)
 
-    # Validate each section shape (prevents schema mismatch silently breaking merge)
-    # cost = CostOptimization.model_validate(llm_json.get("costOptimization", {})).model_dump()
-    # targ = TargetMarket.model_validate(llm_json.get("targetMarket", {})).model_dump()
-    # fin = FinancialImpact.model_validate(llm_json.get("financialImpact", {})).model_dump()
-    cost = CostOptimization.model_validate(cost_raw).model_dump()
-    targ = TargetMarket.model_validate(targ_raw).model_dump()
-    fin = FinancialImpact.model_validate(fin_raw).model_dump()
+    if not isinstance(llm_json, dict):
+        raise RuntimeError("LLM estimation returned non-object JSON")
 
+    # Validate the three sub-models (helps catch scenarios list/dict mistakes)
+    cost = CostOptimization.model_validate(llm_json.get("costOptimization", {})).model_dump()
+    target = TargetMarket.model_validate(llm_json.get("targetMarket", {})).model_dump()
+    impact = FinancialImpact.model_validate(llm_json.get("financialImpact", {})).model_dump()
+
+    logger.info("[LLM] build_sections_8_10_with_llm ok")
     return {
         "costOptimization": cost,
-        "targetMarket": targ,
-        "financialImpact": fin,
+        "targetMarket": target,
+        "financialImpact": impact,
     }
+
 
 def now_iso() -> str:
     return datetime.utcnow().strftime("%Y-%m-%d")

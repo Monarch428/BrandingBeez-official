@@ -57,6 +57,49 @@ Evidence usage rules:
 """
 
 
+# ----------------------------
+# Option B: multi-step prompts
+# ----------------------------
+SYSTEM_PROMPT_RECONCILE = """
+You are BrandingBeez AI Report Reconciler.
+
+Task:
+- You receive an existing base report JSON PLUS a unified page registry + crawl evidence.
+- Your job is to FIX contradictions and false negatives (e.g., "no about page") and to
+  strengthen the narrative in Sections 1–7 without inventing numbers.
+
+Hard rules:
+- Output MUST be a single valid JSON object (no markdown, no commentary).
+- Output MUST be a JSON PATCH object that only includes keys you are updating.
+  (Do not repeat the full report.)
+- Do NOT change reportMetadata.reportId/website/analysisDate.
+- Do NOT invent metrics. If unsure, keep "Not available".
+- When you state a page exists, it MUST be supported by pageRegistry.byType or allUrls.
+
+Primary goals:
+- ExecutiveSummary: ensure strengths/weaknesses and overview align with evidence.
+- WebsiteDigitalPresence: remove false "missing about/services" claims when registry shows them.
+- ServicesPositioning & LeadGeneration: align to the real detected services + lead capture signals.
+"""
+
+
+SYSTEM_PROMPT_ESTIMATION_8_10 = """
+You are BrandingBeez AI Estimation Engine.
+
+Task:
+- Generate ONLY Sections 8–10 (costOptimization, targetMarket, financialImpact) as JSON.
+- The user has estimationMode=true.
+
+Hard rules:
+- Output MUST be a single valid JSON object (no markdown, no commentary).
+- Do not include any other sections.
+- Do not invent audited financials; provide modeled estimates with ranges.
+- `scenarios` MUST be a LIST of 3 objects (Conservative/Base/Aggressive).
+- Each scenario object MUST include: name, assumptions, modeledOutcomes.
+- Include `confidenceScore` 0–100 and `estimationDisclaimer` exactly as provided.
+"""
+
+
 def build_user_prompt(context: dict) -> str:
     return f"""
 Create a Business Growth Report JSON for the company.
@@ -78,43 +121,41 @@ Estimation Mode guidance:
 - The context may contain `estimationMode` and `estimationInputs`.
 - If estimationMode=true, you MUST set `estimationDisclaimer` in costOptimization/targetMarket/financialImpact to EXACTLY:
   {ESTIMATION_DISCLAIMER}
-- Scenarios: Return an array of 3 scenarios (Conservative, Base, Aggressive) per section.
-  Each scenario must include: name, assumptions, and modeled outcomes.
+- Scenarios: `scenarios` MUST be a JSON array of 3 objects (Conservative, Base, Aggressive).
+  Each scenario object MUST include fields: name, assumptions, modeledOutcomes.
 - Confidence: choose a confidenceScore (0–100) based on how complete the inputs/integrations are.
 
 Context (facts + evidence):
 {context}
 """
 
-ESTIMATION_ONLY_SYSTEM_PROMPT = """
-You are BrandingBeez AI Business Growth Analyzer.
 
-Non-negotiable rules:
-- Output MUST be a single valid JSON object (no markdown, no commentary).
-- Only output these keys exactly:
-  costOptimization, targetMarket, financialImpact
-- estimationMode is ON (true). You MUST provide modeled estimates.
-- Include `estimationDisclaimer` EXACTLY as provided.
-- Provide `confidenceScore` (0–100).
-- Provide 3 scenarios (Conservative, Base, Aggressive) in `scenarios` for EACH section.
-- Never output empty arrays for scenarios when estimationMode=true.
-- If inputs are weak, still provide best-effort ranges + clear assumptions.
-- scenarios MUST be a JSON array of 3 items.
-- Each item MUST include scenarioName: "Conservative" | "Base" | "Aggressive".
-- Do NOT output scenarios as an object/dict.
+def build_user_prompt_reconcile(base_report: dict, llm_context: dict) -> str:
+    return f"""
+You will receive:
+1) base_report (existing JSON)
+2) llm_context (evidence + pageRegistry)
+
+Return a JSON PATCH object (only changed keys) to improve consistency.
+
+base_report:
+{base_report}
+
+llm_context:
+{llm_context}
 """
 
-def build_estimation_only_prompt(context: dict) -> str:
+
+def build_user_prompt_estimation_8_10(llm_context: dict) -> str:
     return f"""
-Generate ONLY Sections 8–10 as JSON.
+Generate ONLY these keys as JSON:
+- costOptimization
+- targetMarket
+- financialImpact
 
-Return JSON with these top-level keys EXACTLY:
-costOptimization, targetMarket, financialImpact
-
-Estimation disclaimer (must be exact):
+You MUST include `estimationDisclaimer` EXACTLY:
 {ESTIMATION_DISCLAIMER}
 
-Context (keep compact):
-{context}
+Context:
+{llm_context}
 """
-
