@@ -124,7 +124,13 @@ export function securityHeaders() {
           "https://assets.calendly.com",
           "https://static.hotjar.com",
         ],
-        fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://assets.calendly.com"],
+        fontSrc: [
+          "'self'",
+          "data:",
+          "https://fonts.gstatic.com",
+          "https://www.gstatic.com",
+          "https://assets.calendly.com",
+        ],
 
         imgSrc: [
           "'self'",
@@ -251,7 +257,8 @@ export const apiRateLimit = rateLimit({
       "/api/blog",
       "/api/blog/",
       "/api/health",
-      "/api/environment"
+      "/api/environment",
+      "/api/security/headers"
     ];
 
     return publicEndpoints.some((endpoint) => req.path.startsWith(endpoint));
