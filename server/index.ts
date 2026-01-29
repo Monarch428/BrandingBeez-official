@@ -5,65 +5,64 @@ import { setupVite, serveStatic, log } from "./vite";
 import { initializeDatabase } from "./db-init";
 import dotenv from "dotenv";
 import path from "path";
+
 // import https from "https";
 // import fs from "fs";
-
 
 dotenv.config({ path: ".env" });
 const app = express();
 
-app.set('env', process.env.NODE_ENV || 'development');
+app.set("env", process.env.NODE_ENV || "development");
 
-app.use(compression({
-  filter: (req: Request, res: Response) => {
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-  level: 6,
-  threshold: 1024,
-}));
+app.use(
+  compression({
+    filter: (req: Request, res: Response) => {
+      if (req.headers["x-no-compression"]) {
+        return false;
+      }
+      return compression.filter(req, res);
+    },
+    level: 6,
+    threshold: 1024,
+  })
+);
 
-
-if (process.env.NODE_ENV === 'production') {
-  // ✅ Production behind a proxy (Render/Nginx/etc.) - usually 1 hop
-  app.set('trust proxy', 1);
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
 } else {
-  // ✅ Local dev: DO NOT use true (express-rate-limit blocks it)
-  app.set('trust proxy', false);
+  app.set("trust proxy", false);
 }
 
 // Security and performance headers
 app.use((req: Request, res: Response, next: NextFunction) => {
-  res.setHeader('X-DNS-Prefetch-Control', 'on');
+  res.setHeader("X-DNS-Prefetch-Control", "on");
 
   // Proper MIME types to fix PageSpeed errors
-  if (req.path.endsWith('.css')) {
-    res.setHeader('Content-Type', 'text/css; charset=utf-8');
-  } else if (req.path.endsWith('.js') || req.path.endsWith('.mjs')) {
-    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
-  } else if (req.path.endsWith('.tsx') || req.path.endsWith('.ts')) {
-    res.setHeader('Content-Type', 'text/javascript; charset=utf-8');
-  } else if (req.path.endsWith('.json')) {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  if (req.path.endsWith(".css")) {
+    res.setHeader("Content-Type", "text/css; charset=utf-8");
+  } else if (req.path.endsWith(".js") || req.path.endsWith(".mjs")) {
+    res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+  } else if (req.path.endsWith(".tsx") || req.path.endsWith(".ts")) {
+    res.setHeader("Content-Type", "text/javascript; charset=utf-8");
+  } else if (req.path.endsWith(".json")) {
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
   }
 
   // Enable server push for HTTP/2
-  if (req.headers['accept'] && req.headers['accept'].includes('text/html')) {
+  if (req.headers["accept"] && req.headers["accept"].includes("text/html")) {
     // ✅ Keep only modulepreload (remove /src/index.css preload warning)
-    res.setHeader('Link', '</src/main.tsx>; rel=modulepreload');
+    res.setHeader("Link", "</src/main.tsx>; rel=modulepreload");
   }
 
   next();
 });
 
-app.use(express.json({ limit: '50mb' }));
+app.use(express.json({ limit: "50mb" }));
 
 // Explicit robots.txt serving with proper headers
-app.get('/robots.txt', (req: Request, res: Response) => {
-  res.type('text/plain');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
+app.get("/robots.txt", (req: Request, res: Response) => {
+  res.type("text/plain");
+  res.setHeader("Cache-Control", "public, max-age=86400");
   res.send(`User-agent: *
 Disallow: /src/
 Disallow: /_next/
@@ -76,10 +75,10 @@ Disallow: /__vite/
 Sitemap: https://brandingbeez.co.uk/sitemap.xml`);
 });
 
-// Explicit sitemap.xml serving  
-app.get('/sitemap.xml', (req: Request, res: Response) => {
-  res.type('application/xml');
-  res.setHeader('Cache-Control', 'public, max-age=3600');
+// Explicit sitemap.xml serving
+app.get("/sitemap.xml", (req: Request, res: Response) => {
+  res.type("application/xml");
+  res.setHeader("Cache-Control", "public, max-age=3600");
 
   // ✅ CRITICAL: Do NOT start with newline before <?xml
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
@@ -321,32 +320,34 @@ app.get('/sitemap.xml', (req: Request, res: Response) => {
 `);
 });
 
-app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+app.use(express.urlencoded({ extended: false, limit: "50mb" }));
 
 // Optimized static file serving  caching headers
-app.use('/attached_assets', express.static('attached_assets', {
-  maxAge: '1y',
-  etag: true,
-  lastModified: true
-}));
-
-app.use(express.static('public', {
-  maxAge: '30d',
-  etag: true,
-  lastModified: true,
-  setHeaders: (res, path) => {
-    if (path.match(/\.(jpg|jpeg|png|gif|ico|svg|webp)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=2592000');
-    } else if (path.match(/\.(css|js)$/)) {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-    }
-  }
-}));
+app.use(
+  "/attached_assets",
+  express.static("attached_assets", {
+    maxAge: "1y",
+    etag: true,
+    lastModified: true,
+  })
+);
 
 app.use(
-  "/email",
-  express.static(path.join(process.cwd(), "server", "assests"))
+  express.static("public", {
+    maxAge: "30d",
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, path) => {
+      if (path.match(/\.(jpg|jpeg|png|gif|ico|svg|webp)$/)) {
+        res.setHeader("Cache-Control", "public, max-age=2592000");
+      } else if (path.match(/\.(css|js)$/)) {
+        res.setHeader("Cache-Control", "public, max-age=86400");
+      }
+    },
+  })
 );
+
+app.use("/email", express.static(path.join(process.cwd(), "server", "assests")));
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -388,28 +389,27 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    console.error('Server Error:', err);
+    console.error("Server Error:", err);
     res.status(status).json({ message });
   });
 
-
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === "production") {
     try {
-      console.log('Setting up static file serving for production...');
+      console.log("Setting up static file serving for production...");
       serveStatic(app);
-      console.log('Static file serving setup completed');
+      console.log("Static file serving setup completed");
     } catch (error) {
-      console.error('Error setting up static file serving:', error);
+      console.error("Error setting up static file serving:", error);
       throw error;
     }
   } else {
     try {
-      console.log('Setting up Vite development server...');
-      const { setupVite } = await import('./vite');
+      console.log("Setting up Vite development server...");
+      const { setupVite } = await import("./vite");
       await setupVite(app, server);
-      console.log('Vite development server setup completed');
+      console.log("Vite development server setup completed");
     } catch (error) {
-      console.error('Error setting up Vite development server:', error);
+      console.error("Error setting up Vite development server:", error);
       throw error;
     }
   }
@@ -418,13 +418,16 @@ app.use((req, res, next) => {
   //   key: fs.readFileSync("cert/localhost-key.pem"),
   //   cert: fs.readFileSync("cert/localhost.pem")
   // };
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: process.env.NODE_ENV === 'production' ? "0.0.0.0" : "127.0.0.1",
-  }, () => {
-    log(`serving on port ${port}`);
-  });
+  const port = parseInt(process.env.PORT || "5000", 10);
+  server.listen(
+    {
+      port,
+      host: process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1",
+    },
+    () => {
+      log(`serving on port ${port}`);
+    }
+  );
   // https.createServer(httpsOptions, app).listen(port, () => {
   //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
   // });

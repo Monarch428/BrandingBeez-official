@@ -7,6 +7,10 @@ import { Helmet } from "react-helmet";
 import BrandingBeezLoader from "@/components/BeeLoadingScreen";
 import { SEO } from "@/hooks/SEO";
 
+/* =========================
+   Types (match schema)
+   ========================= */
+
 type PpcResultItem = {
     key: string;
     label: string;
@@ -17,14 +21,11 @@ type PpcResultItem = {
 type PpcCaseStudyCard = {
     _id: string;
     slug: string;
-
     title: string;
     client: string;
     industry: string;
     description: string;
-
     results: PpcResultItem[];
-
     coverImageUrl?: string;
     coverImageAlt?: string;
     coverFit?: "contain" | "cover";
@@ -37,14 +38,14 @@ type InfoCard = {
     title: string;
     value: string;
     href?: string;
-    colorClass?: string;
+    colorClass?: string; // you store tailwind classes here
 };
 
 type SectionCard = {
     iconKey: string;
     title: string;
     description: string;
-    colorClass?: string;
+    colorClass?: string; // optional
 };
 
 type BulletSection = {
@@ -78,7 +79,7 @@ type ProcessStep = { order: number; title: string; description: string };
 type PpcSeoMeta = {
     metaTitle?: string;
     metaDescription?: string;
-}
+};
 
 type PpcCaseStudyDetail = {
     cardId: string;
@@ -145,7 +146,10 @@ type PpcCaseStudyCombined = {
     detail?: PpcCaseStudyDetail;
 };
 
-// ✅ Dynamic Lucide icon renderer
+/* =========================
+   Helpers
+   ========================= */
+
 function IconByKey({
     iconKey,
     className,
@@ -159,83 +163,43 @@ function IconByKey({
 }) {
     const key = String(iconKey || "").trim();
 
+    const pick = (k: any) => (LucideIcons as any)[k] as React.ComponentType<any> | undefined;
+
     if (!key) {
-        const Fallback = LucideIcons[fallbackKey] as any;
+        const Fallback = pick(fallbackKey);
         return Fallback ? <Fallback className={className} size={size} /> : null;
     }
 
-    const Comp = (LucideIcons as any)[key] as React.ComponentType<any> | undefined;
-
+    const Comp = pick(key);
     if (!Comp) {
-        const Fallback = LucideIcons[fallbackKey] as any;
+        const Fallback = pick(fallbackKey);
         return Fallback ? <Fallback className={className} size={size} /> : null;
     }
 
     return <Comp className={className} size={size} />;
 }
 
-// ---------- iframe helper (supports youtube watch links) ----------
-function toEmbedUrl(url: string): string {
+function extractYouTubeId(url?: string): string {
+    if (!url) return "";
     try {
         const u = new URL(url);
 
-        // YouTube
-        if (u.hostname.includes("youtube.com")) {
-            const v = u.searchParams.get("v");
-            if (v) return `https://www.youtube.com/embed/${v}`;
-            return url;
-        }
-        if (u.hostname.includes("youtu.be")) {
-            const id = u.pathname.replace("/", "").trim();
-            if (id) return `https://www.youtube.com/embed/${id}`;
-            return url;
-        }
+        if (u.hostname.includes("youtu.be")) return u.pathname.replace("/", "").trim();
+        if (u.hostname.includes("youtube.com")) return u.searchParams.get("v") || "";
 
-        // Vimeo basic
-        if (u.hostname.includes("vimeo.com")) {
-            const id = u.pathname.split("/").filter(Boolean).pop();
-            if (id) return `https://player.vimeo.com/video/${id}`;
-            return url;
-        }
-
-        // default: assume already embeddable
-        return url;
+        return "";
     } catch {
-        return url;
+        return "";
     }
 }
 
-function CtaButton({
-    text,
-    href,
-    variant = "primary",
-}: {
-    text: string;
-    href?: string;
-    variant?: "primary" | "secondary" | "hero";
-}) {
-    const [, setLocation] = useLocation();
-
-    const cls =
-        variant === "hero"
-            ? "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
-            : variant === "secondary"
-                ? "bg-transparent text-white border-2 border-white px-8 py-3 rounded-md hover:bg-white hover:text-[#ee4962] transition-colors"
-                : "bg-white text-[#ee4962] px-8 py-3 rounded-md hover:bg-gray-100 transition-colors";
-
-    return (
-        <button
-            className={cls}
-            onClick={() => {
-                if (href && href.startsWith("/")) return setLocation(href);
-                if (href) return window.open(href, "_blank", "noopener,noreferrer");
-            }}
-        >
-            {text}
-            {variant === "hero" ? <IconByKey iconKey="ArrowRight" className="w-5 h-5" size={20} /> : null}
-        </button>
-    );
+function sortByOrder<T extends { order: number }>(arr: T[]) {
+    return [...arr].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
+
+/* =========================
+   Page
+   ========================= */
 
 export default function PpcCaseStudySlugPage(props: any) {
     const [, setLocation] = useLocation();
@@ -270,7 +234,6 @@ export default function PpcCaseStudySlugPage(props: any) {
                 }
 
                 const json = (await res.json()) as PpcCaseStudyCombined;
-
                 if (cancelled) return;
                 setData(json);
             } catch (e: any) {
@@ -316,65 +279,30 @@ export default function PpcCaseStudySlugPage(props: any) {
 
     const hasDetail = Boolean(detail);
 
-    const heroCtaClass =
-        "px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2";
-
-    function extractYouTubeId(url?: string): string {
-        if (!url) return "";
-        try {
-            const u = new URL(url);
-
-            if (u.hostname.includes("youtu.be")) {
-                return u.pathname.replace("/", "");
-            }
-
-            if (u.hostname.includes("youtube.com")) {
-                return u.searchParams.get("v") || "";
-            }
-
-            return "";
-        } catch {
-            return "";
-        }
-    }
-
     const seoTitle =
-        detail?.seo?.metaTitle ||
-        detail?.heroClientName ||
-        card.client ||
-        "Google Ads Case Study";
+        detail?.seo?.metaTitle || detail?.heroClientName || card.client || "Google Ads Case Study";
 
     return (
         <>
             <SEO
                 title={`${seoTitle} | BrandingBeez Case Study`}
-                description={
-                    detail?.seo?.metaDescription ||
-                    detail?.heroDescription ||
-                    card.description
-                }
+                description={detail?.seo?.metaDescription || detail?.heroDescription || card.description}
             />
 
-            {/* Optional Open Graph (safe to keep) */}
             <Helmet>
                 <meta property="og:type" content="article" />
                 <meta property="og:title" content={`${seoTitle} | BrandingBeez`} />
                 <meta
                     property="og:description"
-                    content={
-                        detail?.seo?.metaDescription ||
-                        detail?.heroDescription ||
-                        card.description
-                    }
+                    content={detail?.seo?.metaDescription || detail?.heroDescription || card.description}
                 />
             </Helmet>
 
             <div className="min-h-screen bg-white">
-                {/* Hero Section */}
+                {/* HERO */}
                 <section className="relative bg-gradient-to-r from-brand-purple to-brand-coral py-[113px] px-[32px]">
                     <div className="max-w-7xl mx-auto">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                            {/* Left Content */}
                             <div className="px-[0px] py-[18px] mx-[0px] my-[-130px]">
                                 <div className="inline-flex bg-[#ee4962] text-white px-[24px] py-[3px] rounded-full items-center gap-2">
                                     <IconByKey iconKey="Award" size={20} className="text-white" />
@@ -391,12 +319,10 @@ export default function PpcCaseStudySlugPage(props: any) {
                                     </span>
                                 </div>
 
-                                <p className="text-white text-xl mb-8">
-                                    {detail?.heroDescription ?? card.description}
-                                </p>
+                                <p className="text-white text-xl mb-8">{detail?.heroDescription ?? card.description}</p>
 
-                                {/* Hero Stats */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-[24px] mt-[51px] mr-[0px] ml-[0px] px-[0px] py-[-127px] max-w-3xl pt-[0px] pr-[0px] pb-[-85px] pl-[0px]">
+                                {/* hero stats (fallback from card results) */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-[24px] mt-[51px] max-w-3xl">
                                     {(heroStats.length
                                         ? heroStats
                                         : results.slice(0, 3).map((r) => ({
@@ -419,29 +345,22 @@ export default function PpcCaseStudySlugPage(props: any) {
                                                     />
                                                 </div>
                                                 <div className="text-center">
-                                                    <div className="text-gray-900 mb-1 font-bold text-[16px]">
-                                                        {s.value}
-                                                    </div>
+                                                    <div className="text-gray-900 mb-1 font-bold text-[16px]">{s.value}</div>
                                                     <div className="text-gray-600 text-sm">{s.label}</div>
                                                 </div>
                                             </div>
                                         ))}
                                 </div>
 
-                                {/* <CtaButton
-                variant="hero"
-                text={detail?.heroPrimaryCtaText ?? "Schedule a Free Consultation"}
-                href={detail?.heroPrimaryCtaHref ?? "/contact"}
-              /> */}
                                 <BookCallButtonWithModal
                                     buttonLabel={detail?.heroPrimaryCtaText ?? "Book a Free Strategy Call"}
-                                    className={heroCtaClass ?? "bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border border-white/30 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base touch-manipulation"}
+                                    className="px-8 py-4 bg-[#ee4b64] text-white font-bold rounded-[12px] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 inline-flex items-center justify-center gap-2"
                                     buttonSize="lg"
                                     defaultServiceType="Google Ads"
                                 />
                             </div>
 
-                            {/* Right Video */}
+                            {/* VIDEO */}
                             <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden shadow-2xl self-start -mt-8">
                                 {detail?.heroVideoUrl ? (
                                     <LazyYouTube
@@ -456,7 +375,6 @@ export default function PpcCaseStudySlugPage(props: any) {
                                     </div>
                                 )}
                             </div>
-
                         </div>
 
                         {!hasDetail ? (
@@ -467,7 +385,7 @@ export default function PpcCaseStudySlugPage(props: any) {
                     </div>
                 </section>
 
-                {/* Client Profile */}
+                {/* CLIENT PROFILE */}
                 <section className="py-20 px-8">
                     <div className="max-w-6xl mx-auto">
                         <h2 className="text-center mb-4 text-gray-900 text-[24px] font-bold">
@@ -478,39 +396,44 @@ export default function PpcCaseStudySlugPage(props: any) {
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {(detail?.clientProfileCards ?? []).map((c, idx) => (
-                                <div
-                                    key={`${c.title}-${idx}`}
-                                    className={`group relative bg-gradient-to-br rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border-2 ${c.colorClass ?? "from-blue-50 to-blue-100 border-blue-200 hover:border-blue-400"
-                                        }`}
-                                >
-                                    <div className="relative flex items-start gap-4">
-                                        <div className="w-14 h-14 bg-gradient-to-br from-[#321a66] to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform flex-shrink-0">
-                                            <IconByKey iconKey={c.iconKey} className="text-white" size={26} />
-                                        </div>
-                                        <div className="flex flex-col pt-1">
-                                            <h3 className="text-gray-900 mb-1">{c.title}</h3>
-                                            {c.href ? (
-                                                <a
-                                                    href={c.href}
-                                                    target={c.href.startsWith("/") ? "_self" : "_blank"}
-                                                    rel="noreferrer"
-                                                    className="text-blue-700 hover:text-blue-900 transition-colors"
-                                                >
-                                                    {c.value}
-                                                </a>
-                                            ) : (
-                                                <p className="text-purple-800">{c.value}</p>
-                                            )}
+                            {(detail?.clientProfileCards ?? []).map((c, idx) => {
+                                const wrapper =
+                                    c.colorClass ??
+                                    "from-blue-50 to-blue-100 border-blue-200 hover:border-blue-400";
+
+                                return (
+                                    <div
+                                        key={`${c.title}-${idx}`}
+                                        className={`group relative bg-gradient-to-br rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 border-2 ${wrapper}`}
+                                    >
+                                        <div className="relative flex items-start gap-4">
+                                            <div className="w-14 h-14 bg-gradient-to-br from-[#321a66] to-purple-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform flex-shrink-0">
+                                                <IconByKey iconKey={c.iconKey} className="text-white" size={26} />
+                                            </div>
+                                            <div className="flex flex-col pt-1">
+                                                <h3 className="text-gray-900 mb-1">{c.title}</h3>
+                                                {c.href ? (
+                                                    <a
+                                                        href={c.href}
+                                                        target={c.href.startsWith("/") ? "_self" : "_blank"}
+                                                        rel="noreferrer"
+                                                        className="text-blue-700 hover:text-blue-900 transition-colors"
+                                                    >
+                                                        {c.value}
+                                                    </a>
+                                                ) : (
+                                                    <p className="text-purple-800">{c.value}</p>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </section>
 
-                {/* Challenge */}
+                {/* CHALLENGE */}
                 <section className="py-20 px-8 bg-[rgb(245,245,245)]">
                     <div className="max-w-6xl mx-auto">
                         <h2 className="text-center mb-4 text-gray-900 text-[24px] font-bold">
@@ -521,27 +444,30 @@ export default function PpcCaseStudySlugPage(props: any) {
                         </p>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            {(detail?.challengeCards ?? []).map((x, idx) => (
-                                <div
-                                    key={`${x.title}-${idx}`}
-                                    className="group relative bg-white border-l-4 border-red-500 rounded-r-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
-                                >
-                                    <div className="flex items-start gap-6">
-                                        <div className="w-20 h-20 bg-gradient-to-br from-red-500 to-red-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform">
-                                            <IconByKey iconKey={x.iconKey} className="text-white" size={36} />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="text-gray-900 mb-3">{x.title}</h3>
-                                            <p className="text-gray-600">{x.description}</p>
+                            {(detail?.challengeCards ?? []).map((x, idx) => {
+                                const borderClass = x.colorClass ?? "border-red-500";
+                                return (
+                                    <div
+                                        key={`${x.title}-${idx}`}
+                                        className={`group relative bg-white border-l-4 ${borderClass} rounded-r-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2`}
+                                    >
+                                        <div className="flex items-start gap-6">
+                                            <div className="w-20 h-20 bg-gradient-to-br from-[#ee4962] to-pink-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg group-hover:scale-110 transition-transform">
+                                                <IconByKey iconKey={x.iconKey} className="text-white" size={36} />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="text-gray-900 mb-3">{x.title}</h3>
+                                                <p className="text-gray-600">{x.description}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </section>
 
-                {/* Approach */}
+                {/* APPROACH */}
                 <section className="py-20 px-8 bg-gray-50">
                     <div className="max-w-6xl mx-auto">
                         <h2 className="text-center mb-4 text-gray-900 text-[24px] font-bold">
@@ -553,7 +479,10 @@ export default function PpcCaseStudySlugPage(props: any) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                             {(detail?.approachSections ?? []).map((sec, idx) => (
-                                <div key={`${sec.title}-${idx}`} className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm">
+                                <div
+                                    key={`${sec.title}-${idx}`}
+                                    className="bg-white border border-gray-200 rounded-lg p-8 shadow-sm"
+                                >
                                     <div className="flex items-start gap-4 mb-6">
                                         <div className="w-12 h-12 bg-gradient-to-br from-[#ee4962] to-pink-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
                                             <IconByKey iconKey={sec.iconKey} className="text-white" size={22} />
@@ -577,62 +506,47 @@ export default function PpcCaseStudySlugPage(props: any) {
                     </div>
                 </section>
 
-                {/* Dashboard */}
+                {/* DASHBOARD */}
                 <DashboardSection detail={detail} />
 
-                {/* Bottom CTA */}
-                <section className="py-[36px] px-[32px] bg-gradient-to-r from-[#ee4962] to-[#ee4962]">
-                    <div className="max-w-4xl mx-auto text-center">
-                        <h2 className="text-white mb-6 font-bold">
-                            {detail?.bottomCtaTitle ?? "Ready to Achieve Similar Results?"}
-                        </h2>
-                        <p className="text-white text-xl mb-8">{detail?.bottomCtaBody ?? ""}</p>
+                {/* ✅ OUTSTANDING RESULTS (MISSING BEFORE) */}
+                <OutstandingResultsSection detail={detail} />
 
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                            {/* <CtaButton
-                            variant="primary"
-                            text={detail?.bottomPrimaryCtaText ?? "Book Your Strategy Call"}
-                            href={detail?.bottomPrimaryCtaHref ?? "/contact"}
-                        /> */}
-                            <BookCallButtonWithModal
-                                buttonLabel={detail?.heroPrimaryCtaText ?? "Book Your Strategy Call"}
-                                className="bg-white hover:bg-white/30 text-brand-coral border border-white/30 px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base"
-                                buttonSize="lg"
-                                defaultServiceType="Google Ads"
-                            />
-                            {detail?.bottomSecondaryCtaText ? (
-                                <CtaButton
-                                    variant="secondary"
-                                    text={detail.bottomSecondaryCtaText}
-                                    href={detail?.bottomSecondaryCtaHref ?? "/contact?service=google-ads"}
-                                />
-                            ) : (
-                                <button className="bg-[rgba(255,255,255,0)] text-[rgb(255,255,255)] border-2 border-white px-8 py-3 rounded-md hover:bg-gray-100 hover:text-[#ee4962] transition-colors">
-                                    Get Started Today
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </section>
+                {/* ✅ TIMELINE (MISSING BEFORE) */}
+                <TimelineSection detail={detail} />
+
+                {/* ✅ PROCESS (MISSING BEFORE) */}
+                <ProvenProcessSection detail={detail} />
+
+                {/* ✅ MID CTA (MISSING BEFORE) */}
+                {/* <MidCtaSection detail={detail} /> */}
+
+                {/* BOTTOM CTA */}
+                <BottomCtaSection detail={detail} />
             </div>
         </>
     );
 }
 
+/* =========================
+   Sections
+   ========================= */
+
 function DashboardSection({ detail }: { detail?: PpcCaseStudyDetail }) {
+    const stats = detail?.dashboardStats ?? [];
+    const highlight = detail?.dashboardHighlight;
+
     return (
         <section className="py-20 px-8 bg-white">
             <div className="max-w-6xl mx-auto">
                 <h2 className="text-center mb-4 text-gray-900 font-bold text-[24px]">
                     {detail?.dashboardTitle ?? "Google Ads Dashboard Results"}
                 </h2>
-                <p className="text-center text-gray-600 text-xl mb-12">
-                    {detail?.dashboardSubtitle ?? ""}
-                </p>
+                <p className="text-center text-gray-600 text-xl mb-12">{detail?.dashboardSubtitle ?? ""}</p>
 
                 <div className="bg-white border border-gray-200 rounded-lg p-8 shadow-lg">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-                        {(detail?.dashboardStats ?? []).slice(0, 4).map((s, idx) => (
+                        {stats.slice(0, 4).map((s, idx) => (
                             <div key={`${s.label}-${idx}`} className="text-center p-6 bg-gray-50 rounded-lg">
                                 <div className="mb-2">
                                     <IconByKey iconKey={s.iconKey} className="mx-auto text-[#321a66]" size={32} />
@@ -644,14 +558,209 @@ function DashboardSection({ detail }: { detail?: PpcCaseStudyDetail }) {
                     </div>
 
                     <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 text-center">
-                        <div className="text-gray-900 mb-2">
-                            {detail?.dashboardHighlight?.label ?? "Average Cost Per Acquisition"}
-                        </div>
-                        <div className="text-5xl text-[#ee4962] mb-4 font-bold">
-                            {detail?.dashboardHighlight?.value ?? "—"}
-                        </div>
-                        <div className="text-gray-600">{detail?.dashboardHighlight?.subtext ?? ""}</div>
+                        <div className="text-gray-900 mb-2">{highlight?.label ?? "Average Cost Per Acquisition"}</div>
+                        <div className="text-5xl text-[#ee4962] mb-4 font-bold">{highlight?.value ?? "—"}</div>
+                        <div className="text-gray-600">{highlight?.subtext ?? ""}</div>
                     </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function OutstandingResultsSection({ detail }: { detail?: PpcCaseStudyDetail }) {
+    const cards = detail?.outstandingCards ?? [];
+    if (!detail?.outstandingTitle && cards.length === 0) return null;
+
+    return (
+        <section className="py-20 px-8 bg-gray-50">
+            <div className="max-w-6xl mx-auto">
+                <h2 className="text-center mb-4 text-gray-900 font-bold text-[24px]">
+                    {detail?.outstandingTitle ?? "Outstanding Results"}
+                </h2>
+                <p className="text-center text-gray-600 text-xl mb-16">
+                    {detail?.outstandingSubtitle ?? ""}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {cards.map((c, idx) => {
+                        const box = c.colorClass ?? "bg-white border-2 border-gray-200";
+                        return (
+                            <div key={`${c.title}-${idx}`} className={`${box} rounded-lg p-8 text-center`}>
+                                <div className="w-16 h-16 bg-[#ee4962] rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <IconByKey iconKey={c.iconKey} className="text-white" size={32} />
+                                </div>
+                                <div className="text-5xl text-gray-900 mb-2 text-[36px] font-bold">{c.value}</div>
+                                <div className="text-gray-900 mb-2">{c.title}</div>
+                                <p className="text-gray-600">{c.description}</p>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function TimelineSection({ detail }: { detail?: PpcCaseStudyDetail }) {
+    const steps = detail?.timelineSteps ? sortByOrder(detail.timelineSteps) : [];
+    if (!detail?.timelineTitle && steps.length === 0) return null;
+
+    return (
+        <section className="py-20 px-8 bg-white">
+            <div className="max-w-4xl mx-auto">
+                <h2 className="text-center mb-10 text-gray-900 font-bold text-[24px]">
+                    {detail?.timelineTitle ?? "Campaign Timeline"}
+                </h2>
+
+                <div className="relative py-6">
+                    <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 -translate-y-1/2" />
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
+                        {steps.slice(0, 4).map((s, idx) => {
+                            const isTop = idx % 2 === 0;
+                            const nodeClass =
+                                s.colorClass ?? "from-[#FF6A88] to-[#FF99AC]";
+
+                            return (
+                                <div key={`${s.title}-${idx}`} className="flex flex-col items-center">
+                                    {isTop ? (
+                                        <>
+                                            <div className="bg-white rounded-[24px] p-6 shadow-lg mb-8 hover:shadow-xl transition-all duration-300">
+                                                <div className={`inline-block bg-gradient-to-r ${nodeClass} text-white px-4 py-2 rounded-full mb-4 shadow-md`}>
+                                                    {s.badgeText}
+                                                </div>
+                                                <h3 className="text-gray-900 mb-2">{s.title}</h3>
+                                                <p className="text-gray-600 text-sm">{s.description}</p>
+                                            </div>
+                                            <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${nodeClass} border-4 border-white shadow-lg relative z-10`} />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div className={`w-6 h-6 rounded-full bg-gradient-to-br ${nodeClass} border-4 border-white shadow-lg mb-8 relative z-10`} />
+                                            <div className="bg-white rounded-[24px] p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                                                <div className={`inline-block bg-gradient-to-r ${nodeClass} text-white px-4 py-2 rounded-full mb-4 shadow-md`}>
+                                                    {s.badgeText}
+                                                </div>
+                                                <h3 className="text-gray-900 mb-2">{s.title}</h3>
+                                                <p className="text-gray-600 text-sm">{s.description}</p>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        </section>
+    );
+}
+
+function ProvenProcessSection({ detail }: { detail?: PpcCaseStudyDetail }) {
+    const steps = detail?.processSteps ? sortByOrder(detail.processSteps) : [];
+    if (!detail?.processTitle && steps.length === 0) return null;
+
+    return (
+        <section className="py-20 px-8 bg-gray-50">
+            <div className="max-w-6xl mx-auto">
+                <h2 className="text-center mb-6 text-gray-900 font-bold text-[24px]">
+                    {detail?.processTitle ?? "Our Proven Process"}
+                </h2>
+                <p className="text-center text-gray-600 text-xl mb-16 max-w-3xl mx-auto">
+                    {detail?.processSubtitle ?? ""}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                    {steps.slice(0, 4).map((s, idx) => (
+                        <div key={`${s.title}-${idx}`} className="text-center relative">
+                            <div className="w-16 h-16 bg-[#ee4962] text-white rounded-full flex items-center justify-center mx-auto mb-6 relative z-10">
+                                <span className="text-2xl">{s.order ?? idx + 1}</span>
+                            </div>
+
+                            {idx < steps.length - 1 ? (
+                                <div className="hidden lg:block absolute top-8 left-[calc(50%+2rem)] w-[calc(100%+2rem)] h-0.5 bg-gradient-to-r from-[#ee4962] to-[#ee4962] opacity-30" />
+                            ) : null}
+
+                            <h3 className="text-gray-900 mb-3">{s.title}</h3>
+                            <p className="text-gray-600">{s.description}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+// function MidCtaSection({ detail }: { detail?: PpcCaseStudyDetail }) {
+//     if (!detail?.midCtaTitle && !detail?.midCtaBody) return null;
+
+//     return (
+//         <section className="py-[27px] px-[32px] bg-gradient-to-r from-[#321a66] to-[#ee4962]">
+//             <div className="max-w-4xl mx-auto text-center">
+//                 <h2 className="text-white mb-6 font-bold">{detail?.midCtaTitle ?? "Ready to Achieve Similar Results?"}</h2>
+//                 <p className="text-white text-xl mb-8">{detail?.midCtaBody ?? ""}</p>
+
+//                 <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+//                     <BookCallButtonWithModal
+//                         buttonLabel={detail?.midPrimaryCtaText ?? "Book a Strategy Consultation"}
+//                         className="bg-white text-[#ee4962] px-8 py-3 rounded-md hover:bg-gray-100 transition-colors"
+//                         buttonSize="lg"
+//                         defaultServiceType="Google Ads"
+//                     />
+
+//                     {detail?.midSecondaryCtaText ? (
+//                         <button
+//                             className="bg-transparent text-white border-2 border-white px-8 py-3 rounded-md hover:bg-white hover:text-[#ee4962] transition-colors"
+//                             onClick={() => {
+//                                 const href = detail?.midSecondaryCtaHref;
+//                                 if (!href) return;
+//                                 if (href.startsWith("/")) window.location.assign(href);
+//                                 else window.open(href, "_blank", "noopener,noreferrer");
+//                             }}
+//                         >
+//                             {detail.midSecondaryCtaText}
+//                         </button>
+//                     ) : null}
+//                 </div>
+//             </div>
+//         </section>
+//     );
+// }
+
+function BottomCtaSection({ detail }: { detail?: PpcCaseStudyDetail }) {
+    return (
+        <section className="py-[36px] px-[32px] bg-gradient-to-r from-[#ee4962] to-[#ee4962]">
+            <div className="max-w-4xl mx-auto text-center">
+                <h2 className="text-white mb-6 font-bold">
+                    {detail?.bottomCtaTitle ?? "Ready to Achieve Similar Results?"}
+                </h2>
+                <p className="text-white text-xl mb-8">{detail?.bottomCtaBody ?? ""}</p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <BookCallButtonWithModal
+                        buttonLabel={detail?.bottomPrimaryCtaText ?? "Book Your Strategy Call"}
+                        className="bg-white hover:bg-white/30 text-brand-coral border border-white/30 px-6 sm:px-8 py-4 sm:py-6 text-sm sm:text-base"
+                        buttonSize="lg"
+                        defaultServiceType="Google Ads"
+                    />
+
+                    {detail?.bottomSecondaryCtaText ? (
+                        <button
+                            className="bg-transparent text-white border-2 border-white px-8 py-3 rounded-md hover:bg-white hover:text-[#ee4962] transition-colors"
+                            onClick={() => {
+                                const href = detail?.bottomSecondaryCtaHref;
+                                if (!href) return;
+                                if (href.startsWith("/")) window.location.assign(href);
+                                else window.open(href, "_blank", "noopener,noreferrer");
+                            }}
+                        >
+                            {detail.bottomSecondaryCtaText}
+                        </button>
+                    ) : (
+                        <button className="bg-transparent text-white border-2 border-white px-8 py-3 rounded-md hover:bg-gray-100 hover:text-[#ee4962] transition-colors">
+                            Get Started Today
+                        </button>
+                    )}
                 </div>
             </div>
         </section>

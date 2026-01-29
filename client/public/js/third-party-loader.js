@@ -149,7 +149,7 @@
     window.hj =
       window.hj ||
       function () {
-        (window.hj.q = window.hj.q || []).push(arguments);
+        (window.hj.q = window.hj.q = window.hj.q || []).push(arguments);
       };
 
     loadScriptOnce("bb-hotjar", "https://static.hotjar.com/c/hotjar-6498478.js?sv=6");

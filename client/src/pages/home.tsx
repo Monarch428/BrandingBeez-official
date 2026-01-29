@@ -1328,8 +1328,7 @@ export default function Home() {
       id: 1,
       name: "Mark Muse",
       company: "Founder, Muse Digital Media",
-      testimonial:
-        "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
+      testimonial:"Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
       imageUrl: IMAGES.testimonials.mark,
       logoUrl: IMAGES.logos.muse,
     },
@@ -1337,8 +1336,7 @@ export default function Home() {
       id: 2,
       name: "Daniel Fechete",
       company: "COO, New Vision Tech",
-      testimonial:
-        "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
+      testimonial:"Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
       imageUrl: IMAGES.testimonials.dani,
       logoUrl: IMAGES.logos.nvt,
     },
@@ -1346,8 +1344,7 @@ export default function Home() {
       id: 3,
       name: "Gemma Murphy",
       company: "Founder, Website Architect",
-      testimonial:
-        "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
+      testimonial:"Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
       imageUrl: IMAGES.testimonials.gemma,
       logoUrl: IMAGES.logos.webArt,
     },
