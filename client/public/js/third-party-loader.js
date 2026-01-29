@@ -1,18 +1,11 @@
 (function () {
-  const DEBUG = true;
-  const log = (...args) =>
-    DEBUG && console.log("%c[BB-TRACKING]", "color:#10b981;font-weight:600", ...args);
+  const GTM_ID = "GTM-KP5XRG5D";
 
   /* ================================
      BOT GUARD (Analytics Clean)
   ================================= */
   const isBot = /bot|crawler|spider|crawling/i.test(navigator.userAgent);
-  if (isBot) {
-    log("🚫 Bot detected – tracking skipped");
-    return;
-  }
-
-  log("🟢 Loader initialized");
+  if (isBot) return;
 
   /* ================================
      HELPERS
@@ -36,7 +29,6 @@
       if (done) return;
       done = true;
       cleanup();
-      log("👆 User intent detected");
       cb();
     };
 
@@ -54,40 +46,33 @@
     afterDelay(12000, run);
   }
 
-  function loadScriptOnce(id, src) {
-    if (document.getElementById(id)) {
-      log(`⚠️ Script already exists: ${id}`);
-      return;
-    }
+  function loadScriptOnce(id, src, onloadCb) {
+    if (document.getElementById(id)) return;
 
     const s = document.createElement("script");
     s.id = id;
     s.async = true;
     s.src = src;
 
-    s.onload = () => log(`🟢 Script loaded: ${id}`);
-    s.onerror = () => log(`❌ Script failed: ${id}`);
+    s.onload = () => {
+      if (typeof onloadCb === "function") onloadCb();
+    };
 
     document.head.appendChild(s);
   }
 
   /* ================================
-     CONFIG
+     CONFIG (GTM + FALLBACK DIRECT)
   ================================= */
   const USE_GTM = true;
-  const LOAD_VENDORS_DIRECTLY = false;
-
-  log("Config →", { USE_GTM, LOAD_VENDORS_DIRECTLY });
+  const LOAD_VENDORS_DIRECTLY = true;
 
   /* ================================
      LOADERS
   ================================= */
 
   function loadGTM() {
-    if (window.google_tag_manager || window._gtm_loaded) {
-      log("⚠️ GTM already loaded");
-      return;
-    }
+    if (window.google_tag_manager || window._gtm_loaded) return;
 
     window._gtm_loaded = true;
     window.dataLayer = window.dataLayer || [];
@@ -95,23 +80,12 @@
 
     loadScriptOnce(
       "bb-gtm",
-      "https://www.googletagmanager.com/gtm.js?id=GTM-KP5XRG5D"
+      "https://www.googletagmanager.com/gtm.js?id=" + GTM_ID
     );
-
-    log("🟢 GTM load triggered");
   }
 
   function loadClarity() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) {
-      log("🟡 Clarity skipped (handled by GTM)");
-      return;
-    }
-
-    if (window.clarity || window._clarity_loaded) {
-      log("⚠️ Clarity already loaded");
-      return;
-    }
-
+    if (window.clarity || window._clarity_loaded) return;
     window._clarity_loaded = true;
 
     (function (c, l, a, r, i, t, y) {
@@ -123,24 +97,13 @@
       t = l.createElement(r);
       t.async = 1;
       t.src = "https://www.clarity.ms/tag/" + i;
-      t.onload = () => log("🟢 Clarity loaded");
       y = l.getElementsByTagName(r)[0];
       y.parentNode.insertBefore(t, y);
     })(window, document, "clarity", "script", "umfi093rcx");
-
-    log("🟢 Clarity load triggered");
   }
 
   function loadHotjar() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) {
-      log("🟡 Hotjar skipped (handled by GTM)");
-      return;
-    }
-
-    if (window.hj || window._hj_loaded) {
-      log("⚠️ Hotjar already loaded");
-      return;
-    }
+    if (window.hj || window._hj_loaded) return;
 
     window._hj_loaded = true;
     window._hjSettings = { hjid: 6498478, hjsv: 6 };
@@ -155,23 +118,31 @@
       "bb-hotjar",
       "https://static.hotjar.com/c/hotjar-6498478.js?sv=6"
     );
-
-    log("🟢 Hotjar load triggered");
   }
 
   /* ================================
-     STRATEGY
+     STRATEGY (FINAL)
   ================================= */
 
+  // 1) Always try GTM first
   if (USE_GTM) {
-    log("🚀 GTM mode active");
     onIdle(loadGTM, 500);
-    return;
   }
 
-  afterDelay(1500, () => onIdle(loadClarity, 3000));
+  // 2) Fallback vendors if GTM does not load them
+  if (LOAD_VENDORS_DIRECTLY) {
+    afterDelay(3500, () => {
+      if (typeof window.clarity === "undefined") {
+        onIdle(loadClarity, 4000);
+      }
+    });
 
-  onceUserIntent(() => {
-    afterDelay(1000, () => onIdle(loadHotjar, 4000));
-  });
+    onceUserIntent(() => {
+      afterDelay(1500, () => {
+        if (typeof window.hj === "undefined") {
+          onIdle(loadHotjar, 5000);
+        }
+      });
+    });
+  }
 })();
