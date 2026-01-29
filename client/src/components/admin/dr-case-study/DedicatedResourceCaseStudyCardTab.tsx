@@ -28,6 +28,7 @@ export type DedicatedResourceCaseStudyCardTabValues = {
 
   logoUrl?: string;
   logoAlt?: string;
+  logoPublicId?: string;
 
   categoryLabel?: string;
   categoryClass?: string;
@@ -56,6 +57,48 @@ export function DedicatedResourceCaseStudyCardTab({
   const { success, error: toastError } = useAppToast();
   const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
 
+  const uploadLogoImage = async (file: File) => {
+    if (!token) {
+      toastError("Admin token missing. Please login again.", "Auth");
+      return;
+    }
+
+    try {
+      setUploading(true);
+
+      const fd = new FormData();
+      fd.append("image", file);
+
+      const res = await fetch("/api/admin/dedicated-resource-case-study/upload-logo-image", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: fd,
+      });
+
+      const text = await res.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(text);
+      } catch { }
+
+      if (!res.ok || !data?.imageUrl) {
+        console.error("Logo upload failed:", res.status, text);
+        throw new Error(data?.message || `Upload failed (${res.status})`);
+      }
+
+      onChange("logoUrl", data.imageUrl);
+      if (data.publicId) onChange("logoPublicId", data.publicId);
+      if (!form.logoAlt) onChange("logoAlt", file.name);
+
+      success("Logo uploaded successfully.", "Upload");
+    } catch (err: any) {
+      console.error(err);
+      toastError(err?.message || "Logo upload failed.", "Error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const uploadCoverImage = async (file: File) => {
     if (!token) {
       toastError("Admin token missing. Please login again.", "Auth");
@@ -77,7 +120,7 @@ export function DedicatedResourceCaseStudyCardTab({
       let data: any = {};
       try {
         data = JSON.parse(text);
-      } catch {}
+      } catch { }
 
       if (!res.ok || !data?.imageUrl) {
         console.error("Upload failed:", res.status, text);
@@ -140,10 +183,48 @@ export function DedicatedResourceCaseStudyCardTab({
 
       {/* Logo + Category */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div>
-          <Label>Logo URL (optional)</Label>
-          <Input value={form.logoUrl || ""} onChange={(e) => onChange("logoUrl", e.target.value)} placeholder="https://..." />
+        {/* Logo Upload */}
+        <div className="space-y-2">
+          <Label>Logo (Choose local file → upload to Cloudinary)</Label>
+
+          <input
+            type="file"
+            accept="image/*"
+            disabled={uploading}
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              await uploadLogoImage(file);
+            }}
+            className="mt-1"
+          />
+
+          {uploading ? <div className="text-xs text-gray-500">Uploading logo...</div> : null}
+
+          {form.logoUrl ? (
+            <>
+              <div className="text-xs text-gray-600 break-all">{form.logoUrl}</div>
+
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded border bg-white flex items-center justify-center overflow-hidden">
+                  <img src={form.logoUrl} alt={form.logoAlt || "Logo"} className="h-full w-full object-contain" />
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    onChange("logoUrl", "");
+                    onChange("logoPublicId", "");
+                  }}
+                >
+                  Remove Logo
+                </Button>
+              </div>
+            </>
+          ) : null}
         </div>
+
         <div>
           <Label>Logo Alt</Label>
           <Input value={form.logoAlt || ""} onChange={(e) => onChange("logoAlt", e.target.value)} placeholder="SocialLand logo" />
