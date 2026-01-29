@@ -1,9 +1,18 @@
 (function () {
+  const DEBUG = true;
+  const log = (...args) =>
+    DEBUG && console.log("%c[BB-TRACKING]", "color:#10b981;font-weight:600", ...args);
+
   /* ================================
      BOT GUARD (Analytics Clean)
   ================================= */
   const isBot = /bot|crawler|spider|crawling/i.test(navigator.userAgent);
-  if (isBot) return;
+  if (isBot) {
+    log("🚫 Bot detected – tracking skipped");
+    return;
+  }
+
+  log("🟢 Loader initialized");
 
   /* ================================
      HELPERS
@@ -27,6 +36,7 @@
       if (done) return;
       done = true;
       cleanup();
+      log("👆 User intent detected");
       cb();
     };
 
@@ -45,84 +55,65 @@
   }
 
   function loadScriptOnce(id, src) {
-    if (document.getElementById(id)) return;
+    if (document.getElementById(id)) {
+      log(`⚠️ Script already exists: ${id}`);
+      return;
+    }
+
     const s = document.createElement("script");
     s.id = id;
     s.async = true;
     s.src = src;
+
+    s.onload = () => log(`🟢 Script loaded: ${id}`);
+    s.onerror = () => log(`❌ Script failed: ${id}`);
+
     document.head.appendChild(s);
   }
 
   /* ================================
-     CONFIG (IMPORTANT)
-     - If you load GTM, DO NOT also load vendors here.
-     - Put Meta/Clarity/Hotjar/LinkedIn tags INSIDE GTM.
+     CONFIG
   ================================= */
   const USE_GTM = true;
   const LOAD_VENDORS_DIRECTLY = false;
 
+  log("Config →", { USE_GTM, LOAD_VENDORS_DIRECTLY });
+
   /* ================================
-     LOADERS (DUPLICATE SAFE)
+     LOADERS
   ================================= */
 
   function loadGTM() {
-    if (window.google_tag_manager || window._gtm_loaded) return;
-    window._gtm_loaded = true;
+    if (window.google_tag_manager || window._gtm_loaded) {
+      log("⚠️ GTM already loaded");
+      return;
+    }
 
+    window._gtm_loaded = true;
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
 
-    loadScriptOnce("bb-gtm", "https://www.googletagmanager.com/gtm.js?id=GTM-KP5XRG5D");
-  }
+    loadScriptOnce(
+      "bb-gtm",
+      "https://www.googletagmanager.com/gtm.js?id=GTM-KP5XRG5D"
+    );
 
-  function loadMetaPixel() {
-    // If GTM is handling, skip
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
-
-    if (window.fbq || window._meta_loaded) return;
-    window._meta_loaded = true;
-
-    !(function (f, b, e, v, n, t, s) {
-      if (f.fbq) return;
-      n = (f.fbq = function () {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      });
-      if (!f._fbq) f._fbq = n;
-      n.push = n;
-      n.loaded = true;
-      n.version = "2.0";
-      n.queue = [];
-      t = b.createElement(e);
-      t.async = true;
-      t.src = v;
-      s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s);
-    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-
-    window.fbq("init", "1914816149105645");
-    window.fbq("track", "PageView");
-  }
-
-  function loadLinkedIn() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
-
-    if (window.lintrk || window._li_loaded) return;
-    window._li_loaded = true;
-
-    window._linkedin_partner_id = "8407852";
-    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-    window._linkedin_data_partner_ids.push("8407852");
-
-    loadScriptOnce("bb-linkedin", "https://snap.licdn.com/li.lms-analytics/insight.min.js");
+    log("🟢 GTM load triggered");
   }
 
   function loadClarity() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
+    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) {
+      log("🟡 Clarity skipped (handled by GTM)");
+      return;
+    }
 
-    if (window.clarity || window._clarity_loaded) return;
+    if (window.clarity || window._clarity_loaded) {
+      log("⚠️ Clarity already loaded");
+      return;
+    }
+
     window._clarity_loaded = true;
 
-    // ✅ Official-style stub to avoid undefined/partial states
     (function (c, l, a, r, i, t, y) {
       c[a] =
         c[a] ||
@@ -132,27 +123,40 @@
       t = l.createElement(r);
       t.async = 1;
       t.src = "https://www.clarity.ms/tag/" + i;
+      t.onload = () => log("🟢 Clarity loaded");
       y = l.getElementsByTagName(r)[0];
       y.parentNode.insertBefore(t, y);
     })(window, document, "clarity", "script", "umfi093rcx");
+
+    log("🟢 Clarity load triggered");
   }
 
   function loadHotjar() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
+    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) {
+      log("🟡 Hotjar skipped (handled by GTM)");
+      return;
+    }
 
-    if (window.hj || window._hj_loaded) return;
+    if (window.hj || window._hj_loaded) {
+      log("⚠️ Hotjar already loaded");
+      return;
+    }
+
     window._hj_loaded = true;
-
-    // ✅ REQUIRED to prevent: "_hjSettings is not defined"
     window._hjSettings = { hjid: 6498478, hjsv: 6 };
 
     window.hj =
       window.hj ||
       function () {
-        (window.hj.q = window.hj.q = window.hj.q || []).push(arguments);
+        (window.hj.q = window.hj.q || []).push(arguments);
       };
 
-    loadScriptOnce("bb-hotjar", "https://static.hotjar.com/c/hotjar-6498478.js?sv=6");
+    loadScriptOnce(
+      "bb-hotjar",
+      "https://static.hotjar.com/c/hotjar-6498478.js?sv=6"
+    );
+
+    log("🟢 Hotjar load triggered");
   }
 
   /* ================================
@@ -160,16 +164,14 @@
   ================================= */
 
   if (USE_GTM) {
+    log("🚀 GTM mode active");
     onIdle(loadGTM, 500);
     return;
   }
 
-  // If you ever set USE_GTM = false, this becomes your direct-loader strategy:
-  afterDelay(1500, () => onIdle(loadMetaPixel, 3000));
-  afterDelay(4000, () => onIdle(loadLinkedIn, 3000));
+  afterDelay(1500, () => onIdle(loadClarity, 3000));
 
   onceUserIntent(() => {
-    onIdle(loadClarity, 4000);
-    afterDelay(2000, () => onIdle(loadHotjar, 5000));
+    afterDelay(1000, () => onIdle(loadHotjar, 4000));
   });
 })();
