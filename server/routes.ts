@@ -2128,40 +2128,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(securityLogger);
   app.use(securityHeaders());
   app.use(cors(corsOptions));
-  app.use("/api/", apiRateLimit);
-
-  // -----------------------------
-  // EXISTING ROUTERS (already split)
-  // -----------------------------
-  app.use("/api", createPortfolioRouter(authenticateAdmin, publicContentRateLimit));
-  app.use("/api", appointmentsRouter);
-  app.use("/api/google", googleAuthRoutes);
-  app.use("/api/newsletter", newsletterRoutes);
-  app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
-  app.use("/api", blogPublicRouter(publicContentRateLimit));
-  app.use("/api/oauthapi", authApiRouter);
-
-  // -----------------------------
-  // ADMIN ROUTES (case studies)
-  // -----------------------------
-  app.use("/api/admin", seoCaseStudyAdminRouter(authenticateAdmin));
-  app.use("/api/admin", ppcCaseStudyAdminRouter(authenticateAdmin));
-  app.use("/api/admin", webCaseStudyAdminRouter(authenticateAdmin));
-  app.use("/api/admin", dedicatedResourceCaseStudyAdminRouter(authenticateAdmin));
-  app.use("/api", blogAdminRouter(authenticateAdmin));
-
-
-  // -----------------------------
-  // NEWLY SPLIT MODULES
-  // -----------------------------
-  registerHealthRoutes(app);
-  registerUploadRoutes(app, authenticateAdmin);
-  registerContactsAndLeadsRoutes(app, authenticateAdmin);
-  registerNotificationsRoutes(app, authenticateAdmin);
-  registerAdminCrudRoutes(app, authenticateAdmin);
-  registerAuditRoutes(app);
-  registerChatRoutes(app);
-  registerStaticRoutes(app);
 
   app.get("/api/security/headers", (req, res) => {
     const csp = res.getHeader("Content-Security-Policy") || res.getHeader("content-security-policy");
@@ -2206,6 +2172,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       detected,
     });
   });
+
+  app.use("/api/", apiRateLimit);
+
+  // -----------------------------
+  // EXISTING ROUTERS (already split)
+  // -----------------------------
+  app.use("/api", createPortfolioRouter(authenticateAdmin, publicContentRateLimit));
+  app.use("/api", appointmentsRouter);
+  app.use("/api/google", googleAuthRoutes);
+  app.use("/api/newsletter", newsletterRoutes);
+  app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
+  app.use("/api", blogPublicRouter(publicContentRateLimit));
+  app.use("/api/oauthapi", authApiRouter);
+
+  // -----------------------------
+  // ADMIN ROUTES (case studies)
+  // -----------------------------
+  app.use("/api/admin", seoCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api/admin", ppcCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api/admin", webCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api/admin", dedicatedResourceCaseStudyAdminRouter(authenticateAdmin));
+  app.use("/api", blogAdminRouter(authenticateAdmin));
+
+
+  // -----------------------------
+  // NEWLY SPLIT MODULES
+  // -----------------------------
+  registerHealthRoutes(app);
+  registerUploadRoutes(app, authenticateAdmin);
+  registerContactsAndLeadsRoutes(app, authenticateAdmin);
+  registerNotificationsRoutes(app, authenticateAdmin);
+  registerAdminCrudRoutes(app, authenticateAdmin);
+  registerAuditRoutes(app);
+  registerChatRoutes(app);
+  registerStaticRoutes(app);
 
   // Route logging middleware (same as your current file, kept near end)
   app.use((req: Request, _res: Response, next: NextFunction) => {
