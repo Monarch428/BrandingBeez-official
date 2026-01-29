@@ -53,18 +53,18 @@ export type DedicatedResourceCaseStudyResultItem = {
   key: string;
   label: string;
   value: string;
-  valueClass?: string; // UI hint like "text-green-600"
+  valueClass?: string;
 };
 
 export type DedicatedResourceCaseStudyCard = {
-  _id: string; // Mongo id (FK for detail)
-  id: number; // numeric sequence
+  _id: string;
+  id: number;
   slug: string;
 
   // card header
-  title: string; // "Social Land"
-  client: string; // "SocialLand Digital"
-  industry: string; // "Digital Marketing Agency"
+  title: string;
+  client: string;
+  industry: string;
   description: string;
 
   badgeText?: string;
@@ -72,6 +72,7 @@ export type DedicatedResourceCaseStudyCard = {
 
   logoUrl?: string;
   logoAlt?: string;
+  logoPublicId?: string;
 
   categoryLabel?: string;
   categoryClass?: string;
