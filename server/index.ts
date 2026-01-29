@@ -6,8 +6,8 @@ import { initializeDatabase } from "./db-init";
 import dotenv from "dotenv";
 import path from "path";
 
-import https from "https";
-import fs from "fs";
+// import https from "https";
+// import fs from "fs";
 
 dotenv.config({ path: ".env" });
 const app = express();
@@ -414,21 +414,21 @@ app.use((req, res, next) => {
     }
   }
 
-  const httpsOptions = {
-    key: fs.readFileSync("cert/localhost-key.pem"),
-    cert: fs.readFileSync("cert/localhost.pem")
-  };
+  // const httpsOptions = {
+  //   key: fs.readFileSync("cert/localhost-key.pem"),
+  //   cert: fs.readFileSync("cert/localhost.pem")
+  // };
   const port = parseInt(process.env.PORT || "5000", 10);
-  // server.listen(
-  //   {
-  //     port,
-  //     host: process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1",
-  //   },
-  //   () => {
-  //     log(`serving on port ${port}`);
-  //   }
-  // );
-  https.createServer(httpsOptions, app).listen(port, () => {
-    log(`🚀 HTTPS Server running at https://localhost:${port}`);
-  });
+  server.listen(
+    {
+      port,
+      host: process.env.NODE_ENV === "production" ? "0.0.0.0" : "127.0.0.1",
+    },
+    () => {
+      log(`serving on port ${port}`);
+    }
+  );
+  // https.createServer(httpsOptions, app).listen(port, () => {
+  //   log(`🚀 HTTPS Server running at https://localhost:${port}`);
+  // });
 })();
