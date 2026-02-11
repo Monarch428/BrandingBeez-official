@@ -1,3 +1,4 @@
+from app.pipeline.sections.report_assembler import assemble_final_report, deep_merge
 from typing import Any, Dict
 from datetime import datetime
 import asyncio
@@ -43,7 +44,7 @@ from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
 from app.signals.dataforseo_signals import build_dataforseo_enrichment
-from app.llm.report_builder import build_report_with_llm
+from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
@@ -614,6 +615,17 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     # ✅ IMPORTANT: define criteria ONCE so it is always available
     criteria = ensure_dict(getattr(payload, "criteria", {}) or {})
+
+
+    # ✅ payload is a Pydantic model (AnalyzeRequest). Convert to dict when we need .get() access.
+    # Pydantic v2 uses model_dump(); v1 uses dict(). This keeps orchestrator compatible with both.
+    try:
+        payload_dict: Dict[str, Any] = payload.model_dump()  # type: ignore[attr-defined]
+    except Exception:
+        try:
+            payload_dict = payload.dict()  # type: ignore[attr-defined]
+        except Exception:
+            payload_dict = {}
 
     # Cache
     cache_repo = AnalysisCacheRepository()
@@ -1831,43 +1843,51 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     merged = sanitize_with_template(base_report, llm_report)
     merged = patch_required_metadata(merged, base_report)
 
-    # ---- Safety gate for Sections 8–10
-    # Even if the LLM returns something unexpected, only allow scenario-based outputs for
-    # sections 8–10 when estimationMode is explicitly enabled.
-    if not bool(getattr(payload, "estimationMode", False)):
-        merged["costOptimization"] = base_report.get("costOptimization")
-        merged["targetMarket"] = base_report.get("targetMarket")
-        merged["financialImpact"] = base_report.get("financialImpact")
+    # Sections 8–10 are optional. When enabled, generate them via LLM and
+    # merge into the final report dict. This prevents PDFs showing "No data
+    # available" for those sections when the pipeline has enough context.
+    if payload_dict.get("includeSections8to10", True):
+        try:
+            sec_8_10 = build_sections_8_10_with_llm(llm_context)
+            merged = deep_merge(merged, sec_8_10)
+        except Exception:
+            logger.exception("[Pipeline] sections 8–10 generation failed; continuing with base report")
 
     repo = ReportsRepository()
-    token = make_token("bbai")
-
-    report_id = repo.create_report(
-        token=token,
-        analysis=merged,
-        website=final_url or website,
-        company_name=company,
-        industry=payload.industry,
-        email=payload.email,
-        name=payload.name,
-        report_download_token=None,
-    )
+    report_id, token = repo.save(merged, final_url)
 
     meta = {
-        "generatedAt": datetime.utcnow().isoformat() + "Z",
-        "evidence": {
-            "robotsOk": ensure_dict(robots_sitemap.get("robots")).get("ok"),
-            "sitemapOk": ensure_dict(robots_sitemap.get("sitemap")).get("ok"),
-            "hasStructuredData": homepage.get("hasStructuredData"),
-            "reviewsTotal": ensure_dict(reviews_scraped.get("summary")).get("total_reviews", 0),
-            "googlePlacesCompanyRating": ensure_dict((google_places_bundle or {}).get("company")).get("rating") if google_places_bundle else None,
-            "googlePlacesCompanyTotal": ensure_dict((google_places_bundle or {}).get("company")).get("user_ratings_total") if google_places_bundle else None,
-            "linkExtraction": {
-                "siteType": links.get("site_type"),
-                "totalInternalLinks": links.get("total_internal_links"),
-                "engine": links.get("extraction_engine"),
-            },
-        },
+        "reportId": report_id,
+        "website": website,
+        "company": company,
+        "createdAt": datetime.utcnow().isoformat() + "Z",
+        "estimationMode": bool(payload_dict.get("estimationMode")),
+        "targetMarket": payload_dict.get("targetMarket"),
+        "businessGoal": payload_dict.get("businessGoal"),
+        "forceNewAnalysis": bool(payload_dict.get("forceNewAnalysis")),
+        "hasPagespeed": bool(pagespeed),
+        "hasRobots": bool(robots_sitemap.get("robots_txt")) if isinstance(robots_sitemap, dict) else False,
+        "hasSitemap": bool(robots_sitemap.get("sitemap_urls")) if isinstance(robots_sitemap, dict) else False,
+        "hasHomepage": bool(homepage),
+        "hasReviews": bool(reviews_scraped),
+        "hasGooglePlaces": bool(google_places_bundle.get("used")) if isinstance(google_places_bundle, dict) else False,
+        "totalPagesDiscovered": len(links) if isinstance(links, list) else None,
+        "pdfUrl": final_url,
+        "token": token,
     }
 
-    return AnalyzeResponse(ok=True, token=token, reportId=report_id, reportJson=merged, meta=meta)
+    if isinstance(merged, dict):
+        merged["meta"] = meta
+
+    # Normalize/assemble for downstream (PDF generator expects stable shape)
+    merged = assemble_final_report(merged)
+
+    return AnalyzeResponse(
+        ok=True,
+        report=merged,
+        pdfUrl=final_url,
+        website=website,
+        company=company,
+        reportId=report_id,
+        token=token,
+    )

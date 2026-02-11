@@ -64,6 +64,9 @@ class UXConversion(BaseModel):
     highlights: List[str] = Field(default_factory=list)
     issues: List[str] = Field(default_factory=list)
     estimatedUplift: Optional[str] = None
+    # Optional richer UI/UX signals (from the lightweight uiux analyzer)
+    details: Dict[str, Any] = Field(default_factory=dict)
+    recommendations: List[str] = Field(default_factory=list)
 
 class WebsiteDigitalPresence(BaseModel):
     technicalSEO: TechnicalSEO = Field(default_factory=TechnicalSEO)

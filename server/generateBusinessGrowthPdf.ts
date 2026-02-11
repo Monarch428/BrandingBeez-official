@@ -676,6 +676,41 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       bullets(doc, normalizeStringList(ux?.issues), "No issues detected.");
       paragraph(doc, `Estimated Uplift: ${safeText(ux?.estimatedUplift, "N/A")}`);
 
+      // Optional richer UI/UX micro-audit (Python engine)
+      const uxAny: any = ux as any;
+      const uxDetails: any = uxAny?.details;
+      if (uxDetails && typeof uxDetails === "object" && Object.keys(uxDetails).length) {
+        doc.moveDown(0.5);
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("UI/UX Micro-Audit (Homepage)");
+
+        const perf = uxDetails.performance || {};
+        const acc = uxDetails.accessibility || {};
+        const mob = uxDetails.mobile || {};
+
+        // Small metrics table (best-effort)
+        drawTable(
+          doc,
+          ["Metric", "Value"],
+          [
+            ["Page Size (KB)", safeText(perf.page_size_kb, "—")],
+            ["Scripts", safeText(perf.scripts_count, "—")],
+            ["Stylesheets", safeText(perf.stylesheets_count, "—")],
+            ["Images", safeText(perf.images_count, "—")],
+            ["Images missing ALT", safeText(acc.images_without_alt, "—")],
+            ["H1 Count", safeText((acc.heading_structure || {}).h1, "—")],
+            ["Has Viewport Meta", safeText(mob.has_viewport, "—")],
+          ],
+          [220, 240],
+        );
+
+        const recs = normalizeStringList(uxAny?.recommendations);
+        if (recs.length) {
+          doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Top UX Fixes");
+          bullets(doc, recs, "—");
+        }
+      }
+
+
       const gaps = normalizeStringList(report.websiteDigitalPresence?.contentGaps);
       if (gaps.length) {
         addPageIfNotAtTop(doc);
@@ -1106,7 +1141,24 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         );
       }
 
-      paragraph(doc, safeText(co?.notes, ""));
+      
+      // Python AI Engine schema compatibility: opportunities[]
+      if (Array.isArray((coAny as any)?.opportunities) && (coAny as any).opportunities.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Opportunities");
+        drawTable(
+          doc,
+          ["Opportunity", "Description", "Impact", "Effort"],
+          (coAny as any).opportunities.map((o: any) => [
+            safeText(o?.title || o?.opportunity || o?.name, "—"),
+            safeText(o?.description || o?.details || o?.why, "—"),
+            safeText(o?.impact || o?.savings || o?.estimatedSavings, "—"),
+            safeText(o?.effort || o?.difficulty || o?.time, "—"),
+          ]),
+          [140, 200, 90, 90],
+        );
+      }
+
+paragraph(doc, safeText(co?.notes, ""));
 
       /* =========================
                9) TARGET MARKET/* =========================
@@ -1144,7 +1196,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         );
       }
 
-      // Current target segments
+      // Current target segments (Node schema) OR segments[] (Python AI Engine schema)
       if (Array.isArray(tm?.currentTargetSegments) && tm.currentTargetSegments.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Current Target Segments");
         drawTable(
@@ -1157,8 +1209,20 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           ]),
           [160, 90, 260],
         );
+      } else if (Array.isArray((tmAny as any)?.segments) && (tmAny as any).segments.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Detected Segments");
+        drawTable(
+          doc,
+          ["Segment", "Pain Points", "Budget/Notes"],
+          (tmAny as any).segments.map((s: any) => [
+            safeText(s?.segment || s?.name, "—"),
+            normalizeStringList(s?.painPoints || s?.pains || s?.problems).join("; ") || "—",
+            safeText(s?.avgBudget || s?.budget || s?.notes, "—"),
+          ]),
+          [160, 240, 110],
+        );
       } else {
-        paragraph(doc, "No current target segments were provided.");
+        paragraph(doc, "No target segments were provided.");
       }
 
       // Recommended segments
@@ -1230,6 +1294,22 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         [[safeText(fi?.currentRevenueEstimate, "—"), safeText(fi?.improvementPotential, "—"), safeText(fi?.projectedRevenueIncrease, "—")]],
         [180, 160, 160],
       );
+
+      // Python AI Engine schema compatibility: revenueTable[]
+      if (Array.isArray((fiAny as any)?.revenueTable) && (fiAny as any).revenueTable.length) {
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Revenue Table");
+        drawTable(
+          doc,
+          ["Metric", "Value", "Notes"],
+          (fiAny as any).revenueTable.map((r: any) => [
+            safeText(r?.label || r?.metric || r?.name, "—"),
+            safeText(r?.value || r?.amount, "—"),
+            safeText(r?.notes || r?.assumption, ""),
+          ]),
+          [180, 130, 170],
+        );
+      }
+
 
       if (Array.isArray(fi?.profitabilityLevers) && fi.profitabilityLevers.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Profitability Levers");

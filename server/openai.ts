@@ -2681,6 +2681,25 @@ ${JSON.stringify(fallbackTemplate, null, 2)}
   }
 }
 
+
+function deepMerge<T = any>(base: T, patch: any): T {
+  if (Array.isArray(base)) {
+    return (Array.isArray(patch) ? patch : base) as any;
+  }
+  if (base && typeof base === "object") {
+    const out: any = { ...(base as any) };
+    if (patch && typeof patch === "object") {
+      for (const [k, v] of Object.entries(patch)) {
+        if (k in out) out[k] = deepMerge(out[k], v);
+        else out[k] = v;
+      }
+    }
+    return out;
+  }
+  return (patch !== undefined ? patch : base) as any;
+}
+
+
 export function mergeBusinessGrowthReport(
   input: { companyName: string; website: string; industry?: string },
   report?: Partial<BusinessGrowthReport> | null,
@@ -2904,6 +2923,17 @@ export function mergeBusinessGrowthReport(
   merged.targetMarket.currentTargetSegments = ensureArray(merged.targetMarket.currentTargetSegments);
   merged.targetMarket.recommendedSegments = ensureArray(merged.targetMarket.recommendedSegments);
   (merged.targetMarket as any).scenarios = ensureArray((merged.targetMarket as any).scenarios);
+
+  // Python AI Engine schema compatibility (Sections 8–10)
+  const coAny: any = merged.costOptimization as any;
+  if (Array.isArray(coAny?.opportunities)) coAny.opportunities = ensureArray(coAny.opportunities);
+
+  const tmAny: any = merged.targetMarket as any;
+  if (Array.isArray(tmAny?.segments)) tmAny.segments = ensureArray(tmAny.segments);
+
+  const fiAny: any = merged.financialImpact as any;
+  if (Array.isArray(fiAny?.revenueTable)) fiAny.revenueTable = ensureArray(fiAny.revenueTable);
+
 
   merged.riskAssessment.risks = ensureArray(merged.riskAssessment.risks);
   merged.riskAssessment.compliance = ensureArray(merged.riskAssessment.compliance);

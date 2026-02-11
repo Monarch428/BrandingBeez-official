@@ -9,6 +9,7 @@ from app.models.report_schema import (
     FinancialImpact,
 )
 from app.llm.client import call_openai_json
+from app.llm.context_compactor import compact_llm_context, compact_base_report
 from app.llm.prompts import (
     SYSTEM_PROMPT_RECONCILE,
     SYSTEM_PROMPT_ESTIMATION_8_10,
@@ -45,7 +46,10 @@ def build_report_with_llm(base_report: Dict[str, Any], llm_context: Dict[str, An
     """
     logger.info("[LLM] build_report_with_llm (reconcile) start")
 
-    prompt = build_user_prompt_reconcile(base_report, llm_context)
+    base_report_c = compact_base_report(base_report)
+    llm_context_c = compact_llm_context(llm_context)
+
+    prompt = build_user_prompt_reconcile(base_report_c, llm_context_c)
     llm_patch = call_openai_json(SYSTEM_PROMPT_RECONCILE, prompt, max_tokens=2200)
 
     if not isinstance(llm_patch, dict):
@@ -66,7 +70,8 @@ def build_sections_8_10_with_llm(llm_context: Dict[str, Any]) -> Dict[str, Any]:
     """
     logger.info("[LLM] build_sections_8_10_with_llm start")
 
-    prompt = build_user_prompt_estimation_8_10(llm_context)
+    llm_context_c = compact_llm_context(llm_context)
+    prompt = build_user_prompt_estimation_8_10(llm_context_c)
     llm_json = call_openai_json(SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=2000)
 
     if not isinstance(llm_json, dict):

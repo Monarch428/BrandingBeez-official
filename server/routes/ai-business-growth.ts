@@ -27,6 +27,17 @@ function normalizeWebsiteUrl(website: string): string {
   return url;
 }
 
+
+/** Extract normalized domain (no protocol/www). Used for stable lookups. */
+function toDomain(website: string): string {
+  try {
+    const url = new URL(normalizeWebsiteUrl(website));
+    return url.hostname.replace(/^www\./i, "").toLowerCase();
+  } catch {
+    return "";
+  }
+}
+
 /** Escape string for use inside a RegExp */
 function escapeRegExp(input: string) {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -63,8 +74,10 @@ export function registerBusinessGrowthRoutes(app: Express) {
       }
 
       const normalizedWebsite = normalizeWebsiteUrl(website);
+      const domain = toDomain(normalizedWebsite);
 
-      const filter: any = { website: normalizedWebsite };
+      // Prefer domain match (protocol/trailing slash changes between runs)
+      const filter: any = domain ? { domain } : { website: normalizedWebsite };
       if (companyName && typeof companyName === "string" && companyName.trim()) {
         const q = companyName.trim();
         filter.companyName = new RegExp(`^${escapeRegExp(q)}$`, "i");
@@ -167,16 +180,25 @@ export function registerBusinessGrowthRoutes(app: Express) {
         timeoutMs: 180 * 60_000,
       });
 
+      if (!py || py.ok !== true) {
+        throw new Error(`Python engine returned failure: ${JSON.stringify(py)}`);
+      }
+
+
+
       const analysis = py.reportJson;
       const analysisToken = py.token;
 
       const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
 
       if (!existing) {
+        const resolvedWebsite = analysis?.reportMetadata?.website || normalizeWebsiteUrl(website);
+
         await AiReportGeneratedModel.create({
           token: analysisToken,
           analysis,
-          website: analysis?.reportMetadata?.website || normalizeWebsiteUrl(website),
+          website: resolvedWebsite,
+          domain: toDomain(resolvedWebsite),
           companyName: analysis?.reportMetadata?.companyName || companyName,
           industry,
           email,
@@ -257,6 +279,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
       fs.writeFileSync(filePath, pdfBuffer);
 
       storedReport.website = normalizeWebsiteUrl(resolvedWebsite);
+      storedReport.domain = toDomain(storedReport.website);
       storedReport.companyName = resolvedCompany;
       storedReport.industry = industry || storedReport.industry;
       storedReport.reportDownloadToken = t;
@@ -318,6 +341,12 @@ export function registerBusinessGrowthRoutes(app: Express) {
         reportMetadata?.website || storedReport.website || "Unknown";
       const resolvedCompany =
         reportMetadata?.companyName || storedReport.companyName || "Unknown";
+
+
+      // Keep stable domain/website for future latest() checks
+      storedReport.website = normalizeWebsiteUrl(resolvedWebsite);
+      storedReport.domain = toDomain(storedReport.website);
+      await storedReport.save();
 
       // ✅ Ensure PDF exists; if missing, generate once (NO analysis rerun)
       let pdfBuffer: Buffer;

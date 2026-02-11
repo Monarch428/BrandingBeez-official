@@ -11,6 +11,7 @@ def build_website_signals(
     robots_sitemap: Dict[str, Any],
     pagespeed: Optional[Dict[str, Any]] = None,
     content_pages: Optional[List[Dict[str, Any]]] = None,
+    uiux: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     issues: List[str] = []
     strengths: List[str] = []
@@ -51,19 +52,44 @@ def build_website_signals(
         if vals:
             speed_score = int(round(sum(vals) / len(vals)))
 
-    # UX/Conversion (light heuristics)
+    # UX/Conversion
     ux_highlights: List[str] = []
     ux_issues: List[str] = []
     ux_score = 70
-    if homepage.get("contactCTA"):
-        ux_highlights.append("Clear CTA detected on homepage.")
+    ux_details: Dict[str, Any] = {}
+    ux_recs: List[str] = []
+
+    if isinstance(uiux, dict) and uiux:
+        # Prefer dedicated analyzer scores when available
+        try:
+            ux_score = int(round(float(uiux.get("overall_score", ux_score))))
+        except Exception:
+            pass
+        ux_details = uiux.get("details") if isinstance(uiux.get("details"), dict) else {}
+        ux_recs = uiux.get("recommendations") if isinstance(uiux.get("recommendations"), list) else []
+
+        # Map key issues into the main report fields for readability
+        acc_issues = ((ux_details.get("accessibility") or {}).get("issues") if isinstance(ux_details, dict) else None)
+        if isinstance(acc_issues, list):
+            ux_issues.extend([str(x) for x in acc_issues if x])
+        # Homepage CTA heuristic still valuable
+        if homepage.get("contactCTA"):
+            ux_highlights.append("Clear CTA detected on homepage.")
+        else:
+            ux_issues.append("No clear primary CTA detected on homepage.")
+        if not ux_highlights and not ux_issues:
+            ux_issues.append("No conversion positives detected.")
     else:
-        ux_issues.append("No clear primary CTA detected on homepage.")
-        ux_score -= 10
-    if speed_score is not None and speed_score < 50:
-        ux_issues.append("PageSpeed performance is low; may harm conversions.")
-        ux_score -= 10
-    ux_score = max(0, min(100, ux_score))
+        # fallback heuristics
+        if homepage.get("contactCTA"):
+            ux_highlights.append("Clear CTA detected on homepage.")
+        else:
+            ux_issues.append("No clear primary CTA detected on homepage.")
+            ux_score -= 10
+        if speed_score is not None and speed_score < 50:
+            ux_issues.append("PageSpeed performance is low; may harm conversions.")
+            ux_score -= 10
+        ux_score = max(0, min(100, ux_score))
 
     # Content Quality (NEW: multi-page analysis)
     cq = compute_content_quality(homepage, content_pages or [])
@@ -94,6 +120,8 @@ def build_website_signals(
             "highlights": ux_highlights,
             "issues": ux_issues,
             "estimatedUplift": "N/A",
+            "details": ux_details,
+            "recommendations": ux_recs,
         },
         "contentGaps": cq.get("gaps", []),
     }
