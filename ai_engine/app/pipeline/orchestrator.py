@@ -29,6 +29,7 @@ except Exception:
 
 from app.extractors.content_pages import fetch_content_pages
 from app.extractors.service_scraper_ext import scrape_services
+from app.extractors.uiux_analyzer import analyze_uiux
 
 # ✅ NEW universal extractor (async)
 try:
@@ -657,6 +658,19 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         if cache_enabled:
             cache_repo.upsert_section(cache_key, "links", links)
 
+
+    # ✅ UI/UX signals (cached) - lightweight HTML heuristics (no external APIs)
+    uiux = None
+    if cache_enabled:
+        uiux = cache_repo.get_section_if_fresh(cache_key, "uiux", ttl_days=int(getattr(settings, "CACHE_TTL_CRAWL_DAYS", 7)))
+    if not uiux:
+        try:
+            uiux = analyze_uiux(final_url or website, html=html)
+        except Exception as _e:
+            uiux = {"overall_score": 0, "details": {}, "recommendations": [f"Recommendation: UX analyzer failed: {_e}"]}
+        if cache_enabled:
+            cache_repo.upsert_section(cache_key, "uiux", uiux)
+
     # Decide whether to run Playwright for additional pages (speed optimization)
     def _should_use_playwright(home_html: str, homepage_parsed: Dict[str, Any], links_payload: Dict[str, Any]) -> bool:
         # If universal extractor already identified SPA, prefer Playwright
@@ -752,8 +766,11 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         gsc_summary = None
 
+    # Ensure own_pages exists even if content-page fetch happens later
+    own_pages = []
+
     # Signals (guarded)
-    website_section = ensure_dict(build_website_signals(homepage, robots_sitemap, pagespeed))
+    website_section = ensure_dict(build_website_signals(homepage, robots_sitemap, pagespeed, content_pages=own_pages, uiux=uiux))
     seo_section = ensure_dict(build_seo_signals(homepage, robots_sitemap, pagespeed, website_url=(final_url or website)))
     if gsc_summary:
         seo_section["searchConsole"] = gsc_summary
@@ -1835,7 +1852,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     }
 
     try:
-        llm_report = build_report_with_llm(base_report, llm_context)
+        llm_report = build_report_with_llm(base_report, llm_context, cache_repo=cache_repo, cache_key=cache_key)
     except Exception:
         llm_report = None
 
@@ -1848,7 +1865,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     # available" for those sections when the pipeline has enough context.
     if payload_dict.get("includeSections8to10", True):
         try:
-            sec_8_10 = build_sections_8_10_with_llm(llm_context)
+            sec_8_10 = build_sections_8_10_with_llm(llm_context, cache_repo=cache_repo, cache_key=cache_key)
             merged = deep_merge(merged, sec_8_10)
         except Exception:
             logger.exception("[Pipeline] sections 8–10 generation failed; continuing with base report")
@@ -1885,6 +1902,14 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     return AnalyzeResponse(
         ok=True,
         report=merged,
+        reportJson=merged,
+        meta={
+            "website": website,
+            "company": company,
+            "pdfUrl": final_url,
+            "reportId": report_id,
+            "token": token,
+        },
         pdfUrl=final_url,
         website=website,
         company=company,

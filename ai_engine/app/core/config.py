@@ -44,6 +44,23 @@ class Settings(BaseSettings):
     OPENAI_MODEL: str = "gpt-4o-mini"
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"
 
+    # OpenAI rate-limit controls (server-side)
+    # Limits concurrent in-process OpenAI calls to reduce 429 bursts.
+    OPENAI_MAX_CONCURRENT: int = 2
+    # After N consecutive 429 responses, open a circuit-breaker for a cooldown
+    # window and (optionally) route LLM work to Gemini.
+    OPENAI_429_STRIKE_THRESHOLD: int = 2
+    OPENAI_CIRCUIT_BREAKER_COOLDOWN_SEC: int = 60
+    OPENAI_FALLBACK_TO_GEMINI_ON_429: bool = True
+
+    # Gemini (Google Generative Language) settings
+    GEMINI_API_KEY: str | None = None
+    GEMINI_MODEL_MINI: str = "gemini-2.5-flash-lite"  # lightweight/low-cost model
+
+    # LLM output caching (stores prompt-hash keyed results in analysis_cache)
+    LLM_CACHE_ENABLED: bool = True
+    LLM_CACHE_TTL_DAYS: int = 30
+
     # Optional
     AI_ENGINE_KEY: str | None = None
     PAGESPEED_API_KEY: str | None = None

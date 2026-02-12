@@ -151,39 +151,42 @@ Context (facts + evidence):
 {context}
 """
 
+import json
+
+def _json(obj: dict) -> str:
+    # compact JSON to reduce token overhead (no indent/pretty-print)
+    return json.dumps(obj, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
 
 def build_user_prompt_reconcile(base_report: dict, llm_context: dict) -> str:
-    return f"""
-You will receive:
-1) base_report (existing JSON)
-2) llm_context (evidence + pageRegistry)
-
-Return a JSON PATCH object (only changed keys) to improve consistency.
-
-base_report:
-{base_report}
-
-llm_context:
-{llm_context}
-"""
+    base_s = _json(base_report or {})
+    ctx_s = _json(llm_context or {})
+    return (
+        "You will receive:\n"
+        "1) base_report (existing JSON)\n"
+        "2) llm_context (evidence + pageRegistry)\n\n"
+        "Return a JSON PATCH object (only changed keys) to improve consistency.\n"
+        "Do NOT repeat the full report. Return ONLY the minimal patch.\n\n"
+        "base_report_json:\n"
+        f"{base_s}\n\n"
+        "llm_context_json:\n"
+        f"{ctx_s}\n"
+    )
 
 
 def build_user_prompt_estimation_8_10(llm_context: dict) -> str:
-    return f"""
-Generate ONLY these keys as JSON:
-- costOptimization
-- targetMarket
-- financialImpact
-
-You MUST include `estimationDisclaimer` EXACTLY:
-{ESTIMATION_DISCLAIMER}
-
-Make sure:
-- costOptimization.opportunities is NOT empty (5–10 rows).
-- targetMarket.segments is NOT empty (4–8 rows).
-- financialImpact.revenueTable is NOT empty (5–8 rows).
-- scenarios is present for each of the three sections, with 3 scenarios.
-
-Context:
-{llm_context}
-"""
+    ctx_s = _json(llm_context or {})
+    return (
+        "Generate ONLY these keys as JSON:\n"
+        "- costOptimization\n"
+        "- targetMarket\n"
+        "- financialImpact\n\n"
+        "You MUST include `estimationDisclaimer` EXACTLY:\n"
+        f"{ESTIMATION_DISCLAIMER}\n\n"
+        "Make sure:\n"
+        "- costOptimization.opportunities is NOT empty (5–10 rows).\n"
+        "- targetMarket.segments is NOT empty (4–8 rows).\n"
+        "- financialImpact.revenueTable is NOT empty (5–8 rows).\n"
+        "- scenarios is present for each of the three sections, with 3 scenarios.\n\n"
+        "Context (JSON):\n"
+        f"{ctx_s}\n"
+    )

@@ -1,4 +1,5 @@
 from datetime import datetime
+import secrets
 from typing import Any, Dict
 from pymongo.errors import DuplicateKeyError
 from app.db.mongo import get_reports_collection
@@ -37,6 +38,16 @@ class ReportsRepository:
         except DuplicateKeyError:
             # Extremely rare; regenerate token at caller if needed
             raise
+
+
+    def save(self, analysis: Dict[str, Any], website: str | None = None) -> tuple[str, str]:
+        """Backwards-compatible wrapper used by orchestrator.py.
+
+        Returns (report_id, token).
+        """
+        token = secrets.token_urlsafe(24)
+        report_id = self.create_report(token=token, analysis=analysis, website=website)
+        return report_id, token
 
     def get_by_token(self, token: str):
         return self.col.find_one({"token": token})

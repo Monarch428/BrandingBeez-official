@@ -601,14 +601,14 @@ export default function AIBusinessGrowthAnalyzerPage() {
   );
 
   const report = analysisData;
-  const summaryStrengths = report?.executiveSummary.strengths ?? [];
-  const summaryWeaknesses = report?.executiveSummary.weaknesses ?? [];
-  const biggestOpportunity = report?.executiveSummary.biggestOpportunity ?? "";
-  const analysisDate = report?.reportMetadata.analysisDate ? new Date(report.reportMetadata.analysisDate).toLocaleDateString() : "N/A";
-  const score = report?.reportMetadata.overallScore ?? null;
+  const summaryStrengths = report?.executiveSummary?.strengths ?? [];
+  const summaryWeaknesses = report?.executiveSummary?.weaknesses ?? [];
+  const biggestOpportunity = report?.executiveSummary?.biggestOpportunity ?? "";
+  const analysisDate = report?.reportMetadata?.analysisDate ? new Date(report.reportMetadata?.analysisDate).toLocaleDateString() : "N/A";
+  const score = report?.reportMetadata?.overallScore ?? null;
 
   const reportPreview = useMemo(() => {
-    const subScores = report?.reportMetadata.subScores;
+    const subScores = report?.reportMetadata?.subScores;
     if (!subScores) return [];
     const items: { title: string; description: string }[] = [];
     if (typeof subScores.website === "number") items.push({ title: "Website & UX", description: `Website score: ${subScores.website}/100` });
