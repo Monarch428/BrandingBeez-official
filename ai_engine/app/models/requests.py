@@ -32,14 +32,25 @@ class AnalyzeRequest(BaseModel):
     email: Optional[str] = None
     name: Optional[str] = None
 
+    # Optional enrichment inputs (helpful for Google Places + stronger recommendations)
+    location: Optional[str] = None
+
+    # Optional business context
+    targetMarket: Optional[str] = None
+    primaryTargetMarket: Optional[str] = None
+    businessGoal: Optional[str] = None
+
     # extra knobs
     reportType: str = Field(default="full")  # "quick" | "full"
     criteria: Dict[str, Any] = Field(default_factory=dict)
 
     # When enabled, the LLM is permitted to provide *scenario-based estimates* for report
     # sections 8–10 using crawl signals + optional ranges above.
-    estimationMode: bool = False
+    estimationMode: bool = True
     estimationInputs: Optional[EstimationInputs] = None
+
+    # When true, generate Sections 8–10 via the estimation prompt (if estimationMode is enabled).
+    includeSections8to10: bool = True
 
     # When true, bypass any per-website cached sections and run a fresh crawl/scrape.
     # (Used when the UI shows "Start new analysis" even if a previous report exists.)

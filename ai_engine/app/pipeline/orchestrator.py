@@ -617,6 +617,21 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     # ✅ IMPORTANT: define criteria ONCE so it is always available
     criteria = ensure_dict(getattr(payload, "criteria", {}) or {})
 
+    # ---- User-provided enrichment fields (top-level + criteria fallbacks) ----
+    # We accept location/targetMarket/businessGoal either as top-level fields OR inside criteria
+    # for backwards compatibility with older frontends.
+    top_location = (getattr(payload, "location", None) or "").strip()
+    top_target_market = (getattr(payload, "targetMarket", None) or getattr(payload, "primaryTargetMarket", None) or "").strip()
+    top_business_goal = (getattr(payload, "businessGoal", None) or "").strip()
+
+    # Promote top-level values into criteria when missing (so downstream integrations can rely on criteria.*)
+    if top_location and not (criteria.get("location") or criteria.get("city") or criteria.get("region")):
+        criteria["location"] = top_location
+    if top_target_market and not criteria.get("targetMarket"):
+        criteria["targetMarket"] = top_target_market
+    if top_business_goal and not criteria.get("businessGoal"):
+        criteria["businessGoal"] = top_business_goal
+
 
     # ✅ payload is a Pydantic model (AnalyzeRequest). Convert to dict when we need .get() access.
     # Pydantic v2 uses model_dump(); v1 uses dict(). This keeps orchestrator compatible with both.
@@ -1838,6 +1853,16 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "reputationSignals": rep_section,
         "dataforseo": d4s_enrichment,
 
+        # High-signal user inputs (helps the LLM tie recommendations to intent/region)
+        "userInputs": {
+            "companyName": company,
+            "website": website,
+            "industry": (payload.industry or None),
+            "location": (criteria.get("location") or criteria.get("city") or criteria.get("region") or None),
+            "targetMarket": (criteria.get("targetMarket") or top_target_market or None),
+            "businessGoal": (criteria.get("businessGoal") or top_business_goal or None),
+        },
+
         # Estimation mode (Sections 8–10)
         # When disabled, the LLM must not model costs/revenue; we enforce that again after merge.
         "estimationMode": bool(getattr(payload, "estimationMode", False)),
@@ -1863,7 +1888,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     # Sections 8–10 are optional. When enabled, generate them via LLM and
     # merge into the final report dict. This prevents PDFs showing "No data
     # available" for those sections when the pipeline has enough context.
-    if payload_dict.get("includeSections8to10", True):
+    if payload_dict.get("includeSections8to10", True) and bool(payload_dict.get("estimationMode", False)):
         try:
             sec_8_10 = build_sections_8_10_with_llm(llm_context, cache_repo=cache_repo, cache_key=cache_key)
             merged = deep_merge(merged, sec_8_10)
@@ -1879,8 +1904,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "company": company,
         "createdAt": datetime.utcnow().isoformat() + "Z",
         "estimationMode": bool(payload_dict.get("estimationMode")),
-        "targetMarket": payload_dict.get("targetMarket"),
-        "businessGoal": payload_dict.get("businessGoal"),
+        "targetMarket": (payload_dict.get("targetMarket") or payload_dict.get("primaryTargetMarket") or criteria.get("targetMarket") or criteria.get("primaryTargetMarket")),
+        "businessGoal": (payload_dict.get("businessGoal") or criteria.get("businessGoal")),
         "forceNewAnalysis": bool(payload_dict.get("forceNewAnalysis")),
         "hasPagespeed": bool(pagespeed),
         "hasRobots": bool(robots_sitemap.get("robots_txt")) if isinstance(robots_sitemap, dict) else False,

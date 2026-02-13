@@ -8,6 +8,8 @@ export interface AiReportGeneratedDocument extends mongoose.Document {
   domain?: string;
   companyName?: string;
   industry?: string;
+  location?: string;
+  targetMarket?: string;
   email?: string;
   name?: string;
   reportDownloadToken?: string;
@@ -23,6 +25,8 @@ const aiReportGeneratedSchema = new Schema<AiReportGeneratedDocument>(
     domain: { type: String, index: true },
     companyName: String,
     industry: String,
+    location: String,
+    targetMarket: String,
     email: String,
     name: String,
     reportDownloadToken: String,

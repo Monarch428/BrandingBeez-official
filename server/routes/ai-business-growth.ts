@@ -124,13 +124,45 @@ export function registerBusinessGrowthRoutes(app: Express) {
     req.setTimeout(0);
     res.setTimeout(0);
 
-    const { companyName, website, industry, email, name, reportType, criteria, forceNewAnalysis } =
-      req.body || {};
+    /**
+     * ✅ Minimal frontend inputs (required):
+     * - companyName
+     * - website
+     * - location
+     * - industry (Primary services industry)
+     * - targetMarket
+     *
+     * Everything else is defaulted in backend to keep UI simple.
+     */
+    const {
+      companyName,
+      website,
+      location,
+      industry,
+      targetMarket,
+      // Backward-compat (old UI may still send these)
+      criteria,
+      forceNewAnalysis,
+    } = req.body || {};
 
-    if (!website || typeof website !== "string") {
-      return res
-        .status(400)
-        .json({ success: false, message: "Website is required" });
+    if (!companyName || typeof companyName !== "string" || !companyName.trim()) {
+      return res.status(400).json({ success: false, message: "Company name is required" });
+    }
+
+    if (!website || typeof website !== "string" || !website.trim()) {
+      return res.status(400).json({ success: false, message: "Website is required" });
+    }
+
+    if (!location || typeof location !== "string" || !location.trim()) {
+      return res.status(400).json({ success: false, message: "Location is required" });
+    }
+
+    if (!industry || typeof industry !== "string" || !industry.trim()) {
+      return res.status(400).json({ success: false, message: "Primary services industry is required" });
+    }
+
+    if (!targetMarket || typeof targetMarket !== "string" || !targetMarket.trim()) {
+      return res.status(400).json({ success: false, message: "Target market is required" });
     }
 
     try {
@@ -145,31 +177,50 @@ export function registerBusinessGrowthRoutes(app: Express) {
         process.env.AI_ENGINE_API_KEY ||
         "";
 
-      const targetMarket =
-        typeof req.body?.targetMarket === "string" ? req.body.targetMarket.trim() : "";
+      const normalizedWebsite = normalizeWebsiteUrl(website);
+      const normalizedTargetMarket = targetMarket.trim();
 
-      const businessGoal =
-        typeof req.body?.businessGoal === "string" ? req.body.businessGoal.trim() : "";
+      // ✅ Default criteria (light crawl + useful local signals)
+      const DEFAULT_CRITERIA = {
+        location: location.trim(),
+        primaryService: industry.trim(),
+        competitors: [],
+        keywords: [],
+        // Keep crawl modest by default
+        contentMaxPages: 8,
+        siteMaxPages: 8,
+        // Reviews / Places defaults
+        placesMaxResults: 5,
+        placesMaxReviews: 5,
+        // Competitor crawl defaults (only used if competitors provided later)
+        competitorMaxCompetitors: 6,
+        competitorMaxPages: 6,
+      };
 
-      // safe merge into criteria without breaking existing shape
+      // Backward compat: allow server-side overrides (but frontend will not send these now)
       const mergedCriteria = {
+        ...DEFAULT_CRITERIA,
         ...(criteria && typeof criteria === "object" ? criteria : {}),
-        ...(targetMarket ? { targetMarket } : {}),
-        ...(businessGoal ? { businessGoal } : {}),
+        // Enforce that location/service map stays consistent
+        location: location.trim(),
+        primaryService: industry.trim(),
       };
 
       const payload = {
-        companyName: companyName || "Marketing Agency",
-        website,
-        // ✅ When true, Python engine will bypass its Mongo-based analysis cache and re-crawl.
+        companyName: companyName.trim(),
+        website: normalizedWebsite,
+        // ✅ cache bypass when requested
         forceNewAnalysis: Boolean(forceNewAnalysis),
-        estimationMode: Boolean(req.body.estimationMode),
-        estimationInputs: req.body.estimationInputs || undefined,
-        industry,
-        email,
-        name,
-        reportType,
-        // criteria,
+        // ✅ Always true (frontend no longer exposes this)
+        estimationMode: true,
+
+        // Top-level signals (Python can consume these directly)
+        location: location.trim(),
+        industry: industry.trim(), // treated as "primary services industry"
+        targetMarket: normalizedTargetMarket,
+        reportType: "full",
+
+        // Additional signals to Python (defaults)
         criteria: mergedCriteria,
       };
 
@@ -184,25 +235,24 @@ export function registerBusinessGrowthRoutes(app: Express) {
         throw new Error(`Python engine returned failure: ${JSON.stringify(py)}`);
       }
 
-
-
       const analysis = py.reportJson;
       const analysisToken = py.token;
 
       const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
 
       if (!existing) {
-        const resolvedWebsite = analysis?.reportMetadata?.website || normalizeWebsiteUrl(website);
+        const resolvedWebsite =
+          analysis?.reportMetadata?.website || normalizeWebsiteUrl(website);
 
         await AiReportGeneratedModel.create({
           token: analysisToken,
           analysis,
           website: resolvedWebsite,
           domain: toDomain(resolvedWebsite),
-          companyName: analysis?.reportMetadata?.companyName || companyName,
-          industry,
-          email,
-          name,
+          companyName: analysis?.reportMetadata?.companyName || companyName.trim(),
+          industry: industry.trim(),
+          location: location.trim(),
+          targetMarket: normalizedTargetMarket,
         });
       }
 
