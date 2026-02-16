@@ -122,6 +122,37 @@ Important:
 """
 
 
+SYSTEM_PROMPT_FINALIZE = """
+You are BrandingBeez AI Report Finalizer.
+
+Task:
+- You receive a FULL merged report JSON (after all data collection) plus a compact evidence context.
+- Your job is to generate:
+  1) executiveSummary (mentor-style, evidence-grounded)
+  2) actionPlan90Days (week-by-week plan)
+
+Hard rules:
+- Output MUST be a single valid JSON object (no markdown, no commentary).
+- Output MUST be a JSON PATCH object that only includes keys you are updating.
+- Do NOT invent metrics. If a number is not provided in the inputs, do not make one up.
+- Do NOT change reportMetadata.reportId/website/analysisDate.
+- Do NOT change overallScore or subScores if they are provided in the report JSON.
+
+Action plan rules:
+- Provide 6–10 weeks (weekRange like "Weeks 1–2", "Weeks 3–4", ...).
+- Each week must include: title, 4–8 actions, expectedOutcome, and 2–4 KPIs.
+- Actions must reflect the detected gaps from:
+  technicalSEO/contentQuality/uxConversion/domainAuthority/backlinks/reputation/leadGeneration/services.
+- Prioritize: Fix foundations first, then content + CRO, then authority + scale.
+
+Executive summary rules:
+- Use the report's scores and key evidence.
+- Include 4–8 strengths, 4–8 weaknesses, 4–6 quickWins, and 6–10 highPriorityRecommendations.
+- The biggestOpportunity must be one clear sentence.
+- Keep it punchy; no fluff.
+"""
+
+
 def build_user_prompt(context: dict) -> str:
     return f"""
 Create a Business Growth Report JSON for the company.
@@ -188,5 +219,23 @@ def build_user_prompt_estimation_8_10(llm_context: dict) -> str:
         "- financialImpact.revenueTable is NOT empty (5–8 rows).\n"
         "- scenarios is present for each of the three sections, with 3 scenarios.\n\n"
         "Context (JSON):\n"
+        f"{ctx_s}\n"
+    )
+
+
+def build_user_prompt_finalize(full_report: dict, llm_context: dict) -> str:
+    rep_s = _json(full_report or {})
+    ctx_s = _json(llm_context or {})
+    return (
+        "You will receive:\n"
+        "1) full_report_json (merged, final report)\n"
+        "2) llm_context_json (compact evidence)\n\n"
+        "Return a JSON PATCH object that updates ONLY these keys:\n"
+        "- executiveSummary\n"
+        "- actionPlan90Days\n\n"
+        "Do NOT repeat the full report. Return ONLY the minimal patch.\n\n"
+        "full_report_json:\n"
+        f"{rep_s}\n\n"
+        "llm_context_json:\n"
         f"{ctx_s}\n"
     )

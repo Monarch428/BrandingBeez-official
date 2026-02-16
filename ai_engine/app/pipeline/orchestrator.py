@@ -45,7 +45,11 @@ from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
 from app.signals.dataforseo_signals import build_dataforseo_enrichment
-from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm
+from app.llm.report_builder import (
+    build_report_with_llm,
+    build_sections_8_10_with_llm,
+    finalize_exec_summary_and_action_plan_with_llm,
+)
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
@@ -1894,6 +1898,17 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             merged = deep_merge(merged, sec_8_10)
         except Exception:
             logger.exception("[Pipeline] sections 8–10 generation failed; continuing with base report")
+
+    # Finalize Executive Summary + 90-day Action Plan AFTER all data (and Sections 8–10 if enabled)
+    try:
+        merged = finalize_exec_summary_and_action_plan_with_llm(
+            merged,
+            llm_context,
+            cache_repo=cache_repo,
+            cache_key=cache_key,
+        )
+    except Exception:
+        logger.exception("[Pipeline] finalize (exec summary + action plan) failed; continuing with merged report")
 
     repo = ReportsRepository()
     report_id, token = repo.save(merged, final_url)

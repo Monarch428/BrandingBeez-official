@@ -218,10 +218,16 @@ export function registerBusinessGrowthRoutes(app: Express) {
         location: location.trim(),
         industry: industry.trim(), // treated as "primary services industry"
         targetMarket: normalizedTargetMarket,
+        primaryTargetMarket: normalizedTargetMarket,
+        // Default language for all reports
+        languageCode: "en",
         reportType: "full",
 
         // Additional signals to Python (defaults)
-        criteria: mergedCriteria,
+        criteria: {
+          ...mergedCriteria,
+          language_code: "en",
+        },
       };
 
       const py = await callPythonAiEngineAnalyze({

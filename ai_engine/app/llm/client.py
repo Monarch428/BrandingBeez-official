@@ -23,6 +23,31 @@ _state_lock = threading.Lock()
 _openai_429_strikes: int = 0
 _openai_circuit_open_until: float = 0.0
 
+_llm_mode_lock = threading.Lock()
+_runtime_llm_mode_override: int | None = None
+
+def get_effective_llm_mode() -> int:
+    """
+    Returns the current effective LLM mode.
+    - If overridden at runtime (e.g., after 429), returns override
+    - Else returns settings.LLM_MODE (default 2)
+    """
+    with _llm_mode_lock:
+        if _runtime_llm_mode_override in (1, 2):
+            return int(_runtime_llm_mode_override)
+    try:
+        return int(getattr(settings, "LLM_MODE", 2) or 2)
+    except Exception:
+        return 2
+
+def downgrade_llm_mode(reason: str = "") -> int:
+    """
+    Switch to Mode 1 (fallback) during runtime. Call this when repeated 429 happens.
+    """
+    global _runtime_llm_mode_override
+    with _llm_mode_lock:
+        _runtime_llm_mode_override = 1
+    return 1
 
 def _circuit_is_open() -> bool:
     with _state_lock:

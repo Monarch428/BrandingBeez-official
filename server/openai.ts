@@ -1856,6 +1856,14 @@ export interface BusinessGrowthReport {
     growthForecastTables: { tableTitle: string; headers: string[]; rows: Array<Array<string | number | null>>; notes?: string | null }[];
     keywords: { tier: string; keywords: { keyword: string; monthlySearches: NullableNumber; difficulty: NullableNumber; intent: string; currentRank: NullableNumber }[]; notes?: string | null }[];
 
+    /** Optional evidence blocks from the Python AI engine */
+    serp?: { tier: string; items: any[]; notes?: string | null }[];
+    backlinks?: { tier: string; items: any[]; notes?: string | null }[];
+    reputation?: any | null;
+
+    /** Small, section-specific screenshots (base64 PNG) for the PDF */
+    evidenceScreenshots?: { label: string; format?: string; b64: string; width?: number | null; height?: number | null; fullPage?: boolean | null }[];
+
     /**
      * Every report must list what was actually collected and from where.
      */
@@ -2785,7 +2793,7 @@ export function mergeBusinessGrowthReport(
 
     actionPlan90Days: { weekByWeek: [], kpisToTrack: [], notes: null },
 
-    appendices: { scoreSummary: [], growthForecastTables: [], keywords: [], dataSources: [], dataGaps: [] },
+    appendices: { scoreSummary: [], growthForecastTables: [], keywords: [], serp: [], backlinks: [], reputation: null, evidenceScreenshots: [], dataSources: [], dataGaps: [] },
   };
 
   // Deep merge, but NEVER inject seeded defaults.
@@ -2946,6 +2954,9 @@ export function mergeBusinessGrowthReport(
   merged.appendices.scoreSummary = ensureArray(merged.appendices.scoreSummary);
   merged.appendices.growthForecastTables = ensureArray(merged.appendices.growthForecastTables);
   merged.appendices.keywords = ensureArray(merged.appendices.keywords);
+  (merged.appendices as any).serp = ensureArray((merged.appendices as any).serp);
+  (merged.appendices as any).backlinks = ensureArray((merged.appendices as any).backlinks);
+  (merged.appendices as any).evidenceScreenshots = ensureArray((merged.appendices as any).evidenceScreenshots);
   merged.appendices.dataSources = ensureArray(merged.appendices.dataSources);
   merged.appendices.dataGaps = ensureArray(merged.appendices.dataGaps);
 

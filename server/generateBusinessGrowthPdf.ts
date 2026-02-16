@@ -727,6 +727,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       const da = report.seoVisibility?.domainAuthority;
       const daScore = typeof da?.score === "number" ? clampScore(da.score) : null;
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Domain Authority Score: ${daScore !== null ? `${daScore}/100` : "N/A"}`);
+      const daSource = (da as any)?.source as string | undefined;
+      if (daSource) {
+        doc.font("Helvetica").fontSize(10).fillColor(GRAY_600).text(`Source: ${daSource}`);
+      }
       if (da?.benchmark) {
         drawTable(
           doc,
@@ -834,11 +838,22 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       );
       doc.moveDown(0.4);
 
-      if ((rep as any)?.summaryTable?.length) {
+      const rawTable: any[] = Array.isArray((rep as any)?.summaryTable) ? (rep as any).summaryTable : [];
+      const cleanedTable = rawTable.filter((r) => {
+        const reviews = String(r?.reviews ?? "").toLowerCase();
+        const rating = String(r?.rating ?? "").toLowerCase();
+        // Hide purely static/unresolved rows (e.g., "Not Found" placeholders)
+        const looksMissing = reviews.includes("not found") || rating.includes("not found") || reviews === "n/a";
+        // Keep if we have any meaningful value
+        return !looksMissing;
+      });
+
+      const tableToRender = cleanedTable.length ? cleanedTable : rawTable;
+      if (tableToRender.length) {
         drawTable(
           doc,
           ["Platform", "Reviews", "Rating", "Benchmark", "Gap"],
-          (rep as any).summaryTable.map((r: any) => [r.platform, r.reviews, r.rating, r.industryBenchmark, r.gap]),
+          tableToRender.map((r: any) => [r.platform, r.reviews, r.rating, r.industryBenchmark, r.gap]),
           [140, 70, 70, 110, 110],
         );
       } else {
@@ -961,7 +976,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         );
       } else {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Lead Magnets");
-        paragraph(doc, "No lead magnets were detected from the available data sources.");
+        paragraph(
+          doc,
+          "No lead magnets were detected. Add at least one conversion asset (e.g., Free Audit, Case Study PDF, Pricing Guide, or Newsletter) and link it prominently from the homepage and service pages.",
+        );
       }
       /* =========================
          7) COMPETITIVE ANALYSIS/* =========================
