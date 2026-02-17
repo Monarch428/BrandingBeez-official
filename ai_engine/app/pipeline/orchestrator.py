@@ -28,7 +28,7 @@ except Exception:
     extract_links_scrapy = None  # type: ignore
 
 from app.extractors.content_pages import fetch_content_pages
-from app.extractors.service_scraper_ext import scrape_services
+from app.extractors.service_scraper_router import scrape_services_auto_sync
 from app.extractors.uiux_analyzer import analyze_uiux
 
 # ✅ NEW universal extractor (async)
@@ -39,17 +39,14 @@ except Exception:
 
 from app.reviews.review_scraper_safe import ReviewScraperSafe
 from app.services.places_finder import build_google_reputation_bundle, to_review_analyzer_source
+from app.reviews.reputation_bundle import build_reputation_bundle_sync
 from app.signals.website_signals import build_website_signals
 from app.signals.seo_signals import build_seo_signals
 from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
-from app.signals.dataforseo_signals import build_dataforseo_enrichment
-from app.llm.report_builder import (
-    build_report_with_llm,
-    build_sections_8_10_with_llm,
-    finalize_exec_summary_and_action_plan_with_llm,
-)
+from app.signals.dataforseo_signals import build_dataforseo_enrichment, build_backlinks_bundle
+from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm, build_final_synthesis_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
@@ -663,6 +660,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         raise RuntimeError("Unable to fetch homepage HTML")
 
     homepage = ensure_dict(parse_homepage(html))
+    # Keep raw HTML for downstream heuristics (lead magnets, service extraction fallbacks)
+    homepage.setdefault("html", html)
     robots_sitemap = ensure_dict(check_robots_and_sitemap(final_url or website))
 
     # Best-effort sitemap URL list (used for page registry + key page seeding)
@@ -734,7 +733,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     try:
         gp_location = (criteria.get("location") or criteria.get("city") or criteria.get("region") or "").strip()
         gp_service = (criteria.get("service") or criteria.get("primaryService") or payload.industry or "business").strip()
-        if gp_location and getattr(settings, "GOOGLE_API_KEY", None):
+        # We can still fetch the *company* profile without a location (less accurate, but better than 'Not Found').
+        if getattr(settings, "GOOGLE_API_KEY", None):
             cached_places = None
             if cache_enabled:
                 cached_places = cache_repo.get_section_if_fresh(cache_key, "places", ttl_days=int(getattr(settings, "CACHE_TTL_PLACES_DAYS", 7)))
@@ -744,7 +744,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                 google_places_bundle = ensure_dict(
                     build_google_reputation_bundle(
                         service=gp_service,
-                        location=gp_location,
+                        location=gp_location or None,
                         company_name=company,
                         company_website=(final_url or website),
                         max_results=int(criteria.get("placesMaxResults") or 5),
@@ -819,6 +819,61 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         pass
 
+    # ✅ DataForSEO Backlinks bundle (cached separately)
+    backlinks_bundle: dict[str, Any] = {}
+    try:
+        cached_bl = None
+        if cache_enabled:
+            cached_bl = cache_repo.get_section_if_fresh(cache_key, "backlinks", ttl_days=int(getattr(settings, "CACHE_TTL_DATAFORSEO_DAYS", 7)))
+        if cached_bl:
+            backlinks_bundle = ensure_dict(cached_bl)
+        else:
+            backlinks_bundle = ensure_dict(build_backlinks_bundle(final_url or website, criteria=criteria, include_history=True, limit=100))
+            if cache_enabled and backlinks_bundle:
+                cache_repo.upsert_section(cache_key, "backlinks", backlinks_bundle)
+
+        # Map backlink summary -> seo_section.backlinks (if not already set)
+        try:
+            bls = ensure_dict(seo_section.get("backlinks"))
+            summ = ensure_dict(backlinks_bundle.get("summary"))
+            if bls.get("totalBacklinks") in (None, "N/A", "—") and summ.get("backlinks") is not None:
+                bls["totalBacklinks"] = int(summ.get("backlinks"))
+            if bls.get("referringDomains") in (None, "N/A", "—") and summ.get("referring_domains") is not None:
+                bls["referringDomains"] = int(summ.get("referring_domains"))
+            # Use domain_rank as linkQualityScore if available (keeps existing schema)
+            if bls.get("linkQualityScore") in (None, "N/A", "—") and summ.get("domain_rank") is not None:
+                bls["linkQualityScore"] = int(summ.get("domain_rank"))
+            if backlinks_bundle.get("notes"):
+                bls["notes"] = "Fetched from DataForSEO Backlinks API (summary + appendix bundle)."
+            seo_section["backlinks"] = bls
+        except Exception:
+            pass
+
+        # If Domain Authority is still missing, derive a proxy from DataForSEO signals.
+        try:
+            da = ensure_dict(seo_section.get("domainAuthority"))
+            if da.get("score") in (None, "N/A", "—"):
+                summ = ensure_dict(backlinks_bundle.get("summary"))
+                # Prefer DataForSEO domain_rank if present
+                if summ.get("domain_rank") is not None:
+                    da["score"] = int(summ.get("domain_rank"))
+                    da["source"] = "DataForSEO Backlinks (domain_rank)"
+                else:
+                    # Otherwise estimate from referring domains/backlinks using a log scale.
+                    rd = summ.get("referring_domains")
+                    if isinstance(rd, (int, float)):
+                        import math
+
+                        est = int(round(min(100, (math.log(int(rd) + 1) / math.log(500 + 1)) * 100)))
+                        da["score"] = max(0, min(100, est))
+                        da["source"] = "Heuristic (log scale from referring domains)"
+                seo_section["domainAuthority"] = da
+        except Exception:
+            pass
+    except Exception as e:
+        logger.exception("[Pipeline] Backlinks bundle failed (continuing): %s", str(e))
+        backlinks_bundle = {"notes": [str(e)]}
+
     rep_section = ensure_dict(build_reputation_signals(reviews_scraped))
 
     # Own-site content pages (best-effort, cached)
@@ -885,20 +940,34 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     if google_places_bundle:
         rep_section["googlePlaces"] = google_places_bundle
 
+    # ✅ Reputation bundle (Google + Clutch + Trustpilot) with fallback to Google-only
+    try:
+        reputation_bundle = build_reputation_bundle_sync(
+            company_name=company,
+            website_url=(final_url or website),
+            google_places_bundle=google_places_bundle,
+            criteria=criteria,
+        )
+        if reputation_bundle:
+            rep_section["reputationBundle"] = reputation_bundle
+    except Exception as e:
+        logger.warning("[Pipeline] reputation bundle failed, continuing: %s", str(e))
+
     # ✅✅ FIX: define scraped_services BEFORE using it
     scraped_services = []
     try:
         # Prefer passing internal links if scraper supports it; otherwise fallback to url-only
         try:
-            scraped_services = scrape_services(
+            scraped_services = scrape_services_auto_sync(
                 final_url or website,
                 internal_links=internal_links_site,
+                homepage_html=(homepage or {}).get("html") if isinstance(homepage, dict) else None,
                 max_pages=int(criteria.get("servicesMaxPages") or 8),
                 timeout=int(criteria.get("servicesTimeout") or 45),
             ) or []
         except TypeError:
             # In case your scrape_services signature is (url) only
-            scraped_services = scrape_services(final_url or website) or []
+            scraped_services = scrape_services_auto_sync(final_url or website) or []
     except Exception as e:
         logger.warning("[Pipeline] service_scraper failed, continuing: %s", str(e))
         scraped_services = []
@@ -1516,7 +1585,41 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             }
         )
 
-        action_plan = {"weekByWeek": week_by_week, "kpisToTrack": [], "notes": "Generated from available crawl/speed/reputation signals (fallback)."}
+        # Normalize weeks into schema-compliant ActionPlanWeek objects
+        action_plan: list[dict[str, Any]] = []
+        for w in week_by_week:
+            if not isinstance(w, dict):
+                continue
+            week_range = w.get("weekRange") or w.get("week") or ""
+            title = w.get("title") or w.get("focus") or ""
+            actions = w.get("actions") or []
+            if isinstance(actions, str):
+                actions = [actions]
+            kpis_in = w.get("kpis") or []
+            if isinstance(kpis_in, (str, dict)):
+                kpis_in = [kpis_in]
+            fixed_kpis: list[dict[str, Any]] = []
+            if isinstance(kpis_in, list):
+                for k in kpis_in:
+                    if not k:
+                        continue
+                    if isinstance(k, dict):
+                        kk = k.get("kpi") or k.get("name") or k.get("metric") or k.get("label") or ""
+                        fixed_kpis.append({
+                            "kpi": str(kk or k),
+                            "current": k.get("current", "N/A"),
+                            "target": k.get("target", "N/A"),
+                        })
+                    else:
+                        fixed_kpis.append({"kpi": str(k), "current": "N/A", "target": "N/A"})
+            action_plan.append({
+                "weekRange": str(week_range),
+                "title": str(title),
+                "actions": actions,
+                "expectedOutcome": str(w.get("expectedOutcome") or ""),
+                "kpis": fixed_kpis,
+            })
+
 
         advantages: list[dict[str, Any]] = []
         if google_rating is not None and google_reviews is not None:
@@ -1820,14 +1923,76 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         }
     )
 
+
+    # Normalize dataGaps to schema:
+    # - missing/howToEnable must be List[str]
+    # - map legacy howToFix -> howToEnable
+    for dg in data_gaps:
+        if not isinstance(dg, dict):
+            continue
+        if isinstance(dg.get("missing"), str):
+            dg["missing"] = [dg["missing"]]
+        elif dg.get("missing") is None:
+            dg["missing"] = []
+        if "howToFix" in dg and "howToEnable" not in dg:
+            dg["howToEnable"] = dg.pop("howToFix")
+        if isinstance(dg.get("howToEnable"), str):
+            dg["howToEnable"] = [dg["howToEnable"]]
+        elif dg.get("howToEnable") is None:
+            dg["howToEnable"] = []
+        dg.pop("impact", None)
+
     base_report["appendices"]["dataGaps"] = data_gaps
 
     # Attach keyword ideas (if any)
     try:
+        # Prefer richer search-volume output if available, fall back to keywords_for_site
+        sv_items = ensure_list(d4s_enrichment.get("search_volume")) if isinstance(d4s_enrichment, dict) else []
         kitems = ensure_list(d4s_enrichment.get("keywords_for_site")) if isinstance(d4s_enrichment, dict) else []
-        base_report["appendices"]["keywords"] = [{"tier": "Keywords for Site (DataForSEO)", "items": kitems[:50]}] if kitems else []
+
+        tiers = []
+        if sv_items:
+            tiers.append({"tier": "Keyword Search Volume (DataForSEO)", "items": sv_items[:100]})
         if kitems:
-            base_report["appendices"]["dataSources"].append({"source": "DataForSEO Keywords Data API", "use": "Keyword ideas + basic metrics for the analyzed site", "confidence": "Medium"})
+            tiers.append({"tier": "Keywords for Site (DataForSEO)", "items": kitems[:50]})
+
+        base_report["appendices"]["keywords"] = tiers if tiers else []
+
+        if tiers:
+            base_report["appendices"]["dataSources"].append(
+                {
+                    "source": "DataForSEO Keywords Data API",
+                    "use": "Keyword opportunities (search volume/CPC/competition) and keyword ideas for the analyzed site",
+                    "confidence": "Medium",
+                }
+            )
+    except Exception:
+        pass
+
+    # Attach SERP snapshots (if any)
+    try:
+        serp_snaps = ensure_list(d4s_enrichment.get("serp_snapshots")) if isinstance(d4s_enrichment, dict) else []
+        if serp_snaps:
+            base_report["appendices"].setdefault("serp", [])
+            base_report["appendices"]["serp"] = [{"tier": "Organic SERP Snapshots (DataForSEO)", "items": serp_snaps[:10]}]
+            base_report["appendices"]["dataSources"].append({"source": "DataForSEO SERP API", "use": "Live SERP snapshots for a small keyword set to validate visibility", "confidence": "Medium"})
+    except Exception:
+        pass
+
+    # Attach Backlinks bundle (if any)
+    try:
+        if backlinks_bundle and isinstance(backlinks_bundle, dict) and (backlinks_bundle.get("summary") or backlinks_bundle.get("referring_domains")):
+            base_report["appendices"].setdefault("backlinks", [])
+            base_report["appendices"]["backlinks"] = [
+                {"tier": "Backlinks Summary (DataForSEO)", "items": [backlinks_bundle.get("summary") or {}]},
+                {"tier": "Top Referring Domains (DataForSEO)", "items": ensure_list(backlinks_bundle.get("referring_domains"))[:50]},
+                {"tier": "Sample Backlinks (DataForSEO)", "items": ensure_list(backlinks_bundle.get("backlinks"))[:50]},
+                {"tier": "Top Anchors (DataForSEO)", "items": ensure_list(backlinks_bundle.get("anchors"))[:30]},
+                {"tier": "Top Linked Pages (DataForSEO)", "items": ensure_list(backlinks_bundle.get("top_pages"))[:30]},
+            ]
+            if ensure_list(backlinks_bundle.get("history")):
+                base_report["appendices"]["backlinks"].append({"tier": "Backlink History (DataForSEO)", "items": ensure_list(backlinks_bundle.get("history"))})
+            base_report["appendices"]["dataSources"].append({"source": "DataForSEO Backlinks API", "use": "Backlink profile (summary, referring domains, anchors, top pages, history)", "confidence": "Medium"})
     except Exception:
         pass
 
@@ -1899,17 +2064,12 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         except Exception:
             logger.exception("[Pipeline] sections 8–10 generation failed; continuing with base report")
 
-    # Finalize Executive Summary + 90-day Action Plan AFTER all data (and Sections 8–10 if enabled)
-    try:
-        merged = finalize_exec_summary_and_action_plan_with_llm(
-            merged,
-            llm_context,
-            cache_repo=cache_repo,
-            cache_key=cache_key,
-        )
-    except Exception:
-        logger.exception("[Pipeline] finalize (exec summary + action plan) failed; continuing with merged report")
 
+    # Final premium synthesis pass: upgrades mentor tone (Section 1 + 90-day plan + notes)
+    try:
+        merged = build_final_synthesis_with_llm(merged, llm_context, cache_repo=cache_repo, cache_key=cache_key)
+    except Exception:
+        logger.exception("[Pipeline] final synthesis failed; continuing with merged report")
     repo = ReportsRepository()
     report_id, token = repo.save(merged, final_url)
 

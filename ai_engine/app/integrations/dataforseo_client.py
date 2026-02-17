@@ -25,6 +25,7 @@ class DataForSEOClient:
       - DataForSEO Labs (domain rank overview, competitors domain, SERP competitors)
       - Keywords Data (keywords_for_site)
       - SERP (organic + local finder)
+      - Backlinks (summary/referring domains/backlinks/anchors/pages/history/intersections)
       - (legacy) Backlinks summary task endpoints (kept for compatibility)
     """
 
@@ -146,6 +147,44 @@ class DataForSEOClient:
         payload = [{"target": target, "sort_by": sort_by}]
         return self._post("/keywords_data/google_ads/keywords_for_site/live", payload)
 
+
+    def keywords_data_search_volume_live(
+        self,
+        keywords: List[str],
+        location_code: Optional[int] = None,
+        language_code: Optional[str] = None,
+        include_serp_info: bool = False,
+    ) -> Dict[str, Any]:
+        """Google Ads Search Volume (LIVE).
+
+        Provides search volume, CPC, competition, monthly trend etc. for up to 1000 keywords.
+        Docs: https://api.dataforseo.com/v3/keywords_data/google_ads/search_volume/live
+        """
+        task: Dict[str, Any] = {
+            "keywords": [k for k in keywords if isinstance(k, str) and k.strip()],
+            "include_serp_info": bool(include_serp_info),
+        }
+        if location_code is not None:
+            task["location_code"] = int(location_code)
+        if language_code:
+            task["language_code"] = str(language_code)
+        payload = [task]
+        return self._post("/keywords_data/google_ads/search_volume/live", payload)
+
+    # -------------------------
+    # Locations / Languages (free GET endpoints)
+    # -------------------------
+
+    def serp_google_locations(self, country: Optional[str] = None) -> Dict[str, Any]:
+        """Get supported Google SERP locations (free endpoint)."""
+        c = (country or "").strip().lower()
+        path = f"/serp/google/locations/{c}" if c else "/serp/google/locations"
+        return self._get(path)
+
+    def keywords_google_ads_locations(self) -> Dict[str, Any]:
+        """Get supported Google Ads Keywords Data locations (free endpoint)."""
+        return self._get("/keywords_data/google_ads/locations")
+
     # -------------------------
     # SERP endpoints (LIVE)
     # -------------------------
@@ -216,6 +255,197 @@ class DataForSEOClient:
             "limit": limit,
         }]
         return self._post("/backlinks/summary/live", payload)
+
+    # -------------------------
+    # Backlinks endpoints (LIVE)
+    # -------------------------
+
+    def backlinks_referring_domains_live(
+        self,
+        target: str,
+        limit: int = 100,
+        internal_list_limit: int = 10,
+        backlinks_status_type: str = "live",
+        include_subdomains: bool = True,
+        exclude_internal_backlinks: bool = True,
+        include_indirect_links: bool = True,
+        rank_scale: str = "one_hundred",
+        mode: Optional[str] = None,
+        filters: Optional[List[Any]] = None,
+        order_by: Optional[List[Any]] = None,
+    ) -> Dict[str, Any]:
+        payload: List[Dict[str, Any]] = [
+            {
+                "target": target,
+                "limit": int(limit),
+                "internal_list_limit": int(internal_list_limit),
+                "backlinks_status_type": backlinks_status_type,
+                "include_subdomains": bool(include_subdomains),
+                "exclude_internal_backlinks": bool(exclude_internal_backlinks),
+                "include_indirect_links": bool(include_indirect_links),
+                "rank_scale": rank_scale,
+            }
+        ]
+        if mode:
+            payload[0]["mode"] = mode
+        if filters:
+            payload[0]["filters"] = filters
+        if order_by:
+            payload[0]["order_by"] = order_by
+        return self._post("/backlinks/referring_domains/live", payload)
+
+    def backlinks_backlinks_live(
+        self,
+        target: str,
+        limit: int = 100,
+        internal_list_limit: int = 10,
+        backlinks_status_type: str = "live",
+        include_subdomains: bool = True,
+        exclude_internal_backlinks: bool = True,
+        include_indirect_links: bool = True,
+        mode: str = "as_is",
+        rank_scale: str = "one_hundred",
+        filters: Optional[List[Any]] = None,
+        order_by: Optional[List[Any]] = None,
+    ) -> Dict[str, Any]:
+        payload: List[Dict[str, Any]] = [
+            {
+                "target": target,
+                "limit": int(limit),
+                "internal_list_limit": int(internal_list_limit),
+                "backlinks_status_type": backlinks_status_type,
+                "include_subdomains": bool(include_subdomains),
+                "exclude_internal_backlinks": bool(exclude_internal_backlinks),
+                "include_indirect_links": bool(include_indirect_links),
+                "mode": mode,
+                "rank_scale": rank_scale,
+            }
+        ]
+        if filters:
+            payload[0]["filters"] = filters
+        if order_by:
+            payload[0]["order_by"] = order_by
+        return self._post("/backlinks/backlinks/live", payload)
+
+    def backlinks_anchors_live(
+        self,
+        target: str,
+        limit: int = 100,
+        internal_list_limit: int = 10,
+        backlinks_status_type: str = "live",
+        include_subdomains: bool = True,
+        exclude_internal_backlinks: bool = True,
+        include_indirect_links: bool = True,
+        rank_scale: str = "one_hundred",
+        filters: Optional[List[Any]] = None,
+        order_by: Optional[List[Any]] = None,
+    ) -> Dict[str, Any]:
+        payload: List[Dict[str, Any]] = [
+            {
+                "target": target,
+                "limit": int(limit),
+                "internal_list_limit": int(internal_list_limit),
+                "backlinks_status_type": backlinks_status_type,
+                "include_subdomains": bool(include_subdomains),
+                "exclude_internal_backlinks": bool(exclude_internal_backlinks),
+                "include_indirect_links": bool(include_indirect_links),
+                "rank_scale": rank_scale,
+            }
+        ]
+        if filters:
+            payload[0]["filters"] = filters
+        if order_by:
+            payload[0]["order_by"] = order_by
+        return self._post("/backlinks/anchors/live", payload)
+
+    def backlinks_domain_pages_live(
+        self,
+        target: str,
+        limit: int = 100,
+        internal_list_limit: int = 10,
+        backlinks_status_type: str = "live",
+        include_subdomains: bool = True,
+        exclude_internal_backlinks: bool = True,
+        include_indirect_links: bool = True,
+        rank_scale: str = "one_hundred",
+        filters: Optional[List[Any]] = None,
+        order_by: Optional[List[Any]] = None,
+    ) -> Dict[str, Any]:
+        payload: List[Dict[str, Any]] = [
+            {
+                "target": target,
+                "limit": int(limit),
+                "internal_list_limit": int(internal_list_limit),
+                "backlinks_status_type": backlinks_status_type,
+                "include_subdomains": bool(include_subdomains),
+                "exclude_internal_backlinks": bool(exclude_internal_backlinks),
+                "include_indirect_links": bool(include_indirect_links),
+                "rank_scale": rank_scale,
+            }
+        ]
+        if filters:
+            payload[0]["filters"] = filters
+        if order_by:
+            payload[0]["order_by"] = order_by
+        return self._post("/backlinks/domain_pages/live", payload)
+
+    def backlinks_history_live(self, target: str, rank_scale: str = "one_hundred") -> Dict[str, Any]:
+        payload: List[Dict[str, Any]] = [{"target": target, "rank_scale": rank_scale}]
+        return self._post("/backlinks/history/live", payload)
+
+    def backlinks_domain_intersection_live(
+        self,
+        targets: Dict[str, str],
+        limit: int = 100,
+        internal_list_limit: int = 10,
+        backlinks_status_type: str = "live",
+        include_subdomains: bool = True,
+        intersection_mode: str = "all",
+        exclude_internal_backlinks: bool = True,
+        include_indirect_links: bool = True,
+        rank_scale: str = "one_hundred",
+    ) -> Dict[str, Any]:
+        payload = [
+            {
+                "targets": targets,
+                "limit": int(limit),
+                "internal_list_limit": int(internal_list_limit),
+                "backlinks_status_type": backlinks_status_type,
+                "include_subdomains": bool(include_subdomains),
+                "intersection_mode": intersection_mode,
+                "exclude_internal_backlinks": bool(exclude_internal_backlinks),
+                "include_indirect_links": bool(include_indirect_links),
+                "rank_scale": rank_scale,
+            }
+        ]
+        return self._post("/backlinks/domain_intersection/live", payload)
+
+    def backlinks_page_intersection_live(
+        self,
+        targets: Dict[str, str],
+        limit: int = 100,
+        internal_list_limit: int = 10,
+        backlinks_status_type: str = "live",
+        include_subdomains: bool = True,
+        intersection_mode: str = "all",
+        exclude_internal_backlinks: bool = True,
+        include_indirect_links: bool = True,
+        rank_scale: str = "one_hundred",
+    ) -> Dict[str, Any]:
+        payload = [
+            {
+                "targets": targets,
+                "limit": int(limit),
+                "internal_list_limit": int(internal_list_limit),
+                "backlinks_status_type": backlinks_status_type,
+                "include_subdomains": bool(include_subdomains),
+                "intersection_mode": intersection_mode,
+                "exclude_internal_backlinks": bool(exclude_internal_backlinks),
+                "include_indirect_links": bool(include_indirect_links),
+                "rank_scale": rank_scale,
+            }
+        ]
+        return self._post("/backlinks/page_intersection/live", payload)
 
 
 def wait_for_task(self, task_id: str, max_wait_s: int = 60, poll_s: int = 5) -> Dict[str, Any]:

@@ -61,6 +61,14 @@ class Settings(BaseSettings):
     LLM_CACHE_ENABLED: bool = True
     LLM_CACHE_TTL_DAYS: int = 30
 
+    # LLM mode control
+    # 2 = richer (multi-step prompts / extra enrichment)
+    # 1 = safe (minimal LLM usage to avoid 429/rate-limit failures)
+    LLM_MODE: int = 2
+    # If true, the engine will downgrade to LLM_MODE=1 in-process when it
+    # encounters sustained 429/rate-limit errors and will continue the analysis.
+    LLM_DOWNGRADE_ON_429: bool = True
+
     # Optional
     AI_ENGINE_KEY: str | None = None
     PAGESPEED_API_KEY: str | None = None

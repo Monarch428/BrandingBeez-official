@@ -33,13 +33,74 @@ def build_website_signals(
     if homepage.get("contactCTA"):
         strengths.append("A contact CTA appears to exist on homepage (heuristic check).")
 
-    # Technical SEO score (simple baseline)
-    score = 100
-    joined = " ".join(issues).lower()
-    score -= 20 if "robots.txt" in joined else 0
-    score -= 20 if "sitemap.xml" in joined else 0
-    score -= 20 if "structured data" in joined else 0
-    score = max(0, min(100, score))
+    # -----------------------------
+    # Technical SEO score (reasoned)
+    # -----------------------------
+    # We compute a stable, explainable score using only signals we actually collect.
+    # Missing data should not default to 100.
+    breakdown: Dict[str, int] = {
+        "crawlability": 0,      # robots + sitemap
+        "on_page": 0,           # title/meta/h1 + basic text
+        "structured_data": 0,   # schema presence
+        "mobile_speed": 0,      # PageSpeed mobile perf proxy
+        "hygiene": 0,           # small bonus items
+    }
+
+    # Crawlability (20)
+    crawl = 0
+    crawl += 10 if robots.get("ok") else 0
+    crawl += 10 if sitemap.get("ok") else 0
+    breakdown["crawlability"] = crawl
+
+    # On-page essentials (35)
+    on_page = 0
+    on_page += 10 if homepage.get("title") else 0
+    on_page += 10 if homepage.get("metaDescription") else 0
+    h1_count = homepage.get("h1Count")
+    if isinstance(h1_count, int):
+        if h1_count == 1:
+            on_page += 10
+        elif h1_count > 1:
+            on_page += 6
+            issues.append("Multiple H1 headings detected (recommend 1 primary H1).")
+        else:
+            issues.append("No H1 heading detected on homepage.")
+    else:
+        # Unknown H1 count -> conservative partial credit
+        on_page += 5
+
+    txt_len = homepage.get("homepageTextLength")
+    if isinstance(txt_len, int):
+        if txt_len >= 1200:
+            on_page += 5
+        elif txt_len >= 600:
+            on_page += 3
+        else:
+            issues.append("Homepage appears thin on crawlable text (may reduce relevance signals).")
+    breakdown["on_page"] = min(35, on_page)
+
+    # Structured data (10)
+    breakdown["structured_data"] = 10 if homepage.get("hasStructuredData") else 0
+
+    # Mobile speed proxy (25)
+    mobile_speed = 10
+    try:
+        if pagespeed and isinstance(pagespeed, dict):
+            mobile = (pagespeed.get("mobile") or {}) if isinstance(pagespeed.get("mobile"), dict) else {}
+            perf = mobile.get("performanceScore")
+            if isinstance(perf, int):
+                mobile_speed = int(round(max(0, min(100, perf)) * 0.25))
+    except Exception:
+        pass
+    breakdown["mobile_speed"] = max(0, min(25, mobile_speed))
+
+    # Hygiene (10)
+    hygiene = 0
+    hygiene += 5 if homepage.get("contactCTA") else 0
+    hygiene += 5 if homepage.get("metaDescription") else 0
+    breakdown["hygiene"] = hygiene
+
+    score = max(0, min(100, int(sum(breakdown.values()))))
 
     # Speed section
     speed_score = None
@@ -99,6 +160,7 @@ def build_website_signals(
             "score": score,
             "issues": issues,
             "strengths": strengths,
+            "breakdown": breakdown,
             # ✅ Canonical key expected by Node PDF + UI
             "pageSpeed": pagespeed if isinstance(pagespeed, dict) else None,
         },

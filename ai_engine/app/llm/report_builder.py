@@ -9,21 +9,136 @@ from app.models.report_schema import (
     TargetMarket,
     FinancialImpact,
 )
-from app.llm.client import call_openai_json, call_llm_json
-from app.llm.client import get_effective_llm_mode, downgrade_llm_mode
+from app.llm.client import call_openai_json, call_llm_json, get_effective_llm_mode, downgrade_llm_mode
 from app.llm.context_compactor import compact_llm_context, compact_base_report
 from app.llm.prompts import (
     SYSTEM_PROMPT_RECONCILE,
     SYSTEM_PROMPT_ESTIMATION_8_10,
-    SYSTEM_PROMPT_FINALIZE,
+    SYSTEM_PROMPT_FINAL_SYNTHESIS,
     build_user_prompt_reconcile,
     build_user_prompt_estimation_8_10,
-    build_user_prompt_finalize,
+    build_user_prompt_final_synthesis,
 )
 from app.core.config import settings
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
+def _ensure_list(x):
+    if x is None:
+        return []
+    if isinstance(x, list):
+        return x
+    return [x]
+
+def _normalize_final_synthesis_shapes(report: dict) -> dict:
+    """Coerce common LLM patch shape mistakes into schema-compliant shapes."""
+    if not isinstance(report, dict):
+        return report
+
+    # 1) servicesPositioning.serviceGaps: allow ["Content Marketing"] -> [{"service":"Content Marketing"}]
+    sp = report.get("servicesPositioning")
+    if isinstance(sp, dict):
+        gaps = sp.get("serviceGaps")
+        if isinstance(gaps, list):
+            fixed = []
+            for row in gaps:
+                if isinstance(row, str):
+                    fixed.append({"service": row})
+                elif isinstance(row, dict):
+                    # if model returns {"gap": "..."} etc, try map to service
+                    if "service" not in row:
+                        if "gap" in row and isinstance(row["gap"], str):
+                            row["service"] = row.pop("gap")
+                    fixed.append(row)
+            sp["serviceGaps"] = fixed
+
+    # 2) actionPlan90Days: allow {"weekByWeek":[...]} -> [...]
+    ap = report.get("actionPlan90Days")
+    if isinstance(ap, dict):
+        if isinstance(ap.get("weekByWeek"), list):
+            report["actionPlan90Days"] = ap["weekByWeek"]
+        elif isinstance(ap.get("weeks"), list):
+            report["actionPlan90Days"] = ap["weeks"]
+
+    # Ensure actionPlan90Days week entries are schema-compliant
+    if isinstance(report.get("actionPlan90Days"), list):
+        fixed_weeks = []
+        for w in report["actionPlan90Days"]:
+            if not isinstance(w, dict):
+                continue
+    
+            # Common model aliases
+            if "weekRange" not in w and isinstance(w.get("week"), str):
+                w["weekRange"] = w.get("week")
+            if "title" not in w and isinstance(w.get("focus"), str):
+                w["title"] = w.get("focus")
+    
+            # actions must be a list
+            if isinstance(w.get("actions"), str):
+                w["actions"] = [w["actions"]]
+            elif w.get("actions") is None:
+                w["actions"] = []
+    
+            # kpis must be a list[object]; allow strings -> {kpi,current,target}
+            kpis = w.get("kpis")
+            if isinstance(kpis, dict):
+                kpis = [kpis]
+            elif isinstance(kpis, str):
+                kpis = [kpis]
+            elif kpis is None:
+                kpis = []
+            if isinstance(kpis, list):
+                fixed_kpis = []
+                for k in kpis:
+                    if isinstance(k, str):
+                        fixed_kpis.append({"kpi": k, "current": "N/A", "target": "N/A"})
+                    elif isinstance(k, dict):
+                        kk = k.get("kpi") or k.get("name") or k.get("metric") or k.get("label") or str(k)
+                        fixed_kpis.append({"kpi": str(kk), "current": k.get("current", "N/A"), "target": k.get("target", "N/A")})
+                w["kpis"] = fixed_kpis
+            else:
+                w["kpis"] = []
+    
+            fixed_weeks.append(w)
+    
+        report["actionPlan90Days"] = fixed_weeks
+    # 3) competitiveAdvantages.advantages: allow [{"advantage":"..."}] -> ["..."]
+    ca = report.get("competitiveAdvantages")
+    if isinstance(ca, dict):
+        adv = ca.get("advantages")
+        if isinstance(adv, list):
+            fixed = []
+            for a in adv:
+                if isinstance(a, str):
+                    fixed.append(a)
+                elif isinstance(a, dict):
+                    fixed.append(
+                        a.get("advantage")
+                        or a.get("title")
+                        or a.get("text")
+                        or str(a)
+                    )
+            ca["advantages"] = fixed
+
+    # 4) appendices.dataGaps[].missing/howToEnable must be list
+    appx = report.get("appendices")
+    if isinstance(appx, dict):
+        dgs = appx.get("dataGaps")
+        if isinstance(dgs, list):
+            for dg in dgs:
+                if not isinstance(dg, dict):
+                    continue
+                if isinstance(dg.get("missing"), str):
+                    dg["missing"] = [dg["missing"]]
+                elif dg.get("missing") is None:
+                    dg["missing"] = []
+                if isinstance(dg.get("howToEnable"), str):
+                    dg["howToEnable"] = [dg["howToEnable"]]
+                elif dg.get("howToEnable") is None:
+                    dg["howToEnable"] = []
+
+    return report
 
 def _prompt_hash(*parts: str) -> str:
     """Stable hash for caching LLM outputs."""
@@ -89,6 +204,7 @@ def build_report_with_llm(
             try:
                 llm_patch = call_openai_json(SYSTEM_PROMPT_RECONCILE, prompt, max_tokens=2200)
             except Exception as e:
+                # Downgrade and continue (Mode 1)
                 downgrade_llm_mode(f"reconcile failed: {e}")
                 logger.warning("[LLM] reconcile failed -> returning base_report")
                 _ = BusinessGrowthReport.model_validate(base_report)
@@ -144,6 +260,7 @@ def build_sections_8_10_with_llm(
                 provider = 'openai' if int(get_effective_llm_mode()) >= 2 else 'gemini'
                 llm_json = call_llm_json(provider, SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=1200)
             except Exception as e:
+                # Downgrade and retry once with Gemini in mode 1
                 downgrade_llm_mode(f"estimation failed: {e}")
                 llm_json = call_llm_json('gemini', SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=900)
             if isinstance(llm_json, dict) and llm_json:
@@ -172,149 +289,74 @@ def build_sections_8_10_with_llm(
     }
 
 
-def now_iso() -> str:
-    return datetime.utcnow().strftime("%Y-%m-%d")
 
 
-def _safe_int(x: Any, default: int = 0) -> int:
-    try:
-        if x is None:
-            return default
-        return int(float(x))
-    except Exception:
-        return default
-
-
-def compute_scorecard(report: Dict[str, Any]) -> Dict[str, Any]:
-    """Compute explainable overall/subscores from collected signals.
-
-    This avoids the LLM inventing scores and keeps scoring consistent.
-    """
-    r = report or {}
-
-    tech = _safe_int(((r.get("websiteDigitalPresence") or {}).get("technicalSEO") or {}).get("score"), 0)
-    content = _safe_int(((r.get("websiteDigitalPresence") or {}).get("contentQuality") or {}).get("score"), 0)
-    ux = _safe_int(((r.get("websiteDigitalPresence") or {}).get("uxConversion") or {}).get("score"), 0)
-    website_score = round((0.4 * tech) + (0.3 * content) + (0.3 * ux))
-
-    da = _safe_int(((r.get("seoVisibility") or {}).get("domainAuthority") or {}).get("score"), 0)
-    lq = _safe_int(((r.get("seoVisibility") or {}).get("backlinks") or {}).get("linkQualityScore"), 0)
-    seo_score = round((0.6 * da) + (0.4 * lq)) if (da or lq) else round(0.6 * tech + 0.4 * content)
-
-    rep_score = _safe_int(((r.get("reputation") or {}).get("reviewScore")), 0)
-    if rep_score <= 5 and rep_score > 0:
-        rep_score = round(rep_score * 20)  # normalize 0-5 to 0-100
-
-    lead_magnets = ((r.get("leadGeneration") or {}).get("leadMagnets") or [])
-    channels = ((r.get("leadGeneration") or {}).get("channels") or [])
-    lead_score = 20
-    if isinstance(channels, list) and len(channels) >= 3:
-        lead_score += 40
-    elif isinstance(channels, list) and len(channels) >= 1:
-        lead_score += 25
-    if isinstance(lead_magnets, list) and len(lead_magnets) >= 1:
-        lead_score += 25
-    lead_score = min(100, lead_score)
-
-    services = ((r.get("servicesPositioning") or {}).get("services") or [])
-    services_score = 25
-    if isinstance(services, list) and len(services) >= 6:
-        services_score = 85
-    elif isinstance(services, list) and len(services) >= 3:
-        services_score = 65
-    elif isinstance(services, list) and len(services) >= 1:
-        services_score = 50
-
-    subs = {
-        "website": int(website_score),
-        "seo": int(seo_score),
-        "reputation": int(rep_score) if rep_score else None,
-        "leadGen": int(lead_score),
-        "services": int(services_score),
-    }
-
-    # Weighted overall: website 35, seo 25, reputation 15, leadgen 15, services 10
-    rep_w = 0.15 if subs.get("reputation") is not None else 0.0
-    total_w = 0.35 + 0.25 + rep_w + 0.15 + 0.10
-    overall = (
-        0.35 * subs["website"]
-        + 0.25 * subs["seo"]
-        + (rep_w * (subs.get("reputation") or 0))
-        + 0.15 * subs["leadGen"]
-        + 0.10 * subs["services"]
-    ) / max(0.01, total_w)
-    overall = int(round(min(100, max(1, overall))))
-    return {"overallScore": overall, "subScores": subs}
-
-
-def finalize_exec_summary_and_action_plan_with_llm(
-    merged_report: Dict[str, Any],
+def build_final_synthesis_with_llm(
+    final_report: Dict[str, Any],
     llm_context: Dict[str, Any],
     *,
     cache_repo: Any | None = None,
     cache_key: str | None = None,
 ) -> Dict[str, Any]:
-    """Generate executiveSummary + actionPlan90Days AFTER all data is merged.
+    """Premium mentor synthesis pass.
 
-    This makes summary + 90-day plan consistent with ALL collected signals.
+    Runs AFTER the report is merged (including Sections 8–10 when enabled),
+    to produce sample-like mentor tone for:
+    - Section 1 executiveSummary + (optional) score calibration
+    - Section 11 actionPlan90Days
+    - Notes fields across sections (SEO, cost, market, impact, etc.)
     """
-    logger.info("[LLM] finalize_exec_summary_and_action_plan_with_llm start")
+    logger.info("[LLM] build_final_synthesis_with_llm start")
 
-    # Always compute scorecard deterministically first
-    scorecard = compute_scorecard(merged_report)
-    try:
-        merged_report.setdefault("reportMetadata", {})
-        merged_report["reportMetadata"]["overallScore"] = scorecard["overallScore"]
-        merged_report["reportMetadata"].setdefault("subScores", {})
-        for k, v in scorecard["subScores"].items():
-            if v is None:
-                continue
-            merged_report["reportMetadata"]["subScores"][k] = v
-    except Exception:
-        pass
-
-    # If mode 1, skip extra finalize LLM calls (avoid token/rate issues)
     if int(get_effective_llm_mode()) <= 1:
-        logger.warning("[LLM] LLM_MODE=1 -> skipping finalize; returning merged_report")
-        _ = BusinessGrowthReport.model_validate(merged_report)
-        return merged_report
+        logger.warning("[LLM] LLM_MODE=1 -> skipping final synthesis; returning final_report")
+        _ = BusinessGrowthReport.model_validate(final_report)
+        return final_report
 
-    # Compact inputs
-    rep_c = compact_base_report(merged_report)
+    rep_c = compact_base_report(final_report)
     ctx_c = compact_llm_context(llm_context)
-    prompt = build_user_prompt_finalize(rep_c, ctx_c)
+    prompt = build_user_prompt_final_synthesis(rep_c, ctx_c)
 
     cache_ttl = int(getattr(settings, "LLM_CACHE_TTL_DAYS", 30))
     use_cache = bool(getattr(settings, "LLM_CACHE_ENABLED", True)) and bool(cache_repo) and bool(cache_key)
     cache_section = None
 
     if use_cache:
-        cache_section = f"llm_finalize:{settings.OPENAI_MODEL}:{_prompt_hash(SYSTEM_PROMPT_FINALIZE, prompt)}"
+        cache_section = f"llm_final_synthesis:{settings.OPENAI_MODEL}:{_prompt_hash(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt)}"
         cached = cache_repo.get_section_if_fresh(cache_key, cache_section, ttl_days=cache_ttl)
         if isinstance(cached, dict) and cached:
-            logger.info("[LLM] finalize cache HIT")
-            llm_patch = cached
+            logger.info("[LLM] build_final_synthesis_with_llm cache HIT")
+            patch = cached
         else:
             try:
-                llm_patch = call_openai_json(SYSTEM_PROMPT_FINALIZE, prompt, max_tokens=1800)
+                patch = call_openai_json(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt, max_tokens=2600)
             except Exception as e:
-                downgrade_llm_mode(f"finalize failed: {e}")
-                _ = BusinessGrowthReport.model_validate(merged_report)
-                return merged_report
-            if isinstance(llm_patch, dict) and llm_patch:
-                cache_repo.upsert_section(cache_key, cache_section, llm_patch)
+                downgrade_llm_mode(f"final synthesis failed: {e}")
+                logger.warning("[LLM] final synthesis failed -> returning final_report")
+                _ = BusinessGrowthReport.model_validate(final_report)
+                return final_report
+            if isinstance(patch, dict) and patch:
+                cache_repo.upsert_section(cache_key, cache_section, patch)
     else:
         try:
-            llm_patch = call_openai_json(SYSTEM_PROMPT_FINALIZE, prompt, max_tokens=1800)
+            patch = call_openai_json(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt, max_tokens=2600)
         except Exception as e:
-            downgrade_llm_mode(f"finalize failed: {e}")
-            _ = BusinessGrowthReport.model_validate(merged_report)
-            return merged_report
+            downgrade_llm_mode(f"final synthesis failed: {e}")
+            logger.warning("[LLM] final synthesis failed -> returning final_report")
+            _ = BusinessGrowthReport.model_validate(final_report)
+            return final_report
 
-    if not isinstance(llm_patch, dict):
-        raise RuntimeError("LLM finalize returned non-object JSON")
+    if not isinstance(patch, dict):
+        raise RuntimeError("LLM final synthesis returned non-object JSON")
 
-    combined = _deep_merge(merged_report, llm_patch)
-    _ = BusinessGrowthReport.model_validate(combined)
-    logger.info("[LLM] finalize_exec_summary_and_action_plan_with_llm ok")
+    combined = _deep_merge(final_report, patch)
+    try:
+        _ = BusinessGrowthReport.model_validate(combined)
+    except ValidationError:
+        combined = _normalize_final_synthesis_shapes(combined)
+        _ = BusinessGrowthReport.model_validate(combined)
+    logger.info("[LLM] build_final_synthesis_with_llm ok")
     return combined
+
+def now_iso() -> str:
+    return datetime.utcnow().strftime("%Y-%m-%d")

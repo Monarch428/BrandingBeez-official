@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from pydantic import BaseModel, Field
 from typing import List, Optional, Any, Dict
 
@@ -70,6 +71,7 @@ class UXConversion(BaseModel):
 
 class WebsiteDigitalPresence(BaseModel):
     technicalSEO: TechnicalSEO = Field(default_factory=TechnicalSEO)
+    mentorNotes: Optional[str] = None
     contentQuality: ContentQuality = Field(default_factory=ContentQuality)
     uxConversion: UXConversion = Field(default_factory=UXConversion)
     contentGaps: List[str] = Field(default_factory=list)
@@ -104,6 +106,7 @@ class SentimentThemes(BaseModel):
 
 class Reputation(BaseModel):
     reviewScore: Optional[Any] = None
+    mentorNotes: Optional[str] = None
     totalReviews: Optional[Any] = None
     industryStandardRange: Optional[Any] = None
     yourGap: Optional[Any] = None
@@ -141,6 +144,7 @@ class Positioning(BaseModel):
 
 class ServicesPositioning(BaseModel):
     services: List[ServiceItem] = Field(default_factory=list)
+    mentorNotes: Optional[str] = None
     serviceGaps: List[ServiceGapRow] = Field(default_factory=list)
     industriesServed: IndustriesServed = Field(default_factory=IndustriesServed)
     positioning: Positioning = Field(default_factory=Positioning)
@@ -166,16 +170,19 @@ class LeadMagnet(BaseModel):
 
 class LeadGeneration(BaseModel):
     channels: List[LeadChannel] = Field(default_factory=list)
+    mentorNotes: Optional[str] = None
     missingHighROIChannels: List[MissingChannel] = Field(default_factory=list)
     leadMagnets: List[LeadMagnet] = Field(default_factory=list)
 
 class CompetitiveAnalysis(BaseModel):
     competitors: List[Dict[str, Any]] = Field(default_factory=list)
+    mentorNotes: Optional[str] = None
     positioningMatrix: List[Dict[str, Any]] = Field(default_factory=list)
     notes: Optional[str] = None
 
 class CostOptimization(BaseModel):
     notes: Optional[str] = None
+    mentorNotes: Optional[str] = None
     opportunities: List[Dict[str, Any]] = Field(default_factory=list)
     # Estimation Mode (optional)
     estimationDisclaimer: Optional[str] = None
@@ -184,6 +191,7 @@ class CostOptimization(BaseModel):
 
 class TargetMarket(BaseModel):
     notes: Optional[str] = None
+    mentorNotes: Optional[str] = None
     segments: List[Dict[str, Any]] = Field(default_factory=list)
     estimationDisclaimer: Optional[str] = None
     confidenceScore: Optional[int] = None
@@ -191,6 +199,7 @@ class TargetMarket(BaseModel):
 
 class FinancialImpact(BaseModel):
     notes: Optional[str] = None
+    mentorNotes: Optional[str] = None
     revenueTable: List[Dict[str, Any]] = Field(default_factory=list)
     estimationDisclaimer: Optional[str] = None
     confidenceScore: Optional[int] = None
@@ -205,6 +214,7 @@ class ActionPlanWeek(BaseModel):
 
 class CompetitiveAdvantages(BaseModel):
     advantages: List[str] = Field(default_factory=list)
+    mentorNotes: Optional[str] = None
     notes: Optional[str] = None
 
 class RiskItem(BaseModel):
@@ -214,6 +224,7 @@ class RiskItem(BaseModel):
 
 class RiskAssessment(BaseModel):
     risks: List[RiskItem] = Field(default_factory=list)
+    mentorNotes: Optional[str] = None
 
 class AppendixDataSource(BaseModel):
     source: str

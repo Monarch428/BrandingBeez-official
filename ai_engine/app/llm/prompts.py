@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 ESTIMATION_DISCLAIMER = (
-    "Estimation Mode is ON: Sections 8–10 include modeled estimates based on the information you provided plus publicly "
+    "Estimation Mode is ON: Sections 8-10 include modeled estimates based on the information you provided plus publicly "
     "available signals (website + listings). These numbers are directional, not audited financials, and should not be used "
     "as the sole basis for budgeting or investment decisions. For higher accuracy, provide real spend/revenue inputs or "
     "connect Ads/Analytics/CRM."
@@ -13,8 +14,8 @@ You are a friendly, senior growth mentor for service businesses (agencies, SaaS,
 Non-negotiable rules:
 - Output MUST be a single valid JSON object (no markdown, no commentary).
 - Follow the provided schema exactly (keys and types).
-- Never invent metrics or facts for Sections 1–7.
-- For Sections 8–10 ONLY, when estimationMode=true, you MAY generate modeled estimates
+- Never invent metrics or facts for Sections 1-7.
+- For Sections 8-10 ONLY, when estimationMode=true, you MAY generate modeled estimates
   using industry benchmarks, ranges, and reasonable assumptions derived from:
   - business type
   - team size range
@@ -27,16 +28,16 @@ Non-negotiable rules:
 
 - If something is unknown, write "Not available" and explain what integration is needed.
 
-Estimation Mode (Sections 8–10 only):
+Estimation Mode (Sections 8-10 only):
 - If the context includes estimationMode=true, you MAY provide modeled estimates in:
   costOptimization, targetMarket, financialImpact.
 - You must:
   - Add `estimationDisclaimer` with the exact disclaimer provided.
-  - Add `confidenceScore` as an integer 0–100.
+  - Add `confidenceScore` as an integer 0-100.
   - Provide scenario-based outputs in `scenarios` (Conservative/Base/Aggressive), clearly stating assumptions.
 - If estimationMode=false, do NOT model financials. Keep values as "Not available" and explain what input/integration is needed.
 
-- If estimationMode=true, do NOT return empty arrays for Sections 8–10.
+- If estimationMode=true, do NOT return empty arrays for Sections 8-10.
   If precise data is unavailable, provide best-effort modeled ranges instead.
 
 
@@ -66,7 +67,7 @@ You are BrandingBeez AI Report Reconciler.
 Task:
 - You receive an existing base report JSON PLUS a unified page registry + crawl evidence.
 - Your job is to FIX contradictions and false negatives (e.g., "no about page") and to
-  strengthen the narrative in Sections 1–7 without inventing numbers.
+  strengthen the narrative in Sections 1-7 without inventing numbers.
 
 Hard rules:
 - Output MUST be a single valid JSON object (no markdown, no commentary).
@@ -88,7 +89,7 @@ SYSTEM_PROMPT_ESTIMATION_8_10 = """
 You are BrandingBeez AI Estimation Engine.
 
 Task:
-- Generate ONLY Sections 8–10 (costOptimization, targetMarket, financialImpact) as JSON.
+- Generate ONLY Sections 8-10 (costOptimization, targetMarket, financialImpact) as JSON.
 - The user has estimationMode=true.
 
 Hard rules:
@@ -100,21 +101,21 @@ Hard rules:
   - name ("Conservative" | "Base" | "Aggressive")
   - assumptions (list of short bullet strings)
   - modeledOutcomes (list of objects; each object can include label/value)
-- Include `confidenceScore` 0–100 and `estimationDisclaimer` exactly as provided.
+- Include `confidenceScore` 0-100 and `estimationDisclaimer` exactly as provided.
 
-What to include (features for Sections 8–10):
+What to include (features for Sections 8-10):
 8) costOptimization
-- Provide 5–10 practical opportunities (in `opportunities`) such as:
+- Provide 5-10 practical opportunities (in `opportunities`) such as:
   pricing improvements, tool-stack consolidation, automation, process fixes, team utilization, CAC reduction.
 - Each opportunity should include: title/opportunity, description/details, impact ("£/mo" or "%" ranges), effort (low/med/high).
 
 9) targetMarket
-- Provide 4–8 segments (in `segments`) with:
+- Provide 4-8 segments (in `segments`) with:
   segment/name, pains/painPoints, budget/avgBudget or notes.
 - Keep it realistic and tied to the website/services and the location signals.
 
 10) financialImpact
-- Provide a `revenueTable` with 5–8 metrics (e.g., leads/mo, close rate, avg deal, monthly revenue, gross margin, ROI).
+- Provide a `revenueTable` with 5-8 metrics (e.g., leads/mo, close rate, avg deal, monthly revenue, gross margin, ROI).
 - Put directional values/ranges; clearly label assumptions when needed in notes/assumption fields.
 
 Important:
@@ -122,37 +123,51 @@ Important:
 """
 
 
-SYSTEM_PROMPT_FINALIZE = """
-You are BrandingBeez AI Report Finalizer.
+# def build_user_prompt(context: dict) -> str:
+#     return f"""
+
+SYSTEM_PROMPT_FINAL_SYNTHESIS = """
+You are BrandingBeez AI - Senior Growth Mentor (Report Synthesizer).
 
 Task:
-- You receive a FULL merged report JSON (after all data collection) plus a compact evidence context.
-- Your job is to generate:
-  1) executiveSummary (mentor-style, evidence-grounded)
-  2) actionPlan90Days (week-by-week plan)
+- You receive the FINAL merged report JSON (all sections 1-13, including Sections 8-10 if estimationMode=true)
+  plus llm_context (pageRegistry + evidence).
+- Your job is to upgrade the report to a premium “mentor tone” like the sample report:
+  sharp insights, specific next steps, and evidence-linked recommendations.
 
 Hard rules:
 - Output MUST be a single valid JSON object (no markdown, no commentary).
-- Output MUST be a JSON PATCH object that only includes keys you are updating.
-- Do NOT invent metrics. If a number is not provided in the inputs, do not make one up.
-- Do NOT change reportMetadata.reportId/website/analysisDate.
-- Do NOT change overallScore or subScores if they are provided in the report JSON.
+- Output MUST be a JSON PATCH object containing ONLY the keys you update.
+- Do NOT invent metrics or facts. Any numeric value MUST already exist in the input report or llm_context.
+- You MAY re-score (overallScore + subScores) ONLY by reasoning from existing section scores and evidence.
+  Keep scores 0-100 integers.
+- Ensure Section 1 (Executive Summary) includes:
+  - biggestOpportunity (1 strong paragraph + ‘The Bottom Line: …’)
+  - strengths (5-8 bullets, evidence-based)
+  - weaknesses (5-8 bullets, evidence-based)
+  - quickWins (exactly 5, each with title + impact + time + cost + details; mentorship tone)
+  - highPriorityRecommendations (8-12 bullets, actionable)
+- Ensure Section 11 (actionPlan90Days) is populated as 6-10 weeks.
+  Each week MUST have:
+  - weekRange (e.g., “Week 1-2”)
+  - title (focus area)
+  - actions (4-7 bullets)
+  - expectedOutcome (1-2 sentences)
+  - kpis (2-4 objects with {kpi,current,target} if available; otherwise {kpi,target} with current “N/A”)
+- Add “mentor notes” strings into existing notes fields where available:
+  - seoVisibility.domainAuthority.notes
+  - seoVisibility.backlinks.notes
+  - costOptimization.notes
+  - targetMarket.notes
+  - financialImpact.notes
+  - competitiveAnalysis.notes
+  - competitiveAdvantages.notes
+- If a section lacks enough evidence, be transparent (“Not available…”) and state what integration would unlock it.
 
-Action plan rules:
-- Provide 6–10 weeks (weekRange like "Weeks 1–2", "Weeks 3–4", ...).
-- Each week must include: title, 4–8 actions, expectedOutcome, and 2–4 KPIs.
-- Actions must reflect the detected gaps from:
-  technicalSEO/contentQuality/uxConversion/domainAuthority/backlinks/reputation/leadGeneration/services.
-- Prioritize: Fix foundations first, then content + CRO, then authority + scale.
-
-Executive summary rules:
-- Use the report's scores and key evidence.
-- Include 4–8 strengths, 4–8 weaknesses, 4–6 quickWins, and 6–10 highPriorityRecommendations.
-- The biggestOpportunity must be one clear sentence.
-- Keep it punchy; no fluff.
+Tone:
+- Direct, supportive, practical. Prefer short paragraphs + crisp bullets.
+- Use phrases: “Recommendation: …”, “The Bottom Line: …”, “If you do only one thing: …”.
 """
-
-
 def build_user_prompt(context: dict) -> str:
     return f"""
 Create a Business Growth Report JSON for the company.
@@ -176,7 +191,7 @@ Estimation Mode guidance:
   {ESTIMATION_DISCLAIMER}
 - Scenarios: `scenarios` MUST be a JSON array of 3 objects (Conservative, Base, Aggressive).
   Each scenario object MUST include fields: name, assumptions, modeledOutcomes.
-- Confidence: choose a confidenceScore (0–100) based on how complete the inputs/integrations are.
+- Confidence: choose a confidenceScore (0-100) based on how complete the inputs/integrations are.
 
 Context (facts + evidence):
 {context}
@@ -214,27 +229,25 @@ def build_user_prompt_estimation_8_10(llm_context: dict) -> str:
         "You MUST include `estimationDisclaimer` EXACTLY:\n"
         f"{ESTIMATION_DISCLAIMER}\n\n"
         "Make sure:\n"
-        "- costOptimization.opportunities is NOT empty (5–10 rows).\n"
-        "- targetMarket.segments is NOT empty (4–8 rows).\n"
-        "- financialImpact.revenueTable is NOT empty (5–8 rows).\n"
+        "- costOptimization.opportunities is NOT empty (5-10 rows).\n"
+        "- targetMarket.segments is NOT empty (4-8 rows).\n"
+        "- financialImpact.revenueTable is NOT empty (5-8 rows).\n"
         "- scenarios is present for each of the three sections, with 3 scenarios.\n\n"
         "Context (JSON):\n"
         f"{ctx_s}\n"
     )
 
 
-def build_user_prompt_finalize(full_report: dict, llm_context: dict) -> str:
-    rep_s = _json(full_report or {})
+def build_user_prompt_final_synthesis(final_report: dict, llm_context: dict) -> str:
+    rep_s = _json(final_report or {})
     ctx_s = _json(llm_context or {})
     return (
         "You will receive:\n"
-        "1) full_report_json (merged, final report)\n"
-        "2) llm_context_json (compact evidence)\n\n"
-        "Return a JSON PATCH object that updates ONLY these keys:\n"
-        "- executiveSummary\n"
-        "- actionPlan90Days\n\n"
-        "Do NOT repeat the full report. Return ONLY the minimal patch.\n\n"
-        "full_report_json:\n"
+        "1) final_report_json (FULL merged report)\n"
+        "2) llm_context_json (evidence + pageRegistry)\n\n"
+        "Return a JSON PATCH object that upgrades mentor tone + completeness.\n"
+        "Do NOT repeat the full report. Patch only the keys you change.\n\n"
+        "final_report_json:\n"
         f"{rep_s}\n\n"
         "llm_context_json:\n"
         f"{ctx_s}\n"

@@ -23,31 +23,37 @@ _state_lock = threading.Lock()
 _openai_429_strikes: int = 0
 _openai_circuit_open_until: float = 0.0
 
-_llm_mode_lock = threading.Lock()
-_runtime_llm_mode_override: int | None = None
+# LLM mode override (in-process)
+# - starts from settings.LLM_MODE
+# - may be downgraded to 1 when sustained 429/rate-limit errors happen
+_llm_mode_override: int | None = None
+
 
 def get_effective_llm_mode() -> int:
-    """
-    Returns the current effective LLM mode.
-    - If overridden at runtime (e.g., after 429), returns override
-    - Else returns settings.LLM_MODE (default 2)
-    """
-    with _llm_mode_lock:
-        if _runtime_llm_mode_override in (1, 2):
-            return int(_runtime_llm_mode_override)
+    global _llm_mode_override
     try:
-        return int(getattr(settings, "LLM_MODE", 2) or 2)
+        base = int(getattr(settings, "LLM_MODE", 2))
     except Exception:
-        return 2
+        base = 2
+    if _llm_mode_override is None:
+        return base
+    return int(_llm_mode_override)
 
-def downgrade_llm_mode(reason: str = "") -> int:
+
+def downgrade_llm_mode(reason: str = "") -> None:
+    """Downgrade LLM mode to 1 (safe) for the remainder of this process.
+
+    This is intended to keep the analysis running even when the LLM provider
+    is rate-limiting (429) or quota constrained.
     """
-    Switch to Mode 1 (fallback) during runtime. Call this when repeated 429 happens.
-    """
-    global _runtime_llm_mode_override
-    with _llm_mode_lock:
-        _runtime_llm_mode_override = 1
-    return 1
+    global _llm_mode_override
+    if not bool(getattr(settings, "LLM_DOWNGRADE_ON_429", True)):
+        return
+    if _llm_mode_override == 1:
+        return
+    _llm_mode_override = 1
+    logger.warning("[LLM] Downgrading to LLM_MODE=1 (safe). %s", (reason or "").strip())
+
 
 def _circuit_is_open() -> bool:
     with _state_lock:
@@ -70,6 +76,9 @@ def _note_openai_429() -> None:
         if _openai_429_strikes >= max(1, threshold):
             _openai_circuit_open_until = time.time() + max(5, cooldown)
             logger.warning("[LLM] OpenAI circuit-breaker OPEN for %ss after %s consecutive 429s", cooldown, _openai_429_strikes)
+            # Also downgrade the overall LLM mode so the pipeline can continue
+            # with smaller / fewer LLM calls.
+            downgrade_llm_mode("OpenAI sustained 429s")
 
 
 def _should_fallback_to_gemini() -> bool:
@@ -303,6 +312,8 @@ def call_gemini_json(
 
             # Gemini may rate-limit with 429 as well
             if r.status_code == 429:
+                if attempt >= 2:
+                    downgrade_llm_mode("Gemini 429 rate-limited")
                 backoff = min(60, (2 ** (attempt - 1)) + random.random())
                 logger.warning("[LLM] Gemini 429 rate-limited, backing off %ss", int(backoff))
                 time.sleep(backoff)

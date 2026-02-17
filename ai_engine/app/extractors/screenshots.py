@@ -22,7 +22,7 @@ def capture_screenshots(url: str) -> Dict[str, Any]:
     from playwright.sync_api import sync_playwright  # lazy import
 
     goto_timeout = int(getattr(settings, "PLAYWRIGHT_GOTO_TIMEOUT_MS", 60000))
-    full_page = bool(getattr(settings, "SCREENSHOT_FULL_PAGE", True))
+    full_page = bool(getattr(settings, "SCREENSHOT_FULL_PAGE", False))  # default: viewport-only (cropped)
 
     out: Dict[str, Any] = {
         "url": url,

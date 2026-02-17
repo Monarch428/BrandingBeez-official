@@ -4,19 +4,7 @@ import logging
 import asyncio
 from typing import Any, Dict, List, Optional
 
-# from app.llm.client import get_effective_llm_mode
-from app.core.config import settings
-
-# ✅ Robust import: works even if llm.client doesn't expose get_effective_llm_mode yet
-try:
-    from app.llm.client import get_effective_llm_mode  # type: ignore
-except Exception:
-    def get_effective_llm_mode() -> int:
-        # Default to Mode 2 if not configured
-        try:
-            return int(getattr(settings, "LLM_MODE", 2) or 2)
-        except Exception:
-            return 2
+from app.llm.client import get_effective_llm_mode
 
 # fallback heuristic scraper (existing)
 from app.extractors.service_scraper_ext import scrape_services as scrape_services_heuristic

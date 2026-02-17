@@ -43,21 +43,21 @@ def _require_google_key() -> str:
     return api_key
 
 
-def text_search(service: str, location: str, max_results: int = 5) -> List[Dict[str, Any]]:
+def text_search(service: str, location: str | None, max_results: int = 5) -> List[Dict[str, Any]]:
     """Google Places Text Search: returns raw place search results (trimmed)."""
     api_key = _require_google_key()
 
     service = (service or "").strip()
     location = (location or "").strip()
-    if not service or not location:
+    if not service:
         return []
 
-    cache_key = f"places:text:{service.lower()}|{location.lower()}|{max_results}"
+    cache_key = f"places:text:{service.lower()}|{location.lower() if location else 'noloc'}|{max_results}"
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached
 
-    query = f"{service} in {location}"
+    query = f"{service} in {location}" if location else service
     params = {
         "query": query,
         "key": api_key,
@@ -136,7 +136,7 @@ def place_details(place_id: str, fields: str = "name,rating,user_ratings_total,w
     return out
 
 
-def find_services(service: str, location: str, max_results: int = 5, max_reviews: int = 5) -> List[Dict[str, Any]]:
+def find_services(service: str, location: str | None, max_results: int = 5, max_reviews: int = 5) -> List[Dict[str, Any]]:
     """Orchestrates search + per-place details enrichment."""
     places = text_search(service=service, location=location, max_results=max_results)
     enriched: List[Dict[str, Any]] = []
@@ -186,13 +186,15 @@ def find_company_place(company_name: str, location: str | None = None, website: 
     return candidates[0] if candidates else {}
 
 
-def build_google_reputation_bundle(service: str, location: str, company_name: str | None = None, company_website: str | None = None,
+def build_google_reputation_bundle(service: str, location: str | None, company_name: str | None = None, company_website: str | None = None,
                                   max_results: int = 5, max_reviews: int = 5) -> Dict[str, Any]:
     """Return a bundle suitable for reputation analysis + competitive context."""
-    bundle: Dict[str, Any] = {"query": {"service": service, "location": location}, "company": {}, "competitors": []}
+    bundle: Dict[str, Any] = {"query": {"service": service, "location": location or ""}, "company": {}, "competitors": []}
 
-    competitors = find_services(service, location, max_results=max_results, max_reviews=max_reviews)
-    bundle["competitors"] = competitors
+    # Competitor sweep only makes sense when location is known.
+    if location:
+        competitors = find_services(service, location, max_results=max_results, max_reviews=max_reviews)
+        bundle["competitors"] = competitors
 
     if company_name:
         company = find_company_place(company_name, location=location, website=company_website)
