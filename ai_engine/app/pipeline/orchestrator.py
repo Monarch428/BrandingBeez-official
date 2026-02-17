@@ -874,7 +874,69 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         logger.exception("[Pipeline] Backlinks bundle failed (continuing): %s", str(e))
         backlinks_bundle = {"notes": [str(e)]}
 
+    # ✅ Reputation bundle (Google + Clutch + Trustpilot) with fallback to Google-only
+    reputation_bundle = None
+    try:
+        reputation_bundle = build_reputation_bundle_sync(
+            company_name=company,
+            website_url=(final_url or website),
+            google_places_bundle=google_places_bundle,
+            criteria=criteria,
+        )
+    except Exception as e:
+        logger.warning("[Pipeline] reputation bundle failed, continuing: %s", str(e))
+        reputation_bundle = None
+
+    # Merge Trustpilot/Clutch samples into the reviews_scraped structure so downstream
+    # build_reputation_signals + LLM + PDF can show them in the main "Reputation" section.
+    try:
+        if reputation_bundle and isinstance(reputation_bundle, dict):
+            sources = ensure_dict(reputation_bundle.get("sources") or {})
+            reviews_map = ensure_dict(reviews_scraped.get("reviews") or {})
+            platform_meta = ensure_dict(reviews_scraped.get("platform_meta") or {})
+
+            # Trustpilot
+            tp = ensure_dict(sources.get("trustpilot") or {})
+            tp_reviews = ensure_list(tp.get("reviews_sample") or [])
+            if tp_reviews:
+                reviews_map["trustpilot"] = tp_reviews
+                # derive a lightweight average rating from sample (better than N/A)
+                ratings = []
+                for r in tp_reviews:
+                    rv = ensure_dict(r).get("rating")
+                    try:
+                        if rv is not None:
+                            ratings.append(float(rv))
+                    except Exception:
+                        pass
+                avg_rating = round(sum(ratings) / len(ratings), 2) if ratings else "N/A"
+                platform_meta["trustpilot"] = {
+                    "rating": avg_rating,
+                    "total_reviews": tp.get("count_sample", len(tp_reviews)),
+                    "url": tp.get("url"),
+                }
+
+            # Clutch
+            cl = ensure_dict(sources.get("clutch") or {})
+            cl_reviews = ensure_list(cl.get("reviews_sample") or [])
+            if cl_reviews:
+                reviews_map["clutch"] = cl_reviews
+            if cl:
+                platform_meta["clutch"] = {
+                    "rating": cl.get("rating", "N/A"),
+                    "total_reviews": cl.get("total_reviews", len(cl_reviews) if cl_reviews else "N/A"),
+                    "url": cl.get("profile_url"),
+                    "error": cl.get("error"),
+                    "http_status": cl.get("http_status"),
+                }
+
+            reviews_scraped["reviews"] = reviews_map
+            reviews_scraped["platform_meta"] = platform_meta
+    except Exception:
+        pass
+
     rep_section = ensure_dict(build_reputation_signals(reviews_scraped))
+
 
     # Own-site content pages (best-effort, cached)
     own_pages = []
@@ -940,18 +1002,9 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     if google_places_bundle:
         rep_section["googlePlaces"] = google_places_bundle
 
-    # ✅ Reputation bundle (Google + Clutch + Trustpilot) with fallback to Google-only
-    try:
-        reputation_bundle = build_reputation_bundle_sync(
-            company_name=company,
-            website_url=(final_url or website),
-            google_places_bundle=google_places_bundle,
-            criteria=criteria,
-        )
-        if reputation_bundle:
-            rep_section["reputationBundle"] = reputation_bundle
-    except Exception as e:
-        logger.warning("[Pipeline] reputation bundle failed, continuing: %s", str(e))
+    # ✅ Reputation bundle (Google + Clutch + Trustpilot)
+    if reputation_bundle:
+        rep_section["reputationBundle"] = reputation_bundle
 
     # ✅✅ FIX: define scraped_services BEFORE using it
     scraped_services = []
