@@ -761,7 +761,7 @@ export default function Header() {
           {/* CTA */}
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             {/* 📞 Phone */}
-            <a
+            {/* <a
               href="tel:+19792717552"
               className={[
                 "inline-flex items-center justify-center",
@@ -775,11 +775,10 @@ export default function Header() {
             >
               <Phone className="w-5 h-5 lg:w-4 lg:h-4 text-brand-coral" />
 
-              {/* 🔢 Number shows ONLY on lg+ */}
               <span className="hidden lg:inline ml-2 text-sm font-semibold">
                 +1 979 271 7552
               </span>
-            </a>
+            </a> */}
 
             {/* 📅 Book a call (sm+) */}
             <Suspense fallback={null}>
