@@ -180,6 +180,41 @@ class CompetitiveAnalysis(BaseModel):
     positioningMatrix: List[Dict[str, Any]] = Field(default_factory=list)
     notes: Optional[str] = None
 
+
+# -------------------------
+# Market Demand (Data-backed)
+# -------------------------
+
+class MarketDemandKeyword(BaseModel):
+    keyword: str
+    searchVolume: Optional[int] = None
+    cpc: Optional[float] = None
+    competition: Optional[float] = None  # 0..1 (Google Ads competition)
+    monthlySearches: List[Dict[str, Any]] = Field(default_factory=list)
+    serpTopDomains: List[str] = Field(default_factory=list)
+    competitionIntensity: Optional[int] = None  # 0..10 based on unique domains in top 10
+    demandScore: Optional[int] = None  # 0..100
+    label: Optional[str] = None  # High/Medium/Low
+    notes: Optional[str] = None
+
+
+class MarketDemandSummary(BaseModel):
+    averageDemandScore: Optional[int] = None
+    totalKeywordsAnalyzed: Optional[int] = None
+    topOpportunities: List[str] = Field(default_factory=list)
+    observations: List[str] = Field(default_factory=list)
+
+
+class MarketDemand(BaseModel):
+    location: Optional[str] = None
+    locationCode: Optional[int] = None
+    languageCode: Optional[str] = None
+    services: List[str] = Field(default_factory=list)
+    keywords: List[MarketDemandKeyword] = Field(default_factory=list)
+    summary: MarketDemandSummary = Field(default_factory=MarketDemandSummary)
+    dataSources: List[Dict[str, Any]] = Field(default_factory=list)
+    notes: List[str] = Field(default_factory=list)
+
 class CostOptimization(BaseModel):
     notes: Optional[str] = None
     mentorNotes: Optional[str] = None
@@ -253,6 +288,7 @@ class BusinessGrowthReport(BaseModel):
     servicesPositioning: ServicesPositioning
     leadGeneration: LeadGeneration
     competitiveAnalysis: CompetitiveAnalysis
+    marketDemand: MarketDemand = Field(default_factory=MarketDemand)
     costOptimization: CostOptimization
     targetMarket: TargetMarket
     financialImpact: FinancialImpact

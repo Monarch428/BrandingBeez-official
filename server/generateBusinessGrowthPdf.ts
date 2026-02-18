@@ -1472,6 +1472,70 @@ paragraph(doc, safeText(co?.notes, ""));
       paragraph(doc, safeText(tm?.notes, ""));
 
       /* =========================
+               9.5) MARKET DEMAND
+            ========================= */
+      addPageIfNotAtTop(doc);
+      sectionTitle(doc, "9.5", "Market Demand & Search Opportunity");
+
+      const md: any = (report as any).marketDemand;
+      const mdKeywords: any[] = Array.isArray(md?.keywords) ? md.keywords : [];
+
+      if (md?.location) {
+        paragraph(doc, `Location Context: ${safeText(md.location, "—")}`);
+      }
+      if (Array.isArray(md?.services) && md.services.length) {
+        paragraph(doc, `Services Analyzed: ${md.services.map((s: any) => safeText(s, "")).filter(Boolean).join(", ")}`);
+      }
+
+      const mdSummary: any = md?.summary;
+      if (mdSummary && typeof mdSummary === "object") {
+        const avg = mdSummary?.demandScoreAvg;
+        if (typeof avg === "number") paragraph(doc, `Average Demand Score: ${avg}/100`);
+        const opp = normalizeStringList(mdSummary?.topOpportunities);
+        if (opp.length) {
+          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Top Opportunities");
+          bullets(doc, opp.slice(0, 8), "—");
+        }
+        const notes = normalizeStringList(mdSummary?.notes);
+        if (notes.length) {
+          callout(doc, "Notes", notes.slice(0, 6).join("\n"));
+        }
+      }
+
+      if (mdKeywords.length) {
+        const top = [...mdKeywords]
+          .sort((a: any, b: any) => (Number(b?.demandScore ?? -1) || -1) - (Number(a?.demandScore ?? -1) || -1))
+          .slice(0, 15);
+
+        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Top Demand Keywords");
+        drawTable(
+          doc,
+          ["Keyword", "Volume", "CPC", "Competition", "Demand", "Label"],
+          top.map((k: any) => [
+            safeText(k?.keyword, "—"),
+            typeof k?.searchVolume === "number" ? String(k.searchVolume) : safeText(k?.searchVolume, "—"),
+            typeof k?.cpc === "number" ? String(k.cpc) : safeText(k?.cpc, "—"),
+            typeof k?.competition === "number" ? String(k.competition) : safeText(k?.competition, "—"),
+            typeof k?.demandScore === "number" ? String(k.demandScore) : safeText(k?.demandScore, "—"),
+            safeText(k?.label, "—"),
+          ]),
+          [220, 55, 55, 70, 55, 55],
+          { hideEmptyRows: true, hideEmptyCols: true },
+        );
+
+        const mdNotes = safeText(md?.notes, "");
+        if (mdNotes && mdNotes !== "N/A") paragraph(doc, mdNotes);
+      } else {
+        const mdNotes = safeText(md?.notes, "");
+        paragraph(
+          doc,
+          mdNotes && mdNotes !== "N/A"
+            ? mdNotes
+            : "Market demand metrics were not collected for this run. Enable DataForSEO Keywords Data (Google Ads search volume) to populate search volume and CPC-based demand scoring.",
+        );
+      }
+
+      /* =========================
                10) FINANCIAL IMPACT/* =========================
                10) FINANCIAL IMPACT SUMMARY
             ========================= */

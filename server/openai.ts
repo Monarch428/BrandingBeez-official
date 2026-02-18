@@ -1833,6 +1833,33 @@ export interface BusinessGrowthReport {
     notes?: string | null;
   };
 
+  /**
+   * Market Demand & Search Opportunity (DataForSEO-backed when enabled in the Python engine).
+   * Optional and may be empty when keyword volume providers are disabled.
+   */
+  marketDemand?: {
+    location?: string | null;
+    services?: string[];
+    keywords?: {
+      keyword: string;
+      searchVolume?: NullableNumber;
+      cpc?: NullableNumber;
+      competition?: NullableNumber;
+      monthlySearches?: { month: string; count: NullableNumber }[];
+      serpTopDomains?: string[];
+      competitionIntensity?: NullableNumber;
+      demandScore?: NullableNumber;
+      label?: "High" | "Medium" | "Low" | string | null;
+      notes?: string | null;
+    }[];
+    summary?: {
+      demandScoreAvg?: NullableNumber;
+      topOpportunities?: string[];
+      notes?: string[];
+    };
+    notes?: string | null;
+  };
+
   riskAssessment: {
     risks: { risk: string; severity: "Low" | "Medium" | "High" | "Critical"; likelihood: "Low" | "Medium" | "High"; mitigation: string; notes?: string | null }[];
     compliance: { item: string; status: "Pass" | "Needs Work" | "Unknown"; notes?: string | null }[];
@@ -2787,6 +2814,14 @@ export function mergeBusinessGrowthReport(
 
     targetMarket: { currentTargetSegments: [], recommendedSegments: [], positioningAdvice: null, notes: null },
 
+    marketDemand: {
+      location: null,
+      services: [],
+      keywords: [],
+      summary: { demandScoreAvg: null, topOpportunities: [], notes: [] },
+      notes: null,
+    },
+
     riskAssessment: { risks: [], compliance: [], notes: null },
 
     competitiveAdvantages: { advantages: [], uniqueAngle: null, notes: null },
@@ -2833,6 +2868,7 @@ export function mergeBusinessGrowthReport(
     costOptimization: { ...base.costOptimization, ...(r.costOptimization || {}) },
     financialImpact: { ...base.financialImpact, ...(r.financialImpact || {}) },
     targetMarket: { ...base.targetMarket, ...(r.targetMarket || {}) },
+    marketDemand: { ...base.marketDemand, ...((r as any).marketDemand || {}) },
     riskAssessment: { ...base.riskAssessment, ...(r.riskAssessment || {}) },
     competitiveAdvantages: { ...base.competitiveAdvantages, ...(r.competitiveAdvantages || {}) },
     actionPlan90Days: { ...base.actionPlan90Days, ...(r.actionPlan90Days || {}) },
@@ -2931,6 +2967,17 @@ export function mergeBusinessGrowthReport(
   merged.targetMarket.currentTargetSegments = ensureArray(merged.targetMarket.currentTargetSegments);
   merged.targetMarket.recommendedSegments = ensureArray(merged.targetMarket.recommendedSegments);
   (merged.targetMarket as any).scenarios = ensureArray((merged.targetMarket as any).scenarios);
+
+  // Market demand (optional)
+  if (merged.marketDemand) {
+    (merged.marketDemand as any).services = ensureArray((merged.marketDemand as any).services);
+    (merged.marketDemand as any).keywords = ensureArray((merged.marketDemand as any).keywords);
+    const mdSummary: any = (merged.marketDemand as any).summary;
+    if (mdSummary && typeof mdSummary === "object") {
+      mdSummary.topOpportunities = ensureArray(mdSummary.topOpportunities);
+      mdSummary.notes = ensureArray(mdSummary.notes);
+    }
+  }
 
   // Python AI Engine schema compatibility (Sections 8–10)
   const coAny: any = merged.costOptimization as any;

@@ -1,5 +1,5 @@
 from app.pipeline.sections.report_assembler import assemble_final_report, deep_merge
-from typing import Any, Dict
+from typing import Any, Dict, List
 from datetime import datetime
 import asyncio
 import sys
@@ -46,6 +46,7 @@ from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
 from app.signals.dataforseo_signals import build_dataforseo_enrichment, build_backlinks_bundle
+from app.signals.market_demand_signals import build_market_demand_bundle
 from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm, build_final_synthesis_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
@@ -873,6 +874,70 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception as e:
         logger.exception("[Pipeline] Backlinks bundle failed (continuing): %s", str(e))
         backlinks_bundle = {"notes": [str(e)]}
+
+    # ✅ Market Demand bundle (DataForSEO Google Ads volumes + light SERP sampling)
+    market_demand_bundle: Dict[str, Any] = {}
+    try:
+        cached_md = None
+        if cache_enabled:
+            cached_md = cache_repo.get_section_if_fresh(
+                cache_key,
+                "market_demand",
+                ttl_days=int(getattr(settings, "CACHE_TTL_DATAFORSEO_DAYS", 7)),
+            )
+        if cached_md:
+            market_demand_bundle = ensure_dict(cached_md)
+        else:
+            # Extract service names for keyword seeding
+            # NOTE: services_section["services"] can be a list of dicts OR strings depending on the extractor/LLM.
+            svc_names: List[str] = []
+            try:
+                for s in ensure_list(services_section.get("services")):
+                    if isinstance(s, dict):
+                        nm = s.get("name") or s.get("title")
+                        if nm:
+                            svc_names.append(str(nm).strip())
+                    elif isinstance(s, str) and s.strip():
+                        svc_names.append(s.strip())
+            except Exception:
+                svc_names = []
+
+            # Fallbacks: if services extractor didn't return structured services, try other deterministic sources
+            if not svc_names:
+                try:
+                    for s in ensure_list(services_section.get("serviceCandidates")):
+                        if isinstance(s, str) and s.strip():
+                            svc_names.append(s.strip())
+                except Exception:
+                    pass
+
+            if not svc_names:
+                try:
+                    # page_registry may contain a lightweight list of service candidates (from crawl/link patterns)
+                    for s in ensure_list((page_registry or {}).get("service_candidates")):
+                        if isinstance(s, str) and s.strip():
+                            svc_names.append(s.strip())
+                except Exception:
+                    pass
+
+            # Normalize + dedupe + cap to avoid overly broad keyword seeding
+            svc_names = [s for s in (dict.fromkeys([x.strip() for x in svc_names if isinstance(x, str) and x.strip()])).keys()]
+            svc_names = svc_names[: max(5, min(12, int(getattr(settings, "MARKET_DEMAND_MAX_SERVICES", 10) or 10))) ]
+
+            market_demand_bundle = ensure_dict(
+                build_market_demand_bundle(
+                    services=svc_names,
+                    criteria=criteria,
+                    d4s_enrichment=d4s_enrichment,
+                    max_keywords=int(getattr(settings, "MARKET_DEMAND_MAX_KEYWORDS", 20) or 20),
+                    serp_depth=int(getattr(settings, "MARKET_DEMAND_SERP_DEPTH", 10) or 10),
+                )
+            )
+            if cache_enabled and market_demand_bundle:
+                cache_repo.upsert_section(cache_key, "market_demand", market_demand_bundle)
+    except Exception as e:
+        logger.exception("[Pipeline] Market demand bundle failed (continuing): %s", str(e))
+        market_demand_bundle = {"notes": [str(e)]}
 
     # ✅ Reputation bundle (Google + Clutch + Trustpilot) with fallback to Google-only
     reputation_bundle = None
@@ -1870,6 +1935,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "servicesPositioning": services_section,
         "leadGeneration": leadgen_section,
         "competitiveAnalysis": competitive_analysis,
+        "marketDemand": market_demand_bundle or {},
         # Sections 8–10: scenario-based outputs are ONLY allowed when estimationMode=true.
         # Keep a schema-compliant template here so sanitize_with_template retains optional keys
         # returned by the LLM (estimationDisclaimer/confidenceScore/scenarios).
@@ -2049,6 +2115,26 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         pass
 
+    # Attach Market Demand evidence (if any)
+    try:
+        md_kws = ensure_list((market_demand_bundle or {}).get("keywords")) if isinstance(market_demand_bundle, dict) else []
+        if md_kws:
+            base_report["appendices"].setdefault("evidence", {})
+            if isinstance(base_report["appendices"]["evidence"], dict):
+                base_report["appendices"]["evidence"]["marketDemandTopKeywords"] = md_kws[:15]
+
+            # Add provider sources (avoid duplicates)
+            existing_sources = {str(ds.get("source") or "").strip() for ds in base_report["appendices"].get("dataSources", []) if isinstance(ds, dict)}
+            for ds in ensure_list((market_demand_bundle or {}).get("dataSources")):
+                if not isinstance(ds, dict):
+                    continue
+                src = str(ds.get("source") or "").strip()
+                if src and src not in existing_sources:
+                    base_report["appendices"]["dataSources"].append(ds)
+                    existing_sources.add(src)
+    except Exception:
+        pass
+
     llm_context = {
         "companyName": company,
         "website": final_url or website,
@@ -2074,6 +2160,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "seoSignals": seo_section,
         "reputationSignals": rep_section,
         "dataforseo": d4s_enrichment,
+        "marketDemand": market_demand_bundle,
 
         # High-signal user inputs (helps the LLM tie recommendations to intent/region)
         "userInputs": {
