@@ -31,6 +31,26 @@ def _ensure_list(x):
         return x
     return [x]
 
+def _coerce_mentor_snapshot(v: Any) -> str | None:
+    """Ensure executiveSummary.mentorSnapshot is a string (or None).
+
+    LLMs sometimes return an object like {"summary": "..."}; this coerces it.
+    """
+    if v is None:
+        return None
+    if isinstance(v, str):
+        s = v.strip()
+        return s or None
+    if isinstance(v, dict):
+        for k in ("summary", "text", "mentorSnapshot", "value"):
+            vv = v.get(k)
+            if isinstance(vv, str) and vv.strip():
+                return vv.strip()
+        return str(v)
+    return str(v)
+
+
+
 def _normalize_final_synthesis_shapes(report: dict) -> dict:
     """Coerce common LLM patch shape mistakes into schema-compliant shapes."""
     if not isinstance(report, dict):
@@ -137,6 +157,30 @@ def _normalize_final_synthesis_shapes(report: dict) -> dict:
                     dg["howToEnable"] = [dg["howToEnable"]]
                 elif dg.get("howToEnable") is None:
                     dg["howToEnable"] = []
+
+    # 3) leadGeneration.missingHighROIChannels: allow string/list-of-strings -> list[MissingChannel]
+    lg = report.get("leadGeneration")
+    if isinstance(lg, dict):
+        mh = lg.get("missingHighROIChannels")
+        if isinstance(mh, str) and mh.strip():
+            lg["missingHighROIChannels"] = [{"channel": mh.strip()}]
+        elif isinstance(mh, list):
+            fixed_mh = []
+            for item in mh:
+                if isinstance(item, str) and item.strip():
+                    fixed_mh.append({"channel": item.strip()})
+                elif isinstance(item, dict):
+                    # accept common aliases
+                    if "channel" not in item:
+                        if "name" in item and isinstance(item["name"], str):
+                            item["channel"] = item.pop("name")
+                        elif "title" in item and isinstance(item["title"], str):
+                            item["channel"] = item.pop("title")
+                    fixed_mh.append(item)
+            lg["missingHighROIChannels"] = fixed_mh
+        elif mh is None:
+            # keep as-is (schema allows empty list / missing)
+            pass
 
     return report
 
@@ -350,6 +394,12 @@ def build_final_synthesis_with_llm(
         raise RuntimeError("LLM final synthesis returned non-object JSON")
 
     combined = _deep_merge(final_report, patch)
+
+    # Coerce mentorSnapshot into a plain string (LLM sometimes returns an object)
+    if isinstance(combined, dict):
+        es = combined.get("executiveSummary")
+        if isinstance(es, dict):
+            es["mentorSnapshot"] = _coerce_mentor_snapshot(es.get("mentorSnapshot"))
     try:
         _ = BusinessGrowthReport.model_validate(combined)
     except ValidationError:
@@ -357,6 +407,5 @@ def build_final_synthesis_with_llm(
         _ = BusinessGrowthReport.model_validate(combined)
     logger.info("[LLM] build_final_synthesis_with_llm ok")
     return combined
-
 def now_iso() -> str:
     return datetime.utcnow().strftime("%Y-%m-%d")

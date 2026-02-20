@@ -27,6 +27,9 @@ class QuickWin(BaseModel):
 
 class ExecutiveSummary(BaseModel):
     biggestOpportunity: Optional[str] = None
+    # Mentor-style narrative snapshot generated during final synthesis.
+    # Optional to remain schema-safe when LLM is skipped.
+    mentorSnapshot: Optional[str] = None
     strengths: List[str] = Field(default_factory=list)
     weaknesses: List[str] = Field(default_factory=list)
     quickWins: List[QuickWin] = Field(default_factory=list)

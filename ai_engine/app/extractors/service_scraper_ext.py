@@ -1,52 +1,78 @@
 from __future__ import annotations
 
+import logging
+import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin, urlparse
 
-from bs4 import BeautifulSoup
-
 from app.core.http import http_get
 
+logger = logging.getLogger(__name__)
 
-SERVICE_URL_HINTS = [
-    "service", "services", "what-we-do", "solutions", "capabilities", "offerings",
-    "digital-marketing", "seo", "google-ads", "ppc", "web-design", "web-development",
-    "branding", "social-media", "content", "marketing",
+# Default "services/offering" URL hints (agency + local business)
+DEFAULT_SERVICE_URL_HINTS: List[str] = [
+    "/services", "services", "what-we-do", "solutions",
+    "/menu", "menu", "/order", "order", "/products", "products", "shop",
+    "/treatments", "treatments", "/procedures", "procedures",
+    "/pricing", "pricing", "/packages", "packages",
 ]
 
 
-def _same_host(base_url: str, candidate: str) -> bool:
+def _same_host(a: str, b: str) -> bool:
     try:
-        b = urlparse(base_url)
-        c = urlparse(candidate)
-        return (b.netloc or "").lower() == (c.netloc or "").lower()
+        return urlparse(a).netloc.lower() == urlparse(b).netloc.lower()
     except Exception:
         return False
 
 
-def pick_service_urls(base_url: str, internal_links: List[str], max_pages: int = 6) -> List[str]:
-    """Pick likely service-related URLs from internal links."""
-    base = (base_url or "").strip()
-    if not base:
-        return []
+def _normalize_hints(url_hints: Optional[List[str]]) -> List[str]:
+    hints = list(DEFAULT_SERVICE_URL_HINTS)
+    if url_hints:
+        for h in url_hints:
+            if not h:
+                continue
+            hs = str(h).strip()
+            if not hs:
+                continue
+            if hs not in hints:
+                hints.append(hs)
+    return hints
 
-    # normalize links
+
+def pick_service_urls(
+    base_url: str,
+    internal_links: List[str],
+    max_pages: int = 8,
+    *,
+    url_hints: Optional[List[str]] = None,
+) -> List[str]:
+    """Pick candidate URLs likely containing offerings/services/menu/treatments.
+
+    NOTE: Safe + defensive — never raises for bad inputs.
+    """
+    base = base_url.rstrip("/") + "/"
+    hints = _normalize_hints(url_hints)
+
     candidates: List[str] = []
-    for raw in internal_links or []:
-        if not raw:
-            continue
-        u = raw.strip()
-        if not u.startswith("http"):
-            u = urljoin(base, u)
-        if not _same_host(base, u):
-            continue
-        low = u.lower()
-        if any(h in low for h in SERVICE_URL_HINTS):
-            candidates.append(u)
+    candidates.append(urljoin(base, "/services"))
 
-    # Always include /services if it exists in site
-    candidates.insert(0, urljoin(base, "/services"))
-    # de-dupe preserving order
+    for raw in internal_links or []:
+        try:
+            if not raw:
+                continue
+            u = str(raw).strip()
+            if not u:
+                continue
+            if not u.startswith("http"):
+                u = urljoin(base, u)
+            if not _same_host(base, u):
+                continue
+            low = u.lower()
+            if any(h.lower() in low for h in hints):
+                candidates.append(u)
+        except Exception:
+            continue
+
     out: List[str] = []
     seen = set()
     for u in candidates:
@@ -60,113 +86,83 @@ def pick_service_urls(base_url: str, internal_links: List[str], max_pages: int =
     return out
 
 
-def _clean(s: Any) -> str:
-    return (s or "").strip() if isinstance(s, str) else ""
+def _extract_service_like_blocks(html: str) -> List[Dict[str, Any]]:
+    """Very light heuristic extractor.
 
+    Returns list of {name, description}. We keep it simple to avoid schema issues.
+    """
+    if not html:
+        return []
+    cleaned = re.sub(r"(?is)<(script|style).*?>.*?</\1>", " ", html)
+    heads = re.findall(r"(?is)<h[1-4][^>]*>(.*?)</h[1-4]>", cleaned)
 
-def _looks_like_nav_text(text: str) -> bool:
-    t = (text or "").strip().lower()
-    if not t:
-        return True
-    if len(t) <= 2:
-        return True
-    # common navigation / CTA noise
-    noise = [
-        "learn more", "read more", "view", "contact", "get started", "book", "pricing",
-        "about", "home", "blog", "portfolio", "case study", "careers"
-    ]
-    return t in noise
-
-
-def extract_services_from_html(html: str, page_url: str) -> List[Dict[str, Any]]:
-    """Extract service cards/headings from a single HTML page (best-effort)."""
-    soup = BeautifulSoup(html or "", "html.parser")
-
-    services: List[Dict[str, Any]] = []
-
-    # 1) Sections whose id/class hints services
-    service_sections = soup.select('[id*="service"], [class*="service"], [id*="solution"], [class*="solution"], [id*="capabil"], [class*="capabil"]')
-    if not service_sections:
-        service_sections = [soup]  # fallback: scan whole page
-
-    def add(name: str, desc: str = "", url: Optional[str] = None):
-        name = _clean(name)
-        if not name or _looks_like_nav_text(name):
-            return
-        services.append({
-            "name": name,
-            "description": _clean(desc) or None,
-            "url": url or page_url,
-            "source": page_url,
-        })
-
-    # 2) Common patterns: cards with h3/h4 and paragraph
-    for sec in service_sections[:8]:
-        # cards
-        cards = sec.select("article, .card, .service, .service-card, .feature, .box, li")
-        for c in cards[:30]:
-            h = c.find(["h2", "h3", "h4"])
-            if not h:
-                continue
-            title = _clean(h.get_text(" ", strip=True))
-            if not title:
-                continue
-            # short description
-            p = c.find("p")
-            desc = _clean(p.get_text(" ", strip=True) if p else "")
-            # link
-            a = c.find("a", href=True)
-            url = None
-            if a and a.get("href"):
-                href = a.get("href")
-                if isinstance(href, str):
-                    url = href if href.startswith("http") else urljoin(page_url, href)
-            add(title, desc, url)
-
-        # headings list without cards
-        for h in sec.find_all(["h2", "h3"], limit=40):
-            title = _clean(h.get_text(" ", strip=True))
-            if not title:
-                continue
-            # avoid big generic headings
-            if len(title) > 90:
-                continue
-            add(title)
-
-    # De-dupe by name
-    out: List[Dict[str, Any]] = []
-    seen = set()
-    for s in services:
-        key = (s.get("name") or "").strip().lower()
-        if not key or key in seen:
+    items: List[Dict[str, Any]] = []
+    for h in heads[:40]:
+        name = re.sub(r"(?is)<.*?>", " ", h)
+        name = re.sub(r"\s+", " ", name).strip()
+        if not name or len(name) < 3:
             continue
-        seen.add(key)
-        out.append(s)
+        items.append({"name": name, "description": ""})
+
+    # de-dupe by name
+    seen = set()
+    out: List[Dict[str, Any]] = []
+    for it in items:
+        k = it["name"].lower()
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append(it)
     return out
 
 
-def scrape_services(base_url: str, internal_links: List[str], max_pages: int = 6, timeout: int = 25) -> List[Dict[str, Any]]:
-    """Scrape service-related pages and extract services list."""
-    urls = pick_service_urls(base_url, internal_links, max_pages=max_pages)
-    all_services: List[Dict[str, Any]] = []
+def scrape_services(
+    website_url: str,
+    *,
+    internal_links: Optional[List[str]] = None,
+    max_pages: int = 8,
+    timeout: int = 45,
+    url_hints: Optional[List[str]] = None,
+) -> List[Dict[str, Any]]:
+    """Heuristic multi-page offerings scraper.
 
-    for u in urls:
+    IMPORTANT: For domains without a 'services' page (cafe/clinic/etc),
+    we still store extracted offerings into the existing 'services' field.
+    """
+    candidates = pick_service_urls(
+        website_url,
+        internal_links or [],
+        max_pages=max_pages,
+        url_hints=url_hints,
+    )
+
+    services: List[Dict[str, Any]] = []
+    for u in candidates:
         try:
             r = http_get(u, timeout=timeout)
-            if not r or not getattr(r, "text", None):
+            if r.status_code >= 400:
                 continue
-            services = extract_services_from_html(r.text, u)
-            all_services.extend(services)
-        except Exception:
+            html = r.text or ""
+            blocks = _extract_service_like_blocks(html)
+            for b in blocks:
+                if b.get("name"):
+                    services.append(b)
+        except Exception as e:
+            logger.debug("[Services] fetch/extract failed for %s: %s", u, str(e))
             continue
 
-    # De-dupe globally
-    out: List[Dict[str, Any]] = []
+        if len(services) >= 25:
+            break
+
     seen = set()
-    for s in all_services:
-        key = (s.get("name") or "").strip().lower()
-        if not key or key in seen:
+    out: List[Dict[str, Any]] = []
+    for s in services:
+        name = (s.get("name") or "").strip()
+        if not name:
+            continue
+        key = name.lower()
+        if key in seen:
             continue
         seen.add(key)
-        out.append(s)
+        out.append({"name": name, "description": (s.get("description") or "").strip()})
     return out

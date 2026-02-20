@@ -166,7 +166,7 @@ def compact_llm_context(ctx: Dict[str, Any]) -> Dict[str, Any]:
     out: Dict[str, Any] = {}
 
     # Always keep key mode flags
-    for k in ["estimationMode", "estimationInputs", "userInputs"]:
+    for k in ["companyName", "website", "estimationMode", "estimationInputs", "userInputs"]:
         if k in ctx:
             out[k] = ctx.get(k)
 

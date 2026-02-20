@@ -658,7 +658,9 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     html, final_url = fetch_homepage_html(website)
     if not html:
-        raise RuntimeError("Unable to fetch homepage HTML")
+        logger.warning("[Pipeline] Unable to fetch homepage HTML; continuing with partial sources")
+        html = ""
+        final_url = website
 
     homepage = ensure_dict(parse_homepage(html))
     # Keep raw HTML for downstream heuristics (lead magnets, service extraction fallbacks)
@@ -1920,14 +1922,17 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             },
         },
         "executiveSummary": {
+            # IMPORTANT:
+            # Executive summary mentor snapshot should be generated in the FINAL synthesis pass
+            # (build_final_synthesis_with_llm) after ALL data is available.
+            # We keep these heuristic bullets as seed evidence, but leave the narrative fields
+            # to be rewritten by the synthesizer.
             "biggestOpportunity": biggest,
+            "mentorSnapshot": None,
             "strengths": strengths,
             "weaknesses": weaknesses,
             "quickWins": quick_wins,
-            "highPriorityRecommendations": [
-                "Recommendation: implement the Top Immediate Actions section first (technical crawlability, speed wins, trust assets).",
-                "Recommendation: keep caching enabled so reruns do not re-spend DataForSEO credits and PageSpeed calls.",
-            ],
+            "highPriorityRecommendations": [],
         },
         "websiteDigitalPresence": website_section,
         "seoVisibility": seo_section,
@@ -2191,6 +2196,12 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         llm_report = None
 
     llm_report = ensure_dict(llm_report)
+
+    # Executive summary should be produced in the FINAL synthesis pass (mentor tone)
+    # using the FULL merged report (including Sections 8–10 + market demand, etc.).
+    # Prevent the earlier "reconcile" LLM step from overwriting the executive summary.
+    llm_report.pop("executiveSummary", None)
+
     merged = sanitize_with_template(base_report, llm_report)
     merged = patch_required_metadata(merged, base_report)
 

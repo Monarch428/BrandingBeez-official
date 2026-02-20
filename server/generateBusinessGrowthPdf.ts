@@ -61,6 +61,43 @@ function normalizeStringList(value: unknown): string[] {
   return [];
 }
 
+function formatScenarioOutcomes(s: any): string {
+  const raw =
+    s?.outcomes ??
+    s?.modeledOutcomes ??
+    s?.modeled_outcomes ??
+    s?.modelledOutcomes ??
+    s?.modeledOutcome;
+
+  if (Array.isArray(raw)) {
+    const parts = raw
+      .map((o: any) => {
+        if (typeof o === "string") return o.trim();
+        const label = safeText(o?.label ?? o?.metric ?? o?.name ?? "", "").trim();
+        const value = safeText(o?.value ?? o?.amount ?? o?.result ?? "", "").trim();
+        const combined = `${label}${label && value ? ": " : ""}${value}`.trim();
+        return combined || "";
+      })
+      .filter(Boolean);
+    return parts.join("\n") || "—";
+  }
+
+  if (typeof raw === "string") return raw.trim() || "—";
+
+  if (raw && typeof raw === "object") {
+    // Common shape: { summary: "...", items: [...] }
+    const summary = typeof raw.summary === "string" ? raw.summary.trim() : "";
+    if (summary) return summary;
+    const items = Array.isArray((raw as any).items) ? (raw as any).items : null;
+    if (items) {
+      const parts = items.map((o: any) => safeText(o, "")).filter(Boolean);
+      return parts.join("\n") || "—";
+    }
+  }
+
+  return "—";
+}
+
 function isNotAvailableText(v: unknown) {
   const t = typeof v === "string" ? v.trim() : "";
   if (!t) return false;
@@ -301,6 +338,24 @@ function sectionTitle(doc: PDFKit.PDFDocument, n: string, title: string) {
     .strokeColor(BRAND_BLUE)
     .stroke();
   doc.moveDown(0.6);
+}
+
+// Smaller heading used inside a section (e.g., “SEO Recommendations”).
+// NOTE: Some patches referenced `subTitle()` but it didn't exist in this file,
+// which caused TS compile errors.
+function subTitle(doc: PDFKit.PDFDocument, title: string) {
+  resetX(doc);
+  ensureSpace(doc, 28);
+  doc.moveDown(0.4);
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(12)
+    .fillColor(GRAY_900)
+    .text(title, doc.page.margins.left, doc.y, {
+      width: doc.page.width - doc.page.margins.left - doc.page.margins.right,
+      align: "left",
+    });
+  doc.moveDown(0.2);
 }
 
 function paragraph(doc: PDFKit.PDFDocument, text: string) {
@@ -1011,7 +1066,8 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
 
       const themes = (rep as any)?.sentimentThemes;
-      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes");
+      resetX(doc);
+      doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Positive Themes", { align: "left" });
       bullets(doc, normalizeStringList(themes?.positive), "No positive themes detected.");
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
       bullets(doc, normalizeStringList(themes?.negative), "No negative themes detected.");
@@ -1299,9 +1355,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           coAny.scenarios.map((s: any) => [
             safeText(s?.name, "—"),
             normalizeStringList(s?.assumptions).join("; ") || "—",
-            Array.isArray(s?.outcomes)
-              ? s.outcomes.map((o: any) => `${safeText(o?.label, "")}: ${safeText(o?.value, "")}`.trim()).filter(Boolean).join("\n") || "—"
-              : "—",
+            formatScenarioOutcomes(s),
           ]),
           [90, 210, 220],
         );
@@ -1470,70 +1524,6 @@ paragraph(doc, safeText(co?.notes, ""));
       }
 
       paragraph(doc, safeText(tm?.notes, ""));
-
-      /* =========================
-               9.5) MARKET DEMAND
-            ========================= */
-      addPageIfNotAtTop(doc);
-      sectionTitle(doc, "9.5", "Market Demand & Search Opportunity");
-
-      const md: any = (report as any).marketDemand;
-      const mdKeywords: any[] = Array.isArray(md?.keywords) ? md.keywords : [];
-
-      if (md?.location) {
-        paragraph(doc, `Location Context: ${safeText(md.location, "—")}`);
-      }
-      if (Array.isArray(md?.services) && md.services.length) {
-        paragraph(doc, `Services Analyzed: ${md.services.map((s: any) => safeText(s, "")).filter(Boolean).join(", ")}`);
-      }
-
-      const mdSummary: any = md?.summary;
-      if (mdSummary && typeof mdSummary === "object") {
-        const avg = mdSummary?.demandScoreAvg;
-        if (typeof avg === "number") paragraph(doc, `Average Demand Score: ${avg}/100`);
-        const opp = normalizeStringList(mdSummary?.topOpportunities);
-        if (opp.length) {
-          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Top Opportunities");
-          bullets(doc, opp.slice(0, 8), "—");
-        }
-        const notes = normalizeStringList(mdSummary?.notes);
-        if (notes.length) {
-          callout(doc, "Notes", notes.slice(0, 6).join("\n"));
-        }
-      }
-
-      if (mdKeywords.length) {
-        const top = [...mdKeywords]
-          .sort((a: any, b: any) => (Number(b?.demandScore ?? -1) || -1) - (Number(a?.demandScore ?? -1) || -1))
-          .slice(0, 15);
-
-        doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Top Demand Keywords");
-        drawTable(
-          doc,
-          ["Keyword", "Volume", "CPC", "Competition", "Demand", "Label"],
-          top.map((k: any) => [
-            safeText(k?.keyword, "—"),
-            typeof k?.searchVolume === "number" ? String(k.searchVolume) : safeText(k?.searchVolume, "—"),
-            typeof k?.cpc === "number" ? String(k.cpc) : safeText(k?.cpc, "—"),
-            typeof k?.competition === "number" ? String(k.competition) : safeText(k?.competition, "—"),
-            typeof k?.demandScore === "number" ? String(k.demandScore) : safeText(k?.demandScore, "—"),
-            safeText(k?.label, "—"),
-          ]),
-          [220, 55, 55, 70, 55, 55],
-          { hideEmptyRows: true, hideEmptyCols: true },
-        );
-
-        const mdNotes = safeText(md?.notes, "");
-        if (mdNotes && mdNotes !== "N/A") paragraph(doc, mdNotes);
-      } else {
-        const mdNotes = safeText(md?.notes, "");
-        paragraph(
-          doc,
-          mdNotes && mdNotes !== "N/A"
-            ? mdNotes
-            : "Market demand metrics were not collected for this run. Enable DataForSEO Keywords Data (Google Ads search volume) to populate search volume and CPC-based demand scoring.",
-        );
-      }
 
       /* =========================
                10) FINANCIAL IMPACT/* =========================

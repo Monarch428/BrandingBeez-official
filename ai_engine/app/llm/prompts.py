@@ -142,11 +142,20 @@ Hard rules:
 - You MAY re-score (overallScore + subScores) ONLY by reasoning from existing section scores and evidence.
   Keep scores 0-100 integers.
 - Ensure Section 1 (Executive Summary) includes:
+- Executive summary MUST mention the companyName and website, and include at least 2 site-specific facts with numbers taken from the input (e.g., PageSpeed mobile/desktop scores, review rating/count, backlink/referring domain counts, Core Web Vitals). Avoid generic boilerplate.
+
+  - IMPORTANT: The input executiveSummary may be a placeholder/heuristic seed.
+    You MUST rewrite it with a premium mentor snapshot using ALL available report data.
+    Populate executiveSummary.mentorSnapshot as 2–3 short paragraphs plus a final line
+    starting with "The Bottom Line:".
+
   - biggestOpportunity (1 strong paragraph + ‘The Bottom Line: …’)
+  - mentorSnapshot (2–3 short paragraphs + final "The Bottom Line:" line)
   - strengths (5-8 bullets, evidence-based)
   - weaknesses (5-8 bullets, evidence-based)
   - quickWins (exactly 5, each with title + impact + time + cost + details; mentorship tone)
   - highPriorityRecommendations (8-12 bullets, actionable)
+  - executiveSummary.mentorSnapshot MUST be a plain string, not an object.
 - Ensure Section 11 (actionPlan90Days) is populated as 6-10 weeks.
   Each week MUST have:
   - weekRange (e.g., “Week 1-2”)
@@ -178,6 +187,8 @@ financialImpact, actionPlan90Days, competitiveAdvantages, riskAssessment, append
 
 Focus areas:
 - Executive summary must read like a mentor's blunt-but-helpful snapshot.
+  It MUST be unique to the company and cite 1-2 concrete facts (numbers/URLs) from the provided JSON context.
+
   Include a short paragraph and a final line starting with: "The Bottom Line:".
 - Wherever you list recommendations (contentQuality.recommendations, executiveSummary.highPriorityRecommendations, etc.),
   begin the sentence with "Recommendation:" and keep it actionable.
