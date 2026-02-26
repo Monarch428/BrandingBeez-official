@@ -272,7 +272,7 @@ def call_gemini_json(
     user_prompt: str,
     *,
     model: Optional[str] = None,
-    temperature: float = 0.2,
+    temperature: float = 0,
     max_tokens: int = 1200,
     timeout_s: int = 120,
     max_retries: int = 4,

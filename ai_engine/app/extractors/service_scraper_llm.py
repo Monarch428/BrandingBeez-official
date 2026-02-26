@@ -85,7 +85,7 @@ async def scrape_services_llm(
     if not text:
         return {"company_name": None, "industry": None, "services": []}
 
-    model = getattr(settings, "OPENAI_MODEL_MINI", None) or getattr(settings, "OPENAI_MODEL", "gpt-4o-mini")
+    model = getattr(settings, "OPENAI_MODEL_MINI", None) or getattr(settings, "OPENAI_MODEL", "gpt-4.1-mini")
 
     system = (
         "You are a precise extractor. Output valid JSON only. "
@@ -98,7 +98,7 @@ async def scrape_services_llm(
             system,
             user,
             model=model,
-            temperature=0.2,
+            temperature=0,
             max_tokens=1800,
             timeout_s=max(30, int(timeout_s)),
         )

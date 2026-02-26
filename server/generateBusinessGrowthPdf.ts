@@ -536,8 +536,8 @@ function drawTable(
   }
 
   const x = doc.page.margins.left;
-  const yStart = doc.y;
   ensureSpace(doc, 28);
+  const yStart = doc.y;
   const tableW = doc.page.width - doc.page.margins.left - doc.page.margins.right;
 
   const baseWidths =
@@ -567,6 +567,10 @@ function drawTable(
     const bottomLimit = contentBottom(doc) - 10;
     if (y + rowHeight > bottomLimit) {
       doc.addPage();
+      // Repeat header row when a table continues on a new page
+      if (!isHeader) {
+        drawRow(H.map((h) => safeText(h, "")), doc.y, true, false);
+      }
       return drawRow(cells, doc.y, isHeader, stripe);
     }
 
@@ -733,9 +737,15 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
       const strengths = normalizeStringList(report.executiveSummary?.strengths);
       const weaknesses = normalizeStringList(report.executiveSummary?.weaknesses);
-      const biggest = safeText((report as any).executiveSummary?.biggestOpportunity ?? (report as any).executiveSummary?.highPriorityRecommendations?.[0], "No single opportunity identified.");
+      const mentorSnapshot = safeText((report as any).executiveSummary?.mentorSnapshot, "");
+      if (mentorSnapshot && mentorSnapshot !== "N/A") {
+        callout(doc, "Mentor Snapshot", mentorSnapshot);
+      }
 
-      callout(doc, "Mentor Snapshot", biggest);
+      const biggest = safeText((report as any).executiveSummary?.biggestOpportunity ?? (report as any).executiveSummary?.highPriorityRecommendations?.[0], "No single opportunity identified.");
+      if (biggest && biggest !== "N/A") {
+        callout(doc, "Biggest Opportunity", biggest);
+      }
 
       doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("✅ Key Strengths");
       bullets(doc, strengths, "No strengths detected.");
@@ -925,6 +935,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       if (daSource) {
         doc.font("Helvetica").fontSize(10).fillColor(GRAY_600).text(`Source: ${daSource}`);
       }
+      const daMentor = safeText((da as any)?.mentorNotes, "");
+      if (daMentor && !isNotAvailableText(daMentor) && daMentor !== "N/A") {
+        callout(doc, "Mentor Notes", daMentor);
+      }
       if (da?.benchmark) {
         drawTable(
           doc,
@@ -954,6 +968,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         ],
         [240, 120],
       );
+      const blMentor = safeText((backlinks as any)?.mentorNotes, "");
+      if (blMentor && !isNotAvailableText(blMentor) && blMentor !== "N/A") {
+        callout(doc, "Mentor Notes", blMentor);
+      }
       const blNotes = safeText(backlinks?.notes, "");
       if (blNotes && !isNotAvailableText(blNotes) && blNotes !== "N/A") paragraph(doc, blNotes);
 
@@ -1114,7 +1132,12 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           const you = g?.youOffer;
           const a = g?.competitorA;
           const b = g?.competitorB;
-          return !(isEmptyLike(you) && isEmptyLike(a) && isEmptyLike(b));
+          const service = g?.service;
+          const demand = g?.marketDemand;
+          return !(
+            isEmptyLike(service) ||
+            (isEmptyLike(you) && isEmptyLike(a) && isEmptyLike(b) && isEmptyLike(demand))
+          );
         });
 
         if (meaningful.length) {

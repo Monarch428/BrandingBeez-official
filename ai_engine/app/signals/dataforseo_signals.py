@@ -232,7 +232,7 @@ def build_dataforseo_enrichment(
                     f"Company/Context: {company_hint or domain}\n"
                     f"Keywords: {seed}\n"
                 )
-                data = call_openai_json(system, user, model=getattr(settings, "OPENAI_MODEL_MINI", None) or settings.OPENAI_MODEL, max_tokens=1200, temperature=0.2)
+                data = call_openai_json(system, user, model=getattr(settings, "OPENAI_MODEL_MINI", None) or settings.OPENAI_MODEL, max_tokens=1500, temperature=0.2)
                 if isinstance(data, dict):
                     t10 = data.get("top_10_keywords") if isinstance(data.get("top_10_keywords"), list) else []
                     imp = data.get("seo_improvements") if isinstance(data.get("seo_improvements"), list) else []
