@@ -20,6 +20,7 @@ from app.llm.prompts import (
     build_user_prompt_final_synthesis,
 )
 from app.core.config import settings
+from app.utils.currency import build_currency_guidance
 from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
@@ -286,6 +287,18 @@ def build_sections_8_10_with_llm(
     Returns a dict with keys: costOptimization, targetMarket, financialImpact.
     """
     logger.info("[LLM] build_sections_8_10_with_llm start")
+
+
+    # Inject deterministic currency guidance for Sections 8–10 (no FX conversions).
+    # This is scoped to estimation mode only, and does not affect other sections.
+    try:
+        if isinstance(llm_context, dict) and "currencyGuidance" not in llm_context:
+            ui = llm_context.get("userInputs") if isinstance(llm_context.get("userInputs"), dict) else {}
+            company_loc = ui.get("location")
+            target_market = ui.get("targetMarket")
+            llm_context["currencyGuidance"] = build_currency_guidance(company_loc, target_market)
+    except Exception:
+        logger.exception("[LLM] Failed to build currency guidance; continuing")
 
     llm_context_c = compact_llm_context(llm_context)
     prompt = build_user_prompt_estimation_8_10(llm_context_c)

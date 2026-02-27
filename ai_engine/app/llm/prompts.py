@@ -89,37 +89,49 @@ SYSTEM_PROMPT_ESTIMATION_8_10 = """
 You are BrandingBeez AI Estimation Engine.
 
 Task:
-- Generate ONLY Sections 8-10 (costOptimization, targetMarket, financialImpact) as JSON.
+- Generate ONLY Sections 8-10 as JSON with these top-level keys:
+  - costOptimization
+  - targetMarket
+  - financialImpact
 - The user has estimationMode=true.
 
 Hard rules:
 - Output MUST be a single valid JSON object (no markdown, no commentary).
-- Do not include any other sections/keys.
-- Do not invent audited financials; provide modeled estimates with ranges and assumptions.
-- `scenarios` MUST be a LIST of 3 objects (Conservative/Base/Aggressive).
-- Each scenario object MUST include:
-  - name ("Conservative" | "Base" | "Aggressive")
-  - assumptions (list of short bullet strings)
-  - modeledOutcomes (list of objects; each object can include label/value)
-- Include `confidenceScore` 0-100 and `estimationDisclaimer` exactly as provided.
+- Do NOT include any other top-level keys.
+- Do NOT invent audited financials. Provide modeled estimates with ranges + clear assumptions.
+- `scenarios` MUST be a LIST of exactly 3 objects: Conservative, Base, Aggressive.
+  Each scenario object MUST include:
+    - name: "Conservative" | "Base" | "Aggressive"
+    - assumptions: list[str] (short bullets)
+    - modeledOutcomes: list[{"label": str, "value": str}]
+- You MUST include `estimationDisclaimer` EXACTLY as provided by the user prompt.
+- You MUST include `confidenceScore` (0-100) for each of the three sections.
+- You MUST include `mentorNotes` for each of the three sections (a short mentor-style paragraph).
 
-What to include (features for Sections 8-10):
+Currency rules (VERY IMPORTANT):
+- You will receive `currencyGuidance` in context.
+- Section 8 (costOptimization) + Section 10 (financialImpact) amounts should use the company/home currency symbol by default.
+- Section 9 (targetMarket) segment budgets should use the segment/market currency when obvious; otherwise use company currency.
+- Do NOT do exchange-rate conversions. Keep values as realistic ranges in the appropriate currency.
+
+What to include:
+
 8) costOptimization
-- Provide 5-10 practical opportunities (in `opportunities`) such as:
-  pricing improvements, tool-stack consolidation, automation, process fixes, team utilization, CAC reduction.
-- Each opportunity should include: title/opportunity, description/details, impact ("£/mo" or "%" ranges), effort (low/med/high).
+- 5-10 practical opportunities in `opportunities`, e.g. pricing improvements, tool-stack consolidation, automation, process fixes, team utilization, CAC reduction.
+- Each opportunity row should include: title, description, impact (currency/mo or % range), effort (low/med/high).
+- Include 3 scenarios with realistic modeled outcomes.
 
 9) targetMarket
-- Provide 4-8 segments (in `segments`) with:
-  segment/name, pains/painPoints, budget/avgBudget or notes.
-- Keep it realistic and tied to the website/services and the location signals.
+- 4-8 segments in `segments` with: segment, painPoints, budget/notes.
+- Include 3 scenarios (how segmentation/positioning evolves with effort).
 
 10) financialImpact
-- Provide a `revenueTable` with 5-8 metrics (e.g., leads/mo, close rate, avg deal, monthly revenue, gross margin, ROI).
-- Put directional values/ranges; clearly label assumptions when needed in notes/assumption fields.
+- `revenueTable` with 5-8 metrics (e.g., leads/mo, close rate, avg deal size, monthly revenue, projected revenue, net profit impact, ROI).
+- If current revenue is provided in context, anchor projections to that base. If missing, estimate a plausible baseline and state assumptions.
+- Include 3 scenarios.
 
-Important:
-- If inputs are missing, use sensible benchmark ranges and state them in assumptions.
+Remember:
+- Keep outputs realistic and consistent with the business model/services in context.
 """
 
 
@@ -231,7 +243,21 @@ def build_user_prompt_reconcile(base_report: dict, llm_context: dict) -> str:
 
 
 def build_user_prompt_estimation_8_10(llm_context: dict) -> str:
-    ctx_s = _json(llm_context or {})
+    ctx = llm_context or {}
+
+    # Pull out any explicit estimation inputs if present (optional)
+    est = ctx.get("estimationInputs") if isinstance(ctx, dict) else None
+    if not isinstance(est, dict):
+        est = {}
+
+    # Currency guidance is injected by the pipeline (or computed in report_builder)
+    currency_guidance = ctx.get("currencyGuidance")
+    if currency_guidance is None:
+        currency_guidance = {}
+
+    ctx_s = _json(ctx)
+    cg_s = _json(currency_guidance)
+
     return (
         "Generate ONLY these keys as JSON:\n"
         "- costOptimization\n"
@@ -239,15 +265,19 @@ def build_user_prompt_estimation_8_10(llm_context: dict) -> str:
         "- financialImpact\n\n"
         "You MUST include `estimationDisclaimer` EXACTLY:\n"
         f"{ESTIMATION_DISCLAIMER}\n\n"
+        "Also required in EACH section (costOptimization/targetMarket/financialImpact):\n"
+        "- mentorNotes (short mentor-style paragraph)\n"
+        "- confidenceScore (0-100)\n"
+        "- scenarios: exactly 3 objects (Conservative/Base/Aggressive)\n\n"
+        "Currency guidance (follow strictly; no FX conversions):\n"
+        f"{cg_s}\n\n"
         "Make sure:\n"
         "- costOptimization.opportunities is NOT empty (5-10 rows).\n"
         "- targetMarket.segments is NOT empty (4-8 rows).\n"
-        "- financialImpact.revenueTable is NOT empty (5-8 rows).\n"
-        "- scenarios is present for each of the three sections, with 3 scenarios.\n\n"
+        "- financialImpact.revenueTable is NOT empty (5-8 rows).\n\n"
         "Context (JSON):\n"
         f"{ctx_s}\n"
     )
-
 
 def build_user_prompt_final_synthesis(final_report: dict, llm_context: dict) -> str:
     rep_s = _json(final_report or {})
