@@ -25,6 +25,20 @@ _CURRENCY_BY_REGION: Dict[str, CurrencyInfo] = {
     "USA": CurrencyInfo(code="USD", symbol="$", name="US Dollar"),
     "UNITED STATES": CurrencyInfo(code="USD", symbol="$", name="US Dollar"),
     "U.S.": CurrencyInfo(code="USD", symbol="$", name="US Dollar"),
+
+    "EU": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "EUROPE": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "EUR": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "EUROZONE": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "GERMANY": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "FRANCE": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "SPAIN": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "ITALY": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "NETHERLANDS": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "IRELAND": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "BELGIUM": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "PORTUGAL": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
+    "AUSTRIA": CurrencyInfo(code="EUR", symbol="€", name="Euro"),
 }
 
 
@@ -50,6 +64,8 @@ def infer_currency_from_text(text: Optional[str]) -> CurrencyInfo:
         return _CURRENCY_BY_REGION["UK"]
     if any(k in t for k in ("NEW YORK", "SAN FRANCISCO", "LOS ANGELES", "AUSTIN", "CHICAGO")):
         return _CURRENCY_BY_REGION["US"]
+    if any(k in t for k in ("BERLIN", "PARIS", "MADRID", "ROME", "AMSTERDAM", "DUBLIN", "BRUSSELS", "LISBON", "VIENNA")):
+        return _CURRENCY_BY_REGION["EU"]
     if any(k in t for k in ("CHENNAI", "BENGALURU", "BANGALORE", "MUMBAI", "DELHI", "HYDERABAD")):
         return _CURRENCY_BY_REGION["IN"]
 
@@ -74,8 +90,11 @@ def infer_currencies_from_market_text(text: Optional[str]) -> List[CurrencyInfo]
         _add(_CURRENCY_BY_REGION["US"])
     if re.search(r"\b(UK|UNITED KINGDOM|BRITAIN|ENGLAND|LONDON)\b", t):
         _add(_CURRENCY_BY_REGION["UK"])
-    if re.search(r"\b(INDIA|IN|CHENNAI|BENGALURU|BANGALORE|MUMBAI|DELHI)\b", t):
+    if re.search(r"\b(INDIA|IN|CHENNAI|BENGALURU|BANGALORE|MUMBAI|DELHI|HYDERABAD)\b", t):
         _add(_CURRENCY_BY_REGION["IN"])
+    # Eurozone / Europe hints (note: UK is GBP, not EUR)
+    if re.search(r"\b(EURO|EUR|EUROZONE|EU|EUROPE|GERMANY|FRANCE|SPAIN|ITALY|NETHERLANDS|IRELAND|BELGIUM|PORTUGAL|AUSTRIA|BERLIN|PARIS|MADRID|ROME|AMSTERDAM|DUBLIN|BRUSSELS|LISBON|VIENNA)\b", t):
+        _add(_CURRENCY_BY_REGION["EU"])
     return out
 
 

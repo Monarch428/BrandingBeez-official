@@ -218,30 +218,99 @@ class MarketDemand(BaseModel):
     dataSources: List[Dict[str, Any]] = Field(default_factory=list)
     notes: List[str] = Field(default_factory=list)
 
+
+# -------------------------
+# Currency / Money primitives (for Sections 8–10)
+# -------------------------
+
+class CurrencyMeta(BaseModel):
+    """ISO-4217 currency metadata used for formatting monetary values in the PDF."""
+    code: str = Field(..., min_length=3, max_length=3, description="ISO 4217 currency code, e.g., INR, USD, GBP, EUR")
+    symbol: Optional[str] = Field(None, description="Currency symbol, e.g., ₹, $, £, €")
+    name: Optional[str] = None
+    countryCode: Optional[str] = Field(None, description="ISO 3166-1 alpha-2 country code, e.g., IN, US, GB, DE")
+
+class MoneyRange(BaseModel):
+    """A numeric min/max range with explicit currency and period."""
+    min: Optional[float] = None
+    max: Optional[float] = None
+    currency: Optional[str] = Field(None, description="ISO 4217 currency code")
+    period: Optional[str] = Field(None, description="e.g., 'month', 'quarter', 'year', 'one-time'")
+    note: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+class CostOpportunityEstimate(BaseModel):
+    """Flexible opportunity row for Section 8. Allows legacy keys via extra='allow'."""
+    title: Optional[str] = None
+    description: Optional[str] = None
+    estimatedSavings: Optional[MoneyRange] = None
+    estimatedCost: Optional[MoneyRange] = None
+    confidence: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+class ScenarioEstimate(BaseModel):
+    """Scenario row used across Sections 8–10."""
+    name: Optional[str] = Field(None, description="Conservative | Base | Aggressive")
+    summary: Optional[str] = None
+    estimatedSavings: Optional[MoneyRange] = None
+    estimatedCost: Optional[MoneyRange] = None
+    estimatedRevenue: Optional[MoneyRange] = None
+    estimatedProfit: Optional[MoneyRange] = None
+    notes: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+class TargetMarketSegment(BaseModel):
+    """Segment row for Section 9."""
+    segment: Optional[str] = None
+    marketCountry: Optional[str] = Field(None, description="Country name or ISO code")
+    currency: Optional[str] = Field(None, description="ISO 4217 currency code for this segment/market")
+    expectedBudget: Optional[MoneyRange] = None
+    notes: Optional[str] = None
+
+    class Config:
+        extra = "allow"
+
+class FinancialImpactRow(BaseModel):
+    """Row for Section 10 revenue/profit tables."""
+    metric: Optional[str] = None
+    value: Optional[str] = None
+    amount: Optional[MoneyRange] = None
+
+    class Config:
+        extra = "allow"
+
 class CostOptimization(BaseModel):
     notes: Optional[str] = None
     mentorNotes: Optional[str] = None
-    opportunities: List[Dict[str, Any]] = Field(default_factory=list)
+    currencyContext: Optional[Dict[str, Any]] = None
+    opportunities: List[CostOpportunityEstimate] = Field(default_factory=list)
     # Estimation Mode (optional)
     estimationDisclaimer: Optional[str] = None
     confidenceScore: Optional[int] = None  # 0-100
-    scenarios: List[Dict[str, Any]] = Field(default_factory=list)
+    scenarios: List[ScenarioEstimate] = Field(default_factory=list)
 
 class TargetMarket(BaseModel):
     notes: Optional[str] = None
     mentorNotes: Optional[str] = None
-    segments: List[Dict[str, Any]] = Field(default_factory=list)
+    currencyContext: Optional[Dict[str, Any]] = None
+    segments: List[TargetMarketSegment] = Field(default_factory=list)
     estimationDisclaimer: Optional[str] = None
     confidenceScore: Optional[int] = None
-    scenarios: List[Dict[str, Any]] = Field(default_factory=list)
+    scenarios: List[ScenarioEstimate] = Field(default_factory=list)
 
 class FinancialImpact(BaseModel):
     notes: Optional[str] = None
     mentorNotes: Optional[str] = None
-    revenueTable: List[Dict[str, Any]] = Field(default_factory=list)
+    revenueTable: List[FinancialImpactRow] = Field(default_factory=list)
     estimationDisclaimer: Optional[str] = None
     confidenceScore: Optional[int] = None
-    scenarios: List[Dict[str, Any]] = Field(default_factory=list)
+    scenarios: List[ScenarioEstimate] = Field(default_factory=list)
 
 class ActionPlanWeek(BaseModel):
     weekRange: str

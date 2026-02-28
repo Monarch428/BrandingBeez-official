@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 class EstimationInputs(BaseModel):
@@ -35,6 +35,10 @@ class AnalyzeRequest(BaseModel):
     # Optional enrichment inputs (helpful for Google Places + stronger recommendations)
     location: Optional[str] = None
 
+
+    # Preferred deterministic currency inputs (avoid fragile keyword inference)
+    companyCountryCode: Optional[str] = None  # e.g., "IN", "US", "GB", "DE"
+    targetMarketCountries: Optional[List[str]] = None  # e.g., ["US", "GB"]
     # Optional business context
     targetMarket: Optional[str] = None
     primaryTargetMarket: Optional[str] = None
