@@ -599,7 +599,7 @@ export default function Header() {
               <div className="flex-shrink-0 cursor-pointer">
                 <img
                   ref={logoImgRef}
-                  src="/images/BB_Christmas_Logo.webp"
+                  src="/images/BB_Logo_Color.webp"
                   alt="BrandingBeez"
                   className="block object-contain h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[72px] w-auto max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px]"
                   width="140"
