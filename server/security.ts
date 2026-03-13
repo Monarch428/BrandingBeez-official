@@ -2,6 +2,248 @@ import { Request, Response, NextFunction } from "express";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 
+// export function securityHeaders() {
+//   return helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'"],
+
+//         baseUri: ["'self'"],
+//         objectSrc: ["'none'"],
+//         frameAncestors: ["'self'"],
+//         formAction: ["'self'"],
+
+//         frameSrc: [
+//           "'self'",
+//           "https://challenges.cloudflare.com",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+//           "https://www.youtube.com",
+//           "https://youtube.com",
+//           "https://youtu.be",
+//           "https://www.youtube-nocookie.com",
+//           "https://tagassistant.google.com",
+//           "https://*.tagassistant.google.com",
+//           "https://www.googletagmanager.com",
+//           "https://googletagmanager.com",
+//           "https://*.googleusercontent.com",
+//           "https://www.gstatic.com",
+//           "https://*.gstatic.com",
+//         ],
+
+//         // Scripts (inline + eval currently allowed in your policy)
+//         scriptSrc: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "'unsafe-eval'",
+//           "https://challenges.cloudflare.com",
+
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://*.googletagmanager.com",
+//           "https://www.googletagmanager.com",
+//           "https://googletagmanager.com",
+//           "https://www.google-analytics.com",
+
+//           "https://www.gstatic.com",
+//           "https://*.gstatic.com",
+
+//           "https://googleads.g.doubleclick.net",
+//           "https://stats.g.doubleclick.net",
+//           "https://www.googleadservices.com",
+
+//           // Google Ads conversion script domain
+//           "https://pagead2.googlesyndication.com",
+//           "https://*.googlesyndication.com",
+
+//           "https://tagassistant.google.com",
+//           "https://*.tagassistant.google.com",
+
+//           "https://assets.calendly.com",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+//           "https://scripts.clarity.ms",
+
+//           "https://static.hotjar.com",
+//           "https://script.hotjar.com",
+
+//           "https://cdn.jsdelivr.net",
+
+//           "https://snap.licdn.com",
+//           "https://*.licdn.com",
+
+//           "https://connect.facebook.net",
+//           "https://*.facebook.net",
+//         ],
+
+//         scriptSrcElem: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "https://challenges.cloudflare.com",
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://*.googletagmanager.com",
+//           "https://www.googletagmanager.com",
+//           "https://googletagmanager.com",
+//           "https://www.google-analytics.com",
+//           "https://www.gstatic.com",
+//           "https://*.gstatic.com",
+//           "https://googleads.g.doubleclick.net",
+//           "https://stats.g.doubleclick.net",
+//           "https://www.googleadservices.com",
+
+//           "https://pagead2.googlesyndication.com",
+//           "https://*.googlesyndication.com",
+
+//           "https://tagassistant.google.com",
+//           "https://*.tagassistant.google.com",
+//           "https://assets.calendly.com",
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+//           "https://scripts.clarity.ms",
+//           "https://static.hotjar.com",
+//           "https://script.hotjar.com",
+//           "https://cdn.jsdelivr.net",
+//           "https://snap.licdn.com",
+//           "https://*.licdn.com",
+//           "https://connect.facebook.net",
+//           "https://*.facebook.net",
+//         ],
+
+//         scriptSrcAttr: ["'unsafe-inline'"],
+
+//         styleSrc: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           "https://fonts.googleapis.com",
+//           "https://assets.calendly.com",
+//           "https://static.hotjar.com",
+//         ],
+//         fontSrc: [
+//           "'self'",
+//           "data:",
+//           "https://fonts.gstatic.com",
+//           "https://www.gstatic.com",
+//           "https://assets.calendly.com",
+//         ],
+
+//         imgSrc: [
+//           "'self'",
+//           "data:",
+//           "blob:",
+//           "https:",
+
+//           "https://brandingbeez.co.uk",
+//           "https://www.brandingbeez.co.uk",
+
+//           "https://res.cloudinary.com",
+//           "https://*.res.cloudinary.com",
+
+//           "https://static.hotjar.com",
+//           "https://*.hotjar.com",
+//           "https://*.hotjar.io",
+
+//           "https://*.google.com",
+//           "https://www.googletagmanager.com",
+//           "https://*.googletagmanager.com",
+//           "https://www.google-analytics.com",
+//           "https://*.googleusercontent.com",
+//           "https://www.gstatic.com",
+//           "https://*.gstatic.com",
+
+//           "https://googleads.g.doubleclick.net",
+//           "https://stats.g.doubleclick.net",
+//           "https://*.doubleclick.net",
+//           "https://www.googleadservices.com",
+//           "https://pagead2.googlesyndication.com",
+//           "https://*.googlesyndication.com",
+
+//           "https://www.clarity.ms",
+//           "https://c.clarity.ms",
+
+//           "https://px.ads.linkedin.com",
+//           "https://*.linkedin.com",
+
+//           "https://www.facebook.com",
+//           "https://*.facebook.com",
+//           "https://*.fbcdn.net",
+
+//           "https://img.youtube.com",
+//           "https://i.ytimg.com",
+//         ],
+
+//         connectSrc: [
+//           "'self'",
+//           "https://challenges.cloudflare.com",
+
+//           "https://res.cloudinary.com",
+//           "https://*.res.cloudinary.com",
+
+//           "https://*.hotjar.com",
+//           "https://*.hotjar.io",
+//           "https://static.hotjar.com",
+//           "https://script.hotjar.com",
+//           "wss://ws.hotjar.com",
+//           "wss://*.hotjar.com",
+
+//           "https://*.google.com",
+//           "https://*.googleapis.com",
+//           "https://www.google-analytics.com",
+//           "https://analytics.google.com",
+//           "https://*.google-analytics.com",
+//           "https://region1.google-analytics.com",
+
+//           "https://www.googleadservices.com",
+//           "https://googleads.g.doubleclick.net",
+//           "https://stats.g.doubleclick.net",
+//           "https://*.doubleclick.net",
+//           "https://pagead2.googlesyndication.com",
+//           "https://*.googlesyndication.com",
+
+//           "https://www.googletagmanager.com",
+//           "https://googletagmanager.com",
+//           "https://*.googletagmanager.com",
+//           "https://tagassistant.google.com",
+//           "https://*.tagassistant.google.com",
+//           "https://*.googleusercontent.com",
+//           "https://www.gstatic.com",
+//           "https://*.gstatic.com",
+
+//           "https://*.clarity.ms",
+
+//           "https://calendly.com",
+//           "https://*.calendly.com",
+
+//           "https://px.ads.linkedin.com",
+//           "https://snap.licdn.com",
+//           "https://*.linkedin.com",
+//           "https://*.licdn.com",
+
+//           "https://www.facebook.com",
+//           "https://*.facebook.com",
+
+//           "https://capig.stape.nz",
+//           "https://*.stape.nz",
+//         ],
+
+//         workerSrc: ["'self'", "blob:"],
+//         upgradeInsecureRequests: [],
+//       },
+//     },
+
+//     hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+//     frameguard: false,
+//     noSniff: true,
+//     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+//   });
+// }
+
+
 export function securityHeaders() {
   return helmet({
     contentSecurityPolicy: {
@@ -31,14 +273,17 @@ export function securityHeaders() {
           "https://*.gstatic.com",
         ],
 
-        // Scripts (inline + eval currently allowed in your policy)
         scriptSrc: [
           "'self'",
           "'unsafe-inline'",
           "'unsafe-eval'",
           "https://challenges.cloudflare.com",
 
-          "https://*.google.com",
+          "https://*.doubleclick.net",
+          "https://pagead2.googlesyndication.com",
+          "https://*.googlesyndication.com",
+
+          "https://*.google.*",
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
           "https://www.googletagmanager.com",
@@ -49,12 +294,8 @@ export function securityHeaders() {
           "https://*.gstatic.com",
 
           "https://googleads.g.doubleclick.net",
-          "https://stats.g.doubleclick.net",
           "https://www.googleadservices.com",
-
-          // Google Ads conversion script domain
-          "https://pagead2.googlesyndication.com",
-          "https://*.googlesyndication.com",
+          "https://stats.g.doubleclick.net",
 
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
@@ -83,7 +324,12 @@ export function securityHeaders() {
           "'self'",
           "'unsafe-inline'",
           "https://challenges.cloudflare.com",
-          "https://*.google.com",
+
+          "https://*.doubleclick.net",
+          "https://pagead2.googlesyndication.com",
+          "https://*.googlesyndication.com",
+
+          "https://*.google.*",
           "https://*.googleapis.com",
           "https://*.googletagmanager.com",
           "https://www.googletagmanager.com",
@@ -94,9 +340,6 @@ export function securityHeaders() {
           "https://googleads.g.doubleclick.net",
           "https://stats.g.doubleclick.net",
           "https://www.googleadservices.com",
-
-          "https://pagead2.googlesyndication.com",
-          "https://*.googlesyndication.com",
 
           "https://tagassistant.google.com",
           "https://*.tagassistant.google.com",
@@ -124,6 +367,7 @@ export function securityHeaders() {
           "https://assets.calendly.com",
           "https://static.hotjar.com",
         ],
+
         fontSrc: [
           "'self'",
           "data:",
@@ -148,7 +392,7 @@ export function securityHeaders() {
           "https://*.hotjar.com",
           "https://*.hotjar.io",
 
-          "https://*.google.com",
+          "https://*.google.*",
           "https://www.googletagmanager.com",
           "https://*.googletagmanager.com",
           "https://www.google-analytics.com",
@@ -191,7 +435,7 @@ export function securityHeaders() {
           "wss://ws.hotjar.com",
           "wss://*.hotjar.com",
 
-          "https://*.google.com",
+          "https://*.google.*",
           "https://*.googleapis.com",
           "https://www.google-analytics.com",
           "https://analytics.google.com",
@@ -236,10 +480,19 @@ export function securityHeaders() {
       },
     },
 
-    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    hsts: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+
     frameguard: false,
     noSniff: true,
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    xssFilter: true,
+
+    referrerPolicy: {
+      policy: "strict-origin-when-cross-origin",
+    },
   });
 }
 
