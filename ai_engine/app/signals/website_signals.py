@@ -137,7 +137,7 @@ def build_website_signals(
         if homepage.get("contactCTA"):
             ux_highlights.append("Clear CTA detected on homepage.")
         else:
-            ux_issues.append("No clear primary CTA detected on homepage.")
+            ux_issues.append("Primary CTA could not be structurally confirmed on homepage.")
         if not ux_highlights and not ux_issues:
             ux_issues.append("No conversion positives detected.")
     else:
@@ -145,7 +145,7 @@ def build_website_signals(
         if homepage.get("contactCTA"):
             ux_highlights.append("Clear CTA detected on homepage.")
         else:
-            ux_issues.append("No clear primary CTA detected on homepage.")
+            ux_issues.append("Primary CTA could not be structurally confirmed on homepage.")
             ux_score -= 10
         if speed_score is not None and speed_score < 50:
             ux_issues.append("PageSpeed performance is low; may harm conversions.")

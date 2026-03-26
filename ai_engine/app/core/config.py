@@ -80,8 +80,13 @@ class Settings(BaseSettings):
     GSC_SITE_URL: str | None = None
 
     HTTP_TIMEOUT_SEC: int = 20
-    MAX_INTERNAL_LINKS: int = 60
-    MAX_CONTENT_PAGES: int = 6
+    SLOW_STAGE_WARNING_MS: int = 10000
+    MAX_INTERNAL_LINKS: int = 10000
+    MAX_LINKS: int = 10000
+    MAX_CONTENT_PAGES: int = 100
+    NETWORK_CHECK_TIMEOUT_SEC: int = 3
+    NETWORK_CHECK_CACHE_TTL_SEC: int = 30
+    LINK_REQUEST_TIMEOUT_SEC: int = 20
 
     # When true, Playwright is allowed to run for content pages.
     # Actual usage is still gated by heuristics in extractors/content_pages.py
@@ -89,7 +94,9 @@ class Settings(BaseSettings):
     USE_PLAYWRIGHT_FOR_CONTENT_PAGES: bool = False
 
     # Hard cap on how many pages we will render with Playwright for content extraction.
-    MAX_PLAYWRIGHT_CONTENT_PAGES: int = 4
+    MAX_PLAYWRIGHT_CONTENT_PAGES: int = 50
+    MAX_SERVICE_PAGES: int = 50
+    MAX_EXTRACTED_SERVICES: int = 250
 
     # If static extraction already has >= this many words, we skip Playwright.
     JS_TEXT_MIN_WORDS: int = 280
@@ -97,17 +104,25 @@ class Settings(BaseSettings):
     # Scrapy (optional): more robust link extraction on messy HTML
     USE_SCRAPY_LINK_EXTRACTOR: bool = True
 
-    LINK_EXTRACT_TIMEOUT_SEC: int = 90
+    LINK_EXTRACT_TIMEOUT_SEC: int = 120
     PLAYWRIGHT_GOTO_TIMEOUT_MS: int = 60000
     PLAYWRIGHT_NETWORKIDLE_TIMEOUT_MS: int = 30000
 
     # Screenshots (evidence)
+    ENABLE_PAGESPEED: bool = True
+    ENABLE_EXTERNAL_SCRAPING: bool = True
+    ENABLE_REVIEWS: bool = True
     ENABLE_SCREENSHOTS: bool = True
+    ENABLE_STRUCTURED_REPORT_LLM_REFINEMENT: bool = False
+    MAX_SCREENSHOTS: int = 10
+    SCREENSHOT_TIMEOUT_SEC: int = 120
     SCREENSHOT_FULL_PAGE: bool = True
     SCREENSHOT_DESKTOP_WIDTH: int = 1366
     SCREENSHOT_DESKTOP_HEIGHT: int = 768
     SCREENSHOT_MOBILE_WIDTH: int = 390
     SCREENSHOT_MOBILE_HEIGHT: int = 844
+    PAGESPEED_TIMEOUT_SEC: int = 90
+    PAGESPEED_MAX_RETRIES: int = 2
 
     class Config:
         # Always load .env from ai_engine/.env, even if uvicorn is started elsewhere

@@ -51,6 +51,7 @@ from app.llm.report_builder import build_report_with_llm, build_sections_8_10_wi
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
+from app.pipeline.report_data_validation import validate_report_data
 
 # Screenshots (evidence)
 try:
@@ -665,6 +666,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     homepage = ensure_dict(parse_homepage(html))
     # Keep raw HTML for downstream heuristics (lead magnets, service extraction fallbacks)
     homepage.setdefault("html", html)
+    homepage.setdefault("url", final_url or website)
+    homepage.setdefault("text", "")
     robots_sitemap = ensure_dict(check_robots_and_sitemap(final_url or website))
 
     # Best-effort sitemap URL list (used for page registry + key page seeding)
@@ -2221,6 +2224,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         merged = build_final_synthesis_with_llm(merged, llm_context, cache_repo=cache_repo, cache_key=cache_key)
     except Exception:
         logger.exception("[Pipeline] final synthesis failed; continuing with merged report")
+    merged = validate_report_data(merged)
     repo = ReportsRepository()
     report_id, token = repo.save(merged, final_url)
 
@@ -2249,6 +2253,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     # Normalize/assemble for downstream (PDF generator expects stable shape)
     merged = assemble_final_report(merged)
+    merged = validate_report_data(merged)
 
     return AnalyzeResponse(
         ok=True,

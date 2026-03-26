@@ -4,86 +4,91 @@ This module is imported by `app.pipeline.orchestrator`:
 
     from app.pipeline.sections.report_assembler import assemble_final_report, deep_merge
 
-So **both** `assemble_final_report` and `deep_merge` must exist.
-The assembler's job is to take whatever the pipeline produced (signals, LLM output,
-sections 8–10, etc.) and shape it into a single consistent dict for the PDF builder / API.
-
-It is intentionally defensive: missing keys should not crash the pipeline.
+Both `assemble_final_report` and `deep_merge` must exist.
+The assembler accepts either:
+- a plain top-level business-growth report dict, or
+- a wrapper object that contains `report`, `llm_report`, `sections_8_10`, etc.
 """
 
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional
+from typing import Any, Dict, Optional
 from copy import deepcopy
 import logging
 
 logger = logging.getLogger(__name__)
 
+LEGACY_REPORT_KEYS = {
+    "reportMetadata",
+    "executiveSummary",
+    "websiteDigitalPresence",
+    "seoVisibility",
+    "reputation",
+    "servicesPositioning",
+    "leadGeneration",
+    "competitiveAnalysis",
+    "marketDemand",
+    "costOptimization",
+    "targetMarket",
+    "financialImpact",
+    "actionPlan90Days",
+    "competitiveAdvantages",
+    "riskAssessment",
+    "appendices",
+}
+
 
 def deep_merge(base: Optional[Dict[str, Any]], incoming: Optional[Dict[str, Any]]) -> Dict[str, Any]:
-    """Recursively merge two dicts (non-destructive).
-
-    - If both values are dicts -> merge recursively
-    - Otherwise -> incoming overwrites base
-    - Lists are overwritten (not concatenated) by design, to avoid accidental duplication.
-    """
     if not isinstance(base, dict):
         base = {}
     if not isinstance(incoming, dict):
         incoming = {}
 
     result: Dict[str, Any] = deepcopy(base)
-    for k, v in incoming.items():
-        if k in result and isinstance(result[k], dict) and isinstance(v, dict):
-            result[k] = deep_merge(result[k], v)
+    for key, value in incoming.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = deep_merge(result[key], value)
         else:
-            result[k] = deepcopy(v)
+            result[key] = deepcopy(value)
     return result
 
 
-def _ensure_dict(v: Any) -> Dict[str, Any]:
-    return v if isinstance(v, dict) else {}
+def _ensure_dict(value: Any) -> Dict[str, Any]:
+    return value if isinstance(value, dict) else {}
 
 
-def _pick_first_dict(*vals: Any) -> Dict[str, Any]:
-    for v in vals:
-        if isinstance(v, dict) and v:
-            return v
+def _pick_first_dict(*values: Any) -> Dict[str, Any]:
+    for value in values:
+        if isinstance(value, dict) and value:
+            return value
     return {}
 
 
 def _normalize_sections(sections: Any) -> Dict[str, Any]:
-    """Normalize sections container into {'1': {...}, ..., '10': {...}} shape."""
     out: Dict[str, Any] = {}
     if isinstance(sections, dict):
-        # allow int keys too
-        for k, v in sections.items():
-            sk = str(k)
-            out[sk] = v
+        for key, value in sections.items():
+            out[str(key)] = value
     elif isinstance(sections, list):
-        # sometimes sections are a list; assume index+1 mapping
-        for i, v in enumerate(sections, start=1):
-            out[str(i)] = v
+        for index, value in enumerate(sections, start=1):
+            out[str(index)] = value
     return out
 
 
 def _merge_sections_into(report: Dict[str, Any], extra_sections: Dict[str, Any]) -> Dict[str, Any]:
-    rep = deepcopy(report)
-    rep_sections = _normalize_sections(rep.get("sections"))
+    merged = deepcopy(report)
+    report_sections = _normalize_sections(merged.get("sections"))
     extra = _normalize_sections(extra_sections)
-
-    for k, v in extra.items():
-        if k in rep_sections and isinstance(rep_sections[k], dict) and isinstance(v, dict):
-            rep_sections[k] = deep_merge(rep_sections[k], v)
+    for key, value in extra.items():
+        if key in report_sections and isinstance(report_sections[key], dict) and isinstance(value, dict):
+            report_sections[key] = deep_merge(report_sections[key], value)
         else:
-            rep_sections[k] = v
-
-    rep["sections"] = rep_sections
-    return rep
+            report_sections[key] = value
+    merged["sections"] = report_sections
+    return merged
 
 
 def _extract_sections_8_10(report_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Find any section 8–10 payload in a variety of shapes."""
     return _pick_first_dict(
         report_data.get("sections_8_10"),
         report_data.get("sec_8_10"),
@@ -94,26 +99,22 @@ def _extract_sections_8_10(report_data: Dict[str, Any]) -> Dict[str, Any]:
     )
 
 
+def _looks_like_legacy_report(report_data: Dict[str, Any]) -> bool:
+    return any(key in report_data for key in LEGACY_REPORT_KEYS)
+
+
 def assemble_final_report(report_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Assemble the final report object.
-
-    Expected inputs can be messy:
-    - `report_data.get('report')` may already contain a full report
-    - LLM output may live under `llm_report`, `llm`, or `report_llm`
-    - sections 8–10 may live under `sections_8_10` etc.
-    - signals may be under `signals` or top-level keys
-
-    Output is a single dict with:
-    - meta: {...}
-    - sections: {'1': {...}, ...}
-    - signals: {...} (optional)
-    """
     if not isinstance(report_data, dict):
         report_data = {}
 
-    # Base report shell
-    base_report: Dict[str, Any] = _ensure_dict(report_data.get("report"))
-    llm_report: Dict[str, Any] = _pick_first_dict(
+    if isinstance(report_data.get("report"), dict):
+        base_report = _ensure_dict(report_data.get("report"))
+    elif _looks_like_legacy_report(report_data):
+        base_report = deepcopy(report_data)
+    else:
+        base_report = {}
+
+    llm_report = _pick_first_dict(
         report_data.get("llm_report"),
         report_data.get("report_llm"),
         report_data.get("llm"),
@@ -123,31 +124,28 @@ def assemble_final_report(report_data: Dict[str, Any]) -> Dict[str, Any]:
 
     report = deep_merge(base_report, llm_report)
 
-    # Ensure sections exist
     sections = _normalize_sections(report.get("sections"))
-
-    # Provide placeholders 1..10 so PDF doesn't show "No data" due to missing key
-    for i in range(1, 11):
-        sections.setdefault(str(i), {})
-
+    if not sections:
+        sections = {str(i): {} for i in range(1, 11)}
+    else:
+        for i in range(1, 11):
+            sections.setdefault(str(i), {})
     report["sections"] = sections
 
-    # Merge sections 8–10 if present
-    sec_8_10 = _extract_sections_8_10(report_data)
-    if sec_8_10:
+    extra_sections = _extract_sections_8_10(report_data)
+    if extra_sections:
         try:
-            report = _merge_sections_into(report, sec_8_10)
+            report = _merge_sections_into(report, extra_sections)
         except Exception:
-            logger.exception("[Assembler] Failed merging sections 8–10")
+            logger.exception("[Assembler] Failed merging sections 8-10")
 
-    # Attach signals (optional)
     signals = _pick_first_dict(report_data.get("signals"), report_data.get("website_signals"))
     if signals:
         report["signals"] = signals
 
-    # Carry through meta
-    meta = _ensure_dict(report.get("meta"))
-    meta = deep_merge(meta, _ensure_dict(report_data.get("meta")))
-    report["meta"] = meta
+    report["meta"] = deep_merge(_ensure_dict(report.get("meta")), _ensure_dict(report_data.get("meta")))
+
+    if isinstance(report_data.get("structuredReport"), dict):
+        report["structuredReport"] = deepcopy(report_data["structuredReport"])
 
     return report

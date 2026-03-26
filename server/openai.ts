@@ -117,12 +117,31 @@ Estimation Mode (Sections 8–10 only):
 - If estimationMode is off, keep Sections 8–10 as "Not available" (or empty arrays) and state what input/integration is needed.
 - Do not use placeholder or static content.
 - Avoid generic advice
+- Never use filler like "This area needs a clearer commercial interpretation"
 
 Depth requirements:
 - Strengths: min 6
 - Weaknesses: min 6
 - Quick wins: min 7
 - Each quick win must include Impact, Time, Cost, Details
+- Every important issue should explain:
+  - Finding
+  - Why it matters
+  - Business impact
+  - Recommended action
+  - Expected outcome
+- Include funnel thinking where relevant:
+  - Top of funnel: discoverability, non-brand traffic, awareness
+  - Mid funnel: proof, case studies, nurture, trust transfer
+  - Bottom funnel: CTA clarity, audit/call/proposal intent, conversion friction
+- Connect SEO -> traffic -> leads -> revenue whenever the provided evidence supports it.
+- In SEO sections, interpret backlink quality/risk, anchor profile where visible, and brand-vs-non-brand keyword gaps.
+- When content is thin, recommend exact page types such as service pages, landing pages, comparison pages, FAQ hubs, case studies, and topical clusters.
+- In UX and conversion sections, explain the user journey clearly and recommend CTA intent explicitly.
+- Screenshot requirements:
+  - only one desktop full-page screenshot
+  - only one mobile full-page screenshot
+  - no cropped or mini screenshots
 
 Tone:
 - Friendly, mentor-like
@@ -1888,7 +1907,7 @@ export interface BusinessGrowthReport {
     backlinks?: { tier: string; items: any[]; notes?: string | null }[];
     reputation?: any | null;
 
-    /** Small, section-specific screenshots (base64 PNG) for the PDF */
+    /** Full-page screenshots (one desktop + one mobile) for the PDF */
     evidenceScreenshots?: { label: string; format?: string; b64: string; width?: number | null; height?: number | null; fullPage?: boolean | null }[];
 
     /**

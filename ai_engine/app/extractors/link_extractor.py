@@ -9,14 +9,14 @@ def extract_links(home_url: str, html: str, max_links: int = 60) -> dict:
 
     internal = []
     external = []
-    seen = set()
+    seen = set()  
 
     def push(lst, u):
         if u in seen:
             return
-        seen.add(u)
+        seen.add(u) 
         lst.append(u)
-
+ 
     for a in soup.find_all("a", href=True):
         href = (a.get("href") or "").strip()
         if not href:

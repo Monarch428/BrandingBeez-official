@@ -1,5 +1,6 @@
 import logging
 import hashlib
+import time
 from datetime import datetime
 from typing import Any, Dict
 
@@ -9,8 +10,9 @@ from app.models.report_schema import (
     TargetMarket,
     FinancialImpact,
 )
-from app.llm.client import call_openai_json, call_llm_json, get_effective_llm_mode, downgrade_llm_mode
+from app.llm.client import call_llm_json, get_effective_llm_mode, downgrade_llm_mode
 from app.llm.context_compactor import compact_llm_context, compact_base_report
+from app.llm.report_validation import normalize_llm_output, validate_stage_response_with_fallback, validate_with_fallback
 from app.llm.prompts import (
     SYSTEM_PROMPT_RECONCILE,
     SYSTEM_PROMPT_ESTIMATION_8_10,
@@ -19,9 +21,18 @@ from app.llm.prompts import (
     build_user_prompt_estimation_8_10,
     build_user_prompt_final_synthesis,
 )
+from app.llm.response_mappers import (
+    map_final_synthesis_response_to_report_patch,
+    map_reconcile_response_to_report_patch,
+    map_sections_8_10_response_to_internal_sections,
+)
+from app.llm.response_models import (
+    LLMFinalSynthesisResponse,
+    LLMReconcileResponse,
+    LLMSections810Response,
+)
 from app.core.config import settings
 from app.utils.currency import build_currency_guidance
-from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -52,29 +63,57 @@ def _coerce_mentor_snapshot(v: Any) -> str | None:
 
 
 
+def _merge_text_notes(existing: Any, additions: list[str]) -> str | None:
+    parts: list[str] = []
+    seen: set[str] = set()
+
+    if isinstance(existing, str) and existing.strip():
+        base = existing.strip()
+        parts.append(base)
+        seen.add(base.lower())
+
+    for item in additions:
+        note = (item or "").strip()
+        if not note:
+            continue
+        key = note.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        parts.append(note)
+
+    return "\n".join(parts) if parts else None
+
+
+
 def _normalize_final_synthesis_shapes(report: dict) -> dict:
     """Coerce common LLM patch shape mistakes into schema-compliant shapes."""
     if not isinstance(report, dict):
         return report
 
-    # 1) servicesPositioning.serviceGaps: allow ["Content Marketing"] -> [{"service":"Content Marketing"}]
+    report = normalize_llm_output(report)
+
     sp = report.get("servicesPositioning")
     if isinstance(sp, dict):
         gaps = sp.get("serviceGaps")
         if isinstance(gaps, list):
-            fixed = []
+            fixed_gaps = []
             for row in gaps:
-                if isinstance(row, str):
-                    fixed.append({"service": row})
+                if isinstance(row, str) and row.strip():
+                    fixed_gaps.append({"service": row.strip()})
                 elif isinstance(row, dict):
-                    # if model returns {"gap": "..."} etc, try map to service
-                    if "service" not in row:
-                        if "gap" in row and isinstance(row["gap"], str):
-                            row["service"] = row.pop("gap")
-                    fixed.append(row)
-            sp["serviceGaps"] = fixed
+                    normalized = dict(row)
+                    if "service" not in normalized:
+                        for alias in ("gap", "name", "title", "serviceName"):
+                            alias_value = normalized.get(alias)
+                            if isinstance(alias_value, str) and alias_value.strip():
+                                normalized["service"] = alias_value.strip()
+                                break
+                    if isinstance(normalized.get("service"), str) and normalized["service"].strip():
+                        normalized["service"] = normalized["service"].strip()
+                        fixed_gaps.append(normalized)
+            sp["serviceGaps"] = fixed_gaps
 
-    # 2) actionPlan90Days: allow {"weekByWeek":[...]} -> [...]
     ap = report.get("actionPlan90Days")
     if isinstance(ap, dict):
         if isinstance(ap.get("weekByWeek"), list):
@@ -82,26 +121,22 @@ def _normalize_final_synthesis_shapes(report: dict) -> dict:
         elif isinstance(ap.get("weeks"), list):
             report["actionPlan90Days"] = ap["weeks"]
 
-    # Ensure actionPlan90Days week entries are schema-compliant
     if isinstance(report.get("actionPlan90Days"), list):
         fixed_weeks = []
         for w in report["actionPlan90Days"]:
             if not isinstance(w, dict):
                 continue
-    
-            # Common model aliases
+
             if "weekRange" not in w and isinstance(w.get("week"), str):
                 w["weekRange"] = w.get("week")
             if "title" not in w and isinstance(w.get("focus"), str):
                 w["title"] = w.get("focus")
-    
-            # actions must be a list
+
             if isinstance(w.get("actions"), str):
                 w["actions"] = [w["actions"]]
             elif w.get("actions") is None:
                 w["actions"] = []
-    
-            # kpis must be a list[object]; allow strings -> {kpi,current,target}
+
             kpis = w.get("kpis")
             if isinstance(kpis, dict):
                 kpis = [kpis]
@@ -120,29 +155,41 @@ def _normalize_final_synthesis_shapes(report: dict) -> dict:
                 w["kpis"] = fixed_kpis
             else:
                 w["kpis"] = []
-    
+
             fixed_weeks.append(w)
-    
+
         report["actionPlan90Days"] = fixed_weeks
-    # 3) competitiveAdvantages.advantages: allow [{"advantage":"..."}] -> ["..."]
+
     ca = report.get("competitiveAdvantages")
     if isinstance(ca, dict):
         adv = ca.get("advantages")
+        note_additions: list[str] = []
         if isinstance(adv, list):
-            fixed = []
-            for a in adv:
-                if isinstance(a, str):
-                    fixed.append(a)
-                elif isinstance(a, dict):
-                    fixed.append(
-                        a.get("advantage")
-                        or a.get("title")
-                        or a.get("text")
-                        or str(a)
+            fixed_advantages = []
+            for item in adv:
+                if isinstance(item, str) and item.strip():
+                    fixed_advantages.append(item.strip())
+                elif isinstance(item, dict):
+                    advantage_text = (
+                        item.get("advantage")
+                        or item.get("title")
+                        or item.get("text")
+                        or item.get("name")
                     )
-            ca["advantages"] = fixed
+                    if isinstance(advantage_text, str) and advantage_text.strip():
+                        advantage_text = advantage_text.strip()
+                        fixed_advantages.append(advantage_text)
+                        why = item.get("whyItMatters")
+                        how = item.get("howToLeverage")
+                        if isinstance(why, str) and why.strip():
+                            note_additions.append(f"{advantage_text}: Why it matters: {why.strip()}")
+                        if isinstance(how, str) and how.strip():
+                            note_additions.append(f"{advantage_text}: How to leverage: {how.strip()}")
+            ca["advantages"] = fixed_advantages
+            merged_notes = _merge_text_notes(ca.get("notes"), note_additions)
+            if merged_notes:
+                ca["notes"] = merged_notes
 
-    # 4) appendices.dataGaps[].missing/howToEnable must be list
     appx = report.get("appendices")
     if isinstance(appx, dict):
         dgs = appx.get("dataGaps")
@@ -159,7 +206,6 @@ def _normalize_final_synthesis_shapes(report: dict) -> dict:
                 elif dg.get("howToEnable") is None:
                     dg["howToEnable"] = []
 
-    # 3) leadGeneration.missingHighROIChannels: allow string/list-of-strings -> list[MissingChannel]
     lg = report.get("leadGeneration")
     if isinstance(lg, dict):
         mh = lg.get("missingHighROIChannels")
@@ -171,19 +217,32 @@ def _normalize_final_synthesis_shapes(report: dict) -> dict:
                 if isinstance(item, str) and item.strip():
                     fixed_mh.append({"channel": item.strip()})
                 elif isinstance(item, dict):
-                    # accept common aliases
-                    if "channel" not in item:
-                        if "name" in item and isinstance(item["name"], str):
-                            item["channel"] = item.pop("name")
-                        elif "title" in item and isinstance(item["title"], str):
-                            item["channel"] = item.pop("title")
-                    fixed_mh.append(item)
+                    normalized = dict(item)
+                    if "channel" not in normalized:
+                        if "name" in normalized and isinstance(normalized["name"], str):
+                            normalized["channel"] = normalized.pop("name")
+                        elif "title" in normalized and isinstance(normalized["title"], str):
+                            normalized["channel"] = normalized.pop("title")
+                    if isinstance(normalized.get("channel"), str) and normalized["channel"].strip():
+                        normalized["channel"] = normalized["channel"].strip()
+                        fixed_mh.append(normalized)
             lg["missingHighROIChannels"] = fixed_mh
-        elif mh is None:
-            # keep as-is (schema allows empty list / missing)
-            pass
 
     return report
+
+def _log_stage_metrics(stage_name: str, started_at: float, metadata: Dict[str, Any] | None) -> None:
+    duration_ms = int((time.perf_counter() - started_at) * 1000)
+    meta = metadata or {}
+    logger.info(
+        "[LLM] stage=%s provider=%s model=%s attempts=%s retries=%s duration_ms=%s",
+        stage_name,
+        meta.get("provider", "unknown"),
+        meta.get("model", "unknown"),
+        meta.get("attempts", 0),
+        meta.get("retries", 0),
+        duration_ms,
+    )
+
 
 def _prompt_hash(*parts: str) -> str:
     """Stable hash for caching LLM outputs."""
@@ -206,6 +265,14 @@ def _deep_merge(base: Dict[str, Any], patch: Dict[str, Any]) -> Dict[str, Any]:
     return out
 
 
+def _default_estimation_sections() -> Dict[str, Any]:
+    return {
+        "costOptimization": validate_with_fallback(CostOptimization, {}, section_name="costOptimization_default").model_dump(),
+        "targetMarket": validate_with_fallback(TargetMarket, {}, section_name="targetMarket_default").model_dump(),
+        "financialImpact": validate_with_fallback(FinancialImpact, {}, section_name="financialImpact_default").model_dump(),
+    }
+
+
 def build_report_with_llm(
     base_report: Dict[str, Any],
     llm_context: Dict[str, Any],
@@ -222,13 +289,18 @@ def build_report_with_llm(
           when estimationMode=true.
     """
     logger.info("[LLM] build_report_with_llm (reconcile) start")
+    base_report = normalize_llm_output(base_report)
+    base_report = validate_with_fallback(
+        BusinessGrowthReport,
+        base_report,
+        section_name="base_report_input",
+    ).model_dump()
 
     # Mode 1: safe/minimal LLM usage. We skip the reconcile step to avoid
     # request-size / rate-limit issues and continue with the base report.
     if int(get_effective_llm_mode()) <= 1:
         logger.warning("[LLM] LLM_MODE=1 -> skipping reconcile; returning base_report")
-        _ = BusinessGrowthReport.model_validate(base_report)
-        return base_report
+        return validate_with_fallback(BusinessGrowthReport, base_report, section_name="base_report").model_dump()
 
     base_report_c = compact_base_report(base_report)
     llm_context_c = compact_llm_context(llm_context)
@@ -240,38 +312,65 @@ def build_report_with_llm(
     use_cache = bool(getattr(settings, "LLM_CACHE_ENABLED", True)) and bool(cache_repo) and bool(cache_key)
     cache_section = None
     if use_cache:
-        cache_section = f"llm_reconcile:{settings.OPENAI_MODEL}:{_prompt_hash(SYSTEM_PROMPT_RECONCILE, prompt)}"
+        cache_section = f"llm_reconcile:any:{_prompt_hash(SYSTEM_PROMPT_RECONCILE, prompt)}"
         cached = cache_repo.get_section_if_fresh(cache_key, cache_section, ttl_days=cache_ttl)
         if isinstance(cached, dict) and cached:
             logger.info("[LLM] build_report_with_llm (reconcile) cache HIT")
             llm_patch = cached
         else:
+            call_meta: Dict[str, Any] = {}
+            stage_started = time.perf_counter()
             try:
-                llm_patch = call_openai_json(SYSTEM_PROMPT_RECONCILE, prompt, max_tokens=2200)
+                llm_patch = call_llm_json(
+                    "openai",
+                    SYSTEM_PROMPT_RECONCILE,
+                    prompt,
+                    max_tokens=2200,
+                    metadata_out=call_meta,
+                )
+                _log_stage_metrics("reconcile", stage_started, call_meta)
             except Exception as e:
-                # Downgrade and continue (Mode 1)
+                _log_stage_metrics("reconcile", stage_started, call_meta)
                 downgrade_llm_mode(f"reconcile failed: {e}")
                 logger.warning("[LLM] reconcile failed -> returning base_report")
-                _ = BusinessGrowthReport.model_validate(base_report)
-                return base_report
+                return validate_with_fallback(BusinessGrowthReport, base_report, section_name="base_report").model_dump()
             if isinstance(llm_patch, dict) and llm_patch:
                 cache_repo.upsert_section(cache_key, cache_section, llm_patch)
     else:
+        call_meta = {}
+        stage_started = time.perf_counter()
         try:
-            llm_patch = call_openai_json(SYSTEM_PROMPT_RECONCILE, prompt, max_tokens=2200)
+            llm_patch = call_llm_json(
+                "openai",
+                SYSTEM_PROMPT_RECONCILE,
+                prompt,
+                max_tokens=2200,
+                metadata_out=call_meta,
+            )
+            _log_stage_metrics("reconcile", stage_started, call_meta)
         except Exception as e:
+            _log_stage_metrics("reconcile", stage_started, call_meta)
             downgrade_llm_mode(f"reconcile failed: {e}")
             logger.warning("[LLM] reconcile failed -> returning base_report")
-            _ = BusinessGrowthReport.model_validate(base_report)
-            return base_report
+            return validate_with_fallback(BusinessGrowthReport, base_report, section_name="base_report").model_dump()
 
     if not isinstance(llm_patch, dict):
-        raise RuntimeError("LLM reconcile returned non-object JSON")
+        logger.warning("[LLM] reconcile returned non-object JSON; using empty patch")
+        llm_patch = {}
 
-    combined = _deep_merge(base_report, llm_patch)
-
-    # Validate with Pydantic (ensures PDF generator shape)
-    _ = BusinessGrowthReport.model_validate(combined)
+    stage_response = validate_stage_response_with_fallback(
+        LLMReconcileResponse,
+        llm_patch,
+        stage_name="reconcile_response",
+    )
+    llm_patch = map_reconcile_response_to_report_patch(stage_response)
+    combined = _normalize_final_synthesis_shapes(_deep_merge(base_report, llm_patch))
+    combined = validate_with_fallback(
+        BusinessGrowthReport,
+        combined,
+        fallback_data=base_report,
+        section_name="reconciled_report",
+    ).model_dump()
     logger.info("[LLM] build_report_with_llm (reconcile) ok")
     return combined
 
@@ -313,30 +412,95 @@ def build_sections_8_10_with_llm(
             logger.info("[LLM] build_sections_8_10_with_llm cache HIT")
             llm_json = cached
         else:
+            call_meta: Dict[str, Any] = {}
+            stage_started = time.perf_counter()
             try:
                 provider = 'openai' if int(get_effective_llm_mode()) >= 2 else 'gemini'
-                llm_json = call_llm_json(provider, SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=1200)
+                llm_json = call_llm_json(
+                    provider,
+                    SYSTEM_PROMPT_ESTIMATION_8_10,
+                    prompt,
+                    max_tokens=1200,
+                    metadata_out=call_meta,
+                )
+                _log_stage_metrics("estimation_8_10", stage_started, call_meta)
             except Exception as e:
-                # Downgrade and retry once with Gemini in mode 1
+                _log_stage_metrics("estimation_8_10", stage_started, call_meta)
                 downgrade_llm_mode(f"estimation failed: {e}")
-                llm_json = call_llm_json('gemini', SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=900)
+                fallback_meta: Dict[str, Any] = {}
+                fallback_started = time.perf_counter()
+                try:
+                    llm_json = call_llm_json(
+                        "gemini",
+                        SYSTEM_PROMPT_ESTIMATION_8_10,
+                        prompt,
+                        max_tokens=900,
+                        metadata_out=fallback_meta,
+                    )
+                    _log_stage_metrics("estimation_8_10:fallback", fallback_started, fallback_meta)
+                except Exception as fallback_error:
+                    _log_stage_metrics("estimation_8_10:fallback", fallback_started, fallback_meta)
+                    logger.warning("[LLM] estimation fallback failed -> returning default sections err=%s", fallback_error)
+                    return _default_estimation_sections()
             if isinstance(llm_json, dict) and llm_json:
                 cache_repo.upsert_section(cache_key, cache_section, llm_json)
     else:
+        call_meta = {}
+        stage_started = time.perf_counter()
         try:
             provider = 'openai' if int(get_effective_llm_mode()) >= 2 else 'gemini'
-            llm_json = call_llm_json(provider, SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=1200)
+            llm_json = call_llm_json(
+                provider,
+                SYSTEM_PROMPT_ESTIMATION_8_10,
+                prompt,
+                max_tokens=1200,
+                metadata_out=call_meta,
+            )
+            _log_stage_metrics("estimation_8_10", stage_started, call_meta)
         except Exception as e:
+            _log_stage_metrics("estimation_8_10", stage_started, call_meta)
             downgrade_llm_mode(f"estimation failed: {e}")
-            llm_json = call_llm_json('gemini', SYSTEM_PROMPT_ESTIMATION_8_10, prompt, max_tokens=900)
+            fallback_meta = {}
+            fallback_started = time.perf_counter()
+            try:
+                llm_json = call_llm_json(
+                    "gemini",
+                    SYSTEM_PROMPT_ESTIMATION_8_10,
+                    prompt,
+                    max_tokens=900,
+                    metadata_out=fallback_meta,
+                )
+                _log_stage_metrics("estimation_8_10:fallback", fallback_started, fallback_meta)
+            except Exception as fallback_error:
+                _log_stage_metrics("estimation_8_10:fallback", fallback_started, fallback_meta)
+                logger.warning("[LLM] estimation fallback failed -> returning default sections err=%s", fallback_error)
+                return _default_estimation_sections()
 
     if not isinstance(llm_json, dict):
-        raise RuntimeError("LLM estimation returned non-object JSON")
+        logger.warning("[LLM] estimation returned non-object JSON; using empty payload")
+        llm_json = {}
 
-    # Validate the three sub-models (helps catch scenarios list/dict mistakes)
-    cost = CostOptimization.model_validate(llm_json.get("costOptimization", {})).model_dump()
-    target = TargetMarket.model_validate(llm_json.get("targetMarket", {})).model_dump()
-    impact = FinancialImpact.model_validate(llm_json.get("financialImpact", {})).model_dump()
+    stage_response = validate_stage_response_with_fallback(
+        LLMSections810Response,
+        llm_json,
+        stage_name="estimation_8_10_response",
+    )
+    llm_json = map_sections_8_10_response_to_internal_sections(stage_response)
+    cost = validate_with_fallback(
+        CostOptimization,
+        llm_json.get("costOptimization", {}),
+        section_name="costOptimization",
+    ).model_dump()
+    target = validate_with_fallback(
+        TargetMarket,
+        llm_json.get("targetMarket", {}),
+        section_name="targetMarket",
+    ).model_dump()
+    impact = validate_with_fallback(
+        FinancialImpact,
+        llm_json.get("financialImpact", {}),
+        section_name="financialImpact",
+    ).model_dump()
 
     logger.info("[LLM] build_sections_8_10_with_llm ok")
     return {
@@ -364,11 +528,16 @@ def build_final_synthesis_with_llm(
     - Notes fields across sections (SEO, cost, market, impact, etc.)
     """
     logger.info("[LLM] build_final_synthesis_with_llm start")
+    final_report = normalize_llm_output(final_report)
+    final_report = validate_with_fallback(
+        BusinessGrowthReport,
+        final_report,
+        section_name="final_report_input",
+    ).model_dump()
 
     if int(get_effective_llm_mode()) <= 1:
         logger.warning("[LLM] LLM_MODE=1 -> skipping final synthesis; returning final_report")
-        _ = BusinessGrowthReport.model_validate(final_report)
-        return final_report
+        return validate_with_fallback(BusinessGrowthReport, final_report, section_name="final_report").model_dump()
 
     rep_c = compact_base_report(final_report)
     ctx_c = compact_llm_context(llm_context)
@@ -379,45 +548,72 @@ def build_final_synthesis_with_llm(
     cache_section = None
 
     if use_cache:
-        cache_section = f"llm_final_synthesis:{settings.OPENAI_MODEL}:{_prompt_hash(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt)}"
+        cache_section = f"llm_final_synthesis:any:{_prompt_hash(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt)}"
         cached = cache_repo.get_section_if_fresh(cache_key, cache_section, ttl_days=cache_ttl)
         if isinstance(cached, dict) and cached:
             logger.info("[LLM] build_final_synthesis_with_llm cache HIT")
             patch = cached
         else:
+            call_meta: Dict[str, Any] = {}
+            stage_started = time.perf_counter()
             try:
-                patch = call_openai_json(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt, max_tokens=2600)
+                patch = call_llm_json(
+                    "openai",
+                    SYSTEM_PROMPT_FINAL_SYNTHESIS,
+                    prompt,
+                    max_tokens=2600,
+                    metadata_out=call_meta,
+                )
+                _log_stage_metrics("final_synthesis", stage_started, call_meta)
             except Exception as e:
+                _log_stage_metrics("final_synthesis", stage_started, call_meta)
                 downgrade_llm_mode(f"final synthesis failed: {e}")
                 logger.warning("[LLM] final synthesis failed -> returning final_report")
-                _ = BusinessGrowthReport.model_validate(final_report)
-                return final_report
+                return validate_with_fallback(BusinessGrowthReport, final_report, section_name="final_report").model_dump()
             if isinstance(patch, dict) and patch:
                 cache_repo.upsert_section(cache_key, cache_section, patch)
     else:
+        call_meta = {}
+        stage_started = time.perf_counter()
         try:
-            patch = call_openai_json(SYSTEM_PROMPT_FINAL_SYNTHESIS, prompt, max_tokens=2600)
+            patch = call_llm_json(
+                "openai",
+                SYSTEM_PROMPT_FINAL_SYNTHESIS,
+                prompt,
+                max_tokens=2600,
+                metadata_out=call_meta,
+            )
+            _log_stage_metrics("final_synthesis", stage_started, call_meta)
         except Exception as e:
+            _log_stage_metrics("final_synthesis", stage_started, call_meta)
             downgrade_llm_mode(f"final synthesis failed: {e}")
             logger.warning("[LLM] final synthesis failed -> returning final_report")
-            _ = BusinessGrowthReport.model_validate(final_report)
-            return final_report
+            return validate_with_fallback(BusinessGrowthReport, final_report, section_name="final_report").model_dump()
 
     if not isinstance(patch, dict):
-        raise RuntimeError("LLM final synthesis returned non-object JSON")
+        logger.warning("[LLM] final synthesis returned non-object JSON; using empty patch")
+        patch = {}
 
+    stage_response = validate_stage_response_with_fallback(
+        LLMFinalSynthesisResponse,
+        patch,
+        stage_name="final_synthesis_response",
+    )
+    patch = map_final_synthesis_response_to_report_patch(stage_response)
     combined = _deep_merge(final_report, patch)
 
-    # Coerce mentorSnapshot into a plain string (LLM sometimes returns an object)
     if isinstance(combined, dict):
         es = combined.get("executiveSummary")
         if isinstance(es, dict):
             es["mentorSnapshot"] = _coerce_mentor_snapshot(es.get("mentorSnapshot"))
-    try:
-        _ = BusinessGrowthReport.model_validate(combined)
-    except ValidationError:
-        combined = _normalize_final_synthesis_shapes(combined)
-        _ = BusinessGrowthReport.model_validate(combined)
+
+    combined = _normalize_final_synthesis_shapes(combined)
+    combined = validate_with_fallback(
+        BusinessGrowthReport,
+        combined,
+        fallback_data=final_report,
+        section_name="final_synthesis_report",
+    ).model_dump()
     logger.info("[LLM] build_final_synthesis_with_llm ok")
     return combined
 def now_iso() -> str:

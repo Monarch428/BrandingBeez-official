@@ -95,7 +95,7 @@ def _refresh_access_token(refresh_token: str) -> Optional[Dict[str, Any]]:
 
     payload = r.json() or {}
     access_token = payload.get("access_token")
-    expires_in = payload.get("expires_in")  # seconds
+    expires_in = payload.get("expires_in")  
     if not access_token:
         return None
     expires_at = _now_epoch() + int(expires_in or 0) if expires_in else None

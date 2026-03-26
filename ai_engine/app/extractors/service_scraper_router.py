@@ -17,8 +17,8 @@ async def scrape_services_auto(
     *,
     internal_links: Optional[List[str]] = None,
     homepage_html: Optional[str] = None,
-    max_pages: int = 8,
-    timeout: int = 45,
+    max_pages: int = 50,
+    timeout: int = 90,
     url_hints: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """Service scraper router with safe fallbacks."""
@@ -59,8 +59,8 @@ def scrape_services_auto_sync(
     *,
     internal_links: Optional[List[str]] = None,
     homepage_html: Optional[str] = None,
-    max_pages: int = 8,
-    timeout: int = 45,
+    max_pages: int = 50,
+    timeout: int = 90,
     url_hints: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """Sync wrapper for pipeline code."""

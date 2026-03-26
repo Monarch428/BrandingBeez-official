@@ -20,6 +20,10 @@ def analyze(payload: AnalyzeRequest, x_ai_engine_key: str | None = Header(defaul
 
     try:
         result = run_analysis_pipeline(payload)
+        logger.info("[API] final report ready report_id=%s", getattr(result, "reportId", None))
+        duration_ms = int((time.perf_counter() - t0) * 1000)
+        logger.info("[API] analyze completed duration_ms=%s report_id=%s", duration_ms, getattr(result, "reportId", None))
+        logger.info("[API] returning response")
         return result
     except HTTPException:
         raise

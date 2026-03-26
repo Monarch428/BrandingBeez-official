@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 
@@ -20,13 +20,20 @@ def _is_same_host(base_url: str, candidate: str) -> bool:
 
 def _normalize_url(base_url: str, candidate: str) -> Optional[str]:
     try:
-        u = urlparse(candidate)
+        raw = (candidate or "").strip()
+        if not raw:
+            return None
+        if raw.startswith("//"):
+            raw = f"{urlparse(base_url).scheme or 'https'}:{raw}"
+        elif not raw.startswith("http://") and not raw.startswith("https://"):
+            raw = urljoin(base_url.rstrip("/") + "/", raw.lstrip("/"))
+
+        u = urlparse(raw)
         if u.scheme not in ("http", "https"):
             return None
-        if not _is_same_host(base_url, candidate):
+        if not _is_same_host(base_url, raw):
             return None
-        # Strip fragments
-        cleaned = candidate.split("#", 1)[0]
+        cleaned = raw.split("#", 1)[0]
         return cleaned
     except Exception:
         return None
@@ -365,7 +372,7 @@ def fetch_content_pages(
 
     If Playwright is missing or disabled, falls back to plain HTTP HTML.
     """
-    max_pages = int(max_pages or getattr(settings, "MAX_CONTENT_PAGES", 6))
+    max_pages = int(max_pages or getattr(settings, "MAX_CONTENT_PAGES", 100))
     timeout = int(timeout or getattr(settings, "HTTP_TIMEOUT_SEC", 20))
 
     # Pick candidate pages
@@ -382,8 +389,6 @@ def fetch_content_pages(
             candidates.insert(0, homepage)
     else:
         candidates = _pick_candidate_pages(base_url, internal_links)
-    candidates = candidates[: max_pages * 3]  # scan more in case of failures
-
     # --- Scrapy/HTTP-first gating + overlay merge ---
     # 1) Always fetch via HTTP first (fast) and extract as much as possible from raw HTML.
     # 2) Only render a small subset via Playwright when the page looks like a JS shell / thin HTML.
@@ -395,7 +400,7 @@ def fetch_content_pages(
     else:
         allow_playwright = bool(use_playwright)
 
-    max_playwright_pages = int(getattr(settings, "MAX_PLAYWRIGHT_CONTENT_PAGES", 4))
+    max_playwright_pages = int(getattr(settings, "MAX_PLAYWRIGHT_CONTENT_PAGES", 50))
 
     static_pages: List[Dict[str, Any]] = []
     static_html_by_key: Dict[str, str] = {}

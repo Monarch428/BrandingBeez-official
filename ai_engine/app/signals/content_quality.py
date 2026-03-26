@@ -6,6 +6,12 @@ from typing import Any, Dict, List
 import re
 from difflib import SequenceMatcher
 
+from app.signals.detection_utils import (
+    deduplicate_list_preserve_order,
+    detect_case_studies,
+    detect_testimonials,
+)
+
 
 def _norm(s: Any) -> str:
     if not isinstance(s, str):
@@ -109,8 +115,33 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
     all_pages = []
     hp_url = homepage.get("url")
     if hp_url:
-        all_pages.append({"url": hp_url, "wordCount": homepage.get("homepageTextLength", 0) // 5})
+        all_pages.append(
+            {
+                "url": hp_url,
+                "title": homepage.get("title"),
+                "textSnippet": homepage.get("text"),
+                "wordCount": homepage.get("homepageTextLength", 0) // 5,
+            }
+        )
     all_pages.extend(pages or [])
+
+    evidence_bits: List[str] = []
+    for key in ("title", "metaDescription", "text", "html"):
+        value = homepage.get(key)
+        if isinstance(value, str) and value.strip():
+            evidence_bits.append(value)
+    for page in all_pages:
+        if not isinstance(page, dict):
+            continue
+        for key in ("url", "title", "h1", "firstH1", "textSnippet"):
+            value = page.get(key)
+            if isinstance(value, str) and value.strip():
+                evidence_bits.append(value)
+        nav = page.get("navLabels")
+        if isinstance(nav, list):
+            evidence_bits.extend([str(item) for item in nav if isinstance(item, str) and item.strip()])
+
+    evidence_blob = "\n".join(evidence_bits)
 
     # Coverage checks
     has_services = _pick(all_pages, lambda p: _is_category(p, "services"))
@@ -119,8 +150,10 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
     has_blog = _pick(all_pages, lambda p: _is_category(p, "blog"))
     has_pricing = _pick(all_pages, lambda p: _is_category(p, "pricing"))
     has_faq = _pick(all_pages, lambda p: _is_category(p, "faq"))
-    has_case = _pick(all_pages, lambda p: _is_category(p, "case"))
-    has_testimonials = _pick(all_pages, lambda p: _is_category(p, "testimonials"))
+    case_hits = detect_case_studies(evidence_blob)
+    testimonial_hits = detect_testimonials(evidence_blob)
+    has_case = _pick(all_pages, lambda p: _is_category(p, "case")) or bool(case_hits)
+    has_testimonials = _pick(all_pages, lambda p: _is_category(p, "testimonials")) or bool(testimonial_hits)
 
     # Depth checks (word count)
     word_counts = [int(p.get("wordCount") or 0) for p in pages or [] if isinstance(p, dict)]
@@ -168,7 +201,7 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
     if has_services:
         strengths.append("Service information pages are present (good for conversions).")
     else:
-        gaps.append("No clear Services page detected.")
+        gaps.append("Dedicated services content could not be structurally confirmed.")
         recs.append("Create a dedicated Services page listing each service, outcomes, and CTAs.")
 
     if has_about:
@@ -185,15 +218,21 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
 
     # Proof / credibility
     if has_case:
-        strengths.append("Case study / results content appears present (strong proof).")
+        if case_hits:
+            strengths.append(f'Case-study or portfolio signal detected: "{case_hits[0]}".')
+        else:
+            strengths.append("Case study / results content appears present (strong proof).")
     else:
-        gaps.append("No clear case studies/results content detected.")
+        gaps.append("Case studies or project proof could not be structurally confirmed.")
         recs.append("Publish 2–5 case studies with metrics, process, and outcomes.")
 
     if has_testimonials:
-        strengths.append("Testimonials/reviews content appears present (social proof).")
+        if testimonial_hits:
+            strengths.append(f'Testimonial or review signal detected: "{testimonial_hits[0]}".')
+        else:
+            strengths.append("Testimonials/reviews content appears present (social proof).")
     else:
-        gaps.append("No dedicated testimonials section detected.")
+        gaps.append("Testimonials are likely present but could not be structurally extracted.")
         recs.append("Add testimonials to key pages and link to Google reviews.")
 
     # Helpful extras
@@ -236,9 +275,9 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
                 out.append(it)
         return out
 
-    strengths = dedupe(strengths)
-    gaps = dedupe(gaps)
-    recs = dedupe(recs)
+    strengths = dedupe(deduplicate_list_preserve_order(strengths))
+    gaps = dedupe(deduplicate_list_preserve_order(gaps))
+    recs = dedupe(deduplicate_list_preserve_order(recs))
 
     return {
         "score": score,
@@ -248,5 +287,7 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
         "meta": {
             "pagesAnalyzed": len(pages or []),
             "avgWords": avg_words,
+            "caseStudySignals": case_hits,
+            "testimonialSignals": testimonial_hits,
         },
     }

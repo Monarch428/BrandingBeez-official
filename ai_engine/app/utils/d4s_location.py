@@ -79,14 +79,6 @@ def _guess_country(location: str) -> Optional[str]:
     # quick heuristics
     if any(k in s for k in ["india", "tamil nadu", "coimbatore", "chennai", "bangalore", "bengaluru", "mumbai", "delhi", "hyderabad", "pune", "kolkata"]):
         return "in"
-    if any(k in s for k in ["united kingdom", "uk", "england", "london", "manchester", "birmingham", "scotland", "wales"]):
-        return "gb"
-    if any(k in s for k in ["united states", "usa", "us", "new york", "california", "texas", "los angeles", "chicago", "san francisco"]):
-        return "us"
-    if "australia" in s or "sydney" in s or "melbourne" in s:
-        return "au"
-    if "canada" in s or "toronto" in s or "vancouver" in s:
-        return "ca"
     return None
 
 
@@ -117,7 +109,7 @@ def _best_match(items: List[Dict[str, Any]], query: str) -> Optional[Dict[str, A
 
         # penalty for very generic entries
         loc_type = str(it.get("location_type") or "").lower()
-        if loc_type in ("country", "continent", "worldwide"):
+        if loc_type in ("country"):
             score -= 10
 
         if score <= 0:

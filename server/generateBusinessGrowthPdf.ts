@@ -3,7 +3,7 @@ import PDFDocument from "pdfkit";
 import type { WebsiteSpeedTest, BusinessGrowthReport } from "./openai";
 
 /**
- * BrandingBeez – Business Growth Analyzer PDF Generator
+ * BrandingBeez - Business Growth Analyzer PDF Generator
  * - A4, consistent margins
  * - Branded header/footer (except cover page)
  * - Tables with wrapped text and aligned columns
@@ -26,9 +26,11 @@ const GRAY_600 = "#e5e7eb";
 const MARGINS = { top: 54, left: 54, right: 54, bottom: 54 };
 
 const FOOTER_RESERVED_H = 44; // keep content clear of footer area
+const SCREENSHOT_PAGE_MARGINS = { top: 22, left: 20, right: 20, bottom: 22 };
+const SCREENSHOT_TITLE_GAP = 6;
 
 function contentBottom(doc: PDFKit.PDFDocument) {
-  return doc.page.height - doc.page.margins.bottom - FOOTER_RESERVED_H;
+  return doc.page.height - doc.page.margins.bottom - (isScreenshotPage(doc) ? 0 : FOOTER_RESERVED_H);
 }
 
 function ensureSpace(doc: PDFKit.PDFDocument, neededHeight: number) {
@@ -46,6 +48,73 @@ function resetX(doc: PDFKit.PDFDocument) {
 function addPageIfNotAtTop(doc: PDFKit.PDFDocument) {
   const top = doc.page.margins.top;
   if (doc.y > top + 5) doc.addPage();
+}
+
+function isScreenshotPage(doc: PDFKit.PDFDocument) {
+  const { top, left, right, bottom } = doc.page.margins;
+  return (
+    top === SCREENSHOT_PAGE_MARGINS.top &&
+    left === SCREENSHOT_PAGE_MARGINS.left &&
+    right === SCREENSHOT_PAGE_MARGINS.right &&
+    bottom === SCREENSHOT_PAGE_MARGINS.bottom
+  );
+}
+
+function renderScreenshotPages(doc: PDFKit.PDFDocument, title: string, shot: any, layout: "portrait" | "landscape") {
+  const slices = Array.isArray(shot?.slices) && shot.slices.length
+    ? shot.slices
+    : [shot].filter(Boolean);
+
+  slices.forEach((source: any, index: number) => {
+    const b64 = safeText(source?.b64 ?? shot?.b64, "");
+    if (!b64 || b64 === "N/A") return;
+
+    doc.addPage({
+      size: "A4",
+      layout: (source?.pageLayout ?? shot?.pageLayout ?? layout) as "portrait" | "landscape",
+      margins: SCREENSHOT_PAGE_MARGINS,
+    });
+    resetX(doc);
+    const left = doc.page.margins.left;
+    const top = doc.page.margins.top;
+    const pageTitle = slices.length > 1 ? `${title} (Part ${index + 1})` : title;
+    const availableWidth = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+
+    doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text(pageTitle, left, top, {
+      width: availableWidth,
+      align: "left",
+    });
+
+    const titleHeight = doc.heightOfString(pageTitle, { width: availableWidth });
+    const imageTop = top + titleHeight + SCREENSHOT_TITLE_GAP;
+    const availableHeight = Math.max(1, contentBottom(doc) - imageTop);
+    const buf = Buffer.from(b64, "base64");
+
+    let imageWidth = Number(source?.width ?? shot?.width ?? 0);
+    let imageHeight = Number(source?.height ?? shot?.height ?? 0);
+    try {
+      const opened = (doc as any).openImage(buf);
+      imageWidth = imageWidth || Number(opened?.width || 0);
+      imageHeight = imageHeight || Number(opened?.height || 0);
+    } catch {
+      imageWidth = imageWidth || 0;
+      imageHeight = imageHeight || 0;
+    }
+
+    if (!imageWidth || !imageHeight) {
+      doc.image(buf, left, imageTop, { fit: [availableWidth, availableHeight], align: "center", valign: "center" });
+      return;
+    }
+
+    const scale = Math.min(availableWidth / imageWidth, availableHeight / imageHeight);
+    const renderWidth = imageWidth * scale;
+    const renderHeight = imageHeight * scale;
+    const x = left + (availableWidth - renderWidth) / 2;
+    const y = imageTop + (availableHeight - renderHeight) / 2;
+
+    doc.image(buf, x, y, { width: renderWidth, height: renderHeight });
+    doc.y = doc.page.height - doc.page.margins.bottom;
+  });
 }
 
 function safeText(value: unknown, fallback = "N/A") {
@@ -79,10 +148,10 @@ function formatScenarioOutcomes(s: any): string {
         return combined || "";
       })
       .filter(Boolean);
-    return parts.join("\n") || "—";
+    return parts.join("\n") || "-";
   }
 
-  if (typeof raw === "string") return raw.trim() || "—";
+  if (typeof raw === "string") return raw.trim() || "-";
 
   if (raw && typeof raw === "object") {
     // Common shape: { summary: "...", items: [...] }
@@ -91,11 +160,11 @@ function formatScenarioOutcomes(s: any): string {
     const items = Array.isArray((raw as any).items) ? (raw as any).items : null;
     if (items) {
       const parts = items.map((o: any) => safeText(o, "")).filter(Boolean);
-      return parts.join("\n") || "—";
+      return parts.join("\n") || "-";
     }
   }
 
-  return "—";
+  return "-";
 }
 
 function isNotAvailableText(v: unknown) {
@@ -117,7 +186,7 @@ function isEmptyLike(v: unknown) {
   if (!t) return true;
   const lower = t.toLowerCase();
   return (
-    t === "—" ||
+    t === "-" ||
     t === "-" ||
     lower === "n/a" ||
     lower === "na" ||
@@ -170,7 +239,7 @@ function formatUrlForDisplay(url: string, max = 80) {
   const u = safeText(url, "");
   if (!u) return "";
   if (u.length <= max) return u;
-  return `${u.slice(0, Math.max(0, max - 1))}…`;
+  return `${u.slice(0, Math.max(0, max - 1))}...`;
 }
 
 function formatDate(value: unknown) {
@@ -199,7 +268,7 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
     const t = (text || "").trim();
     if (!t) return "";
     if (doc.widthOfString(t) <= maxWidth) return t;
-    const ell = "…";
+    const ell = "...";
     let lo = 0;
     let hi = t.length;
     while (lo < hi) {
@@ -219,6 +288,7 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
 
       // Skip cover page header/footer
       if (pageNumber === 1) return;
+      if (isScreenshotPage(doc)) return;
 
       const { left, right, top, bottom } = doc.page.margins;
       const w = doc.page.width;
@@ -270,7 +340,7 @@ function addHeaderFooter(doc: PDFKit.PDFDocument, reportId: string, company: str
       // Footer
       // IMPORTANT: In PDFKit, any text drawn with a Y position BELOW
       // (page.height - margins.bottom) can trigger an automatic page break.
-      // Your previous footer Y (h - bottom + …) was below that threshold,
+      // Your previous footer Y (h - bottom + ...) was below that threshold,
       // which caused an extra page to be inserted that contained ONLY the
       // header/footer, and then the actual content started on the next page.
       //
@@ -340,7 +410,7 @@ function sectionTitle(doc: PDFKit.PDFDocument, n: string, title: string) {
   doc.moveDown(0.6);
 }
 
-// Smaller heading used inside a section (e.g., “SEO Recommendations”).
+// Smaller heading used inside a section (e.g., â€œSEO Recommendationsâ€).
 // NOTE: Some patches referenced `subTitle()` but it didn't exist in this file,
 // which caused TS compile errors.
 function subTitle(doc: PDFKit.PDFDocument, title: string) {
@@ -381,7 +451,7 @@ function bullets(doc: PDFKit.PDFDocument, items: string[], emptyMessage = "No da
 
   doc.font("Helvetica").fontSize(11).fillColor(GRAY_900);
   list.forEach((it) => {
-    const line = `• ${it}`;
+    const line = `- ${it}`;
     const h = doc.heightOfString(line, { width: w, indent: 12, lineGap: 2, align: "left" });
     ensureSpace(doc, h + 6);
     doc.text(line, doc.page.margins.left, doc.y, { indent: 12, lineGap: 2, width: w, align: "left" });
@@ -499,7 +569,7 @@ function keyMetricsBox(
     const label = (r.label || "").trim();
     const value = (r.value || "").trim();
 
-    // ✅ Row label should be black (as requested)
+    //  Row label should be black (as requested)
     doc.font("Helvetica-Bold")
       .fontSize(10)
       .fillColor(GRAY_900)
@@ -637,11 +707,11 @@ function speedTestTable(speed: WebsiteSpeedTest | undefined) {
 
     rows.push([
       label,
-      m?.performanceScore ?? "—",
-      m?.seoScore ?? "—",
-      typeof lcpMs === "number" ? `${Math.round(lcpMs)} ms` : "—",
-      typeof cls === "number" ? Number(cls).toFixed(3) : "—",
-      typeof tbtMs === "number" ? `${Math.round(tbtMs)} ms` : "—",
+      m?.performanceScore ?? "-",
+      m?.seoScore ?? "-",
+      typeof lcpMs === "number" ? `${Math.round(lcpMs)} ms` : "-",
+      typeof cls === "number" ? Number(cls).toFixed(3) : "-",
+      typeof tbtMs === "number" ? `${Math.round(tbtMs)} ms` : "-",
     ]);
   };
   add("Mobile", speed?.mobile);
@@ -691,6 +761,9 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       const website = safeText(report.reportMetadata?.website, "");
       const analysisDate = formatDate(report.reportMetadata?.analysisDate);
       const overallScore = clampScore(report.reportMetadata?.overallScore);
+      const confidenceScore = clampScore((report as any).reportMetadata?.confidenceScore ?? 0);
+      const opportunityScore = clampScore((report as any).reportMetadata?.opportunityScore ?? 0);
+      const riskScore = clampScore((report as any).reportMetadata?.riskScore ?? 0);
 
       addHeaderFooter(doc, reportId, companyName);
 
@@ -723,6 +796,13 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       doc.font("Helvetica-Bold").fontSize(12).fillColor(BRAND_PURPLE).text("Overall Score", badgeX + 14, badgeY + 12);
       doc.font("Helvetica-Bold").fontSize(28).fillColor(BRAND_CORAL).text(`${overallScore}/100`, badgeX + 14, badgeY + 30);
 
+      doc.y = badgeY + 80;
+      keyMetricsBox(doc, [
+        { label: "Confidence Score", value: `${confidenceScore}/100` },
+        { label: "Opportunity Score", value: `${opportunityScore}/100` },
+        { label: "Risk Score", value: `${riskScore}/100` },
+      ], { labelWidth: 120 });
+
       addPageIfNotAtTop(doc);
 
       /* =========================
@@ -747,10 +827,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         callout(doc, "Biggest Opportunity", biggest);
       }
 
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("✅ Key Strengths");
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Key Strengths");
       bullets(doc, strengths, "No strengths detected.");
 
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("⚠ Critical Weaknesses");
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Critical Weaknesses");
       bullets(doc, weaknesses, "No weaknesses detected.");
 
       // Scores table
@@ -759,15 +839,20 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         doc,
         ["Category", "Score / 100", "What it means"],
         [
-          ["Website", ss?.website ?? "—", "Technical foundation & UX"],
-          ["SEO", ss?.seo ?? "—", "Visibility & demand capture"],
-          ["Reputation", ss?.reputation ?? "—", "Trust & social proof"],
-          ["Lead Gen", ss?.leadGen ?? "—", "Acquisition channels & conversion"],
-          ["Services", ss?.services ?? "—", "Offer clarity & positioning"],
-          ["Cost Efficiency", ss?.costEfficiency ?? "—", "Margins & scalability"],
+          ["Website", ss?.website ?? "-", "Technical foundation, content clarity, and UX"],
+          ["SEO", ss?.seo ?? "-", "Visibility, authority, and demand capture"],
+          ["Reputation", ss?.reputation ?? "-", "Trust strength and proof packaging"],
+          ["Lead Gen", ss?.leadGen ?? "-", "Acquisition channels, CTAs, and funnel readiness"],
+          ["Services", ss?.services ?? "-", "Offer clarity, positioning, and proof support"],
         ],
         [120, 90, 280],
       );
+
+      keyMetricsBox(doc, [
+        { label: "Confidence Score", value: `${confidenceScore}/100` },
+        { label: "Opportunity Score", value: `${opportunityScore}/100` },
+        { label: "Risk Score", value: `${riskScore}/100` },
+      ], { labelWidth: 120 });
 
       // Top immediate actions (map from highPriorityRecommendations instead of quickWins)
       const immediate = (report.executiveSummary?.highPriorityRecommendations as any) || [];
@@ -783,7 +868,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           if (typeof it === "string") return it;
           const t = safeText(it?.title ?? it?.recommendation ?? it?.name, "");
           const d = safeText(it?.details ?? it?.description ?? it?.why, "");
-          return [t, d].filter(Boolean).join(" — ");
+          return [t, d].filter(Boolean).join(" - ");
         })
         .map((x: string) => x.trim())
         .filter((x: string) => x && !isNotAvailableText(x))
@@ -792,7 +877,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       if (immediateStrings.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Top Immediate Actions (Next 90 Days)");
         doc.moveDown(0.3);
-        bullets(doc, immediateStrings, "—");
+        bullets(doc, immediateStrings, "-");
       }
 
       addPageIfNotAtTop(doc);
@@ -891,13 +976,13 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Metric", "Value"],
           [
-            ["Page Size (KB)", safeText(perf.page_size_kb, "—")],
-            ["Scripts", safeText(perf.scripts_count, "—")],
-            ["Stylesheets", safeText(perf.stylesheets_count, "—")],
-            ["Images", safeText(perf.images_count, "—")],
-            ["Images missing ALT", safeText(acc.images_without_alt, "—")],
-            ["H1 Count", safeText((acc.heading_structure || {}).h1, "—")],
-            ["Has Viewport Meta", safeText(mob.has_viewport, "—")],
+            ["Page Size (KB)", safeText(perf.page_size_kb, "-")],
+            ["Scripts", safeText(perf.scripts_count, "-")],
+            ["Stylesheets", safeText(perf.stylesheets_count, "-")],
+            ["Images", safeText(perf.images_count, "-")],
+            ["Images missing ALT", safeText(acc.images_without_alt, "-")],
+            ["H1 Count", safeText((acc.heading_structure || {}).h1, "-")],
+            ["Has Viewport Meta", safeText(mob.has_viewport, "-")],
           ],
           [220, 240],
         );
@@ -905,7 +990,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         const recs = normalizeStringList(uxAny?.recommendations);
         if (recs.length) {
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Top UX Fixes");
-          bullets(doc, recs, "—");
+          bullets(doc, recs, "-");
         }
       }
 
@@ -984,7 +1069,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         if (range || gsc?.property) {
           paragraph(
             doc,
-            `${gsc?.property ? `Property: ${safeText(gsc.property, "")}` : ""}${gsc?.property && range ? " • " : ""}${range ? `Date range: ${range}` : ""}`,
+            `${gsc?.property ? `Property: ${safeText(gsc.property, "")}` : ""}${gsc?.property && range ? " - " : ""}${range ? `Date range: ${range}` : ""}`,
           );
         }
 
@@ -1050,7 +1135,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       }
 
       const rep = report.reputation;
-      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Overall Review Score: ${safeText((rep as any)?.reviewScore, "—")}/5`);
+      doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text(`Overall Review Score: ${safeText((rep as any)?.reviewScore, "-")}/5`);
       doc.font("Helvetica").fontSize(10).fillColor(GRAY_500).text(
         "Based on publicly available review platforms detected during analysis.",
         { lineGap: 2 },
@@ -1075,11 +1160,11 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
         );
       }
 
-      // paragraph(doc, `Total Reviews Found: ${safeText((rep as any)?.totalReviews, "—")} • Industry Standard: ${safeText((rep as any)?.industryStandardRange, "—")} • Your Gap: ${safeText((rep as any)?.yourGap, "—")}`);
+      // paragraph(doc, `Total Reviews Found: ${safeText((rep as any)?.totalReviews, "-")} - Industry Standard: ${safeText((rep as any)?.industryStandardRange, "-")} - Your Gap: ${safeText((rep as any)?.yourGap, "-")}`);
       keyMetricsBox(doc, [
-        { label: "Total Reviews Found", value: String((rep as any)?.totalReviews ?? "—") },
-        { label: "Industry Standard", value: safeText((rep as any)?.industryStandardRange, "—") },
-        { label: "Your Gap", value: safeText((rep as any)?.yourGap, "—") },
+        { label: "Total Reviews Found", value: String((rep as any)?.totalReviews ?? "-") },
+        { label: "Industry Standard", value: safeText((rep as any)?.industryStandardRange, "-") },
+        { label: "Your Gap", value: safeText((rep as any)?.yourGap, "-") },
       ]);
 
 
@@ -1089,14 +1174,14 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       bullets(doc, normalizeStringList(themes?.positive), "No positive themes detected.");
       doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Negative Themes");
       bullets(doc, normalizeStringList(themes?.negative), "No negative themes detected.");
-      paragraph(doc, `Response Rate: ${safeText(themes?.responseRate, "N/A")} • Avg Response Time: ${safeText(themes?.averageResponseTime, "N/A")}`);
+      paragraph(doc, `Response Rate: ${safeText(themes?.responseRate, "N/A")} - Avg Response Time: ${safeText(themes?.averageResponseTime, "N/A")}`);
 
       // Improvement suggestions (only when provided)
       const repSuggestionsMain = (report as any)?.reputation?.improvementSuggestions;
       const repSugList = normalizeStringList(repSuggestionsMain);
       if (repSugList.length) {
         doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Improvement Suggestions");
-        bullets(doc, repSugList.slice(0, 14), "—");
+        bullets(doc, repSugList.slice(0, 14), "-");
       }
 
 
@@ -1123,7 +1208,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           { hideEmptyRows: true, hideEmptyCols: true },
         );
       } else {
-        paragraph(doc, "No service list data was detected.");
+        paragraph(doc, "Services are likely present but could not be structurally extracted.");
       }
 
       if (sp?.serviceGaps?.length) {
@@ -1207,7 +1292,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           { hideEmptyRows: true, hideEmptyCols: true },
         );
       } else {
-        paragraph(doc, "No channel data was detected.");
+        paragraph(doc, "Lead-generation signals are currently limited for this run.");
       }
 
       if (lg?.missingHighROIChannels?.length) {
@@ -1216,11 +1301,11 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Channel", "Est. Leads", "Setup Time", "Monthly Cost", "Priority"],
           lg.missingHighROIChannels.map((c: any) => [
-              safeText(c.channel, "—"),
-              safeText(c.estimatedLeads ?? c.potentialLeads ?? c.leads, "—"),
-              safeText(c.setupTime, "—"),
-              safeText(c.monthlyCost, "—"),
-              safeText(c.priority, "—"),
+              safeText(c.channel, "-"),
+              safeText(c.estimatedLeads ?? c.potentialLeads ?? c.leads, "-"),
+              safeText(c.setupTime, "-"),
+              safeText(c.monthlyCost, "-"),
+              safeText(c.priority, "-"),
             ]),
           [140, 80, 80, 80, 80],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1234,10 +1319,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Title", "Funnel Stage", "Description", "Est. Conv."],
           magnets.map((m: any) => [
-            safeText(m?.title, "—"),
-            safeText(m?.funnelStage, "—"),
-            safeText(m?.description, "—"),
-            safeText(m?.estimatedConversionRate, "—"),
+            safeText(m?.title, "-"),
+            safeText(m?.funnelStage, "-"),
+            safeText(m?.description, "-"),
+            safeText(m?.estimatedConversionRate, "-"),
           ]),
           [140, 90, 210, 80],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1282,7 +1367,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           if (phone && phone !== "N/A") metaParts.push(`Phone: ${phone}`);
           if (team && team !== "N/A") metaParts.push(`Team: ${team}`);
           if (years && years !== "N/A") metaParts.push(`Years: ${years}`);
-          paragraph(doc, metaParts.length ? metaParts.join(" • ") : "N/A");
+          paragraph(doc, metaParts.length ? metaParts.join(" - ") : "N/A");
 
           // Prefer explicit competitive analysis fields if they exist.
           const services = normalizeStringList((c as any).services);
@@ -1310,11 +1395,11 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
               .slice(0, 2)
               .map((r: any) => {
                 const a = safeText(r?.author_name, "Anonymous");
-                const rt = typeof r?.rating === "number" ? `${r.rating}/5` : "—";
+                const rt = typeof r?.rating === "number" ? `${r.rating}/5` : "-";
                 const when = safeText(r?.relative_time_description, "");
                 const txt = safeText(r?.text, "").replace(/\s+/g, " ").trim();
-                const short = txt.length > 140 ? `${txt.slice(0, 140)}…` : txt;
-                return `${a} (${rt}${when ? `, ${when}` : ""}): ${short || "—"}`;
+                const short = txt.length > 140 ? `${txt.slice(0, 140)}...` : txt;
+                return `${a} (${rt}${when ? `, ${when}` : ""}): ${short || "-"}`;
               })
               .filter(Boolean);
             bullets(doc, rvLines, "No reviews available.");
@@ -1336,11 +1421,11 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Dimension", "You", "Competitor A", "Competitor B", "Competitor C"],
           ca.positioningMatrix.map((m: any) => [
-            safeText(m?.dimension, "—"),
-            safeText(m?.you, "—"),
-            safeText(m?.competitorA, "—"),
-            safeText(m?.competitorB, "—"),
-            safeText(m?.competitorC, "—"),
+            safeText(m?.dimension, "-"),
+            safeText(m?.you, "-"),
+            safeText(m?.competitorA, "-"),
+            safeText(m?.competitorB, "-"),
+            safeText(m?.competitorC, "-"),
           ]),
           [140, 90, 90, 90, 90],
         );
@@ -1376,8 +1461,8 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Scenario", "Suggestion", "Modeled Outcomes"],
           coAny.scenarios.map((s: any) => [
-            safeText(s?.name, "—"),
-            normalizeStringList(s?.assumptions).join("; ") || "—",
+            safeText(s?.name, "-"),
+            normalizeStringList(s?.assumptions).join("; ") || "-",
             formatScenarioOutcomes(s),
           ]),
           [90, 210, 220],
@@ -1391,9 +1476,9 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Category", "Current", "Industry Avg", "Notes"],
           co.estimatedMonthlySpend.map((c: any) => [
-            safeText(c?.category, "—"),
-            safeText(c?.current, "—"),
-            safeText(c?.industryAvg, "—"),
+            safeText(c?.category, "-"),
+            safeText(c?.current, "-"),
+            safeText(c?.industryAvg, "-"),
             safeText(c?.notes, ""),
           ]),
           [160, 90, 90, 170],
@@ -1407,10 +1492,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Area", "Cost/Month", "Fix", "Impact"],
           co.wasteAreas.map((w: any) => [
-            safeText(w?.area, "—"),
-            safeText(w?.costPerMonth, "—"),
-            safeText(w?.fix, "—"),
-            safeText(w?.impact, "—"),
+            safeText(w?.area, "-"),
+            safeText(w?.costPerMonth, "-"),
+            safeText(w?.fix, "-"),
+            safeText(w?.impact, "-"),
           ]),
           [140, 80, 170, 120],
         );
@@ -1423,10 +1508,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Opportunity", "Tool", "Est. Savings", "Effort"],
           co.automationOpportunities.map((a: any) => [
-              safeText(a?.opportunity ?? a?.process ?? a?.title ?? a?.name, "—"),
-              safeText(a?.tool ?? a?.tools ?? a?.recommendedTool, "—"),
-              safeText(a?.estimatedSavings ?? a?.costSaved ?? a?.savings, "—"),
-              safeText(a?.effort ?? a?.timeSavedPerMonth ?? a?.time ?? a?.difficulty, "—"),
+              safeText(a?.opportunity ?? a?.process ?? a?.title ?? a?.name, "-"),
+              safeText(a?.tool ?? a?.tools ?? a?.recommendedTool, "-"),
+              safeText(a?.estimatedSavings ?? a?.costSaved ?? a?.savings, "-"),
+              safeText(a?.effort ?? a?.timeSavedPerMonth ?? a?.time ?? a?.difficulty, "-"),
             ]),
           [170, 90, 90, 80],
         );
@@ -1440,10 +1525,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
           doc,
           ["Opportunity", "Description", "Impact", "Effort"],
           (coAny as any).opportunities.map((o: any) => [
-            safeText(o?.title || o?.opportunity || o?.name, "—"),
-            safeText(o?.description || o?.details || o?.why, "—"),
-            safeText(o?.impact || o?.savings || o?.estimatedSavings, "—"),
-            safeText(o?.effort || o?.difficulty || o?.time, "—"),
+            safeText(o?.title || o?.opportunity || o?.name, "-"),
+            safeText(o?.description || o?.details || o?.why, "-"),
+            safeText(o?.impact || o?.savings || o?.estimatedSavings, "-"),
+            safeText(o?.effort || o?.difficulty || o?.time, "-"),
           ]),
           [140, 200, 90, 90],
         );
@@ -1479,14 +1564,14 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Scenario", "Suggestion", "Modeled Outcomes"],
           tmAny.scenarios.map((s: any) => [
-            safeText(s?.name, "—"),
-            normalizeStringList(s?.assumptions).join("; ") || "—",
+            safeText(s?.name, "-"),
+            normalizeStringList(s?.assumptions).join("; ") || "-",
             Array.isArray(s?.outcomes)
               ? s.outcomes
                 .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
                 .filter(Boolean)
-                .join("\n") || "—"
-              : "—",
+                .join("\n") || "-"
+              : "-",
           ]),
           [90, 210, 220],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1500,9 +1585,9 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Segment", "Avg Budget", "Pain Points"],
           tm.currentTargetSegments.map((s: any) => [
-            safeText(s?.segment, "—"),
-            safeText(s?.avgBudget, "—"),
-            normalizeStringList(s?.painPoints).join("; ") || "—",
+            safeText(s?.segment, "-"),
+            safeText(s?.avgBudget, "-"),
+            normalizeStringList(s?.painPoints).join("; ") || "-",
           ]),
           [160, 90, 260],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1513,9 +1598,9 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Segment", "Pain Points", "Budget/Notes"],
           (tmAny as any).segments.map((s: any) => [
-            safeText(s?.segment || s?.name, "—"),
-            normalizeStringList(s?.painPoints || s?.pains || s?.problems).join("; ") || "—",
-            safeText(s?.avgBudget || s?.budget || s?.notes, "—"),
+            safeText(s?.segment || s?.name, "-"),
+            normalizeStringList(s?.painPoints || s?.pains || s?.problems).join("; ") || "-",
+            safeText(s?.avgBudget || s?.budget || s?.notes, "-"),
           ]),
           [160, 240, 110],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1531,10 +1616,10 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Segment", "Why Fit", "Avg Budget", "Competition"],
           tm.recommendedSegments.map((s: any) => [
-            safeText(s?.segment, "—"),
-            safeText(s?.whyFit, "—"),
-            safeText(s?.avgBudget, "—"),
-            safeText(s?.competitionLevel, "—"),
+            safeText(s?.segment, "-"),
+            safeText(s?.whyFit, "-"),
+            safeText(s?.avgBudget, "-"),
+            safeText(s?.competitionLevel, "-"),
           ]),
           [130, 190, 80, 90],
         );
@@ -1543,7 +1628,7 @@ paragraph(doc, safeText(co?.notes, ""));
       // Positioning advice
       if (Array.isArray(tm?.positioningAdvice) && tm.positioningAdvice.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Positioning Advice");
-        bullets(doc, normalizeStringList(tm.positioningAdvice), "—");
+        bullets(doc, normalizeStringList(tm.positioningAdvice), "-");
       }
 
       paragraph(doc, safeText(tm?.notes, ""));
@@ -1571,14 +1656,14 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Scenario", "Suggestion", "Modeled Outcomes"],
           fiAny.scenarios.map((s: any) => [
-            safeText(s?.name, "—"),
-            normalizeStringList(s?.assumptions).join("; ") || "—",
+            safeText(s?.name, "-"),
+            normalizeStringList(s?.assumptions).join("; ") || "-",
             Array.isArray(s?.outcomes)
               ? s.outcomes
                 .map((o: any) => `${safeText(o?.label, "")} : ${safeText(o?.value, "")}`.replace(" :", ":").trim())
                 .filter(Boolean)
-                .join("\n") || "—"
-              : "—",
+                .join("\n") || "-"
+              : "-",
           ]),
           [90, 210, 220],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1587,9 +1672,9 @@ paragraph(doc, safeText(co?.notes, ""));
 
       paragraph(doc, safeText(fi?.notes, ""));
 
-            const revA = safeText(fi?.currentRevenueEstimate, "—");
-      const revB = safeText(fi?.improvementPotential, "—");
-      const revC = safeText(fi?.projectedRevenueIncrease, "—");
+            const revA = safeText(fi?.currentRevenueEstimate, "-");
+      const revB = safeText(fi?.improvementPotential, "-");
+      const revC = safeText(fi?.projectedRevenueIncrease, "-");
 
       const hasRevSummary = !isEmptyLike(revA) || !isEmptyLike(revB) || !isEmptyLike(revC);
 
@@ -1611,8 +1696,8 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Metric", "Value"],
           (fiAny as any).revenueTable.map((r: any) => [
-            safeText(r?.label || r?.metric || r?.name, "—"),
-            safeText(r?.value || r?.amount, "—"),
+            safeText(r?.label || r?.metric || r?.name, "-"),
+            safeText(r?.value || r?.amount, "-"),
           ]),
           [220, 260],
           { hideEmptyRows: true, hideEmptyCols: true },
@@ -1626,9 +1711,9 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Lever", "Impact", "Effort"],
           fi.profitabilityLevers.map((p: any) => [
-            safeText(p?.lever, "—"),
-            safeText(p?.impact, "—"),
-            safeText(p?.effort, "—"),
+            safeText(p?.lever, "-"),
+            safeText(p?.impact, "-"),
+            safeText(p?.effort, "-"),
           ]),
           [180, 220, 100],
         );
@@ -1714,20 +1799,20 @@ paragraph(doc, safeText(co?.notes, ""));
             doc,
             ["Advantage", "Why It Matters", "How To Leverage"],
             advItems.map((a: any) => [
-              safeText(a?.advantage ?? a?.title ?? a?.name, "—"),
-              safeText(a?.whyItMatters ?? a?.why ?? a?.value, "—"),
-              safeText(a?.howToLeverage ?? a?.how ?? a?.action, "—"),
+              safeText(a?.advantage ?? a?.title ?? a?.name, "-"),
+              safeText(a?.whyItMatters ?? a?.why ?? a?.value, "-"),
+              safeText(a?.howToLeverage ?? a?.how ?? a?.action, "-"),
             ]),
             [150, 170, 170],
             { hideEmptyRows: true, hideEmptyCols: true },
           );
         } else {
-          bullets(doc, normalizeStringList(advItems).slice(0, 20), "—");
+          bullets(doc, normalizeStringList(advItems).slice(0, 20), "-");
         }
       }
 
       if (adv?.uniqueAngle) {
-        callout(doc, "Unique Angle", safeText(adv.uniqueAngle, "—"));
+        callout(doc, "Unique Angle", safeText(adv.uniqueAngle, "-"));
       }
 
 
@@ -1754,7 +1839,7 @@ paragraph(doc, safeText(co?.notes, ""));
 
           const sev = safeText(r.severity ?? r.priority, "N/A");
           const lik = safeText(r.likelihood, "N/A");
-          paragraph(doc, `Severity: ${sev} • Likelihood: ${lik}`);
+          paragraph(doc, `Severity: ${sev} - Likelihood: ${lik}`);
 
           doc.font("Helvetica-Bold").fontSize(11).fillColor(GRAY_900).text("Mitigation");
           paragraph(doc, safeText(r.mitigation, "No mitigation provided."));
@@ -1784,7 +1869,7 @@ paragraph(doc, safeText(co?.notes, ""));
 
 
       if (psiAt) {
-        callout(doc, "PageSpeed Snapshot", `Fetched at: ${safeText(psiAt, "—")}`);
+        callout(doc, "PageSpeed Snapshot", `Fetched at: ${safeText(psiAt, "-")}`);
       }
 
       // Page Registry (key pages + counts)
@@ -1797,11 +1882,11 @@ paragraph(doc, safeText(co?.notes, ""));
             doc,
             ["Merged", "Links", "Crawl", "Sitemap", "Service Candidates"],
             [[
-              safeText((counts as any)?.merged, "—"),
-              safeText((counts as any)?.links, "—"),
-              safeText((counts as any)?.crawl, "—"),
-              safeText((counts as any)?.sitemap, "—"),
-              safeText((counts as any)?.service_candidates, "—"),
+              safeText((counts as any)?.merged, "-"),
+              safeText((counts as any)?.links, "-"),
+              safeText((counts as any)?.crawl, "-"),
+              safeText((counts as any)?.sitemap, "-"),
+              safeText((counts as any)?.service_candidates, "-"),
             ]],
             [70, 70, 70, 70, 130],
           );
@@ -1823,10 +1908,10 @@ paragraph(doc, safeText(co?.notes, ""));
           for (const k of Object.keys(labels)) {
             const node = (pages as any)[k];
             if (!node) continue;
-            const primary = node?.primary || node?.url || "—";
+            const primary = node?.primary || node?.url || "-";
             const present = node?.present;
-            const presentText = typeof present === "boolean" ? (present ? "Yes" : "No") : "—";
-            keyRows.push([labels[k], presentText, formatUrlForDisplay(safeText(primary, "—"), 85)]);
+            const presentText = typeof present === "boolean" ? (present ? "Yes" : "No") : "-";
+            keyRows.push([labels[k], presentText, formatUrlForDisplay(safeText(primary, "-"), 85)]);
           }
           if (keyRows.length) {
             doc.moveDown(0.5);
@@ -1846,10 +1931,10 @@ paragraph(doc, safeText(co?.notes, ""));
           doc,
           ["Signal", "Value"],
           [
-            ["Site Type", safeText((extraction as any)?.siteType, "—")],
-            ["Playwright Enabled", safeText(le?.playwrightEnabled, "—")],
-            ["Selenium Enabled", safeText(le?.seleniumEnabled, "—")],
-            ["Content Pages Used Playwright", safeText((extraction as any)?.contentPagesUsedPlaywright, "—")],
+            ["Site Type", safeText((extraction as any)?.siteType, "-")],
+            ["Playwright Enabled", safeText(le?.playwrightEnabled, "-")],
+            ["Selenium Enabled", safeText(le?.seleniumEnabled, "-")],
+            ["Content Pages Used Playwright", safeText((extraction as any)?.contentPagesUsedPlaywright, "-")],
           ],
           [200, 290],
         );
@@ -1857,28 +1942,30 @@ paragraph(doc, safeText(co?.notes, ""));
 
       if (pagesCrawled.length) {
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Pages crawled (sample)");
-        bullets(doc, pagesCrawled.slice(0, 25), "—");
+        bullets(doc, pagesCrawled.slice(0, 25), "-");
       } else {
         paragraph(doc, "No crawl list was captured.");
       }
 
-      // Screenshots (base64 PNGs)
+      // Screenshots (one desktop full-page image + one mobile full-page image)
       try {
         const shots = evidence?.screenshots?.screenshots || evidence?.screenshots || {};
-        const desktopB64 = shots?.desktop?.b64 || shots?.desktop;
-        const mobileB64 = shots?.mobile?.b64 || shots?.mobile;
+        const desktopShot = shots?.desktop;
+        const mobileShot = shots?.mobile;
+        let renderedScreenshot = false;
 
-        if (desktopB64) {
-          addPageIfNotAtTop(doc);
-          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Desktop screenshot");
-          const buf = Buffer.from(desktopB64, "base64");
-          doc.image(buf, { fit: [520, 300], align: "center" });
+        if (desktopShot) {
+          renderScreenshotPages(doc, safeText(desktopShot?.title, "Desktop Screenshot"), desktopShot, "landscape");
+          renderedScreenshot = true;
         }
-        if (mobileB64) {
-          addPageIfNotAtTop(doc);
-          doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Mobile screenshot");
-          const buf = Buffer.from(mobileB64, "base64");
-          doc.image(buf, { fit: [320, 520], align: "center" });
+        if (mobileShot) {
+          renderScreenshotPages(doc, safeText(mobileShot?.title, "Mobile Screenshot"), mobileShot, "portrait");
+          renderedScreenshot = true;
+        }
+        if (!renderedScreenshot) {
+          paragraph(doc, "Screenshots were not available for this run.");
+        } else {
+          doc.addPage({ size: "A4", layout: "portrait", margins: MARGINS });
         }
       } catch (e) {
         paragraph(doc, "Screenshots were not available for this run.");
@@ -1926,7 +2013,7 @@ paragraph(doc, safeText(co?.notes, ""));
 
       const pr = report.executiveSummary?.highPriorityRecommendations;
       if (Array.isArray(pr) && pr.length) {
-        bullets(doc, normalizeStringList(pr), "—");
+        bullets(doc, normalizeStringList(pr), "-");
       } else {
         paragraph(doc, "No priority recommendations were included in this report output.");
       }
@@ -1967,17 +2054,17 @@ paragraph(doc, safeText(co?.notes, ""));
               safeText((v as any).issue, ""),
             ]
               .filter(Boolean)
-              .join(" — ");
-            rows.push([c.label, summary || safeText(JSON.stringify(v), "—")]);
+              .join(" - ");
+            rows.push([c.label, summary || safeText(JSON.stringify(v), "-")]);
           } else {
-            rows.push([c.label, safeText(v, "—")]);
+            rows.push([c.label, safeText(v, "-")]);
           }
         }
 
         // If nothing matched, fallback to key/value dump (limited)
         if (!rows.length) {
           const entries = Object.entries(onPage).slice(0, 12);
-          for (const [k, v] of entries) rows.push([k, safeText(v, "—")]);
+          for (const [k, v] of entries) rows.push([k, safeText(v, "-")]);
         }
 
         drawTable(doc, ["Area", "Findings (condensed)"], rows, [160, 330]);
@@ -1995,10 +2082,10 @@ paragraph(doc, safeText(co?.notes, ""));
         if (Array.isArray(audits) && audits.length) {
           lhRows.push(["Top audits (sample)", audits.slice(0, 8).map((a: any) => safeText(a?.title ?? a, "")).filter(Boolean).join("; ")]);
         }
-        if ((lighthouseSeo as any).notes) lhRows.push(["Notes", safeText((lighthouseSeo as any).notes, "—")]);
+        if ((lighthouseSeo as any).notes) lhRows.push(["Notes", safeText((lighthouseSeo as any).notes, "-")]);
         if (!lhRows.length) {
           const entries = Object.entries(lighthouseSeo).slice(0, 10);
-          for (const [k, v] of entries) lhRows.push([k, safeText(v, "—")]);
+          for (const [k, v] of entries) lhRows.push([k, safeText(v, "-")]);
         }
         drawTable(doc, ["Metric", "Value"], lhRows, [160, 330]);
       }
@@ -2020,11 +2107,11 @@ paragraph(doc, safeText(co?.notes, ""));
           }
           // Executive-friendly: show keyword + found position + top 5 URLs only
           const rows: TableRow[] = items.slice(0, 20).map((it: any) => {
-            const urls = Array.isArray(it?.topUrls) ? it.topUrls.slice(0, 5).map((u: string) => formatUrlForDisplay(u, 70)).join("\n") : "—";
+            const urls = Array.isArray(it?.topUrls) ? it.topUrls.slice(0, 5).map((u: string) => formatUrlForDisplay(u, 70)).join("\n") : "-";
             return [
-              safeText(it?.keyword, "—"),
+              safeText(it?.keyword, "-"),
               safeText(it?.foundPosition, "Not found"),
-              safeText(it?.checkedDepth, "—"),
+              safeText(it?.checkedDepth, "-"),
               urls,
             ];
           });
@@ -2060,7 +2147,7 @@ paragraph(doc, safeText(co?.notes, ""));
             drawTable(
               doc,
               ["Backlinks", "Ref. Domains", "Broken", "Domain Rank", "Spam Score"],
-              [[s.backlinks, s.referring_domains, s.broken_backlinks, s.domain_rank, s.spam_score ?? "—"]],
+              [[s.backlinks, s.referring_domains, s.broken_backlinks, s.domain_rank, s.spam_score ?? "-"]],
               [90, 110, 80, 90, 90],
             );
             addPageIfNotAtTop(doc);
@@ -2070,10 +2157,10 @@ paragraph(doc, safeText(co?.notes, ""));
           // Referring domains
           if (tierName.includes("referring")) {
             const rows: TableRow[] = items.slice(0, 40).map((d: any) => [
-              safeText(d?.domain, "—"),
-              safeText(d?.backlinks, "—"),
-              safeText(d?.rank ?? d?.domain_rank, "—"),
-              safeText(d?.first_seen ?? d?.firstSeen, "—"),
+              safeText(d?.domain, "-"),
+              safeText(d?.backlinks, "-"),
+              safeText(d?.rank ?? d?.domain_rank, "-"),
+              safeText(d?.first_seen ?? d?.firstSeen, "-"),
             ]);
             drawTable(doc, ["Domain", "Backlinks", "Rank"], rows.map((r) => [r[0], r[1], r[2]]), [260, 110, 100], { hideEmptyRows: true, hideEmptyCols: true });
             addPageIfNotAtTop(doc);
@@ -2083,9 +2170,9 @@ paragraph(doc, safeText(co?.notes, ""));
           // Anchors
           if (tierName.includes("anchor")) {
             const rows: TableRow[] = items.slice(0, 40).map((a: any) => [
-              safeText(a?.anchor, "—"),
-              safeText(a?.backlinks, "—"),
-              safeText(a?.referring_domains ?? a?.refDomains, "—"),
+              safeText(a?.anchor, "-"),
+              safeText(a?.backlinks, "-"),
+              safeText(a?.referring_domains ?? a?.refDomains, "-"),
             ]);
             drawTable(doc, ["Anchor", "Backlinks", "Ref. Domains"], rows, [250, 90, 110]);
             addPageIfNotAtTop(doc);
@@ -2095,9 +2182,9 @@ paragraph(doc, safeText(co?.notes, ""));
           // Top linked pages
           if (tierName.includes("linked page") || tierName.includes("top linked")) {
             const rows: TableRow[] = items.slice(0, 30).map((p: any) => [
-              formatUrlForDisplay(safeText(p?.page ?? p?.url, "—"), 80),
-              safeText(p?.backlinks, "—"),
-              safeText(p?.referring_domains ?? p?.refDomains, "—"),
+              formatUrlForDisplay(safeText(p?.page ?? p?.url, "-"), 80),
+              safeText(p?.backlinks, "-"),
+              safeText(p?.referring_domains ?? p?.refDomains, "-"),
             ]);
             drawTable(doc, ["Page", "Backlinks", "Ref. Domains"], rows, [260, 90, 110], { hideEmptyRows: true, hideEmptyCols: true });
             addPageIfNotAtTop(doc);
@@ -2108,10 +2195,10 @@ paragraph(doc, safeText(co?.notes, ""));
           if (tierName.includes("sample")) {
             const rows: TableRow[] = items.slice(0, 25).map((b: any) => [
               // DataForSEO backlinks commonly use referring_domain/referring_page
-              safeText(b?.referring_domain ?? b?.refDomain ?? b?.source_domain ?? b?.domain ?? "—", "—"),
-              formatUrlForDisplay(safeText(b?.referring_page ?? b?.refPage ?? b?.source_url ?? b?.sourceUrl, "—"), 60),
-              formatUrlForDisplay(safeText(b?.target_url ?? b?.targetUrl ?? b?.target, "—"), 60),
-              safeText(b?.anchor ?? b?.anchor_text ?? "—", "—"),
+              safeText(b?.referring_domain ?? b?.refDomain ?? b?.source_domain ?? b?.domain ?? "-", "-"),
+              formatUrlForDisplay(safeText(b?.referring_page ?? b?.refPage ?? b?.source_url ?? b?.sourceUrl, "-"), 60),
+              formatUrlForDisplay(safeText(b?.target_url ?? b?.targetUrl ?? b?.target, "-"), 60),
+              safeText(b?.anchor ?? b?.anchor_text ?? "-", "-"),
             ]);
             drawTable(doc, ["Domain", "Source URL", "Target URL", "Anchor"], rows, [120, 150, 150, 80], { hideEmptyRows: true, hideEmptyCols: true });
             addPageIfNotAtTop(doc);
@@ -2119,7 +2206,7 @@ paragraph(doc, safeText(co?.notes, ""));
           }
 
           // Fallback: key/value dump (limited)
-          const rows: TableRow[] = items.slice(0, 20).map((x: any) => [safeText(x?.name ?? x?.key ?? "Item", "Item"), safeText(x?.value ?? JSON.stringify(x), "—")]);
+          const rows: TableRow[] = items.slice(0, 20).map((x: any) => [safeText(x?.name ?? x?.key ?? "Item", "Item"), safeText(x?.value ?? JSON.stringify(x), "-")]);
           drawTable(doc, ["Item", "Value"], rows, [200, 290]);
         });
       } else {
@@ -2141,15 +2228,15 @@ paragraph(doc, safeText(co?.notes, ""));
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Google Business Profile Signals");
         const rows: TableRow[] = [];
         const name = (googlePlaces as any)?.name;
-        if (name) rows.push(["Name", safeText(name, "—")]);
-        if ((googlePlaces as any)?.rating !== undefined) rows.push(["Rating", safeText((googlePlaces as any)?.rating, "—")]);
-        if ((googlePlaces as any)?.user_ratings_total !== undefined) rows.push(["Total Reviews", safeText((googlePlaces as any)?.user_ratings_total, "—")]);
-        if ((googlePlaces as any)?.types) rows.push(["Categories", normalizeStringList((googlePlaces as any)?.types).slice(0, 6).join(", ") || "—"]);
-        if ((googlePlaces as any)?.address) rows.push(["Address", safeText((googlePlaces as any)?.address, "—")]);
-        if ((googlePlaces as any)?.website) rows.push(["Website", formatUrlForDisplay(safeText((googlePlaces as any)?.website, "—"), 90)]);
+        if (name) rows.push(["Name", safeText(name, "-")]);
+        if ((googlePlaces as any)?.rating !== undefined) rows.push(["Rating", safeText((googlePlaces as any)?.rating, "-")]);
+        if ((googlePlaces as any)?.user_ratings_total !== undefined) rows.push(["Total Reviews", safeText((googlePlaces as any)?.user_ratings_total, "-")]);
+        if ((googlePlaces as any)?.types) rows.push(["Categories", normalizeStringList((googlePlaces as any)?.types).slice(0, 6).join(", ") || "-"]);
+        if ((googlePlaces as any)?.address) rows.push(["Address", safeText((googlePlaces as any)?.address, "-")]);
+        if ((googlePlaces as any)?.website) rows.push(["Website", formatUrlForDisplay(safeText((googlePlaces as any)?.website, "-"), 90)]);
         if (!rows.length) {
           const entries = Object.entries(googlePlaces).slice(0, 10);
-          for (const [k, v] of entries) rows.push([k, safeText(v, "—")]);
+          for (const [k, v] of entries) rows.push([k, safeText(v, "-")]);
         }
         drawTable(doc, ["Field", "Value"], rows, [160, 330]);
       } else {
@@ -2160,7 +2247,7 @@ paragraph(doc, safeText(co?.notes, ""));
         doc.moveDown(0.5);
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Reputation Improvement Suggestions");
         const list = normalizeStringList(repSuggestions);
-        if (list.length) bullets(doc, list.slice(0, 18), "—");
+        if (list.length) bullets(doc, list.slice(0, 18), "-");
         else paragraph(doc, safeText(repSuggestions, "No suggestions were provided."));
       }
 
@@ -2169,10 +2256,10 @@ paragraph(doc, safeText(co?.notes, ""));
         doc.moveDown(0.5);
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Reputation Data Bundle (Metadata)");
         const rows: TableRow[] = [];
-        if ((repBundle as any)?.mode) rows.push(["Mode", safeText((repBundle as any)?.mode, "—")]);
+        if ((repBundle as any)?.mode) rows.push(["Mode", safeText((repBundle as any)?.mode, "-")]);
         const sources = (repBundle as any)?.sources;
         if (sources && typeof sources === "object") {
-          rows.push(["Sources", Object.keys(sources).slice(0, 10).join(", ") || "—"]);
+          rows.push(["Sources", Object.keys(sources).slice(0, 10).join(", ") || "-"]);
         }
         const errors = (repBundle as any)?.errors;
         if (errors && typeof errors === "object") {
@@ -2197,7 +2284,7 @@ paragraph(doc, safeText(co?.notes, ""));
         doc.moveDown(0.5);
         doc.font("Helvetica-Bold").fontSize(12).fillColor(GRAY_900).text("Compliance & Policy Checks");
         const list = normalizeStringList(compliance);
-        if (list.length) bullets(doc, list.slice(0, 18), "—");
+        if (list.length) bullets(doc, list.slice(0, 18), "-");
         else paragraph(doc, safeText(compliance, "No compliance notes were provided."));
       } else {
         paragraph(doc, "No compliance notes were included in this report output.");
@@ -2214,3 +2301,5 @@ paragraph(doc, safeText(co?.notes, ""));
   }
 
 }
+
+

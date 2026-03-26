@@ -2,6 +2,7 @@ import asyncio
 import os
 import time
 from typing import Dict, Set
+from app.core.config import settings
 
 from app.extractors.universal_links.detector import detect_site_type
 from app.extractors.universal_links.static_extractor import extract_static_links
@@ -21,7 +22,8 @@ async def extract_links_auto(url: str, timeout_sec: int = 90) -> dict:
     - Selenium optional (off by default)
     """
     started = time.time()
-    site_type = detect_site_type(url)
+    timeout_sec = max(3, int(timeout_sec or getattr(settings, "LINK_EXTRACT_TIMEOUT_SEC", 8) or 8))
+    site_type = await asyncio.to_thread(detect_site_type, url)
     links: Set[str] = set()
 
     def _check_timeout(stage: str):
@@ -31,19 +33,15 @@ async def extract_links_auto(url: str, timeout_sec: int = 90) -> dict:
 
     # 1) Static extraction (fast)
     _check_timeout("static")
-    try:
-        links.update(extract_static_links(url))
-    except Exception:
-        # ignore, move to next engine
-        pass
-
-    # 2) lxml fallback (robust for many sites)
-    _check_timeout("lxml")
-    if (site_type in ("unknown", "static", "cms") and len(links) < 5) or len(links) < 5:
-        try:
-            links.update(extract_lxml_links(url))
-        except Exception:
-            pass
+    tasks = [
+        asyncio.to_thread(extract_static_links, url),
+        asyncio.to_thread(extract_lxml_links, url),
+    ]
+    static_results = await asyncio.gather(*tasks, return_exceptions=True)
+    for result in static_results:
+        if isinstance(result, Exception):
+            continue
+        links.update(set(result or []))
 
     # 3) Playwright for dynamic (only if enabled)
     _check_timeout("pre-playwright")
@@ -51,7 +49,7 @@ async def extract_links_auto(url: str, timeout_sec: int = 90) -> dict:
         try:
             from app.extractors.universal_links.playwright_extractor import extract_playwright_links
             # Allocate only remaining time to Playwright
-            remaining = max(5, int(timeout_sec - (time.time() - started)))
+            remaining = max(3, int(timeout_sec - (time.time() - started)))
             pw_links = await extract_playwright_links(url, timeout_sec=remaining)
             links.update(pw_links)
         except TimeoutError:

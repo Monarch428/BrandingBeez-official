@@ -1,5 +1,37 @@
 from bs4 import BeautifulSoup
 from app.core.http import http_get
+from app.signals.detection_utils import detect_cta
+
+CTA_TEXT_TOKENS = (
+    "contact",
+    "book",
+    "schedule",
+    "get started",
+    "get quote",
+    "request quote",
+    "request proposal",
+    "free audit",
+    "audit",
+    "consultation",
+    "speak to",
+    "talk to",
+    "call now",
+    "let's talk",
+    "lets talk",
+)
+
+CTA_HREF_TOKENS = (
+    "contact",
+    "book",
+    "schedule",
+    "quote",
+    "proposal",
+    "audit",
+    "consult",
+    "demo",
+    "call",
+)
+
 
 def fetch_homepage_html(url: str) -> tuple[str | None, str | None]:
     try:
@@ -9,6 +41,32 @@ def fetch_homepage_html(url: str) -> tuple[str | None, str | None]:
         return None, None
     except Exception:
         return None, None
+
+
+def _detect_contact_cta(soup: BeautifulSoup) -> bool:
+    signal_chunks = []
+    for node in soup.find_all(["a", "button"]):
+        text = (node.get_text(" ", strip=True) or "").lower()
+        href = (node.get("href") or "").lower()
+        aria = (node.get("aria-label") or "").lower()
+        title = (node.get("title") or "").lower()
+        combined = " ".join(part for part in (text, href, aria, title) if part)
+        if combined:
+            signal_chunks.append(combined)
+        if any(token in combined for token in CTA_TEXT_TOKENS):
+            return True
+        if href and any(token in href for token in CTA_HREF_TOKENS):
+            return True
+
+    for form in soup.find_all("form"):
+        if form.find(["input", "button", "textarea", "select"]):
+            return True
+
+    if detect_cta(" ".join(signal_chunks)):
+        return True
+
+    return False
+
 
 def parse_homepage(html: str) -> dict:
     soup = BeautifulSoup(html, "html.parser")
@@ -22,27 +80,16 @@ def parse_homepage(html: str) -> dict:
 
     has_ld_json = bool(soup.find("script", attrs={"type": "application/ld+json"}))
 
-    # Heuristic: contact CTA exists?
-    contact_cta = False
-    for a in soup.find_all("a", href=True):
-        txt = (a.get_text(" ", strip=True) or "").lower()
-        href = (a.get("href") or "").lower()
-        if "contact" in txt or "contact" in href or "book" in txt or "appointment" in txt:
-            contact_cta = True
-            break
-
-    # crude: homepage text length
     text = soup.get_text(" ", strip=True)
     text_len = len(text)
-
-    # H1 check
     h1_count = len(soup.find_all("h1"))
 
     return {
         "title": title,
         "metaDescription": meta_desc,
         "hasStructuredData": has_ld_json,
-        "contactCTA": contact_cta,
+        "contactCTA": _detect_contact_cta(soup),
         "homepageTextLength": text_len,
         "h1Count": h1_count,
+        "text": text,
     }

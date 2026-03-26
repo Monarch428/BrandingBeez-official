@@ -19,7 +19,7 @@ Design goals
 from __future__ import annotations
 
 from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit
 
 
 def normalize_url(u: Any, *, default_scheme: str = "https") -> str:
@@ -53,6 +53,46 @@ def normalize_url(u: Any, *, default_scheme: str = "https") -> str:
         if s2 and not s2.endswith("/") and "/" in s2:
             return s2.rstrip("/") + "/"
         return s2
+
+
+def _same_host(base_url: str, candidate: str) -> bool:
+    try:
+        base_host = (urlsplit(base_url).netloc or "").lower().removeprefix("www.")
+        candidate_host = (urlsplit(candidate).netloc or "").lower().removeprefix("www.")
+        return bool(base_host and candidate_host and base_host == candidate_host)
+    except Exception:
+        return False
+
+
+def normalize_site_url(website_url: str, u: Any) -> str:
+    if not isinstance(u, str):
+        return ""
+    raw = u.strip()
+    if not raw:
+        return ""
+    if raw.startswith("//"):
+        raw = f"{urlsplit(website_url).scheme or 'https'}:{raw}"
+    elif raw.startswith("/"):
+        raw = urljoin(website_url.rstrip("/") + "/", raw.lstrip("/"))
+    elif not raw.startswith("http://") and not raw.startswith("https://"):
+        return ""
+
+    normalized = normalize_url(raw)
+    if not normalized or not _same_host(website_url, normalized):
+        return ""
+    return normalized
+
+
+def filter_same_host_urls(website_url: str, items: Iterable[str] | None) -> List[str]:
+    seen: Set[str] = set()
+    out: List[str] = []
+    for item in items or []:
+        normalized = normalize_site_url(website_url, item)
+        if not normalized or normalized in seen:
+            continue
+        seen.add(normalized)
+        out.append(normalized)
+    return out
 
 
 def merge_sources(
@@ -150,6 +190,11 @@ def build_page_registry(
       3) internal_links
       4) service_candidates (heuristic)
     """
+    crawl_pages = filter_same_host_urls(website_url, crawl_pages)
+    sitemap_urls = filter_same_host_urls(website_url, sitemap_urls)
+    internal_links = filter_same_host_urls(website_url, internal_links)
+    service_candidates = filter_same_host_urls(website_url, service_candidates)
+
     all_urls, sources_by_url = merge_sources(
         crawl_pages=crawl_pages,
         sitemap_urls=sitemap_urls,

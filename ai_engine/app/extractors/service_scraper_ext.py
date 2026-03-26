@@ -5,6 +5,7 @@ import re
 from typing import Any, Dict, List, Optional
 from urllib.parse import urljoin, urlparse
 
+from app.core.config import settings
 from app.core.http import http_get
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ def _normalize_hints(url_hints: Optional[List[str]]) -> List[str]:
 def pick_service_urls(
     base_url: str,
     internal_links: List[str],
-    max_pages: int = 8,
+    max_pages: int = 50,
     *,
     url_hints: Optional[List[str]] = None,
 ) -> List[str]:
@@ -120,8 +121,8 @@ def scrape_services(
     website_url: str,
     *,
     internal_links: Optional[List[str]] = None,
-    max_pages: int = 8,
-    timeout: int = 45,
+    max_pages: int = 50,
+    timeout: int = 90,
     url_hints: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """Heuristic multi-page offerings scraper.
@@ -137,6 +138,7 @@ def scrape_services(
     )
 
     services: List[Dict[str, Any]] = []
+    max_services = int(getattr(settings, "MAX_EXTRACTED_SERVICES", 250) or 250)
     for u in candidates:
         try:
             r = http_get(u, timeout=timeout)
@@ -151,7 +153,7 @@ def scrape_services(
             logger.debug("[Services] fetch/extract failed for %s: %s", u, str(e))
             continue
 
-        if len(services) >= 25:
+        if len(services) >= max_services:
             break
 
     seen = set()
