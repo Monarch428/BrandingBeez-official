@@ -119,11 +119,23 @@ class UXConversion(BaseModel):
     details: Dict[str, Any] = Field(default_factory=dict)
     recommendations: List[str] = Field(default_factory=list)
 
+
+class WebsiteKeywordAnalysis(BaseModel):
+    score: SafeInt = 0
+    meaning: Optional[str] = None
+    strengths: List[str] = Field(default_factory=list)
+    gaps: List[str] = Field(default_factory=list)
+    recommendations: List[str] = Field(default_factory=list)
+    breakdown: Dict[str, Any] = Field(default_factory=dict)
+    keywordCandidates: List[str] = Field(default_factory=list)
+    opportunities: List[Dict[str, Any]] = Field(default_factory=list)
+
 class WebsiteDigitalPresence(BaseModel):
     technicalSEO: TechnicalSEO = Field(default_factory=TechnicalSEO)
     mentorNotes: Optional[str] = None
     contentQuality: ContentQuality = Field(default_factory=ContentQuality)
     uxConversion: UXConversion = Field(default_factory=UXConversion)
+    websiteKeywordAnalysis: WebsiteKeywordAnalysis = Field(default_factory=WebsiteKeywordAnalysis)
     contentGaps: List[str] = Field(default_factory=list)
 
 class DomainAuthorityBenchmark(BaseModel):

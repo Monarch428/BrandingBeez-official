@@ -335,6 +335,7 @@ def compute_data_completeness(report: Dict[str, Any]) -> int:
         _section_has_substance(_as_dict(report.get("reputation"))),
         _section_has_substance(_as_dict(report.get("servicesPositioning"))),
         _section_has_substance(_as_dict(report.get("leadGeneration"))),
+        _coerce_score(_get_path(report, ("websiteDigitalPresence", "websiteKeywordAnalysis", "score"))) is not None,
         _count_meaningful_items(appendices.get("dataSources")) > 0,
         _count_meaningful_items(appendices.get("pagesCrawled")) > 0,
         _count_meaningful_items(screenshots) > 0,
@@ -559,6 +560,7 @@ def apply_report_scorecard(report: Dict[str, Any]) -> Dict[str, Any]:
     appendices = _as_dict(out.get("appendices"))
     appendices["scoreSummary"] = [
         {"area": "Website", "score": section_scores.get("website"), "notes": "Technical foundation, content quality, and UX readiness."},
+        {"area": "Website Keywords", "score": _get_path(out, ("websiteDigitalPresence", "websiteKeywordAnalysis", "score")), "notes": "Keyword presence, coverage, relevance, intent match, and distribution."},
         {"area": "SEO", "score": section_scores.get("seo"), "notes": "Authority, visibility, and search-readiness."},
         {"area": "Reputation", "score": section_scores.get("reputation"), "notes": "Review strength and trust packaging."},
         {"area": "Lead Generation", "score": section_scores.get("leadGen"), "notes": "CTA clarity, channels, and funnel readiness."},

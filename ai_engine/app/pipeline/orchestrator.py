@@ -48,6 +48,7 @@ from app.signals.leadgen_signals import build_leadgen_signals
 from app.signals.dataforseo_signals import build_dataforseo_enrichment, build_backlinks_bundle, filter_competitors
 from app.signals.content_quality import compute_content_quality
 from app.signals.detection_utils import detect_site_type
+from app.signals.keyword_signals import compute_website_keyword_score
 from app.signals.market_demand_signals import build_market_demand_bundle
 from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm, build_final_synthesis_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
@@ -1207,6 +1208,33 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             page_registry=page_registry,
         )
     )
+
+    try:
+        keyword_analysis = compute_website_keyword_score(
+            homepage=homepage,
+            pages=own_pages or [],
+            services=[
+                str(item.get("name"))
+                for item in ensure_list(services_section.get("services"))
+                if isinstance(item, dict) and item.get("name")
+            ],
+            site_type=business_site_type,
+            keyword_sources=d4s_enrichment if isinstance(d4s_enrichment, dict) else {},
+            page_registry=page_registry,
+        )
+    except Exception as e:
+        logger.warning("[Pipeline] website keyword score failed, continuing: %s", str(e))
+        keyword_analysis = {
+            "score": 0,
+            "meaning": "Keyword evidence was too limited to score reliably.",
+            "strengths": [],
+            "gaps": [f"Keyword analysis failed: {e}"],
+            "recommendations": ["Review title/H1/body alignment and reconnect keyword data providers if available."],
+            "breakdown": {},
+            "keywordCandidates": [],
+            "opportunities": [],
+        }
+    website_section["websiteKeywordAnalysis"] = keyword_analysis
 
     # try:
     #     logger.info(

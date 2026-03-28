@@ -38,6 +38,10 @@ STRING_LIST_PATHS: Sequence[Tuple[str, ...]] = (
     ("websiteDigitalPresence", "contentQuality", "strengths"),
     ("websiteDigitalPresence", "contentQuality", "gaps"),
     ("websiteDigitalPresence", "contentQuality", "recommendations"),
+    ("websiteDigitalPresence", "websiteKeywordAnalysis", "strengths"),
+    ("websiteDigitalPresence", "websiteKeywordAnalysis", "gaps"),
+    ("websiteDigitalPresence", "websiteKeywordAnalysis", "recommendations"),
+    ("websiteDigitalPresence", "websiteKeywordAnalysis", "keywordCandidates"),
     ("websiteDigitalPresence", "uxConversion", "highlights"),
     ("websiteDigitalPresence", "uxConversion", "issues"),
     ("websiteDigitalPresence", "uxConversion", "recommendations"),
@@ -521,6 +525,14 @@ def _ensure_content_quality(report: Dict[str, Any]) -> None:
         and not content_quality["recommendations"]
     ):
         content_quality["gaps"] = ["This section is currently unavailable due to limited data sources."]
+
+    keyword_analysis = section.get("websiteKeywordAnalysis")
+    if isinstance(keyword_analysis, dict):
+        keyword_analysis["strengths"] = _clean_string_list(keyword_analysis.get("strengths"))
+        keyword_analysis["gaps"] = _clean_string_list(keyword_analysis.get("gaps"))
+        keyword_analysis["recommendations"] = _clean_string_list(keyword_analysis.get("recommendations"))
+        keyword_analysis["keywordCandidates"] = _clean_string_list(keyword_analysis.get("keywordCandidates"))
+        keyword_analysis["opportunities"] = _dedupe_dict_list(keyword_analysis.get("opportunities"), ("keyword", "intent", "currentCoverage"))
 
 
 def _ensure_executive_summary(report: Dict[str, Any]) -> None:
