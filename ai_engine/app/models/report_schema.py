@@ -58,6 +58,12 @@ class ReportMetadata(BaseModel):
     analysisDate: str = ""
     overallScore: SafeInt = 0
     subScores: SubScores = Field(default_factory=SubScores)
+    # These report-level meta scores are consumed downstream by the Node merge/PDF layer.
+    # Keep them optional so missing values do not silently become zero during validation.
+    confidenceScore: Optional[SafeInt] = None
+    opportunityScore: Optional[SafeInt] = None
+    riskScore: Optional[SafeInt] = None
+    scoreMeta: Dict[str, Any] = Field(default_factory=dict)
 
 class QuickWin(BaseModel):
     title: str = ""
@@ -387,7 +393,13 @@ class DataGap(BaseModel):
     howToEnable: List[str] = Field(default_factory=list)
 
 class Appendices(BaseModel):
+    scoreSummary: List[Dict[str, Any]] = Field(default_factory=list)
+    growthForecastTables: List[Dict[str, Any]] = Field(default_factory=list)
     keywords: List[Dict[str, Any]] = Field(default_factory=list)
+    serp: List[Dict[str, Any]] = Field(default_factory=list)
+    backlinks: List[Dict[str, Any]] = Field(default_factory=list)
+    reputation: Optional[Dict[str, Any]] = None
+    evidenceScreenshots: List[Dict[str, Any]] = Field(default_factory=list)
     dataSources: List[AppendixDataSource] = Field(default_factory=list)
     dataGaps: List[DataGap] = Field(default_factory=list)
     # Evidence helps the PDF feel "premium" and trustworthy

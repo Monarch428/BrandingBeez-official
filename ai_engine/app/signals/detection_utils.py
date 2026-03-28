@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, List
+from typing import Any, Dict, Iterable, List
 import re
 
 from bs4 import BeautifulSoup
@@ -54,6 +54,65 @@ GENERIC_SERVICE_CUES = (
     "our offer",
     "how we help",
 )
+
+CONTENT_URL_TOKENS = (
+    "/blog",
+    "/article",
+    "/articles",
+    "/insights",
+    "/resources",
+    "/news",
+    "/guides",
+)
+
+SERVICE_URL_TOKENS = (
+    "/services",
+    "/service",
+    "/solutions",
+    "/capabilities",
+    "/contact",
+    "/book",
+    "/quote",
+    "/consult",
+)
+
+ECOMMERCE_URL_TOKENS = (
+    "/shop",
+    "/store",
+    "/product",
+    "/products",
+    "/collections",
+    "/cart",
+    "/checkout",
+)
+
+ECOMMERCE_TEXT_TOKENS = (
+    "add to cart",
+    "buy now",
+    "cart",
+    "checkout",
+    "collections",
+    "shipping",
+    "returns",
+    "sku",
+)
+
+CONTENT_TEXT_TOKENS = (
+    "blog",
+    "insights",
+    "newsletter",
+    "subscribe",
+    "resources",
+    "article",
+    "editorial",
+)
+
+TRUST_SIGNAL_PATTERNS: list[tuple[str, str]] = [
+    (r"\btrusted by\b", "Trusted By"),
+    (r"\bpartner agenc(?:y|ies)\b|\bpartners?\b", "Partner Agencies"),
+    (r"\baward(?:s)?\b|\bcertified\b|\baccredited\b", "Awards / Certifications"),
+    (r"\bclient logos?\b|\bbrands? we work with\b", "Client Logos"),
+]
 
 
 def deduplicate_list_preserve_order(items: Iterable[Any]) -> List[Any]:
@@ -126,23 +185,95 @@ def _match_patterns(text: str, patterns: list[tuple[str, str]]) -> List[str]:
     return deduplicate_list_preserve_order(found)
 
 
-def detect_services(html: str, text: str) -> List[str]:
-    combined = " ".join(
-        part for part in (_extract_html_text(html), _normalize_text(text)) if part
-    )
+def _collect_signal_text(*parts: Any) -> str:
+    chunks: list[str] = []
+    for part in parts:
+        normalized = _normalize_text(part)
+        if normalized:
+            chunks.append(normalized)
+    return " ".join(chunks).strip()
+
+
+def _extract_candidate_urls(data: Any) -> List[str]:
+    urls: List[str] = []
+    if isinstance(data, dict):
+        for key, value in data.items():
+            if key in {"url", "website", "link", "href"} and isinstance(value, str):
+                urls.append(value)
+            elif key in {"internal_links", "pages", "crawl_pages", "service_candidates"} and isinstance(value, list):
+                for item in value:
+                    urls.extend(_extract_candidate_urls(item))
+            elif isinstance(value, (dict, list)):
+                urls.extend(_extract_candidate_urls(value))
+    elif isinstance(data, list):
+        for item in data:
+            urls.extend(_extract_candidate_urls(item))
+    elif isinstance(data, str) and data.startswith(("http://", "https://", "/")):
+        urls.append(data)
+    return deduplicate_list_preserve_order([u for u in urls if isinstance(u, str) and u.strip()])
+
+
+def detect_services(html: str, text: str, screenshots_text: Any = None) -> List[str]:
+    combined = _collect_signal_text(_extract_html_text(html), text, screenshots_text)
     return _match_patterns(combined, SERVICE_PATTERNS)
 
 
-def detect_cta(text: str) -> List[str]:
-    return _match_patterns(text, CTA_PATTERNS)
+def detect_cta(text: str, extra_text: Any = None) -> List[str]:
+    return _match_patterns(_collect_signal_text(text, extra_text), CTA_PATTERNS)
 
 
-def detect_testimonials(text: str) -> List[str]:
-    return _match_patterns(text, TESTIMONIAL_PATTERNS)
+def detect_testimonials(text: str, extra_text: Any = None) -> List[str]:
+    return _match_patterns(_collect_signal_text(text, extra_text), TESTIMONIAL_PATTERNS)
 
 
-def detect_case_studies(data: Any) -> List[str]:
-    return _match_patterns(_normalize_text(data), CASE_STUDY_PATTERNS)
+def detect_case_studies(data: Any, page_registry: Any = None) -> List[str]:
+    return _match_patterns(_collect_signal_text(data, page_registry), CASE_STUDY_PATTERNS)
+
+
+def detect_site_proof_signals(text: Any, page_registry: Any = None) -> Dict[str, Any]:
+    evidence = _collect_signal_text(text, page_registry)
+    testimonials = detect_testimonials(evidence)
+    case_studies = detect_case_studies(evidence)
+    trust_signals = _match_patterns(evidence, TRUST_SIGNAL_PATTERNS)
+    total_hits = len(testimonials) + len(case_studies) + len(trust_signals)
+    confidence = "strong" if total_hits >= 4 else "medium" if total_hits >= 2 else "weak" if total_hits == 1 else "none"
+    return {
+        "testimonials": testimonials,
+        "caseStudies": case_studies,
+        "trustSignals": trust_signals,
+        "confidence": confidence,
+    }
+
+
+def detect_site_type(data: Any) -> str:
+    """Classify business-model intent for downstream reporting.
+
+    Safe, additive heuristic:
+    - content_site when blog/resource/editorial intent dominates
+    - service_business when services + CTA/contact intent dominate
+    - ecommerce when product/cart/checkout/catalog signals dominate
+    - mixed otherwise
+    """
+    text_blob = _collect_signal_text(data).lower()
+    urls = [u.lower() for u in _extract_candidate_urls(data)]
+
+    content_score = sum(1 for u in urls if any(token in u for token in CONTENT_URL_TOKENS))
+    service_score = sum(1 for u in urls if any(token in u for token in SERVICE_URL_TOKENS))
+    ecommerce_score = sum(1 for u in urls if any(token in u for token in ECOMMERCE_URL_TOKENS))
+
+    content_score += sum(1 for token in CONTENT_TEXT_TOKENS if token in text_blob)
+    ecommerce_score += sum(1 for token in ECOMMERCE_TEXT_TOKENS if token in text_blob)
+    service_score += len(detect_services("", text_blob))
+    service_score += len(detect_cta(text_blob))
+    service_score += 2 if has_generic_service_cues("", text_blob) else 0
+
+    if content_score >= max(service_score + 2, ecommerce_score + 2) and content_score >= 3:
+        return "content_site"
+    if ecommerce_score >= max(content_score + 1, service_score + 1) and ecommerce_score >= 3:
+        return "ecommerce"
+    if service_score >= max(content_score + 1, ecommerce_score + 1) and service_score >= 3:
+        return "service_business"
+    return "mixed"
 
 
 def has_generic_service_cues(html: str, text: str) -> bool:

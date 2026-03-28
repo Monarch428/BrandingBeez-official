@@ -14,6 +14,40 @@ STOPWORDS = {
     "agency","company","services","service","business","marketing","digital"
 }
 
+WEAK_COMPETITOR_DOMAINS = {
+    "facebook.com",
+    "instagram.com",
+    "linkedin.com",
+    "twitter.com",
+    "x.com",
+    "youtube.com",
+    "pinterest.com",
+    "wikipedia.org",
+    "yelp.com",
+    "yellowpages.com",
+    "trustpilot.com",
+    "mapquest.com",
+    "justdial.com",
+    "clutch.co",
+    "goodfirms.co",
+    "sortlist.com",
+    "designrush.com",
+    "expertise.com",
+    "upcity.com",
+    "bark.com",
+    "threebestrated.com",
+}
+
+DIRECTORY_KEYWORDS = (
+    "directory",
+    "listing",
+    "rankings",
+    "top-",
+    "best-",
+    "reviews",
+    "compare",
+)
+
 def _safe_int(v: Any) -> Optional[int]:
     try:
         if v is None:
@@ -44,6 +78,102 @@ def _extract_keywords_from_title(title: str | None, max_items: int = 3) -> List[
             break
     # Capitalize first letter for nicer display / SERP queries
     return [k.replace("-", " ") for k in keep]
+
+
+def _normalize_domain(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    if not text:
+        return ""
+    text = text.replace("http://", "").replace("https://", "").split("/", 1)[0]
+    if text.startswith("www."):
+        text = text[4:]
+    return text.strip(".")
+
+
+def _is_weak_competitor_domain(domain: str) -> bool:
+    domain = _normalize_domain(domain)
+    if not domain:
+        return True
+    return any(domain == weak or domain.endswith("." + weak) for weak in WEAK_COMPETITOR_DOMAINS)
+
+
+def is_valid_competitor(site: Dict[str, Any], site_type: str | None = None, target_market: str | None = None) -> bool:
+    """Lightweight guard to exclude weak directories and clearly off-model domains."""
+    domain = _normalize_domain(site.get("domain") or site.get("website") or site.get("url"))
+    if _is_weak_competitor_domain(domain):
+        return False
+
+    haystack = " ".join(
+        str(site.get(key) or "")
+        for key in ("domain", "website", "title", "name", "description", "summary", "source")
+    ).lower()
+
+    if any(token in haystack for token in DIRECTORY_KEYWORDS) and "case study" not in haystack:
+        return False
+
+    if site_type == "ecommerce":
+        return any(token in haystack for token in ("shop", "store", "product", "catalog", "checkout", "cart"))
+
+    if site_type == "content_site":
+        return not any(token in haystack for token in ("forum", "directory", "listing"))
+
+    if target_market:
+        target_tokens = [token for token in str(target_market).lower().replace(",", " ").split() if len(token) > 2]
+        if target_tokens and not any(token in haystack for token in target_tokens):
+            metrics = site.get("metrics") if isinstance(site.get("metrics"), dict) else {}
+            if not any(_safe_int(metrics.get(key)) for key in ("intersections", "keywords", "etv")):
+                return False
+
+    return True
+
+
+def filter_competitors(
+    candidates: List[Dict[str, Any]],
+    *,
+    site_type: str | None = None,
+    target_market: str | None = None,
+    limit: int | None = None,
+) -> List[Dict[str, Any]]:
+    filtered = [item for item in candidates if isinstance(item, dict) and is_valid_competitor(item, site_type=site_type, target_market=target_market)]
+    return filtered[:limit] if isinstance(limit, int) and limit > 0 else filtered
+
+
+def _competitor_relevance_score(item: Dict[str, Any], *, source: str) -> int:
+    domain = _normalize_domain(item.get("domain"))
+    if _is_weak_competitor_domain(domain):
+        return -1
+
+    intersections = _safe_int(item.get("intersections")) or 0
+    keywords = _safe_int(item.get("keywords")) or 0
+    rank = _safe_int(item.get("rank"))
+    etv = _safe_int(item.get("etv")) or 0
+
+    score = (intersections * 4) + keywords + min(20, etv)
+    if source == "serp":
+        if rank is not None:
+            score += max(0, 12 - min(rank, 12))
+        if intersections == 0 and keywords == 0 and (rank is None or rank > 10):
+            return -1
+    return score
+
+
+def _rank_competitors(items: List[Dict[str, Any]], *, source: str, limit: int = 20) -> List[Dict[str, Any]]:
+    ranked: List[tuple[int, Dict[str, Any]]] = []
+    seen: set[str] = set()
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        domain = _normalize_domain(item.get("domain"))
+        if not domain or domain in seen:
+            continue
+        score = _competitor_relevance_score({**item, "domain": domain}, source=source)
+        if score < 0:
+            continue
+        seen.add(domain)
+        ranked.append((score, {**item, "domain": domain}))
+
+    ranked.sort(key=lambda row: row[0], reverse=True)
+    return [item for _, item in ranked[:limit]]
 
 def _d4s_defaults(criteria: Dict[str, Any] | None) -> Tuple[int, str]:
     """Get location_code + language_code for DataForSEO calls.
@@ -177,7 +307,7 @@ def build_dataforseo_enrichment(
                         "etv": it.get("etv"),  # keep as-is (may be float)
                     }
                 )
-        out["competitors"] = [c for c in competitors if c.get("domain")]
+        out["competitors"] = _rank_competitors([c for c in competitors if c.get("domain")], source="domain")
         out["raw"]["competitors_domain"] = {"status_code": resp.get("status_code"), "task": (data.get("tasks") or [])[:1]}
         if not out["competitors"]:
             notes.append("Competitors (domain) returned no items.")
@@ -334,7 +464,7 @@ def build_dataforseo_enrichment(
                             "keywords": _safe_int(it.get("keywords")),
                         }
                     )
-            out["serp_competitors"] = [c for c in sc if c.get("domain")]
+            out["serp_competitors"] = _rank_competitors([c for c in sc if c.get("domain")], source="serp")
             out["raw"]["serp_competitors"] = {"status_code": resp.get("status_code"), "task": (data.get("tasks") or [])[:1], "keywords": keywords}
             if not out["serp_competitors"]:
                 notes.append("SERP competitors returned no items.")

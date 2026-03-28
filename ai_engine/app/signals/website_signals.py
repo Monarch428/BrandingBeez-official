@@ -12,6 +12,7 @@ def build_website_signals(
     pagespeed: Optional[Dict[str, Any]] = None,
     content_pages: Optional[List[Dict[str, Any]]] = None,
     uiux: Optional[Dict[str, Any]] = None,
+    site_type: Optional[str] = None,
 ) -> Dict[str, Any]:
     issues: List[str] = []
     strengths: List[str] = []
@@ -138,8 +139,14 @@ def build_website_signals(
             ux_highlights.append("Clear CTA detected on homepage.")
         else:
             ux_issues.append("Primary CTA could not be structurally confirmed on homepage.")
-        if not ux_highlights and not ux_issues:
-            ux_issues.append("No conversion positives detected.")
+        if not ux_highlights:
+            if ux_score >= 80:
+                # Safe narrative guard: avoid contradicting a strong UX score with an empty-negative fallback.
+                ux_highlights.append(
+                    "Strong usability signals were detected overall; focus next on sharpening CTA intent and conversion paths."
+                )
+            elif not ux_issues:
+                ux_issues.append("No conversion positives detected.")
     else:
         # fallback heuristics
         if homepage.get("contactCTA"):
@@ -153,7 +160,7 @@ def build_website_signals(
         ux_score = max(0, min(100, ux_score))
 
     # Content Quality (NEW: multi-page analysis)
-    cq = compute_content_quality(homepage, content_pages or [])
+    cq = compute_content_quality(homepage, content_pages or [], site_type=site_type)
 
     return {
         "technicalSEO": {

@@ -45,13 +45,16 @@ from app.signals.seo_signals import build_seo_signals
 from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
-from app.signals.dataforseo_signals import build_dataforseo_enrichment, build_backlinks_bundle
+from app.signals.dataforseo_signals import build_dataforseo_enrichment, build_backlinks_bundle, filter_competitors
+from app.signals.content_quality import compute_content_quality
+from app.signals.detection_utils import detect_site_type
 from app.signals.market_demand_signals import build_market_demand_bundle
 from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm, build_final_synthesis_with_llm
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
 from app.pipeline.report_data_validation import validate_report_data
+from app.pipeline.report_post_processing import apply_report_scorecard
 
 # Screenshots (evidence)
 try:
@@ -541,6 +544,20 @@ def _run_async_safely(coro):
     return fut.result()
 
 
+def _collect_string_values(value: Any) -> List[str]:
+    out: List[str] = []
+    if isinstance(value, str):
+        if value.strip():
+            out.append(value.strip())
+    elif isinstance(value, dict):
+        for nested in value.values():
+            out.extend(_collect_string_values(nested))
+    elif isinstance(value, list):
+        for nested in value:
+            out.extend(_collect_string_values(nested))
+    return out
+
+
 def build_links_payload(website_url: str, html: str) -> Dict[str, Any]:
     """Prefer Universal extractor if available; otherwise fallback to simple extractor."""
     if extract_links_auto is not None:
@@ -794,8 +811,26 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     # Ensure own_pages exists even if content-page fetch happens later
     own_pages = []
 
+    business_site_type = detect_site_type(
+        {
+            "homepage": homepage,
+            "links": links,
+            "website": final_url or website,
+        }
+    )
+    homepage["detectedSiteType"] = business_site_type
+
     # Signals (guarded)
-    website_section = ensure_dict(build_website_signals(homepage, robots_sitemap, pagespeed, content_pages=own_pages, uiux=uiux))
+    website_section = ensure_dict(
+        build_website_signals(
+            homepage,
+            robots_sitemap,
+            pagespeed,
+            content_pages=own_pages,
+            uiux=uiux,
+            site_type=business_site_type,
+        )
+    )
     seo_section = ensure_dict(build_seo_signals(homepage, robots_sitemap, pagespeed, website_url=(final_url or website)))
     if gsc_summary:
         seo_section["searchConsole"] = gsc_summary
@@ -1095,8 +1130,34 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         logger.warning("[Pipeline] service_scraper failed, continuing: %s", str(e))
         scraped_services = []
 
-    services_section = ensure_dict(build_services_signals(homepage, own_pages, scraped_services=scraped_services))
-    leadgen_section = ensure_dict(build_leadgen_signals(homepage, links))
+    screenshot_text = "\n".join(_collect_string_values(screenshots_bundle))
+    business_site_type = detect_site_type(
+        {
+            "homepage": homepage,
+            "links": links,
+            "pages": own_pages,
+            "scrapedServices": scraped_services,
+            "screenshotsText": screenshot_text,
+            "website": final_url or website,
+        }
+    )
+    homepage["detectedSiteType"] = business_site_type
+    if isinstance(links, dict):
+        links["business_model_site_type"] = business_site_type
+
+    # Refresh content-quality with the richer page set once content pages are available.
+    try:
+        refreshed_cq = compute_content_quality(homepage, own_pages or [], site_type=business_site_type)
+        website_section["contentQuality"] = {
+            "score": refreshed_cq.get("score", 0),
+            "strengths": refreshed_cq.get("strengths", []),
+            "gaps": refreshed_cq.get("gaps", []),
+            "recommendations": refreshed_cq.get("recommendations", []),
+            "meta": refreshed_cq.get("meta", {}),
+        }
+        website_section["contentGaps"] = refreshed_cq.get("gaps", [])
+    except Exception:
+        pass
 
     # ----------------------------
     # Page Registry (Option B): merge 4 sources and reconcile false content gaps
@@ -1126,6 +1187,25 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         sitemap_urls=sitemap_urls,
         internal_links=internal_links_site,
         service_candidates=service_candidate_urls,
+    )
+
+    services_section = ensure_dict(
+        build_services_signals(
+            homepage,
+            own_pages,
+            scraped_services=scraped_services,
+            screenshots_text=screenshot_text,
+            site_type=business_site_type,
+            page_registry=page_registry,
+        )
+    )
+    leadgen_section = ensure_dict(
+        build_leadgen_signals(
+            homepage,
+            links,
+            site_type=business_site_type,
+            page_registry=page_registry,
+        )
     )
 
     # try:
@@ -1300,6 +1380,18 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             "glassdoor.com",
             "wikipedia.org",
             "yelp.com",
+            "yellowpages.com",
+            "trustpilot.com",
+            "mapquest.com",
+            "justdial.com",
+            "clutch.co",
+            "goodfirms.co",
+            "sortlist.com",
+            "designrush.com",
+            "expertise.com",
+            "upcity.com",
+            "bark.com",
+            "threebestrated.com",
         }
 
         def _is_social(d: str) -> bool:
@@ -1334,10 +1426,30 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                 continue
             if _is_social(d):
                 continue
+            metrics = ensure_dict(c.get("metrics"))
+            intersections = metrics.get("intersections")
+            keywords = metrics.get("keywords")
+            rank = metrics.get("rank")
+            if c.get("source") == "DataForSEO Labs serp_competitors":
+                if not any(isinstance(v, (int, float)) and float(v) > 0 for v in (intersections, keywords)) and not (
+                    isinstance(rank, (int, float)) and float(rank) <= 10
+                ):
+                    continue
             if d in seen:
                 continue
             seen.add(d)
             filtered.append(c)
+
+        filtered = filter_competitors(
+            filtered,
+            site_type=business_site_type,
+            target_market=(
+                criteria.get("targetMarket")
+                or criteria.get("primaryTargetMarket")
+                or criteria.get("location")
+            ) if isinstance(criteria, dict) else None,
+            limit=10,
+        )
 
         max_comp = int((criteria.get("competitorMaxCompetitors") or 6) if isinstance(criteria, dict) else 6)
         filtered = filtered[: max(1, min(max_comp, 10))]
@@ -1420,7 +1532,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                 competitor_evidence["notes"].append(f"{d}: enrichment failed ({e})")
 
         if competitive_analysis["competitors"]:
-            competitive_analysis["notes"] = "Competitors inferred and enriched (deterministic extraction + JS-aware crawl)."
+            competitive_analysis["notes"] = f"Competitors inferred and enriched (deterministic extraction + JS-aware crawl, site_type={business_site_type})."
         else:
             competitive_analysis["notes"] = "No competitor data was detected. Provide competitors/keywords in the form or enable DataForSEO Labs."
 
@@ -1992,6 +2104,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                 "extraction": {
                     "linksEngine": ensure_dict(links).get("extraction_engine"),
                     "siteType": ensure_dict(links).get("site_type"),
+                    "businessModelSiteType": business_site_type,
                     "contentPagesUsedPlaywright": any(bool(p.get("usedJsRendering")) for p in (own_pages or []) if isinstance(p, dict)),
                 },
             },
@@ -2225,6 +2338,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         logger.exception("[Pipeline] final synthesis failed; continuing with merged report")
     merged = validate_report_data(merged)
+    # Safe additive pass: compute report-level meta scores from collected evidence before persistence/PDF.
+    merged = apply_report_scorecard(merged)
     repo = ReportsRepository()
     report_id, token = repo.save(merged, final_url)
 
@@ -2254,6 +2369,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     # Normalize/assemble for downstream (PDF generator expects stable shape)
     merged = assemble_final_report(merged)
     merged = validate_report_data(merged)
+    merged = apply_report_scorecard(merged)
 
     return AnalyzeResponse(
         ok=True,

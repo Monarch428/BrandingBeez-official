@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -9,6 +8,7 @@ from difflib import SequenceMatcher
 from app.signals.detection_utils import (
     deduplicate_list_preserve_order,
     detect_case_studies,
+    detect_site_proof_signals,
     detect_testimonials,
 )
 
@@ -26,13 +26,6 @@ def _similar(a: str, b: str) -> float:
 
 
 def _contains_fuzzy(hay: str, needles: List[str], threshold: float = 0.82) -> bool:
-    """Return True if hay contains a token similar to any of needles.
-
-    This is intentionally lightweight (no extra deps). It helps catch:
-    - "What we do" -> Services
-    - "Solutions" -> Services
-    - "Get in touch" -> Contact
-    """
     h = _norm(hay)
     if not h:
         return False
@@ -42,7 +35,6 @@ def _contains_fuzzy(hay: str, needles: List[str], threshold: float = 0.82) -> bo
             continue
         if n2 in h:
             return True
-        # Compare against words and short phrases in the haystack
         parts = re.split(r"[^a-z0-9]+", h)
         parts = [p for p in parts if p]
         for p in parts:
@@ -98,20 +90,16 @@ def _pick(pages: List[Dict[str, Any]], predicate) -> bool:
     return False
 
 
-def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """
-    Returns:
-      score: int (0-100)
-      strengths: List[str]
-      gaps: List[str]
-      recommendations: List[str]
-      meta: debug payload (optional)
-    """
+def compute_content_quality(
+    homepage: Dict[str, Any],
+    pages: List[Dict[str, Any]],
+    *,
+    site_type: str | None = None,
+) -> Dict[str, Any]:
     strengths: List[str] = []
     gaps: List[str] = []
     recs: List[str] = []
 
-    # Combine homepage with fetched internal pages
     all_pages = []
     hp_url = homepage.get("url")
     if hp_url:
@@ -143,62 +131,64 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
 
     evidence_blob = "\n".join(evidence_bits)
 
-    # Coverage checks
     has_services = _pick(all_pages, lambda p: _is_category(p, "services"))
     has_about = _pick(all_pages, lambda p: _is_category(p, "about"))
     has_contact = _pick(all_pages, lambda p: _is_category(p, "contact"))
     has_blog = _pick(all_pages, lambda p: _is_category(p, "blog"))
     has_pricing = _pick(all_pages, lambda p: _is_category(p, "pricing"))
     has_faq = _pick(all_pages, lambda p: _is_category(p, "faq"))
+    proof_signals = detect_site_proof_signals(evidence_blob)
     case_hits = detect_case_studies(evidence_blob)
     testimonial_hits = detect_testimonials(evidence_blob)
     has_case = _pick(all_pages, lambda p: _is_category(p, "case")) or bool(case_hits)
     has_testimonials = _pick(all_pages, lambda p: _is_category(p, "testimonials")) or bool(testimonial_hits)
 
-    # Depth checks (word count)
     word_counts = [int(p.get("wordCount") or 0) for p in pages or [] if isinstance(p, dict)]
     avg_words = int(sum(word_counts) / len(word_counts)) if word_counts else 0
     thin_pages = [p for p in (pages or []) if int(p.get("wordCount") or 0) < 250]
 
-    # On-page basics
     hp_title = bool(homepage.get("title"))
     hp_meta = bool(homepage.get("metaDescription"))
     hp_h1 = int(homepage.get("h1Count") or 0)
 
     if hp_title:
-        strengths.append("Homepage has a clear page title (good for SEO + click-through).")
+        strengths.append("Homepage has a clear page title (good for SEO and click-through).")
     else:
         gaps.append("Homepage title tag is missing or empty.")
-        recs.append("Add a descriptive homepage title (include primary service + location).")
+        recs.append("Add a descriptive homepage title aligned to the primary topic or offer.")
 
     if hp_meta:
         strengths.append("Homepage has a meta description (helps search snippet quality).")
     else:
         gaps.append("Homepage meta description is missing.")
-        recs.append("Write a compelling meta description (value proposition + CTA).")
+        recs.append("Write a compelling meta description with a value proposition and next step.")
 
     if hp_h1 == 1:
         strengths.append("Homepage uses a clean single H1 structure.")
     elif hp_h1 == 0:
         gaps.append("Homepage has no H1 heading.")
-        recs.append("Add one clear H1 that states your primary offer.")
+        recs.append("Add one clear H1 that states the primary topic, offer, or audience value.")
     else:
         gaps.append("Homepage has multiple H1 headings (can confuse SEO structure).")
-        recs.append("Keep one primary H1 per page; use H2/H3 for sections.")
+        recs.append("Keep one primary H1 per page and use H2/H3 for section hierarchy.")
 
-    # Content depth
     if avg_words >= 450:
-        strengths.append("Service/site pages have healthy content depth on average.")
+        strengths.append("Key pages have healthy content depth on average.")
     elif avg_words > 0:
         gaps.append("Many pages are thin on content (low word count).")
-        recs.append("Expand key pages with benefits, process, FAQs, and proof (aim 400–800 words).")
+        recs.append("Expand key pages with benefits, structure, FAQs, and proof.")
 
     if thin_pages:
         gaps.append(f"{len(thin_pages)} internal pages appear thin (<250 words).")
-        recs.append("Increase content depth on thin pages and add section headings (H2/H3) for structure.")
+        recs.append("Increase content depth on thin pages and add clearer section headings.")
 
-    # Coverage/structure (user friendly)
-    if has_services:
+    if site_type == "content_site":
+        if has_blog:
+            strengths.append("Content/archive structure appears present, which suits a content-led site.")
+        else:
+            gaps.append("A clear content archive or topic hub could not be structurally confirmed.")
+            recs.append("Create a clearer blog, insights, or resource hub to strengthen discovery and internal linking.")
+    elif has_services:
         strengths.append("Service information pages are present (good for conversions).")
     else:
         gaps.append("Dedicated services content could not be structurally confirmed.")
@@ -212,19 +202,22 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
 
     if has_contact:
         strengths.append("Contact page appears present.")
-    else:
+    elif site_type != "content_site":
         gaps.append("No Contact page detected.")
         recs.append("Add a Contact page with a short form, phone/email, and a clear CTA.")
 
-    # Proof / credibility
     if has_case:
         if case_hits:
             strengths.append(f'Case-study or portfolio signal detected: "{case_hits[0]}".')
         else:
             strengths.append("Case study / results content appears present (strong proof).")
     else:
-        gaps.append("Case studies or project proof could not be structurally confirmed.")
-        recs.append("Publish 2–5 case studies with metrics, process, and outcomes.")
+        if site_type == "content_site":
+            gaps.append("Proof of results is limited or not clearly merchandised across key pages.")
+            recs.append("Feature standout articles, audience growth proof, or monetization outcomes as visible proof assets.")
+        else:
+            gaps.append("Case studies or project proof could not be structurally confirmed.")
+            recs.append("Publish 2-5 case studies with metrics, process, and outcomes.")
 
     if has_testimonials:
         if testimonial_hits:
@@ -232,40 +225,43 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
         else:
             strengths.append("Testimonials/reviews content appears present (social proof).")
     else:
-        gaps.append("Testimonials are likely present but could not be structurally extracted.")
-        recs.append("Add testimonials to key pages and link to Google reviews.")
+        if proof_signals.get("trustSignals"):
+            gaps.append("Trust signals are present, but not fully extractable in structured form.")
+        else:
+            gaps.append("Testimonials are likely present but could not be structurally extracted.")
+        if site_type == "content_site":
+            recs.append("Add trust markers such as audience numbers, publication logos, or partner mentions near subscription CTAs.")
+        else:
+            recs.append("Add testimonials to key pages and link to public reviews.")
 
-    # Helpful extras
     if has_faq:
-        strengths.append("FAQ content appears present (helps conversions + long-tail SEO).")
-    else:
+        strengths.append("FAQ content appears present (helps conversions and long-tail SEO).")
+    elif site_type != "content_site":
         gaps.append("No FAQ section detected.")
-        recs.append("Add FAQs to services pages to answer common objections.")
+        recs.append("Add FAQs to key conversion pages to answer common objections.")
 
     if has_pricing:
         strengths.append("Pricing/package signals found (reduces friction for leads).")
-    else:
+    elif site_type != "content_site":
         recs.append("If suitable for your business, add pricing ranges or packages to reduce lead friction.")
 
     if has_blog:
         strengths.append("Blog/insights content appears present (helps ongoing SEO).")
-    else:
-        recs.append("If you want SEO growth: add an Insights/Blog section and publish consistently.")
+    elif site_type != "content_site":
+        recs.append("If SEO growth matters, add an Insights/Blog section and publish consistently.")
 
-    # Score (simple but meaningful)
     score = 100
     score -= 10 if not hp_title else 0
     score -= 8 if not hp_meta else 0
     score -= 6 if hp_h1 != 1 else 0
-    score -= 12 if not has_services else 0
+    score -= 12 if (site_type != "content_site" and not has_services) else 0
     score -= 8 if not has_about else 0
     score -= 10 if not has_case else 0
     score -= 6 if not has_testimonials else 0
-    score -= 6 if not has_faq else 0
+    score -= 6 if (site_type != "content_site" and not has_faq) else 0
     score -= 8 if thin_pages else 0
     score = max(0, min(100, score))
 
-    # Deduplicate while preserving order
     def dedupe(items: List[str]) -> List[str]:
         seen = set()
         out = []
@@ -289,5 +285,7 @@ def compute_content_quality(homepage: Dict[str, Any], pages: List[Dict[str, Any]
             "avgWords": avg_words,
             "caseStudySignals": case_hits,
             "testimonialSignals": testimonial_hits,
+            "trustSignals": proof_signals.get("trustSignals", []),
+            "siteType": site_type,
         },
     }

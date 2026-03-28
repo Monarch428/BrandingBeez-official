@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Premium AI Engineer portfolio showcasing machine learning, NLP, computer vision, Python engineering, and production AI systems.">
+  <title>Arjun Verma | AI Engineer Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="cursor cursor-dot"></div>
+  <div class="cursor cursor-ring"></div>
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+
+  <button class="back-to-top" id="backToTop" aria-label="Back to top">
+    <i class="fa-solid fa-arrow-up"></i>
+  </button>
+
+  <header class="site-header">
+    <nav class="navbar container">
+      <a class="brand" href="#hero">
+        <span class="brand-mark">A</span>
+        <span class="brand-copy">
+          <strong>Arjun Verma</strong>
+          <small>AI Systems Engineer</small>
+        </span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Open navigation" aria-expanded="false">
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="nav-menu" id="navMenu">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#skills" class="nav-link">Skills</a>
+        <a href="#projects" class="nav-link">Projects</a>
+        <a href="#journey" class="nav-link">Journey</a>
+        <a href="#certifications" class="nav-link">Certifications</a>
+        <a href="#contact" class="nav-link nav-link-cta">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section id="hero" class="hero section">
+      <div class="hero-grid container">
+        <div class="hero-copy reveal">
+          <span class="eyebrow">
+            <i class="fa-solid fa-sparkles"></i>
+            AI Engineer Portfolio 2026
+          </span>
+          <h1>Building intelligent products that move from prototype to production.</h1>
+          <div class="hero-roles">
+            <span class="role-static">I work as</span>
+            <span class="typing-text" id="typingText" aria-live="polite"></span>
+          </div>
+          <p class="hero-description">
+            AI Engineer and Python Developer focused on end-to-end machine learning systems, LLM-powered workflows,
+            fast APIs, and high-signal analytics products that solve commercial problems, not just technical demos.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#projects" class="button button-primary">View Projects</a>
+            <a href="#" class="button button-secondary">Download Resume</a>
+            <a href="#contact" class="button button-ghost">Contact Me</a>
+          </div>
+
+          <div class="hero-badges">
+            <div class="metric-card glass-card">
+              <strong>7+</strong>
+              <span>Production-grade AI builds</span>
+            </div>
+            <div class="metric-card glass-card">
+              <strong>LLM + ML</strong>
+              <span>Applied across search, chat, vision, and automation</span>
+            </div>
+            <div class="metric-card glass-card">
+              <strong>FastAPI First</strong>
+              <span>Designed for reliable backend delivery</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="portrait-card glass-card">
+            <div class="portrait-header">
+              <span class="status-dot"></span>
+              <span>Live System Overview</span>
+            </div>
+
+            <div class="portrait-shell">
+              <div class="portrait-avatar">
+                <div class="avatar-core">
+                  <span>AV</span>
+                </div>
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+              </div>
+
+              <div class="signal-panel">
+                <div class="signal-row">
+                  <span>Model Ops</span>
+                  <strong>Stable</strong>
+                </div>
+                <div class="signal-row">
+                  <span>Inference Layer</span>
+                  <strong>FastAPI + Python</strong>
+                </div>
+                <div class="signal-row">
+                  <span>Focus</span>
+                  <strong>LLMs, NLP, CV</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="mini-terminal">
+              <div class="terminal-line">
+                <span class="prompt">$</span>
+                <span>deploy --stack "fastapi,llm,mlops,analytics"</span>
+              </div>
+              <div class="terminal-line terminal-accent">system.ready = true</div>
+              <div class="terminal-line">latency.optimized = 94%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">About Me</span>
+          <h2>Engineering AI systems with business context, product thinking, and delivery discipline.</h2>
+        </div>
+
+        <div class="about-layout">
+          <div class="about-panel glass-card reveal">
+            <h3>Profile</h3>
+            <p>
+              I design and ship AI-backed products that connect model intelligence with real user workflows. My work
+              spans Python backend development, machine learning pipelines, retrieval systems, automation layers, and
+              production dashboards for teams that need measurable outcomes.
+            </p>
+            <p>
+              I care about model quality, API reliability, system observability, and how AI features actually support
+              acquisition, operations, or decision-making.
+            </p>
+          </div>
+
+          <div class="about-highlights reveal">
+            <article class="highlight-card glass-card">
+              <i class="fa-solid fa-brain"></i>
+              <h3>AI Specialization</h3>
+              <p>LLM integration, retrieval pipelines, predictive modeling, NLP workflows, and computer vision inference.</p>
+            </article>
+            <article class="highlight-card glass-card">
+              <i class="fa-solid fa-server"></i>
+              <h3>Backend Strength</h3>
+              <p>FastAPI, Django, PostgreSQL, REST APIs, validation layers, and production-safe Python engineering.</p>
+            </article>
+            <article class="highlight-card glass-card">
+              <i class="fa-solid fa-chart-line"></i>
+              <h3>Commercial Lens</h3>
+              <p>Focused on products that improve conversion, automate manual work, and surface better decisions from data.</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills" class="section section-alt">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Skill Matrix</span>
+          <h2>Technical stack built for model development, APIs, experimentation, and product delivery.</h2>
+        </div>
+
+        <div class="skills-grid">
+          <article class="skill-card glass-card reveal">
+            <div class="skill-card-heading">
+              <h3>Programming Languages</h3>
+              <span>Engineering Core</span>
+            </div>
+            <div class="skill-track">
+              <div class="skill-meta"><span>Python</span><span>96%</span></div>
+              <div class="progress"><span data-progress="96"></span></div>
+            </div>
+            <div class="skill-track">
+              <div class="skill-meta"><span>SQL</span><span>87%</span></div>
+              <div class="progress"><span data-progress="87"></span></div>
+            </div>
+            <div class="skill-track">
+              <div class="skill-meta"><span>JavaScript</span><span>78%</span></div>
+              <div class="progress"><span data-progress="78"></span></div>
+            </div>
+          </article>
+
+          <article class="skill-card glass-card reveal">
+            <div class="skill-card-heading">
+              <h3>AI / ML</h3>
+              <span>Modeling Layer</span>
+            </div>
+            <div class="chip-list">
+              <span>Machine Learning</span>
+              <span>Deep Learning</span>
+              <span>NLP</span>
+              <span>Computer Vision</span>
+              <span>RAG Systems</span>
+              <span>Prompt Engineering</span>
+              <span>Model Evaluation</span>
+            </div>
+          </article>
+
+          <article class="skill-card glass-card reveal">
+            <div class="skill-card-heading">
+              <h3>Frameworks / Libraries</h3>
+              <span>Implementation Layer</span>
+            </div>
+            <div class="chip-list">
+              <span>TensorFlow</span>
+              <span>PyTorch</span>
+              <span>Scikit-learn</span>
+              <span>Pandas</span>
+              <span>NumPy</span>
+              <span>FastAPI</span>
+              <span>Django</span>
+              <span>OpenAI API</span>
+            </div>
+          </article>
+
+          <article class="skill-card glass-card reveal">
+            <div class="skill-card-heading">
+              <h3>Tools / Platforms</h3>
+              <span>Delivery Layer</span>
+            </div>
+            <div class="chip-list">
+              <span>Git</span>
+              <span>Docker</span>
+              <span>Postman</span>
+              <span>Jupyter</span>
+              <span>VS Code</span>
+              <span>Linux</span>
+              <span>PostgreSQL</span>
+              <span>MongoDB</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects" class="section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Featured Projects</span>
+          <h2>Selected builds across predictive analytics, conversational AI, NLP systems, and intelligent dashboards.</h2>
+        </div>
+
+        <div class="project-toolbar reveal">
+          <button class="filter-button is-active" data-filter="all">All</button>
+          <button class="filter-button" data-filter="ml">Machine Learning</button>
+          <button class="filter-button" data-filter="nlp">NLP / LLM</button>
+          <button class="filter-button" data-filter="vision">Computer Vision</button>
+          <button class="filter-button" data-filter="fullstack">AI Product</button>
+        </div>
+
+        <div class="projects-grid">
+          <article class="project-card glass-card reveal" data-category="ml">
+            <div class="project-top">
+              <span class="project-tag">Prediction</span>
+              <h3>IPL Match Prediction App</h3>
+            </div>
+            <p>Built a live match outcome predictor using historical IPL features, form signals, and venue conditions.</p>
+            <ul class="project-points">
+              <li>Key feature: probability-driven prediction interface with explainable feature signals</li>
+              <li>Stack: Python, Scikit-learn, Pandas, FastAPI, JavaScript</li>
+            </ul>
+            <div class="project-links">
+              <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="#"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+            </div>
+          </article>
+
+          <article class="project-card glass-card reveal" data-category="nlp">
+            <div class="project-top">
+              <span class="project-tag">Conversational AI</span>
+              <h3>Mental Health Chatbot</h3>
+            </div>
+            <p>Designed a safe-response support chatbot with intent routing, empathetic prompt layers, and escalation logic.</p>
+            <ul class="project-points">
+              <li>Key feature: tone-aware conversation flow with crisis-sensitive fallback handling</li>
+              <li>Stack: Python, NLP, FastAPI, OpenAI API, vector retrieval</li>
+            </ul>
+            <div class="project-links">
+              <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="#"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+            </div>
+          </article>
+
+          <article class="project-card glass-card reveal" data-category="vision">
+            <div class="project-top">
+              <span class="project-tag">Vision</span>
+              <h3>Traffic Sign Classifier</h3>
+            </div>
+            <p>Trained a deep learning classifier to identify traffic signs accurately across noisy image inputs.</p>
+            <ul class="project-points">
+              <li>Key feature: augmentation-aware CNN pipeline with deployable image inference endpoint</li>
+              <li>Stack: TensorFlow, OpenCV, NumPy, Flask/FastAPI</li>
+            </ul>
+            <div class="project-links">
+              <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="#"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+            </div>
+          </article>
+
+          <article class="project-card glass-card reveal" data-category="nlp">
+            <div class="project-top">
+              <span class="project-tag">Search Intelligence</span>
+              <h3>NLP Text Retrieval System</h3>
+            </div>
+            <p>Created a semantic search system for fast query-to-document matching over a custom knowledge base.</p>
+            <ul class="project-points">
+              <li>Key feature: hybrid retrieval with ranking logic for high-intent answer discovery</li>
+              <li>Stack: Python, embeddings, vector DB, FastAPI, JavaScript</li>
+            </ul>
+            <div class="project-links">
+              <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="#"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+            </div>
+          </article>
+
+          <article class="project-card glass-card reveal" data-category="fullstack">
+            <div class="project-top">
+              <span class="project-tag">Generative AI</span>
+              <h3>AI Poster Generator</h3>
+            </div>
+            <p>Developed a prompt-to-poster workflow for campaign visuals, layout generation, and brand-safe asset export.</p>
+            <ul class="project-points">
+              <li>Key feature: guided prompt pipeline with reusable design presets for quick iteration</li>
+              <li>Stack: OpenAI API, Python, image pipeline tooling, vanilla JS</li>
+            </ul>
+            <div class="project-links">
+              <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="#"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+            </div>
+          </article>
+
+          <article class="project-card glass-card reveal" data-category="fullstack">
+            <div class="project-top">
+              <span class="project-tag">AI Dashboard</span>
+              <h3>SEO Audit AI Dashboard</h3>
+            </div>
+            <p>Built a multi-stage analysis engine for technical SEO, lead generation, reputation, and AI-written business reports.</p>
+            <ul class="project-points">
+              <li>Key feature: schema-safe report generation with screenshots, scoring, and consultant-style output</li>
+              <li>Stack: FastAPI, Python, Playwright, LLM APIs, PDF rendering</li>
+            </ul>
+            <div class="project-links">
+              <a href="#"><i class="fa-brands fa-github"></i> GitHub</a>
+              <a href="#"><i class="fa-solid fa-arrow-up-right-from-square"></i> Live Demo</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="journey" class="section section-alt">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Experience & Education</span>
+          <h2>A focused path through Python engineering, AI systems, and applied machine learning.</h2>
+        </div>
+
+        <div class="timeline">
+          <article class="timeline-item reveal">
+            <span class="timeline-marker"></span>
+            <div class="timeline-card glass-card">
+              <span class="timeline-period">2025 - Present</span>
+              <h3>AI Engineer / Python Developer</h3>
+              <p class="timeline-meta">Independent Projects & Product Builds</p>
+              <p>Designed LLM-based tools, predictive systems, retrieval workflows, and analytics dashboards with production-style backend architecture.</p>
+            </div>
+          </article>
+
+          <article class="timeline-item reveal">
+            <span class="timeline-marker"></span>
+            <div class="timeline-card glass-card">
+              <span class="timeline-period">2024 - 2025</span>
+              <h3>Machine Learning Intern</h3>
+              <p class="timeline-meta">Applied AI Training Program</p>
+              <p>Worked on supervised learning pipelines, feature engineering, model evaluation, and practical deployment patterns for business-facing AI use cases.</p>
+            </div>
+          </article>
+
+          <article class="timeline-item reveal">
+            <span class="timeline-marker"></span>
+            <div class="timeline-card glass-card">
+              <span class="timeline-period">2021 - 2024</span>
+              <h3>Bachelor's in Computer Science</h3>
+              <p class="timeline-meta">Data Structures, Algorithms, Databases, Software Engineering</p>
+              <p>Built strong fundamentals in computing, while specializing independently in machine learning, Python systems, and backend development.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="certifications" class="section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Certifications</span>
+          <h2>Proof of continued upskilling across AI, Python, cloud tooling, and data systems.</h2>
+        </div>
+
+        <div class="cert-grid">
+          <article class="cert-card glass-card reveal">
+            <span class="cert-year">2026</span>
+            <h3>Advanced Applied Machine Learning</h3>
+            <p>Issuer: Coursera / DeepLearning.AI</p>
+          </article>
+          <article class="cert-card glass-card reveal">
+            <span class="cert-year">2025</span>
+            <h3>Natural Language Processing Specialization</h3>
+            <p>Issuer: DeepLearning.AI</p>
+          </article>
+          <article class="cert-card glass-card reveal">
+            <span class="cert-year">2025</span>
+            <h3>Python for Data Engineering</h3>
+            <p>Issuer: IBM / Coursera</p>
+          </article>
+          <article class="cert-card glass-card reveal">
+            <span class="cert-year">2024</span>
+            <h3>TensorFlow Developer Certification Prep</h3>
+            <p>Issuer: Google / TensorFlow</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="stats" class="section section-alt">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Impact Snapshot</span>
+          <h2>Numbers that reflect delivery range, experimentation depth, and hands-on technical breadth.</h2>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card glass-card reveal">
+            <strong class="counter" data-target="18">0</strong>
+            <span>Projects Completed</span>
+          </article>
+          <article class="stat-card glass-card reveal">
+            <strong class="counter" data-target="32">0</strong>
+            <span>AI Models Built</span>
+          </article>
+          <article class="stat-card glass-card reveal">
+            <strong class="counter" data-target="9">0</strong>
+            <span>Certifications</span>
+          </article>
+          <article class="stat-card glass-card reveal">
+            <strong class="counter" data-target="24">0</strong>
+            <span>Technologies Used</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section">
+      <div class="container">
+        <div class="section-heading reveal">
+          <span class="eyebrow">Contact</span>
+          <h2>Open to AI engineering roles, contract builds, backend product work, and applied ML opportunities.</h2>
+        </div>
+
+        <div class="contact-layout">
+          <div class="contact-panel glass-card reveal">
+            <h3>Let's build something useful.</h3>
+            <p>I am interested in AI engineering, Python backend development, ML product roles, and applied intelligence systems with real business impact.</p>
+
+            <div class="contact-list">
+              <a href="mailto:arjun.ai@example.com"><i class="fa-solid fa-envelope"></i> arjun.ai@example.com</a>
+              <a href="https://www.linkedin.com" target="_blank" rel="noreferrer"><i class="fa-brands fa-linkedin-in"></i> linkedin.com/in/arjunverma</a>
+              <a href="https://github.com" target="_blank" rel="noreferrer"><i class="fa-brands fa-github"></i> github.com/arjunverma-ai</a>
+              <p><i class="fa-solid fa-location-dot"></i> Bengaluru, India</p>
+            </div>
+          </div>
+
+          <form class="contact-form glass-card reveal" id="contactForm">
+            <div class="field-grid">
+              <label>
+                <span>Name</span>
+                <input type="text" name="name" placeholder="Your name" required>
+              </label>
+              <label>
+                <span>Email</span>
+                <input type="email" name="email" placeholder="Your email" required>
+              </label>
+            </div>
+            <label>
+              <span>Subject</span>
+              <input type="text" name="subject" placeholder="Project / role / collaboration" required>
+            </label>
+            <label>
+              <span>Message</span>
+              <textarea name="message" rows="5" placeholder="Tell me about the role, project, or opportunity." required></textarea>
+            </label>
+            <button type="submit" class="button button-primary button-full">Send Message</button>
+            <p class="form-status" id="formStatus" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <p>&copy; 2026 Arjun Verma. AI Engineer Portfolio.</p>
+      <div class="footer-links">
+        <a href="https://github.com" target="_blank" rel="noreferrer"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com" target="_blank" rel="noreferrer"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="mailto:arjun.ai@example.com"><i class="fa-solid fa-envelope"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

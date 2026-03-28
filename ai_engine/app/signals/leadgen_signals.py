@@ -1,6 +1,11 @@
 from typing import Any, Dict, List
 
-from app.signals.detection_utils import deduplicate_list_preserve_order, detect_cta
+from app.signals.detection_utils import (
+    deduplicate_list_preserve_order,
+    detect_cta,
+    detect_site_proof_signals,
+    detect_site_type,
+)
 
 LEAD_MAGNET_PATTERNS = [
     ("ebook", "Ebook"),
@@ -38,7 +43,13 @@ def _normalize_url_list(value: Any) -> List[str]:
     return out
 
 
-def build_leadgen_signals(homepage: Dict[str, Any], links: Dict[str, Any]) -> Dict[str, Any]:
+def build_leadgen_signals(
+    homepage: Dict[str, Any],
+    links: Dict[str, Any],
+    *,
+    site_type: str | None = None,
+    page_registry: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
     channels: List[Dict[str, Any]] = []
 
     html = _safe_text(homepage.get("html"))
@@ -51,7 +62,9 @@ def build_leadgen_signals(homepage: Dict[str, Any], links: Dict[str, Any]) -> Di
         " ".join(internal_links[:250]),
     ]).lower()
 
+    resolved_site_type = site_type or detect_site_type({"homepage": homepage, "links": links})
     cta_hits = detect_cta(text_blob)
+    proof_signals = detect_site_proof_signals(text_blob, page_registry)
     has_homepage_cta = bool(homepage.get("contactCTA")) or bool(cta_hits)
     cta_urls = [u for u in internal_links if any(token in u.lower() for token in CTA_TOKENS)]
     has_form = "<form" in html.lower()
@@ -67,7 +80,11 @@ def build_leadgen_signals(homepage: Dict[str, Any], links: Dict[str, Any]) -> Di
             "notes": (
                 f"Homepage CTA or form detected. Signals: {', '.join(cta_hits[:3])}."
                 if has_homepage_cta or has_form
-                else "CTA signals are likely present but could not be structurally extracted."
+                else (
+                    "CTA signals are likely present but could not be structurally extracted."
+                    if resolved_site_type == "service_business"
+                    else "Conversion prompts appear lighter or content-led; a stronger primary CTA may still improve lead capture."
+                )
             ),
         }
     )
@@ -114,6 +131,18 @@ def build_leadgen_signals(homepage: Dict[str, Any], links: Dict[str, Any]) -> Di
                 "status": "Detected",
                 "notes": "Newsletter or email signup signals detected.",
             }
+            )
+
+    trust_hits = (proof_signals.get("testimonials") or []) + (proof_signals.get("trustSignals") or [])
+    if trust_hits:
+        channels.append(
+            {
+                "channel": "Proof-assisted conversion support",
+                "leadsPerMonth": "Directional only",
+                "quality": "Conversion support",
+                "status": "Detected",
+                "notes": f"Trust or testimonial signals detected: {', '.join(trust_hits[:3])}.",
+            }
         )
 
     lead_magnets: List[Dict[str, Any]] = []
@@ -159,9 +188,17 @@ def build_leadgen_signals(homepage: Dict[str, Any], links: Dict[str, Any]) -> Di
 
     missing: List[str] = []
     if not has_homepage_cta and not cta_urls:
-        missing.append("CTA signals are likely present but could not be structurally extracted.")
+        if resolved_site_type == "content_site":
+            missing.append("A stronger subscription, download, or consultation CTA could improve content-to-lead conversion.")
+        elif resolved_site_type == "ecommerce":
+            missing.append("A stronger primary CTA and clearer product-to-inquiry path could improve conversion coverage.")
+        else:
+            missing.append("CTA signals are likely present but could not be structurally extracted.")
     if not deduped:
-        missing.append("No obvious top- or mid-funnel lead magnet was detected. Add a guide, calculator, or diagnostic audit offer.")
+        if resolved_site_type == "content_site":
+            missing.append("No obvious subscriber or downloadable content offer was detected. Add a newsletter, guide, or template CTA.")
+        elif resolved_site_type == "service_business":
+            missing.append("No obvious top- or mid-funnel lead magnet was detected. Add a guide, calculator, or diagnostic audit offer.")
 
     channels = deduplicate_list_preserve_order(channels)
     deduped = deduplicate_list_preserve_order(deduped)
@@ -171,8 +208,12 @@ def build_leadgen_signals(homepage: Dict[str, Any], links: Dict[str, Any]) -> Di
         "channels": channels,
         "mentorNotes": (
             "CTA signals are likely present but could not be structurally extracted."
-            if cta_hits and not cta_urls
-            else None
+            if cta_hits and not cta_urls and resolved_site_type == "service_business"
+            else (
+                "Lead capture appears to rely more on content and trust pathways than on a single dominant CTA."
+                if resolved_site_type == "content_site" and (cta_hits or trust_hits)
+                else None
+            )
         ),
         "missingHighROIChannels": missing,
         "leadMagnets": deduped,

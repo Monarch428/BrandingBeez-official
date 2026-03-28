@@ -6,8 +6,9 @@ import re
 from app.signals.detection_utils import (
     deduplicate_list_preserve_order,
     detect_case_studies,
+    detect_site_proof_signals,
+    detect_site_type,
     detect_services,
-    detect_testimonials,
     has_generic_service_cues,
 )
 
@@ -20,6 +21,8 @@ SERVICE_MAP = [
     (r"\bppc\b|pay per click|google ads|adwords", "PPC / Google Ads"),
     (r"\bsocial media\b|facebook ads|instagram ads|tiktok ads|linkedin ads", "Social Media Marketing"),
     (r"\bweb design\b|website design|ui/ux|ux design|web development|website development", "Web Design & Development"),
+    (r"\bapp development\b|mobile app development|ios app|android app", "App Development"),
+    (r"\bdesign\b|creative design|product design", "Design"),
     (r"\bbranding\b|brand identity|logo design", "Branding & Identity"),
     (r"\bcontent marketing\b|copywriting|blog writing|content strategy", "Content Marketing"),
     (r"\bemail marketing\b|newsletter|klaviyo|mailchimp", "Email Marketing"),
@@ -76,7 +79,28 @@ def _extract_industries_from_text(text: str) -> List[str]:
         out.append(s)
     return out
 
-def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[Dict[str, Any]] | None = None, scraped_services: List[Dict[str, Any]] | None = None) -> Dict[str, Any]:
+
+def _collect_text_values(source: Dict[str, Any] | None, keys: tuple[str, ...]) -> List[str]:
+    out: List[str] = []
+    if not isinstance(source, dict):
+        return out
+    for key in keys:
+        value = source.get(key)
+        if isinstance(value, str) and value.strip():
+            out.append(value)
+        elif isinstance(value, list):
+            out.extend([str(item) for item in value if isinstance(item, str) and item.strip()])
+    return out
+
+def build_services_signals(
+    homepage: Dict[str, Any] | None = None,
+    pages: List[Dict[str, Any]] | None = None,
+    scraped_services: List[Dict[str, Any]] | None = None,
+    *,
+    screenshots_text: Any = None,
+    site_type: str | None = None,
+    page_registry: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
     """
     Deterministic, best-effort services extraction using already-fetched content pages.
     This avoids empty 'Services' section in the PDF when the LLM is conservative.
@@ -93,16 +117,31 @@ def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[D
         chunks.append(homepage.get("metaDescription"))
     if isinstance(homepage.get("text"), str):
         chunks.append(homepage.get("text"))
+    chunks.extend(
+        _collect_text_values(
+            homepage,
+            ("h1", "headings", "ocrText", "screenshotText", "imageText", "heroText"),
+        )
+    )
 
+    page_html_chunks: List[str] = []
     for p in pages:
         if not isinstance(p, dict):
             continue
         for k in ("title", "metaDescription", "textSnippet", "h1"):
             if isinstance(p.get(k), str) and p.get(k).strip():
                 chunks.append(p.get(k))
+        chunks.extend(
+            _collect_text_values(
+                p,
+                ("headings", "ocrText", "screenshotText", "imageText", "heroText"),
+            )
+        )
         nav_labels = p.get("navLabels")
         if isinstance(nav_labels, list):
             chunks.extend([x for x in nav_labels if isinstance(x, str) and x.strip()])
+        if isinstance(p.get("html"), str) and p.get("html").strip():
+            page_html_chunks.append(p.get("html"))
 
     # Optional: richer scraper output (service cards/pages)
     if scraped_services:
@@ -116,17 +155,33 @@ def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[D
                     chunks.append(name)
                 if desc:
                     chunks.append(desc)
+                chunks.extend(
+                    _collect_text_values(
+                        s,
+                        ("heading", "headings", "ocrText", "screenshotText", "imageText"),
+                    )
+                )
         except Exception:
             pass
 
     evidence = "\n".join(chunks)
     homepage_html = homepage.get("html") if isinstance(homepage.get("html"), str) else ""
-    services = detect_services(homepage_html, evidence)
+    combined_html = "\n".join([homepage_html, *page_html_chunks])
+    resolved_site_type = site_type or detect_site_type(
+        {
+            "homepage": homepage,
+            "pages": pages,
+            "scrapedServices": scraped_services,
+            "screenshotsText": screenshots_text,
+        }
+    )
+    services = detect_services(combined_html, evidence, screenshots_text=screenshots_text)
     if not services:
         services = _extract_services_from_text(evidence)
     services = deduplicate_list_preserve_order(services)
     industries = _extract_industries_from_text(evidence)
-    testimonial_hits = detect_testimonials("\n".join([homepage_html, evidence]))
+    proof_signals = detect_site_proof_signals("\n".join([homepage_html, evidence, str(screenshots_text or "")]), page_registry)
+    testimonial_hits = proof_signals.get("testimonials") or []
     case_study_hits = detect_case_studies(
         {
             "homepage": {
@@ -136,7 +191,9 @@ def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[D
             },
             "pages": pages,
             "scrapedServices": scraped_services,
-        }
+            "screenshotsText": screenshots_text,
+        },
+        page_registry=page_registry,
     )
 
     # Create list objects for PDF (name/description/targetMarket)
@@ -172,23 +229,26 @@ def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[D
     if not services_list and service_cues_present:
         services_list.append(
             {
-                "name": "Services likely present but could not be structurally extracted",
+                "name": "Services are clearly present, but the extraction layer could not fully structure them.",
                 "startingPrice": None,
                 "targetMarket": None,
-                "description": "Detected service-related headings or service cues in site content. Manual review recommended.",
+                "description": "Detected service-related headings, on-page text, or screenshot-derived cues in site content. Manual review recommended.",
             }
         )
 
 
     # Service gaps: compare against a baseline checklist for agencies
-    baseline = [
-        "SEO",
-        "PPC / Google Ads",
-        "Social Media Marketing",
-        "Web Design & Development",
-        "Content Marketing",
-        "Conversion Rate Optimisation",
-    ]
+    if resolved_site_type == "service_business":
+        baseline = [
+            "SEO",
+            "PPC / Google Ads",
+            "Social Media Marketing",
+            "Web Design & Development",
+            "Content Marketing",
+            "Conversion Rate Optimisation",
+        ]
+    else:
+        baseline = []
     gaps = [s for s in baseline if s not in services]
 
     positioning_statement = None
@@ -199,13 +259,20 @@ def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[D
 
     mentor_notes = None
     if service_cues_present and len(services) == 0:
-        mentor_notes = "Services are likely present but could not be structurally extracted."
-    if testimonial_hits or case_study_hits:
+        mentor_notes = "Services are clearly present, but the extraction layer could not fully structure them."
+    if resolved_site_type == "content_site":
+        mentor_notes = "This appears to be a content-led site. Service extraction is treated conservatively so editorial content is not over-classified as a service catalogue."
+    elif resolved_site_type == "ecommerce":
+        mentor_notes = "This appears to be an ecommerce-led site. Service extraction is treated conservatively so product/catalog content is not over-classified as agency services."
+    if testimonial_hits or case_study_hits or proof_signals.get("trustSignals"):
         proof_parts: List[str] = []
         if testimonial_hits:
             proof_parts.append(f"Trust signals detected: {', '.join(testimonial_hits[:2])}.")
         if case_study_hits:
             proof_parts.append(f"Proof/case-study signals detected: {', '.join(case_study_hits[:2])}.")
+        trust_hits = proof_signals.get("trustSignals") or []
+        if trust_hits:
+            proof_parts.append(f"Additional trust markers detected: {', '.join(trust_hits[:2])}.")
         proof_note = " ".join(proof_parts).strip()
         mentor_notes = " ".join([n for n in [mentor_notes, proof_note] if n]).strip() or None
 
@@ -223,5 +290,5 @@ def build_services_signals(homepage: Dict[str, Any] | None = None, pages: List[D
             "competitorComparison": "N/A",
             "differentiation": "N/A",
         },
-        "notes": "Generated from on-site content evidence (deterministic extractor).",
+        "notes": f"Generated from on-site content evidence (deterministic extractor, site_type={resolved_site_type}).",
     }
