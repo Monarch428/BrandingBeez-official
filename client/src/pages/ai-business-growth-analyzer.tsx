@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -33,6 +34,17 @@ interface FormState {
   location: string;
   industry: string; // Primary services industry
   targetMarket: string;
+
+  // Optional legacy estimation inputs expected by the old backend / Python engine
+  monthlyAdSpendRange: string;
+  toolsStackEstimate: string;
+  teamSizeRange: string;
+  idealCustomer: string;
+  primaryRegion: string;
+  avgDealValueRange: string;
+  leadsPerMonthRange: string;
+  closeRateRange: string;
+  currentTrafficPerMonthRange: string;
 }
 
 interface FormErrors {
@@ -56,6 +68,7 @@ interface LeadFormErrors {
 }
 
 type Step = "capture" | "existing" | "analysis" | "summary" | "lead" | "success";
+type CaptureFormStep = 1 | 2 | 3;
 type StageState = "pending" | "active" | "complete";
 
 const stepOrder: Step[] = ["capture", "existing", "analysis", "summary", "lead", "success"];
@@ -372,7 +385,17 @@ export default function AIBusinessGrowthAnalyzerPage() {
     location: "",
     industry: "",
     targetMarket: "",
+    monthlyAdSpendRange: "",
+    toolsStackEstimate: "",
+    teamSizeRange: "",
+    idealCustomer: "",
+    primaryRegion: "",
+    avgDealValueRange: "",
+    leadsPerMonthRange: "",
+    closeRateRange: "",
+    currentTrafficPerMonthRange: "",
   });
+  const [captureFormStep, setCaptureFormStep] = useState<CaptureFormStep>(1);
   const [errors, setErrors] = useState<FormErrors>({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -458,6 +481,40 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const summaryWeaknesses = useMemo(() => analysisData?.executiveSummary?.weaknesses ?? [], [analysisData]);
   const biggestOpportunity = useMemo(() => analysisData?.executiveSummary?.biggestOpportunity ?? "", [analysisData]);
 
+  const validateCaptureStepOne = () => {
+    const nextErrors: FormErrors = {
+      companyName: validateCompanyName(formState.companyName),
+      website: validateWebsite(formState.website),
+      location: validateLocation(formState.location),
+      industry: validatePrimaryServicesIndustry(formState.industry),
+      targetMarket: validateTargetMarketField(formState.targetMarket),
+    };
+
+    setErrors(nextErrors);
+    return !Object.values(nextErrors).some(Boolean);
+  };
+
+  const handleCaptureNext = () => {
+    if (captureFormStep === 1) {
+      const isValid = validateCaptureStepOne();
+      if (!isValid) {
+        if (validateCompanyName(formState.companyName)) companyNameRef.current?.focus();
+        return;
+      }
+      setCaptureFormStep(2);
+      return;
+    }
+
+    if (captureFormStep === 2) {
+      setCaptureFormStep(3);
+    }
+  };
+
+  const handleCaptureBack = () => {
+    if (captureFormStep === 1) return;
+    setCaptureFormStep((prev) => (prev === 3 ? 2 : 1));
+  };
+
   const reportPreview = useMemo(
     () => [
       { title: "Website", description: "Structure, UX, technical score insights" },
@@ -539,14 +596,22 @@ export default function AIBusinessGrowthAnalyzerPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // ✅ only the 5 inputs we want from frontend
           companyName: formState.companyName.trim(),
           website: normalizedWebsite,
           location: formState.location.trim(),
           industry: formState.industry.trim(),
           targetMarket: formState.targetMarket.trim(),
-
-          // frontend can request forceNewAnalysis; backend should set estimationMode true by default
+          estimationInputs: {
+            monthlyAdSpendRange: formState.monthlyAdSpendRange.trim(),
+            toolsStackEstimate: formState.toolsStackEstimate.trim(),
+            teamSizeRange: formState.teamSizeRange.trim(),
+            idealCustomer: formState.idealCustomer.trim(),
+            primaryRegion: formState.primaryRegion.trim(),
+            avgDealValueRange: formState.avgDealValueRange.trim(),
+            leadsPerMonthRange: formState.leadsPerMonthRange.trim(),
+            closeRateRange: formState.closeRateRange.trim(),
+            currentTrafficPerMonthRange: formState.currentTrafficPerMonthRange.trim(),
+          },
           forceNewAnalysis: Boolean(opts?.forceNewAnalysis),
         }),
       });
@@ -557,6 +622,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
         if (payload?.code === "WEBSITE_NOT_REACHABLE") {
           const msg = payload?.message || "Website is not reachable. Please enter a correct URL and try again.";
           setErrors((prev) => ({ ...(prev as FormErrors), website: msg }));
+          setCaptureFormStep(1);
           setStep("capture");
           throw new Error(msg);
         }
@@ -931,118 +997,207 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                   {/* CAPTURE */}
                   {step === "capture" && (
-                    <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSubmit}>
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Company Name</label>
-                        <Input
-                          ref={companyNameRef}
-                          placeholder="BrandingBeez"
-                          value={formState.companyName}
-                          onChange={(e) => handleInputChange("companyName", e.target.value)}
-                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), companyName: undefined }))}
-                          aria-invalid={Boolean(errors.companyName)}
-                          aria-describedby="companyNameError"
-                        />
-                        {errors.companyName && (
-                          <p id="companyNameError" className="text-sm text-red-500">
-                            {errors.companyName}
-                          </p>
-                        )}
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+                      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+                        {[1, 2, 3].map((item) => {
+                          const current = item as CaptureFormStep;
+                          const state = current < captureFormStep ? "complete" : current === captureFormStep ? "active" : "upcoming";
+                          return (
+                            <div key={item} className="flex items-center gap-2">
+                              <div
+                                className={cn(
+                                  "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-bold",
+                                  state === "complete" && "border-emerald-500 bg-emerald-50 text-emerald-600",
+                                  state === "active" && "border-primary bg-primary/10 text-primary",
+                                  state === "upcoming" && "border-gray-200 bg-white text-gray-400",
+                                )}
+                              >
+                                {state === "complete" ? <CheckCircle2 className="h-4 w-4" /> : item}
+                              </div>
+                              <div>
+                                <p className="text-sm font-semibold text-gray-900">Step {item}</p>
+                                <p className="text-xs text-gray-500">
+                                  {item === 1 ? "Required business basics" : item === 2 ? "Optional estimation inputs" : "Optional market inputs"}
+                                </p>
+                              </div>
+                              {item < 3 && <ChevronRight className="h-4 w-4 text-gray-300" />}
+                            </div>
+                          );
+                        })}
                       </div>
 
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Company Website URL</label>
-                        <Input
-                          placeholder="https://youragency.com"
-                          value={formState.website}
-                          onChange={(e) => handleInputChange("website", e.target.value)}
-                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), website: undefined }))}
-                          aria-invalid={Boolean(errors.website)}
-                          aria-describedby="websiteError"
-                        />
-                        <p className="text-xs text-gray-500">We’ll analyze this and auto-fix prefixes.</p>
-                        {errors.website && (
-                          <p id="websiteError" className="text-sm text-red-500">
-                            {errors.website}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Location</label>
-                        <Input
-                          placeholder="e.g., London, UK"
-                          value={formState.location}
-                          onChange={(e) => handleInputChange("location", e.target.value)}
-                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), location: undefined }))}
-                          aria-invalid={Boolean(errors.location)}
-                          aria-describedby="locationError"
-                        />
-                        {errors.location && (
-                          <p id="locationError" className="text-sm text-red-500">
-                            {errors.location}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <label className="text-sm font-semibold text-gray-800">Primary Services Industry</label>
-                        <Input
-                          placeholder="e.g., SEO / Web Design / Google Ads"
-                          value={formState.industry}
-                          onChange={(e) => handleInputChange("industry", e.target.value)}
-                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), industry: undefined }))}
-                          aria-invalid={Boolean(errors.industry)}
-                          aria-describedby="industryError"
-                        />
-                        {errors.industry && (
-                          <p id="industryError" className="text-sm text-red-500">
-                            {errors.industry}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <label className="text-sm font-semibold text-gray-800">Target Market</label>
-                        <Input
-                          placeholder="e.g., Local businesses in the UK / US e-commerce brands"
-                          value={formState.targetMarket}
-                          onChange={(e) => handleInputChange("targetMarket", e.target.value)}
-                          onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), targetMarket: undefined }))}
-                          aria-invalid={Boolean(errors.targetMarket)}
-                          aria-describedby="targetMarketError"
-                        />
-                        {errors.targetMarket && (
-                          <p id="targetMarketError" className="text-sm text-red-500">
-                            {errors.targetMarket}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="md:col-span-2 flex flex-col gap-3">
-                        <Button type="submit" disabled={isSubmitting || latestCheckLoading} className="h-12 text-base font-semibold">
-                          {isSubmitting || latestCheckLoading ? (
-                            <span className="flex items-center gap-2">
-                              <Loader2 className="w-5 h-5 animate-spin" /> Validating...
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-2">
-                              Start Free Analysis <ArrowRight className="w-4 h-4" />
-                            </span>
-                          )}
-                        </Button>
-
-                        {latestCheckMessage && (
-                          <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-sm flex items-start gap-2">
-                            <AlertTriangle className="w-4 h-4 mt-0.5" />
-                            <span>{latestCheckMessage}</span>
+                      {captureFormStep === 1 && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-800">Company Name <span className="text-red-500">*</span></label>
+                            <Input
+                              ref={companyNameRef}
+                              placeholder="BrandingBeez"
+                              value={formState.companyName}
+                              onChange={(e) => handleInputChange("companyName", e.target.value)}
+                              onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), companyName: undefined }))}
+                              aria-invalid={Boolean(errors.companyName)}
+                              aria-describedby="companyNameError"
+                            />
+                            {errors.companyName && <p id="companyNameError" className="text-sm text-red-500">{errors.companyName}</p>}
                           </div>
-                        )}
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-800">Company Website URL <span className="text-red-500">*</span></label>
+                            <Input
+                              placeholder="https://youragency.com"
+                              value={formState.website}
+                              onChange={(e) => handleInputChange("website", e.target.value)}
+                              onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), website: undefined }))}
+                              aria-invalid={Boolean(errors.website)}
+                              aria-describedby="websiteError"
+                            />
+                            <p className="text-xs text-gray-500">We’ll analyze this and auto-fix prefixes.</p>
+                            {errors.website && <p id="websiteError" className="text-sm text-red-500">{errors.website}</p>}
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-800">Location <span className="text-red-500">*</span></label>
+                            <Input
+                              placeholder="e.g., London, UK"
+                              value={formState.location}
+                              onChange={(e) => handleInputChange("location", e.target.value)}
+                              onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), location: undefined }))}
+                              aria-invalid={Boolean(errors.location)}
+                              aria-describedby="locationError"
+                            />
+                            {errors.location && <p id="locationError" className="text-sm text-red-500">{errors.location}</p>}
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-sm font-semibold text-gray-800">Primary Services Industry <span className="text-red-500">*</span></label>
+                            <Input
+                              placeholder="e.g., SEO / Web Design / Google Ads"
+                              value={formState.industry}
+                              onChange={(e) => handleInputChange("industry", e.target.value)}
+                              onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), industry: undefined }))}
+                              aria-invalid={Boolean(errors.industry)}
+                              aria-describedby="industryError"
+                            />
+                            {errors.industry && <p id="industryError" className="text-sm text-red-500">{errors.industry}</p>}
+                          </div>
+
+                          <div className="space-y-2 md:col-span-2">
+                            <label className="text-sm font-semibold text-gray-800">Target Market <span className="text-red-500">*</span></label>
+                            <Input
+                              placeholder="e.g., Local businesses in the UK / US e-commerce brands"
+                              value={formState.targetMarket}
+                              onChange={(e) => handleInputChange("targetMarket", e.target.value)}
+                              onFocus={() => setErrors((prev) => ({ ...(prev as FormErrors), targetMarket: undefined }))}
+                              aria-invalid={Boolean(errors.targetMarket)}
+                              aria-describedby="targetMarketError"
+                            />
+                            {errors.targetMarket && <p id="targetMarketError" className="text-sm text-red-500">{errors.targetMarket}</p>}
+                          </div>
+                        </div>
+                      )}
+
+                      {captureFormStep === 2 && (
+                        <div className="space-y-4">
+                          <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
+                            <p className="text-sm font-semibold text-gray-900">Optional legacy estimation inputs for Sections 8–10</p>
+                            <p className="mt-1 text-sm text-gray-600">These fields match the older backend / Python engine estimation model and improve modeled cost and financial outputs.</p>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Monthly Ad Spend Range</label>
+                              <Input placeholder="e.g., £1k-£3k/month" value={formState.monthlyAdSpendRange} onChange={(e) => handleInputChange("monthlyAdSpendRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Tools Stack Estimate</label>
+                              <Input placeholder="e.g., GA4, Search Console, Ahrefs, HubSpot" value={formState.toolsStackEstimate} onChange={(e) => handleInputChange("toolsStackEstimate", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Team Size Range</label>
+                              <Input placeholder="e.g., 1-5 / 6-15 / 15+" value={formState.teamSizeRange} onChange={(e) => handleInputChange("teamSizeRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Average Deal Value Range</label>
+                              <Input placeholder="e.g., £2k-£5k per deal" value={formState.avgDealValueRange} onChange={(e) => handleInputChange("avgDealValueRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Leads Per Month Range</label>
+                              <Input placeholder="e.g., 20-50 leads/month" value={formState.leadsPerMonthRange} onChange={(e) => handleInputChange("leadsPerMonthRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Close Rate Range</label>
+                              <Input placeholder="e.g., 10%-20%" value={formState.closeRateRange} onChange={(e) => handleInputChange("closeRateRange", e.target.value)} />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {captureFormStep === 3 && (
+                        <div className="space-y-4">
+                          <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
+                            <p className="text-sm font-semibold text-gray-900">Optional market context inputs</p>
+                            <p className="mt-1 text-sm text-gray-600">These mainly improve Section 9 and help the engine tailor Sections 8 and 10.</p>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Ideal Customer</label>
+                              <Textarea placeholder="e.g., UK and US agencies that need white-label web development and SEO support" value={formState.idealCustomer} onChange={(e) => handleInputChange("idealCustomer", e.target.value)} rows={4} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Primary Region</label>
+                              <Input placeholder="e.g., UK / US / India" value={formState.primaryRegion} onChange={(e) => handleInputChange("primaryRegion", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Current Traffic Per Month Range</label>
+                              <Input placeholder="e.g., 1k-5k visits/month" value={formState.currentTrafficPerMonthRange} onChange={(e) => handleInputChange("currentTrafficPerMonthRange", e.target.value)} />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 md:flex-row md:items-center md:justify-between">
+                        <p className="text-sm text-gray-500">
+                          {captureFormStep === 1
+                            ? "Step 1 is required."
+                            : "Steps 2 and 3 are optional legacy estimation inputs for Sections 8–10."}
+                        </p>
+                        <div className="flex flex-col gap-3 sm:flex-row">
+                          {captureFormStep > 1 && (
+                            <Button type="button" variant="outline" className="h-12" onClick={handleCaptureBack}>
+                              <ArrowLeft className="mr-2 h-4 w-4" />
+                              Back
+                            </Button>
+                          )}
+                          {captureFormStep < 3 ? (
+                            <Button type="button" className="h-12 text-base font-semibold" onClick={handleCaptureNext}>
+                              Next Step <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button type="submit" disabled={isSubmitting || latestCheckLoading} className="h-12 text-base font-semibold">
+                              {isSubmitting || latestCheckLoading ? (
+                                <span className="flex items-center gap-2">
+                                  <Loader2 className="w-5 h-5 animate-spin" /> Validating...
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-2">
+                                  Run Analysis <ArrowRight className="w-4 h-4" />
+                                </span>
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </div>
+
+                      {latestCheckMessage && (
+                        <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-sm flex items-start gap-2">
+                          <AlertTriangle className="w-4 h-4 mt-0.5" />
+                          <span>{latestCheckMessage}</span>
+                        </div>
+                      )}
                     </form>
                   )}
 
-                  {/* EXISTING REPORT */}
+{/* EXISTING REPORT */}
                   {step === "existing" && (
                     <div className="p-5 rounded-xl border bg-white space-y-4">
                       <div className="flex items-start gap-3">
@@ -1090,7 +1245,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                           Start new analysis
                         </Button>
 
-                        <Button type="button" variant="secondary" className="h-11" onClick={() => setStep("capture")}>
+                        <Button type="button" variant="secondary" className="h-11" onClick={() => { setCaptureFormStep(1); setStep("capture"); }}>
                           Back
                         </Button>
                       </div>
@@ -1172,7 +1327,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                             >
                               Retry analysis
                             </Button>
-                            <Button type="button" variant="secondary" onClick={() => setStep("capture")}>
+                            <Button type="button" variant="secondary" onClick={() => { setCaptureFormStep(1); setStep("capture"); }}>
                               Back
                             </Button>
                           </div>
@@ -1400,7 +1555,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
                         <BookCallButtonWithModal />
 
-                        <Button type="button" variant="secondary" onClick={() => setStep("capture")} className="h-11">
+                        <Button type="button" variant="secondary" onClick={() => { setCaptureFormStep(1); setStep("capture"); }} className="h-11">
                           Run another analysis
                         </Button>
                       </div>

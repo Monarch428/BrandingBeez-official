@@ -245,6 +245,92 @@ def detect_site_proof_signals(text: Any, page_registry: Any = None) -> Dict[str,
     }
 
 
+def score_site_type_signals(data: Any) -> Dict[str, int]:
+    """Return additive signal scores for site-type classification.
+
+    This is intentionally conservative because the result influences downstream
+    keyword targeting, local SEO, competitive interpretation, and financial
+    heuristics. When evidence is mixed, callers should prefer ``mixed`` over
+    overconfident specialization.
+    """
+
+    text_blob = _collect_signal_text(data).lower()
+    urls = [u.lower() for u in _extract_candidate_urls(data)]
+
+    content_urls = sum(1 for u in urls if any(token in u for token in CONTENT_URL_TOKENS))
+    service_urls = sum(1 for u in urls if any(token in u for token in SERVICE_URL_TOKENS))
+    ecommerce_urls = sum(1 for u in urls if any(token in u for token in ECOMMERCE_URL_TOKENS))
+
+    article_density = len(re.findall(r"\b(blog|article|guide|resource|news|insight|editorial)\b", text_blob))
+    service_density = len(detect_services("", text_blob))
+    cta_density = len(detect_cta(text_blob))
+    pricing_hits = len(re.findall(r"\b(price|pricing|package|quote|proposal|book a call|consultation)\b", text_blob))
+    form_hits = len(re.findall(r"\b(contact us|get in touch|request a quote|request proposal|book call|schedule call)\b", text_blob))
+    product_hits = len(re.findall(r"\b(product|category|catalog|cart|checkout|sku|shipping|buy now|add to cart)\b", text_blob))
+
+    content_score = (content_urls * 3) + sum(1 for token in CONTENT_TEXT_TOKENS if token in text_blob) + min(8, article_density)
+    service_score = (service_urls * 3) + service_density + (cta_density * 2) + pricing_hits + form_hits + (2 if has_generic_service_cues("", text_blob) else 0)
+    ecommerce_score = (ecommerce_urls * 3) + sum(1 for token in ECOMMERCE_TEXT_TOKENS if token in text_blob) + min(8, product_hits)
+
+    return {
+        "content_site": content_score,
+        "service_business": service_score,
+        "ecommerce": ecommerce_score,
+        "content_urls": content_urls,
+        "service_urls": service_urls,
+        "ecommerce_urls": ecommerce_urls,
+        "article_density": article_density,
+        "service_density": service_density,
+        "cta_density": cta_density,
+        "pricing_hits": pricing_hits,
+        "form_hits": form_hits,
+        "product_hits": product_hits,
+    }
+
+
+def classify_site_context(scores: Dict[str, int]) -> str:
+    """Map site-type scores to one of the allowed output classes."""
+
+    content_score = int(scores.get("content_site") or 0)
+    service_score = int(scores.get("service_business") or 0)
+    ecommerce_score = int(scores.get("ecommerce") or 0)
+
+    ranked = sorted(
+        [
+            ("content_site", content_score),
+            ("service_business", service_score),
+            ("ecommerce", ecommerce_score),
+        ],
+        key=lambda item: item[1],
+        reverse=True,
+    )
+    top_type, top_score = ranked[0]
+    second_score = ranked[1][1]
+
+    if top_score < 3:
+        return "mixed"
+
+    if top_type == "content_site":
+        if content_score >= max(service_score + 3, ecommerce_score + 3):
+            return "content_site"
+        if scores.get("article_density", 0) >= max(6, scores.get("service_density", 0) + 2) and scores.get("content_urls", 0) >= max(2, scores.get("service_urls", 0)):
+            return "content_site"
+
+    if top_type == "ecommerce" and ecommerce_score >= max(content_score + 2, service_score + 2):
+        return "ecommerce"
+
+    if top_type == "service_business":
+        if service_score >= max(content_score + 2, ecommerce_score + 2):
+            return "service_business"
+        if scores.get("service_urls", 0) >= max(2, scores.get("content_urls", 0)) and (scores.get("cta_density", 0) + scores.get("pricing_hits", 0) + scores.get("form_hits", 0)) >= 3:
+            return "service_business"
+
+    if abs(top_score - second_score) <= 2:
+        return "mixed"
+
+    return top_type
+
+
 def detect_site_type(data: Any) -> str:
     """Classify business-model intent for downstream reporting.
 
@@ -254,26 +340,8 @@ def detect_site_type(data: Any) -> str:
     - ecommerce when product/cart/checkout/catalog signals dominate
     - mixed otherwise
     """
-    text_blob = _collect_signal_text(data).lower()
-    urls = [u.lower() for u in _extract_candidate_urls(data)]
-
-    content_score = sum(1 for u in urls if any(token in u for token in CONTENT_URL_TOKENS))
-    service_score = sum(1 for u in urls if any(token in u for token in SERVICE_URL_TOKENS))
-    ecommerce_score = sum(1 for u in urls if any(token in u for token in ECOMMERCE_URL_TOKENS))
-
-    content_score += sum(1 for token in CONTENT_TEXT_TOKENS if token in text_blob)
-    ecommerce_score += sum(1 for token in ECOMMERCE_TEXT_TOKENS if token in text_blob)
-    service_score += len(detect_services("", text_blob))
-    service_score += len(detect_cta(text_blob))
-    service_score += 2 if has_generic_service_cues("", text_blob) else 0
-
-    if content_score >= max(service_score + 2, ecommerce_score + 2) and content_score >= 3:
-        return "content_site"
-    if ecommerce_score >= max(content_score + 1, service_score + 1) and ecommerce_score >= 3:
-        return "ecommerce"
-    if service_score >= max(content_score + 1, ecommerce_score + 1) and service_score >= 3:
-        return "service_business"
-    return "mixed"
+    scores = score_site_type_signals(data)
+    return classify_site_context(scores)
 
 
 def has_generic_service_cues(html: str, text: str) -> bool:

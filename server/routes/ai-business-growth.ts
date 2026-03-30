@@ -13,13 +13,13 @@ import {
 } from "../email-service";
 
 import { generateBusinessGrowthPdfBuffer } from "../generateBusinessGrowthPdf";
+import {
+  callPythonAiEngineAnalyze,
+  type AnalyzeRequestPayload,
+  type LegacyEstimationInputs,
+  type OptionalBusinessInputs,
+} from "../utils/pythonAiEngineClient";
 
-// ✅ Python AI Engine
-import { callPythonAiEngineAnalyze } from "../utils/pythonAiEngineClient";
-
-/**
- * Normalize website URL (ensures https:// and no trailing slash).
- */
 function normalizeWebsiteUrl(website: string): string {
   let url = website.trim();
   if (!/^https?:\/\//i.test(url)) url = `https://${url}`;
@@ -27,8 +27,6 @@ function normalizeWebsiteUrl(website: string): string {
   return url;
 }
 
-
-/** Extract normalized domain (no protocol/www). Used for stable lookups. */
 function toDomain(website: string): string {
   try {
     const url = new URL(normalizeWebsiteUrl(website));
@@ -38,7 +36,6 @@ function toDomain(website: string): string {
   }
 }
 
-/** Escape string for use inside a RegExp */
 function escapeRegExp(input: string) {
   return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -59,10 +56,177 @@ function getBaseUrl(req: any) {
   return `${proto}://${host}`;
 }
 
+function toOptionalString(value: unknown): string | null {
+  if (value === null || value === undefined) return null;
+  const text = String(value).trim();
+  return text ? text : null;
+}
+
+function toOptionalNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+  const normalized = String(value).replace(/,/g, "").trim();
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toStringArray(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/\r?\n|,/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
+
+function normalizePairArray<K extends string, V extends string>(
+  value: unknown,
+  keyName: K,
+  valueName: V,
+): Array<{ [P in K | V]: string }> {
+  if (!Array.isArray(value)) return [] as Array<{ [P in K | V]: string }>;
+
+  return value
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+      const raw = item as Record<string, unknown>;
+      const k = toOptionalString(raw[keyName]);
+      const v = toOptionalString(raw[valueName]);
+      if (!k && !v) return null;
+      return {
+        [keyName]: k || "",
+        [valueName]: v || "",
+      } as { [P in K | V]: string };
+    })
+    .filter((item): item is { [P in K | V]: string } => Boolean(item));
+}
+
+function sanitizeOptionalBusinessInputs(raw: unknown): OptionalBusinessInputs {
+  const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+
+  return {
+    currency: toOptionalString(source.currency),
+    monthlyRevenue: toOptionalNumber(source.monthlyRevenue),
+    monthlyAdSpend: toOptionalNumber(source.monthlyAdSpend),
+    monthlyToolsCost: toOptionalNumber(source.monthlyToolsCost),
+    monthlyPayrollCost: toOptionalNumber(source.monthlyPayrollCost),
+    monthlyOverheadCost: toOptionalNumber(source.monthlyOverheadCost),
+    monthlyLeads: toOptionalNumber(source.monthlyLeads),
+    qualifiedLeads: toOptionalNumber(source.qualifiedLeads),
+    closeRate: toOptionalNumber(source.closeRate),
+    avgDealValue: toOptionalNumber(source.avgDealValue),
+    currentTrafficPerMonth: toOptionalNumber(source.currentTrafficPerMonth),
+
+    countriesServed: toStringArray(source.countriesServed),
+    customerSegments: toStringArray(source.customerSegments),
+    painPoints: toStringArray(source.painPoints),
+    segmentBudgets: toStringArray(source.segmentBudgets),
+
+    revenueByService: normalizePairArray(source.revenueByService, "service", "amount"),
+    revenueByChannel: normalizePairArray(source.revenueByChannel, "channel", "amount"),
+
+    grossMargin: toOptionalNumber(source.grossMargin),
+    retentionRate: toOptionalNumber(source.retentionRate),
+    churnRate: toOptionalNumber(source.churnRate),
+    salesCycleDays: toOptionalNumber(source.salesCycleDays),
+
+    additionalContext: toOptionalString(source.additionalContext),
+  };
+}
+
+function sanitizeLegacyEstimationInputs(raw: unknown): LegacyEstimationInputs {
+  const source = raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {};
+
+  return {
+    monthlyAdSpendRange: toOptionalString(source.monthlyAdSpendRange),
+    toolsStackEstimate: toOptionalString(source.toolsStackEstimate),
+    teamSizeRange: toOptionalString(source.teamSizeRange),
+    idealCustomer: toOptionalString(source.idealCustomer),
+    primaryRegion: toOptionalString(source.primaryRegion),
+    avgDealValueRange: toOptionalString(source.avgDealValueRange),
+    leadsPerMonthRange: toOptionalString(source.leadsPerMonthRange),
+    closeRateRange: toOptionalString(source.closeRateRange),
+    currentTrafficPerMonthRange: toOptionalString(source.currentTrafficPerMonthRange),
+  };
+}
+
+function hasAnyLegacyEstimationInput(inputs: LegacyEstimationInputs): boolean {
+  return Object.values(inputs).some((value) => typeof value === "string" && value.trim().length > 0);
+}
+
+function compactOptionalBusinessInputs(inputs: OptionalBusinessInputs): OptionalBusinessInputs {
+  return Object.fromEntries(
+    Object.entries(inputs).filter(([, value]) => {
+      if (value === null || value === undefined) return false;
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value === "string") return value.trim().length > 0;
+      return true;
+    }),
+  ) as OptionalBusinessInputs;
+}
+
+function extractApproxNumberFromText(value: string | null | undefined): number | null {
+  const text = value?.trim();
+  if (!text) return null;
+
+  const matches = [...text.toLowerCase().matchAll(/(\d+(?:\.\d+)?)\s*([km])?/g)];
+  if (!matches.length) return null;
+
+  const numbers = matches
+    .map((match) => {
+      const base = Number(match[1]);
+      if (!Number.isFinite(base)) return null;
+      const suffix = match[2];
+      if (suffix === "k") return base * 1_000;
+      if (suffix === "m") return base * 1_000_000;
+      return base;
+    })
+    .filter((item): item is number => item !== null);
+
+  if (!numbers.length) return null;
+  if (numbers.length === 1) return numbers[0];
+  return (numbers[0] + numbers[1]) / 2;
+}
+
+function deriveOptionalBusinessInputsFromLegacy(
+  inputs: LegacyEstimationInputs,
+): OptionalBusinessInputs {
+  const extraNotes = [
+    inputs.toolsStackEstimate ? `Tools stack estimate: ${inputs.toolsStackEstimate}` : null,
+    inputs.teamSizeRange ? `Team size range: ${inputs.teamSizeRange}` : null,
+    inputs.idealCustomer ? `Ideal customer: ${inputs.idealCustomer}` : null,
+  ].filter((item): item is string => Boolean(item));
+
+  return compactOptionalBusinessInputs({
+    monthlyAdSpend: extractApproxNumberFromText(inputs.monthlyAdSpendRange),
+    avgDealValue: extractApproxNumberFromText(inputs.avgDealValueRange),
+    monthlyLeads: extractApproxNumberFromText(inputs.leadsPerMonthRange),
+    closeRate: extractApproxNumberFromText(inputs.closeRateRange),
+    currentTrafficPerMonth: extractApproxNumberFromText(inputs.currentTrafficPerMonthRange),
+    countriesServed: toStringArray(inputs.primaryRegion),
+    additionalContext: extraNotes.length > 0 ? extraNotes.join("\n") : null,
+  });
+}
+
+function hasAnyOptionalBusinessInput(inputs: OptionalBusinessInputs): boolean {
+  return Object.values(inputs).some((value) => {
+    if (value === null || value === undefined) return false;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === "string") return value.trim().length > 0;
+    return true;
+  });
+}
+
 export function registerBusinessGrowthRoutes(app: Express) {
-  /**
-   * ✅ NEW: Check for latest stored AI report for a website (BEFORE running analysis)
-   */
   app.post("/api/ai-business-growth/latest", async (req, res) => {
     try {
       const { website, companyName } = req.body || {};
@@ -76,7 +240,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
       const normalizedWebsite = normalizeWebsiteUrl(website);
       const domain = toDomain(normalizedWebsite);
 
-      // Prefer domain match (protocol/trailing slash changes between runs)
       const filter: any = domain ? { domain } : { website: normalizedWebsite };
       if (companyName && typeof companyName === "string" && companyName.trim()) {
         const q = companyName.trim();
@@ -91,7 +254,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
         return res.json({ success: true, exists: false });
       }
 
-      // Frontend expects "updatedAt" (we map it here)
       const updatedAt =
         (latest.reportGeneratedAt ? latest.reportGeneratedAt.toISOString() : null) ||
         (latest.createdAt ? latest.createdAt.toISOString() : null);
@@ -116,32 +278,21 @@ export function registerBusinessGrowthRoutes(app: Express) {
     }
   });
 
-  /**
-   * ✅ Analyze route (calls Python AI Engine)
-   * FIX: pass apiKey header to avoid 401 Unauthorized
-   */
   app.post("/api/ai-business-growth/analyze", async (req, res) => {
     req.setTimeout(0);
     res.setTimeout(0);
 
-    /**
-     * ✅ Minimal frontend inputs (required):
-     * - companyName
-     * - website
-     * - location
-     * - industry (Primary services industry)
-     * - targetMarket
-     *
-     * Everything else is defaulted in backend to keep UI simple.
-     */
     const {
       companyName,
       website,
       location,
       industry,
       targetMarket,
-      // Backward-compat (old UI may still send these)
+      businessInputs,
+      optionalBusinessInputs,
+      estimationInputs,
       criteria,
+      includeSections8to10,
       forceNewAnalysis,
     } = req.body || {};
 
@@ -180,59 +331,77 @@ export function registerBusinessGrowthRoutes(app: Express) {
       const normalizedWebsite = normalizeWebsiteUrl(website);
       const normalizedTargetMarket = targetMarket.trim();
 
-      // ✅ Default criteria (light crawl + useful local signals)
+      const sanitizedLegacyEstimationInputs = sanitizeLegacyEstimationInputs(estimationInputs);
+      const includeLegacyEstimationInputs = hasAnyLegacyEstimationInput(
+        sanitizedLegacyEstimationInputs,
+      );
+
+      const explicitOptionalInputs = compactOptionalBusinessInputs(
+        sanitizeOptionalBusinessInputs(businessInputs ?? optionalBusinessInputs),
+      );
+      const legacyDerivedOptionalInputs = deriveOptionalBusinessInputsFromLegacy(
+        sanitizedLegacyEstimationInputs,
+      );
+      const sanitizedOptionalInputs = {
+        ...legacyDerivedOptionalInputs,
+        ...explicitOptionalInputs,
+      } as OptionalBusinessInputs;
+      const includeOptionalInputs = hasAnyOptionalBusinessInput(sanitizedOptionalInputs);
+
       const DEFAULT_CRITERIA = {
         location: location.trim(),
         primaryService: industry.trim(),
         competitors: [],
         keywords: [],
-        // Keep crawl modest by default
         contentMaxPages: 8,
         siteMaxPages: 8,
-        // Reviews / Places defaults
         placesMaxResults: 5,
         placesMaxReviews: 5,
-        // Competitor crawl defaults (only used if competitors provided later)
         competitorMaxCompetitors: 6,
         competitorMaxPages: 6,
       };
 
-      // Backward compat: allow server-side overrides (but frontend will not send these now)
       const mergedCriteria = {
         ...DEFAULT_CRITERIA,
         ...(criteria && typeof criteria === "object" ? criteria : {}),
-        // Enforce that location/service map stays consistent
         location: location.trim(),
         primaryService: industry.trim(),
       };
 
-      const payload = {
+      const payload: AnalyzeRequestPayload = {
         companyName: companyName.trim(),
         website: normalizedWebsite,
-        // ✅ cache bypass when requested
         forceNewAnalysis: Boolean(forceNewAnalysis),
-        // ✅ Always true (frontend no longer exposes this)
         estimationMode: true,
-
-        // Top-level signals (Python can consume these directly)
         location: location.trim(),
-        industry: industry.trim(), // treated as "primary services industry"
+        industry: industry.trim(),
         targetMarket: normalizedTargetMarket,
         primaryTargetMarket: normalizedTargetMarket,
-        // Default language for all reports
         languageCode: "en",
         reportType: "full",
-
-        // Additional signals to Python (defaults)
+        ...(typeof includeSections8to10 === "boolean"
+          ? { includeSections8to10 }
+          : {}),
         criteria: {
           ...mergedCriteria,
           language_code: "en",
         },
+        ...(includeLegacyEstimationInputs
+          ? {
+              estimationInputs: sanitizedLegacyEstimationInputs,
+            }
+          : {}),
+        ...(includeOptionalInputs
+          ? {
+              optionalBusinessInputs: sanitizedOptionalInputs,
+              businessInputs: sanitizedOptionalInputs,
+            }
+          : {}),
       };
 
       const py = await callPythonAiEngineAnalyze({
         baseUrl,
-        apiKey, // ✅ IMPORTANT (fixes 401)
+        apiKey,
         payload,
         timeoutMs: 180 * 60_000,
       });
@@ -278,10 +447,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
     }
   });
 
-  /**
-   * ✅ Generate PDF only (DB-only, NO email)
-   * Uses analysisToken -> pulls analysis from DB -> generates PDF -> returns downloadUrl
-   */
   app.post("/api/ai-business-growth/report/generate", async (req, res) => {
     const { analysisToken, website, companyName, industry } = req.body || {};
 
@@ -316,7 +481,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
         companyName ||
         "Unknown";
 
-      // ✅ do NOT block on reachability here (analysis already exists)
       const normalizedReport = mergeBusinessGrowthReport(
         {
           companyName: resolvedCompany,
@@ -360,11 +524,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
     }
   });
 
-  /**
-   * ✅ Send Email only (separate from PDF generation)
-   * - ensures PDF exists (generates if missing)
-   * - sends mail with attachment + download link
-   */
   app.post("/api/ai-business-growth/report/send-email", async (req, res) => {
     const { analysisToken, email, name } = req.body || {};
 
@@ -398,13 +557,10 @@ export function registerBusinessGrowthRoutes(app: Express) {
       const resolvedCompany =
         reportMetadata?.companyName || storedReport.companyName || "Unknown";
 
-
-      // Keep stable domain/website for future latest() checks
       storedReport.website = normalizeWebsiteUrl(resolvedWebsite);
       storedReport.domain = toDomain(storedReport.website);
       await storedReport.save();
 
-      // ✅ Ensure PDF exists; if missing, generate once (NO analysis rerun)
       let pdfBuffer: Buffer;
 
       if (!storedReport.reportDownloadToken) {
@@ -437,7 +593,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
         if (fs.existsSync(existingPath)) {
           pdfBuffer = fs.readFileSync(existingPath);
         } else {
-          // fallback regenerate if file missing
           const normalizedReport = mergeBusinessGrowthReport(
             {
               companyName: resolvedCompany,
@@ -463,7 +618,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
 
       const downloadUrl = `${getBaseUrl(req)}/api/ai-business-growth/report/${storedReport.reportDownloadToken}.pdf`;
 
-      // ✅ This signature matches your email-service typing
       await sendBusinessGrowthReportEmailWithDownload({
         toEmail: email,
         toName: typeof name === "string" ? name : "",
@@ -480,7 +634,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
         submittedAt: new Date(),
       });
 
-      // ✅ store contact info (NO null assignment -> fixes TS)
       storedReport.email = email;
       storedReport.name = typeof name === "string" ? name : undefined;
       await storedReport.save();
@@ -495,10 +648,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
     }
   });
 
-  /**
-   * ✅ Legacy endpoint (backward compatibility)
-   * Now: only generates PDF (no email)
-   */
   app.post("/api/ai-business-growth/report", async (req, res) => {
     const { analysisToken } = req.body || {};
 
@@ -561,9 +710,6 @@ export function registerBusinessGrowthRoutes(app: Express) {
     }
   });
 
-  /**
-   * ✅ PDF download
-   */
   app.get("/api/ai-business-growth/report/:token.pdf", async (req, res) => {
     const filePath = path.join(REPORT_DIR, `${req.params.token}.pdf`);
     if (!fs.existsSync(filePath)) return res.status(404).send("Report not found");

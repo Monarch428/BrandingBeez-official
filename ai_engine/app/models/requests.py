@@ -37,6 +37,8 @@ class AnalyzeRequest(BaseModel):
     criteria: Dict[str, Any] = Field(default_factory=dict)
     estimationMode: bool = True
     estimationInputs: Optional[EstimationInputs] = None
+    optionalBusinessInputs: Optional[Dict[str, Any]] = None
+    businessInputs: Optional[Dict[str, Any]] = None
     includeSections8to10: bool = True
     forceNewAnalysis: bool = False
 

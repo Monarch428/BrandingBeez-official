@@ -19,7 +19,7 @@ Note:
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.core.config import settings
 from app.integrations.se_ranking_client import SERankingClient
@@ -255,3 +255,636 @@ def build_seo_signals(
             out["backlinks"]["notes"] = f"{out['backlinks'].get('notes')} (DataForSEO enrichment failed: {e})"
 
     return out
+
+
+def _safe_int(value: Any) -> Optional[int]:
+    num = _safe_num(value)
+    if num is None:
+        return None
+    return int(round(num))
+
+
+def _safe_text(value: Any) -> str:
+    if value is None:
+        return ""
+    return str(value).strip()
+
+
+def _ensure_list(value: Any) -> List[Any]:
+    return value if isinstance(value, list) else []
+
+
+def _normalize_domain(value: Any) -> str:
+    text = _safe_text(value).lower()
+    if not text:
+        return ""
+    text = text.replace("https://", "").replace("http://", "").split("/", 1)[0]
+    if text.startswith("www."):
+        text = text[4:]
+    return text.strip(".")
+
+
+def _dedupe_strings(values: List[str]) -> List[str]:
+    out: List[str] = []
+    seen: set[str] = set()
+    for value in values:
+        text = _safe_text(value)
+        if not text:
+            continue
+        key = text.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(text)
+    return out
+
+
+def _brand_terms(company_name: str, website_url: str | None) -> List[str]:
+    parts = [part for part in company_name.replace("-", " ").split() if len(part) >= 3]
+    domain = _normalize_domain(website_url)
+    root = domain.split(".", 1)[0] if domain else ""
+    if root:
+        parts.extend([root, root.replace("-", " ")])
+    return _dedupe_strings(parts)
+
+
+def classify_keyword_type(keyword: str, company_name: str, location: str | None = None) -> str:
+    phrase = _safe_text(keyword).lower()
+    if not phrase:
+        return "commercial"
+
+    brands = [term.lower() for term in _brand_terms(company_name, None)]
+    if any(term and term in phrase for term in brands):
+        return "brand"
+
+    location_text = _safe_text(location).lower()
+    if location_text and location_text in phrase:
+        return "local"
+    if any(token in phrase for token in ("near me", " in ", " city ", " local ", " coimbatore", " london", " uk", " usa", " us ")):
+        return "local"
+    if any(token in phrase for token in ("how", "guide", "tips", "what is", "why", "checklist", "best practices")):
+        return "informational"
+    return "commercial"
+
+
+def build_target_keyword_list(
+    site_type: str,
+    services: List[str],
+    positioning: Dict[str, Any] | None,
+    keyword_candidates: List[str],
+    company_name: str,
+    location: str | None,
+    target_market: str | None,
+    max_items: int = 12,
+) -> List[str]:
+    candidates: List[str] = []
+    candidates.extend(_brand_terms(company_name, None))
+    candidates.extend([_safe_text(item) for item in keyword_candidates if _safe_text(item)])
+
+    location_text = _safe_text(location)
+    market_text = _safe_text(target_market)
+
+    for service in services[:8]:
+        svc = _safe_text(service)
+        if not svc:
+            continue
+        candidates.append(svc)
+        if site_type == "service_business":
+            candidates.append(f"{svc} agency")
+            candidates.append(f"{svc} services")
+        elif site_type == "ecommerce":
+            candidates.append(f"buy {svc}")
+            candidates.append(f"{svc} pricing")
+        else:
+            candidates.append(f"{svc} guide")
+            candidates.append(f"{svc} strategy")
+        if location_text:
+            candidates.append(f"{svc} {location_text}")
+        if market_text and market_text.lower() != location_text.lower():
+            candidates.append(f"{svc} {market_text}")
+
+    if positioning and isinstance(positioning.get("currentStatement"), str):
+        candidates.append(positioning.get("currentStatement"))
+
+    cleaned = [text for text in (_safe_text(item) for item in candidates) if len(text) >= 3]
+    return _dedupe_strings(cleaned)[: max(4, max_items)]
+
+
+def _find_search_volume(
+    keyword: str,
+    d4s_enrichment: Dict[str, Any],
+    market_demand: Dict[str, Any],
+) -> Optional[int]:
+    kw_norm = _safe_text(keyword).lower()
+    if not kw_norm:
+        return None
+
+    for item in _ensure_list(d4s_enrichment.get("search_volume")):
+        if isinstance(item, dict) and _safe_text(item.get("keyword")).lower() == kw_norm:
+            return _safe_int(item.get("search_volume"))
+
+    for item in _ensure_list(d4s_enrichment.get("keywords_for_site")):
+        if isinstance(item, dict) and _safe_text(item.get("keyword")).lower() == kw_norm:
+            return _safe_int(item.get("search_volume"))
+
+    for item in _ensure_list(market_demand.get("keywords")):
+        if isinstance(item, dict) and _safe_text(item.get("keyword")).lower() == kw_norm:
+            return _safe_int(item.get("searchVolume") or item.get("search_volume"))
+
+    return None
+
+
+def _find_serp_snapshot(keyword: str, d4s_enrichment: Dict[str, Any]) -> Dict[str, Any]:
+    kw_norm = _safe_text(keyword).lower()
+    for item in _ensure_list(d4s_enrichment.get("serp_snapshots")):
+        if isinstance(item, dict) and _safe_text(item.get("keyword")).lower() == kw_norm:
+            return item
+    return {}
+
+
+def _top_competitor_label(
+    keyword: str,
+    d4s_enrichment: Dict[str, Any],
+    market_demand: Dict[str, Any],
+    company_domain: str,
+) -> str:
+    snapshot = _find_serp_snapshot(keyword, d4s_enrichment)
+    urls = _ensure_list(snapshot.get("topUrls"))
+    for idx, url in enumerate(urls, start=1):
+        domain = _normalize_domain(url)
+        if domain and domain != company_domain:
+            return f"{domain} (#{idx})"
+
+    kw_norm = _safe_text(keyword).lower()
+    for item in _ensure_list(market_demand.get("keywords")):
+        if not isinstance(item, dict):
+            continue
+        if _safe_text(item.get("keyword")).lower() != kw_norm:
+            continue
+        domains = _ensure_list(item.get("serpTopDomains"))
+        for idx, domain in enumerate(domains, start=1):
+            norm = _normalize_domain(domain)
+            if norm and norm != company_domain:
+                return f"{norm} (#{idx})"
+    return "Unavailable"
+
+
+def _heuristic_authority_range(site_type: str) -> Tuple[int, int]:
+    normalized = _safe_text(site_type).lower() or "mixed"
+    if normalized == "content_site":
+        return 35, 50
+    if normalized == "ecommerce":
+        return 30, 45
+    if normalized == "service_business":
+        return 25, 35
+    return 28, 40
+
+
+def build_domain_authority_block(
+    seo_section: Dict[str, Any],
+    d4s_enrichment: Dict[str, Any],
+    competitor_evidence: Dict[str, Any],
+    site_type: str,
+) -> Dict[str, Any]:
+    domain_authority = seo_section.get("domainAuthority") if isinstance(seo_section.get("domainAuthority"), dict) else {}
+    score = _safe_int(domain_authority.get("score"))
+    if score is None:
+        score = _safe_int(d4s_enrichment.get("domain_rank"))
+    score = score if score is not None else 0
+
+    low, high = _heuristic_authority_range(site_type)
+    benchmark_summary = (
+        f"Estimated authority is {score}/100 versus a heuristic industry benchmark of {low}-{high}/100 "
+        f"for this business model."
+    )
+    if score < low:
+        benchmark_summary += " This suggests the site still needs more trust and referring-domain depth before non-brand rankings compound consistently."
+    elif score > high:
+        benchmark_summary += " This is already a healthy authority base; the bottleneck is more likely keyword targeting and page depth than trust alone."
+    else:
+        benchmark_summary += " The site is within a workable benchmark range, but still needs better topic/page coverage to turn authority into more non-brand rankings."
+
+    competitors: List[Dict[str, Any]] = []
+    for item in _ensure_list(competitor_evidence.get("selected"))[:3]:
+        if not isinstance(item, dict):
+            continue
+        metrics = item.get("metrics") if isinstance(item.get("metrics"), dict) else {}
+        visibility_proxy = _safe_int(metrics.get("keywords") or metrics.get("intersections") or metrics.get("rank"))
+        competitors.append(
+            {
+                "name": _safe_text(item.get("domain") or item.get("website")) or "Competitor",
+                "score": visibility_proxy,
+                "note": (
+                    f"Visibility proxy based on common-keyword evidence ({visibility_proxy})."
+                    if visibility_proxy is not None
+                    else "Authority benchmark unavailable in this run."
+                ),
+            }
+        )
+
+    return {
+        "score": score,
+        "benchmark": {
+            "you": score,
+            "industryAvg": int(round((low + high) / 2)),
+            "industryAverageRange": f"{low}-{high}",
+            "competitors": competitors,
+        },
+        "whyItMatters": (
+            "Authority influences how quickly new pages rank and how resilient the site is in competitive SERPs. "
+            "Stronger authority usually means faster indexing, better support for commercial pages, and less dependence on branded demand."
+        ),
+        "benchmarkSummary": benchmark_summary,
+        "notes": _safe_text(domain_authority.get("notes")) or benchmark_summary,
+    }
+
+
+def build_backlink_profile_block(
+    seo_section: Dict[str, Any],
+    backlinks_bundle: Dict[str, Any],
+    competitor_evidence: Dict[str, Any],
+) -> Dict[str, Any]:
+    backlinks = seo_section.get("backlinks") if isinstance(seo_section.get("backlinks"), dict) else {}
+    summary = backlinks_bundle.get("summary") if isinstance(backlinks_bundle.get("summary"), dict) else {}
+    total_backlinks = _safe_int(backlinks.get("totalBacklinks"))
+    referring_domains = _safe_int(backlinks.get("referringDomains"))
+    link_quality = _safe_int(backlinks.get("linkQualityScore"))
+
+    if total_backlinks is None:
+        total_backlinks = _safe_int(summary.get("backlinks"))
+    if referring_domains is None:
+        referring_domains = _safe_int(summary.get("referring_domains"))
+    if link_quality is None:
+        link_quality = _safe_int(summary.get("domain_rank"))
+
+    ratio = float(total_backlinks or 0) / max(float(referring_domains or 1), 1.0)
+    anchors = _ensure_list(backlinks_bundle.get("anchors"))
+    anchor_risk = False
+    if anchors:
+        anchor_risk = sum(1 for item in anchors[:10] if isinstance(item, dict) and _safe_int(item.get("backlinks")) and (_safe_text(item.get("anchor")).count(" ") == 0)) >= 6
+
+    if not total_backlinks and not referring_domains:
+        quality_summary = "Backlink benchmark data was limited in this run, so authority is being judged conservatively."
+    elif (referring_domains or 0) < 20:
+        quality_summary = "The backlink profile is still relatively thin. A small number of referring domains limits how much trust the site can transfer into new rankings."
+    elif ratio > 20 or anchor_risk:
+        quality_summary = "The profile shows concentration risk: backlink volume is outpacing unique referring domains or anchor diversity, so quality matters more than raw count."
+    else:
+        quality_summary = "The backlink base is usable, but it still needs more editorially relevant referring domains to compete on higher-value commercial terms."
+
+    recommendation = (
+        "Prioritize editorial links from relevant agencies, software partners, industry publications, niche directories, and proof-led digital PR. "
+        "Pair link acquisition with service pages and comparison content so new authority lands on pages that can rank for non-brand demand."
+    )
+
+    competitor_rows: List[Dict[str, Any]] = []
+    for item in _ensure_list(competitor_evidence.get("selected"))[:3]:
+        if not isinstance(item, dict):
+            continue
+        metrics = item.get("metrics") if isinstance(item.get("metrics"), dict) else {}
+        competitor_rows.append(
+            {
+                "name": _safe_text(item.get("domain") or item.get("website")) or "Competitor",
+                "backlinks": _safe_int(metrics.get("backlinks")),
+                "domains": _safe_int(metrics.get("referring_domains") or metrics.get("keywords")),
+                "note": (
+                    "Backlink totals were not returned for this competitor in the current run."
+                    if _safe_int(metrics.get("backlinks")) is None
+                    else None
+                ),
+            }
+        )
+
+    return {
+        "totalBacklinks": total_backlinks,
+        "referringDomains": referring_domains,
+        "linkQualityScore": link_quality,
+        "qualitySummary": quality_summary,
+        "profileCommentary": (
+            f"The site currently shows {total_backlinks or 0} backlinks across {referring_domains or 0} referring domains. "
+            f"That creates a baseline authority signal, but the commercial SEO payoff depends on domain diversity, relevance, and link placement quality."
+        ),
+        "competitorComparison": competitor_rows,
+        "recommendation": recommendation,
+        "notes": _safe_text(backlinks.get("notes")) or quality_summary,
+    }
+
+
+def build_missing_high_value_keywords_block(
+    keyword_targets: List[str],
+    d4s_enrichment: Dict[str, Any],
+    market_demand: Dict[str, Any],
+    company_name: str,
+    company_domain: str,
+    location: str | None,
+) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    for keyword in keyword_targets:
+        snapshot = _find_serp_snapshot(keyword, d4s_enrichment)
+        rank = _safe_int(snapshot.get("foundPosition"))
+        if rank is not None and rank <= 10:
+            continue
+        monthly_searches = _find_search_volume(keyword, d4s_enrichment, market_demand)
+        rows.append(
+            {
+                "keyword": keyword,
+                "monthlySearches": monthly_searches if monthly_searches is not None else "Unavailable",
+                "yourRank": f"#{rank}" if rank is not None else "Not ranking",
+                "topCompetitor": _top_competitor_label(keyword, d4s_enrichment, market_demand, company_domain),
+                "type": classify_keyword_type(keyword, company_name, location),
+            }
+        )
+
+    rows.sort(
+        key=lambda item: (
+            0 if item.get("type") in {"commercial", "local"} else 1,
+            -(item.get("monthlySearches") if isinstance(item.get("monthlySearches"), int) else 0),
+        )
+    )
+    return rows[:8]
+
+
+def build_keyword_rankings_block(
+    *,
+    company_name: str,
+    website_url: str,
+    site_type: str,
+    services: List[str],
+    positioning: Dict[str, Any] | None,
+    keyword_analysis: Dict[str, Any],
+    d4s_enrichment: Dict[str, Any],
+    market_demand: Dict[str, Any],
+    location: str | None,
+    target_market: str | None,
+) -> Dict[str, Any]:
+    company_domain = _normalize_domain(website_url)
+    keyword_targets = build_target_keyword_list(
+        site_type,
+        services,
+        positioning,
+        _ensure_list(keyword_analysis.get("keywordCandidates")),
+        company_name,
+        location,
+        target_market,
+    )
+
+    ranking_rows: List[Dict[str, Any]] = []
+    for keyword in keyword_targets:
+        snapshot = _find_serp_snapshot(keyword, d4s_enrichment)
+        rank = _safe_int(snapshot.get("foundPosition"))
+        if rank is None:
+            continue
+        ranking_rows.append(
+            {
+                "keyword": keyword,
+                "rank": rank,
+                "type": classify_keyword_type(keyword, company_name, location),
+                "monthlySearches": _find_search_volume(keyword, d4s_enrichment, market_demand) or "Unavailable",
+                "topCompetitor": _top_competitor_label(keyword, d4s_enrichment, market_demand, company_domain),
+            }
+        )
+
+    ranking_rows.sort(key=lambda item: (_safe_int(item.get("rank")) or 999))
+    branded = [row for row in ranking_rows if row.get("type") == "brand"][:5]
+    non_branded = [row for row in ranking_rows if row.get("type") != "brand"][:8]
+    missing_rows = build_missing_high_value_keywords_block(
+        keyword_targets,
+        d4s_enrichment,
+        market_demand,
+        company_name,
+        company_domain,
+        location,
+    )
+
+    total_ranked = len(ranking_rows)
+    top3 = sum(1 for row in ranking_rows if (_safe_int(row.get("rank")) or 999) <= 3)
+    top10 = sum(1 for row in ranking_rows if (_safe_int(row.get("rank")) or 999) <= 10)
+    top100 = sum(1 for row in ranking_rows if (_safe_int(row.get("rank")) or 999) <= 100)
+
+    search_total = sum(
+        item.get("monthlySearches")
+        for item in missing_rows
+        if isinstance(item.get("monthlySearches"), int)
+    )
+    if search_total > 0:
+        lead_low = max(3, int(round(search_total * 0.0015)))
+        lead_high = max(lead_low + 3, int(round(search_total * 0.0035)))
+        opportunity_summary = (
+            f"Targeting the missing commercial and local keywords in this set could directionally unlock about "
+            f"{lead_low}-{lead_high} qualified leads per month within 4-6 months once the right pages and supporting links are in place."
+        )
+    else:
+        opportunity_summary = (
+            "The current keyword footprint is still shallow, so the immediate opportunity is to build a non-brand keyword map "
+            "around service, comparison, and local-intent terms before expecting steady organic lead flow."
+        )
+
+    notes = (
+        "Ranking data is based on the current DataForSEO keyword/SERP evidence available in this run. "
+        "Where a keyword did not have a direct SERP sample, the report labels rank conservatively rather than guessing."
+    )
+
+    if not ranking_rows:
+        notes += " No direct ranking positions were detected for the sampled keyword set."
+
+    return {
+        "totalRankingKeywords": total_ranked,
+        "top3": top3,
+        "top10": top10,
+        "top100": top100,
+        "topRankingKeywords": ranking_rows[:8],
+        "brandedKeywords": branded,
+        "nonBrandedKeywords": non_branded,
+        "missingHighValueKeywords": missing_rows,
+        "opportunitySummary": opportunity_summary,
+        "notes": notes,
+    }
+
+
+def build_local_seo_block(
+    *,
+    site_type: str,
+    location: str | None,
+    target_market: str | None,
+    google_places_bundle: Dict[str, Any],
+    keyword_rankings_block: Dict[str, Any],
+    homepage: Dict[str, Any],
+) -> Dict[str, Any]:
+    company_place = google_places_bundle.get("company") if isinstance(google_places_bundle.get("company"), dict) else {}
+    has_gbp = bool(company_place)
+    location_text = _safe_text(location)
+    target_market_text = _safe_text(target_market).lower()
+    homepage_text = " ".join(
+        [
+            _safe_text(homepage.get("title")),
+            _safe_text(homepage.get("metaDescription")),
+            _safe_text(homepage.get("h1")),
+            _safe_text(homepage.get("text")),
+        ]
+    ).lower()
+    local_channel_primary = site_type == "service_business" or bool(location_text)
+    if any(token in target_market_text for token in ("global", "international", "nationwide")) and site_type != "service_business":
+        local_channel_primary = False
+
+    issues: List[str] = []
+    current_listings: List[str] = []
+    missing_listings: List[str] = []
+
+    if has_gbp:
+        current_listings.append("Google Business Profile")
+    else:
+        missing_listings.append("Google Business Profile")
+        issues.append("Google Business Profile was not confidently matched in the current run.")
+
+    if location_text and location_text.lower() not in homepage_text:
+        issues.append("Core location terms are not strongly reinforced in homepage messaging or metadata.")
+
+    local_rankings = [
+        row for row in _ensure_list(keyword_rankings_block.get("topRankingKeywords"))
+        if isinstance(row, dict) and row.get("type") == "local"
+    ]
+    if local_channel_primary and not local_rankings:
+        issues.append("Local-intent keyword visibility appears weak in the sampled SERP data.")
+
+    if not has_gbp:
+        missing_listings.extend(["Bing Places", "Apple Maps", "Relevant niche/city directories"])
+    elif local_channel_primary:
+        missing_listings.extend(["Bing Places", "Apple Maps"])
+
+    current_listings = _dedupe_strings(current_listings)
+    missing_listings = _dedupe_strings(missing_listings)
+
+    score = 40
+    if local_channel_primary:
+        score += 10
+    if has_gbp:
+        score += 20
+    if local_rankings:
+        score += 15
+    if issues:
+        score -= min(20, len(issues) * 5)
+    score = max(20, min(90, score))
+
+    review_count = _safe_int(company_place.get("user_ratings_total"))
+    rating = _safe_num(company_place.get("rating"))
+    reviews_summary = (
+        f"Google profile detected with rating {rating:.1f} from {review_count} reviews."
+        if has_gbp and rating is not None and review_count is not None
+        else ("Google profile detected, but review details were limited." if has_gbp else "Google profile details were not available.")
+    )
+
+    if local_channel_primary:
+        impact = (
+            "Local SEO should be a meaningful demand channel here. Tightening GBP, location-page signals, and directory coverage could recover missed map-pack and city-intent leads."
+        )
+    else:
+        impact = (
+            "Local SEO looks like a secondary channel for this business. It still supports trust and nearby-intent discovery, but national/category visibility is likely the bigger growth lever."
+        )
+
+    return {
+        "score": score,
+        "currentListings": current_listings,
+        "missingListings": missing_listings,
+        "reviewsSummary": reviews_summary,
+        "issues": issues,
+        "gbpStatus": "Detected" if has_gbp else "Not detected",
+        "localRankingGaps": [
+            "Map-pack visibility is weak for city/service combinations." if local_channel_primary and not local_rankings else ""
+        ],
+        "businessImpact": impact,
+        "notes": (
+            "Local search is being treated as a primary acquisition channel."
+            if local_channel_primary
+            else "Local search is a secondary support channel, so recommendations are calibrated accordingly."
+        ),
+    }
+
+
+def build_seo_opportunity_summary(
+    keyword_rankings_block: Dict[str, Any],
+    local_seo_block: Dict[str, Any],
+    domain_authority_block: Dict[str, Any],
+) -> str:
+    base = _safe_text(keyword_rankings_block.get("opportunitySummary"))
+    if base:
+        if (_safe_int(local_seo_block.get("score")) or 0) < 55:
+            return base + " Local SEO cleanup should run in parallel so city-intent demand is not left behind."
+        return base
+
+    authority_score = _safe_int(domain_authority_block.get("score")) or 0
+    if authority_score < 25:
+        return "The clearest SEO opportunity is to pair new commercial pages with higher-trust referring domains so the site can move beyond branded visibility."
+    return "The clearest SEO opportunity is to expand non-brand keyword coverage and support those pages with stronger proof, internal links, and selective authority building."
+
+
+def build_seo_visibility_summary(
+    *,
+    seo_section: Dict[str, Any],
+    website_url: str,
+    company_name: str,
+    site_type: str,
+    services: List[str],
+    positioning: Dict[str, Any] | None,
+    keyword_analysis: Dict[str, Any],
+    d4s_enrichment: Dict[str, Any],
+    backlinks_bundle: Dict[str, Any],
+    competitor_evidence: Dict[str, Any],
+    google_places_bundle: Dict[str, Any],
+    market_demand: Dict[str, Any],
+    homepage: Dict[str, Any],
+    criteria: Dict[str, Any] | None = None,
+) -> Dict[str, Any]:
+    criteria = criteria or {}
+    location = criteria.get("location") or criteria.get("city") or criteria.get("region")
+    target_market = criteria.get("targetMarket") or criteria.get("primaryTargetMarket")
+
+    domain_block = build_domain_authority_block(
+        seo_section,
+        d4s_enrichment,
+        competitor_evidence,
+        site_type,
+    )
+    backlink_block = build_backlink_profile_block(
+        seo_section,
+        backlinks_bundle,
+        competitor_evidence,
+    )
+    keyword_block = build_keyword_rankings_block(
+        company_name=company_name,
+        website_url=website_url,
+        site_type=site_type,
+        services=services,
+        positioning=positioning,
+        keyword_analysis=keyword_analysis,
+        d4s_enrichment=d4s_enrichment,
+        market_demand=market_demand,
+        location=location,
+        target_market=target_market,
+    )
+    local_block = build_local_seo_block(
+        site_type=site_type,
+        location=location,
+        target_market=target_market,
+        google_places_bundle=google_places_bundle,
+        keyword_rankings_block=keyword_block,
+        homepage=homepage,
+    )
+    opportunity_summary = build_seo_opportunity_summary(
+        keyword_block,
+        local_block,
+        domain_block,
+    )
+
+    return {
+        **seo_section,
+        "domainAuthority": domain_block,
+        "backlinks": backlink_block,
+        "keywordRankings": keyword_block,
+        "localSeo": local_block,
+        "opportunitySummary": opportunity_summary,
+        "mentorNotes": (
+            "SEO performance is no longer being interpreted only as a scorecard. "
+            "This section now ties authority, backlink quality, keyword coverage, and local demand into one benchmark-driven view of how organic search can produce pipeline."
+        ),
+    }

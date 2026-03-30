@@ -144,21 +144,101 @@ class DomainAuthorityBenchmark(BaseModel):
     competitorB: Optional[Any] = None
     competitorC: Optional[Any] = None
     industryAvg: Optional[Any] = None
+    industryAverageRange: Optional[str] = None
+    competitors: List[Dict[str, Any]] = Field(default_factory=list)
 
 class DomainAuthority(BaseModel):
     score: SafeInt = 0
     benchmark: Optional[DomainAuthorityBenchmark] = None
+    whyItMatters: Optional[str] = None
+    benchmarkSummary: Optional[str] = None
     notes: Optional[str] = None
 
 class Backlinks(BaseModel):
     totalBacklinks: Optional[Any] = None
     referringDomains: Optional[Any] = None
     linkQualityScore: Optional[Any] = None
+    qualitySummary: Optional[str] = None
+    anchorMixSummary: Optional[str] = None
+    dofollowRatio: Optional[Any] = None
+    riskSignals: List[str] = Field(default_factory=list)
+    profileCommentary: Optional[str] = None
+    competitorComparison: List[Dict[str, Any]] = Field(default_factory=list)
+    recommendation: Optional[str] = None
     notes: Optional[str] = None
 
+class KeywordRankingRow(BaseModel):
+    keyword: str = ""
+    rank: Optional[Any] = None
+    yourRank: Optional[Any] = None
+    yourUrl: Optional[str] = None
+    type: Optional[str] = None
+    intent: Optional[str] = None
+    priority: Optional[str] = None
+    monthlySearches: Optional[Any] = None
+    topCompetitor: Optional[str] = None
+    topCompetitorRank: Optional[Any] = None
+    rankingStatus: Optional[str] = None
+
+
+class MissingKeywordRow(BaseModel):
+    keyword: str = ""
+    monthlySearches: Optional[Any] = None
+    yourRank: Optional[Any] = None
+    topCompetitor: Optional[str] = None
+    topCompetitorRank: Optional[Any] = None
+    type: Optional[str] = None
+    intent: Optional[str] = None
+    priority: Optional[str] = None
+
+
+class KeywordRankings(BaseModel):
+    totalRankingKeywords: Optional[Any] = None
+    top3: Optional[Any] = None
+    top10: Optional[Any] = None
+    top100: Optional[Any] = None
+    competitorBenchmark: Optional[Dict[str, Any]] = None
+    targetKeywords: List[str] = Field(default_factory=list)
+    byPriority: Dict[str, List[str]] = Field(default_factory=dict)
+    byIntent: Dict[str, List[str]] = Field(default_factory=dict)
+    topRankingKeywords: List[KeywordRankingRow] = Field(default_factory=list)
+    brandedKeywords: List[KeywordRankingRow] = Field(default_factory=list)
+    nonBrandedKeywords: List[KeywordRankingRow] = Field(default_factory=list)
+    missingHighValueKeywords: List[MissingKeywordRow] = Field(default_factory=list)
+    gapSummary: Optional[str] = None
+    opportunitySummary: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class LocalSeo(BaseModel):
+    priority: Optional[str] = None
+    score: Optional[Any] = None
+    isPrimaryChannel: Optional[bool] = None
+    currentListings: List[str] = Field(default_factory=list)
+    missingListings: List[str] = Field(default_factory=list)
+    reviewsSummary: Optional[str] = None
+    issues: List[str] = Field(default_factory=list)
+    gbpStatus: Optional[str] = None
+    localRankingGaps: List[str] = Field(default_factory=list)
+    citationGap: Optional[str] = None
+    directoryGapSummary: Optional[str] = None
+    impact: Optional[str] = None
+    businessImpact: Optional[str] = None
+    notes: Optional[str] = None
+
+
 class SeoVisibility(BaseModel):
+    mentorNotes: Optional[str] = None
+    siteType: Optional[str] = None
     domainAuthority: DomainAuthority = Field(default_factory=DomainAuthority)
     backlinks: Backlinks = Field(default_factory=Backlinks)
+    backlinkProfile: Optional[Backlinks] = None
+    competitorComparison: Optional[Dict[str, Any]] = None
+    keywordRankings: KeywordRankings = Field(default_factory=KeywordRankings)
+    localSeo: LocalSeo = Field(default_factory=LocalSeo)
+    localSEO: Optional[LocalSeo] = None
+    opportunitySummary: Optional[str] = None
+    priorityActions: List[str] = Field(default_factory=list)
 
 class SentimentThemes(BaseModel):
     positive: List[str] = Field(default_factory=list)

@@ -1709,6 +1709,8 @@ export interface BusinessGrowthReport {
   };
 
   seoVisibility: {
+    mentorNotes?: string | null;
+    siteType?: string | null;
     domainAuthority: {
       score: NullableNumber;
       benchmark?: {
@@ -1717,22 +1719,59 @@ export interface BusinessGrowthReport {
         competitorB: NullableNumber;
         competitorC: NullableNumber;
         industryAvg: NullableNumber;
+        industryAverageRange?: string | null;
+        competitors?: { name?: string | null; score?: NullableNumber | string; note?: string | null }[];
       } | null;
+      whyItMatters?: string | null;
+      benchmarkSummary?: string | null;
       notes?: string | null;
     };
     backlinks: {
       totalBacklinks: NullableNumber;
       referringDomains: NullableNumber;
       linkQualityScore: NullableNumber;
+      qualitySummary?: string | null;
+      anchorMixSummary?: string | null;
+      dofollowRatio?: NullableNumber;
+      riskSignals?: string[];
+      profileCommentary?: string | null;
       competitorBenchmark?: { you: NullableNumber; competitorA: NullableNumber; competitorB: NullableNumber } | null;
+      competitorComparison?: { name?: string | null; backlinks?: NullableNumber; domains?: NullableNumber; note?: string | null }[];
+      recommendation?: string | null;
       notes?: string | null;
     };
+    backlinkProfile?: {
+      totalBacklinks: NullableNumber;
+      referringDomains: NullableNumber;
+      linkQualityScore: NullableNumber;
+      qualitySummary?: string | null;
+      anchorMixSummary?: string | null;
+      dofollowRatio?: NullableNumber;
+      riskSignals?: string[];
+      profileCommentary?: string | null;
+      competitorComparison?: { name?: string | null; backlinks?: NullableNumber; domains?: NullableNumber; note?: string | null }[];
+      recommendation?: string | null;
+      notes?: string | null;
+    } | null;
+    competitorComparison?: {
+      directCompetitors?: { domain?: string | null; overlapScore?: number | null; type?: string | null }[];
+      discoveryPlatforms?: { domain?: string | null; overlapScore?: number | null; type?: string | null }[];
+    } | null;
     keywordRankings: {
       totalRankingKeywords: NullableNumber;
       top3: NullableNumber;
       top10: NullableNumber;
       top100: NullableNumber;
       competitorBenchmark?: { you: NullableNumber; competitorA: NullableNumber; competitorB: NullableNumber } | null;
+      targetKeywords?: string[];
+      byPriority?: Record<string, string[]>;
+      byIntent?: Record<string, string[]>;
+      topRankingKeywords?: { keyword?: string | null; rank?: NullableNumber; yourRank?: NullableNumber | string; yourUrl?: string | null; type?: string | null; intent?: string | null; priority?: string | null; monthlySearches?: NullableNumber | string; topCompetitor?: string | null; topCompetitorRank?: NullableNumber | string; rankingStatus?: string | null }[];
+      brandedKeywords?: { keyword?: string | null; rank?: NullableNumber; yourRank?: NullableNumber | string; type?: string | null; monthlySearches?: NullableNumber | string }[];
+      nonBrandedKeywords?: { keyword?: string | null; rank?: NullableNumber; yourRank?: NullableNumber | string; type?: string | null; monthlySearches?: NullableNumber | string }[];
+      missingHighValueKeywords?: { keyword?: string | null; monthlySearches?: NullableNumber | string; yourRank?: NullableNumber | string; topCompetitor?: string | null; topCompetitorRank?: NullableNumber | string; type?: string | null; intent?: string | null; priority?: string | null }[];
+      gapSummary?: string | null;
+      opportunitySummary?: string | null;
       notes?: string | null;
     };
     technicalSeo: {
@@ -1755,12 +1794,39 @@ export interface BusinessGrowthReport {
     };
 
     localSeo: {
+      priority?: string | null;
       score: NullableNumber;
+      isPrimaryChannel?: boolean | null;
       currentListings: string[];
       missingListings: string[];
       reviewsSummary: string | null;
+      issues?: string[];
+      gbpStatus?: string | null;
+      localRankingGaps?: string[];
+      citationGap?: string | null;
+      directoryGapSummary?: string | null;
+      impact?: string | null;
+      businessImpact?: string | null;
       notes?: string | null;
     };
+    localSEO?: {
+      priority?: string | null;
+      score: NullableNumber;
+      isPrimaryChannel?: boolean | null;
+      currentListings: string[];
+      missingListings: string[];
+      reviewsSummary: string | null;
+      issues?: string[];
+      gbpStatus?: string | null;
+      localRankingGaps?: string[];
+      citationGap?: string | null;
+      directoryGapSummary?: string | null;
+      impact?: string | null;
+      businessImpact?: string | null;
+      notes?: string | null;
+    } | null;
+    opportunitySummary?: string | null;
+    priorityActions?: string[];
   };
 
   reputation: {
@@ -2879,7 +2945,46 @@ export function mergeBusinessGrowthReport(
         ...(r.websiteDigitalPresence?.contentQuality || {}),
       },
     },
-    seoVisibility: { ...base.seoVisibility, ...(r.seoVisibility || {}) },
+    seoVisibility: {
+      ...base.seoVisibility,
+      ...(r.seoVisibility || {}),
+      domainAuthority: {
+        ...base.seoVisibility.domainAuthority,
+        ...(r.seoVisibility?.domainAuthority || {}),
+        benchmark: {
+          ...(base.seoVisibility.domainAuthority.benchmark || {}),
+          ...(r.seoVisibility?.domainAuthority?.benchmark || {}),
+        },
+      },
+      backlinks: {
+        ...base.seoVisibility.backlinks,
+        ...(r.seoVisibility?.backlinks || {}),
+      },
+      backlinkProfile: {
+        ...(base.seoVisibility.backlinkProfile || base.seoVisibility.backlinks || {}),
+        ...(r.seoVisibility?.backlinkProfile || {}),
+      },
+      competitorComparison: {
+        ...(base.seoVisibility.competitorComparison || {}),
+        ...(r.seoVisibility?.competitorComparison || {}),
+      },
+      keywordRankings: {
+        ...base.seoVisibility.keywordRankings,
+        ...(r.seoVisibility?.keywordRankings || {}),
+      },
+      technicalSeo: {
+        ...base.seoVisibility.technicalSeo,
+        ...(r.seoVisibility?.technicalSeo || {}),
+      },
+      localSeo: {
+        ...base.seoVisibility.localSeo,
+        ...(r.seoVisibility?.localSeo || {}),
+      },
+      localSEO: {
+        ...(base.seoVisibility.localSEO || base.seoVisibility.localSeo || {}),
+        ...(r.seoVisibility?.localSEO || {}),
+      },
+    },
     reputation: { ...base.reputation, ...(r.reputation || {}) },
     competitiveAnalysis: { ...base.competitiveAnalysis, ...(r.competitiveAnalysis || {}) },
     servicesPositioning: { ...base.servicesPositioning, ...(r.servicesPositioning || {}) },
@@ -2905,6 +3010,22 @@ export function mergeBusinessGrowthReport(
 
   merged.seoVisibility.technicalSeo.issues = ensureArray(merged.seoVisibility.technicalSeo.issues);
   merged.seoVisibility.technicalSeo.opportunities = ensureArray(merged.seoVisibility.technicalSeo.opportunities);
+  merged.seoVisibility.priorityActions = ensureArray(merged.seoVisibility.priorityActions);
+  merged.seoVisibility.backlinks.competitorComparison = ensureArray(merged.seoVisibility.backlinks?.competitorComparison);
+  merged.seoVisibility.backlinks.riskSignals = ensureArray(merged.seoVisibility.backlinks?.riskSignals);
+  merged.seoVisibility.competitorComparison = merged.seoVisibility.competitorComparison || {};
+  merged.seoVisibility.competitorComparison.directCompetitors = ensureArray(merged.seoVisibility.competitorComparison?.directCompetitors);
+  merged.seoVisibility.competitorComparison.discoveryPlatforms = ensureArray(merged.seoVisibility.competitorComparison?.discoveryPlatforms);
+  merged.seoVisibility.keywordRankings.topRankingKeywords = ensureArray(merged.seoVisibility.keywordRankings?.topRankingKeywords);
+  merged.seoVisibility.keywordRankings.brandedKeywords = ensureArray(merged.seoVisibility.keywordRankings?.brandedKeywords);
+  merged.seoVisibility.keywordRankings.nonBrandedKeywords = ensureArray(merged.seoVisibility.keywordRankings?.nonBrandedKeywords);
+  merged.seoVisibility.keywordRankings.missingHighValueKeywords = ensureArray(merged.seoVisibility.keywordRankings?.missingHighValueKeywords);
+  merged.seoVisibility.localSeo.currentListings = ensureArray(merged.seoVisibility.localSeo?.currentListings);
+  merged.seoVisibility.localSeo.missingListings = ensureArray(merged.seoVisibility.localSeo?.missingListings);
+  merged.seoVisibility.localSeo.issues = ensureArray(merged.seoVisibility.localSeo?.issues);
+  merged.seoVisibility.localSeo.localRankingGaps = ensureArray(merged.seoVisibility.localSeo?.localRankingGaps);
+  if (merged.seoVisibility.backlinkProfile == null && merged.seoVisibility.backlinks) merged.seoVisibility.backlinkProfile = { ...merged.seoVisibility.backlinks };
+  if (merged.seoVisibility.localSEO == null && merged.seoVisibility.localSeo) merged.seoVisibility.localSEO = { ...merged.seoVisibility.localSeo };
 
   merged.reputation.platforms = ensureArray(merged.reputation.platforms);
   merged.reputation.recommendations = ensureArray(merged.reputation.recommendations);

@@ -42,6 +42,7 @@ from app.services.places_finder import build_google_reputation_bundle, to_review
 from app.reviews.reputation_bundle import build_reputation_bundle_sync
 from app.signals.website_signals import build_website_signals
 from app.signals.seo_signals import build_seo_signals
+from app.pipeline.seo_engine import build_seo_summary_report
 from app.signals.reputation_signals import build_reputation_signals
 from app.signals.services_signals import build_services_signals
 from app.signals.leadgen_signals import build_leadgen_signals
@@ -1567,6 +1568,32 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception as e:
         competitive_analysis["notes"] = f"Competitor enrichment failed: {e}"
 
+    try:
+        seo_section = ensure_dict(
+            build_seo_summary_report(
+                seo_section=seo_section,
+                website_url=(final_url or website),
+                company_name=company,
+                site_type=business_site_type,
+                services=[
+                    str(item.get("name"))
+                    for item in ensure_list(services_section.get("services"))
+                    if isinstance(item, dict) and item.get("name")
+                ],
+                positioning=ensure_dict(services_section.get("positioning")),
+                keyword_analysis=ensure_dict(keyword_analysis),
+                d4s_enrichment=ensure_dict(d4s_enrichment),
+                backlinks_bundle=ensure_dict(backlinks_bundle),
+                competitor_evidence=ensure_dict(competitor_evidence),
+                google_places_bundle=ensure_dict(google_places_bundle),
+                market_demand=ensure_dict(market_demand_bundle),
+                homepage=ensure_dict(homepage),
+                criteria=ensure_dict(criteria),
+            )
+        )
+    except Exception as e:
+        logger.warning("[Pipeline] SEO visibility summary enrichment failed, continuing: %s", str(e))
+
     technical_seo = ensure_dict(website_section.get("technicalSEO"))
     domain_auth = ensure_dict(seo_section.get("domainAuthority"))
 
@@ -2365,6 +2392,16 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         merged = build_final_synthesis_with_llm(merged, llm_context, cache_repo=cache_repo, cache_key=cache_key)
     except Exception:
         logger.exception("[Pipeline] final synthesis failed; continuing with merged report")
+    user_financials = payload_dict.get("businessInputs") or payload_dict.get("optionalBusinessInputs")
+    if isinstance(merged, dict):
+        merged["meta"] = deep_merge(
+            ensure_dict(merged.get("meta")),
+            {
+                "estimationMode": bool(payload_dict.get("estimationMode")),
+                "estimationInputs": payload_dict.get("estimationInputs"),
+                "userFinancials": user_financials if isinstance(user_financials, dict) else None,
+            },
+        )
     merged = validate_report_data(merged)
     # Safe additive pass: compute report-level meta scores from collected evidence before persistence/PDF.
     merged = apply_report_scorecard(merged)
@@ -2377,6 +2414,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "company": company,
         "createdAt": datetime.utcnow().isoformat() + "Z",
         "estimationMode": bool(payload_dict.get("estimationMode")),
+        "estimationInputs": payload_dict.get("estimationInputs"),
+        "userFinancials": user_financials if isinstance(user_financials, dict) else None,
         "targetMarket": (payload_dict.get("targetMarket") or payload_dict.get("primaryTargetMarket") or criteria.get("targetMarket") or criteria.get("primaryTargetMarket")),
         "businessGoal": (payload_dict.get("businessGoal") or criteria.get("businessGoal")),
         "forceNewAnalysis": bool(payload_dict.get("forceNewAnalysis")),
