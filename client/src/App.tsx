@@ -168,6 +168,7 @@ class SafePopupBoundary extends React.Component<
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import CaseStudyScrollHandler from "./utils/CaseStudyScrollHandler ";
+import SeoSetupLandingPage from "./pages/SeoSetupLandingPage";
 
 function Router() {
   const [location] = useLocation();
@@ -196,20 +197,15 @@ function Router() {
   const Content = (
     <Switch>
       {/* CRITICAL: Home page loads immediately */}
-      <Route
-        path="/book-appointment"
-        component={() => <LazyRoute component={BookApiontment} />}
-      />
+      <Route path="/book-appointment" component={() => <LazyRoute component={BookApiontment} />}/>
+
       <Route path="/" component={Home} />
       {/* <Route path="/loader" component={BeeLoadingScreen} /> */}
       <Route path="/admin/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
       <Route path="/web-case-study/:slug" component={WebCaseStudySlugPage} />
-      <Route
-        path="/dedicated-resource-case-study/:slug"
-        component={DedicatedResourceCaseStudySlugPage}
-      />
+      <Route path="/dedicated-resource-case-study/:slug" component={DedicatedResourceCaseStudySlugPage}/>
 
       {/* LAZY: All other routes load on demand */}
       <Route path="/services" component={() => <LazyRoute component={Services} />} />
@@ -270,6 +266,8 @@ function Router() {
       <Route path="/privacy-policy" component={() => <LazyRoute component={PrivacyPolicyPage} />} />
       <Route path="/terms-of-service" component={() => <LazyRoute component={TermsOfServicePage} />} />
       <Route path="/security" component={() => <LazyRoute component={SecurityPage} />} />
+
+      <Route path="/30daysseosetup" component={() => <LazyRoute component={SeoSetupLandingPage} />} />
 
       {/* 404 - This catches all unmatched routes */}
       <Route component={NotFound} />

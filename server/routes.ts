@@ -2107,6 +2107,7 @@ import { registerChatRoutes } from "./routes/chat";
 import { blogAdminRouter } from "./routes/blog-admin";
 import { blogPublicRouter } from "./routes/blog-public";
 import { authApiRouter } from "./routes/auth-api-router";
+import seoSetupLeadsRoutes from "./routes/seo-setup-leads.routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ✅ Admin auth (login + authenticateAdmin middleware)
@@ -2185,6 +2186,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
   app.use("/api", blogPublicRouter(publicContentRateLimit));
   app.use("/api/oauthapi", authApiRouter);
+  app.use("/api/seo-setup-leads", seoSetupLeadsRoutes);
+
 
   // -----------------------------
   // ADMIN ROUTES (case studies)
