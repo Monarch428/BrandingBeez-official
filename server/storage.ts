@@ -21,6 +21,7 @@ import { PpcCaseStudyStorage } from "./Istorage/storage-ppc-case-study";
 import { WebCaseStudyStorage } from "./Istorage/storage-web-case-study";
 import { DedicatedResourceCaseStudyStorage } from "./Istorage/dedicated-resource-case-study-storage";
 import { GoogleApiAuthStorage } from "./Istorage/auth-api-token";
+import type { SeoSetupLeadStorage } from "./Istorage/storage-seo-setup-leads";
 
 export interface IStorage
   extends UserStorage,
@@ -43,7 +44,8 @@ export interface IStorage
   WebCaseStudyStorage,
   DedicatedResourceCaseStudyStorage,
   GoogleAuthStorage,
-  GoogleApiAuthStorage {}
+  GoogleApiAuthStorage,
+  SeoSetupLeadStorage  {}
 
 // Hook the composed db-storage into this module
 export const storage: IStorage = dbStorage;
