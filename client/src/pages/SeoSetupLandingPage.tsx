@@ -19,8 +19,9 @@ import {
   Wrench,
 } from "lucide-react";
 import { createSeoSetupLead } from "../lib/seoSetupLeadService";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ThankYouPopup } from "@/components/thank-you-popup";
+import { navigate } from "wouter/use-browser-location";
 
 const includedItems = [
   {
@@ -122,6 +123,8 @@ const whyFreeReasons = [
 ];
 
 export default function SeoSetupLandingPage() {
+  const formSectionRef = useRef<HTMLElement | null>(null);
+
   const [form, setForm] = useState({
     fullName: "",
     websiteUrl: "",
@@ -141,6 +144,17 @@ export default function SeoSetupLandingPage() {
       [name]: value,
     }));
   };
+
+  const scrollToForm = () => {
+    formSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
+  // const goToPortfolio = () => {
+  //   navigate("/portfolio");
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -189,7 +203,11 @@ export default function SeoSetupLandingPage() {
                 foundation Google requires for real organic traffic.
               </p>
 
-              <button className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]">
+              <button
+                type="button"
+                onClick={scrollToForm}
+                className="mt-8 inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]"
+              >
                 Get My Free SEO Setup
                 <ArrowRight className="ml-2 h-4 w-4" />
               </button>
@@ -307,7 +325,11 @@ export default function SeoSetupLandingPage() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <button className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]">
+            <button
+              type="button"
+              onClick={scrollToForm}
+              className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]"
+            >
               Get My Free SEO Setup
               <ArrowRight className="ml-2 h-4 w-4" />
             </button>
@@ -377,7 +399,11 @@ export default function SeoSetupLandingPage() {
           </div>
 
           <div className="mt-10 flex justify-center">
-            <button className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff8a30] to-[#ff5c4c] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,102,64,0.22)] transition-transform duration-300 hover:scale-[1.02]">
+            <button
+              type="button"
+              onClick={() => navigate("/portfolio")}
+              className="inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff8a30] to-[#ff5c4c] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,102,64,0.22)] transition-transform duration-300 hover:scale-[1.02]"
+            >
               View Full Portfolio
               <ArrowRight className="ml-2 h-4 w-4" />
             </button>
@@ -432,7 +458,11 @@ export default function SeoSetupLandingPage() {
               ))}
             </div>
 
-            <button className="mt-6 inline-flex min-h-[54px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]">
+            <button
+              type="button"
+              onClick={scrollToForm}
+              className="mt-6 inline-flex min-h-[54px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]"
+            >
               Get My Free SEO Setup
               <ArrowRight className="ml-2 h-4 w-4" />
             </button>
@@ -526,7 +556,11 @@ export default function SeoSetupLandingPage() {
                     If you’re not showing up, your competitors are getting those
                     leads.
                   </h3>
-                  <button className="mt-5 inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]">
+                  <button
+                    type="button"
+                    onClick={scrollToForm}
+                    className="mt-5 inline-flex min-h-[52px] items-center justify-center rounded-xl bg-gradient-to-r from-[#ff3974] to-[#ff4f5f] px-6 text-sm font-semibold text-white shadow-[0_10px_30px_rgba(255,57,116,0.28)] transition-transform duration-300 hover:scale-[1.02]"
+                  >
                     Get My Free SEO Setup
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </button>
@@ -537,7 +571,10 @@ export default function SeoSetupLandingPage() {
         </div>
       </section>
 
-      <section className="bg-[#f3f0f4] py-16 sm:py-20 lg:py-24">
+      <section
+        ref={formSectionRef}
+        className="bg-[#f3f0f4] py-16 sm:py-20 lg:py-24"
+      >
         <div className="mx-auto w-full max-w-[1440px] px-4 sm:px-6 lg:px-10 xl:px-16">
           <div className="mx-auto max-w-[840px] text-center">
             <h2 className="text-[30px] font-black leading-tight tracking-[-0.03em] text-[#23162f] sm:text-[40px] lg:text-[58px]">
@@ -639,25 +676,6 @@ export default function SeoSetupLandingPage() {
         title="Thank You!"
         message="Your SEO setup request has been submitted successfully. Our team will get back to you shortly."
         formType="inquiry"
-      />
-    </div>
-  );
-}
-
-type FieldProps = {
-  label: string;
-  placeholder: string;
-};
-
-function Field({ label, placeholder }: FieldProps) {
-  return (
-    <div>
-      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.16em] text-[#5b5367]">
-        {label}
-      </label>
-      <input
-        placeholder={placeholder}
-        className="h-12 w-full rounded-xl border border-[#e8e2ec] bg-[#fcfbfd] px-4 text-sm text-[#23162f] outline-none transition focus:border-[#ff4a76] focus:ring-4 focus:ring-[#ff4a76]/10 sm:h-14 sm:text-base"
       />
     </div>
   );
