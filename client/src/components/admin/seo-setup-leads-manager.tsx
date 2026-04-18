@@ -63,14 +63,12 @@ export function SeoSetupLeadsManager() {
     queryFn: fetchSeoSetupLeads,
   });
 
-  const {
-    data: leadDetails,
-    isLoading: isLeadDetailsLoading,
-  } = useQuery<SeoSetupLead>({
-    queryKey: ["seo-setup-lead-details", selectedLeadId],
-    queryFn: () => fetchSeoSetupLeadById(selectedLeadId as string),
-    enabled: !!selectedLeadId && viewDialogOpen,
-  });
+  const { data: leadDetails, isLoading: isLeadDetailsLoading } =
+    useQuery<SeoSetupLead>({
+      queryKey: ["seo-setup-lead-details", selectedLeadId],
+      queryFn: () => fetchSeoSetupLeadById(selectedLeadId as string),
+      enabled: !!selectedLeadId && viewDialogOpen,
+    });
 
   const deleteLeadMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -129,7 +127,9 @@ export function SeoSetupLeadsManager() {
       return new Date(lead.createdAt).toISOString().slice(0, 10) === today;
     }).length;
 
-    const withWebsite = leads.filter((lead) => !!lead.websiteUrl?.trim()).length;
+    const withWebsite = leads.filter(
+      (lead) => !!lead.websiteUrl?.trim(),
+    ).length;
 
     return {
       total,
@@ -144,14 +144,15 @@ export function SeoSetupLeadsManager() {
   };
 
   const handleView = (lead: SeoSetupLead) => {
-    const id = String(lead._id || lead.id || "");
+    const id = String(lead.id || lead._id || "");
     setSelectedLead(lead);
     setSelectedLeadId(id || null);
     setViewDialogOpen(true);
   };
 
   const handleDelete = (lead: SeoSetupLead) => {
-    const id = String(lead._id || lead.id || "");
+    const id = String(lead.id || lead._id || "");
+
     if (!id) {
       window.alert("Lead id is missing");
       return;
@@ -164,7 +165,7 @@ export function SeoSetupLeadsManager() {
 
     deleteLeadMutation.mutate(id);
   };
-
+  
   const renderPaginationButtons = () => {
     const pages: (number | string)[] = [];
 
@@ -235,7 +236,9 @@ export function SeoSetupLeadsManager() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-slate-900">{stats.total}</div>
+            <div className="text-3xl font-bold text-slate-900">
+              {stats.total}
+            </div>
             <p className="mt-1 text-sm text-slate-500">
               All SEO setup lead submissions
             </p>
@@ -253,9 +256,7 @@ export function SeoSetupLeadsManager() {
             <div className="text-3xl font-bold text-slate-900">
               {stats.todayCount}
             </div>
-            <p className="mt-1 text-sm text-slate-500">
-              Leads created today
-            </p>
+            <p className="mt-1 text-sm text-slate-500">Leads created today</p>
           </CardContent>
         </Card>
 
@@ -419,7 +420,9 @@ export function SeoSetupLeadsManager() {
                               </DropdownMenuTrigger>
 
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => handleView(lead)}>
+                                <DropdownMenuItem
+                                  onClick={() => handleView(lead)}
+                                >
                                   <Eye className="mr-2 h-4 w-4" />
                                   View
                                 </DropdownMenuItem>
@@ -452,7 +455,9 @@ export function SeoSetupLeadsManager() {
                     {Math.min(currentPage * pageSize, totalItems)}
                   </span>{" "}
                   of{" "}
-                  <span className="font-medium text-slate-900">{totalItems}</span>{" "}
+                  <span className="font-medium text-slate-900">
+                    {totalItems}
+                  </span>{" "}
                   leads
                 </div>
 
@@ -477,7 +482,9 @@ export function SeoSetupLeadsManager() {
                     Prev
                   </Button>
 
-                  <div className="flex items-center gap-1">{renderPaginationButtons()}</div>
+                  <div className="flex items-center gap-1">
+                    {renderPaginationButtons()}
+                  </div>
 
                   <Button
                     type="button"
@@ -561,7 +568,11 @@ export function SeoSetupLeadsManager() {
           )}
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setViewDialogOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setViewDialogOpen(false)}
+            >
               Close
             </Button>
           </DialogFooter>

@@ -59,7 +59,7 @@ export const getSeoSetupLeadById = async (
   try {
     const id = Number(req.params.id);
 
-    if (!id) {
+    if (!Number.isInteger(id) || id <= 0) {
       res.status(400).json({
         success: false,
         message: "Invalid id",
@@ -99,10 +99,20 @@ export const deleteSeoSetupLead = async (
   try {
     const id = Number(req.params.id);
 
-    if (!id) {
+    if (!Number.isInteger(id) || id <= 0) {
       res.status(400).json({
         success: false,
         message: "Invalid id",
+      });
+      return;
+    }
+
+    const lead = await storage.getSeoSetupLeadById(id);
+
+    if (!lead) {
+      res.status(404).json({
+        success: false,
+        message: "SEO setup lead not found",
       });
       return;
     }
