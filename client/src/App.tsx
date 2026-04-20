@@ -124,6 +124,8 @@ const ComingSoon = lazy(() => import("@/pages/coming-soon"));
 
 // Newsletter page - lazy loaded
 const Newsletter = lazy(() => import("@/pages/newsletter"));
+const SeoSetupLandingPage = lazy(() => import("@/pages/SeoSetupLandingPage"));
+const PatientBookingLandingPage = lazy(() => import("@/pages/PatientBookingLandingPage"));
 
 // Blog posts - handled by dynamic route
 const DynamicBlogPost = lazy(() => import("@/pages/blog/[slug]"));
@@ -168,7 +170,6 @@ class SafePopupBoundary extends React.Component<
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import CaseStudyScrollHandler from "./utils/CaseStudyScrollHandler ";
-import SeoSetupLandingPage from "./pages/SeoSetupLandingPage";
 
 function Router() {
   const [location] = useLocation();
@@ -268,6 +269,7 @@ function Router() {
       <Route path="/security" component={() => <LazyRoute component={SecurityPage} />} />
 
       <Route path="/30daysseosetup" component={() => <LazyRoute component={SeoSetupLandingPage} />} />
+      <Route path="/patient-booking" component={() => <LazyRoute component={PatientBookingLandingPage} />} />
 
       {/* 404 - This catches all unmatched routes */}
       <Route component={NotFound} />
