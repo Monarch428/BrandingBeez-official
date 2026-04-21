@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import dental_hero_image from "../../public/images/Modern_Dental_Clinic.png";
+import { BookCallButtonWithModal } from "@/components/book-appoinment";
 
 const getItems = [
   {
@@ -229,12 +230,14 @@ const steps = [
 function Section({
   className = "",
   children,
+  id,
 }: {
   className?: string;
   children: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <section className={`w-full ${className}`}>
+    <section id={id} className={`w-full ${className}`}>
       <div className="mx-auto w-full max-w-[1180px] px-3 max-[374px]:px-2 sm:px-5 md:px-6 lg:px-8 xl:px-10">
         {children}
       </div>
@@ -253,13 +256,16 @@ function PillLabel({ children }: { children: React.ReactNode }) {
 function CtaButton({
   children,
   className = "",
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
+  onClick?: () => void;
 }) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className={`inline-flex min-h-[48px] w-full items-center justify-center rounded-full bg-gradient-to-r from-[#ff3f80] to-[#ff6b63] px-4 text-[13px] font-semibold text-white shadow-[0_14px_25px_rgba(255,77,125,0.34)] transition-transform duration-300 hover:scale-[1.02] max-[374px]:min-h-[46px] max-[374px]:px-3 max-[374px]:text-[12px] sm:w-auto sm:min-h-[52px] sm:px-6 sm:text-[13px] md:min-h-[54px] md:px-7 md:text-[14px] ${className}`}
     >
       {children}
@@ -366,6 +372,14 @@ function DemoCard({
 }
 
 export default function PatientBookingLandingPage() {
+  const scrollToBookingSystem = () => {
+    const section = document.getElementById("patient-booking-system-section");
+
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#f6eff8] text-[#2d1f46]">
       <Section className="overflow-hidden bg-[#f3edf7] pb-12 pt-8 max-[374px]:pb-10 max-[374px]:pt-6 sm:pb-16 sm:pt-12 lg:pb-20 lg:pt-14">
@@ -379,7 +393,7 @@ export default function PatientBookingLandingPage() {
             <h1 className="mt-5 max-w-[520px] text-[30px] font-extrabold leading-[1.02] tracking-[-0.035em] text-[#2f1f4a] max-[374px]:text-[26px] max-[374px]:leading-[1.06] sm:text-[36px] md:text-[42px] lg:text-[48px] xl:text-[54px]">
               We Build Your Patient
               <br />
-              Booking System–
+              Booking System –
               <br />
               <span className="text-[#d4145a]">Free</span>
             </h1>
@@ -399,7 +413,11 @@ export default function PatientBookingLandingPage() {
             </div>
 
             <div className="mt-7">
-              <button className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#cb0d4f] to-[#f5657b] px-5 text-[14px] font-extrabold text-white shadow-[0_14px_26px_rgba(212,20,90,0.26)] transition-transform duration-300 hover:scale-[1.02] max-[374px]:min-h-[48px] max-[374px]:px-4 max-[374px]:text-[13px] sm:w-auto sm:min-h-[56px] sm:px-7 sm:text-[15px] lg:min-h-[58px] lg:px-8 lg:text-[16px]">
+              <button
+                type="button"
+                onClick={scrollToBookingSystem}
+                className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#cb0d4f] to-[#f5657b] px-5 text-[14px] font-extrabold text-white shadow-[0_14px_26px_rgba(212,20,90,0.26)] transition-transform duration-300 hover:scale-[1.02] max-[374px]:min-h-[48px] max-[374px]:px-4 max-[374px]:text-[13px] sm:w-auto sm:min-h-[56px] sm:px-7 sm:text-[15px] lg:min-h-[58px] lg:px-8 lg:text-[16px]"
+              >
                 Get My Free Booking System
                 <ArrowRight className="h-4 w-4" />
               </button>
@@ -503,7 +521,11 @@ export default function PatientBookingLandingPage() {
           </div>
 
           <div className="mt-16 flex justify-center">
-            <button className="inline-flex min-h-[68px] items-center gap-2 rounded-full bg-gradient-to-r from-[#cb0d4f] to-[#f5657b] px-10 text-[16px] font-extrabold text-white shadow-[0_16px_30px_rgba(212,20,90,0.22)] transition-transform duration-300 hover:scale-[1.02]">
+            <button
+              type="button"
+              onClick={scrollToBookingSystem}
+              className="inline-flex min-h-[68px] items-center gap-2 rounded-full bg-gradient-to-r from-[#cb0d4f] to-[#f5657b] px-10 text-[16px] font-extrabold text-white shadow-[0_16px_30px_rgba(212,20,90,0.22)] transition-transform duration-300 hover:scale-[1.02]"
+            >
               Get My Free Patient Booking System
               <ArrowRight className="h-4 w-4" />
             </button>
@@ -660,7 +682,10 @@ export default function PatientBookingLandingPage() {
         </div>
       </Section>
 
-      <Section className="bg-[#efe4f8] py-16 sm:py-20 lg:py-24">
+      <Section
+        id="patient-booking-system-section"
+        className="scroll-mt-24 bg-[#efe4f8] py-16 sm:py-20 lg:py-24"
+      >
         <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div className="max-w-[560px]">
             <h2 className="text-[26px] font-extrabold leading-[1.1] tracking-[-0.02em] text-[#2f1f4a] max-[374px]:text-[22px] sm:text-[32px] md:text-[38px] lg:text-[44px]">
@@ -809,9 +834,15 @@ export default function PatientBookingLandingPage() {
                     </div>
                   </div>
 
-                  <button className="mt-4 w-full rounded-[12px] bg-gradient-to-r from-[#d71258] to-[#ff5f74] py-[15px] text-[13px] font-extrabold text-white shadow-[0_12px_24px_rgba(231,52,109,0.22)]">
+                  {/* <button className="mt-4 w-full rounded-[12px] bg-gradient-to-r from-[#d71258] to-[#ff5f74] py-[15px] text-[13px] font-extrabold text-white shadow-[0_12px_24px_rgba(231,52,109,0.22)]">
                     Book Appointment
-                  </button>
+                  </button> */}
+
+                  <BookCallButtonWithModal
+                    buttonLabel="Book a Free Strategy Call"
+                    className="mt-4 w-full rounded-[12px] bg-gradient-to-r from-[#d71258] to-[#ff5f74] py-[15px] text-[13px] font-extrabold text-white shadow-[0_12px_24px_rgba(231,52,109,0.22)]"
+                    buttonSize="lg"
+                  />
 
                   <p className="mt-3 text-center text-[10px] font-medium text-[#e33972]">
                     Patients book instantly — no follow-up needed
@@ -1102,7 +1133,10 @@ export default function PatientBookingLandingPage() {
 
           {/* CTA */}
           <div className="mt-10">
-            <button className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#d4145a] to-[#ff5f74] px-8 py-4 text-[15px] font-extrabold text-white shadow-[0_14px_30px_rgba(212,20,90,0.35)] transition-transform duration-300 hover:scale-[1.03]">
+            <button
+              onClick={scrollToBookingSystem}
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#d4145a] to-[#ff5f74] px-8 py-4 text-[15px] font-extrabold text-white shadow-[0_14px_30px_rgba(212,20,90,0.35)] transition-transform duration-300 hover:scale-[1.03]"
+            >
               Get My Free Patient Booking System
               <ArrowRight className="h-4 w-4" />
             </button>
