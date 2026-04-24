@@ -4,8 +4,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import time
 import urllib.parse
 
-import requests
-
 from app.core.config import settings
 from app.core.http import http_get
 
@@ -17,6 +15,22 @@ _DEFAULT_TTL_SEC = 60 * 60  # 1 hour
 
 class PlacesAPIError(RuntimeError):
     pass
+
+
+def _normalize_place_profile(place: Dict[str, Any]) -> Dict[str, Any]:
+    place = place if isinstance(place, dict) else {}
+    reviews = place.get("reviews") if isinstance(place.get("reviews"), list) else []
+    return {
+        "placeId": place.get("place_id") or place.get("placeId"),
+        "name": place.get("name"),
+        "rating": place.get("rating"),
+        "reviewCount": place.get("user_ratings_total") or place.get("reviewCount") or 0,
+        "website": place.get("website"),
+        "address": place.get("formatted_address") or place.get("address"),
+        "phone": place.get("international_phone_number") or place.get("phone"),
+        "types": place.get("types") or [],
+        "reviewsSample": reviews,
+    }
 
 
 def _cache_get(key: str) -> Optional[Any]:
@@ -189,7 +203,7 @@ def find_company_place(company_name: str, location: str | None = None, website: 
 def build_google_reputation_bundle(service: str, location: str | None, company_name: str | None = None, company_website: str | None = None,
                                   max_results: int = 5, max_reviews: int = 5) -> Dict[str, Any]:
     """Return a bundle suitable for reputation analysis + competitive context."""
-    bundle: Dict[str, Any] = {"query": {"service": service, "location": location or ""}, "company": {}, "competitors": []}
+    bundle: Dict[str, Any] = {"query": {"service": service, "location": location or ""}, "company": {}, "profile": {}, "competitors": []}
 
     # Competitor sweep only makes sense when location is known.
     if location:
@@ -199,6 +213,7 @@ def build_google_reputation_bundle(service: str, location: str | None, company_n
     if company_name:
         company = find_company_place(company_name, location=location, website=company_website)
         bundle["company"] = company
+        bundle["profile"] = _normalize_place_profile(company)
 
     return bundle
 
@@ -207,7 +222,16 @@ def to_review_analyzer_source(place: Dict[str, Any]) -> list[dict]:
     """Convert a Google place 'reviews' list into ReviewAnalyzer expected format."""
     out: list[dict] = []
     for r in (place or {}).get("reviews") or []:
-        text = (r or {}).get("text") or ""
-        rating = (r or {}).get("rating") or ""
-        out.append({"rating": rating, "pros": text, "cons": ""})
+        review = r or {}
+        text = review.get("text") or review.get("original_text") or ""
+        rating = review.get("rating") or ""
+        out.append({
+            "rating": rating,
+            "pros": text,
+            "cons": "",
+            "reviewer": review.get("author_name") or "",
+            "relativeTime": review.get("relative_time_description") or "",
+            "publishedAt": review.get("time") or "",
+            "source": "google",
+        })
     return out

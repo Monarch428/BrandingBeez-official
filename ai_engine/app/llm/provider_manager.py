@@ -11,30 +11,32 @@ class LLMProviderManager:
     def can_use_gemini(self) -> bool:
         return bool(getattr(settings, "GEMINI_API_KEY", None)) and is_network_available("generativelanguage.googleapis.com")
 
-    def get_active_provider(self, preferred: str | None = None) -> str | None:
-        pref = (preferred or "openai").strip().lower()
-        if pref in ("openai", "oai"):
-            if self.can_use_openai():
-                return "openai"
-            if self.can_use_gemini():
-                return "gemini"
-            return None
-        if pref in ("gemini", "google", "gcp"):
-            if self.can_use_gemini():
-                return "gemini"
-            if self.can_use_openai():
-                return "openai"
-            return None
-        if self.can_use_openai():
+    def _normalize_provider_name(self, provider: str | None) -> str:
+        value = (provider or "gemini").strip().lower()
+        if value in ("openai", "oai"):
             return "openai"
+        if value in ("gemini", "google", "gcp"):
+            return "gemini"
+        return "gemini"
+
+    def get_active_provider(self, preferred: str | None = None) -> str | None:
+        pref = self._normalize_provider_name(preferred)
+        if pref == "openai":
+            if self.can_use_openai():
+                return "openai"
+            if self.can_use_gemini():
+                return "gemini"
+            return None
         if self.can_use_gemini():
             return "gemini"
+        if self.can_use_openai():
+            return "openai"
         return None
 
     def fallback_provider(self, current: str | None) -> str | None:
-        cur = (current or "").strip().lower()
-        if cur in ("openai", "oai"):
+        cur = self._normalize_provider_name(current)
+        if cur == "openai":
             return "gemini" if self.can_use_gemini() else None
-        if cur in ("gemini", "google", "gcp"):
+        if cur == "gemini":
             return "openai" if self.can_use_openai() else None
         return self.get_active_provider()

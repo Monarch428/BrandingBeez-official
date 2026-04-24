@@ -5,6 +5,11 @@ from typing import Any, Dict, List
 import re
 from difflib import SequenceMatcher
 
+from app.pipeline.recommendation_engine import (
+    build_missing_h1_recommendation,
+    build_missing_page_recommendation,
+    derive_site_context,
+)
 from app.signals.detection_utils import (
     deduplicate_list_preserve_order,
     detect_case_studies,
@@ -90,18 +95,39 @@ def _pick(pages: List[Dict[str, Any]], predicate) -> bool:
     return False
 
 
+def _make_action(title: str, source: str, impact: str, effort: str, details: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "title": title,
+        "sourceSection": source,
+        "impact": impact,
+        "effort": effort,
+        "urgency": "high" if impact == "high" else "medium",
+        "confidence": 0.85,
+        "pillar": "seo" if "H1" in title or "page" in title.lower() else "trust",
+        "kpis": ["organic visibility", "conversion rate"],
+        "details": details,
+    }
+
+
 def compute_content_quality(
     homepage: Dict[str, Any],
     pages: List[Dict[str, Any]],
     *,
     site_type: str | None = None,
+    company_name: str | None = None,
+    website: str | None = None,
+    services: List[str] | None = None,
+    target_market: str | None = None,
+    location: str | None = None,
 ) -> Dict[str, Any]:
     strengths: List[str] = []
     gaps: List[str] = []
     recs: List[str] = []
+    recommendation_details: List[Dict[str, Any]] = []
+    action_candidates: List[Dict[str, Any]] = []
 
     all_pages = []
-    hp_url = homepage.get("url")
+    hp_url = homepage.get("url") or "/"
     if hp_url:
         all_pages.append(
             {
@@ -130,6 +156,14 @@ def compute_content_quality(
             evidence_bits.extend([str(item) for item in nav if isinstance(item, str) and item.strip()])
 
     evidence_blob = "\n".join(evidence_bits)
+    site_context = derive_site_context(
+        company_name=company_name or "",
+        website=website or (homepage.get("url") or ""),
+        homepage=homepage or {},
+        services=services or [],
+        target_market=target_market,
+        location=location,
+    )
 
     has_services = _pick(all_pages, lambda p: _is_category(p, "services"))
     has_about = _pick(all_pages, lambda p: _is_category(p, "about"))
@@ -155,32 +189,40 @@ def compute_content_quality(
         strengths.append("Homepage has a clear page title (good for SEO and click-through).")
     else:
         gaps.append("Homepage title tag is missing or empty.")
-        recs.append("Add a descriptive homepage title aligned to the primary topic or offer.")
+        recs.append("Write a homepage title that states the main service, audience, and value proposition.")
 
     if hp_meta:
         strengths.append("Homepage has a meta description (helps search snippet quality).")
     else:
         gaps.append("Homepage meta description is missing.")
-        recs.append("Write a compelling meta description with a value proposition and next step.")
+        recs.append("Write a meta description that explains the offer, audience, and next step.")
 
     if hp_h1 == 1:
         strengths.append("Homepage uses a clean single H1 structure.")
     elif hp_h1 == 0:
         gaps.append("Homepage has no H1 heading.")
-        recs.append("Add one clear H1 that states the primary topic, offer, or audience value.")
+        detail = build_missing_h1_recommendation(
+            page_url=hp_url,
+            page_label="homepage",
+            site_context=site_context,
+            primary_keywords=(services or [])[:3],
+        )
+        recommendation_details.append(detail)
+        recs.append(f"{detail['recommendation']} Suggested H1s: {', '.join(detail['suggestedVariants'][:3])}.")
+        action_candidates.append(_make_action("Add homepage H1 and strengthen hero messaging", "websiteDigitalPresence", "high", "low", detail))
     else:
         gaps.append("Homepage has multiple H1 headings (can confuse SEO structure).")
-        recs.append("Keep one primary H1 per page and use H2/H3 for section hierarchy.")
+        recs.append("Keep one primary H1 on the homepage and use H2/H3 for section hierarchy.")
 
     if avg_words >= 450:
         strengths.append("Key pages have healthy content depth on average.")
     elif avg_words > 0:
         gaps.append("Many pages are thin on content (low word count).")
-        recs.append("Expand key pages with benefits, structure, FAQs, and proof.")
+        recs.append("Expand key pages with clearer positioning, proof, FAQs, and CTA support.")
 
     if thin_pages:
         gaps.append(f"{len(thin_pages)} internal pages appear thin (<250 words).")
-        recs.append("Increase content depth on thin pages and add clearer section headings.")
+        recs.append("Increase content depth on thin pages and add section headings, proof, and CTA blocks.")
 
     if site_type == "content_site":
         if has_blog:
@@ -192,58 +234,51 @@ def compute_content_quality(
         strengths.append("Service information pages are present (good for conversions).")
     else:
         gaps.append("Dedicated services content could not be structurally confirmed.")
-        recs.append("Create a dedicated Services page listing each service, outcomes, and CTAs.")
+        detail = build_missing_page_recommendation(page_type="services", site_context=site_context, keyword_cluster=services or [])
+        recommendation_details.append(detail)
+        recs.append(f"{detail['recommendation']} Suggested pages: {', '.join(detail['suggestedVariants'][:4])}.")
+        action_candidates.append(_make_action("Create Services page and service landing pages", "websiteDigitalPresence", "high", "medium", detail))
 
     if has_about:
         strengths.append("About/Company content appears present (builds trust).")
     else:
         gaps.append("No About page detected.")
-        recs.append("Add an About page with team, credibility, and experience.")
+        detail = build_missing_page_recommendation(page_type="about", site_context=site_context)
+        recommendation_details.append(detail)
+        recs.append(f"{detail['recommendation']} Suggested sections: {', '.join(detail['suggestedVariants'][:3])}.")
+        action_candidates.append(_make_action("Create About page with trust-building content", "websiteDigitalPresence", "medium", "low", detail))
 
     if has_contact:
         strengths.append("Contact page appears present.")
     elif site_type != "content_site":
         gaps.append("No Contact page detected.")
-        recs.append("Add a Contact page with a short form, phone/email, and a clear CTA.")
+        detail = build_missing_page_recommendation(page_type="contact", site_context=site_context)
+        recommendation_details.append(detail)
+        recs.append(f"{detail['recommendation']} Suggested CTA labels: {', '.join(detail['suggestedVariants'][:3])}.")
+        action_candidates.append(_make_action("Create Contact page with stronger CTA path", "websiteDigitalPresence", "high", "low", detail))
 
     if has_case:
-        if case_hits:
-            strengths.append(f'Case-study or portfolio signal detected: "{case_hits[0]}".')
-        else:
-            strengths.append("Case study / results content appears present (strong proof).")
+        strengths.append(f'Case-study or portfolio signal detected: "{case_hits[0]}".' if case_hits else "Case study / results content appears present (strong proof).")
     else:
-        if site_type == "content_site":
-            gaps.append("Proof of results is limited or not clearly merchandised across key pages.")
-            recs.append("Feature standout articles, audience growth proof, or monetization outcomes as visible proof assets.")
-        else:
-            gaps.append("Case studies or project proof could not be structurally confirmed.")
-            recs.append("Publish 2-5 case studies with metrics, process, and outcomes.")
+        gaps.append("Case studies or project proof could not be structurally confirmed.")
+        recs.append("Publish 2–5 case studies with outcomes, process summary, and a CTA to start a conversation.")
 
     if has_testimonials:
-        if testimonial_hits:
-            strengths.append(f'Testimonial or review signal detected: "{testimonial_hits[0]}".')
-        else:
-            strengths.append("Testimonials/reviews content appears present (social proof).")
+        strengths.append(f'Testimonial or review signal detected: "{testimonial_hits[0]}".' if testimonial_hits else "Testimonials/reviews content appears present (social proof).")
     else:
-        if proof_signals.get("trustSignals"):
-            gaps.append("Trust signals are present, but not fully extractable in structured form.")
-        else:
-            gaps.append("Testimonials are likely present but could not be structurally extracted.")
-        if site_type == "content_site":
-            recs.append("Add trust markers such as audience numbers, publication logos, or partner mentions near subscription CTAs.")
-        else:
-            recs.append("Add testimonials to key pages and link to public reviews.")
+        gaps.append("Testimonials are likely present but could not be structurally extracted." if not proof_signals.get("trustSignals") else "Trust signals are present, but not fully extractable in structured form.")
+        recs.append("Add testimonials or public-review proof near hero, service-page CTA, and proposal request sections.")
 
     if has_faq:
         strengths.append("FAQ content appears present (helps conversions and long-tail SEO).")
     elif site_type != "content_site":
         gaps.append("No FAQ section detected.")
-        recs.append("Add FAQs to key conversion pages to answer common objections.")
+        recs.append("Add FAQs to key conversion pages to answer common objections and reduce sales friction.")
 
     if has_pricing:
         strengths.append("Pricing/package signals found (reduces friction for leads).")
     elif site_type != "content_site":
-        recs.append("If suitable for your business, add pricing ranges or packages to reduce lead friction.")
+        recs.append("If suitable for your business, add pricing ranges or package structure to reduce lead friction.")
 
     if has_blog:
         strengths.append("Blog/insights content appears present (helps ongoing SEO).")
@@ -280,6 +315,8 @@ def compute_content_quality(
         "strengths": strengths,
         "gaps": gaps,
         "recommendations": recs,
+        "recommendationDetails": recommendation_details,
+        "actionCandidates": action_candidates,
         "meta": {
             "pagesAnalyzed": len(pages or []),
             "avgWords": avg_words,

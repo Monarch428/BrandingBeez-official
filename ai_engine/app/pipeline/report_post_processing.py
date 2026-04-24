@@ -553,6 +553,8 @@ def apply_report_scorecard(report: Dict[str, Any]) -> Dict[str, Any]:
         "opportunityIncludedInOverall": False,
         "missingSignals": _detect_missing_signals(out),
         "detectionReliability": _compute_detection_reliability(out)[0],
+        "businessProfile": _as_dict(_as_dict(out.get("meta")).get("businessProfile")),
+        "sectionRelevance": _section_relevance_snapshot(out),
         "method": "Recomputes overall score from weighted category health, then adjusts modestly for confidence and downside risk. Missing inputs reduce confidence rather than silently zeroing the business score.",
     }
 
@@ -568,3 +570,19 @@ def apply_report_scorecard(report: Dict[str, Any]) -> Dict[str, Any]:
     ]
     out["appendices"] = appendices
     return out
+
+
+def _section_relevance_snapshot(report: Dict[str, Any]) -> Dict[str, Any]:
+    meta = _as_dict(report.get("meta"))
+    contexts = _as_dict(meta.get("sectionContexts"))
+    snapshot: Dict[str, Any] = {}
+    for key, value in contexts.items():
+        if not isinstance(value, dict):
+            continue
+        relevance = _as_dict(value.get("relevance"))
+        if relevance:
+            snapshot[key] = {
+                "level": relevance.get("level"),
+                "reason": relevance.get("reason"),
+            }
+    return snapshot

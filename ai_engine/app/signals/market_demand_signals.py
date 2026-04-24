@@ -333,3 +333,183 @@ def build_market_demand_bundle(
     ]
 
     return bundle
+
+
+# ----------------------------
+# Updated override batch
+# ----------------------------
+
+def _service_keyword_variants(service: str) -> List[str]:
+    svc = (service or '').strip()
+    if not svc:
+        return []
+    variants = [svc]
+    lower = svc.lower()
+    if 'web design & development' in lower:
+        variants += ['web development', 'website development', 'web design']
+    if 'ppc / google ads' in lower:
+        variants += ['google ads', 'ppc services']
+    if 'conversion rate optimisation' in lower:
+        variants += ['cro services', 'conversion optimisation']
+    if 'branding & identity' in lower:
+        variants += ['branding services', 'brand identity']
+    return _uniq(variants)
+
+
+def build_market_demand_bundle(
+    *,
+    services: List[str],
+    criteria: Optional[Dict[str, Any]] = None,
+    d4s_enrichment: Optional[Dict[str, Any]] = None,
+    max_keywords: int = 20,
+    serp_depth: int = 10,
+) -> Dict[str, Any]:
+    crit = criteria or {}
+    loc_code, lang = _d4s_defaults(crit)
+    loc_text = (crit.get("location") or crit.get("location_name") or crit.get("locationName") or "").strip() or None
+    target_market = (crit.get("targetMarket") or crit.get("primaryTargetMarket") or "").strip() or None
+
+    expanded_services: List[str] = []
+    for svc in services or []:
+        expanded_services.extend(_service_keyword_variants(svc))
+    expanded_services = _uniq(expanded_services)
+
+    extras: List[str] = []
+    try:
+        if isinstance(d4s_enrichment, dict):
+            extras.extend([str(x) for x in (d4s_enrichment.get("keywords_top_10") or []) if str(x).strip()])
+            for it in (d4s_enrichment.get("keywords_for_site") or [])[:15]:
+                if isinstance(it, dict) and it.get("keyword"):
+                    extras.append(str(it.get("keyword")))
+    except Exception:
+        pass
+
+    seed_keywords = _build_seed_keywords(
+        services=expanded_services,
+        location_text=loc_text,
+        target_market=target_market,
+        extra_keywords=_uniq(extras)[:15],
+        max_items=40,
+    )
+
+    bundle: Dict[str, Any] = {
+        "location": loc_text,
+        "locationCode": int(loc_code),
+        "languageCode": str(lang),
+        "services": _uniq([s for s in expanded_services if isinstance(s, str) and s.strip()])[:15],
+        "keywords": [],
+        "summary": {
+            "averageDemandScore": None,
+            "totalKeywordsAnalyzed": 0,
+            "topOpportunities": [],
+            "observations": [],
+        },
+        "dataSources": [],
+        "notes": [],
+    }
+
+    if not seed_keywords:
+        bundle["notes"].append("No seed keywords could be generated from services/location.")
+        return bundle
+
+    try:
+        client = DataForSEOClient()
+    except Exception as e:
+        bundle["notes"].append(f"Market demand skipped: DataForSEO disabled ({e}).")
+        return bundle
+
+    rows: List[Dict[str, Any]] = []
+    try:
+        resp = client.keywords_data_search_volume_live(seed_keywords, location_code=loc_code, language_code=lang)
+        data = resp.get("json") if isinstance(resp, dict) else None
+        tasks = (data or {}).get("tasks") if isinstance(data, dict) else None
+        result0: Dict[str, Any] = {}
+        if isinstance(tasks, list) and tasks:
+            r = tasks[0].get("result") if isinstance(tasks[0], dict) else None
+            if isinstance(r, list) and r:
+                result0 = r[0] if isinstance(r[0], dict) else {}
+
+        items = result0.get("items") if isinstance(result0, dict) else None
+        if isinstance(items, list):
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                kw = it.get("keyword")
+                if not kw:
+                    continue
+                info = it.get("keyword_info") if isinstance(it.get("keyword_info"), dict) else {}
+                rows.append({
+                    "keyword": str(kw),
+                    "searchVolume": _safe_int(info.get("search_volume") or it.get("search_volume")),
+                    "cpc": _safe_float(info.get("cpc") or it.get("cpc")),
+                    "competition": _safe_float(info.get("competition") or it.get("competition")),
+                    "monthlySearches": _extract_monthly_searches(info if info else it),
+                    "serpTopDomains": [],
+                    "competitionIntensity": None,
+                    "demandScore": None,
+                    "label": None,
+                    "notes": None,
+                })
+    except Exception as e:
+        bundle["notes"].append(f"Search volume lookup failed: {e}")
+        return bundle
+
+    rows = [r for r in rows if r.get("keyword")]
+    rows.sort(key=lambda r: (int(r.get("searchVolume") or 0), float(r.get("cpc") or 0.0)), reverse=True)
+    rows = rows[: max(5, int(max_keywords))]
+
+    for r in rows[: min(len(rows), 10)]:
+        kw = r.get("keyword")
+        if not kw:
+            continue
+        try:
+            serp_resp = client.serp_google_organic_live_regular([kw], location_code=loc_code, language_code=lang, depth=int(max(5, serp_depth)))
+            data = serp_resp.get("json") if isinstance(serp_resp, dict) else None
+            tasks = (data or {}).get("tasks") if isinstance(data, dict) else None
+            result = None
+            if isinstance(tasks, list) and tasks:
+                result_list = tasks[0].get("result") if isinstance(tasks[0], dict) else None
+                if isinstance(result_list, list) and result_list:
+                    result = result_list[0]
+            items = result.get("items") if isinstance(result, dict) else None
+            domains: List[str] = []
+            if isinstance(items, list):
+                for item in items:
+                    if not isinstance(item, dict):
+                        continue
+                    domain = item.get("domain") or item.get("source_domain")
+                    if isinstance(domain, str) and domain.strip():
+                        domains.append(domain.strip())
+            domains = _uniq(domains)
+            r["serpTopDomains"] = domains[:5]
+            r["competitionIntensity"] = len(domains[:5])
+            if domains:
+                r["notes"] = f"Top SERP domains: {', '.join(domains[:3])}."
+        except Exception as e:
+            logger.warning("[MarketDemand] SERP sampling failed for %s: %s", kw, e)
+
+    _compute_scores(rows)
+    rows.sort(key=lambda r: (int(r.get("demandScore") or 0), int(r.get("searchVolume") or 0)), reverse=True)
+
+    avg_score = int(round(sum(int(r.get("demandScore") or 0) for r in rows) / max(1, len(rows)))) if rows else None
+    top_opps = [r.get("keyword") for r in rows[:5] if r.get("keyword")]
+    observations: List[str] = []
+    if target_market:
+        observations.append(f"Keyword demand has been scoped to the stated target market: {target_market}.")
+    if loc_text:
+        observations.append(f"Location bias applied using {loc_text} / location code {loc_code}.")
+    if rows and any((r.get("cpc") or 0) > 0 for r in rows[:5]):
+        observations.append("Higher-CPC keywords may indicate stronger commercial intent within the opportunity set.")
+
+    bundle["keywords"] = rows
+    bundle["summary"] = {
+        "averageDemandScore": avg_score,
+        "totalKeywordsAnalyzed": len(rows),
+        "topOpportunities": top_opps,
+        "observations": observations,
+    }
+    bundle["dataSources"] = [
+        {"label": "Google Ads search volume", "source": "DataForSEO", "notes": "keywords_data_search_volume_live"},
+        {"label": "SERP sampling", "source": "DataForSEO", "notes": "serp_google_organic_live_regular"},
+    ]
+    return bundle

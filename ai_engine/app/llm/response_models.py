@@ -71,7 +71,7 @@ class LLMReconcileResponse(LLMStageBaseModel):
 
 
 class LLMEstimationSection(LLMStageBaseModel):
-    notes: Optional[str] = None
+    notes: Optional[Union[str, List[str]]] = None
     mentorNotes: Optional[str] = None
     confidenceScore: Optional[int] = None
     estimationDisclaimer: Optional[str] = None
@@ -79,6 +79,7 @@ class LLMEstimationSection(LLMStageBaseModel):
     segments: Union[List[Dict[str, Any]], Dict[str, Any], None] = None
     revenueTable: Union[List[Dict[str, Any]], Dict[str, Any], None] = None
     scenarios: Union[List[Dict[str, Any]], Dict[str, Any], None] = None
+    actionCandidates: Union[List[Dict[str, Any]], Dict[str, Any], None] = None
     currencyContext: Optional[Dict[str, Any]] = None
 
 

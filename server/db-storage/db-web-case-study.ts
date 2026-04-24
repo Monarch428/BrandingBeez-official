@@ -1,4 +1,5 @@
-import { WebCaseStudyCard, WebCaseStudyCardModel, WebCaseStudyDetail, WebCaseStudyDetailModel } from "server/models";
+import { WebCaseStudyCard, WebCaseStudyCardModel } from "../model/casestudy/web/web-case-study-card";
+import { WebCaseStudyDetail, WebCaseStudyDetailModel } from "../model/casestudy/web/web-case-study-detail";
 import type { IStorage } from "../storage";
 import { ensureConnection, getNextSequence } from "../helpers/db-helpers";
 

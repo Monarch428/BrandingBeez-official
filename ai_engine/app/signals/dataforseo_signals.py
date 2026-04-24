@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from app.core.config import settings
 from app.integrations.dataforseo_client import DataForSEOClient, _domain_from_url
-from app.llm.client import call_openai_json, get_effective_llm_mode
+from app.llm.client import call_llm_json, get_effective_llm_mode
 
 logger = logging.getLogger(__name__)
 
@@ -362,7 +362,7 @@ def build_dataforseo_enrichment(
                     f"Company/Context: {company_hint or domain}\n"
                     f"Keywords: {seed}\n"
                 )
-                data = call_openai_json(system, user, model=getattr(settings, "OPENAI_MODEL_MINI", None) or settings.OPENAI_MODEL, max_tokens=1500, temperature=0.2)
+                data = call_llm_json("auto", system, user, model=getattr(settings, "GEMINI_MODEL_MINI", None) or getattr(settings, "OPENAI_MODEL", "gpt-4.1-mini"), max_tokens=1500, temperature=0.2)
                 if isinstance(data, dict):
                     t10 = data.get("top_10_keywords") if isinstance(data.get("top_10_keywords"), list) else []
                     imp = data.get("seo_improvements") if isinstance(data.get("seo_improvements"), list) else []

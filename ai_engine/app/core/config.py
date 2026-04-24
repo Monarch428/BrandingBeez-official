@@ -40,25 +40,31 @@ class Settings(BaseSettings):
     SE_RANKING_BASE_URL: str = "https://api.seranking.com"
 
     # OpenAI
-    OPENAI_API_KEY: str
+    OPENAI_API_KEY: str | None = None
     OPENAI_MODEL: str = "gpt-4.1-mini"
     OPENAI_BASE_URL: str = "https://api.openai.com/v1"
 
     # OpenAI rate-limit controls (server-side)
     # Limits concurrent in-process OpenAI calls to reduce 429 bursts.
-    OPENAI_MAX_CONCURRENT: int = 2
+    OPENAI_MAX_CONCURRENT: int = 1
     # After N consecutive 429 responses, open a circuit-breaker for a cooldown
     # window and (optionally) route LLM work to Gemini.
-    OPENAI_429_STRIKE_THRESHOLD: int = 2
-    OPENAI_CIRCUIT_BREAKER_COOLDOWN_SEC: int = 60
+    OPENAI_429_STRIKE_THRESHOLD: int = 4
+    OPENAI_CIRCUIT_BREAKER_COOLDOWN_SEC: int = 45
     OPENAI_FALLBACK_TO_GEMINI_ON_429: bool = True
+    OPENAI_REPAIR_ENABLED: bool = True
+    OPENAI_REPAIR_WHEN_CIRCUIT_OPEN: bool = False
+    OPENAI_RETRY_BASE_DELAY_SEC: float = 2.0
+    OPENAI_RETRY_MAX_DELAY_SEC: int = 30
+    GEMINI_RETRY_BASE_DELAY_SEC: float = 2.0
+    GEMINI_RETRY_MAX_DELAY_SEC: int = 20
 
     # Gemini (Google Generative Language) settings
     GEMINI_API_KEY: str | None = None
-    GEMINI_MODEL_MINI: str = "gemini-2.5-flash-lite"  # lightweight/low-cost model
+    GEMINI_MODEL_MINI: str = "gemini-2.5-flash"  # lightweight/low-cost model
 
     # LLM output caching (stores prompt-hash keyed results in analysis_cache)
-    LLM_CACHE_ENABLED: bool = True
+    LLM_CACHE_ENABLED: bool = False
     LLM_CACHE_TTL_DAYS: int = 30
 
     # LLM mode control
@@ -68,6 +74,53 @@ class Settings(BaseSettings):
     # If true, the engine will downgrade to LLM_MODE=1 in-process when it
     # encounters sustained 429/rate-limit errors and will continue the analysis.
     LLM_DOWNGRADE_ON_429: bool = True
+
+    # Minimum spacing between LLM calls to avoid burst rate limits.
+    LLM_MIN_CALL_GAP_MS: int = 1500
+
+    # LLM prompt / response controls
+    # These are consumed by the LLM client + report builder to keep prompt sizes
+    # predictable and to avoid Gemini/OpenAI returning truncated JSON.
+    LLM_MAX_PROMPT_CHARS: int = 18000
+    LLM_MAX_SYSTEM_PROMPT_CHARS: int = 6000
+    LLM_MAX_USER_PROMPT_CHARS: int = 16000
+    LLM_MAX_TOTAL_PROMPT_CHARS: int = 18000
+    LLM_REPAIR_MAX_CHARS: int = 12000
+
+    # Stage toggles
+    LLM_SKIP_RECONCILE: bool = True
+    LLM_ENABLE_SECTIONS_8_10_LLM: bool = True
+    LLM_ENABLE_FINAL_SYNTHESIS: bool = True
+    LLM_ENABLE_FINAL_EXEC_SUMMARY: bool = True
+    LLM_ENABLE_FINAL_VISIBILITY_PATCH: bool = True
+    LLM_ENABLE_FINAL_GROWTH_PATCH: bool = True
+    LLM_ENABLE_FINAL_GROWTH_COMMERCIAL_PATCH: bool = True
+    LLM_ENABLE_FINAL_ACTIONPLAN_PATCH: bool = True
+
+    # Retry controls
+    LLM_OPENAI_MAX_RETRIES: int = 3
+    LLM_GEMINI_MAX_RETRIES: int = 2
+    LLM_RECONCILE_MAX_RETRIES: int = 1
+    LLM_ESTIMATION_MAX_RETRIES: int = 2
+    LLM_FINAL_PATCH_MAX_RETRIES: int = 2
+    LLM_GEMINI_STRICT_JSON_RETRY_COUNT: int = 1
+
+    # Stage-specific token budgets
+    LLM_RECONCILE_MAX_TOKENS: int = 1800
+    LLM_ESTIMATION_STAGE_MAX_TOKENS: int = 1800
+    LLM_ESTIMATION_FALLBACK_MAX_TOKENS: int = 900
+    LLM_FINAL_EXEC_SUMMARY_MAX_TOKENS: int = 1800
+    LLM_FINAL_VISIBILITY_MAX_TOKENS: int = 1800
+    LLM_FINAL_GROWTH_MAX_TOKENS: int = 1700
+    LLM_FINAL_GROWTH_COMMERCIAL_MAX_TOKENS: int = 1800
+    LLM_FINAL_ACTIONPLAN_MAX_TOKENS: int = 2000
+    LLM_FINAL_SYNTHESIS_MAX_TOKENS: int = 1800
+
+    # Runtime safety / debugging
+    LLM_LOG_RUNTIME_SETTINGS: bool = True
+    LLM_INCLUDE_RUNTIME_META: bool = True
+    LLM_STAGE_FORCE_DETERMINISTIC_ON_FAILURE: bool = True
+    LLM_CACHE_EMPTY_RESULTS: bool = False
 
     # Optional
     AI_ENGINE_KEY: str | None = None

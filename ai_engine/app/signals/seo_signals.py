@@ -517,6 +517,11 @@ def build_backlink_profile_block(
     if link_quality is None:
         link_quality = _safe_int(summary.get("domain_rank"))
 
+    # Clamp link quality score to valid 0-100 range
+    # DataForSEO domain_rank can exceed 100 — always normalise before rendering
+    if link_quality is not None:
+        link_quality = max(0, min(100, link_quality))
+
     ratio = float(total_backlinks or 0) / max(float(referring_domains or 1), 1.0)
     anchors = _ensure_list(backlinks_bundle.get("anchors"))
     anchor_risk = False
@@ -723,7 +728,24 @@ def build_local_seo_block(
         ]
     ).lower()
     local_channel_primary = site_type == "service_business" or bool(location_text)
-    if any(token in target_market_text for token in ("global", "international", "nationwide")) and site_type != "service_business":
+    # Override: explicitly non-local business types should NEVER have local SEO as primary
+    # regardless of whether a location is detected
+    _non_local_signals = (
+        "agenc" in target_market_text          # agencies / agency
+        or "white-label" in target_market_text
+        or "white label" in target_market_text
+        or "saas" in target_market_text
+        or "software" in target_market_text
+        or "b2b" in target_market_text
+        or "enterprise" in target_market_text
+        or "worldwide" in target_market_text
+        or "international" in target_market_text
+        or "global" in target_market_text
+        or "nationwide" in target_market_text
+        or "us agencies" in target_market_text
+        or "uk agencies" in target_market_text
+    )
+    if _non_local_signals:
         local_channel_primary = False
 
     issues: List[str] = []
@@ -784,6 +806,7 @@ def build_local_seo_block(
 
     return {
         "score": score,
+        "priority": "primary" if local_channel_primary else "secondary",
         "currentListings": current_listings,
         "missingListings": missing_listings,
         "reviewsSummary": reviews_summary,
@@ -796,7 +819,7 @@ def build_local_seo_block(
         "notes": (
             "Local search is being treated as a primary acquisition channel."
             if local_channel_primary
-            else "Local search is a secondary support channel, so recommendations are calibrated accordingly."
+            else "Local search is a secondary support channel for this business model — non-brand and category-level visibility is a stronger growth lever."
         ),
     }
 

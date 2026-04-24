@@ -74,28 +74,37 @@ def map_competitive_advantages_patch(patch: LLMCompetitiveAdvantagesPatch | None
     if patch is None:
         return {}
 
-    advantages: List[str] = []
-    note_additions: List[str] = []
+    # Build structured advantage rows with separate columns for the PDF table
+    structured_advantages: List[Dict[str, Any]] = []
+    flat_advantages: List[str] = []  # backward-compat flat list
+
     for item in patch.advantages:
         if isinstance(item, str):
             text = item.strip()
             if text:
-                advantages.append(text)
+                flat_advantages.append(text)
+                structured_advantages.append({
+                    "advantage": text,
+                    "whyItMatters": "",
+                    "howToLeverage": "",
+                })
             continue
 
         advantage_text = item.advantage or item.title or item.text or item.name
         if isinstance(advantage_text, str) and advantage_text.strip():
             cleaned = advantage_text.strip()
-            advantages.append(cleaned)
-            if item.whyItMatters:
-                note_additions.append(f"{cleaned}: Why it matters: {item.whyItMatters.strip()}")
-            if item.howToLeverage:
-                note_additions.append(f"{cleaned}: How to leverage: {item.howToLeverage.strip()}")
+            flat_advantages.append(cleaned)
+            structured_advantages.append({
+                "advantage": cleaned,
+                "whyItMatters": (item.whyItMatters or "").strip(),
+                "howToLeverage": (item.howToLeverage or "").strip(),
+            })
 
     mapped = {
-        "advantages": advantages,
+        "advantages": flat_advantages,
+        "structuredAdvantages": structured_advantages,
         "mentorNotes": patch.mentorNotes,
-        "notes": _merge_notes(patch.notes, note_additions),
+        "notes": patch.notes,
     }
     return normalize_llm_output({"competitiveAdvantages": mapped}).get("competitiveAdvantages", {})
 

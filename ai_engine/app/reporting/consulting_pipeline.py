@@ -7,7 +7,7 @@ import re
 import time
 
 from app.core.config import settings
-from app.llm.client import call_openai_json, get_effective_llm_mode
+from app.llm.client import call_llm_json, get_effective_llm_mode
 from app.reporting.sanitizer import contains_blocked_text, sanitize_for_pdf, sanitize_text
 from app.reporting.structured_schema import (
     ActionPlanSection,
@@ -446,7 +446,7 @@ def normalize_evidence(base_report: Dict[str, Any], llm_context: Dict[str, Any])
     homepage = ensure_dict(context.get("homepage"))
     pagespeed = ensure_dict(context.get("pagespeed") or evidence.get("pagespeed"))
     google_places = ensure_dict(context.get("googlePlaces"))
-    google_profile = ensure_dict(google_places.get("profile"))
+    google_profile = ensure_dict(google_places.get("profile") or google_places.get("company"))
     review_summary = ensure_dict(context.get("reviewSummary"))
     review_statuses = ensure_dict(context.get("reviewStatuses"))
     dataforseo = ensure_dict(context.get("dataforseo"))
@@ -463,11 +463,11 @@ def normalize_evidence(base_report: Dict[str, Any], llm_context: Dict[str, Any])
             {
                 "platform": "Google",
                 "rating": google_profile.get("rating") or review_summary.get("averageRating"),
-                "reviews": google_profile.get("reviewCount") or review_summary.get("totalReviews"),
+                "reviews": google_profile.get("reviewCount") or google_profile.get("user_ratings_total") or review_summary.get("totalReviews"),
             }
         )
 
-    google_reviews = safe_int(google_profile.get("reviewCount") or review_summary.get("googleReviewCount")) or 0
+    google_reviews = safe_int(google_profile.get("reviewCount") or google_profile.get("user_ratings_total") or review_summary.get("googleReviewCount")) or 0
     google_rating = safe_float(google_profile.get("rating") or review_summary.get("averageRating") or reputation_section.get("reviewScore")) or 0.0
     total_reviews = safe_int(reputation_section.get("totalReviews") or review_summary.get("totalReviews") or google_reviews) or 0
 
@@ -1760,7 +1760,8 @@ def maybe_refine_with_llm(report: ProfessionalBusinessReport, evidence: Dict[str
             },
             "report": model_dump_compat(report),
         }
-        refined = call_openai_json(
+        refined = call_llm_json(
+            "auto",
             LLM_STRUCTURED_PROMPT,
             sanitize_text(str(payload)),
             temperature=0.1,

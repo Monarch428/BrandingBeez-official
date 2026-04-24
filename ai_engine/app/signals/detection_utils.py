@@ -114,6 +114,59 @@ TRUST_SIGNAL_PATTERNS: list[tuple[str, str]] = [
     (r"\bclient logos?\b|\bbrands? we work with\b", "Client Logos"),
 ]
 
+# -----------------------------------------------------------------------
+# NON-SERVICE REJECTION PATTERNS
+# Any candidate service name matching these is discarded — it is a heading,
+# slogan, CTA, FAQ item, package label, case-study name, or step label,
+# NOT a real service offering.
+# -----------------------------------------------------------------------
+_NON_SERVICE_REJECT: list[re.Pattern] = [
+    # FAQ / question blocks
+    re.compile(r"^(faq|faqs|frequently asked|what is |why |how |when |where |who |can i |do you |is it |will you )", re.IGNORECASE),
+    # CTA / action phrases
+    re.compile(r"\b(ready to|get started|let's|contact us|book a|schedule a|talk to|speak to|request a|sign up|start now|learn more|find out|click here|discover|explore|try for free|free trial|transform your|scale your|grow your)\b", re.IGNORECASE),
+    # Pricing / package tier labels (standalone)
+    re.compile(r"^(starter|growth|scale|pro|enterprise|basic|standard|premium|elite|platinum|gold|silver|bronze|most popular|best value|what'?s included|loyalty points|points system)$", re.IGNORECASE),
+    # Numbered / labelled process steps
+    re.compile(r"^(\d+[\.\)]\s+|step\s+\d+[\.:]\s*)", re.IGNORECASE),
+    # Client / company names without a service word
+    re.compile(r"^[A-Z][a-z]+ (Solicitors|Therapy|Ltd|Inc|LLC|Co\.|Group|Studios?|Media|Law|Rooms?|Dogs?|Ironing|Bubbles|Elite|Losers|Abroad)$"),
+    # Slogans / brand taglines
+    re.compile(r"\b(driving digital|digital success|innovation[s]?|quality excellence|our mission|our vision|who we are|about us|meet your|meet the team|unlock opportunit|build real|stay ready|everyday language|smart content setup|focus on what|stay up to date|ai search is)\b", re.IGNORECASE),
+    # Pricing / package section headings
+    re.compile(r"(our flexible pricing|pricing &|loyalty points|points system|our packages|&amp; packages)", re.IGNORECASE),
+    # Review / testimonial section labels
+    re.compile(r"(what our clients|our client reviews|what .{0,20} say|testimonials|review(s)? about)", re.IGNORECASE),
+    # Stats / social proof labels
+    re.compile(r"(stats\.|statistics|awards|certifications|our numbers|results we.ve|social land stats)", re.IGNORECASE),
+    # Free resource labels
+    re.compile(r"(free stuff|free ebook|free guide|free download|resources|get your free)", re.IGNORECASE),
+    # Navigation items only
+    re.compile(r"^(home|about|contact|blog|news|insights|resources|portfolio|our work|projects|gallery|media|press|packages|pricing|faq|testimonials|reviews|team|careers|jobs)$", re.IGNORECASE),
+    # Generic headings that are section dividers, not services
+    re.compile(r"^(more clicks|more leads|why choose|why we|what we do best|what can we help|our new|our services that|our services &|our services built|choose your services|execution by|continuous growth|what is answer engine|aeo work for you|builds your reputation|a step-by-step|answer engine optimisation essex|answer engine optimisation services)$", re.IGNORECASE),
+    # Case-study titles / campaign result headlines
+    re.compile(r"(generates?\s+\d|hits?\s+\d+[km]|drives?\s+\d+[km]|impressions|conversions with|high.?impact|high.?engagement)", re.IGNORECASE),
+]
+
+_MIN_SERVICE_NAME_LEN = 4
+_MAX_SERVICE_NAME_LEN = 65
+
+
+def is_non_service_text(text: str) -> bool:
+    """Return True if `text` looks like a non-service heading, label, or slogan."""
+    if not isinstance(text, str):
+        return True
+    cleaned = text.strip()
+    if len(cleaned) < _MIN_SERVICE_NAME_LEN:
+        return True
+    if len(cleaned) > _MAX_SERVICE_NAME_LEN:
+        return True
+    for pattern in _NON_SERVICE_REJECT:
+        if pattern.search(cleaned):
+            return True
+    return False
+
 
 def deduplicate_list_preserve_order(items: Iterable[Any]) -> List[Any]:
     out: List[Any] = []
@@ -246,14 +299,7 @@ def detect_site_proof_signals(text: Any, page_registry: Any = None) -> Dict[str,
 
 
 def score_site_type_signals(data: Any) -> Dict[str, int]:
-    """Return additive signal scores for site-type classification.
-
-    This is intentionally conservative because the result influences downstream
-    keyword targeting, local SEO, competitive interpretation, and financial
-    heuristics. When evidence is mixed, callers should prefer ``mixed`` over
-    overconfident specialization.
-    """
-
+    """Return additive signal scores for site-type classification."""
     text_blob = _collect_signal_text(data).lower()
     urls = [u.lower() for u in _extract_candidate_urls(data)]
 
@@ -290,7 +336,6 @@ def score_site_type_signals(data: Any) -> Dict[str, int]:
 
 def classify_site_context(scores: Dict[str, int]) -> str:
     """Map site-type scores to one of the allowed output classes."""
-
     content_score = int(scores.get("content_site") or 0)
     service_score = int(scores.get("service_business") or 0)
     ecommerce_score = int(scores.get("ecommerce") or 0)
@@ -332,14 +377,7 @@ def classify_site_context(scores: Dict[str, int]) -> str:
 
 
 def detect_site_type(data: Any) -> str:
-    """Classify business-model intent for downstream reporting.
-
-    Safe, additive heuristic:
-    - content_site when blog/resource/editorial intent dominates
-    - service_business when services + CTA/contact intent dominate
-    - ecommerce when product/cart/checkout/catalog signals dominate
-    - mixed otherwise
-    """
+    """Classify business-model intent for downstream reporting."""
     scores = score_site_type_signals(data)
     return classify_site_context(scores)
 

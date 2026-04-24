@@ -8,7 +8,7 @@ import aiohttp
 from bs4 import BeautifulSoup
 
 from app.core.config import settings
-from app.llm.client import call_openai_json
+from app.llm.client import call_llm_json
 
 
 logger = logging.getLogger(__name__)
@@ -85,7 +85,7 @@ async def scrape_services_llm(
     if not text:
         return {"company_name": None, "industry": None, "services": []}
 
-    model = getattr(settings, "OPENAI_MODEL_MINI", None) or getattr(settings, "OPENAI_MODEL", "gpt-4.1-mini")
+    model = getattr(settings, "GEMINI_MODEL_MINI", None) or getattr(settings, "OPENAI_MODEL", "gpt-4.1-mini")
 
     system = (
         "You are a precise extractor. Output valid JSON only. "
@@ -94,7 +94,8 @@ async def scrape_services_llm(
     user = _services_prompt(website_url, text)
 
     try:
-        data = call_openai_json(
+        data = call_llm_json(
+            "auto",
             system,
             user,
             model=model,

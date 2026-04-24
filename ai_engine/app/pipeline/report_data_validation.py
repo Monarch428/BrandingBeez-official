@@ -251,7 +251,12 @@ def _has_signal(items: Any, *tokens: str) -> bool:
 
 
 def sync_cross_section_signals(report: Dict[str, Any]) -> Dict[str, Any]:
-    """Align soft detections across sections so the final report does not contradict itself."""
+    """Align soft detections across sections so the final report does not contradict itself.
+
+    Also syncs page-registry truth into appendix A (keyPagesDetected) so the
+    appendix never shows 'No' for a page that the crawl or content-quality
+    section already confirmed as present.
+    """
     cleaned = deepcopy(report) if isinstance(report, dict) else {}
 
     website = cleaned.get("websiteDigitalPresence")
@@ -321,7 +326,101 @@ def sync_cross_section_signals(report: Dict[str, Any]) -> Dict[str, Any]:
     content["gaps"] = dedupe_findings_preserve_order(gaps)
     content["recommendations"] = dedupe_findings_preserve_order(recommendations)
     lead["missingHighROIChannels"] = dedupe_findings_preserve_order(missing_channels)
+
+    # ── Appendix A: sync keyPagesDetected from multiple sources so it never ──
+    # shows "No" for a page the crawl or content-quality section already confirmed.
+    _sync_key_pages_detected(cleaned)
+
     return cleaned
+
+
+def _sync_key_pages_detected(report: Dict[str, Any]) -> None:
+    """Ensure appendix A keyPagesDetected reflects reality from crawl + content signals.
+
+    Sources (in priority order):
+    1. appendices.evidence.pageRegistry.pages  (from page_registry builder)
+    2. appendices.keyPagesDetected             (already populated from registry in orchestrator)
+    3. websiteDigitalPresence.contentQuality.strengths signal text
+    4. websiteDigitalPresence.contentGaps text
+    """
+    appendices = report.get("appendices")
+    if not isinstance(appendices, dict):
+        return
+
+    # Build truth table from existing keyPagesDetected
+    key_pages = _clean_dict_list(appendices.get("keyPagesDetected"))
+    if not key_pages:
+        return
+
+    # Build a mapping of page-type → present signal from evidence
+    evidence = appendices.get("evidence") or {}
+    page_registry = evidence.get("pageRegistry") or {} if isinstance(evidence, dict) else {}
+    registry_pages = page_registry.get("pages") or {} if isinstance(page_registry, dict) else {}
+
+    # Read presence signals from content quality strengths
+    website = report.get("websiteDigitalPresence") or {}
+    content = website.get("contentQuality") or {} if isinstance(website, dict) else {}
+    strengths_text = " ".join(_clean_string_list(content.get("strengths"))).lower()
+    content_gaps_text = " ".join(_clean_string_list(website.get("contentGaps") or [])).lower()
+
+    # Page-type → signals that prove it exists
+    _page_signals: dict[str, list[str]] = {
+        "about":    ["about/company content appears present", "about page", "/about"],
+        "contact":  ["contact page appears present", "/contact", "contact page"],
+        "services": ["service information pages are present", "/services", "service page"],
+        "proof":    ["case-study or portfolio signal", "testimonial or review signal", "/portfolio", "/case-stud"],
+        "pricing":  ["pricing/package signals found", "/pricing", "/packages"],
+        "faq":      ["faq content appears present", "/faq"],
+        "blog":     ["blog/insights content appears present", "/blog", "/insights"],
+    }
+
+    updated_pages = []
+    for row in key_pages:
+        if not isinstance(row, dict):
+            updated_pages.append(row)
+            continue
+
+        page_type = _clean_text(row.get("page", "")).lower()
+        current_present = _clean_text(row.get("present", "")).lower() == "yes"
+
+        if current_present:
+            updated_pages.append(row)
+            continue
+
+        # Check registry
+        registry_info = registry_pages.get(page_type) or {}
+        if isinstance(registry_info, dict):
+            reg_present = bool(
+                registry_info.get("present")
+                or registry_info.get("servicesPagePresent")
+                or registry_info.get("primary")
+            )
+            if reg_present:
+                primary_url = _clean_text(
+                    registry_info.get("primary") or registry_info.get("primaryUrl") or ""
+                )
+                updated_pages.append({
+                    **row,
+                    "present": "Yes",
+                    "primaryUrl": primary_url or row.get("primaryUrl", "-"),
+                })
+                continue
+
+        # Check content signals
+        signals = _page_signals.get(page_type, [])
+        signal_hit = any(sig in strengths_text for sig in signals)
+        if not signal_hit:
+            # Check if the page is mentioned as present in content gaps (negation = was missing)
+            # If a gap says "No X page detected" it means absent → keep as No
+            signal_hit = any(sig in strengths_text for sig in signals)
+
+        if signal_hit:
+            updated_pages.append({**row, "present": "Yes"})
+            continue
+
+        updated_pages.append(row)
+
+    appendices["keyPagesDetected"] = updated_pages
 
 
 def estimate_leads(traffic: float | int | None, conversion_rate: float | None) -> int:
@@ -1051,7 +1150,77 @@ def _normalize_appendices(report: Dict[str, Any]) -> None:
         for tier in _clean_dict_list(appendices.get("backlinks"))
         if _has_meaningful_content(tier.get("items"), count_numbers=False)
     ]
-    appendices["evidenceScreenshots"] = _clean_dict_list(appendices.get("evidenceScreenshots"))
+    seo_section = report.get("seoVisibility") or {}
+    seo_backlinks = seo_section.get("backlinks") if isinstance(seo_section, dict) else {}
+    if not appendices["backlinks"] and isinstance(seo_backlinks, dict) and _has_meaningful_content(seo_backlinks, count_numbers=True):
+        appendices["backlinks"] = [{"tier": "Backlinks Summary", "items": [seo_backlinks]}]
+    appendices["evidenceScreenshots"] = _clean_dict_list(appendices.get("evidenceScreenshots") or appendices.get("screenshots"))
+    evidence = appendices.get("evidence")
+    if isinstance(evidence, dict):
+        screenshots = evidence.get("screenshots")
+        synthesized_shots = []
+        if isinstance(screenshots, dict):
+            for variant in ("desktop", "mobile"):
+                shot = screenshots.get(variant)
+                if not isinstance(shot, dict):
+                    continue
+                if _is_meaningful_text(shot.get("b64")):
+                    synthesized_shots.append(
+                        {
+                            "label": sanitize_text_for_pdf(shot.get("title")) or f"{variant.title()} Screenshot",
+                            "format": sanitize_text_for_pdf(shot.get("format")) or "png",
+                            "b64": shot.get("b64"),
+                            "width": shot.get("width"),
+                            "height": shot.get("height"),
+                            "fullPage": shot.get("fullPage", True),
+                        }
+                    )
+                slices = shot.get("slices")
+                if isinstance(slices, list):
+                    shot["slices"] = [
+                        slice_item
+                        for slice_item in slices
+                        if isinstance(slice_item, dict) and _is_meaningful_text(slice_item.get("b64"))
+                    ]
+                    for slice_item in shot["slices"]:
+                        synthesized_shots.append(
+                            {
+                                "label": sanitize_text_for_pdf(slice_item.get("title") or shot.get("title")) or f"{variant.title()} Screenshot",
+                                "format": sanitize_text_for_pdf(slice_item.get("format") or shot.get("format")) or "png",
+                                "b64": slice_item.get("b64"),
+                                "width": slice_item.get("width"),
+                                "height": slice_item.get("height"),
+                                "fullPage": shot.get("fullPage", True),
+                            }
+                        )
+        if synthesized_shots and not appendices["evidenceScreenshots"]:
+            appendices["evidenceScreenshots"] = _clean_dict_list(synthesized_shots)
+        if appendices.get("evidenceScreenshots") and not appendices.get("screenshots"):
+            appendices["screenshots"] = appendices.get("evidenceScreenshots")
+
+        key_pages = evidence.get("keyPagesDetected")
+        if isinstance(key_pages, dict):
+            normalized_key_pages = []
+            for page_name, info in key_pages.items():
+                if not isinstance(info, dict):
+                    continue
+                normalized_key_pages.append(
+                    {
+                        "page": sanitize_text_for_pdf(page_name),
+                        "present": "Yes" if info.get("present") or info.get("servicesPagePresent") or info.get("primary") else "No",
+                        "primaryUrl": sanitize_text_for_pdf(info.get("primaryUrl") or info.get("url") or info.get("primary")) or "-",
+                    }
+                )
+            if normalized_key_pages and not appendices.get("keyPagesDetected"):
+                appendices["keyPagesDetected"] = normalized_key_pages
+
+        crawl_summary = evidence.get("crawlRegistrySummary")
+        if isinstance(crawl_summary, dict) and not appendices.get("crawlRegistrySummary"):
+            appendices["crawlRegistrySummary"] = crawl_summary
+        extraction_snapshot = evidence.get("extractionSnapshot")
+        if isinstance(extraction_snapshot, dict) and not appendices.get("extractionSnapshot"):
+            appendices["extractionSnapshot"] = extraction_snapshot
+
     pages_crawled = appendices.get("pagesCrawled")
     if isinstance(pages_crawled, list):
         appendices["pagesCrawled"] = _clean_string_list(pages_crawled)
@@ -1071,6 +1240,58 @@ def _normalize_appendices(report: Dict[str, Any]) -> None:
                         for slice_item in slices
                         if isinstance(slice_item, dict) and _is_meaningful_text(slice_item.get("b64"))
                     ]
+
+    # -------------------------------------------------------------------
+    # Appendix presence flags — used by the PDF renderer to decide whether
+    # to show "No data available" vs actual content in Appendix E and G.
+    # These must be set AFTER all backlink / screenshot normalization above.
+    # -------------------------------------------------------------------
+    backlinks_tiers = appendices.get("backlinks")
+    has_backlink_data = bool(
+        isinstance(backlinks_tiers, list)
+        and any(
+            isinstance(t, dict) and _has_meaningful_content(t.get("items"), count_numbers=True)
+            for t in backlinks_tiers
+        )
+    )
+    # Also check the seoVisibility backlinks section for totalBacklinks > 0
+    seo_section = report.get("seoVisibility") or {}
+    seo_backlinks = seo_section.get("backlinks") if isinstance(seo_section, dict) else {}
+    if isinstance(seo_backlinks, dict):
+        total_bl = seo_backlinks.get("totalBacklinks")
+        if isinstance(total_bl, (int, float)) and total_bl > 0:
+            has_backlink_data = True
+    appendices["backlinkDataAvailable"] = has_backlink_data
+
+    evidence_screenshots = appendices.get("evidenceScreenshots")
+    has_screenshots = bool(
+        isinstance(evidence_screenshots, list) and len(evidence_screenshots) > 0
+    )
+    # Also check evidence.screenshots
+    ev = appendices.get("evidence") or {}
+    ev_shots = ev.get("screenshots") if isinstance(ev, dict) else None
+    if isinstance(ev_shots, dict) and (ev_shots.get("desktop") or ev_shots.get("mobile")):
+        has_screenshots = True
+    appendices["screenshotsAvailable"] = has_screenshots
+    if has_screenshots and not appendices.get("evidenceScreenshots"):
+        synthesized = []
+        if isinstance(ev_shots, dict):
+            for variant in ("desktop", "mobile"):
+                shot = ev_shots.get(variant)
+                if not isinstance(shot, dict):
+                    continue
+                if isinstance(shot.get("b64"), str) and shot.get("b64"):
+                    synthesized.append({
+                        "label": shot.get("title") or f"{variant.title()} Screenshot",
+                        "format": shot.get("format") or "png",
+                        "b64": shot.get("b64"),
+                        "width": shot.get("width"),
+                        "height": shot.get("height"),
+                        "fullPage": bool(shot.get("fullPage", True)),
+                    })
+        if synthesized:
+            appendices["evidenceScreenshots"] = synthesized
+            appendices["screenshots"] = synthesized
 
 
 def _dedupe_known_lists(report: Dict[str, Any]) -> None:
@@ -1152,6 +1373,86 @@ def _ensure_competitive_section(report: Dict[str, Any]) -> None:
     section["positioningMatrix"] = _clean_dict_list(section.get("positioningMatrix"))
     section["opportunities"] = _clean_string_list(section.get("opportunities"))
     section["threats"] = _clean_string_list(section.get("threats"))
+
+
+def _ensure_competitive_advantages_section(report: Dict[str, Any]) -> None:
+    """Normalize competitiveAdvantages into clean structured rows for the PDF table.
+
+    The PDF renderer needs a `structuredAdvantages` list where each row has:
+        { advantage: str, whyItMatters: str, howToLeverage: str }
+
+    The `advantages` flat string list is also kept for backward compatibility.
+    Any note text that was previously jammed into `notes` as a fallback is
+    now extracted into the proper columns.
+    """
+    section = report.get("competitiveAdvantages")
+    if not isinstance(section, dict):
+        return
+
+    raw_advantages = section.get("advantages") or []
+    existing_structured = section.get("structuredAdvantages") or []
+
+    # Build a lookup from already-structured rows
+    structured_index: dict[str, dict] = {}
+    for row in existing_structured:
+        if not isinstance(row, dict):
+            continue
+        key = _clean_text(row.get("advantage", "")).lower()
+        if key:
+            structured_index[key] = row
+
+    # Rebuild a clean, deduplicated structured list
+    structured_rows: list[dict] = []
+    seen_keys: set[str] = set()
+
+    for item in raw_advantages:
+        if not isinstance(item, str):
+            continue
+        text = _clean_text(item)
+        if not text:
+            continue
+        key = text.lower()
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+
+        # Reuse existing structured data if available for this advantage
+        existing = structured_index.get(key, {})
+        structured_rows.append({
+            "advantage": text,
+            "whyItMatters": _clean_text(existing.get("whyItMatters", "")),
+            "howToLeverage": _clean_text(existing.get("howToLeverage", "")),
+        })
+
+    # If only structured rows exist (no flat list), rebuild from them
+    if not structured_rows and existing_structured:
+        for row in existing_structured:
+            if not isinstance(row, dict):
+                continue
+            adv = _clean_text(row.get("advantage", ""))
+            if not adv or adv.lower() in seen_keys:
+                continue
+            seen_keys.add(adv.lower())
+            structured_rows.append({
+                "advantage": adv,
+                "whyItMatters": _clean_text(row.get("whyItMatters", "")),
+                "howToLeverage": _clean_text(row.get("howToLeverage", "")),
+            })
+
+    # Write back both formats
+    section["structuredAdvantages"] = structured_rows
+    section["advantages"] = [row["advantage"] for row in structured_rows]
+
+    # Clean notes field — strip any jammed "Why it matters: ... How to leverage: ..." text
+    # that was previously crammed in there by the old mapper.
+    # _clean_text() can return None for null/non-string notes, so always coerce
+    # membership checks against a real string to avoid TypeError.
+    notes = _clean_text(section.get("notes", "")) or ""
+    if "How to leverage:" in notes or "Why it matters:" in notes:
+        # These are now in structuredAdvantages — clear the jammed notes
+        section["notes"] = _clean_text(section.get("mentorNotes", "")) or None
+    elif section.get("notes") is not None:
+        section["notes"] = notes or None
 
 
 def _ensure_risk_section(report: Dict[str, Any]) -> None:
@@ -1394,6 +1695,66 @@ def _ensure_assembled_section_notes(report: Dict[str, Any]) -> None:
             section_value["notes"] = "This section is currently unavailable due to limited data sources."
 
 
+
+
+def _ensure_business_context_meta(report: Dict[str, Any]) -> Dict[str, Any]:
+    cleaned = deepcopy(report) if isinstance(report, dict) else {}
+    meta = cleaned.get("meta") if isinstance(cleaned.get("meta"), dict) else {}
+    meta.setdefault("businessProfile", {})
+    meta.setdefault("sectionContexts", {})
+    meta.setdefault("reportToneProfile", {})
+    meta.setdefault("businessModelPromptGuidance", {})
+
+    business_profile = meta.get("businessProfile") if isinstance(meta.get("businessProfile"), dict) else {}
+    section_contexts = meta.get("sectionContexts") if isinstance(meta.get("sectionContexts"), dict) else {}
+
+    # sync report tone from business profile when available
+    tone = business_profile.get("reportToneProfile") if isinstance(business_profile.get("reportToneProfile"), dict) else {}
+    if tone and not meta.get("reportToneProfile"):
+        meta["reportToneProfile"] = tone
+
+    # copy high-signal section relevance into note fields when absent
+    mapping = {
+        "websiteDigitalPresence": cleaned.get("websiteDigitalPresence"),
+        "seoVisibility": cleaned.get("seoVisibility"),
+        "reputation": cleaned.get("reputation"),
+        "servicesPositioning": cleaned.get("servicesPositioning"),
+        "leadGeneration": cleaned.get("leadGeneration"),
+        "competitiveAnalysis": cleaned.get("competitiveAnalysis"),
+        "costOptimization": cleaned.get("costOptimization"),
+        "targetMarket": cleaned.get("targetMarket"),
+        "financialImpact": cleaned.get("financialImpact"),
+    }
+    for name, section in mapping.items():
+        if not isinstance(section, dict):
+            continue
+        ctx = section_contexts.get(name) if isinstance(section_contexts, dict) else {}
+        rel = ctx.get("relevance") if isinstance(ctx, dict) else {}
+        if isinstance(rel, dict) and rel.get("level") and not section.get("notes"):
+            reason = _clean_text(rel.get("reason"))
+            if reason:
+                section["notes"] = reason
+
+    # ensure segment/revenue aliases stay populated for PDF mapping
+    target = cleaned.get("targetMarket") if isinstance(cleaned.get("targetMarket"), dict) else {}
+    segs = target.get("segments") or target.get("currentTargetSegments") or target.get("detectedSegments") or []
+    if isinstance(segs, list):
+        target.setdefault("segments", deepcopy(segs))
+        target.setdefault("currentTargetSegments", deepcopy(segs))
+        target.setdefault("detectedSegments", deepcopy(segs))
+        cleaned["targetMarket"] = target
+
+    impact = cleaned.get("financialImpact") if isinstance(cleaned.get("financialImpact"), dict) else {}
+    levers = impact.get("profitabilityLevers") or impact.get("revenueOpportunities") or []
+    if isinstance(levers, list):
+        impact.setdefault("profitabilityLevers", deepcopy(levers))
+        impact.setdefault("revenueOpportunities", deepcopy(levers))
+        cleaned["financialImpact"] = impact
+
+    meta["businessProfile"] = business_profile
+    meta["sectionContexts"] = section_contexts
+    cleaned["meta"] = meta
+    return cleaned
 def validate_report_data(report: Dict[str, Any] | None) -> Dict[str, Any]:
     cleaned = _sanitize_nested_strings(deepcopy(report) if isinstance(report, dict) else {})
     cleaned = sync_cross_section_signals(cleaned)
@@ -1404,6 +1765,7 @@ def validate_report_data(report: Dict[str, Any] | None) -> Dict[str, Any]:
     _ensure_lead_generation_section(cleaned)
     _ensure_content_quality(cleaned)
     _ensure_competitive_section(cleaned)
+    _ensure_competitive_advantages_section(cleaned)
     _ensure_risk_section(cleaned)
     _ensure_seo_section(cleaned)
     _ensure_financial_section(cleaned)

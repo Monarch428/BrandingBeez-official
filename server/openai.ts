@@ -1987,6 +1987,37 @@ export interface BusinessGrowthReport {
      */
     dataGaps: { area: string; missing: string[]; howToEnable: string[] }[];
   };
+
+
+meta?: {
+  businessProfile?: {
+    businessModel?: string | null;
+    businessModelConfidence?: NullableNumber;
+    offerType?: string | null;
+    offerTypes?: string[];
+    buyerType?: string | null;
+    salesMotion?: string | null;
+    primaryGrowthMotion?: string | null;
+    geographyType?: string | null;
+    location?: string | null;
+    targetMarket?: string | null;
+    serviceDeliveryModel?: string | null;
+    serviceNames?: string[];
+    proofAssets?: string[];
+    classificationEvidence?: string[];
+    businessLanguage?: string | null;
+    reportToneProfile?: Record<string, any> | null;
+    summary?: Record<string, any> | null;
+  } | null;
+  sectionContexts?: Record<string, any> | null;
+  reportToneProfile?: Record<string, any> | null;
+  businessModelPromptGuidance?: Record<string, any> | null;
+  planningEvidence?: Record<string, any> | null;
+  estimationMode?: boolean | null;
+  estimationInputs?: Record<string, any> | null;
+  userFinancials?: Record<string, any> | null;
+};
+
 }
 
 
@@ -2102,6 +2133,132 @@ function safeText(v: any, fallback = ""): string {
   if (v === null || v === undefined) return fallback;
   const s = String(v).trim();
   return s.length ? s : fallback;
+}
+
+
+function ensureObject<T = Record<string, any>>(value: any, fallback: T = {} as T): T {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as T) : fallback;
+}
+
+function normalizeStringArray(value: any): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => (typeof item === "string" ? item.trim() : String(item ?? "").trim()))
+    .filter(Boolean);
+}
+
+function normalizeBusinessAwareMeta(meta: any) {
+  const normalized = ensureObject(meta);
+  const businessProfile = ensureObject(normalized.businessProfile);
+  const sectionContexts = ensureObject(normalized.sectionContexts);
+  const reportToneProfile = ensureObject(normalized.reportToneProfile);
+  const businessModelPromptGuidance = ensureObject(normalized.businessModelPromptGuidance);
+
+  if (businessProfile.serviceNames) businessProfile.serviceNames = normalizeStringArray(businessProfile.serviceNames);
+  if (businessProfile.offerTypes) businessProfile.offerTypes = normalizeStringArray(businessProfile.offerTypes);
+  if (businessProfile.proofAssets) businessProfile.proofAssets = normalizeStringArray(businessProfile.proofAssets);
+  if (businessProfile.classificationEvidence) businessProfile.classificationEvidence = normalizeStringArray(businessProfile.classificationEvidence);
+
+  return {
+    ...normalized,
+    businessProfile,
+    sectionContexts,
+    reportToneProfile,
+    businessModelPromptGuidance,
+  };
+}
+
+function syncAppendixEvidence(report: any) {
+  if (!report || typeof report !== "object") return report;
+  const appendices = ensureObject(report.appendices);
+  const evidence = ensureObject(appendices.evidence);
+  const screenshots = ensureObject(evidence.screenshots);
+  if ((!Array.isArray(appendices.evidenceScreenshots) || !appendices.evidenceScreenshots.length) && Object.keys(screenshots).length) {
+    const synthesized: any[] = [];
+    for (const variant of ["desktop", "mobile"]) {
+      const shot = ensureObject(screenshots[variant]);
+      if (typeof shot.b64 === "string" && shot.b64) {
+        synthesized.push({
+          label: shot.title || `${variant[0].toUpperCase()}${variant.slice(1)} Screenshot`,
+          format: shot.format || "png",
+          b64: shot.b64,
+          width: shot.width ?? null,
+          height: shot.height ?? null,
+          fullPage: shot.fullPage ?? true,
+        });
+      }
+      const slices = Array.isArray(shot.slices) ? shot.slices : [];
+      for (const slice of slices) {
+        if (!slice || typeof slice !== "object" || !slice.b64) continue;
+        synthesized.push({
+          label: slice.title || shot.title || `${variant[0].toUpperCase()}${variant.slice(1)} Screenshot`,
+          format: slice.format || shot.format || "png",
+          b64: slice.b64,
+          width: slice.width ?? null,
+          height: slice.height ?? null,
+          fullPage: shot.fullPage ?? true,
+        });
+      }
+    }
+    appendices.evidenceScreenshots = synthesized;
+  }
+  if (!Array.isArray(appendices.keyPagesDetected)) {
+    const keyPages = ensureObject(evidence.keyPagesDetected);
+    const rows = Object.entries(keyPages).map(([page, info]: any) => {
+      const row = ensureObject(info);
+      return {
+        page,
+        present: row.present ?? (row.servicesPagePresent || row.primary ? "Yes" : "No"),
+        primaryUrl: row.primaryUrl || row.url || row.primary || "-",
+      };
+    }).filter((row) => row.page);
+    if (rows.length) appendices.keyPagesDetected = rows;
+  }
+  if (!appendices.crawlRegistrySummary && evidence.crawlRegistrySummary) {
+    appendices.crawlRegistrySummary = evidence.crawlRegistrySummary;
+  }
+  if (!appendices.extractionSnapshot && evidence.extractionSnapshot) {
+    appendices.extractionSnapshot = evidence.extractionSnapshot;
+  }
+  report.appendices = appendices;
+  return report;
+}
+
+function syncBusinessAwareSections(report: any) {
+  if (!report || typeof report !== "object") return report;
+
+  const target = ensureObject(report.targetMarket);
+  const targetSegments =
+    (Array.isArray(target.segments) && target.segments.length ? target.segments : null) ||
+    (Array.isArray(target.currentTargetSegments) && target.currentTargetSegments.length ? target.currentTargetSegments : null) ||
+    (Array.isArray(target.detectedSegments) && target.detectedSegments.length ? target.detectedSegments : null) ||
+    [];
+  if (targetSegments.length) {
+    target.segments = targetSegments;
+    target.currentTargetSegments = Array.isArray(target.currentTargetSegments) && target.currentTargetSegments.length
+      ? target.currentTargetSegments
+      : targetSegments;
+    target.detectedSegments = Array.isArray(target.detectedSegments) && target.detectedSegments.length
+      ? target.detectedSegments
+      : targetSegments;
+    report.targetMarket = target;
+  }
+
+  const financial = ensureObject(report.financialImpact);
+  const revenueOpportunities =
+    (Array.isArray(financial.revenueOpportunities) && financial.revenueOpportunities.length ? financial.revenueOpportunities : null) ||
+    (Array.isArray(financial.profitabilityLevers) && financial.profitabilityLevers.length ? financial.profitabilityLevers : null) ||
+    [];
+  if (revenueOpportunities.length) {
+    financial.revenueOpportunities = revenueOpportunities;
+    financial.profitabilityLevers = Array.isArray(financial.profitabilityLevers) && financial.profitabilityLevers.length
+      ? financial.profitabilityLevers
+      : revenueOpportunities;
+    report.financialImpact = financial;
+  }
+
+  report.meta = normalizeBusinessAwareMeta(report.meta);
+  return syncAppendixEvidence(report);
 }
 
 
@@ -2751,7 +2908,7 @@ function buildBusinessGrowthFallbackTemplate(
     reputationPlatforms: report.reputation?.platforms?.length ?? 0,
   });
 
-  return report;
+  return syncBusinessAwareSections(report);
 }
 
 async function generateBusinessGrowthFallbackViaAgent(
@@ -2914,6 +3071,17 @@ export function mergeBusinessGrowthReport(
     actionPlan90Days: { weekByWeek: [], kpisToTrack: [], notes: null },
 
     appendices: { scoreSummary: [], growthForecastTables: [], keywords: [], serp: [], backlinks: [], reputation: null, evidenceScreenshots: [], dataSources: [], dataGaps: [] },
+
+    meta: {
+      businessProfile: ensureObject((report as any)?.meta?.businessProfile),
+      sectionContexts: ensureObject((report as any)?.meta?.sectionContexts),
+      reportToneProfile: ensureObject((report as any)?.meta?.reportToneProfile),
+      businessModelPromptGuidance: ensureObject((report as any)?.meta?.businessModelPromptGuidance),
+      planningEvidence: ensureObject((report as any)?.meta?.planningEvidence),
+      estimationMode: (report as any)?.meta?.estimationMode ?? null,
+      estimationInputs: ensureObject((report as any)?.meta?.estimationInputs),
+      userFinancials: ensureObject((report as any)?.meta?.userFinancials),
+    },
   };
 
   // Deep merge, but NEVER inject seeded defaults.
@@ -2997,6 +3165,32 @@ export function mergeBusinessGrowthReport(
     competitiveAdvantages: { ...base.competitiveAdvantages, ...(r.competitiveAdvantages || {}) },
     actionPlan90Days: { ...base.actionPlan90Days, ...(r.actionPlan90Days || {}) },
     appendices: { ...base.appendices, ...(r.appendices || {}) },
+    meta: {
+      ...base.meta,
+      ...(r.meta || {}),
+      businessProfile: {
+        ...(base.meta?.businessProfile || {}),
+        ...(r.meta?.businessProfile || {}),
+      },
+      sectionContexts: {
+        ...(base.meta?.sectionContexts || {}),
+        ...(r.meta?.sectionContexts || {}),
+      },
+      reportToneProfile: {
+        ...(base.meta?.reportToneProfile || {}),
+        ...(r.meta?.reportToneProfile || {}),
+      },
+      businessModelPromptGuidance: {
+        ...(base.meta?.businessModelPromptGuidance || {}),
+        ...(r.meta?.businessModelPromptGuidance || {}),
+      },
+      planningEvidence: {
+        ...(base.meta?.planningEvidence || {}),
+        ...(r.meta?.planningEvidence || {}),
+      },
+      estimationInputs: ensureObject(r.meta?.estimationInputs || base.meta?.estimationInputs),
+      userFinancials: ensureObject(r.meta?.userFinancials || base.meta?.userFinancials),
+    },
   };
 
   const ensureArray = <T,>(v: any): T[] => (Array.isArray(v) ? v : []);
@@ -3147,6 +3341,31 @@ export function mergeBusinessGrowthReport(
   merged.appendices.dataSources = ensureArray(merged.appendices.dataSources);
   merged.appendices.dataGaps = ensureArray(merged.appendices.dataGaps);
 
+  merged.meta = normalizeBusinessAwareMeta(merged.meta);
+  if (merged.meta?.businessProfile) {
+    merged.meta.businessProfile.serviceNames = ensureArray(merged.meta.businessProfile.serviceNames);
+    merged.meta.businessProfile.offerTypes = ensureArray(merged.meta.businessProfile.offerTypes);
+    merged.meta.businessProfile.proofAssets = ensureArray(merged.meta.businessProfile.proofAssets);
+    merged.meta.businessProfile.classificationEvidence = ensureArray(merged.meta.businessProfile.classificationEvidence);
+  }
+
+  if ((merged.targetMarket?.segments?.length || merged.targetMarket?.currentTargetSegments?.length || merged.targetMarket?.detectedSegments?.length)) {
+    const syncedSegments =
+      ensureArray(merged.targetMarket?.segments).length ? ensureArray(merged.targetMarket?.segments)
+      : ensureArray(merged.targetMarket?.currentTargetSegments).length ? ensureArray(merged.targetMarket?.currentTargetSegments)
+      : ensureArray(merged.targetMarket?.detectedSegments);
+    merged.targetMarket.segments = syncedSegments;
+    if (!ensureArray(merged.targetMarket.currentTargetSegments).length) merged.targetMarket.currentTargetSegments = syncedSegments;
+    if (!ensureArray(merged.targetMarket.detectedSegments).length) merged.targetMarket.detectedSegments = syncedSegments;
+  }
+
+  if (ensureArray(merged.financialImpact?.revenueOpportunities).length && !ensureArray(merged.financialImpact?.profitabilityLevers).length) {
+    merged.financialImpact.profitabilityLevers = ensureArray(merged.financialImpact.revenueOpportunities);
+  }
+  if (ensureArray(merged.financialImpact?.profitabilityLevers).length && !ensureArray(merged.financialImpact?.revenueOpportunities).length) {
+    merged.financialImpact.revenueOpportunities = ensureArray(merged.financialImpact.profitabilityLevers);
+  }
+
   // -----------------------------
   // Option A fallback (deterministic):
   // Ensure sections 11–13 are populated using available signals.
@@ -3293,7 +3512,7 @@ export function mergeBusinessGrowthReport(
     }
   }
 
-  return merged as BusinessGrowthReport;
+  return syncBusinessAwareSections(merged) as BusinessGrowthReport;
 }
 
 export async function buildBusinessGrowthFallback(

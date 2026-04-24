@@ -67,6 +67,17 @@ function toOptionalNumber(value: unknown): number | null {
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
   const normalized = String(value).replace(/,/g, "").trim();
   if (!normalized) return null;
+  const lower = normalized.toLowerCase();
+  const suffixMatch = lower.match(/^(-?\d+(?:\.\d+)?)(?:\s*)(k|m|l|lac|lakh|cr|crore)$/i);
+  if (suffixMatch) {
+    const base = Number(suffixMatch[1]);
+    if (!Number.isFinite(base)) return null;
+    const suffix = suffixMatch[2].toLowerCase();
+    if (suffix === "k") return base * 1_000;
+    if (suffix === "m") return base * 1_000_000;
+    if (suffix === "l" || suffix === "lac" || suffix === "lakh") return base * 100_000;
+    if (suffix === "cr" || suffix === "crore") return base * 10_000_000;
+  }
   const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -122,9 +133,12 @@ function sanitizeOptionalBusinessInputs(raw: unknown): OptionalBusinessInputs {
     monthlyOverheadCost: toOptionalNumber(source.monthlyOverheadCost),
     monthlyLeads: toOptionalNumber(source.monthlyLeads),
     qualifiedLeads: toOptionalNumber(source.qualifiedLeads),
+    qualifiedLeadsPerMonth: toOptionalNumber(source.qualifiedLeadsPerMonth ?? source.qualifiedLeads),
     closeRate: toOptionalNumber(source.closeRate),
     avgDealValue: toOptionalNumber(source.avgDealValue),
     currentTrafficPerMonth: toOptionalNumber(source.currentTrafficPerMonth),
+    teamSize: toOptionalNumber(source.teamSize),
+    monthlyRecurringRevenue: toOptionalNumber(source.monthlyRecurringRevenue),
 
     countriesServed: toStringArray(source.countriesServed),
     customerSegments: toStringArray(source.customerSegments),
@@ -156,6 +170,11 @@ function sanitizeLegacyEstimationInputs(raw: unknown): LegacyEstimationInputs {
     leadsPerMonthRange: toOptionalString(source.leadsPerMonthRange),
     closeRateRange: toOptionalString(source.closeRateRange),
     currentTrafficPerMonthRange: toOptionalString(source.currentTrafficPerMonthRange),
+    monthlyRevenueRange: toOptionalString(source.monthlyRevenueRange),
+    qualifiedLeadsPerMonthRange: toOptionalString(source.qualifiedLeadsPerMonthRange),
+    monthlyPayrollCostRange: toOptionalString(source.monthlyPayrollCostRange),
+    monthlyToolsCostRange: toOptionalString(source.monthlyToolsCostRange),
+    monthlyOverheadCostRange: toOptionalString(source.monthlyOverheadCostRange),
   };
 }
 
@@ -197,6 +216,111 @@ function extractApproxNumberFromText(value: string | null | undefined): number |
   return (numbers[0] + numbers[1]) / 2;
 }
 
+function shouldPreferDerivedFinancialValue(
+  field: keyof OptionalBusinessInputs,
+  explicitValue: unknown,
+  derivedValue: unknown,
+): boolean {
+  const explicitNumber = toOptionalNumber(explicitValue);
+  const derivedNumber = toOptionalNumber(derivedValue);
+  if (derivedNumber === null) return false;
+  if (explicitNumber === null) return true;
+
+  const monetaryLikeFields = new Set<string>([
+    "monthlyRevenue",
+    "monthlyAdSpend",
+    "avgDealValue",
+    "monthlyPayrollCost",
+    "monthlyToolsCost",
+    "monthlyOverheadCost",
+    "monthlyRecurringRevenue",
+  ]);
+
+  if (field === "closeRate") {
+    return explicitNumber > 1 && derivedNumber > 0 && derivedNumber <= 1;
+  }
+
+  if (field === "teamSize") {
+    return explicitNumber < 1 && derivedNumber >= 1;
+  }
+
+  if (monetaryLikeFields.has(String(field))) {
+    return explicitNumber > 0 && explicitNumber < 1000 && derivedNumber >= 1000;
+  }
+
+  return false;
+}
+
+function stabilizeSuspiciousFinancialInputs(
+  inputs: OptionalBusinessInputs,
+  derived: OptionalBusinessInputs,
+): OptionalBusinessInputs {
+  const out: OptionalBusinessInputs = { ...inputs };
+
+  const numeric = (value: unknown) => toOptionalNumber(value);
+  const ratio = (value: unknown) => {
+    const parsed = numeric(value);
+    if (parsed === null) return null;
+    return parsed > 1 ? parsed / 100 : parsed;
+  };
+
+  const useDerivedIfSuspicious = (field: keyof OptionalBusinessInputs) => {
+    if (shouldPreferDerivedFinancialValue(field, out[field], derived[field])) {
+      out[field] = derived[field] as any;
+    }
+  };
+
+  useDerivedIfSuspicious("monthlyRevenue");
+  useDerivedIfSuspicious("monthlyAdSpend");
+  useDerivedIfSuspicious("avgDealValue");
+  useDerivedIfSuspicious("monthlyPayrollCost");
+  useDerivedIfSuspicious("monthlyToolsCost");
+  useDerivedIfSuspicious("monthlyOverheadCost");
+  useDerivedIfSuspicious("monthlyRecurringRevenue");
+  useDerivedIfSuspicious("teamSize");
+
+  const leads = numeric(out.monthlyLeads ?? out.qualifiedLeadsPerMonth ?? out.qualifiedLeads);
+  const closeRate = ratio(out.closeRate);
+  const avgDeal = numeric(out.avgDealValue);
+  const currentRevenue = numeric(out.monthlyRevenue ?? out.monthlyRecurringRevenue);
+
+  if ((currentRevenue === null || currentRevenue < 1000) && leads && closeRate && avgDeal) {
+    const modeledRevenue = leads * closeRate * avgDeal;
+    if (modeledRevenue >= 1000) {
+      out.monthlyRevenue = modeledRevenue;
+      if (out.monthlyRecurringRevenue == null || (numeric(out.monthlyRecurringRevenue) ?? 0) < 1000) {
+        out.monthlyRecurringRevenue = modeledRevenue;
+      }
+    }
+  }
+
+  const stabilizedRevenue = numeric(out.monthlyRevenue ?? out.monthlyRecurringRevenue);
+  if (stabilizedRevenue && stabilizedRevenue >= 1000) {
+    const payroll = numeric(out.monthlyPayrollCost);
+    const tools = numeric(out.monthlyToolsCost);
+    const overhead = numeric(out.monthlyOverheadCost);
+
+    if (payroll !== null && payroll > 0 && payroll < 1000 && numeric(derived.monthlyPayrollCost) == null) {
+      out.monthlyPayrollCost = Math.round(stabilizedRevenue * 0.5);
+    }
+    if (tools !== null && tools > 0 && tools < 1000 && numeric(derived.monthlyToolsCost) == null) {
+      out.monthlyToolsCost = Math.max(1500, Math.round(stabilizedRevenue * 0.04));
+    }
+    if (overhead !== null && overhead > 0 && overhead < 1000 && numeric(derived.monthlyOverheadCost) == null) {
+      out.monthlyOverheadCost = Math.max(3000, Math.round(stabilizedRevenue * 0.1));
+    }
+  }
+
+  if (out.qualifiedLeadsPerMonth == null && out.qualifiedLeads != null) {
+    out.qualifiedLeadsPerMonth = out.qualifiedLeads;
+  }
+  if (out.qualifiedLeads == null && out.qualifiedLeadsPerMonth != null) {
+    out.qualifiedLeads = out.qualifiedLeadsPerMonth;
+  }
+
+  return compactOptionalBusinessInputs(out);
+}
+
 function deriveOptionalBusinessInputsFromLegacy(
   inputs: LegacyEstimationInputs,
 ): OptionalBusinessInputs {
@@ -211,10 +335,50 @@ function deriveOptionalBusinessInputsFromLegacy(
     avgDealValue: extractApproxNumberFromText(inputs.avgDealValueRange),
     monthlyLeads: extractApproxNumberFromText(inputs.leadsPerMonthRange),
     closeRate: extractApproxNumberFromText(inputs.closeRateRange),
+    monthlyRevenue: extractApproxNumberFromText(inputs.monthlyRevenueRange),
     currentTrafficPerMonth: extractApproxNumberFromText(inputs.currentTrafficPerMonthRange),
+    qualifiedLeadsPerMonth: extractApproxNumberFromText(inputs.qualifiedLeadsPerMonthRange),
+    monthlyPayrollCost: extractApproxNumberFromText(inputs.monthlyPayrollCostRange),
+    monthlyToolsCost: extractApproxNumberFromText(inputs.monthlyToolsCostRange),
+    monthlyOverheadCost: extractApproxNumberFromText(inputs.monthlyOverheadCostRange),
     countriesServed: toStringArray(inputs.primaryRegion),
     additionalContext: extraNotes.length > 0 ? extraNotes.join("\n") : null,
   });
+}
+
+function deepMergeReportPreservingAnalysis(base: any, overlay: any): any {
+  if (Array.isArray(base) || Array.isArray(overlay)) {
+    return Array.isArray(overlay) ? overlay : Array.isArray(base) ? base : [];
+  }
+
+  if (base && typeof base === "object" && overlay && typeof overlay === "object") {
+    const output: Record<string, any> = { ...base };
+    for (const [key, value] of Object.entries(overlay)) {
+      if (value === undefined) continue;
+      output[key] = key in output ? deepMergeReportPreservingAnalysis(output[key], value) : value;
+    }
+    return output;
+  }
+
+  return overlay !== undefined ? overlay : base;
+}
+
+function buildNormalizedReportForPdf(args: {
+  companyName: string;
+  website: string;
+  industry?: string;
+  analysisSource: any;
+}): BusinessGrowthReport {
+  const merged = mergeBusinessGrowthReport(
+    {
+      companyName: args.companyName,
+      website: args.website,
+      industry: args.industry,
+    },
+    args.analysisSource,
+  );
+
+  return deepMergeReportPreservingAnalysis(merged, args.analysisSource) as BusinessGrowthReport;
 }
 
 function hasAnyOptionalBusinessInput(inputs: OptionalBusinessInputs): boolean {
@@ -342,10 +506,29 @@ export function registerBusinessGrowthRoutes(app: Express) {
       const legacyDerivedOptionalInputs = deriveOptionalBusinessInputsFromLegacy(
         sanitizedLegacyEstimationInputs,
       );
-      const sanitizedOptionalInputs = {
+      const mergedOptionalInputs = {
         ...legacyDerivedOptionalInputs,
         ...explicitOptionalInputs,
       } as OptionalBusinessInputs;
+      for (const field of [
+        "monthlyRevenue",
+        "monthlyAdSpend",
+        "avgDealValue",
+        "monthlyPayrollCost",
+        "monthlyToolsCost",
+        "monthlyOverheadCost",
+        "monthlyRecurringRevenue",
+        "teamSize",
+        "closeRate",
+      ] as Array<keyof OptionalBusinessInputs>) {
+        if (shouldPreferDerivedFinancialValue(field, explicitOptionalInputs[field], legacyDerivedOptionalInputs[field])) {
+          mergedOptionalInputs[field] = legacyDerivedOptionalInputs[field] as any;
+        }
+      }
+      const sanitizedOptionalInputs = stabilizeSuspiciousFinancialInputs(
+        mergedOptionalInputs,
+        legacyDerivedOptionalInputs,
+      );
       const includeOptionalInputs = hasAnyOptionalBusinessInput(sanitizedOptionalInputs);
 
       const DEFAULT_CRITERIA = {
@@ -369,10 +552,14 @@ export function registerBusinessGrowthRoutes(app: Express) {
       };
 
       const payload: AnalyzeRequestPayload = {
+        requestContractVersion: "business_growth_v3",
         companyName: companyName.trim(),
         website: normalizedWebsite,
         forceNewAnalysis: Boolean(forceNewAnalysis),
-        estimationMode: true,
+        // Only enable estimation mode when the user actually provided financial
+        // inputs. Without real data the model guesses from near-zero signals and
+        // produces nonsense values like "₹2/mo current revenue".
+        estimationMode: includeOptionalInputs,
         location: location.trim(),
         industry: industry.trim(),
         targetMarket: normalizedTargetMarket,
@@ -381,7 +568,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
         reportType: "full",
         ...(typeof includeSections8to10 === "boolean"
           ? { includeSections8to10 }
-          : {}),
+          : { includeSections8to10: includeOptionalInputs }),
         criteria: {
           ...mergedCriteria,
           language_code: "en",
@@ -410,7 +597,13 @@ export function registerBusinessGrowthRoutes(app: Express) {
         throw new Error(`Python engine returned failure: ${JSON.stringify(py)}`);
       }
 
-      const analysis = py.reportJson;
+      const analysis = {
+        ...(py.reportJson || {}),
+        meta: {
+          ...((py.reportJson && py.reportJson.meta) || {}),
+          ...((py.meta && typeof py.meta === "object") ? py.meta : {}),
+        },
+      };
       const analysisToken = py.token;
 
       const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
@@ -481,14 +674,12 @@ export function registerBusinessGrowthRoutes(app: Express) {
         companyName ||
         "Unknown";
 
-      const normalizedReport = mergeBusinessGrowthReport(
-        {
-          companyName: resolvedCompany,
-          website: resolvedWebsite,
-          industry: industry || storedReport.industry,
-        },
+      const normalizedReport = buildNormalizedReportForPdf({
+        companyName: resolvedCompany,
+        website: resolvedWebsite,
+        industry: industry || storedReport.industry,
         analysisSource,
-      );
+      });
 
       const pdfBuffer = await generateBusinessGrowthPdfBuffer(
         normalizedReport as BusinessGrowthReport,
@@ -564,14 +755,12 @@ export function registerBusinessGrowthRoutes(app: Express) {
       let pdfBuffer: Buffer;
 
       if (!storedReport.reportDownloadToken) {
-        const normalizedReport = mergeBusinessGrowthReport(
-          {
-            companyName: resolvedCompany,
-            website: resolvedWebsite,
-            industry: storedReport.industry,
-          },
+        const normalizedReport = buildNormalizedReportForPdf({
+          companyName: resolvedCompany,
+          website: resolvedWebsite,
+          industry: storedReport.industry,
           analysisSource,
-        );
+        });
 
         pdfBuffer = await generateBusinessGrowthPdfBuffer(
           normalizedReport as BusinessGrowthReport,
@@ -593,14 +782,12 @@ export function registerBusinessGrowthRoutes(app: Express) {
         if (fs.existsSync(existingPath)) {
           pdfBuffer = fs.readFileSync(existingPath);
         } else {
-          const normalizedReport = mergeBusinessGrowthReport(
-            {
-              companyName: resolvedCompany,
-              website: resolvedWebsite,
-              industry: storedReport.industry,
-            },
+          const normalizedReport = buildNormalizedReportForPdf({
+            companyName: resolvedCompany,
+            website: resolvedWebsite,
+            industry: storedReport.industry,
             analysisSource,
-          );
+          });
 
           pdfBuffer = await generateBusinessGrowthPdfBuffer(
             normalizedReport as BusinessGrowthReport,
@@ -678,14 +865,12 @@ export function registerBusinessGrowthRoutes(app: Express) {
       const resolvedCompany =
         reportMetadata?.companyName || storedReport.companyName || "Unknown";
 
-      const normalizedReport = mergeBusinessGrowthReport(
-        {
-          companyName: resolvedCompany,
-          website: resolvedWebsite,
-          industry: storedReport.industry,
-        },
+      const normalizedReport = buildNormalizedReportForPdf({
+        companyName: resolvedCompany,
+        website: resolvedWebsite,
+        industry: storedReport.industry,
         analysisSource,
-      );
+      });
 
       const pdfBuffer = await generateBusinessGrowthPdfBuffer(
         normalizedReport as BusinessGrowthReport,

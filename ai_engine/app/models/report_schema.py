@@ -104,11 +104,40 @@ class TechnicalSEO(BaseModel):
     issues: List[str] = Field(default_factory=list)
     pageSpeed: Optional[WebsiteSpeedTest] = None
 
+
+
+class RecommendationDetail(BaseModel):
+    issue: str = ""
+    severity: Optional[str] = None
+    page: Optional[str] = None
+    pageLabel: Optional[str] = None
+    placement: Optional[str] = None
+    recommendation: Optional[str] = None
+    why: Optional[str] = None
+    suggestedVariants: List[str] = Field(default_factory=list)
+    supportingBlocks: List[str] = Field(default_factory=list)
+    expectedOutcome: Optional[str] = None
+
+
+class ActionCandidate(BaseModel):
+    title: str = ""
+    sourceSection: Optional[str] = None
+    impact: Optional[str] = None
+    effort: Optional[str] = None
+    urgency: Optional[str] = None
+    confidence: Optional[float] = None
+    pillar: Optional[str] = None
+    priorityScore: Optional[float] = None
+    kpis: List[str] = Field(default_factory=list)
+    details: Dict[str, Any] = Field(default_factory=dict)
+
 class ContentQuality(BaseModel):
     score: SafeInt = 0
     strengths: List[str] = Field(default_factory=list)
     gaps: List[str] = Field(default_factory=list)
     recommendations: List[str] = Field(default_factory=list)
+    recommendationDetails: List[RecommendationDetail] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class UXConversion(BaseModel):
     score: SafeInt = 0
@@ -129,6 +158,8 @@ class WebsiteKeywordAnalysis(BaseModel):
     breakdown: Dict[str, Any] = Field(default_factory=dict)
     keywordCandidates: List[str] = Field(default_factory=list)
     opportunities: List[Dict[str, Any]] = Field(default_factory=list)
+    recommendationDetails: List[RecommendationDetail] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class WebsiteDigitalPresence(BaseModel):
     technicalSEO: TechnicalSEO = Field(default_factory=TechnicalSEO)
@@ -254,6 +285,8 @@ class Reputation(BaseModel):
     yourGap: Optional[Any] = None
     summaryTable: List[Dict[str, Any]] = Field(default_factory=list)
     sentimentThemes: SentimentThemes = Field(default_factory=SentimentThemes)
+    recommendationDetails: List[RecommendationDetail] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class ServiceItem(BaseModel):
     name: str = ""
@@ -317,6 +350,8 @@ class LeadGeneration(BaseModel):
     mentorNotes: Optional[str] = None
     missingHighROIChannels: List[MissingChannel] = Field(default_factory=list)
     leadMagnets: List[LeadMagnet] = Field(default_factory=list)
+    recommendationDetails: List[RecommendationDetail] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class CompetitiveAnalysis(BaseModel):
     competitors: List[Dict[str, Any]] = Field(default_factory=list)
@@ -435,6 +470,7 @@ class CostOptimization(BaseModel):
     estimationDisclaimer: Optional[str] = None
     confidenceScore: SafeInt = 0  # 0-100
     scenarios: List[ScenarioEstimate] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class TargetMarket(BaseModel):
     notes: Optional[str] = None
@@ -444,6 +480,7 @@ class TargetMarket(BaseModel):
     estimationDisclaimer: Optional[str] = None
     confidenceScore: SafeInt = 0
     scenarios: List[ScenarioEstimate] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class FinancialImpact(BaseModel):
     notes: Optional[str] = None
@@ -452,6 +489,7 @@ class FinancialImpact(BaseModel):
     estimationDisclaimer: Optional[str] = None
     confidenceScore: SafeInt = 0
     scenarios: List[ScenarioEstimate] = Field(default_factory=list)
+    actionCandidates: List[ActionCandidate] = Field(default_factory=list)
 
 class ActionPlanWeek(BaseModel):
     weekRange: str = ""
@@ -498,6 +536,19 @@ class Appendices(BaseModel):
     pagesCrawled: List[str] = Field(default_factory=list)
     evidence: Optional[Dict[str, Any]] = None
 
+
+
+class BusinessContextMeta(BaseModel):
+    businessProfile: Dict[str, Any] = Field(default_factory=dict)
+    sectionContexts: Dict[str, Any] = Field(default_factory=dict)
+    reportToneProfile: Dict[str, Any] = Field(default_factory=dict)
+    businessModelPromptGuidance: Dict[str, Any] = Field(default_factory=dict)
+    recommendationContext: Dict[str, Any] = Field(default_factory=dict)
+    planningEvidence: Dict[str, Any] = Field(default_factory=dict)
+    estimationMode: Optional[bool] = None
+    estimationInputs: Optional[Dict[str, Any]] = None
+    userFinancials: Optional[Dict[str, Any]] = None
+
 class BusinessGrowthReport(BaseModel):
     reportMetadata: ReportMetadata = Field(default_factory=ReportMetadata)
     executiveSummary: ExecutiveSummary = Field(default_factory=ExecutiveSummary)
@@ -515,3 +566,4 @@ class BusinessGrowthReport(BaseModel):
     competitiveAdvantages: CompetitiveAdvantages = Field(default_factory=CompetitiveAdvantages)
     riskAssessment: RiskAssessment = Field(default_factory=RiskAssessment)
     appendices: Appendices = Field(default_factory=Appendices)
+    meta: BusinessContextMeta = Field(default_factory=BusinessContextMeta)

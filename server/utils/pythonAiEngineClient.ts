@@ -10,9 +10,12 @@ export type OptionalBusinessInputs = {
   monthlyOverheadCost?: number | null;
   monthlyLeads?: number | null;
   qualifiedLeads?: number | null;
+  qualifiedLeadsPerMonth?: number | null;
   closeRate?: number | null;
   avgDealValue?: number | null;
   currentTrafficPerMonth?: number | null;
+  teamSize?: number | null;
+  monthlyRecurringRevenue?: number | null;
 
   countriesServed?: string[];
   customerSegments?: string[];
@@ -40,6 +43,11 @@ export type LegacyEstimationInputs = {
   leadsPerMonthRange?: string | null;
   closeRateRange?: string | null;
   currentTrafficPerMonthRange?: string | null;
+  monthlyRevenueRange?: string | null;
+  qualifiedLeadsPerMonthRange?: string | null;
+  monthlyPayrollCostRange?: string | null;
+  monthlyToolsCostRange?: string | null;
+  monthlyOverheadCostRange?: string | null;
 };
 
 export type AnalyzeRequestPayload = {

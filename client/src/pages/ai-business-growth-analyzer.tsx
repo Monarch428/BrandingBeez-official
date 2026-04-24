@@ -35,16 +35,36 @@ interface FormState {
   industry: string; // Primary services industry
   targetMarket: string;
 
-  // Optional legacy estimation inputs expected by the old backend / Python engine
+  // Range / estimation inputs
+  currency: string;
+  monthlyRevenueRange: string;
   monthlyAdSpendRange: string;
+  monthlyPayrollCostRange: string;
+  monthlyToolsCostRange: string;
+  monthlyOverheadCostRange: string;
   toolsStackEstimate: string;
   teamSizeRange: string;
-  idealCustomer: string;
-  primaryRegion: string;
   avgDealValueRange: string;
   leadsPerMonthRange: string;
+  qualifiedLeadsPerMonthRange: string;
   closeRateRange: string;
   currentTrafficPerMonthRange: string;
+
+  // Market / business context inputs
+  idealCustomer: string;
+  primaryRegion: string;
+  countriesServed: string;
+  customerSegments: string;
+  painPoints: string;
+  segmentBudgets: string;
+  grossMargin: string;
+  retentionRate: string;
+  churnRate: string;
+  salesCycleDays: string;
+  monthlyRecurringRevenue: string;
+  revenueByService: string;
+  revenueByChannel: string;
+  additionalContext: string;
 }
 
 interface FormErrors {
@@ -231,6 +251,42 @@ function validatePhone(phone: string) {
   return undefined;
 }
 
+function toOptionalString(value: string) {
+  const trimmed = (value || "").trim();
+  return trimmed.length ? trimmed : null;
+}
+
+function toOptionalNumber(value: string) {
+  const trimmed = (value || "").trim();
+  if (!trimmed) return null;
+  const normalized = trimmed.replace(/,/g, "");
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function toStringArray(value: string) {
+  return (value || "")
+    .split(/\r?\n|,/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function toPairArray(value: string, firstKey: "service" | "channel", secondKey: "amount") {
+  return (value || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+
+    .filter(Boolean)
+    .map((line) => {
+      const [left, ...right] = line.split(/[:|-]/);
+      const name = (left || "").trim();
+      const amount = right.join("-").trim();
+      if (!name && !amount) return null;
+      return { [firstKey]: name, [secondKey]: amount } as Record<string, string>;
+    })
+    .filter(Boolean) as Array<{ service?: string; channel?: string; amount: string }>;
+}
+
 function getMetric(device: PageSpeedDeviceResult | undefined, key: keyof NonNullable<PageSpeedDeviceResult["metrics"]> | keyof PageSpeedDeviceResult) {
   if (!device) return null;
   // prefer nested metrics if present
@@ -385,15 +441,33 @@ export default function AIBusinessGrowthAnalyzerPage() {
     location: "",
     industry: "",
     targetMarket: "",
+    currency: "",
+    monthlyRevenueRange: "",
     monthlyAdSpendRange: "",
+    monthlyPayrollCostRange: "",
+    monthlyToolsCostRange: "",
+    monthlyOverheadCostRange: "",
     toolsStackEstimate: "",
     teamSizeRange: "",
-    idealCustomer: "",
-    primaryRegion: "",
     avgDealValueRange: "",
     leadsPerMonthRange: "",
+    qualifiedLeadsPerMonthRange: "",
     closeRateRange: "",
     currentTrafficPerMonthRange: "",
+    idealCustomer: "",
+    primaryRegion: "",
+    countriesServed: "",
+    customerSegments: "",
+    painPoints: "",
+    segmentBudgets: "",
+    grossMargin: "",
+    retentionRate: "",
+    churnRate: "",
+    salesCycleDays: "",
+    monthlyRecurringRevenue: "",
+    revenueByService: "",
+    revenueByChannel: "",
+    additionalContext: "",
   });
   const [captureFormStep, setCaptureFormStep] = useState<CaptureFormStep>(1);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -602,15 +676,56 @@ export default function AIBusinessGrowthAnalyzerPage() {
           industry: formState.industry.trim(),
           targetMarket: formState.targetMarket.trim(),
           estimationInputs: {
+            currency: formState.currency.trim(),
+            monthlyRevenueRange: formState.monthlyRevenueRange.trim(),
             monthlyAdSpendRange: formState.monthlyAdSpendRange.trim(),
+            monthlyPayrollCostRange: formState.monthlyPayrollCostRange.trim(),
+            monthlyToolsCostRange: formState.monthlyToolsCostRange.trim(),
+            monthlyOverheadCostRange: formState.monthlyOverheadCostRange.trim(),
             toolsStackEstimate: formState.toolsStackEstimate.trim(),
             teamSizeRange: formState.teamSizeRange.trim(),
             idealCustomer: formState.idealCustomer.trim(),
             primaryRegion: formState.primaryRegion.trim(),
             avgDealValueRange: formState.avgDealValueRange.trim(),
             leadsPerMonthRange: formState.leadsPerMonthRange.trim(),
+            qualifiedLeadsPerMonthRange: formState.qualifiedLeadsPerMonthRange.trim(),
             closeRateRange: formState.closeRateRange.trim(),
             currentTrafficPerMonthRange: formState.currentTrafficPerMonthRange.trim(),
+            grossMargin: toOptionalNumber(formState.grossMargin),
+            retentionRate: toOptionalNumber(formState.retentionRate),
+            churnRate: toOptionalNumber(formState.churnRate),
+            salesCycleDays: toOptionalNumber(formState.salesCycleDays),
+            monthlyRecurringRevenue: toOptionalNumber(formState.monthlyRecurringRevenue),
+          },
+          optionalBusinessInputs: {
+            currency: toOptionalString(formState.currency),
+            grossMargin: toOptionalNumber(formState.grossMargin),
+            retentionRate: toOptionalNumber(formState.retentionRate),
+            churnRate: toOptionalNumber(formState.churnRate),
+            salesCycleDays: toOptionalNumber(formState.salesCycleDays),
+            monthlyRecurringRevenue: toOptionalNumber(formState.monthlyRecurringRevenue),
+            countriesServed: toStringArray(formState.countriesServed),
+            customerSegments: toStringArray(formState.customerSegments),
+            painPoints: toStringArray(formState.painPoints),
+            segmentBudgets: toStringArray(formState.segmentBudgets),
+            revenueByService: toPairArray(formState.revenueByService, "service", "amount"),
+            revenueByChannel: toPairArray(formState.revenueByChannel, "channel", "amount"),
+            additionalContext: toOptionalString(formState.additionalContext),
+          },
+          businessInputs: {
+            currency: toOptionalString(formState.currency),
+            grossMargin: toOptionalNumber(formState.grossMargin),
+            retentionRate: toOptionalNumber(formState.retentionRate),
+            churnRate: toOptionalNumber(formState.churnRate),
+            salesCycleDays: toOptionalNumber(formState.salesCycleDays),
+            monthlyRecurringRevenue: toOptionalNumber(formState.monthlyRecurringRevenue),
+            countriesServed: toStringArray(formState.countriesServed),
+            customerSegments: toStringArray(formState.customerSegments),
+            painPoints: toStringArray(formState.painPoints),
+            segmentBudgets: toStringArray(formState.segmentBudgets),
+            revenueByService: toPairArray(formState.revenueByService, "service", "amount"),
+            revenueByChannel: toPairArray(formState.revenueByChannel, "channel", "amount"),
+            additionalContext: toOptionalString(formState.additionalContext),
           },
           forceNewAnalysis: Boolean(opts?.forceNewAnalysis),
         }),
@@ -1100,13 +1215,33 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       {captureFormStep === 2 && (
                         <div className="space-y-4">
                           <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
-                            <p className="text-sm font-semibold text-gray-900">Optional legacy estimation inputs for Sections 8–10</p>
-                            <p className="mt-1 text-sm text-gray-600">These fields match the older backend / Python engine estimation model and improve modeled cost and financial outputs.</p>
+                            <p className="text-sm font-semibold text-gray-900">Commercial input ranges for Sections 8–10</p>
+                            <p className="mt-1 text-sm text-gray-600">These fields now feed the backend and AI engine directly so modeled financial, cost, and funnel outputs are better grounded.</p>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Currency</label>
+                              <Input placeholder="e.g., GBP / USD / INR" value={formState.currency} onChange={(e) => handleInputChange("currency", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Monthly Revenue Range</label>
+                              <Input placeholder="e.g., £10k-£30k/month" value={formState.monthlyRevenueRange} onChange={(e) => handleInputChange("monthlyRevenueRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
                               <label className="text-sm font-semibold text-gray-800">Monthly Ad Spend Range</label>
                               <Input placeholder="e.g., £1k-£3k/month" value={formState.monthlyAdSpendRange} onChange={(e) => handleInputChange("monthlyAdSpendRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Monthly Payroll Cost Range</label>
+                              <Input placeholder="e.g., £4k-£12k/month" value={formState.monthlyPayrollCostRange} onChange={(e) => handleInputChange("monthlyPayrollCostRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Monthly Tools Cost Range</label>
+                              <Input placeholder="e.g., £300-£1.5k/month" value={formState.monthlyToolsCostRange} onChange={(e) => handleInputChange("monthlyToolsCostRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Monthly Overhead Cost Range</label>
+                              <Input placeholder="e.g., £500-£3k/month" value={formState.monthlyOverheadCostRange} onChange={(e) => handleInputChange("monthlyOverheadCostRange", e.target.value)} />
                             </div>
                             <div className="space-y-2">
                               <label className="text-sm font-semibold text-gray-800">Tools Stack Estimate</label>
@@ -1125,6 +1260,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
                               <Input placeholder="e.g., 20-50 leads/month" value={formState.leadsPerMonthRange} onChange={(e) => handleInputChange("leadsPerMonthRange", e.target.value)} />
                             </div>
                             <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Qualified Leads Per Month Range</label>
+                              <Input placeholder="e.g., 10-25 qualified leads/month" value={formState.qualifiedLeadsPerMonthRange} onChange={(e) => handleInputChange("qualifiedLeadsPerMonthRange", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
                               <label className="text-sm font-semibold text-gray-800">Close Rate Range</label>
                               <Input placeholder="e.g., 10%-20%" value={formState.closeRateRange} onChange={(e) => handleInputChange("closeRateRange", e.target.value)} />
                             </div>
@@ -1135,8 +1274,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       {captureFormStep === 3 && (
                         <div className="space-y-4">
                           <div className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
-                            <p className="text-sm font-semibold text-gray-900">Optional market context inputs</p>
-                            <p className="mt-1 text-sm text-gray-600">These mainly improve Section 9 and help the engine tailor Sections 8 and 10.</p>
+                            <p className="text-sm font-semibold text-gray-900">Market, segmentation, and business context inputs</p>
+                            <p className="mt-1 text-sm text-gray-600">These improve target-market fit, profitability interpretation, and benchmark-led recommendations.</p>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2 md:col-span-2">
@@ -1151,6 +1290,60 @@ export default function AIBusinessGrowthAnalyzerPage() {
                               <label className="text-sm font-semibold text-gray-800">Current Traffic Per Month Range</label>
                               <Input placeholder="e.g., 1k-5k visits/month" value={formState.currentTrafficPerMonthRange} onChange={(e) => handleInputChange("currentTrafficPerMonthRange", e.target.value)} />
                             </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Countries Served</label>
+                              <Textarea placeholder="e.g., UK, US, Canada" value={formState.countriesServed} onChange={(e) => handleInputChange("countriesServed", e.target.value)} rows={2} />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Customer Segments</label>
+                              <Textarea placeholder="One per line or comma separated. e.g., Marketing agencies, SaaS startups, Local service businesses" value={formState.customerSegments} onChange={(e) => handleInputChange("customerSegments", e.target.value)} rows={3} />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Key Pain Points</label>
+                              <Textarea placeholder="One per line or comma separated. e.g., inconsistent lead quality, slow fulfilment, weak reporting" value={formState.painPoints} onChange={(e) => handleInputChange("painPoints", e.target.value)} rows={3} />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Segment Budgets</label>
+                              <Textarea placeholder="One per line or comma separated. e.g., Agencies: £1k-£5k/month" value={formState.segmentBudgets} onChange={(e) => handleInputChange("segmentBudgets", e.target.value)} rows={3} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Gross Margin %</label>
+                              <Input placeholder="e.g., 40" value={formState.grossMargin} onChange={(e) => handleInputChange("grossMargin", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Retention Rate %</label>
+                              <Input placeholder="e.g., 80" value={formState.retentionRate} onChange={(e) => handleInputChange("retentionRate", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Churn Rate %</label>
+                              <Input placeholder="e.g., 5" value={formState.churnRate} onChange={(e) => handleInputChange("churnRate", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Average Sales Cycle Days</label>
+                              <Input placeholder="e.g., 21" value={formState.salesCycleDays} onChange={(e) => handleInputChange("salesCycleDays", e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-sm font-semibold text-gray-800">Monthly Recurring Revenue</label>
+                              <Input placeholder="e.g., 15000" value={formState.monthlyRecurringRevenue} onChange={(e) => handleInputChange("monthlyRecurringRevenue", e.target.value)} />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Revenue by Service</label>
+                              <Textarea placeholder={`One per line. Example:
+SEO: 12000
+Google Ads: 8000
+Web Development: 6000`} value={formState.revenueByService} onChange={(e) => handleInputChange("revenueByService", e.target.value)} rows={4} />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Revenue by Channel</label>
+                              <Textarea placeholder={`One per line. Example:
+Organic Search: 10000
+Referrals: 7000
+Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInputChange("revenueByChannel", e.target.value)} rows={4} />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <label className="text-sm font-semibold text-gray-800">Additional Business Context</label>
+                              <Textarea placeholder="Anything else that will help the model: delivery constraints, pricing model, retainers vs project work, seasonality, etc." value={formState.additionalContext} onChange={(e) => handleInputChange("additionalContext", e.target.value)} rows={4} />
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1159,7 +1352,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                         <p className="text-sm text-gray-500">
                           {captureFormStep === 1
                             ? "Step 1 is required."
-                            : "Steps 2 and 3 are optional legacy estimation inputs for Sections 8–10."}
+                            : "Steps 2 and 3 are optional but strongly recommended for better Sections 8–10 modeling and benchmark analysis."}
                         </p>
                         <div className="flex flex-col gap-3 sm:flex-row">
                           {captureFormStep > 1 && (

@@ -5,6 +5,7 @@ import asyncio
 import sys
 import logging
 import time
+import re
 
 # Windows + Python 3.13: Playwright (subprocess) requires Proactor loop
 if sys.platform.startswith("win"):
@@ -51,12 +52,17 @@ from app.signals.content_quality import compute_content_quality
 from app.signals.detection_utils import detect_site_type
 from app.signals.keyword_signals import compute_website_keyword_score
 from app.signals.market_demand_signals import build_market_demand_bundle
+from app.signals.business_profile import build_business_profile
+from app.pipeline.section_contexts import build_section_contexts
+from app.llm.business_model_prompts import build_business_model_prompt_guidance
 from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm, build_final_synthesis_with_llm
+from app.llm.client import get_effective_llm_mode
 from app.db.repositories.reports_repo import ReportsRepository
 from app.db.repositories.analysis_cache_repo import AnalysisCacheRepository
 from app.models.requests import AnalyzeRequest, AnalyzeResponse
 from app.pipeline.report_data_validation import validate_report_data
 from app.pipeline.report_post_processing import apply_report_scorecard
+from app.pipeline.action_plan_evidence import build_action_plan_evidence, build_90_day_action_plan_from_evidence
 
 # Screenshots (evidence)
 try:
@@ -86,6 +92,37 @@ except Exception:
     select_key_pages = None  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+def _current_llm_runtime_settings() -> Dict[str, Any]:
+    return {
+        "llmMode": int(getattr(settings, "LLM_MODE", 2)),
+        "effectiveLlmMode": int(get_effective_llm_mode()) if "get_effective_llm_mode" in globals() else int(getattr(settings, "LLM_MODE", 2)),
+        "skipReconcile": bool(getattr(settings, "LLM_SKIP_RECONCILE", True)),
+        "maxPromptChars": int(getattr(settings, "LLM_MAX_PROMPT_CHARS", 18000)),
+        "maxSystemPromptChars": int(getattr(settings, "LLM_MAX_SYSTEM_PROMPT_CHARS", 6000)),
+        "maxUserPromptChars": int(getattr(settings, "LLM_MAX_USER_PROMPT_CHARS", 16000)),
+        "maxTotalPromptChars": int(getattr(settings, "LLM_MAX_TOTAL_PROMPT_CHARS", 18000)),
+        "geminiMaxRetries": int(getattr(settings, "LLM_GEMINI_MAX_RETRIES", 2)),
+        "openaiMaxRetries": int(getattr(settings, "LLM_OPENAI_MAX_RETRIES", 3)),
+        "reconcileMaxRetries": int(getattr(settings, "LLM_RECONCILE_MAX_RETRIES", 1)),
+        "estimationMaxRetries": int(getattr(settings, "LLM_ESTIMATION_MAX_RETRIES", 2)),
+        "finalPatchMaxRetries": int(getattr(settings, "LLM_FINAL_PATCH_MAX_RETRIES", 2)),
+        "reconcileMaxTokens": int(getattr(settings, "LLM_RECONCILE_MAX_TOKENS", 1800)),
+        "estimationStageMaxTokens": int(getattr(settings, "LLM_ESTIMATION_STAGE_MAX_TOKENS", 1800)),
+        "finalExecSummaryMaxTokens": int(getattr(settings, "LLM_FINAL_EXEC_SUMMARY_MAX_TOKENS", 1800)),
+        "finalVisibilityMaxTokens": int(getattr(settings, "LLM_FINAL_VISIBILITY_MAX_TOKENS", 1800)),
+        "finalGrowthMaxTokens": int(getattr(settings, "LLM_FINAL_GROWTH_MAX_TOKENS", 1700)),
+        "finalGrowthCommercialMaxTokens": int(getattr(settings, "LLM_FINAL_GROWTH_COMMERCIAL_MAX_TOKENS", 1800)),
+        "finalActionplanMaxTokens": int(getattr(settings, "LLM_FINAL_ACTIONPLAN_MAX_TOKENS", 2000)),
+        "minCallGapMs": int(getattr(settings, "LLM_MIN_CALL_GAP_MS", 1500)),
+    }
+
+
+def _log_llm_runtime_settings() -> None:
+    if not bool(getattr(settings, "LLM_LOG_RUNTIME_SETTINGS", True)):
+        return
+    logger.warning("[LLM_DEBUG] runtime_settings=%s", _current_llm_runtime_settings())
+
 
 
 def _domain_from_url(url: str) -> str:
@@ -159,6 +196,69 @@ def _extract_sitemap_urls(robots_sitemap: Dict[str, Any]) -> list[str]:
             return [str(x) for x in v if isinstance(x, str) and x.strip()]
     # Sometimes checker may return a single sitemap URL only
     return []
+
+
+def _stabilize_normalized_financials(financials: Dict[str, Any], estimation_inputs: Any | None = None) -> Dict[str, Any]:
+    out = dict(financials or {})
+
+    def _n(v: Any) -> float | None:
+        if v in (None, ""):
+            return None
+        try:
+            return float(v)
+        except Exception:
+            try:
+                return float(str(v).replace(",", "").strip())
+            except Exception:
+                return None
+
+    ei = ensure_dict(estimation_inputs)
+    if not out:
+        return out
+
+    def _mid_from_range(key: str) -> float | None:
+        return _parse_range_string(ei.get(key))
+
+    revenue = _n(out.get("monthlyRevenue") or out.get("monthlyRecurringRevenue"))
+    if revenue is not None and revenue < 1000:
+        ranged = _mid_from_range("monthlyRevenueRange")
+        if ranged and ranged >= 1000:
+            revenue = ranged
+            out["monthlyRevenue"] = ranged
+            out["monthlyRecurringRevenue"] = ranged
+
+    leads = _n(out.get("monthlyLeads") or out.get("qualifiedLeadsPerMonth") or out.get("qualifiedLeads"))
+    close_rate = _n(out.get("closeRate"))
+    if close_rate is not None and close_rate > 1:
+        close_rate = close_rate / 100.0
+        out["closeRate"] = close_rate
+    avg_deal = _n(out.get("avgDealValue"))
+    if (revenue is None or revenue < 1000) and leads and close_rate and avg_deal:
+        modeled = leads * close_rate * avg_deal
+        if modeled >= 1000:
+            revenue = modeled
+            out["monthlyRevenue"] = modeled
+            out.setdefault("monthlyRecurringRevenue", modeled)
+
+    if revenue and revenue >= 1000:
+        payroll = _n(out.get("monthlyPayrollCost"))
+        tools = _n(out.get("monthlyToolsCost"))
+        overhead = _n(out.get("monthlyOverheadCost"))
+        payroll_range = _mid_from_range("monthlyPayrollCostRange")
+        tools_range = _mid_from_range("monthlyToolsCostRange")
+        overhead_range = _mid_from_range("monthlyOverheadCostRange")
+        if (payroll is not None and payroll < 1000) or payroll is None:
+            out["monthlyPayrollCost"] = payroll_range if payroll_range and payroll_range >= 1000 else round(revenue * 0.5)
+        if (tools is not None and tools < 1000) or tools is None:
+            out["monthlyToolsCost"] = tools_range if tools_range and tools_range >= 1000 else max(1500, round(revenue * 0.04))
+        if (overhead is not None and overhead < 1000) or overhead is None:
+            out["monthlyOverheadCost"] = overhead_range if overhead_range and overhead_range >= 1000 else max(3000, round(revenue * 0.1))
+
+    if out.get("qualifiedLeadsPerMonth") in (None, "") and out.get("qualifiedLeads") not in (None, ""):
+        out["qualifiedLeadsPerMonth"] = out.get("qualifiedLeads")
+    if out.get("qualifiedLeads") in (None, "") and out.get("qualifiedLeadsPerMonth") not in (None, ""):
+        out["qualifiedLeads"] = out.get("qualifiedLeadsPerMonth")
+    return out
 
 
 def _classify_page_type(url: str) -> str | None:
@@ -665,6 +765,58 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         except Exception:
             payload_dict = {}
 
+    # Business / financial inputs must be available before llm_context is built
+    # and before Sections 8–10 estimation runs.
+    user_financials = payload_dict.get("businessInputs") or payload_dict.get("optionalBusinessInputs")
+    if not isinstance(user_financials, dict):
+        user_financials = {}
+
+    def _should_replace_with_parsed(existing: Any, parsed: Any, key: str) -> bool:
+        if parsed is None:
+            return False
+        if existing in (None, "", 0, 0.0):
+            return True
+        try:
+            existing_num = float(existing)
+            parsed_num = float(parsed)
+        except Exception:
+            return False
+        monetary_like = {
+            "monthlyRevenue", "monthlyAdSpend", "avgDealValue", "monthlyPayrollCost",
+            "monthlyToolsCost", "monthlyOverheadCost", "monthlyRecurringRevenue"
+        }
+        if key in monetary_like and parsed_num >= 1000 and existing_num > 0 and parsed_num / max(existing_num, 1.0) >= 100:
+            return True
+        if key == "qualifiedLeadsPerMonth" and existing_num <= 0 and parsed_num > 0:
+            return True
+        return False
+
+    # Also merge estimationInputs into user_financials so the deterministic
+    # estimation engine can use any range or numeric inputs from the request.
+    estimation_inputs_raw = payload_dict.get("estimationInputs")
+    if isinstance(estimation_inputs_raw, dict) and estimation_inputs_raw:
+        # Import locally to avoid circular import issues
+        try:
+            from app.llm.report_builder import _estimation_inputs_to_financials
+            parsed_ei = _estimation_inputs_to_financials(estimation_inputs_raw)
+            if parsed_ei:
+                # Start with parsed estimation inputs, then merge explicit user values.
+                merged_financials = dict(parsed_ei)
+                for key, value in user_financials.items():
+                    if _should_replace_with_parsed(value, parsed_ei.get(key), key):
+                        merged_financials[key] = parsed_ei.get(key)
+                    else:
+                        merged_financials[key] = value
+                # Backfill any remaining parsed fields that were absent in businessInputs.
+                for key, value in parsed_ei.items():
+                    if key not in merged_financials or merged_financials.get(key) in (None, ""):
+                        merged_financials[key] = value
+                user_financials = merged_financials
+        except Exception:
+            pass  # Non-fatal — deterministic engine will use model-specific defaults
+
+    sec_8_10: Dict[str, Any] | None = None
+
     # Cache
     cache_repo = AnalysisCacheRepository()
     cache_enabled = bool(getattr(settings, "CACHE_ENABLED", True))
@@ -1042,7 +1194,74 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         pass
 
-    rep_section = ensure_dict(build_reputation_signals(reviews_scraped))
+    rep_section = ensure_dict(build_reputation_signals(
+        reviews_scraped,
+        company_name=company,
+        website=website,
+        homepage=homepage,
+        services=[],
+        target_market=top_target_market or criteria.get("targetMarket"),
+        location=top_location or criteria.get("location"),
+    ))
+
+
+    # Ensure Google Places company profile is surfaced in the final reputation section
+    try:
+        company_place = ensure_dict(google_places_bundle.get("company")) if isinstance(google_places_bundle, dict) else {}
+        gp_rating = company_place.get("rating")
+        gp_total = company_place.get("user_ratings_total")
+        if gp_rating is not None or gp_total is not None:
+            platforms = ensure_list(rep_section.get("platforms"))
+            normalized_platforms = []
+            google_found = False
+            for item in platforms:
+                row = ensure_dict(item)
+                platform_name = str(row.get("platform") or row.get("name") or "").strip()
+                if platform_name.lower() == "google":
+                    google_found = True
+                    row["platform"] = "Google"
+                    if gp_rating is not None:
+                        row["rating"] = gp_rating
+                    if gp_total is not None:
+                        row["reviewCount"] = int(gp_total)
+                        row["reviews"] = int(gp_total)
+                        row["totalReviews"] = int(gp_total)
+                normalized_platforms.append(row)
+            if not google_found:
+                normalized_platforms.insert(0, {
+                    "platform": "Google",
+                    "rating": gp_rating,
+                    "reviewCount": int(gp_total) if gp_total is not None else 0,
+                    "reviews": int(gp_total) if gp_total is not None else 0,
+                    "totalReviews": int(gp_total) if gp_total is not None else 0,
+                    "url": company_place.get("website"),
+                })
+            rep_section["platforms"] = normalized_platforms
+            rep_section["summaryTable"] = normalized_platforms
+            try:
+                rep_section["reviewScore"] = float(gp_rating) if gp_rating is not None else rep_section.get("reviewScore")
+            except Exception:
+                pass
+            if gp_total is not None:
+                rep_section["totalReviews"] = int(gp_total)
+            notes = str(rep_section.get("notes") or "").strip()
+            gp_note = f"Google profile detected via Places API with rating {gp_rating} across {int(gp_total) if gp_total is not None else 0} review(s)." if gp_rating is not None else ""
+            if gp_note and gp_note.lower() not in notes.lower():
+                rep_section["notes"] = (notes + " " + gp_note).strip()
+
+            local_seo = ensure_dict(seo_section.get("localSeo") or seo_section.get("localSEO"))
+            local_seo["gbpStatus"] = "Detected"
+            if gp_rating is not None or gp_total is not None:
+                local_seo["reviewsSummary"] = f"Google rating {gp_rating} from {int(gp_total) if gp_total is not None else 0} review(s)."
+            current_listings = ensure_list(local_seo.get("currentListings"))
+            if "Google Business Profile" not in current_listings:
+                current_listings.insert(0, "Google Business Profile")
+            local_seo["currentListings"] = current_listings
+            missing_listings = [x for x in ensure_list(local_seo.get("missingListings")) if str(x).strip().lower() != "google business profile"]
+            local_seo["missingListings"] = missing_listings
+            seo_section["localSeo"] = local_seo
+    except Exception:
+        logger.exception("[Pipeline] google reputation surface merge failed")
 
 
     # Own-site content pages (best-effort, cached)
@@ -1149,7 +1368,20 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     # Refresh content-quality with the richer page set once content pages are available.
     try:
-        refreshed_cq = compute_content_quality(homepage, own_pages or [], site_type=business_site_type)
+        refreshed_cq = compute_content_quality(
+            homepage,
+            own_pages or [],
+            site_type=business_site_type,
+            company_name=company,
+            website=website,
+            services=[
+                str(item.get("name"))
+                for item in ensure_list(services_section.get("services"))
+                if isinstance(item, dict) and item.get("name")
+            ],
+            target_market=(criteria.get("targetMarket") or top_target_market),
+            location=(criteria.get("location") or top_location),
+        )
         website_section["contentQuality"] = {
             "score": refreshed_cq.get("score", 0),
             "strengths": refreshed_cq.get("strengths", []),
@@ -1199,6 +1431,10 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             screenshots_text=screenshot_text,
             site_type=business_site_type,
             page_registry=page_registry,
+            company_name=company,
+            website=website,
+            target_market=(criteria.get("targetMarket") or top_target_market),
+            location=(criteria.get("location") or top_location),
         )
     )
     leadgen_section = ensure_dict(
@@ -1207,6 +1443,15 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             links,
             site_type=business_site_type,
             page_registry=page_registry,
+            company_name=company,
+            website=website,
+            services=[
+                str(item.get("name"))
+                for item in ensure_list(services_section.get("services"))
+                if isinstance(item, dict) and item.get("name")
+            ],
+            target_market=(criteria.get("targetMarket") or top_target_market),
+            location=(criteria.get("location") or top_location),
         )
     )
 
@@ -1236,6 +1481,45 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             "opportunities": [],
         }
     website_section["websiteKeywordAnalysis"] = keyword_analysis
+
+    # If market-demand seeding ran before services were available, try one deterministic backfill now
+    # using the detected services/page-registry context so Section 10 and appendices are not empty.
+    try:
+        md_keywords = ensure_list((market_demand_bundle or {}).get("keywords")) if isinstance(market_demand_bundle, dict) else []
+        if not md_keywords:
+            md_services: List[str] = []
+            for s in ensure_list(services_section.get("services")):
+                if isinstance(s, dict):
+                    nm = s.get("name") or s.get("title")
+                    if nm:
+                        md_services.append(str(nm).strip())
+                elif isinstance(s, str) and s.strip():
+                    md_services.append(s.strip())
+            if not md_services:
+                for s in ensure_list(services_section.get("serviceCandidates")):
+                    if isinstance(s, str) and s.strip():
+                        md_services.append(s.strip())
+            if not md_services:
+                for s in ensure_list(service_candidate_urls):
+                    if isinstance(s, str) and s.strip():
+                        md_services.append(s.strip())
+            md_services = [s for s in dict.fromkeys([x.strip() for x in md_services if isinstance(x, str) and x.strip()]).keys()]
+            if md_services:
+                rebuilt_market_demand = ensure_dict(
+                    build_market_demand_bundle(
+                        services=md_services[: max(5, min(12, int(getattr(settings, "MARKET_DEMAND_MAX_SERVICES", 10) or 10)))],
+                        criteria=criteria,
+                        d4s_enrichment=d4s_enrichment,
+                        max_keywords=int(getattr(settings, "MARKET_DEMAND_MAX_KEYWORDS", 20) or 20),
+                        serp_depth=int(getattr(settings, "MARKET_DEMAND_SERP_DEPTH", 10) or 10),
+                    )
+                )
+                if rebuilt_market_demand:
+                    market_demand_bundle = rebuilt_market_demand
+                    if cache_enabled:
+                        cache_repo.upsert_section(cache_key, "market_demand", market_demand_bundle)
+    except Exception as e:
+        logger.warning("[Pipeline] market demand backfill failed, continuing: %s", str(e))
 
     # try:
     #     logger.info(
@@ -1421,6 +1705,13 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             "upcity.com",
             "bark.com",
             "threebestrated.com",
+            "indiamart.com",
+            "tradeindia.com",
+            "justdial.com",
+            "sulekha.com",
+            "upwork.com",
+            "fiverr.com",
+            "freelancer.com",
         }
 
         def _is_social(d: str) -> bool:
@@ -1647,6 +1938,54 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     }
 
     overall = compute_overall(subs)
+
+    # -------------------------
+    # Business-model-aware context (new architecture)
+    # -------------------------
+    try:
+        business_profile = build_business_profile(
+            homepage=homepage,
+            own_pages=own_pages,
+            services_signals=services_section,
+            leadgen_signals=leadgen_section,
+            reputation_signals=rep_section,
+            seo_signals=seo_section,
+            user_inputs={
+                "companyName": company,
+                "website": website,
+                "industry": (payload.industry or None),
+                "location": (criteria.get("location") or top_location or None),
+                "targetMarket": (criteria.get("targetMarket") or top_target_market or None),
+                "businessGoal": (criteria.get("businessGoal") or top_business_goal or None),
+            },
+            criteria=criteria,
+        )
+    except Exception as e:
+        logger.warning("[Pipeline] business profile build failed, continuing: %s", str(e))
+        business_profile = {}
+
+    try:
+        section_contexts = build_section_contexts(
+            business_profile=business_profile,
+            website_signals=website_section,
+            seo_signals=seo_section,
+            reputation_signals=rep_section,
+            services_signals=services_section,
+            leadgen_signals=leadgen_section,
+            market_demand=market_demand_bundle,
+            user_financials=user_financials,
+            page_registry=page_registry,
+        )
+    except Exception as e:
+        logger.warning("[Pipeline] section contexts build failed, continuing: %s", str(e))
+        section_contexts = {}
+
+    try:
+        business_model_prompt_guidance = build_business_model_prompt_guidance(business_profile)
+    except Exception as e:
+        logger.warning("[Pipeline] business model prompt guidance build failed, continuing: %s", str(e))
+        business_model_prompt_guidance = {}
+
 
     # -------------------------
     # Executive Summary helpers (deterministic, evidence-backed)
@@ -1984,6 +2323,23 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     action_plan_90, competitive_adv, risk_assessment = _derive_option_a_sections()
 
+    try:
+        planning_report_context = {
+            "websiteDigitalPresence": website_section,
+            "seoVisibility": seo_section,
+            "reputation": rep_section,
+            "leadGeneration": leadgen_section,
+            "costOptimization": {},
+            "targetMarket": {},
+            "financialImpact": {},
+        }
+        planning_evidence = build_action_plan_evidence(planning_report_context)
+        evidence_plan = build_90_day_action_plan_from_evidence(planning_report_context, planning_evidence)
+        if isinstance(evidence_plan, list) and evidence_plan:
+            action_plan_90 = evidence_plan
+    except Exception as e:
+        logger.warning("[Pipeline] enhanced 90-day planning fallback used due to: %s", str(e))
+
     # -------------------------
     # Quick Wins (deterministic): prioritize fixes that improve discoverability + conversion.
     # -------------------------
@@ -2138,6 +2494,12 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "actionPlan90Days": action_plan_90,
         "competitiveAdvantages": competitive_adv,
         "riskAssessment": risk_assessment,
+        "meta": {
+            "businessProfile": business_profile,
+            "sectionContexts": section_contexts,
+            "businessModelPromptGuidance": business_model_prompt_guidance,
+            "reportToneProfile": ensure_dict(business_profile).get("reportToneProfile") if isinstance(business_profile, dict) else {},
+        },
         "appendices": {
             "keywords": [],
             "dataSources": [
@@ -2165,6 +2527,82 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             },
         },
     }
+
+
+    # Backfill PDF-friendly appendix shapes so the current PDF generator can render them without guessing.
+    try:
+        pr_counts = ensure_dict(page_registry.get("counts")) if isinstance(page_registry, dict) else {}
+        pr_pages = ensure_dict(page_registry.get("pages")) if isinstance(page_registry, dict) else {}
+
+        key_pages_detected = []
+        for key in ["about", "contact", "services", "proof", "pricing", "faq", "blog"]:
+            info = ensure_dict(pr_pages.get(key))
+            present = bool(info.get("present") or info.get("servicesPagePresent") or info.get("primary"))
+            primary_url = info.get("primary")
+            key_pages_detected.append(
+                {"page": key.title(), "present": "Yes" if present else "No", "primaryUrl": primary_url or "-"}
+            )
+
+        base_report["appendices"]["crawlRegistrySummary"] = {
+            "mergedLinks": pr_counts.get("merged") or len(ensure_dict(page_registry).get("sourcesByUrl") or {}),
+            "crawl": pr_counts.get("crawl") or len(crawl_urls),
+            "sitemap": pr_counts.get("sitemap") or len(sitemap_urls),
+            "serviceCandidates": pr_counts.get("service_candidates") or len(service_candidate_urls),
+            "contentPages": len(crawl_urls),
+        }
+        base_report["appendices"]["keyPagesDetected"] = key_pages_detected
+        base_report["appendices"]["extractionSnapshot"] = {
+            "siteType": ensure_dict(links).get("site_type") or business_site_type,
+            "playwrightEnabled": bool(getattr(settings, "USE_PLAYWRIGHT_FOR_CONTENT_PAGES", True)),
+            "seleniumEnabled": False,
+            "contentPagesUsed": len(crawl_urls),
+            "pagesCrawled": (crawl_urls or ensure_list(internal_links_site))[:10],
+        }
+
+        evidence = ensure_dict(base_report["appendices"].get("evidence"))
+        evidence["crawlRegistrySummary"] = base_report["appendices"]["crawlRegistrySummary"]
+        evidence["keyPagesDetected"] = key_pages_detected
+        evidence["extractionSnapshot"] = base_report["appendices"]["extractionSnapshot"]
+        shots_root = ensure_dict(screenshots_bundle)
+        shots = ensure_dict(shots_root.get("screenshots")) or shots_root
+        shot_items = []
+        evidence_screenshots = {}
+        for variant in ("desktop", "mobile"):
+            shot = ensure_dict(shots.get(variant))
+            if not shot:
+                continue
+            evidence_screenshots[variant] = shot
+            if isinstance(shot.get("b64"), str) and shot.get("b64"):
+                shot_items.append(
+                    {
+                        "label": shot.get("title") or f"{variant.title()} Screenshot",
+                        "format": shot.get("format") or "png",
+                        "b64": shot.get("b64"),
+                        "width": shot.get("width"),
+                        "height": shot.get("height"),
+                        "fullPage": bool(shot.get("fullPage", True)),
+                    }
+                )
+            for slice_item in ensure_list(shot.get("slices")):
+                s = ensure_dict(slice_item)
+                if isinstance(s.get("b64"), str) and s.get("b64"):
+                    shot_items.append(
+                        {
+                            "label": f"{shot.get('title') or variant.title()} {s.get('index') or ''}".strip(),
+                            "format": s.get("format") or shot.get("format") or "png",
+                            "b64": s.get("b64"),
+                            "width": s.get("width"),
+                            "height": s.get("height"),
+                            "fullPage": bool(shot.get("fullPage", True)),
+                        }
+                    )
+        if shot_items:
+            base_report["appendices"]["evidenceScreenshots"] = shot_items
+        if evidence_screenshots:
+            evidence["screenshots"] = evidence_screenshots
+        base_report["appendices"]["evidence"] = evidence
+    except Exception:
+        pass
 
     # ---- Data gaps
     data_gaps: list[dict[str, Any]] = []
@@ -2337,6 +2775,10 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "reputationSignals": rep_section,
         "dataforseo": d4s_enrichment,
         "marketDemand": market_demand_bundle,
+        "businessProfile": business_profile,
+        "sectionContexts": section_contexts,
+        "businessModelPromptGuidance": business_model_prompt_guidance,
+        "reportToneProfile": ensure_dict(business_profile).get("reportToneProfile") if isinstance(business_profile, dict) else {},
 
         # High-signal user inputs (helps the LLM tie recommendations to intent/region)
         "userInputs": {
@@ -2350,6 +2792,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
         # Estimation mode (Sections 8–10)
         # When disabled, the LLM must not model costs/revenue; we enforce that again after merge.
+        "runtimeControls": _current_llm_runtime_settings(),
+
         "estimationMode": bool(getattr(payload, "estimationMode", False)),
         "estimationInputs": (
             # Pydantic v2: model_dump(); v1: dict()
@@ -2361,12 +2805,15 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         ),
     }
 
+    logger.warning("[LLM_DEBUG] orchestrator effective_llm_mode_pre_reconcile=%s", get_effective_llm_mode() if "get_effective_llm_mode" in globals() else "n/a")
+    logger.warning("[LLM_DEBUG] entering reconcile")
     try:
         llm_report = build_report_with_llm(base_report, llm_context, cache_repo=cache_repo, cache_key=cache_key)
     except Exception:
         llm_report = None
 
     llm_report = ensure_dict(llm_report)
+    logger.warning("[LLM_DEBUG] reconcile result keys=%s", list(llm_report.keys()) if isinstance(llm_report, dict) else None)
 
     # Executive summary should be produced in the FINAL synthesis pass (mentor tone)
     # using the FULL merged report (including Sections 8–10 + market demand, etc.).
@@ -2379,27 +2826,60 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     # Sections 8–10 are optional. When enabled, generate them via LLM and
     # merge into the final report dict. This prevents PDFs showing "No data
     # available" for those sections when the pipeline has enough context.
-    if payload_dict.get("includeSections8to10", True) and bool(payload_dict.get("estimationMode", False)):
+    if bool(getattr(settings, "LLM_ENABLE_SECTIONS_8_10_LLM", True)) and payload_dict.get("includeSections8to10", True) and bool(payload_dict.get("estimationMode", False)):
+        logger.warning("[LLM_DEBUG] entering sections_8_10 effective_llm_mode=%s", get_effective_llm_mode())
         try:
-            sec_8_10 = build_sections_8_10_with_llm(llm_context, cache_repo=cache_repo, cache_key=cache_key)
+            sec_8_10 = build_sections_8_10_with_llm(
+                llm_context,
+                base_report=merged,
+                reconcile_patch=llm_report,
+                cache_repo=cache_repo,
+                cache_key=cache_key,
+            )
+            logger.warning("[LLM_DEBUG] sections_8_10 result keys=%s", list(sec_8_10.keys()) if isinstance(sec_8_10, dict) else None)
+            logger.warning("[LLM_DEBUG] sections_8_10 source=%s", "llm_or_fallback")
             merged = deep_merge(merged, sec_8_10)
         except Exception:
             logger.exception("[Pipeline] sections 8–10 generation failed; continuing with base report")
 
 
     # Final premium synthesis pass: upgrades mentor tone (Section 1 + 90-day plan + notes)
+    logger.warning("[LLM_DEBUG] entering final_synthesis effective_llm_mode=%s", get_effective_llm_mode())
+    if bool(getattr(settings, "LLM_ENABLE_FINAL_SYNTHESIS", True)):
+        try:
+            merged = build_final_synthesis_with_llm(
+                merged,
+                llm_context,
+                reconcile_patch=llm_report,
+                sections_8_10=sec_8_10 if isinstance(sec_8_10, dict) else None,
+                cache_repo=cache_repo,
+                cache_key=cache_key,
+            )
+        except Exception:
+            logger.exception("[Pipeline] final synthesis failed; continuing with merged report")
+    else:
+        logger.warning("[Pipeline] final synthesis disabled by settings")
+
     try:
-        merged = build_final_synthesis_with_llm(merged, llm_context, cache_repo=cache_repo, cache_key=cache_key)
+        enhanced_evidence = build_action_plan_evidence(merged if isinstance(merged, dict) else {})
+        enhanced_plan = build_90_day_action_plan_from_evidence(merged if isinstance(merged, dict) else {}, enhanced_evidence)
+        if isinstance(merged, dict) and enhanced_plan:
+            merged["actionPlan90Days"] = enhanced_plan
+            merged.setdefault("meta", {})["planningEvidence"] = enhanced_evidence
     except Exception:
-        logger.exception("[Pipeline] final synthesis failed; continuing with merged report")
-    user_financials = payload_dict.get("businessInputs") or payload_dict.get("optionalBusinessInputs")
+        logger.exception("[Pipeline] enhanced post-LLM 90-day planning failed; keeping prior action plan")
     if isinstance(merged, dict):
         merged["meta"] = deep_merge(
             ensure_dict(merged.get("meta")),
             {
+                "runtimeControls": _current_llm_runtime_settings() if bool(getattr(settings, "LLM_INCLUDE_RUNTIME_META", True)) else {},
                 "estimationMode": bool(payload_dict.get("estimationMode")),
                 "estimationInputs": payload_dict.get("estimationInputs"),
                 "userFinancials": user_financials if isinstance(user_financials, dict) else None,
+                "businessProfile": business_profile,
+                "sectionContexts": section_contexts,
+                "businessModelPromptGuidance": business_model_prompt_guidance,
+                "reportToneProfile": ensure_dict(business_profile).get("reportToneProfile") if isinstance(business_profile, dict) else {},
             },
         )
     merged = validate_report_data(merged)
@@ -2410,6 +2890,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
     meta = {
         "reportId": report_id,
+        "llmRuntime": _current_llm_runtime_settings() if bool(getattr(settings, "LLM_INCLUDE_RUNTIME_META", True)) else {},
         "website": website,
         "company": company,
         "createdAt": datetime.utcnow().isoformat() + "Z",

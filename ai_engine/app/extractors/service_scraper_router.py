@@ -1,15 +1,40 @@
 from __future__ import annotations
 
-import logging
 import asyncio
+import logging
 from typing import Any, Dict, List, Optional
 
 from app.llm.client import get_effective_llm_mode
-
-# fallback heuristic scraper
 from app.extractors.service_scraper_ext import scrape_services as scrape_services_heuristic
 
 logger = logging.getLogger(__name__)
+
+
+def _merge_services(*service_lists: Any) -> List[Dict[str, Any]]:
+    merged: List[Dict[str, Any]] = []
+    seen = set()
+    for bucket in service_lists:
+        if not isinstance(bucket, list):
+            continue
+        for item in bucket:
+            if not isinstance(item, dict):
+                continue
+            name = str(item.get("name") or "").strip()
+            if not name:
+                continue
+            key = name.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            merged.append(
+                {
+                    "name": name,
+                    "description": str(item.get("description") or "").strip() or None,
+                    "category": str(item.get("category") or "").strip() or None,
+                    "source": item.get("source") or None,
+                }
+            )
+    return merged
 
 
 async def scrape_services_auto(
@@ -21,37 +46,36 @@ async def scrape_services_auto(
     timeout: int = 90,
     url_hints: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
-    """Service scraper router with safe fallbacks."""
+    """Service scraper router with safe fallbacks.
 
-    mode = int(get_effective_llm_mode() or 2)
+    Production behavior:
+    - In safe mode, use heuristic extractor only.
+    - In richer mode, try LLM extraction but ALWAYS merge with heuristic extraction.
+      This prevents empty or overly-thin service menus from collapsing downstream Sections 5 / 8 / 9.
+    """
 
-    if mode == 1:
-        return scrape_services_heuristic(
-            website_url,
-            internal_links=internal_links or [],
-            max_pages=max_pages,
-            timeout=timeout,
-            url_hints=url_hints,
-        ) or []
-
-    # Mode 2: try LLM extraction (then fallback)
-    try:
-        from app.extractors.service_scraper_llm import scrape_services_llm
-
-        llm_out = await scrape_services_llm(website_url, homepage_html=homepage_html, timeout_s=timeout)
-        services = llm_out.get("services") if isinstance(llm_out, dict) else None
-        if isinstance(services, list) and services:
-            return [s for s in services if isinstance(s, dict) and s.get("name")]
-    except Exception as e:
-        logger.warning("[Services] Mode2 extraction failed, falling back to heuristic: %s", str(e))
-
-    return scrape_services_heuristic(
+    heuristic = scrape_services_heuristic(
         website_url,
         internal_links=internal_links or [],
         max_pages=max_pages,
         timeout=timeout,
         url_hints=url_hints,
     ) or []
+
+    mode = int(get_effective_llm_mode() or 2)
+    if mode == 1:
+        return heuristic
+
+    try:
+        from app.extractors.service_scraper_llm import scrape_services_llm
+
+        llm_out = await scrape_services_llm(website_url, homepage_html=homepage_html, timeout_s=timeout)
+        llm_services = llm_out.get("services") if isinstance(llm_out, dict) else []
+        merged = _merge_services(llm_services, heuristic)
+        return merged or heuristic
+    except Exception as exc:
+        logger.warning("[Services] Mode2 extraction failed, falling back to heuristic: %s", exc)
+        return heuristic
 
 
 def scrape_services_auto_sync(
@@ -63,7 +87,6 @@ def scrape_services_auto_sync(
     timeout: int = 90,
     url_hints: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
-    """Sync wrapper for pipeline code."""
     try:
         loop = asyncio.get_event_loop()
         if loop.is_running():

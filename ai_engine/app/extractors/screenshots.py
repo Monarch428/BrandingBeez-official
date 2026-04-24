@@ -235,7 +235,22 @@ async def _capture_variant(browser: Any, url: str, kind: str, timeout_sec: int) 
         except Exception:
             logger.debug("[Screenshots] overlay removal failed", exc_info=True)
         await page.wait_for_timeout(150)
-        data = await page.screenshot(full_page=True, type="png", animations="disabled")
+        screenshot_timeout_ms = max(30000, int(getattr(settings, "SCREENSHOT_CAPTURE_TIMEOUT_MS", timeout_sec * 1000) or (timeout_sec * 1000)))
+        try:
+            data = await page.screenshot(
+                full_page=True,
+                type="png",
+                animations="disabled",
+                timeout=screenshot_timeout_ms,
+            )
+        except Exception:
+            logger.warning("[Screenshots] page=%s variant=%s full_page capture failed; retrying viewport-only", url, kind, exc_info=True)
+            data = await page.screenshot(
+                full_page=False,
+                type="png",
+                animations="disabled",
+                timeout=screenshot_timeout_ms,
+            )
         logger.info("[Screenshots] page=%s variant=%s success=True", url, kind)
         return kind, _slice_screenshot_for_pdf(data, kind)
     except Exception:

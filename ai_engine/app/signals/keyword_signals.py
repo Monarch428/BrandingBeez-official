@@ -5,6 +5,7 @@ from typing import Any, Dict, Iterable, List, Tuple
 import re
 
 from app.signals.detection_utils import deduplicate_list_preserve_order
+from app.pipeline.recommendation_engine import build_missing_h1_recommendation, derive_site_context
 
 
 STOPWORDS = {
@@ -12,6 +13,50 @@ STOPWORDS = {
     "in", "on", "at", "by", "is", "are", "be", "we", "it", "this", "that", "as", "or",
     "home", "page", "official", "welcome", "best", "top", "more", "all",
 }
+
+# Phrases that should NEVER appear as keyword opportunities — they are hero copy,
+# slogans, section labels, navigation items, or generic CTA text, not search queries.
+_GENERIC_KEYWORD_BLACKLIST = {
+    # Common hero/tagline patterns
+    "our services", "driving digital", "digital success", "innovation", "quality excellence",
+    "what we do", "how we help", "who we are", "our work", "our team", "our story",
+    "our mission", "meet the team", "about us", "contact us", "get started",
+    "learn more", "find out more", "discover more", "click here", "read more",
+    "why choose", "what we offer", "what can we help", "let us help", "ready to",
+    "build real", "grow sustainably", "unlock opportunities",
+    # Generic section dividers
+    "featured", "latest", "recent", "popular", "new", "trending",
+    "testimonials", "reviews", "case studies", "portfolio", "projects",
+    "blog", "insights", "resources", "news", "media",
+    "faq", "faqs", "frequently asked", "pricing", "packages",
+    "starter boost", "growth accelerator", "online dominator", "market mastery",
+    # Social land specific noise
+    "what we do best", "free stuff that helps", "social land stats", "our client reviews",
+    "your local digital", "choose your services", "execution by our expert team",
+    "continuous growth", "our flexible pricing",
+}
+
+
+def _is_generic_keyword(phrase: str) -> bool:
+    """Return True if the keyword candidate is a generic phrase or slogan, not a search term."""
+    if not phrase or len(phrase) < 3:
+        return True
+    normalized = re.sub(r"\s+", " ", phrase.strip().lower())
+    # Exact match against blacklist
+    if normalized in _GENERIC_KEYWORD_BLACKLIST:
+        return True
+    # Partial match — starts with blacklisted phrase
+    for blocked in _GENERIC_KEYWORD_BLACKLIST:
+        if normalized.startswith(blocked) or normalized.endswith(blocked):
+            return True
+    # Very long phrases (> 6 words) are slogans, not search queries
+    if len(normalized.split()) > 6:
+        return True
+    # Phrases that are all stopwords
+    words = normalized.split()
+    if all(w in STOPWORDS for w in words):
+        return True
+    return False
 
 COMMERCIAL_TOKENS = {
     "service", "services", "agency", "company", "hire", "pricing", "quote", "consultation",
@@ -108,6 +153,8 @@ def extract_keyword_candidates(
 
     candidates.extend([term for term, count in body_counter.most_common(20) if count >= 2])
     candidates = [candidate for candidate in candidates if candidate and len(candidate) >= 3]
+    # Filter out generic phrases, slogans, and non-search-query text
+    candidates = [c for c in candidates if not _is_generic_keyword(c)]
     return deduplicate_list_preserve_order(candidates)[:40]
 
 
@@ -285,6 +332,10 @@ def compute_website_keyword_score(
     site_type: str,
     keyword_sources: Dict[str, Any] | None = None,
     page_registry: Any = None,
+    company_name: str | None = None,
+    website: str | None = None,
+    target_market: str | None = None,
+    location: str | None = None,
 ) -> Dict[str, Any]:
     keyword_sources = keyword_sources or {}
 
@@ -382,10 +433,61 @@ def compute_website_keyword_score(
     gaps = [gap for gap in gaps if gap][:5]
 
     recommendations: List[str] = []
+    recommendation_details: List[Dict[str, Any]] = []
+    action_candidates: List[Dict[str, Any]] = []
+    site_context = derive_site_context(
+        company_name=company_name or "",
+        website=website or (homepage.get("url") or ""),
+        homepage=homepage or {},
+        services=services or [],
+        target_market=target_market,
+        location=location,
+    )
     if presence_score < 65:
-        recommendations.append("Add the primary keyword theme to the homepage title, meta description, and H1 in a consistent way.")
+        h1_detail = build_missing_h1_recommendation(
+            page_url=homepage.get("url") or "/",
+            page_label="homepage",
+            site_context=site_context,
+            primary_keywords=keyword_candidates[:3],
+        )
+        recommendation_details.append(h1_detail)
+        recommendations.append(f"Strengthen homepage keyword alignment in the title, meta description, and hero H1. Suggested H1s: {', '.join(h1_detail.get('suggestedVariants', [])[:3])}.")
+        action_candidates.append({
+            "title": "Align homepage metadata and H1 to the primary keyword cluster",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "low",
+            "urgency": "high",
+            "confidence": 0.9,
+            "pillar": "seo",
+            "kpis": ["ranking keyword count", "organic CTR"],
+            "details": h1_detail,
+        })
     if coverage_score < 65:
-        recommendations.append("Map one primary keyword cluster to each important page and expand supporting coverage on service or topic pages.")
+        mapped_pages = [f"/{re.sub(r'[^a-z0-9]+','-', str(k).lower()).strip('-')}" for k in missing_keywords[:4]]
+        detail = {
+            "issue": "keyword_page_mapping",
+            "severity": "high",
+            "placement": "Homepage, navigation, and service/topic pages",
+            "recommendation": "Map one primary keyword cluster to each important page and create missing pages for high-intent terms.",
+            "why": "Keyword themes are missing from important pages, so the site is not giving search engines or buyers a clear page-level intent map.",
+            "suggestedVariants": mapped_pages,
+            "supportingBlocks": ["H1", "intro copy", "FAQs", "CTA section"],
+            "expectedOutcome": "More ranking-ready pages and clearer topic ownership across the site.",
+        }
+        recommendation_details.append(detail)
+        recommendations.append(f"Create or strengthen pages around the highest-value missing keywords. Suggested page targets: {', '.join(mapped_pages[:4])}.")
+        action_candidates.append({
+            "title": "Build keyword-to-page map for commercial opportunities",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.85,
+            "pillar": "seo",
+            "kpis": ["indexed target pages", "non-brand visibility"],
+            "details": detail,
+        })
     if distribution_score < 60:
         recommendations.append("Spread target keywords more naturally across important pages instead of concentrating them on one page.")
     if relevance_score < 60:
@@ -416,4 +518,6 @@ def compute_website_keyword_score(
         },
         "keywordCandidates": keyword_candidates[:12],
         "opportunities": opportunities,
+        "recommendationDetails": recommendation_details,
+        "actionCandidates": action_candidates,
     }
