@@ -65,7 +65,13 @@ function toOptionalString(value: unknown): string | null {
 function toOptionalNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === "") return null;
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
-  const normalized = String(value).replace(/,/g, "").trim();
+  const normalized = String(value)
+    .replace(/,/g, "")
+    .replace(/[₹$£€]/g, "")
+    .replace(/%/g, "")
+    .replace(/\/\s*(mo|month|yr|year)\b/gi, "")
+    .replace(/\bper\s+(mo|month|yr|year)\b/gi, "")
+    .trim();
   if (!normalized) return null;
   const lower = normalized.toLowerCase();
   const suffixMatch = lower.match(/^(-?\d+(?:\.\d+)?)(?:\s*)(k|m|l|lac|lakh|cr|crore)$/i);
@@ -197,7 +203,12 @@ function extractApproxNumberFromText(value: string | null | undefined): number |
   const text = value?.trim();
   if (!text) return null;
 
-  const matches = [...text.toLowerCase().matchAll(/(\d+(?:\.\d+)?)\s*([km])?/g)];
+  const matches = [
+    ...text
+      .toLowerCase()
+      .replace(/[₹$£€]/g, "")
+      .matchAll(/(\d+(?:\.\d+)?)\s*(k|m|l|lac|lakh|cr|crore)?/g),
+  ];
   if (!matches.length) return null;
 
   const numbers = matches
@@ -207,6 +218,8 @@ function extractApproxNumberFromText(value: string | null | undefined): number |
       const suffix = match[2];
       if (suffix === "k") return base * 1_000;
       if (suffix === "m") return base * 1_000_000;
+      if (suffix === "l" || suffix === "lac" || suffix === "lakh") return base * 100_000;
+      if (suffix === "cr" || suffix === "crore") return base * 10_000_000;
       return base;
     })
     .filter((item): item is number => item !== null);
@@ -266,7 +279,7 @@ function stabilizeSuspiciousFinancialInputs(
 
   const useDerivedIfSuspicious = (field: keyof OptionalBusinessInputs) => {
     if (shouldPreferDerivedFinancialValue(field, out[field], derived[field])) {
-      out[field] = derived[field] as any;
+      (out as any)[field] = derived[field];
     }
   };
 
@@ -363,22 +376,195 @@ function deepMergeReportPreservingAnalysis(base: any, overlay: any): any {
   return overlay !== undefined ? overlay : base;
 }
 
+function hasMeaningfulPipelineValue(value: unknown): boolean {
+  if (value === null || value === undefined) return false;
+  if (typeof value === "number") return Number.isFinite(value);
+  if (typeof value === "boolean") return true;
+  if (typeof value === "string") {
+    const text = value.trim().toLowerCase();
+    return !!text && !text.startsWith("not available") && !text.includes("currently unavailable");
+  }
+  if (Array.isArray(value)) return value.some((item) => hasMeaningfulPipelineValue(item));
+  if (typeof value === "object") return Object.values(value as Record<string, unknown>).some((item) => hasMeaningfulPipelineValue(item));
+  return false;
+}
+
+function requirePipelineSection(source: any, keys: string[], label: string): Record<string, any> {
+  for (const key of keys) {
+    const section = source?.[key];
+    if (section && typeof section === "object" && hasMeaningfulPipelineValue(section)) {
+      return section as Record<string, any>;
+    }
+  }
+  throw new Error(`Missing pipeline data: ${label}`);
+}
+
+function firstMeaningfulValue<T = any>(...values: T[]): T | null {
+  for (const value of values) {
+    if (hasMeaningfulPipelineValue(value)) {
+      return value;
+    }
+  }
+  return null;
+}
+
+function findFinancialTableValue(section: any, metrics: string[]): string | null {
+  const rows = Array.isArray(section?.revenue_table)
+    ? section.revenue_table
+    : Array.isArray(section?.revenueTable)
+      ? section.revenueTable
+      : [];
+
+  for (const row of rows) {
+    if (!row || typeof row !== "object") continue;
+    const metric = typeof row.metric === "string" ? row.metric.trim().toLowerCase() : "";
+    if (!metric) continue;
+    if (metrics.some((candidate) => metric === candidate.trim().toLowerCase())) {
+      const value = firstMeaningfulValue(row.value, row.amount);
+      return value === null ? null : String(value);
+    }
+  }
+
+  return null;
+}
+
+function hydratePipelineSectionsForPdf(source: any) {
+  const competitiveSource = requirePipelineSection(source, ["competitive_analysis", "competitiveAnalysis"], "competitive_analysis");
+  const costSource = requirePipelineSection(source, ["cost_optimization", "costOptimization"], "cost_optimization");
+  const segmentationSource = requirePipelineSection(source, ["segmentation", "targetMarket"], "segmentation");
+  const financialSource = requirePipelineSection(source, ["financial_impact", "financialImpact"], "financial_impact");
+
+  const competitiveAnalysis =
+    source?.competitiveAnalysis && hasMeaningfulPipelineValue(source.competitiveAnalysis)
+      ? source.competitiveAnalysis
+      : {
+          mentorNotes: competitiveSource.summary ?? competitiveSource.notes ?? null,
+          notes: competitiveSource.notes ?? null,
+          competitors: competitiveSource.competitors ?? [],
+          positioningMatrix: competitiveSource.positioning_matrix ?? [],
+          opportunities: competitiveSource.opportunities ?? [],
+          threats: competitiveSource.threats ?? [],
+        };
+  const costOptimization =
+    source?.costOptimization && hasMeaningfulPipelineValue(source.costOptimization)
+      ? source.costOptimization
+      : {
+          mentorNotes: costSource.summary ?? costSource.notes ?? null,
+          notes: costSource.notes ?? null,
+          estimatedMonthlySpend: costSource.estimated_monthly_spend ?? [],
+          wasteAreas: costSource.waste_areas ?? [],
+          automationOpportunities: costSource.automation_opportunities ?? [],
+          opportunities: costSource.opportunities ?? [],
+          actionCandidates: costSource.action_candidates ?? [],
+          confidenceScore: costSource.confidence_score ?? null,
+          estimationDisclaimer: costSource.estimation_disclaimer ?? null,
+        };
+  const segmentation =
+    source?.targetMarket && hasMeaningfulPipelineValue(source.targetMarket)
+      ? source.targetMarket
+      : {
+          mentorNotes: segmentationSource.summary ?? segmentationSource.notes ?? null,
+          notes: segmentationSource.notes ?? null,
+          segments: segmentationSource.segments ?? [],
+          currentTargetSegments: segmentationSource.current_target_segments ?? segmentationSource.segments ?? [],
+          detectedSegments: segmentationSource.detected_segments ?? segmentationSource.segments ?? [],
+          recommendedSegments: segmentationSource.recommended_segments ?? [],
+          positioningAdvice: segmentationSource.positioning_advice ?? null,
+          actionCandidates: segmentationSource.action_candidates ?? [],
+          confidenceScore: segmentationSource.confidence_score ?? null,
+          estimationDisclaimer: segmentationSource.estimation_disclaimer ?? null,
+        };
+  const existingFinancialImpact =
+    source?.financialImpact && typeof source.financialImpact === "object"
+      ? source.financialImpact
+      : {};
+  const currentRevenueEstimate =
+    firstMeaningfulValue(
+      findFinancialTableValue(financialSource, ["Current Revenue Estimate", "Current Monthly Revenue"]),
+      typeof financialSource.current_revenue_estimate === "string" ? financialSource.current_revenue_estimate : null,
+      findFinancialTableValue(existingFinancialImpact, ["Current Revenue Estimate", "Current Monthly Revenue"]),
+      existingFinancialImpact.currentRevenueEstimate,
+      financialSource.current_revenue_estimate,
+    ) ?? null;
+  const financialImpact =
+    {
+      ...existingFinancialImpact,
+      mentorNotes: firstMeaningfulValue(existingFinancialImpact.mentorNotes, financialSource.summary, financialSource.notes),
+      summary: firstMeaningfulValue(existingFinancialImpact.summary, financialSource.summary, financialSource.notes),
+      notes: firstMeaningfulValue(existingFinancialImpact.notes, financialSource.notes),
+      revenueTable: firstMeaningfulValue(financialSource.revenue_table, existingFinancialImpact.revenueTable) ?? [],
+      financialLevers:
+        firstMeaningfulValue(
+          financialSource.financial_levers,
+          financialSource.profitability_levers,
+          existingFinancialImpact.financialLevers,
+          existingFinancialImpact.profitabilityLevers,
+        ) ?? [],
+      profitabilityLevers:
+        firstMeaningfulValue(
+          financialSource.profitability_levers,
+          financialSource.financial_levers,
+          existingFinancialImpact.profitabilityLevers,
+          existingFinancialImpact.financialLevers,
+        ) ?? [],
+      revenueOpportunities:
+        firstMeaningfulValue(
+          financialSource.revenue_opportunities,
+          financialSource.profitability_levers,
+          existingFinancialImpact.revenueOpportunities,
+          existingFinancialImpact.profitabilityLevers,
+        ) ?? [],
+      actionCandidates: firstMeaningfulValue(financialSource.action_candidates, existingFinancialImpact.actionCandidates) ?? [],
+      currentRevenueEstimate,
+      projectedRevenue: firstMeaningfulValue(financialSource.projected_revenue, existingFinancialImpact.projectedRevenue),
+      annualGrowth: firstMeaningfulValue(financialSource.annual_growth, existingFinancialImpact.annualGrowth),
+      improvementPotential: firstMeaningfulValue(financialSource.improvement_potential, existingFinancialImpact.improvementPotential),
+      projectedRevenueIncrease: firstMeaningfulValue(financialSource.projected_revenue_increase, existingFinancialImpact.projectedRevenueIncrease),
+      confidenceScore: firstMeaningfulValue(financialSource.confidence_score, existingFinancialImpact.confidenceScore),
+      estimationDisclaimer: firstMeaningfulValue(financialSource.estimation_disclaimer, existingFinancialImpact.estimationDisclaimer),
+    };
+
+  return {
+    ...(source || {}),
+    competitive_analysis: competitiveSource,
+    cost_optimization: costSource,
+    segmentation: segmentationSource,
+    financial_impact: financialSource,
+    competitiveAnalysis,
+    costOptimization,
+    targetMarket: segmentation,
+    financialImpact,
+    sections: {
+      ...(source?.sections && typeof source.sections === "object" ? source.sections : {}),
+      section7: competitiveAnalysis,
+      section8: costOptimization,
+      section9: segmentation,
+      section10: financialImpact,
+      "7": competitiveAnalysis,
+      "8": costOptimization,
+      "9": segmentation,
+      "10": financialImpact,
+    },
+  };
+}
+
 function buildNormalizedReportForPdf(args: {
   companyName: string;
   website: string;
   industry?: string;
   analysisSource: any;
 }): BusinessGrowthReport {
+  const hydratedAnalysisSource = hydratePipelineSectionsForPdf(args.analysisSource);
   const merged = mergeBusinessGrowthReport(
     {
       companyName: args.companyName,
       website: args.website,
       industry: args.industry,
     },
-    args.analysisSource,
+    hydratedAnalysisSource,
   );
 
-  return deepMergeReportPreservingAnalysis(merged, args.analysisSource) as BusinessGrowthReport;
+  return deepMergeReportPreservingAnalysis(merged, hydratedAnalysisSource) as BusinessGrowthReport;
 }
 
 function hasAnyOptionalBusinessInput(inputs: OptionalBusinessInputs): boolean {
@@ -522,7 +708,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
         "closeRate",
       ] as Array<keyof OptionalBusinessInputs>) {
         if (shouldPreferDerivedFinancialValue(field, explicitOptionalInputs[field], legacyDerivedOptionalInputs[field])) {
-          mergedOptionalInputs[field] = legacyDerivedOptionalInputs[field] as any;
+          (mergedOptionalInputs as any)[field] = legacyDerivedOptionalInputs[field];
         }
       }
       const sanitizedOptionalInputs = stabilizeSuspiciousFinancialInputs(
@@ -559,7 +745,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
         // Only enable estimation mode when the user actually provided financial
         // inputs. Without real data the model guesses from near-zero signals and
         // produces nonsense values like "₹2/mo current revenue".
-        estimationMode: includeOptionalInputs,
+        estimationMode: includeOptionalInputs || includeLegacyEstimationInputs,
         location: location.trim(),
         industry: industry.trim(),
         targetMarket: normalizedTargetMarket,
@@ -568,7 +754,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
         reportType: "full",
         ...(typeof includeSections8to10 === "boolean"
           ? { includeSections8to10 }
-          : { includeSections8to10: includeOptionalInputs }),
+          : { includeSections8to10: true }),
         criteria: {
           ...mergedCriteria,
           language_code: "en",
@@ -680,6 +866,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
         industry: industry || storedReport.industry,
         analysisSource,
       });
+      console.log("Sections:", (normalizedReport as any).sections);
+      console.log("Section 10:", (normalizedReport as any).financial_impact);
 
       const pdfBuffer = await generateBusinessGrowthPdfBuffer(
         normalizedReport as BusinessGrowthReport,
@@ -761,6 +949,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
           industry: storedReport.industry,
           analysisSource,
         });
+        console.log("Sections:", (normalizedReport as any).sections);
+        console.log("Section 10:", (normalizedReport as any).financial_impact);
 
         pdfBuffer = await generateBusinessGrowthPdfBuffer(
           normalizedReport as BusinessGrowthReport,
@@ -788,6 +978,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
             industry: storedReport.industry,
             analysisSource,
           });
+          console.log("Sections:", (normalizedReport as any).sections);
+          console.log("Section 10:", (normalizedReport as any).financial_impact);
 
           pdfBuffer = await generateBusinessGrowthPdfBuffer(
             normalizedReport as BusinessGrowthReport,
@@ -871,6 +1063,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
         industry: storedReport.industry,
         analysisSource,
       });
+      console.log("Sections:", (normalizedReport as any).sections);
+      console.log("Section 10:", (normalizedReport as any).financial_impact);
 
       const pdfBuffer = await generateBusinessGrowthPdfBuffer(
         normalizedReport as BusinessGrowthReport,

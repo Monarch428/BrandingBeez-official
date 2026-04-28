@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
@@ -54,9 +56,25 @@ class AnalysisCacheRepository:
             pass
 
     @staticmethod
-    def make_cache_key(website: str) -> str:
-        # versioning allows safe invalidation
-        return f"{settings.CACHE_VERSION}:{(website or '').strip().lower()}"
+    def make_cache_key(
+        website: str,
+        *,
+        location: str | None = None,
+        industry: str | None = None,
+        target_market: str | None = None,
+        financial_inputs: Dict[str, Any] | None = None,
+    ) -> str:
+        payload = {
+            "website": (website or "").strip().lower(),
+            "location": (location or "").strip().lower(),
+            "industry": (industry or "").strip().lower(),
+            "target_market": (target_market or "").strip().lower(),
+            "financial_inputs": financial_inputs if isinstance(financial_inputs, dict) else {},
+        }
+        digest = hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
+        ).hexdigest()[:24]
+        return f"{settings.CACHE_VERSION}:{digest}"
 
     def get(self, cache_key: str) -> Optional[Dict[str, Any]]:
         if not cache_key:

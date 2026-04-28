@@ -193,14 +193,39 @@ def _safe_float(value: Any) -> float | None:
     text = str(value).strip().replace(",", "")
     if not text:
         return None
-    import re
-    m = re.search(r"-?\d+(?:\.\d+)?", text)
+    normalized = (
+        text.replace("₹", "")
+        .replace("$", "")
+        .replace("£", "")
+        .replace("€", "")
+        .replace("%", "")
+        .strip()
+        .lower()
+    )
+    normalized = re.sub(r"(?:/|\bper\b)\s*(mo|month|yr|year|annum)\b", "", normalized).strip()
+    m = re.search(r"-?\d+(?:\.\d+)?\s*(k|m|l|lac|lakh|cr|crore)?", normalized)
     if not m:
         return None
     try:
-        return float(m.group(0))
+        base_match = re.search(r"-?\d+(?:\.\d+)?", m.group(0))
+        if not base_match:
+            return None
+        base = float(base_match.group(0))
     except Exception:
         return None
+    suffix_match = re.search(r"(k|m|l|lac|lakh|cr|crore)$", m.group(0).strip())
+    if not suffix_match:
+        return base
+    suffix = suffix_match.group(1)
+    if suffix == "k":
+        return base * 1_000.0
+    if suffix == "m":
+        return base * 1_000_000.0
+    if suffix in ("l", "lac", "lakh"):
+        return base * 100_000.0
+    if suffix in ("cr", "crore"):
+        return base * 10_000_000.0
+    return base
 
 
 def _as_ratio(value: Any) -> float | None:
@@ -222,6 +247,19 @@ def _parse_range_string(value: Any) -> float | None:
     raw = value.strip()
     if not raw:
         return None
+    compact_raw = raw.replace(",", "").replace(" ", "").lower()
+    compact_raw = compact_raw.replace("₹", "").replace("$", "").replace("£", "").replace("€", "")
+    compact_raw = compact_raw.lstrip("<>~")
+    for sep in ("-", "to"):
+        if sep in compact_raw:
+            parts = compact_raw.split(sep, 1)
+            lo = _safe_float(parts[0])
+            hi = _safe_float(parts[1])
+            if lo is not None and hi is not None:
+                return (lo + hi) / 2.0
+    compact_value = _safe_float(compact_raw)
+    if compact_value is not None:
+        return compact_value
     cleaned = raw.replace("$", "").replace("£", "").replace("€", "").replace("₹", "")
     cleaned = cleaned.replace(",", "").replace(" ", "").lower()
 
@@ -694,6 +732,8 @@ def _build_deterministic_estimation_sections(llm_context: Dict[str, Any]) -> Dic
     if leads_input and close_rate_input:
         confidence += 4
     confidence = max(48, min(88, confidence))
+    estimation_enabled = bool(llm_context.get("estimationMode")) if isinstance(llm_context, dict) else False
+    estimation_disclaimer = ESTIMATION_DISCLAIMER if estimation_enabled else None
 
     cost_opp = [
         {"title": "Pricing tier optimisation", "description": "Package the current services into clearer value tiers and raise average realised deal value.", "impact": f"{money(pricing_uplift * 0.5)}-{money(pricing_uplift)}/mo", "effort": "medium"},
@@ -795,11 +835,79 @@ def _build_deterministic_estimation_sections(llm_context: Dict[str, Any]) -> Dic
     cost_mentor = f"The biggest cost-efficiency gains for this {_model_label} are likely from tighter pricing, automated reporting, and better channel qualification rather than blunt cost-cutting."
     target_mentor = f"The near-term target market strategy for this {_model_label} should prioritise the clearest-fit client groups implied by the service mix, geography, and current offer packaging."
     financial_mentor = f"Modeled at {money(monthly_rev)}/mo. Base upside is {money(base_rev)}/mo from pricing and conversion improvements. Use as a directional planning estimate, not an audited forecast."
+    spend_rows = [
+        {"category": "Payroll", "current": money(payroll), "industryAvg": money(payroll * 1.05), "notes": "Delivery and account-management cost base."},
+        {"category": "Tools", "current": money(tools), "industryAvg": money(max(tools, monthly_rev * 0.05)), "notes": "Software stack and recurring tools."},
+        {"category": "Marketing", "current": money(ad_spend), "industryAvg": money(max(ad_spend, monthly_rev * 0.08)), "notes": "Acquisition and paid channel spend."},
+        {"category": "Overhead", "current": money(overhead), "industryAvg": money(max(overhead, monthly_rev * 0.06)), "notes": "General operating overhead."},
+    ]
+    waste_rows = [
+        {"area": item["title"], "costPerMonth": item["impact"], "fix": item["description"], "impact": item["impact"]}
+        for item in cost_opp[:4]
+    ]
+    automation_rows = [
+        {"process": "Reporting and client updates", "tool": "Dashboard + workflow automation", "timeSavedPerMonth": "8-12 hrs", "costSaved": money(efficiency_savings * 0.35), "notes": "Removes repeat reporting and follow-up work."},
+        {"process": "Lead qualification", "tool": "Forms + CRM routing", "timeSavedPerMonth": "4-6 hrs", "costSaved": money(efficiency_savings * 0.18), "notes": "Reduces time spent on low-fit enquiries."},
+    ]
+    recommended_segments = [
+        {
+            "segment": seg.get("segment"),
+            "whyFit": str(seg.get("notes") or "").strip() or "Segment fit derived from services, geography, and offer packaging.",
+            "avgBudget": money(_segment_budget_min) + "-" + money(_segment_budget_max) + "/mo",
+            "competitionLevel": "Medium",
+            "notes": str(seg.get("notes") or "").strip() or "Commercial fit inferred from current demand and offer packaging.",
+        }
+        for seg in segment_objects[:2]
+    ]
+    positioning_advice = f"Position {service_hint} around buyer pain, delivery clarity, and proof for {segment_list[0]}."
+    financial_notes = "Financial impact is computed from supplied inputs when available and otherwise from traffic, lead, and offer evidence surfaced by the pipeline."
 
     return {
-        "costOptimization": {"mentorNotes": cost_mentor, "currencyContext": llm_context.get("currencyGuidance") if isinstance(llm_context, dict) else None, "businessLens": cost_section_context.get("businessLens"), "relevance": cost_section_context.get("relevance"), "opportunities": cost_opp, "estimationDisclaimer": ESTIMATION_DISCLAIMER, "confidenceScore": confidence, "scenarios": scenarios, "actionCandidates": cost_actions},
-        "targetMarket": {"mentorNotes": target_mentor, "currencyContext": llm_context.get("currencyGuidance") if isinstance(llm_context, dict) else None, "businessLens": target_section_context.get("businessLens"), "relevance": target_section_context.get("relevance"), "segments": segment_objects, "currentTargetSegments": segment_objects, "detectedSegments": segment_objects, "estimationDisclaimer": ESTIMATION_DISCLAIMER, "confidenceScore": max(48, confidence - 6), "scenarios": scenarios, "actionCandidates": target_actions},
-        "financialImpact": {"mentorNotes": financial_mentor, "summary": summary, "businessLens": financial_section_context.get("businessLens"), "relevance": financial_section_context.get("relevance"), "revenueTable": revenue_table, "currentRevenueEstimate": current_revenue_estimate, "improvementPotential": improvement_potential, "projectedRevenueIncrease": projected_total, "profitabilityLevers": revenue_ops, "revenueOpportunities": revenue_ops, "estimationDisclaimer": ESTIMATION_DISCLAIMER, "confidenceScore": confidence, "scenarios": scenarios, "actionCandidates": financial_actions},
+        "costOptimization": {
+            "mentorNotes": cost_mentor,
+            "notes": f"Current monthly operating cost baseline is {money(total_cost)} with the biggest savings likely in packaging, reporting, and qualification.",
+            "currencyContext": llm_context.get("currencyGuidance") if isinstance(llm_context, dict) else None,
+            "businessLens": cost_section_context.get("businessLens"),
+            "relevance": cost_section_context.get("relevance"),
+            "estimatedMonthlySpend": spend_rows,
+            "wasteAreas": waste_rows,
+            "automationOpportunities": automation_rows,
+            "opportunities": cost_opp,
+            "estimationDisclaimer": estimation_disclaimer,
+            "confidenceScore": confidence,
+            "actionCandidates": cost_actions,
+        },
+        "targetMarket": {
+            "mentorNotes": target_mentor,
+            "notes": "Segments were computed from target market inputs, detected services, geography, and visible commercial positioning.",
+            "currencyContext": llm_context.get("currencyGuidance") if isinstance(llm_context, dict) else None,
+            "businessLens": target_section_context.get("businessLens"),
+            "relevance": target_section_context.get("relevance"),
+            "segments": segment_objects,
+            "currentTargetSegments": segment_objects,
+            "detectedSegments": segment_objects,
+            "recommendedSegments": recommended_segments,
+            "positioningAdvice": positioning_advice,
+            "estimationDisclaimer": estimation_disclaimer,
+            "confidenceScore": max(48, confidence - 6),
+            "actionCandidates": target_actions,
+        },
+        "financialImpact": {
+            "mentorNotes": financial_mentor,
+            "notes": financial_notes,
+            "summary": summary,
+            "businessLens": financial_section_context.get("businessLens"),
+            "relevance": financial_section_context.get("relevance"),
+            "revenueTable": revenue_table,
+            "currentRevenueEstimate": current_revenue_estimate,
+            "improvementPotential": improvement_potential,
+            "projectedRevenueIncrease": projected_total,
+            "profitabilityLevers": revenue_ops,
+            "revenueOpportunities": revenue_ops,
+            "estimationDisclaimer": estimation_disclaimer,
+            "confidenceScore": confidence,
+            "actionCandidates": financial_actions,
+        },
     }
 
 
@@ -1323,6 +1431,41 @@ def build_sections_8_10_with_llm(
     )
     logger.warning("[LLM_DEBUG] estimation llm_context keys=%s", list((stage_context or {}).keys()))
 
+    computed_sections = _default_estimation_sections(stage_context)
+    cost = computed_sections["costOptimization"]
+    target = computed_sections["targetMarket"]
+    impact = computed_sections["financialImpact"]
+
+    if not _has_substance(cost, "opportunities") or not _cost_section_is_specific(cost, stage_context):
+        raise ValueError("Computed costOptimization section is missing real pipeline data")
+    if not _has_substance(target, "segments") or not _target_section_is_specific(target, stage_context):
+        raise ValueError("Computed targetMarket section is missing real pipeline data")
+    if not _has_substance(impact, "revenueTable"):
+        raise ValueError("Computed financialImpact section is missing real pipeline data")
+
+    segs = target.get("segments") or target.get("currentTargetSegments") or target.get("detectedSegments") or []
+    target["segments"] = segs
+    target.setdefault("currentTargetSegments", segs)
+    target.setdefault("detectedSegments", segs)
+    target.setdefault("recommendedSegments", target.get("recommendedSegments") or [])
+
+    if impact.get("revenueOpportunities") and not impact.get("profitabilityLevers"):
+        impact["profitabilityLevers"] = impact.get("revenueOpportunities")
+    if impact.get("profitabilityLevers") and not impact.get("revenueOpportunities"):
+        impact["revenueOpportunities"] = impact.get("profitabilityLevers")
+
+    logger.warning("[LLM_DEBUG] sections_8_10 computed cost=%s target=%s financial=%s", bool(cost), bool(target), bool(impact))
+    logger.info("[LLM] build_sections_8_10_with_llm ok")
+    return {"costOptimization": cost, "targetMarket": target, "financialImpact": impact}
+
+    stage_context = _build_stage_context_with_currency(
+        llm_context,
+        stage_name="estimation_8_10",
+        base_report=base_report,
+        reconcile_patch=reconcile_patch,
+    )
+    logger.warning("[LLM_DEBUG] estimation llm_context keys=%s", list((stage_context or {}).keys()))
+
     fallback_sections = _default_estimation_sections(stage_context)
 
     if int(get_effective_llm_mode()) <= 1:
@@ -1416,8 +1559,9 @@ def build_sections_8_10_with_llm(
         # the freshly-computed deterministic fallback while keeping any other LLM
         # narrative fields that are still valid.
         _est_str = str(impact.get("currentRevenueEstimate") or "")
-        _nums = re.findall(r"[\d]+\.?\d*", _est_str.replace(",", ""))
-        _baseline_val = float(_nums[0]) if _nums else 0.0
+        _baseline_val = _safe_float(impact.get("currentRevenueEstimateValue"))
+        if _baseline_val is None:
+            _baseline_val = _safe_float(_est_str) or 0.0
         if _baseline_val < 100:
             logger.warning(
                 "[LLM] financialImpact baseline revenue looks broken (%s) -> "

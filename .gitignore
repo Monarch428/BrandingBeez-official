@@ -98,3 +98,24 @@ public/uploads/
 # Documentation builds
 docs/_build/
 site/
+
+# Virtual Environment
+venv/
+.env/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Logs
+*.log

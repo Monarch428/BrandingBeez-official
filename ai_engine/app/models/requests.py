@@ -67,7 +67,7 @@ class AnalyzeRequest(BaseModel):
     businessGoal: Optional[str] = None
     reportType: str = Field(default="full")
     criteria: Dict[str, Any] = Field(default_factory=dict)
-    estimationMode: bool = True
+    estimationMode: bool = False
     estimationInputs: Optional[EstimationInputs] = None
     optionalBusinessInputs: Optional[Dict[str, Any]] = None
     businessInputs: Optional[Dict[str, Any]] = None

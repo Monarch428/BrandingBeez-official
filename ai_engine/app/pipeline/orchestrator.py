@@ -158,6 +158,139 @@ def ensure_list(value: Any) -> list:
     return value if isinstance(value, list) else []
 
 
+def _has_meaningful_text(value: Any) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    lowered = text.lower()
+    if lowered.startswith("not available"):
+        return False
+    if "currently unavailable" in lowered:
+        return False
+    return True
+
+
+def _has_section_payload(section: Dict[str, Any], *, list_keys: List[str], text_keys: List[str]) -> bool:
+    if not isinstance(section, dict):
+        return False
+    for key in list_keys:
+        value = section.get(key)
+        if isinstance(value, list) and any(item not in (None, "", [], {}) for item in value):
+            return True
+    for key in text_keys:
+        if _has_meaningful_text(section.get(key)):
+            return True
+    return False
+
+
+def _build_pipeline_section_exports(report: Dict[str, Any]) -> Dict[str, Any]:
+    competitive = ensure_dict(report.get("competitiveAnalysis"))
+    cost = ensure_dict(report.get("costOptimization"))
+    target = ensure_dict(report.get("targetMarket"))
+    financial = ensure_dict(report.get("financialImpact"))
+
+    competitive_analysis = {
+        "summary": competitive.get("mentorNotes") or competitive.get("notes"),
+        "notes": competitive.get("notes"),
+        "competitors": ensure_list(competitive.get("competitors")),
+        "positioning_matrix": ensure_list(competitive.get("positioningMatrix")),
+        "opportunities": ensure_list(competitive.get("opportunities")),
+        "threats": ensure_list(competitive.get("threats")),
+    }
+    cost_optimization = {
+        "summary": cost.get("mentorNotes") or cost.get("notes"),
+        "notes": cost.get("notes"),
+        "estimated_monthly_spend": ensure_list(cost.get("estimatedMonthlySpend")),
+        "waste_areas": ensure_list(cost.get("wasteAreas")),
+        "automation_opportunities": ensure_list(cost.get("automationOpportunities")),
+        "opportunities": ensure_list(cost.get("opportunities")),
+        "action_candidates": ensure_list(cost.get("actionCandidates")),
+        "confidence_score": cost.get("confidenceScore"),
+        "estimation_disclaimer": cost.get("estimationDisclaimer"),
+    }
+    segmentation = {
+        "summary": target.get("mentorNotes") or target.get("notes"),
+        "notes": target.get("notes"),
+        "segments": ensure_list(target.get("segments") or target.get("currentTargetSegments") or target.get("detectedSegments")),
+        "current_target_segments": ensure_list(target.get("currentTargetSegments") or target.get("segments")),
+        "detected_segments": ensure_list(target.get("detectedSegments") or target.get("segments")),
+        "recommended_segments": ensure_list(target.get("recommendedSegments")),
+        "positioning_advice": target.get("positioningAdvice"),
+        "action_candidates": ensure_list(target.get("actionCandidates")),
+        "confidence_score": target.get("confidenceScore"),
+        "estimation_disclaimer": target.get("estimationDisclaimer"),
+    }
+    financial_impact = {
+        "summary": financial.get("summary") or financial.get("mentorNotes") or financial.get("notes"),
+        "notes": financial.get("notes"),
+        "revenue_table": ensure_list(financial.get("revenueTable")),
+        "profitability_levers": ensure_list(financial.get("profitabilityLevers") or financial.get("revenueOpportunities")),
+        "financial_levers": ensure_list(financial.get("financialLevers") or financial.get("profitabilityLevers") or financial.get("revenueOpportunities")),
+        "revenue_opportunities": ensure_list(financial.get("revenueOpportunities") or financial.get("profitabilityLevers")),
+        "action_candidates": ensure_list(financial.get("actionCandidates")),
+        "current_revenue_estimate": financial.get("currentRevenueEstimate") if financial.get("currentRevenueEstimate") is not None else financial.get("currentRevenueEstimateValue"),
+        "current_revenue_estimate_value": financial.get("currentRevenueEstimateValue"),
+        "projected_revenue": financial.get("projectedRevenueValue"),
+        "annual_growth": financial.get("annualGrowthValue"),
+        "improvement_potential": financial.get("improvementPotential"),
+        "projected_revenue_increase": financial.get("projectedRevenueIncrease"),
+        "confidence_score": financial.get("confidenceScore"),
+        "estimation_disclaimer": financial.get("estimationDisclaimer"),
+    }
+    sections = {
+        "7": competitive_analysis,
+        "8": cost_optimization,
+        "9": segmentation,
+        "10": financial_impact,
+        "section7": competitive_analysis,
+        "section8": cost_optimization,
+        "section9": segmentation,
+        "section10": financial_impact,
+    }
+    return {
+        "competitive_analysis": competitive_analysis,
+        "cost_optimization": cost_optimization,
+        "segmentation": segmentation,
+        "financial_impact": financial_impact,
+        "sections": sections,
+    }
+
+
+def _attach_pipeline_section_exports(report: Dict[str, Any]) -> Dict[str, Any]:
+    enriched = dict(report or {})
+    exports = _build_pipeline_section_exports(enriched)
+    existing_sections = ensure_dict(enriched.get("sections"))
+    enriched.update(exports)
+    enriched["sections"] = deep_merge(existing_sections, exports["sections"])
+    return enriched
+
+
+def _assert_required_pipeline_sections(report: Dict[str, Any]) -> None:
+    exports = _build_pipeline_section_exports(report)
+    competitive_analysis = exports.get("competitive_analysis")
+    cost_optimization = exports.get("cost_optimization")
+    segmentation = exports.get("segmentation")
+    financial_impact = exports.get("financial_impact")
+
+    assert cost_optimization is not None
+    assert segmentation is not None
+    assert financial_impact is not None
+
+    missing: List[str] = []
+    if not _has_section_payload(competitive_analysis, list_keys=["competitors", "positioning_matrix", "opportunities"], text_keys=["summary", "notes"]):
+        missing.append("competitive_analysis")
+    if not _has_section_payload(cost_optimization, list_keys=["opportunities", "waste_areas", "automation_opportunities"], text_keys=["summary", "notes"]):
+        missing.append("cost_optimization")
+    if not _has_section_payload(segmentation, list_keys=["segments", "recommended_segments"], text_keys=["summary", "notes", "positioning_advice"]):
+        missing.append("segmentation")
+    if not _has_section_payload(financial_impact, list_keys=["revenue_table", "profitability_levers", "financial_levers", "revenue_opportunities"], text_keys=["summary", "notes", "current_revenue_estimate"]):
+        missing.append("financial_impact")
+    if missing:
+        raise ValueError(f"Missing pipeline data for sections: {', '.join(missing)}")
+
+    print("Generated Sections:", exports["sections"].keys())
+
+
 def _normalize_url_key(u: Any) -> str:
     """Normalize URLs so different variants merge into a single key."""
     if not isinstance(u, str):
@@ -826,7 +959,13 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     if bool(getattr(payload, "forceNewAnalysis", False)):
         cache_enabled = False
         logger.info("[Pipeline] forceNewAnalysis enabled -> bypassing cache")
-    cache_key = cache_repo.make_cache_key(website)
+    cache_key = cache_repo.make_cache_key(
+        website,
+        location=(criteria.get("location") or payload_dict.get("location") or ""),
+        industry=(payload_dict.get("industry") or ""),
+        target_market=(criteria.get("targetMarket") or top_target_market or ""),
+        financial_inputs=user_financials if isinstance(user_financials, dict) else {},
+    )
 
     html, final_url = fetch_homepage_html(website)
     if not html:
@@ -2471,25 +2610,27 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         # Keep a schema-compliant template here so sanitize_with_template retains optional keys
         # returned by the LLM (estimationDisclaimer/confidenceScore/scenarios).
         "costOptimization": {
-            "notes": "Not available: requires spend inputs (tools/payroll/ad spend) or integrations.",
             "opportunities": [],
+            "estimatedMonthlySpend": [],
+            "wasteAreas": [],
+            "automationOpportunities": [],
             "estimationDisclaimer": None,
             "confidenceScore": None,
-            "scenarios": [],
         },
         "targetMarket": {
-            "notes": "Not available without manual input or analytics/CRM data.",
             "segments": [],
+            "currentTargetSegments": [],
+            "detectedSegments": [],
+            "recommendedSegments": [],
             "estimationDisclaimer": None,
             "confidenceScore": None,
-            "scenarios": [],
         },
         "financialImpact": {
-            "notes": "Not available without revenue/spend inputs or integrations.",
             "revenueTable": [],
+            "profitabilityLevers": [],
+            "revenueOpportunities": [],
             "estimationDisclaimer": None,
             "confidenceScore": None,
-            "scenarios": [],
         },
         "actionPlan90Days": action_plan_90,
         "competitiveAdvantages": competitive_adv,
@@ -2779,6 +2920,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "sectionContexts": section_contexts,
         "businessModelPromptGuidance": business_model_prompt_guidance,
         "reportToneProfile": ensure_dict(business_profile).get("reportToneProfile") if isinstance(business_profile, dict) else {},
+        "userFinancials": user_financials if isinstance(user_financials, dict) else {},
 
         # High-signal user inputs (helps the LLM tie recommendations to intent/region)
         "userInputs": {
@@ -2788,6 +2930,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             "location": (criteria.get("location") or criteria.get("city") or criteria.get("region") or None),
             "targetMarket": (criteria.get("targetMarket") or top_target_market or None),
             "businessGoal": (criteria.get("businessGoal") or top_business_goal or None),
+            "businessInputs": user_financials if isinstance(user_financials, dict) else None,
+            "optionalBusinessInputs": user_financials if isinstance(user_financials, dict) else None,
         },
 
         # Estimation mode (Sections 8–10)
@@ -2823,10 +2967,23 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     merged = sanitize_with_template(base_report, llm_report)
     merged = patch_required_metadata(merged, base_report)
 
+    if payload_dict.get("includeSections8to10", True):
+        logger.warning("[LLM_DEBUG] entering sections_8_10 effective_llm_mode=%s", get_effective_llm_mode())
+        sec_8_10 = build_sections_8_10_with_llm(
+            llm_context,
+            base_report=merged,
+            reconcile_patch=llm_report,
+            cache_repo=cache_repo,
+            cache_key=cache_key,
+        )
+        logger.warning("[LLM_DEBUG] sections_8_10 result keys=%s", list(sec_8_10.keys()) if isinstance(sec_8_10, dict) else None)
+        logger.warning("[LLM_DEBUG] sections_8_10 source=%s", "computed_pipeline")
+        merged = deep_merge(merged, sec_8_10)
+
     # Sections 8–10 are optional. When enabled, generate them via LLM and
     # merge into the final report dict. This prevents PDFs showing "No data
     # available" for those sections when the pipeline has enough context.
-    if bool(getattr(settings, "LLM_ENABLE_SECTIONS_8_10_LLM", True)) and payload_dict.get("includeSections8to10", True) and bool(payload_dict.get("estimationMode", False)):
+    if False:
         logger.warning("[LLM_DEBUG] entering sections_8_10 effective_llm_mode=%s", get_effective_llm_mode())
         try:
             sec_8_10 = build_sections_8_10_with_llm(
@@ -2885,6 +3042,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     merged = validate_report_data(merged)
     # Safe additive pass: compute report-level meta scores from collected evidence before persistence/PDF.
     merged = apply_report_scorecard(merged)
+    merged = _attach_pipeline_section_exports(merged)
+    _assert_required_pipeline_sections(merged)
     repo = ReportsRepository()
     report_id, token = repo.save(merged, final_url)
 
@@ -2918,11 +3077,14 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     merged = assemble_final_report(merged)
     merged = validate_report_data(merged)
     merged = apply_report_scorecard(merged)
+    merged = _attach_pipeline_section_exports(merged)
+    _assert_required_pipeline_sections(merged)
 
     return AnalyzeResponse(
         ok=True,
         report=merged,
         reportJson=merged,
+        structuredReport=_build_pipeline_section_exports(merged),
         meta={
             "website": website,
             "company": company,

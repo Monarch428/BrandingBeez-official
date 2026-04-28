@@ -74,6 +74,11 @@ function isMeaningful(value: any): boolean {
   return !!text && text !== "N/A" && text !== "-" && text !== "null" && text !== "undefined";
 }
 
+function requirePipelineSection(value: any, label: string): Dict {
+  if (value && typeof value === "object" && isMeaningful(value)) return value as Dict;
+  throw new Error(`Missing pipeline data: ${label}`);
+}
+
 function scoreValue(value: ScoreLike): string {
   if (typeof value !== "number" || !Number.isFinite(value)) return "0";
   return String(Math.max(0, Math.min(100, Math.round(value))));
@@ -799,10 +804,10 @@ function buildHtml(report: BusinessGrowthReport): string {
   const reputation = (rep.reputation ?? {}) as Dict;
   const services = (rep.servicesPositioning ?? {}) as Dict;
   const leadGen = (rep.leadGeneration ?? {}) as Dict;
-  const comp = (rep.competitiveAnalysis ?? {}) as Dict;
-  const cost = (rep.costOptimization ?? {}) as Dict;
-  const financial = (rep.financialImpact ?? {}) as Dict;
-  const target = (rep.targetMarket ?? {}) as Dict;
+  const comp = requirePipelineSection(rep.competitiveAnalysis ?? (rep as any).competitive_analysis, "competitive_analysis");
+  const cost = requirePipelineSection(rep.costOptimization ?? (rep as any).cost_optimization, "cost_optimization");
+  const target = requirePipelineSection(rep.targetMarket ?? (rep as any).segmentation, "segmentation");
+  const financial = requirePipelineSection(rep.financialImpact ?? (rep as any).financial_impact, "financial_impact");
   const crossSectionActionCandidates = collectCrossSectionActionCandidates([
     websiteDigitalPresence?.websiteKeywordAnalysis,
     contentQuality,
@@ -2034,18 +2039,6 @@ pages.push(
         ${renderCallout("Mentor Notes", cost?.mentorNotes || cost?.notes)}
         ${renderParagraph(cost?.estimationDisclaimer)}
         ${renderKeyValueRows([{ label: "Confidence Score", value: `${scoreValue(cost?.confidenceScore)}/100` }])}
-        ${subsectionHeading("Scenarios")}
-        ${renderTable(
-          ["Scenario", "Suggestion", "Modeled Outcomes"],
-          truthyArray<any>(cost?.scenarios).map((item) => [
-            item?.name,
-            normalizeStringList(item?.assumptions).join("; "),
-            truthyArray<any>(item?.modeledOutcomes || item?.outcomes)
-              .map((outcome) => `${safeText(outcome?.label, "Metric")}: ${safeText(outcome?.value, "N/A")}`)
-              .join("; "),
-          ]),
-          { compact: true, emptyText: "Cost scenarios not available." },
-        )}
         ${subsectionHeading("Opportunities")}
         ${renderTable(["Opportunity", "Description", "Impact", "Effort"], wasteRows, { compact: true, emptyText: "No waste areas mapped." })}
         ${subsectionHeading("Priority Profitability Actions")}
@@ -2061,20 +2054,9 @@ pages.push(
       `
         ${sectionHeading("9", "Target Market & Client Segmentation")}
         ${renderSectionSignals(sectionContexts?.targetMarket)}
+        ${renderCallout("Mentor Notes", target?.mentorNotes || target?.notes)}
         ${renderParagraph(target?.estimationDisclaimer)}
         ${renderKeyValueRows([{ label: "Confidence Score", value: `${scoreValue(target?.confidenceScore)}/100` }])}
-        ${subsectionHeading("Scenarios")}
-        ${renderTable(
-          ["Scenario", "Suggestion", "Modeled Outcomes"],
-          truthyArray<any>(target?.scenarios).map((item) => [
-            item?.name,
-            normalizeStringList(item?.assumptions).join("; "),
-            truthyArray<any>(item?.modeledOutcomes || item?.outcomes)
-              .map((outcome) => `${safeText(outcome?.label, "Metric")}: ${safeText(outcome?.value, "N/A")}`)
-              .join("; "),
-          ]),
-          { compact: true, emptyText: "Target market scenarios not available." },
-        )}
         ${subsectionHeading("Detected Segments")}
         ${renderTable(["Segment", "Pain Points", "Budget / Notes"], targetCurrentRows, { compact: true, emptyText: "No target segments were provided." })}
         ${subsectionHeading("Priority Target-Market Actions")}
