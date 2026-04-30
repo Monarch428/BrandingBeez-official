@@ -790,11 +790,15 @@ def _normalize_user_financials(user_financials: Dict[str, Any] | None) -> Dict[s
         "monthly_tools_cost": _as_non_negative(_first_value(raw, "monthly_tools_cost", "monthlyToolsCost", "monthly_tools")),
         "monthly_marketing_cost": _as_non_negative(_first_value(raw, "monthly_marketing_cost", "monthlyMarketingCost", "monthlyAdSpend", "monthly_ad_spend")),
         "current_monthly_revenue": _as_non_negative(_first_value(raw, "current_monthly_revenue", "currentMonthlyRevenue", "monthlyRevenue", "monthlyRecurringRevenue", "current_revenue")),
+        "current_monthly_revenue_range": _first_value(raw, "current_monthly_revenue_range", "currentMonthlyRevenueRange", "monthlyRevenueRange", "monthlyRevenue", "currentMonthlyRevenue"),
         "avg_deal_size": _as_non_negative(_first_value(raw, "avg_deal_size", "avgDealSize", "avgDealValue", "avg_deal_value")),
+        "avg_deal_size_range": _first_value(raw, "avg_deal_size_range", "avgDealSizeRange", "avgDealValueRange", "avgDealValue", "avgDealSize"),
         "close_rate": _as_ratio(_first_value(raw, "close_rate", "closeRate")),
+        "close_rate_range": _first_value(raw, "close_rate_range", "closeRateRange", "closeRate"),
         "monthly_traffic": _as_non_negative(_first_value(raw, "monthly_traffic", "monthlyTraffic", "currentTrafficPerMonth", "current_monthly_traffic")),
         "site_conversion_rate": _as_ratio(_first_value(raw, "site_conversion_rate", "siteConversionRate", "conversionRate", "visitorToLeadRate")),
         "monthly_leads": _as_non_negative(_first_value(raw, "monthly_leads", "monthlyLeads", "qualifiedLeadsPerMonth", "qualifiedLeads")),
+        "monthly_leads_range": _first_value(raw, "monthly_leads_range", "monthlyLeadsRange", "qualifiedLeadsPerMonthRange", "qualifiedLeadsRange", "leadsPerMonthRange", "monthlyLeads", "qualifiedLeadsPerMonth", "qualifiedLeads"),
         "implementation_cost": _as_non_negative(_first_value(raw, "implementation_cost", "implementationCost")),
         "improvement_factors": {
             "seo_growth_pct": _as_ratio(_first_value(improvement_factors, "seo_growth_pct", "seoGrowthPct")),
@@ -807,11 +811,15 @@ def _normalize_user_financials(user_financials: Dict[str, Any] | None) -> Dict[s
 
 def _extract_user_financials(report: Dict[str, Any]) -> Dict[str, Any]:
     meta = report.get("meta") if isinstance(report.get("meta"), dict) else {}
+    merged: Dict[str, Any] = {}
     for key in ("userFinancials", "businessInputs", "optionalBusinessInputs"):
         candidate = meta.get(key)
         if isinstance(candidate, dict) and candidate:
-            return candidate
-    return {}
+            merged.update(candidate)
+    estimation_inputs = meta.get("estimationInputs")
+    if isinstance(estimation_inputs, dict) and estimation_inputs:
+        merged.update({k: v for k, v in estimation_inputs.items() if v not in (None, "", [])})
+    return merged
 
 
 def _has_actual_company_data(user_financials: Dict[str, Any]) -> bool:
@@ -912,6 +920,207 @@ def _default_avg_service_price(report_data: Dict[str, Any], symbol: str) -> floa
     if site_type == "local_service_business":
         return 15000.0 if is_inr else 1200.0
     return 20000.0 if is_inr else 2500.0
+
+
+def _parse_numeric_value(value: Any, *, percent_hint: bool = False) -> float | None:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        number = float(value)
+        if percent_hint and number > 1:
+            number /= 100.0
+        return number if number > 0 else None
+    text = sanitize_text_for_pdf(value)
+    if not text:
+        return None
+    text = text.lower().strip()
+    text = text.replace(",", "").replace(" ", "")
+    text = text.replace("₹", "").replace("$", "").replace("£", "").replace("€", "")
+    text = text.replace("/month", "").replace("/mo", "").replace("/year", "").replace("/yr", "")
+    text = re.sub(r"per(month|mo|year|yr)\b", "", text)
+    text = text.strip()
+    match = re.fullmatch(r"(-?\d+(?:\.\d+)?)(k|m|l|lac|lakh|cr|crore)?", text)
+    if not match:
+        return None
+    number = float(match.group(1))
+    suffix = (match.group(2) or "").lower()
+    multipliers = {
+        "k": 1_000.0,
+        "m": 1_000_000.0,
+        "l": 100_000.0,
+        "lac": 100_000.0,
+        "lakh": 100_000.0,
+        "cr": 10_000_000.0,
+        "crore": 10_000_000.0,
+    }
+    number *= multipliers.get(suffix, 1.0)
+    if percent_hint and number > 1:
+        number /= 100.0
+    return number if number > 0 else None
+
+
+def _parse_numeric_range(value: Any, *, percent_hint: bool = False) -> Tuple[float, float] | None:
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        parsed = _parse_numeric_value(value, percent_hint=percent_hint)
+        return (parsed, parsed) if parsed is not None else None
+
+    text = sanitize_text_for_pdf(value)
+    if not text:
+        return None
+    percent_mode = percent_hint or ("%" in text)
+    normalized = (
+        text.lower()
+        .replace("₹", "")
+        .replace("$", "")
+        .replace("£", "")
+        .replace("€", "")
+        .replace(",", "")
+    )
+    normalized = re.sub(r"\bto\b", "-", normalized)
+    normalized = normalized.replace("–", "-").replace("—", "-")
+    normalized = normalized.replace("/month", "").replace("/mo", "").replace("/year", "").replace("/yr", "")
+    normalized = re.sub(r"per\s+(month|mo|year|yr)\b", "", normalized)
+    normalized = normalized.replace(" ", "").strip()
+
+    matches = re.findall(r"\d+(?:\.\d+)?(?:k|m|l|lac|lakh|cr|crore)?", normalized)
+    if not matches:
+        parsed = _parse_numeric_value(normalized, percent_hint=percent_mode)
+        return (parsed, parsed) if parsed is not None else None
+
+    parsed_numbers = [
+        _parse_numeric_value(match, percent_hint=percent_mode)
+        for match in matches[:2]
+    ]
+    parsed_numbers = [number for number in parsed_numbers if number is not None]
+    if not parsed_numbers:
+        return None
+    if len(parsed_numbers) == 1:
+        return (parsed_numbers[0], parsed_numbers[0])
+    low, high = sorted((float(parsed_numbers[0]), float(parsed_numbers[1])))
+    return (low, high)
+
+
+def _resolve_numeric_range(
+    normalized: Dict[str, Any],
+    *,
+    value_key: str,
+    range_key: str,
+    percent_hint: bool = False,
+) -> Tuple[float, float] | None:
+    raw_range_value = normalized.get(range_key)
+    if isinstance(raw_range_value, str) and any(token in raw_range_value for token in ("-", "–", "—", "to", "%")):
+        parsed_range = _parse_numeric_range(raw_range_value, percent_hint=percent_hint)
+        if parsed_range is not None:
+            return parsed_range
+    numeric_value = _parse_numeric_value(normalized.get(value_key), percent_hint=percent_hint)
+    if numeric_value is not None:
+        return (numeric_value, numeric_value)
+    return _parse_numeric_range(normalized.get(range_key), percent_hint=percent_hint)
+
+
+def _round_financial_value(value: float) -> float:
+    if value <= 0:
+        return 0.0
+    rounded = float(int(round(value / 1000.0) * 1000))
+    return rounded if rounded > 0 else 1000.0
+
+
+def _format_revenue_band(low: float, high: float, symbol: str) -> str:
+    if abs(high - low) < 1.0:
+        return f"{_format_money_precise(high, symbol)} / month"
+    return f"{_format_money_precise(low, symbol)} - {_format_money_precise(high, symbol)} / month"
+
+
+def _format_revenue_band_year(low: float, high: float, symbol: str) -> str:
+    if abs(high - low) < 1.0:
+        return f"{_format_money_precise(high, symbol)} / year"
+    return f"{_format_money_precise(low, symbol)} - {_format_money_precise(high, symbol)} / year"
+
+
+def _build_monthly_revenue_estimate(normalized: Dict[str, Any], symbol: str) -> Dict[str, Any]:
+    monthly_revenue_range = _resolve_numeric_range(
+        normalized,
+        value_key="current_monthly_revenue",
+        range_key="current_monthly_revenue_range",
+    )
+    if monthly_revenue_range is not None and monthly_revenue_range[0] > 0 and monthly_revenue_range[1] > 0:
+        monthly_low = _round_financial_value(monthly_revenue_range[0])
+        monthly_high = _round_financial_value(monthly_revenue_range[1])
+        if monthly_high < monthly_low:
+            monthly_high = monthly_low
+        yearly_low = _round_financial_value(monthly_low * 12.0)
+        yearly_high = _round_financial_value(monthly_high * 12.0)
+        return {
+            "monthlyRevenueEstimate": {
+                "min": monthly_low,
+                "max": monthly_high,
+                "formatted": _format_revenue_band(monthly_low, monthly_high, symbol),
+                "source": "user_input",
+            },
+            "yearlyRevenueEstimate": {
+                "min": yearly_low,
+                "max": yearly_high,
+                "formatted": _format_revenue_band_year(yearly_low, yearly_high, symbol),
+            },
+        }
+
+    leads_range = _resolve_numeric_range(
+        normalized,
+        value_key="monthly_leads",
+        range_key="monthly_leads_range",
+    )
+    close_rate_range = _resolve_numeric_range(
+        normalized,
+        value_key="close_rate",
+        range_key="close_rate_range",
+        percent_hint=True,
+    )
+    avg_deal_range = _resolve_numeric_range(
+        normalized,
+        value_key="avg_deal_size",
+        range_key="avg_deal_size_range",
+    )
+
+    if not (leads_range and close_rate_range and avg_deal_range):
+        return {
+            "error": "Invalid financial calculation",
+            "reason": "Check input parsing or missing data",
+        }
+
+    min_revenue = leads_range[0] * close_rate_range[0] * avg_deal_range[0]
+    max_revenue = leads_range[1] * close_rate_range[1] * avg_deal_range[1]
+
+    if (
+        min_revenue <= 0
+        or max_revenue <= 0
+        or max_revenue < min_revenue
+        or max_revenue < 10_000
+    ):
+        return {
+            "error": "Invalid financial calculation",
+            "reason": "Check input parsing or missing data",
+        }
+
+    monthly_low = _round_financial_value(min_revenue)
+    monthly_high = _round_financial_value(max_revenue)
+    yearly_low = _round_financial_value(monthly_low * 12.0)
+    yearly_high = _round_financial_value(monthly_high * 12.0)
+
+    return {
+        "monthlyRevenueEstimate": {
+            "min": monthly_low,
+            "max": monthly_high,
+            "formatted": _format_revenue_band(monthly_low, monthly_high, symbol),
+            "source": "calculated",
+        },
+        "yearlyRevenueEstimate": {
+            "min": yearly_low,
+            "max": yearly_high,
+            "formatted": _format_revenue_band_year(yearly_low, yearly_high, symbol),
+        },
+    }
 
 
 def _extract_market_cpc_stats(report_data: Dict[str, Any]) -> Dict[str, float | int | None]:
@@ -1047,6 +1256,8 @@ def build_financial_impact_general(
     report_data: Dict[str, Any],
     user_financials: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
+    normalized = _normalize_user_financials(user_financials)
+    return _build_financial_impact_model(report_data, normalized, has_actual_inputs=False)
     assumptions = build_financial_assumptions(report_data)
     normalized = _normalize_user_financials(user_financials)
     symbol = _resolve_currency_symbol(report_data, normalized)
@@ -1218,6 +1429,7 @@ def build_financial_impact_general(
 
 def build_financial_impact_from_actuals(report_data: Dict[str, Any], user_financials: Dict[str, Any]) -> Dict[str, Any]:
     normalized = _normalize_user_financials(user_financials)
+    return _build_financial_impact_model(report_data, normalized, has_actual_inputs=True)
     assumptions = build_financial_assumptions(report_data)
     symbol = _resolve_currency_symbol(report_data, normalized)
     keyword_count = max(_extract_keyword_count(report_data), int(assumptions.get("keywordDemand") or 0))
@@ -1438,6 +1650,201 @@ def build_financial_impact_from_actuals(report_data: Dict[str, Any], user_financ
     }
 
 
+def _build_financial_impact_model(
+    report_data: Dict[str, Any],
+    normalized: Dict[str, Any],
+    *,
+    has_actual_inputs: bool,
+) -> Dict[str, Any]:
+    assumptions = build_financial_assumptions(report_data)
+    symbol = _resolve_currency_symbol(report_data, normalized)
+    revenue_estimate = _build_monthly_revenue_estimate(normalized, symbol)
+    if revenue_estimate.get("error"):
+        return revenue_estimate
+
+    monthly_estimate = revenue_estimate["monthlyRevenueEstimate"]
+    yearly_estimate = revenue_estimate["yearlyRevenueEstimate"]
+    current_low = float(monthly_estimate["min"])
+    current_high = float(monthly_estimate["max"])
+    current_mid = (current_low + current_high) / 2.0
+
+    factors = normalized.get("improvement_factors") if isinstance(normalized.get("improvement_factors"), dict) else {}
+    seo_growth_factor = 1.0 + float(factors.get("seo_growth_pct")) if factors.get("seo_growth_pct") is not None else 1.3
+    conversion_improvement = 1.0 + float(factors.get("conversion_rate_lift_pct")) if factors.get("conversion_rate_lift_pct") is not None else 1.2
+    price_factor = 1.0 + float(factors.get("price_increase_pct")) if factors.get("price_increase_pct") is not None else 1.0
+    cost_savings_pct = float(factors.get("cost_savings_pct")) if factors.get("cost_savings_pct") is not None else 0.05
+
+    projected_multiplier = seo_growth_factor * conversion_improvement * price_factor
+    projected_low = _round_financial_value(current_low * projected_multiplier)
+    projected_high = _round_financial_value(current_high * projected_multiplier)
+    if projected_high < projected_low:
+        projected_high = projected_low
+    projected_mid = (projected_low + projected_high) / 2.0
+
+    annual_growth_low = _round_financial_value((projected_low - current_low) * 12.0)
+    annual_growth_high = _round_financial_value((projected_high - current_high) * 12.0)
+    if annual_growth_high < annual_growth_low:
+        annual_growth_high = annual_growth_low
+    annual_growth_mid = (annual_growth_low + annual_growth_high) / 2.0
+
+    keyword_count = max(_extract_keyword_count(report_data), int(assumptions.get("keywordDemand") or 0))
+    domain_authority = _extract_domain_authority(report_data)
+    total_backlinks = _extract_total_backlinks(report_data)
+    monthly_traffic = float(normalized.get("monthly_traffic") or assumptions.get("traffic") or 0.0)
+    if monthly_traffic <= 0:
+        monthly_traffic = float(keyword_count) * 20.0
+
+    leads_range = _resolve_numeric_range(normalized, value_key="monthly_leads", range_key="monthly_leads_range")
+    close_rate_range = _resolve_numeric_range(normalized, value_key="close_rate", range_key="close_rate_range", percent_hint=True)
+    avg_deal_range = _resolve_numeric_range(normalized, value_key="avg_deal_size", range_key="avg_deal_size_range")
+
+    current_total_monthly_cost = _sum_present(
+        [
+            normalized.get("monthly_payroll"),
+            normalized.get("monthly_overhead"),
+            normalized.get("monthly_tools_cost"),
+            normalized.get("monthly_marketing_cost"),
+        ]
+    )
+    annual_cost_savings = _round_financial_value(current_total_monthly_cost * cost_savings_pct * 12.0)
+    implementation_cost = normalized.get("implementation_cost")
+    if implementation_cost is None and has_actual_inputs:
+        implementation_cost = max(10_000.0, current_total_monthly_cost * 1.5 if current_total_monthly_cost > 0 else current_mid * 0.15)
+    roi = ((annual_growth_mid + annual_cost_savings) / max(float(implementation_cost or 1.0), 1.0)) if has_actual_inputs else None
+
+    confidence_base = 72 if has_actual_inputs else 58
+    signal_count = sum(
+        1
+        for value in (
+            monthly_estimate["source"] == "user_input",
+            leads_range is not None,
+            close_rate_range is not None,
+            avg_deal_range is not None,
+            keyword_count > 0,
+            domain_authority > 0,
+            total_backlinks > 0,
+            current_total_monthly_cost > 0,
+        )
+        if value
+    )
+    confidence_score = int(_clamp(float(confidence_base + (signal_count * 4)), 55, 95))
+
+    revenue_opportunities = [
+        {
+            "opportunity": "SEO growth",
+            "monthlyImpact": _format_money_range_precise((annual_growth_low / 12.0) * 0.58, (annual_growth_high / 12.0) * 0.58, symbol),
+            "annualImpact": _format_money_range_precise(annual_growth_low * 0.58, annual_growth_high * 0.58, symbol),
+            "effortLevel": "High",
+        },
+        {
+            "opportunity": "Conversion optimization",
+            "monthlyImpact": _format_money_range_precise((annual_growth_low / 12.0) * 0.27, (annual_growth_high / 12.0) * 0.27, symbol),
+            "annualImpact": _format_money_range_precise(annual_growth_low * 0.27, annual_growth_high * 0.27, symbol),
+            "effortLevel": "Medium",
+        },
+        {
+            "opportunity": "Offer packaging and pricing",
+            "monthlyImpact": _format_money_range_precise((annual_growth_low / 12.0) * 0.15, (annual_growth_high / 12.0) * 0.15, symbol),
+            "annualImpact": _format_money_range_precise(annual_growth_low * 0.15, annual_growth_high * 0.15, symbol),
+            "effortLevel": "Medium",
+        },
+    ]
+    financial_levers = [
+        {
+            "lever": "SEO growth",
+            "impact": _format_money_range_precise(projected_low - current_low, projected_high - current_high, symbol) + "/month upside",
+            "effort": "High",
+            "confidence": "medium",
+            "notes": f"Improvement assumes SEO growth factor {seo_growth_factor:.2f} with context from {keyword_count} keywords, DA {int(round(domain_authority))}, and {int(round(total_backlinks)):,} backlinks.",
+        },
+        {
+            "lever": "Conversion optimization",
+            "impact": _format_percent_range(close_rate_range[0], close_rate_range[1]) if close_rate_range else "Input required",
+            "effort": "Medium",
+            "confidence": "medium",
+            "notes": "Uses parsed close-rate input directly. Percentage parsing converts strings like 20-30% into 0.20-0.30.",
+        },
+        {
+            "lever": "Average deal value",
+            "impact": _format_money_range_precise(avg_deal_range[0], avg_deal_range[1], symbol) + " per sale" if avg_deal_range else "Input required",
+            "effort": "Medium",
+            "confidence": "medium",
+            "notes": "Uses parsed average deal value directly with no template pricing fallback.",
+        },
+    ]
+
+    assumptions_list = [
+        f"Monthly revenue source = {monthly_estimate['source']}.",
+        f"Monthly revenue baseline = {monthly_estimate['formatted']}.",
+        f"Yearly revenue baseline = {yearly_estimate['formatted']}.",
+        "If explicit monthly revenue exists and parses cleanly, it overrides all calculated baselines.",
+        "If revenue is not provided, baseline revenue = qualified leads x close rate x average deal value.",
+        f"Improvement model uses SEO factor {seo_growth_factor:.2f}, conversion factor {conversion_improvement:.2f}, and price factor {price_factor:.2f}.",
+    ]
+    if leads_range and close_rate_range and avg_deal_range:
+        assumptions_list.append(
+            f"Calculated baseline range = {_format_number_range(leads_range[0], leads_range[1])} leads x {_format_percent_range(close_rate_range[0], close_rate_range[1])} x {_format_money_range_precise(avg_deal_range[0], avg_deal_range[1], symbol)}."
+        )
+    assumptions_list.append(f"SEO visibility context = {keyword_count} keywords, DA {int(round(domain_authority))}, backlinks {int(round(total_backlinks)):,}.")
+
+    revenue_table = [
+        {"metric": "Keyword Count", "value": f"{keyword_count:,}"},
+        {"metric": "Estimated Traffic", "value": f"{int(round(monthly_traffic)):,}/month"},
+        {"metric": "Qualified Leads Range", "value": _format_number_range(leads_range[0], leads_range[1]) if leads_range else "Input required"},
+        {"metric": "Close Rate Range", "value": _format_percent_range(close_rate_range[0], close_rate_range[1]) if close_rate_range else "Input required"},
+        {"metric": "Average Deal Value Range", "value": _format_money_range_precise(avg_deal_range[0], avg_deal_range[1], symbol) if avg_deal_range else "Input required"},
+        {"metric": "Current Revenue Estimate", "value": monthly_estimate["formatted"]},
+        {"metric": "Projected Monthly Revenue", "value": _format_revenue_band(projected_low, projected_high, symbol)},
+        {"metric": "Annual Revenue Growth", "value": _format_money_range_precise(annual_growth_low, annual_growth_high, symbol)},
+    ]
+    if current_total_monthly_cost > 0:
+        revenue_table.append({"metric": "Current Monthly Cost", "value": _format_money(current_total_monthly_cost, symbol)})
+    if annual_cost_savings > 0:
+        revenue_table.append({"metric": "Annual Cost Savings", "value": _format_money(annual_cost_savings, symbol)})
+
+    result: Dict[str, Any] = {
+        "mode": "actual_company_data" if has_actual_inputs else "signal_estimation",
+        "mentorNotes": f"Section 10 is using parsed financial inputs and strict revenue math. Current monthly revenue is {monthly_estimate['formatted']}.",
+        "notes": "Financial impact now prioritizes explicit monthly revenue. Without that input, it calculates revenue strictly from qualified leads, close rate, and average deal value.",
+        "confidenceScore": confidence_score,
+        "assumptions": assumptions_list,
+        "revenueOpportunities": revenue_opportunities,
+        "financialLevers": financial_levers,
+        "profitabilityLevers": financial_levers,
+        "revenueTable": revenue_table,
+        "monthlyRevenueEstimate": monthly_estimate,
+        "yearlyRevenueEstimate": yearly_estimate,
+        "currentRevenueEstimate": monthly_estimate["formatted"],
+        "improvementPotential": _format_money_range_precise(annual_growth_low, annual_growth_high, symbol) + "/year upside",
+        "projectedRevenueIncrease": _format_revenue_band(projected_low, projected_high, symbol),
+        "currentRevenueEstimateValue": round(current_mid, 2),
+        "projectedRevenueValue": round(projected_mid, 2),
+        "annualGrowthValue": round(annual_growth_mid, 2),
+        "estimatedTrafficValue": round(monthly_traffic, 2),
+        "conversionRateValue": round(close_rate_range[0], 4) if close_rate_range else None,
+        "avgDealValueValue": round(avg_deal_range[0], 2) if avg_deal_range else None,
+        "keywordCountValue": int(keyword_count),
+        "domainAuthorityValue": round(domain_authority, 2),
+        "totalBacklinksValue": round(total_backlinks, 2),
+        "currentRevenueMin": current_low,
+        "currentRevenueMax": current_high,
+        "projectedRevenueMin": projected_low,
+        "projectedRevenueMax": projected_high,
+        "annualGrowthMin": annual_growth_low,
+        "annualGrowthMax": annual_growth_high,
+    }
+    if has_actual_inputs:
+        result["costSavings"] = [{"initiative": "Operational cost optimization", "annualSavings": _format_money(annual_cost_savings, symbol)}] if annual_cost_savings > 0 else []
+        if roi is not None:
+            result["netImpact"] = {
+                "revenueGrowth": _format_money_range_precise(annual_growth_low, annual_growth_high, symbol),
+                "costSavings": _format_money(annual_cost_savings, symbol),
+                "totalFinancialImpact": _format_money_range_precise(annual_growth_low + annual_cost_savings, annual_growth_high + annual_cost_savings, symbol),
+                "roi": _format_roi(roi, roi),
+            }
+    return result
+
+
 def ensure_financial_impact_section(
     financial_section: Dict[str, Any] | None,
     report_data: Dict[str, Any],
@@ -1451,6 +1858,8 @@ def ensure_financial_impact_section(
         if _has_actual_company_data(normalized_user_financials)
         else build_financial_impact_general(report_data, normalized_user_financials)
     )
+    if modeled.get("error"):
+        raise ValueError(f"{modeled.get('error')}: {modeled.get('reason')}")
 
     scenarios = _clean_dict_list(section.get("scenarios"))
     profitability_levers = _clean_dict_list(section.get("profitabilityLevers"))
@@ -1479,6 +1888,8 @@ def ensure_financial_impact_section(
         section["scenarios"] = scenarios
     if profitability_levers:
         section["profitabilityLevers"] = profitability_levers
+    assert section.get("monthlyRevenueEstimate") is not None
+    assert section.get("yearlyRevenueEstimate") is not None
     print("Financial Section:", section)
     return section
 

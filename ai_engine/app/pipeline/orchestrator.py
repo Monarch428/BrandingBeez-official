@@ -914,6 +914,8 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             parsed_num = float(parsed)
         except Exception:
             return False
+        if key in {"monthlyRevenue", "monthlyRecurringRevenue"} and existing_num > 0:
+            return False
         monetary_like = {
             "monthlyRevenue", "monthlyAdSpend", "avgDealValue", "monthlyPayrollCost",
             "monthlyToolsCost", "monthlyOverheadCost", "monthlyRecurringRevenue"

@@ -238,6 +238,9 @@ function shouldPreferDerivedFinancialValue(
   const derivedNumber = toOptionalNumber(derivedValue);
   if (derivedNumber === null) return false;
   if (explicitNumber === null) return true;
+  if ((field === "monthlyRevenue" || field === "monthlyRecurringRevenue") && explicitNumber > 0) {
+    return false;
+  }
 
   const monetaryLikeFields = new Set<string>([
     "monthlyRevenue",
@@ -297,7 +300,7 @@ function stabilizeSuspiciousFinancialInputs(
   const avgDeal = numeric(out.avgDealValue);
   const currentRevenue = numeric(out.monthlyRevenue ?? out.monthlyRecurringRevenue);
 
-  if ((currentRevenue === null || currentRevenue < 1000) && leads && closeRate && avgDeal) {
+  if (currentRevenue === null && leads && closeRate && avgDeal) {
     const modeledRevenue = leads * closeRate * avgDeal;
     if (modeledRevenue >= 1000) {
       out.monthlyRevenue = modeledRevenue;
