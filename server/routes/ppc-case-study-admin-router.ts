@@ -135,6 +135,29 @@ export function ppcCaseStudyAdminRouter(authenticateAdmin: RequestHandler) {
     }
   });
 
+  router.put("/ppc-case-study/detail/:detailId", authenticateAdmin, async (req, res) => {
+    try {
+      const { detailId } = req.params;
+
+      if (!detailId) {
+        return res.status(400).json({ message: "detailId is required" });
+      }
+
+      const updated = await PpcCaseStudyDetailModel.findByIdAndUpdate(
+        detailId,
+        { $set: req.body },
+        { new: true }
+      ).lean();
+
+      if (!updated) return res.status(404).json({ message: "PPC case study detail not found" });
+
+      return res.json(updated);
+    } catch (error) {
+      console.error("Failed to update PPC case study detail by detailId:", error);
+      return res.status(500).json({ message: "Failed to update PPC case study detail" });
+    }
+  });
+
   router.put("/ppc-case-study/detail", authenticateAdmin, async (req, res) => {
     try {
       const { detailId } = req.query as { detailId?: string };
