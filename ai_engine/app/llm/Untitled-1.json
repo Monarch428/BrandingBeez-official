@@ -1,0 +1,3693 @@
+{
+  "_id": {
+    "$oid": "69e5da39af712a7022324ca3"
+  },
+  "token": "BvQG76BwkTnDZXuSH_m0oACFLg8mlpKY",
+  "analysis": {
+    "reportMetadata": {
+      "reportId": "bbreport_sFTN6o5SD9eL698su9s8-2B1",
+      "companyName": "Brandingbeez",
+      "website": "https://brandingbeez.co.uk/",
+      "analysisDate": "20 Apr 2026",
+      "overallScore": 63,
+      "subScores": {
+        "website": 65,
+        "seo": 70,
+        "reputation": 18,
+        "leadGen": 70,
+        "services": 72,
+        "costEfficiency": 0
+      },
+      "confidenceScore": 97,
+      "opportunityScore": 51,
+      "riskScore": 44,
+      "scoreMeta": {
+        "computedBy": "deterministic_report_post_processing",
+        "sectionScoresUsed": {
+          "website": 65,
+          "seo": 70,
+          "reputation": 18,
+          "leadGen": 70,
+          "services": 72
+        },
+        "coreScore": 61,
+        "dataCompleteness": 100,
+        "siteType": "service_business",
+        "previousOverallScore": 59,
+        "overallScoreFormula": "(core_score * 0.90) + (confidence_score * 0.05) + ((100 - risk_score) * 0.05)",
+        "coreWeights": {
+          "website": 0.25,
+          "seo": 0.2,
+          "reputation": 0.15,
+          "leadGen": 0.2,
+          "services": 0.2
+        },
+        "opportunityIncludedInOverall": false,
+        "missingSignals": [
+          "review_data"
+        ],
+        "detectionReliability": 100,
+        "businessProfile": {
+          "businessModel": "service_business",
+          "businessModelConfidence": 62,
+          "classificationEvidence": [
+            "service_business: services were detected",
+            "service_business: service-business website signals detected"
+          ],
+          "offerType": "build_services",
+          "offerTypes": [
+            "build_services",
+            "marketing_services"
+          ],
+          "salesMotion": "inquiry_led",
+          "buyerType": "business_buyer",
+          "primaryGrowthMotion": "paid_acquisition",
+          "geographyType": "global",
+          "industry": "Web Development Agencie",
+          "location": "India",
+          "targetMarket": "US & UK Agencies",
+          "serviceDeliveryModel": "direct",
+          "serviceNames": [
+            "White-Label SEO",
+            "Design",
+            "PPC / Google Ads",
+            "Web Design & Development",
+            "BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies"
+          ],
+          "proofAssets": [
+            "testimonial_or_review_signals",
+            "public_review_profile",
+            "defined_service_menu"
+          ],
+          "reportToneProfile": {
+            "voice": "commercial_consultant",
+            "style": "evidence_based_and_business_specific",
+            "lexicon": "service clarity, trust, enquiries, conversion readiness",
+            "avoid": [
+              "generic marketing jargon",
+              "one-size-fits-all recommendations",
+              "unsupported industry claims"
+            ]
+          },
+          "businessLanguage": "service clarity, trust, enquiries, conversion readiness",
+          "summary": {
+            "headline": "Service Business | Build Services | Inquiry Led",
+            "commercialLens": "service clarity, trust, enquiries, conversion readiness",
+            "classificationConfidence": 62
+          }
+        },
+        "sectionRelevance": {
+          "executiveSummary": {
+            "level": "high",
+            "reason": "Always relevant; sets the commercial framing for the report."
+          },
+          "websiteDigitalPresence": {
+            "level": "high",
+            "reason": "Website structure, UX, and trust flow are foundational across all business models."
+          },
+          "seoVisibility": {
+            "level": "high",
+            "reason": "SEO matters for discoverability, but confidence depends on keyword and authority evidence."
+          },
+          "reputation": {
+            "level": "high",
+            "reason": "Trust packaging matters across service, SaaS, and local businesses."
+          },
+          "servicesPositioning": {
+            "level": "high",
+            "reason": "Offer clarity and positioning are central to service-led businesses."
+          },
+          "leadGeneration": {
+            "level": "high",
+            "reason": "Lead capture and funnel readiness directly affect pipeline quality."
+          },
+          "competitiveAnalysis": {
+            "level": "medium",
+            "reason": "Competitive pressure is useful when valid direct peers are detected."
+          },
+          "costOptimization": {
+            "level": "high",
+            "reason": "Commercial efficiency is meaningful for any business, but precision depends on financial inputs."
+          },
+          "targetMarket": {
+            "level": "high",
+            "reason": "ICP clarity and segment fit shape messaging, landing pages, and pipeline quality."
+          },
+          "financialImpact": {
+            "level": "high",
+            "reason": "Financial impact should be generated for all businesses, but some will be directional only."
+          },
+          "actionPlan90Days": {
+            "level": "high",
+            "reason": "Always relevant; should synthesize the highest-priority cross-section actions."
+          }
+        },
+        "method": "Recomputes overall score from weighted category health, then adjusts modestly for confidence and downside risk. Missing inputs reduce confidence rather than silently zeroing the business score."
+      }
+    },
+    "executiveSummary": {
+      "biggestOpportunity": "Your biggest limiter right now is trust/credibility. Visitors need proof (reviews, testimonials, case studies) before they convert. Recommendation: collect and publish 10–20 reviews, add 2–5 metric-backed case studies, and place trust assets above the fold on key pages.",
+      "mentorSnapshot": null,
+      "strengths": [
+        "Homepage has a clear page title (good for SEO and click-through).",
+        "Homepage has a meta description (helps search snippet quality).",
+        "Case-study or portfolio signal detected: \"Projects\".",
+        "Testimonial or review signal detected: \"Trusted By\"."
+      ],
+      "weaknesses": [
+        "No H1 heading detected on homepage.",
+        "Homepage appears thin on crawlable text (may reduce relevance signals).",
+        "Homepage has no H1 heading.",
+        "Dedicated services content could not be structurally confirmed.",
+        "No FAQ section detected."
+      ],
+      "quickWins": [
+        {
+          "title": "PageSpeed quick win: Reduce unused JavaScript",
+          "impact": "Faster load times; better conversions and CWV.",
+          "time": "2–6 hrs",
+          "cost": "Low",
+          "details": "Reduce unused JavaScript and defer loading scripts until they are required to decrease bytes consumed by network activity. [Learn how to reduce unused JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unused-javascript/)."
+        },
+        {
+          "title": "PageSpeed quick win: Minify JavaScript",
+          "impact": "Faster load times; better conversions and CWV.",
+          "time": "2–6 hrs",
+          "cost": "Low",
+          "details": "Minifying JavaScript files can reduce payload sizes and script parse time. [Learn how to minify JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unminified-javascript/)."
+        },
+        {
+          "title": "PageSpeed quick win: Reduce unused CSS",
+          "impact": "Faster load times; better conversions and CWV.",
+          "time": "2–6 hrs",
+          "cost": "Low",
+          "details": "Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content to decrease bytes consumed by network activity. [Learn how to reduce unused CSS](https://developer.chrome.com/docs/lighthouse/performance/unused-css-rules/)."
+        }
+      ],
+      "highPriorityRecommendations": []
+    },
+    "websiteDigitalPresence": {
+      "technicalSEO": {
+        "score": 65,
+        "strengths": [
+          "Homepage title detected: \"BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies\"",
+          "Meta description detected on homepage."
+        ],
+        "issues": [
+          "No H1 heading detected on homepage.",
+          "Homepage appears thin on crawlable text (may reduce relevance signals)."
+        ],
+        "pageSpeed": {
+          "mobile": {
+            "performanceScore": 38,
+            "seoScore": 0,
+            "lcpMs": 13712,
+            "cls": 0,
+            "tbtMs": 1147,
+            "opportunities": [
+              {
+                "title": "Reduce unused JavaScript",
+                "description": "Reduce unused JavaScript and defer loading scripts until they are required to decrease bytes consumed by network activity. [Learn how to reduce unused JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unused-javascript/)."
+              },
+              {
+                "title": "Minify JavaScript",
+                "description": "Minifying JavaScript files can reduce payload sizes and script parse time. [Learn how to minify JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unminified-javascript/)."
+              },
+              {
+                "title": "Reduce unused CSS",
+                "description": "Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content to decrease bytes consumed by network activity. [Learn how to reduce unused CSS](https://developer.chrome.com/docs/lighthouse/performance/unused-css-rules/)."
+              },
+              {
+                "title": "Avoid multiple page redirects",
+                "description": "Redirects introduce additional delays before the page can be loaded. [Learn how to avoid page redirects](https://developer.chrome.com/docs/lighthouse/performance/redirects/)."
+              },
+              {
+                "title": "Initial server response time was short",
+                "description": "Keep the server response time for the main document short because all other requests depend on it. [Learn more about the Time to First Byte metric](https://developer.chrome.com/docs/lighthouse/performance/time-to-first-byte/)."
+              },
+              {
+                "title": "Minify CSS",
+                "description": "Minifying CSS files can reduce network payload sizes. [Learn how to minify CSS](https://developer.chrome.com/docs/lighthouse/performance/unminified-css/)."
+              }
+            ]
+          },
+          "desktop": {
+            "performanceScore": 57,
+            "seoScore": 0,
+            "lcpMs": 2977,
+            "cls": 0.00049,
+            "tbtMs": 462,
+            "opportunities": [
+              {
+                "title": "Reduce unused CSS",
+                "description": "Reduce unused rules from stylesheets and defer CSS not used for above-the-fold content to decrease bytes consumed by network activity. [Learn how to reduce unused CSS](https://developer.chrome.com/docs/lighthouse/performance/unused-css-rules/)."
+              },
+              {
+                "title": "Reduce unused JavaScript",
+                "description": "Reduce unused JavaScript and defer loading scripts until they are required to decrease bytes consumed by network activity. [Learn how to reduce unused JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unused-javascript/)."
+              },
+              {
+                "title": "Avoid multiple page redirects",
+                "description": "Redirects introduce additional delays before the page can be loaded. [Learn how to avoid page redirects](https://developer.chrome.com/docs/lighthouse/performance/redirects/)."
+              },
+              {
+                "title": "Minify CSS",
+                "description": "Minifying CSS files can reduce network payload sizes. [Learn how to minify CSS](https://developer.chrome.com/docs/lighthouse/performance/unminified-css/)."
+              },
+              {
+                "title": "Minify JavaScript",
+                "description": "Minifying JavaScript files can reduce payload sizes and script parse time. [Learn how to minify JavaScript](https://developer.chrome.com/docs/lighthouse/performance/unminified-javascript/)."
+              },
+              {
+                "title": "Initial server response time was short",
+                "description": "Keep the server response time for the main document short because all other requests depend on it. [Learn more about the Time to First Byte metric](https://developer.chrome.com/docs/lighthouse/performance/time-to-first-byte/)."
+              }
+            ]
+          }
+        }
+      },
+      "mentorNotes": null,
+      "contentQuality": {
+        "score": 68,
+        "strengths": [
+          "Homepage has a clear page title (good for SEO and click-through).",
+          "Homepage has a meta description (helps search snippet quality).",
+          "Case-study or portfolio signal detected: \"Projects\".",
+          "Testimonial or review signal detected: \"Trusted By\"."
+        ],
+        "gaps": [
+          "Homepage has no H1 heading.",
+          "Dedicated services content could not be structurally confirmed.",
+          "No FAQ section detected."
+        ],
+        "recommendations": [
+          "Add a single primary H1 on the homepage that clearly states the main offer and audience. Suggested H1s: Growth Services That Drives Qualified Growth, Growth Services Built for Better Lead Quality, Growth Services for Results-Focused Clients.",
+          "Create a dedicated Services page and link to service-specific landing pages from the homepage hero and navigation. Suggested pages: .",
+          "Create an About page that explains who you help, why clients trust you, and how delivery works. Suggested sections: Who We Help, Why Agencies Choose Us, How Our Delivery Model Works.",
+          "Create a Contact page with one short form, response expectations, and a strong CTA tied to the main offer. Suggested CTA labels: Book a Strategy Call, Request a Fulfilment Audit, Get a Custom Proposal.",
+          "Add FAQs to key conversion pages to answer common objections and reduce sales friction.",
+          "If suitable for your business, add pricing ranges or package structure to reduce lead friction.",
+          "If SEO growth matters, add an Insights/Blog section and publish consistently."
+        ],
+        "recommendationDetails": [],
+        "actionCandidates": []
+      },
+      "uxConversion": {
+        "score": 87,
+        "highlights": [
+          "Strong usability signals were detected overall; focus next on sharpening CTA intent and conversion paths."
+        ],
+        "issues": [
+          "2 images missing alt text",
+          "Missing semantic HTML5 elements",
+          "Missing H1 heading"
+        ],
+        "estimatedUplift": "N/A",
+        "details": {
+          "performance": {
+            "page_size_kb": 14.85,
+            "scripts_count": 4,
+            "stylesheets_count": 1,
+            "images_count": 2,
+            "has_minified_resources": false
+          },
+          "accessibility": {
+            "total_images": 2,
+            "images_without_alt": 2,
+            "semantic_elements": {
+              "header": false,
+              "nav": false,
+              "main": false,
+              "footer": false
+            },
+            "heading_structure": {
+              "h1": 0,
+              "h2": 0,
+              "h3": 0,
+              "h4": 0,
+              "h5": 0,
+              "h6": 0
+            },
+            "aria_labels_count": 0,
+            "aria_labelledby_count": 0,
+            "forms_count": 0,
+            "inputs_count": 0,
+            "labels_count": 0,
+            "issues": [
+              "2 images missing alt text",
+              "Missing semantic HTML5 elements",
+              "Missing H1 heading"
+            ]
+          },
+          "design": {
+            "external_stylesheets": 1,
+            "inline_styles": 3,
+            "has_viewport_meta": true,
+            "has_favicon": true,
+            "custom_fonts": true,
+            "text_elements_count": 0
+          },
+          "usability": {
+            "has_navigation": false,
+            "nav_links_count": 0,
+            "has_search": false,
+            "buttons_count": 0,
+            "cta_links_count": 0,
+            "has_contact_info": false,
+            "total_links": 0,
+            "internal_links": 0
+          },
+          "mobile": {
+            "has_viewport": true,
+            "viewport_content": "width=device-width, initial-scale=1.0, maximum-scale=5",
+            "has_media_queries": true,
+            "touch_targets_count": 0,
+            "fixed_width_elements": 0
+          },
+          "seo": {
+            "has_title": true,
+            "title_text": "BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies",
+            "title_length": 64,
+            "has_meta_description": true,
+            "description_content": "Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide.",
+            "description_length": 150,
+            "h1_count": 0,
+            "images_with_alt_percentage": 0,
+            "og_tags_count": 4,
+            "has_canonical": false
+          }
+        },
+        "recommendations": [
+          "Recommendation: Add descriptive alt text to all images.",
+          "Recommendation: Add a single H1 heading to the homepage.",
+          "Recommendation: Use semantic HTML5 elements (header, nav, main, footer).",
+          "Recommendation: Add a clear navigation menu.",
+          "Recommendation: Add visible call-to-action buttons above the fold."
+        ]
+      },
+      "websiteKeywordAnalysis": {
+        "score": 31,
+        "meaning": "A deterministic measure of keyword presence, coverage, relevance, intent match, and page-level distribution.",
+        "strengths": [],
+        "gaps": [
+          "Meta description does not clearly reinforce the main keyword theme.",
+          "Homepage H1 is missing, reducing keyword clarity.",
+          "Supporting headings do not reinforce the main keyword cluster.",
+          "Important pages are missing keyword alignment.",
+          "Missing opportunity coverage for: White-Label SEO, PPC / Google Ads, Web Design & Development."
+        ],
+        "recommendations": [
+          "Strengthen homepage keyword alignment in the title, meta description, and hero H1. Suggested H1s: White-Label SEO That Drives Qualified Growth, White-Label SEO Built for Better Lead Quality, White-Label SEO & Design for Results-Focused Clients.",
+          "Create or strengthen pages around the highest-value missing keywords. Suggested page targets: /white-label-seo, /ppc-google-ads, /web-design-development, /brandingbeez-white-label.",
+          "Spread target keywords more naturally across important pages instead of concentrating them on one page.",
+          "Tighten keyword targeting so page topics better match the site type, services, and buyer intent."
+        ],
+        "breakdown": {
+          "presence": 35,
+          "coverage": 8,
+          "relevance": 58,
+          "intentMatch": 58,
+          "distribution": 0
+        },
+        "keywordCandidates": [
+          "White-Label SEO",
+          "Design",
+          "PPC / Google Ads",
+          "Web Design & Development",
+          "brandingbeez white label",
+          "label seo design",
+          "seo design ai",
+          "design ai us",
+          "ai us uk",
+          "us uk agencies",
+          "brandingbeez white"
+        ],
+        "opportunities": [
+          {
+            "keyword": "White-Label SEO",
+            "intent": "commercial",
+            "currentCoverage": "missing",
+            "priority": "high"
+          },
+          {
+            "keyword": "PPC / Google Ads",
+            "intent": "informational",
+            "currentCoverage": "missing",
+            "priority": "high"
+          },
+          {
+            "keyword": "Web Design & Development",
+            "intent": "commercial",
+            "currentCoverage": "missing",
+            "priority": "high"
+          },
+          {
+            "keyword": "brandingbeez white label",
+            "intent": "informational",
+            "currentCoverage": "missing",
+            "priority": "medium"
+          }
+        ],
+        "recommendationDetails": [
+          {
+            "issue": "missing_h1",
+            "severity": "high",
+            "page": "https://brandingbeez.co.uk/",
+            "pageLabel": "homepage",
+            "placement": "Hero section, above the fold",
+            "recommendation": "Add a single primary H1 on the homepage that clearly states the main offer and audience.",
+            "why": "The strongest authority page should make the offer and topic obvious to both users and search engines.",
+            "suggestedVariants": [
+              "White-Label SEO That Drives Qualified Growth",
+              "White-Label SEO Built for Better Lead Quality",
+              "White-Label SEO & Design for Results-Focused Clients"
+            ],
+            "supportingBlocks": [
+              "Short benefit-led subheadline",
+              "Primary CTA button",
+              "Secondary CTA button",
+              "Trust strip with review/proof signals"
+            ],
+            "expectedOutcome": "Stronger topical clarity, improved above-the-fold messaging, and better conversion confidence."
+          },
+          {
+            "issue": "keyword_page_mapping",
+            "severity": "high",
+            "page": "https://brandingbeez.co.uk/",
+            "pageLabel": "homepage",
+            "placement": "Homepage, navigation, and service/topic pages",
+            "recommendation": "Map one primary keyword cluster to each important page and create missing pages for high-intent terms.",
+            "why": "Keyword themes are missing from important pages, so the site is not giving search engines or buyers a clear page-level intent map.",
+            "suggestedVariants": [
+              "/white-label-seo",
+              "/ppc-google-ads",
+              "/web-design-development",
+              "/brandingbeez-white-label"
+            ],
+            "supportingBlocks": [
+              "H1",
+              "intro copy",
+              "FAQs",
+              "CTA section"
+            ],
+            "expectedOutcome": "More ranking-ready pages and clearer topic ownership across the site."
+          }
+        ],
+        "actionCandidates": [
+          {
+            "title": "Align homepage metadata and H1 to the primary keyword cluster",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "low",
+            "urgency": "high",
+            "confidence": 0.9,
+            "pillar": "seo",
+            "priorityScore": null,
+            "kpis": [
+              "ranking keyword count",
+              "organic CTR"
+            ],
+            "details": {
+              "issue": "missing_h1",
+              "severity": "high",
+              "page": "https://brandingbeez.co.uk/",
+              "pageLabel": "homepage",
+              "placement": "Hero section, above the fold",
+              "recommendation": "Add a single primary H1 on the homepage that clearly states the main offer and audience.",
+              "why": "The strongest authority page should make the offer and topic obvious to both users and search engines.",
+              "suggestedVariants": [
+                "White-Label SEO That Drives Qualified Growth",
+                "White-Label SEO Built for Better Lead Quality",
+                "White-Label SEO & Design for Results-Focused Clients"
+              ],
+              "supportingBlocks": [
+                "Short benefit-led subheadline",
+                "Primary CTA button",
+                "Secondary CTA button",
+                "Trust strip with review/proof signals"
+              ],
+              "expectedOutcome": "Stronger topical clarity, improved above-the-fold messaging, and better conversion confidence."
+            }
+          },
+          {
+            "title": "Build keyword-to-page map for commercial opportunities",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.85,
+            "pillar": "seo",
+            "priorityScore": null,
+            "kpis": [
+              "indexed target pages",
+              "non-brand visibility"
+            ],
+            "details": {
+              "issue": "keyword_page_mapping",
+              "severity": "high",
+              "page": "https://brandingbeez.co.uk/",
+              "pageLabel": "homepage",
+              "placement": "Homepage, navigation, and service/topic pages",
+              "recommendation": "Map one primary keyword cluster to each important page and create missing pages for high-intent terms.",
+              "why": "Keyword themes are missing from important pages, so the site is not giving search engines or buyers a clear page-level intent map.",
+              "suggestedVariants": [
+                "/white-label-seo",
+                "/ppc-google-ads",
+                "/web-design-development",
+                "/brandingbeez-white-label"
+              ],
+              "supportingBlocks": [
+                "H1",
+                "intro copy",
+                "FAQs",
+                "CTA section"
+              ],
+              "expectedOutcome": "More ranking-ready pages and clearer topic ownership across the site."
+            }
+          }
+        ]
+      },
+      "contentGaps": [
+        "Homepage has no H1 heading.",
+        "Dedicated services content could not be structurally confirmed."
+      ]
+    },
+    "seoVisibility": {
+      "mentorNotes": "This SEO section now combines authority, backlink quality, keyword coverage, competitor pressure, and local demand into one benchmark-driven view of organic growth.",
+      "siteType": "service_business",
+      "domainAuthority": {
+        "score": 70,
+        "benchmark": {
+          "you": 70,
+          "industryAvg": 30,
+          "industryAverageRange": "25-35",
+          "competitors": [
+            {
+              "name": "webnox.in",
+              "score": 9,
+              "note": "Visibility proxy derived from common-keyword overlap (9)."
+            },
+            {
+              "name": "clickboxagency.com",
+              "score": 9,
+              "note": "Visibility proxy derived from common-keyword overlap (9)."
+            },
+            {
+              "name": "techbehemoths.com",
+              "score": 9,
+              "note": "Visibility proxy derived from common-keyword overlap (9)."
+            },
+            {
+              "name": "creativepoint.in",
+              "score": 9,
+              "note": "Visibility proxy derived from common-keyword overlap (9)."
+            }
+          ]
+        },
+        "whyItMatters": "Sites with stronger authority tend to rank new pages faster, sustain visibility on more competitive SERPs, and rely less on branded search to generate pipeline.",
+        "benchmarkSummary": "Current authority is 70/100 against a working benchmark of 25-35/100 for this business model. Authority looks healthy enough that content depth, keyword targeting, and page quality are likely bigger bottlenecks than trust.",
+        "notes": "Current authority is 70/100 against a working benchmark of 25-35/100 for this business model. Authority looks healthy enough that content depth, keyword targeting, and page quality are likely bigger bottlenecks than trust. Authority confidence is high; score is calibrated to avoid overstating trust from backlink totals alone."
+      },
+      "backlinks": {
+        "totalBacklinks": 123,
+        "referringDomains": 94,
+        "linkQualityScore": 86,
+        "qualitySummary": "The backlink base is reasonably healthy. The next growth lever is directing that authority into better-targeted commercial and local pages.",
+        "anchorMixSummary": "Anchor mix is roughly 30% brand, 2% commercial, and 53% generic/URL anchors.",
+        "dofollowRatio": 84,
+        "riskSignals": [],
+        "profileCommentary": "The site currently shows 123 backlinks across 94 referring domains. That creates a baseline trust signal, but commercial SEO value depends on relevance, domain diversity, and where the links point.",
+        "competitorComparison": [
+          {
+            "name": "webnox.in",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          },
+          {
+            "name": "clickboxagency.com",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          },
+          {
+            "name": "techbehemoths.com",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          },
+          {
+            "name": "creativepoint.in",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          }
+        ],
+        "recommendation": "Recommendation: focus link building on relevant publications, partner sites, trusted directories, and proof-led PR so new authority supports service and comparison pages rather than only the homepage.",
+        "notes": "The backlink base is reasonably healthy. The next growth lever is directing that authority into better-targeted commercial and local pages."
+      },
+      "backlinkProfile": {
+        "totalBacklinks": 123,
+        "referringDomains": 94,
+        "linkQualityScore": 86,
+        "qualitySummary": "The backlink base is reasonably healthy. The next growth lever is directing that authority into better-targeted commercial and local pages.",
+        "anchorMixSummary": "Anchor mix is roughly 30% brand, 2% commercial, and 53% generic/URL anchors.",
+        "dofollowRatio": 84,
+        "riskSignals": [],
+        "profileCommentary": "The site currently shows 123 backlinks across 94 referring domains. That creates a baseline trust signal, but commercial SEO value depends on relevance, domain diversity, and where the links point.",
+        "competitorComparison": [
+          {
+            "name": "webnox.in",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          },
+          {
+            "name": "clickboxagency.com",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          },
+          {
+            "name": "techbehemoths.com",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          },
+          {
+            "name": "creativepoint.in",
+            "backlinks": null,
+            "domains": null,
+            "note": "Benchmark is based on the current provider signals available for this competitor."
+          }
+        ],
+        "recommendation": "Recommendation: focus link building on relevant publications, partner sites, trusted directories, and proof-led PR so new authority supports service and comparison pages rather than only the homepage.",
+        "notes": "The backlink base is reasonably healthy. The next growth lever is directing that authority into better-targeted commercial and local pages."
+      },
+      "competitorComparison": {
+        "directCompetitors": [
+          {
+            "domain": "webnox.in",
+            "overlapScore": 0.09,
+            "type": "direct"
+          },
+          {
+            "domain": "clickboxagency.com",
+            "overlapScore": 0.09,
+            "type": "direct"
+          },
+          {
+            "domain": "techbehemoths.com",
+            "overlapScore": 0.09,
+            "type": "direct"
+          },
+          {
+            "domain": "creativepoint.in",
+            "overlapScore": 0.09,
+            "type": "direct"
+          }
+        ],
+        "discoveryPlatforms": []
+      },
+      "keywordRankings": {
+        "totalRankingKeywords": 18,
+        "top3": 0,
+        "top10": 0,
+        "top100": 0,
+        "competitorBenchmark": {
+          "selectedCompetitors": [
+            "webnox.in",
+            "clickboxagency.com",
+            "techbehemoths.com",
+            "creativepoint.in"
+          ],
+          "visibleKeywordCount": 0,
+          "competitorOwnedGaps": 0,
+          "gapSummary": "The site has some live ranking coverage, but competitors still hold more of the visible commercial SERP real estate.",
+          "strongestSeoCompetitor": "webnox.in"
+        },
+        "targetKeywords": [
+          "White-Label SEO",
+          "White-Label SEO India",
+          "White-Label SEO US & UK Agencies",
+          "Design",
+          "Design India",
+          "Design US & UK Agencies",
+          "PPC / Google Ads",
+          "PPC / Google Ads India",
+          "PPC / Google Ads US & UK Agencies",
+          "Web Design & Development",
+          "Web Design & Development India",
+          "Web Design & Development US & UK Agencies",
+          "label seo design",
+          "seo design ai",
+          "design ai us",
+          "ai us uk",
+          "us uk agencies"
+        ],
+        "byPriority": {
+          "high": [
+            "White-Label SEO",
+            "White-Label SEO India",
+            "White-Label SEO US & UK Agencies",
+            "Design",
+            "Design India",
+            "Design US & UK Agencies",
+            "PPC / Google Ads",
+            "PPC / Google Ads India"
+          ],
+          "medium": [
+            "brandingbeez white label",
+            "brandingbeez white",
+            "brandingbeez"
+          ],
+          "low": []
+        },
+        "byIntent": {
+          "brand": [
+            "brandingbeez white label",
+            "brandingbeez white",
+            "brandingbeez"
+          ],
+          "commercial": [
+            "White-Label SEO",
+            "White-Label SEO US & UK Agencies",
+            "Design",
+            "Design US & UK Agencies",
+            "PPC / Google Ads",
+            "PPC / Google Ads US & UK Agencies",
+            "Web Design & Development",
+            "Web Design & Development US & UK Agencies"
+          ],
+          "local": [
+            "White-Label SEO India",
+            "Design India",
+            "PPC / Google Ads India",
+            "Web Design & Development India"
+          ]
+        },
+        "topRankingKeywords": [
+          {
+            "keyword": "White-Label SEO",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "White-Label SEO India",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "local",
+            "intent": "local",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "White-Label SEO US & UK Agencies",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "Design",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "Design India",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "local",
+            "intent": "local",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "Design US & UK Agencies",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "PPC / Google Ads",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "PPC / Google Ads India",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "local",
+            "intent": "local",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          }
+        ],
+        "brandedKeywords": [],
+        "nonBrandedKeywords": [
+          {
+            "keyword": "White-Label SEO",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "White-Label SEO India",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "local",
+            "intent": "local",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "White-Label SEO US & UK Agencies",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "Design",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "Design India",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "local",
+            "intent": "local",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "Design US & UK Agencies",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "PPC / Google Ads",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          },
+          {
+            "keyword": "PPC / Google Ads India",
+            "rank": null,
+            "yourRank": "Not ranking",
+            "yourUrl": null,
+            "type": "local",
+            "intent": "local",
+            "priority": "high",
+            "monthlySearches": "Unavailable",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "rankingStatus": "not ranking"
+          }
+        ],
+        "missingHighValueKeywords": [
+          {
+            "keyword": "White-Label SEO",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high"
+          },
+          {
+            "keyword": "White-Label SEO India",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "local",
+            "intent": "local",
+            "priority": "high"
+          },
+          {
+            "keyword": "White-Label SEO US & UK Agencies",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high"
+          },
+          {
+            "keyword": "Design",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high"
+          },
+          {
+            "keyword": "Design India",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "local",
+            "intent": "local",
+            "priority": "high"
+          },
+          {
+            "keyword": "Design US & UK Agencies",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high"
+          },
+          {
+            "keyword": "PPC / Google Ads",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "commercial",
+            "intent": "commercial",
+            "priority": "high"
+          },
+          {
+            "keyword": "PPC / Google Ads India",
+            "monthlySearches": "Unavailable",
+            "yourRank": "Not ranking",
+            "topCompetitor": "Unavailable",
+            "topCompetitorRank": "Unavailable",
+            "type": "local",
+            "intent": "local",
+            "priority": "high"
+          }
+        ],
+        "gapSummary": "The site has some live ranking coverage, but competitors still hold more of the visible commercial SERP real estate.",
+        "opportunitySummary": "The immediate SEO opportunity is to build out a clearer non-brand keyword map, then support those pages with stronger authority and internal linking before expecting steady lead flow.",
+        "notes": "Keyword visibility is based on the DataForSEO SERP and keyword evidence available in this run. When live ranking or search-volume evidence is missing, the engine uses conservative placeholders instead of guessing."
+      },
+      "localSeo": {
+        "priority": "primary",
+        "score": 40,
+        "isPrimaryChannel": true,
+        "currentListings": [
+          "GoodFirms"
+        ],
+        "missingListings": [
+          "Google Business Profile",
+          "Bing Places",
+          "Apple Maps",
+          "Relevant local/niche directories"
+        ],
+        "reviewsSummary": "Google profile details were unavailable.",
+        "issues": [
+          "Google Business Profile was not confidently detected.",
+          "Core location terms are not strongly reinforced in homepage messaging or metadata.",
+          "Local-intent keyword visibility appears weak in the sampled SERP data."
+        ],
+        "gbpStatus": "Not detected",
+        "localRankingGaps": [
+          "Map-pack visibility is weak for service + location queries."
+        ],
+        "citationGap": null,
+        "directoryGapSummary": "Core directories are incomplete and should be cleaned up before scaling local page SEO.",
+        "impact": "Missing local SEO coverage is likely suppressing map-pack visibility and nearby-intent enquiries.",
+        "businessImpact": "Missing local SEO coverage is likely suppressing map-pack visibility and nearby-intent enquiries.",
+        "notes": "Local search is being treated as a primary acquisition channel."
+      },
+      "localSEO": {
+        "priority": "primary",
+        "score": 40,
+        "isPrimaryChannel": true,
+        "currentListings": [
+          "GoodFirms"
+        ],
+        "missingListings": [
+          "Google Business Profile",
+          "Bing Places",
+          "Apple Maps",
+          "Relevant local/niche directories"
+        ],
+        "reviewsSummary": "Google profile details were unavailable.",
+        "issues": [
+          "Google Business Profile was not confidently detected.",
+          "Core location terms are not strongly reinforced in homepage messaging or metadata.",
+          "Local-intent keyword visibility appears weak in the sampled SERP data."
+        ],
+        "gbpStatus": "Not detected",
+        "localRankingGaps": [
+          "Map-pack visibility is weak for service + location queries."
+        ],
+        "citationGap": null,
+        "directoryGapSummary": "Core directories are incomplete and should be cleaned up before scaling local page SEO.",
+        "impact": "Missing local SEO coverage is likely suppressing map-pack visibility and nearby-intent enquiries.",
+        "businessImpact": "Missing local SEO coverage is likely suppressing map-pack visibility and nearby-intent enquiries.",
+        "notes": "Local search is being treated as a primary acquisition channel."
+      },
+      "opportunitySummary": "The immediate SEO opportunity is to build out a clearer non-brand keyword map, then support those pages with stronger authority and internal linking before expecting steady lead flow. Local SEO cleanup should run in parallel so map-pack and city-intent demand are not left behind.",
+      "priorityActions": [
+        "Add H1 heading to homepage.",
+        "Structure dedicated services content for clarity."
+      ]
+    },
+    "reputation": {
+      "reviewScore": 0.9,
+      "mentorNotes": "No reviews found, despite a high potential review score.",
+      "totalReviews": 0,
+      "industryStandardRange": "Benchmark (rule-of-thumb): For most service businesses/agencies, a healthy Google profile is usually around 4.2–4.5★ with ~20–50 reviews. This varies by niche and city, but it’s a practical baseline.",
+      "yourGap": "No consistent negative pattern detected in the sampled review text (good sign).",
+      "summaryTable": [
+        {
+          "platform": "Ambitionbox",
+          "reviews": 0,
+          "rating": "N/A",
+          "industryBenchmark": "N/A",
+          "gap": "N/A",
+          "sampledReviews": 0
+        },
+        {
+          "platform": "Glassdoor",
+          "reviews": 0,
+          "rating": "N/A",
+          "industryBenchmark": "N/A",
+          "gap": "N/A",
+          "sampledReviews": 0
+        },
+        {
+          "platform": "Indeed",
+          "reviews": 0,
+          "rating": "N/A",
+          "industryBenchmark": "N/A",
+          "gap": "N/A",
+          "sampledReviews": 0
+        }
+      ],
+      "sentimentThemes": {
+        "positive": [],
+        "negative": [],
+        "responseRate": "N/A",
+        "averageResponseTime": "N/A"
+      },
+      "recommendationDetails": [],
+      "actionCandidates": []
+    },
+    "servicesPositioning": {
+      "services": [
+        {
+          "name": "White-Label SEO",
+          "startingPrice": null,
+          "targetMarket": "US & UK Agencies",
+          "description": "SEO services provided to other agencies under their brand."
+        },
+        {
+          "name": "Design",
+          "startingPrice": null,
+          "targetMarket": "US & UK Agencies",
+          "description": "Graphic design and creative production to support brand, content, and campaign needs."
+        },
+        {
+          "name": "PPC / Google Ads",
+          "startingPrice": null,
+          "targetMarket": "US & UK Agencies",
+          "description": "Paid acquisition management focused on lead quality, conversion intent, and spend efficiency."
+        },
+        {
+          "name": "Web Design & Development",
+          "startingPrice": null,
+          "targetMarket": "US & UK Agencies",
+          "description": "Website design and development focused on clarity, conversion, and commercial credibility."
+        }
+      ],
+      "mentorNotes": "Clearly define the target audience for your white-label SEO and design services to optimize positioning.",
+      "serviceGaps": [],
+      "industriesServed": {
+        "current": [
+          "Agencies"
+        ],
+        "concentrationNote": null,
+        "highValueIndustries": []
+      },
+      "positioning": {
+        "currentStatement": "Boost your agency growth with white-label SEO, PPC & web development services. Scale without hiring in-house teams. Trusted by 25+ agencies worldwide.",
+        "competitorComparison": "N/A",
+        "differentiation": "N/A"
+      }
+    },
+    "leadGeneration": {
+      "channels": [
+        {
+          "channel": "Primary website CTA",
+          "leadsPerMonth": "Directional only",
+          "quality": "High intent",
+          "status": "Detected"
+        },
+        {
+          "channel": "Contact / booking pages",
+          "leadsPerMonth": "Directional only",
+          "quality": "High intent",
+          "status": "Detected"
+        },
+        {
+          "channel": "Email capture / direct outreach",
+          "leadsPerMonth": "Directional only",
+          "quality": "Medium-High",
+          "status": "Detected"
+        },
+        {
+          "channel": "Proof-assisted conversion support",
+          "leadsPerMonth": "Directional only",
+          "quality": "Conversion support",
+          "status": "Detected"
+        }
+      ],
+      "mentorNotes": "Implement a live chat or instant inquiry layer to capture leads more effectively and reduce friction.",
+      "missingHighROIChannels": [],
+      "leadMagnets": [
+        {
+          "title": "Ebook",
+          "funnelStage": "Top",
+          "description": "Detected keyword or URL cue for 'Ebook'.",
+          "estimatedConversionRate": null
+        },
+        {
+          "title": "Calculator",
+          "funnelStage": "Mid",
+          "description": "Detected keyword or URL cue for 'Calculator'.",
+          "estimatedConversionRate": null
+        }
+      ],
+      "recommendationDetails": [],
+      "actionCandidates": []
+    },
+    "competitiveAnalysis": {
+      "competitors": [
+        {
+          "name": "webnox.in",
+          "website": "https://webnox.in",
+          "location": null,
+          "teamSize": null,
+          "yearsInBusiness": null,
+          "services": [
+            "SEO",
+            "PPC / Google Ads",
+            "Social Media Marketing",
+            "Web Design & Development",
+            "Branding & Identity",
+            "CRM & Automation"
+          ],
+          "strengthsVsYou": [
+            "Shows case studies/portfolio evidence",
+            "Highlights testimonials/social proof",
+            "Uses FAQs to address objections",
+            "Mentions pricing/packages (can improve conversion)"
+          ],
+          "yourAdvantages": [],
+          "marketOverlap": "50%",
+          "source": "DataForSEO Labs competitors_domain",
+          "metrics": {
+            "domain": "webnox.in",
+            "intersections": 9,
+            "keywords": null,
+            "etv": null
+          }
+        },
+        {
+          "name": "clickboxagency.com",
+          "website": "https://clickboxagency.com",
+          "location": null,
+          "teamSize": "30+",
+          "yearsInBusiness": null,
+          "services": [
+            "SEO",
+            "PPC / Google Ads",
+            "Social Media Marketing",
+            "Content Marketing"
+          ],
+          "strengthsVsYou": [
+            "Shows case studies/portfolio evidence",
+            "Uses FAQs to address objections"
+          ],
+          "yourAdvantages": [],
+          "marketOverlap": "25%",
+          "source": "DataForSEO Labs competitors_domain",
+          "metrics": {
+            "domain": "clickboxagency.com",
+            "intersections": 9,
+            "keywords": null,
+            "etv": null
+          }
+        },
+        {
+          "name": "techbehemoths.com",
+          "website": "https://techbehemoths.com",
+          "location": "London, UK",
+          "teamSize": null,
+          "yearsInBusiness": null,
+          "services": [
+            "Web Design & Development",
+            "Branding & Identity"
+          ],
+          "strengthsVsYou": [
+            "Highlights testimonials/social proof",
+            "Uses FAQs to address objections",
+            "Shows case studies/portfolio evidence",
+            "Mentions pricing/packages (can improve conversion)"
+          ],
+          "yourAdvantages": [],
+          "marketOverlap": "25%",
+          "source": "DataForSEO Labs competitors_domain",
+          "metrics": {
+            "domain": "techbehemoths.com",
+            "intersections": 9,
+            "keywords": null,
+            "etv": null
+          }
+        },
+        {
+          "name": "creativepoint.in",
+          "website": "https://creativepoint.in",
+          "location": null,
+          "teamSize": null,
+          "yearsInBusiness": null,
+          "services": [
+            "SEO",
+            "Social Media Marketing",
+            "Web Design & Development",
+            "Branding & Identity",
+            "Content Marketing",
+            "Email Marketing"
+          ],
+          "strengthsVsYou": [
+            "Shows case studies/portfolio evidence"
+          ],
+          "yourAdvantages": [],
+          "marketOverlap": "25%",
+          "source": "DataForSEO Labs competitors_domain",
+          "metrics": {
+            "domain": "creativepoint.in",
+            "intersections": 9,
+            "keywords": null,
+            "etv": null
+          }
+        },
+        {
+          "name": "propluslogics.com",
+          "website": "https://propluslogics.com",
+          "location": null,
+          "teamSize": null,
+          "yearsInBusiness": null,
+          "services": [],
+          "strengthsVsYou": [],
+          "yourAdvantages": [],
+          "marketOverlap": "50%",
+          "source": "DataForSEO Labs competitors_domain",
+          "metrics": {
+            "domain": "propluslogics.com",
+            "intersections": 8,
+            "keywords": null,
+            "etv": null
+          }
+        },
+        {
+          "name": "springboarddigital.com",
+          "website": "https://springboarddigital.com",
+          "location": null,
+          "teamSize": null,
+          "yearsInBusiness": null,
+          "services": [
+            "Web Design & Development",
+            "Branding & Identity",
+            "Content Marketing"
+          ],
+          "strengthsVsYou": [
+            "Shows case studies/portfolio evidence"
+          ],
+          "yourAdvantages": [],
+          "marketOverlap": "25%",
+          "source": "DataForSEO Labs competitors_domain",
+          "metrics": {
+            "domain": "springboarddigital.com",
+            "intersections": 8,
+            "keywords": null,
+            "etv": null
+          }
+        }
+      ],
+      "mentorNotes": null,
+      "positioningMatrix": [],
+      "notes": "Competitors inferred and enriched (deterministic extraction + JS-aware crawl, site_type=service_business).",
+      "opportunities": [],
+      "threats": []
+    },
+    "marketDemand": {
+      "location": "India",
+      "locationCode": 2356,
+      "languageCode": "en",
+      "services": [
+        "White-Label SEO",
+        "Design",
+        "PPC / Google Ads",
+        "google ads",
+        "ppc services",
+        "Web Design & Development",
+        "web development",
+        "website development",
+        "web design"
+      ],
+      "keywords": [],
+      "summary": {
+        "averageDemandScore": 0,
+        "totalKeywordsAnalyzed": 0,
+        "topOpportunities": [],
+        "observations": [
+          "Keyword demand has been scoped to the stated target market: US & UK Agencies.",
+          "Location bias applied using India / location code 2356."
+        ]
+      },
+      "dataSources": [
+        {
+          "label": "Google Ads search volume",
+          "source": "DataForSEO",
+          "notes": "keywords_data_search_volume_live"
+        },
+        {
+          "label": "SERP sampling",
+          "source": "DataForSEO",
+          "notes": "serp_google_organic_live_regular"
+        }
+      ],
+      "notes": []
+    },
+    "costOptimization": {
+      "notes": "Streamline project management and client onboarding to reduce administrative overhead. Optimize resource allocation for maximum team productivity and efficiency.",
+      "mentorNotes": "The biggest cost-efficiency gains for this service business are likely from tighter pricing, automated reporting, and better channel qualification rather than blunt cost-cutting.",
+      "currencyContext": {
+        "companyCurrency": {
+          "code": "INR",
+          "symbol": "₹",
+          "name": "Indian Rupee"
+        },
+        "targetCurrencies": [
+          {
+            "code": "USD",
+            "symbol": "$",
+            "name": "US Dollar"
+          },
+          {
+            "code": "GBP",
+            "symbol": "£",
+            "name": "British Pound"
+          }
+        ],
+        "rules": [
+          "Do NOT convert amounts using exchange rates.",
+          "Format currency based on what the amount refers to.",
+          "Company/home operations → companyCurrency.",
+          "Market/segment-specific amount (US/UK/India) → that market currency.",
+          "If unclear → default to companyCurrency."
+        ],
+        "examples": [
+          "Company in India → operational spend shown as ₹...",
+          "UK agencies opportunity → budget shown as £...",
+          "US market opportunity → budget shown as $..."
+        ]
+      },
+      "opportunities": [
+        {
+          "title": "Refine client qualification process",
+          "description": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "confidence": null,
+          "impact": "high",
+          "effort": "medium"
+        },
+        {
+          "title": "Standardize service packages",
+          "description": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "confidence": null,
+          "impact": "high",
+          "effort": "medium"
+        },
+        {
+          "title": "Optimize proposal conversion rates",
+          "description": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "confidence": null,
+          "impact": "medium",
+          "effort": "low"
+        }
+      ],
+      "estimationDisclaimer": "Estimation Mode ON: numbers are directional models, not audited financials.",
+      "confidenceScore": 63,
+      "scenarios": [
+        {
+          "name": "Conservative",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Focus on quick pricing and conversion fixes only.",
+            "No new channel spend — optimise existing traffic.",
+            "Assumes 500% pricing realisation and 400% CTA improvement."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹59.4K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹4.4K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹766.2K"
+            }
+          ]
+        },
+        {
+          "name": "Base",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Improve packaging, automate reporting, and tighten qualification.",
+            "Expand the best-fit service pages and offers.",
+            "Assumes full pricing uplift (10%) and conversion improvement (10%)."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹132K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹10.4K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹1.7M"
+            }
+          ]
+        },
+        {
+          "name": "Aggressive",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Add segment-specific pages and launch focused acquisition experiments.",
+            "Standardise delivery, activate upsell motion, and pursue new channels.",
+            "Assumes pricing + conversion + upsell uplift (10% of MRR) + 6% new channel revenue."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹237.6K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹14.8K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹3M"
+            }
+          ]
+        }
+      ],
+      "actionCandidates": [
+        {
+          "title": "Review and adjust service pricing strategy",
+          "sourceSection": null,
+          "impact": "high",
+          "effort": "medium",
+          "urgency": null,
+          "confidence": null,
+          "pillar": null,
+          "priorityScore": null,
+          "kpis": [],
+          "details": {}
+        },
+        {
+          "title": "Implement automation for routine tasks",
+          "sourceSection": null,
+          "impact": "medium",
+          "effort": "medium",
+          "urgency": null,
+          "confidence": null,
+          "pillar": null,
+          "priorityScore": null,
+          "kpis": [],
+          "details": {}
+        }
+      ]
+    },
+    "targetMarket": {
+      "notes": "Refine target client profiles by analyzing past successful engagements and identifying common industry sectors. This focus enhances marketing effectiveness and service alignment.",
+      "mentorNotes": "Defining your target market is crucial for a service business like Brandingbeez to focus its efforts effectively.",
+      "currencyContext": {
+        "companyCurrency": {
+          "code": "INR",
+          "symbol": "₹",
+          "name": "Indian Rupee"
+        },
+        "targetCurrencies": [
+          {
+            "code": "USD",
+            "symbol": "$",
+            "name": "US Dollar"
+          },
+          {
+            "code": "GBP",
+            "symbol": "£",
+            "name": "British Pound"
+          }
+        ],
+        "rules": [
+          "Do NOT convert amounts using exchange rates.",
+          "Format currency based on what the amount refers to.",
+          "Company/home operations → companyCurrency.",
+          "Market/segment-specific amount (US/UK/India) → that market currency.",
+          "If unclear → default to companyCurrency."
+        ],
+        "examples": [
+          "Company in India → operational spend shown as ₹...",
+          "UK agencies opportunity → budget shown as £...",
+          "US market opportunity → budget shown as $..."
+        ]
+      },
+      "segments": [
+        {
+          "segment": "B2B Professional Service Firms",
+          "marketCountry": null,
+          "currency": null,
+          "expectedBudget": null,
+          "notes": "Companies needing to differentiate their expert services and build trust with clients."
+        }
+      ],
+      "estimationDisclaimer": "Estimation Mode ON: numbers are directional models, not audited financials.",
+      "confidenceScore": 57,
+      "scenarios": [
+        {
+          "name": "Conservative",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Focus on quick pricing and conversion fixes only.",
+            "No new channel spend — optimise existing traffic.",
+            "Assumes 500% pricing realisation and 400% CTA improvement."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹59.4K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹4.4K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹766.2K"
+            }
+          ]
+        },
+        {
+          "name": "Base",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Improve packaging, automate reporting, and tighten qualification.",
+            "Expand the best-fit service pages and offers.",
+            "Assumes full pricing uplift (10%) and conversion improvement (10%)."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹132K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹10.4K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹1.7M"
+            }
+          ]
+        },
+        {
+          "name": "Aggressive",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Add segment-specific pages and launch focused acquisition experiments.",
+            "Standardise delivery, activate upsell motion, and pursue new channels.",
+            "Assumes pricing + conversion + upsell uplift (10% of MRR) + 6% new channel revenue."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹237.6K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹14.8K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹3M"
+            }
+          ]
+        }
+      ],
+      "actionCandidates": [
+        {
+          "title": "Build segment-specific landing pages",
+          "sourceSection": "targetMarket",
+          "impact": "high",
+          "effort": "medium",
+          "urgency": "high",
+          "confidence": 0.82,
+          "pillar": "positioning",
+          "priorityScore": null,
+          "kpis": [
+            "landing-page conversion rate",
+            "qualified leads",
+            "non-brand enquiries"
+          ],
+          "details": {
+            "placement": "Service and industry landing pages",
+            "recommendation": "Create pages tailored to US & UK Agencies with proof, FAQs, and explicit CTA intent.",
+            "expectedOutcome": "Stronger segment-message fit and better lead quality from targeted pages."
+          }
+        }
+      ]
+    },
+    "financialImpact": {
+      "notes": "Financial impact uses company-provided inputs plus explicit improvement assumptions, so the projection is tighter than general estimation mode but still directional.",
+      "mentorNotes": "Using company-provided inputs, the model projects ₹1.2K in annual revenue growth and ₹35 in annual savings. The largest lift comes from turning current traffic into more customers before adding a pricing increase, which keeps the projection tied to your existing operating baseline.",
+      "revenueTable": [
+        {
+          "metric": "Current Monthly Revenue",
+          "value": "₹2"
+        },
+        {
+          "metric": "Current Monthly Cost",
+          "value": "₹56"
+        },
+        {
+          "metric": "Current Monthly Profit",
+          "value": "-₹54"
+        },
+        {
+          "metric": "Current Leads per Month",
+          "value": "60"
+        },
+        {
+          "metric": "Improved Leads per Month",
+          "value": "114"
+        },
+        {
+          "metric": "Improved Monthly Revenue",
+          "value": "₹193"
+        },
+        {
+          "metric": "Annual Revenue Growth",
+          "value": "₹1.2K"
+        },
+        {
+          "metric": "Annual Financial Impact",
+          "value": "₹1.2K"
+        }
+      ],
+      "estimationDisclaimer": "Estimation Mode is ON: Sections 8-10 include modeled estimates based on the information you provided plus publicly available signals (website + listings). These numbers are directional, not audited financials, and should not be used as the sole basis for budgeting or investment decisions. For higher accuracy, provide real spend/revenue inputs or connect Ads/Analytics/CRM.",
+      "confidenceScore": 91,
+      "scenarios": [
+        {
+          "name": "Conservative",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Focus on quick pricing and conversion fixes only.",
+            "No new channel spend — optimise existing traffic.",
+            "Assumes 500% pricing realisation and 400% CTA improvement."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹59.4K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹4.4K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹766.2K"
+            }
+          ]
+        },
+        {
+          "name": "Base",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Improve packaging, automate reporting, and tighten qualification.",
+            "Expand the best-fit service pages and offers.",
+            "Assumes full pricing uplift (10%) and conversion improvement (10%)."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹132K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹10.4K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹1.7M"
+            }
+          ]
+        },
+        {
+          "name": "Aggressive",
+          "summary": null,
+          "estimatedSavings": null,
+          "estimatedCost": null,
+          "estimatedRevenue": null,
+          "estimatedProfit": null,
+          "notes": null,
+          "assumptions": [
+            "Add segment-specific pages and launch focused acquisition experiments.",
+            "Standardise delivery, activate upsell motion, and pursue new channels.",
+            "Assumes pricing + conversion + upsell uplift (10% of MRR) + 6% new channel revenue."
+          ],
+          "modeledOutcomes": [
+            {
+              "label": "Monthly revenue upside",
+              "value": "₹237.6K"
+            },
+            {
+              "label": "Monthly savings",
+              "value": "₹14.8K"
+            },
+            {
+              "label": "Annual impact (directional)",
+              "value": "₹3M"
+            }
+          ]
+        }
+      ],
+      "actionCandidates": [
+        {
+          "title": "Prioritise conversion and pricing before scaling spend",
+          "sourceSection": "financialImpact",
+          "impact": "high",
+          "effort": "medium",
+          "urgency": "high",
+          "confidence": 0.86,
+          "pillar": "revenue",
+          "priorityScore": null,
+          "kpis": [
+            "monthly revenue",
+            "gross margin",
+            "proposal conversion"
+          ],
+          "details": {
+            "recommendation": "Improve packaging, proof, and CTA clarity before pushing more traffic into the funnel.",
+            "expectedOutcome": "Better revenue per visit and stronger payback on future acquisition for this service business."
+          }
+        }
+      ],
+      "mode": "actual_company_data",
+      "assumptions": [
+        "Current monthly cost baseline = ₹56 from payroll, overhead, tools, and marketing inputs.",
+        "Improvement factors applied: SEO 8%, conversion 6%, pricing 8%, cost savings 5.3%.",
+        "ROI uses an implementation cost of ₹7.5K.",
+        "Missing company inputs were filled with conservative defaults inferred from the report evidence."
+      ],
+      "revenueOpportunities": [
+        {
+          "opportunity": "SEO growth",
+          "monthlyImpact": "₹75",
+          "annualImpact": "₹900",
+          "effortLevel": "High"
+        },
+        {
+          "opportunity": "Conversion optimization",
+          "monthlyImpact": "₹10",
+          "annualImpact": "₹122",
+          "effortLevel": "Medium"
+        },
+        {
+          "opportunity": "Price increase + packaging",
+          "monthlyImpact": "₹14",
+          "annualImpact": "₹172",
+          "effortLevel": "Low"
+        }
+      ],
+      "costSavings": [
+        {
+          "initiative": "Tool stack and media-spend efficiency",
+          "annualSavings": "₹9"
+        },
+        {
+          "initiative": "Automation and process standardization",
+          "annualSavings": "₹26"
+        }
+      ],
+      "netImpact": {
+        "revenueGrowth": "₹1.2K",
+        "costSavings": "₹35",
+        "totalFinancialImpact": "₹1.2K",
+        "roi": "0.2x"
+      },
+      "currentRevenueEstimate": "₹2/mo current revenue",
+      "improvementPotential": "₹1.2K/yr revenue growth",
+      "projectedRevenueIncrease": "₹1.2K/yr total impact"
+    },
+    "actionPlan90Days": [
+      {
+        "weekRange": "Weeks 1–2",
+        "title": "Measurement, messaging, and quick-win fixes",
+        "actions": [
+          "Resolve technical issue: No H1 heading detected on homepage.",
+          "Resolve technical issue: Homepage appears thin on crawlable text (may reduce relevance signals).",
+          "Add H1 heading to homepage.",
+          "Structure dedicated services content for clarity."
+        ],
+        "expectedOutcome": "This stage should remove the biggest blockers and increase commercial readiness before scaling.",
+        "kpis": [
+          {
+            "kpi": "Lead volume",
+            "current": "N/A",
+            "target": "Improving"
+          },
+          {
+            "kpi": "Conversion quality",
+            "current": "N/A",
+            "target": "Improving"
+          }
+        ]
+      },
+      {
+        "weekRange": "Weeks 3–4",
+        "title": "Technical and structural conversion fixes",
+        "actions": [
+          "Confirm KPI baselines and remove blockers for the next stage"
+        ],
+        "expectedOutcome": "This stage should remove the biggest blockers and increase commercial readiness before scaling.",
+        "kpis": [
+          {
+            "kpi": "Lead volume",
+            "current": "N/A",
+            "target": "Improving"
+          },
+          {
+            "kpi": "Conversion quality",
+            "current": "N/A",
+            "target": "Improving"
+          }
+        ]
+      },
+      {
+        "weekRange": "Weeks 5–6",
+        "title": "Trust, offers, and service-page improvements",
+        "actions": [
+          "Optimize proposal conversion rates",
+          "Merchandise review proof more visibly (0.9/5 from 0 reviews)",
+          "Refine client qualification process",
+          "Standardize service packages"
+        ],
+        "expectedOutcome": "This stage should remove the biggest blockers and increase commercial readiness before scaling.",
+        "kpis": [
+          {
+            "kpi": "Lead volume",
+            "current": "N/A",
+            "target": "Improving"
+          },
+          {
+            "kpi": "Conversion quality",
+            "current": "N/A",
+            "target": "Improving"
+          }
+        ]
+      },
+      {
+        "weekRange": "Weeks 7–8",
+        "title": "SEO expansion and segment-specific content",
+        "actions": [
+          "Create messaging and landing-page strategy for segment: B2B Professional Service Firms"
+        ],
+        "expectedOutcome": "This stage should remove the biggest blockers and increase commercial readiness before scaling.",
+        "kpis": [
+          {
+            "kpi": "Lead volume",
+            "current": "N/A",
+            "target": "Improving"
+          },
+          {
+            "kpi": "Conversion quality",
+            "current": "N/A",
+            "target": "Improving"
+          }
+        ]
+      },
+      {
+        "weekRange": "Weeks 9–10",
+        "title": "Local proof, CRM, and follow-up systems",
+        "actions": [
+          "Implement channel: Live chat / instant inquiry layer"
+        ],
+        "expectedOutcome": "This stage should remove the biggest blockers and increase commercial readiness before scaling.",
+        "kpis": [
+          {
+            "kpi": "Lead volume",
+            "current": "N/A",
+            "target": "Improving"
+          },
+          {
+            "kpi": "Conversion quality",
+            "current": "N/A",
+            "target": "Improving"
+          }
+        ]
+      },
+      {
+        "weekRange": "Weeks 11–12",
+        "title": "Acquisition rollout and scale decisions",
+        "actions": [
+          "Prioritize financial lever tied to: Current Monthly Revenue (estimated)",
+          "Prioritize financial lever tied to: Base Monthly Revenue Upside"
+        ],
+        "expectedOutcome": "This stage should remove the biggest blockers and increase commercial readiness before scaling.",
+        "kpis": [
+          {
+            "kpi": "Lead volume",
+            "current": "N/A",
+            "target": "Improving"
+          },
+          {
+            "kpi": "Conversion quality",
+            "current": "N/A",
+            "target": "Improving"
+          }
+        ]
+      }
+    ],
+    "competitiveAdvantages": {
+      "advantages": [
+        "Clear site structure signals detected"
+      ],
+      "mentorNotes": null,
+      "notes": null,
+      "structuredAdvantages": [
+        {
+          "advantage": "Clear site structure signals detected",
+          "whyItMatters": null,
+          "howToLeverage": null
+        }
+      ]
+    },
+    "riskAssessment": {
+      "risks": [
+        {
+          "risk": "Missing/weak core content reduces trust and ranking coverage",
+          "severity": "Medium",
+          "mitigation": "Publish complete service/location pages, add trust assets (case studies/testimonials), and strengthen internal linking."
+        },
+        {
+          "risk": "Lack of Search Console data hides organic issues",
+          "severity": "Medium",
+          "mitigation": "Connect Google Search Console to monitor queries, pages, and coverage errors."
+        }
+      ],
+      "mentorNotes": null,
+      "compliance": []
+    },
+    "appendices": {
+      "scoreSummary": [
+        {
+          "area": "Website",
+          "score": 65,
+          "notes": "Technical foundation, content quality, and UX readiness."
+        },
+        {
+          "area": "Website Keywords",
+          "score": 31,
+          "notes": "Keyword presence, coverage, relevance, intent match, and distribution."
+        },
+        {
+          "area": "SEO",
+          "score": 70,
+          "notes": "Authority, visibility, and search-readiness."
+        },
+        {
+          "area": "Reputation",
+          "score": 18,
+          "notes": "Review strength and trust packaging."
+        },
+        {
+          "area": "Lead Generation",
+          "score": 70,
+          "notes": "CTA clarity, channels, and funnel readiness."
+        },
+        {
+          "area": "Services",
+          "score": 72,
+          "notes": "Offer clarity, proof support, and positioning strength."
+        }
+      ],
+      "growthForecastTables": [],
+      "keywords": [],
+      "serp": [
+        {
+          "tier": "Organic SERP Snapshots (DataForSEO)",
+          "items": [
+            {
+              "keyword": "brandingbeez",
+              "foundPosition": 1,
+              "checkedDepth": 20,
+              "topUrls": [
+                "https://brandingbeez.co.uk/",
+                "https://uk.linkedin.com/company/brandingbeez",
+                "https://www.instagram.com/brandingbeez/",
+                "https://www.ambitionbox.com/overview/brandingbeez-overview",
+                "https://www.facebook.com/BrandingBeez/",
+                "https://in.indeed.com/cmp/Branding-Beez",
+                "https://www.google.com/search?sca_esv=1de7a08752d678d6&hl=en&gl=IN&q=brandingbeez&udm=2&source=univ&fir=mLh7VOOBd3V2GM%252Crd3t5pBe0CsBTM%252C_%253BUPJyBMc-Xgi6wM%252CPoSCpkIa_L8DhM%252C_%253BY6_Xcm5XGubBbM%252C1mQLB8yDBZEVcM%252C_%253Bmpn-0TRYG4pKmM%252Crd3t5pBe0CsBTM%252C_%253BXiZPpNkaO2Xy_M%252CFC7zfhwT0GcqJM%252C_%253BDTS0amVYBSrYLM%252Ce_zckVy8C1jxiM%252C_%253BulGLbZdWp9MAuM%252Ckk7mMw18Iuda5M%252C_%253BcDjXk9976miTuM%252CAcQArKTWS8nvdM%252C_%253BOHThytnToiyjQM%252CaBx7MVJ2i8TLnM%252C_&usg=AI4_-kSnze2T9SUeFUuno4-RvsiZA4E-zA&sa=X&ved=2ahUKEwjQucLO9_uTAxV4cvEDHYgMAfoQ7Al6BAhxEAM",
+                "https://yourstory.com/companies/branding-beez",
+                "https://www.naukri.com/brandingbeez-jobs-careers-6549054",
+                "https://brandingbeez.co.uk/"
+              ]
+            },
+            {
+              "keyword": "white label",
+              "foundPosition": 1,
+              "checkedDepth": 20,
+              "topUrls": [
+                "https://en.wikipedia.org/wiki/White-label_product",
+                "https://www.investopedia.com/terms/w/white-label-product.asp",
+                "https://delhidutyfree.co.in/default/dewars-white-label.html",
+                "https://www.bigcommerce.com/glossary/white-labeling/",
+                "https://ql2.com/blog/white-label-vs-private-label-whats-the-difference/",
+                "https://www.brizy.io/what-is-white-label-ultimate-guide",
+                "https://www.shopify.com/in/blog/white-label",
+                "https://www.squarespace.com/blog/what-is-white-labeling",
+                "https://spp.co/blog/white-labeling/",
+                "https://w-label.com/"
+              ]
+            },
+            {
+              "keyword": "seo",
+              "foundPosition": 1,
+              "checkedDepth": 20,
+              "topUrls": [
+                "https://developers.google.com/search/docs/fundamentals/seo-starter-guide",
+                "https://en.wikipedia.org/wiki/Search_engine_optimization",
+                "https://searchengineland.com/guide/what-is-seo",
+                "https://guidelines.india.gov.in/activity/search-engine-optimization-seo/",
+                "https://digitalmarketinginstitute.com/blog/what-is-seo",
+                "https://moz.com/learn/seo/what-is-seo",
+                "https://www.mtu.edu/umc/services/websites/seo/what-is/",
+                "https://www.reddit.com/r/SEO/",
+                "https://academy.hubspot.com/courses/seo-training",
+                "https://www.seoreviewtools.com/"
+              ]
+            }
+          ]
+        }
+      ],
+      "backlinks": [
+        {
+          "tier": "Backlinks Summary",
+          "items": [
+            {
+              "totalBacklinks": 123,
+              "referringDomains": 94,
+              "linkQualityScore": 86,
+              "qualitySummary": "The backlink base is reasonably healthy. The next growth lever is directing that authority into better-targeted commercial and local pages.",
+              "anchorMixSummary": "Anchor mix is roughly 30% brand, 2% commercial, and 53% generic/URL anchors.",
+              "dofollowRatio": 84,
+              "riskSignals": [],
+              "profileCommentary": "The site currently shows 123 backlinks across 94 referring domains. That creates a baseline trust signal, but commercial SEO value depends on relevance, domain diversity, and where the links point.",
+              "competitorComparison": [
+                {
+                  "name": "webnox.in",
+                  "backlinks": null,
+                  "domains": null,
+                  "note": "Benchmark is based on the current provider signals available for this competitor."
+                },
+                {
+                  "name": "clickboxagency.com",
+                  "backlinks": null,
+                  "domains": null,
+                  "note": "Benchmark is based on the current provider signals available for this competitor."
+                },
+                {
+                  "name": "techbehemoths.com",
+                  "backlinks": null,
+                  "domains": null,
+                  "note": "Benchmark is based on the current provider signals available for this competitor."
+                },
+                {
+                  "name": "creativepoint.in",
+                  "backlinks": null,
+                  "domains": null,
+                  "note": "Benchmark is based on the current provider signals available for this competitor."
+                }
+              ],
+              "recommendation": "Recommendation: focus link building on relevant publications, partner sites, trusted directories, and proof-led PR so new authority supports service and comparison pages rather than only the homepage.",
+              "notes": "The backlink base is reasonably healthy. The next growth lever is directing that authority into better-targeted commercial and local pages."
+            }
+          ]
+        }
+      ],
+      "reputation": null,
+      "evidenceScreenshots": [
+        {
+          "label": "Desktop Screenshot",
+          "format": "png",
+          "width": 1366,
+          "height": 7789,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 1",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 2",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 3",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 4",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 5",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 6",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 7",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 8",
+          "format": "png",
+          "width": 1366,
+          "height": 898,
+          "fullPage": true
+        },
+        {
+          "label": "Desktop Screenshot 9",
+          "format": "png",
+          "width": 1366,
+          "height": 605,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot",
+          "format": "png",
+          "width": 390,
+          "height": 11975,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 1",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 2",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 3",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 4",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 5",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 6",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 7",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 8",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 9",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 10",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 11",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 12",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 13",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 14",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 15",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 16",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 17",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 18",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 19",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 20",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 21",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 22",
+          "format": "png",
+          "width": 390,
+          "height": 543,
+          "fullPage": true
+        },
+        {
+          "label": "Mobile Screenshot 23",
+          "format": "png",
+          "width": 390,
+          "height": 29,
+          "fullPage": true
+        }
+      ],
+      "dataSources": [
+        {
+          "source": "https://brandingbeez.co.uk/",
+          "use": "Website crawl & heuristics",
+          "confidence": "medium"
+        },
+        {
+          "source": "https://brandingbeez.co.uk/robots.txt",
+          "use": "robots.txt check",
+          "confidence": "high"
+        },
+        {
+          "source": "https://brandingbeez.co.uk/sitemap.xml",
+          "use": "sitemap.xml check",
+          "confidence": "high"
+        },
+        {
+          "source": "DataForSEO SERP API",
+          "use": "Live SERP snapshots for a small keyword set to validate visibility",
+          "confidence": "Medium"
+        },
+        {
+          "source": "DataForSEO Backlinks API",
+          "use": "Backlink profile (summary, referring domains, anchors, top pages, history)",
+          "confidence": "Medium"
+        }
+      ],
+      "dataGaps": [
+        {
+          "area": "Google Search Console",
+          "missing": [
+            "GOOGLE_REFRESH_TOKEN not set"
+          ],
+          "howToEnable": [
+            "Generate a refresh token once via OAuth consent (offline access) and set GOOGLE_REFRESH_TOKEN in AI engine .env."
+          ]
+        },
+        {
+          "area": "Cost Efficiency",
+          "missing": [
+            "Ads spend + tooling costs not connected."
+          ],
+          "howToEnable": [
+            "Integrate Google Ads API (spend/conversions) and/or add a manual cost input form for tools/payroll."
+          ]
+        }
+      ],
+      "pagesCrawled": [
+        "https://brandingbeez.co.uk/",
+        "https://brandingbeez.co.uk/about/",
+        "https://brandingbeez.co.uk/contact/",
+        "https://brandingbeez.co.uk/portfolio/",
+        "https://brandingbeez.co.uk/pricing-calculator/",
+        "https://brandingbeez.co.uk/blog/",
+        "https://brandingbeez.co.uk/cookie-policy/"
+      ],
+      "evidence": {
+        "pageRegistry": {
+          "priority": [
+            "crawl",
+            "sitemap",
+            "links",
+            "service_candidates"
+          ],
+          "pages": {
+            "home": {
+              "url": "https://brandingbeez.co.uk/",
+              "sources": [
+                "homepage"
+              ]
+            },
+            "about": {
+              "present": true,
+              "primary": "https://brandingbeez.co.uk/about/",
+              "candidates": [
+                "https://brandingbeez.co.uk/about/"
+              ]
+            },
+            "contact": {
+              "present": true,
+              "primary": "https://brandingbeez.co.uk/contact/",
+              "candidates": [
+                "https://brandingbeez.co.uk/contact/"
+              ]
+            },
+            "pricing": {
+              "present": true,
+              "primary": "https://brandingbeez.co.uk/pricing-calculator/",
+              "candidates": [
+                "https://brandingbeez.co.uk/pricing-calculator/"
+              ]
+            },
+            "faq": {
+              "present": false,
+              "primary": null,
+              "candidates": []
+            },
+            "proof": {
+              "present": true,
+              "primary": "https://brandingbeez.co.uk/portfolio/",
+              "candidates": [
+                "https://brandingbeez.co.uk/portfolio/"
+              ]
+            },
+            "blog": {
+              "present": true,
+              "primary": "https://brandingbeez.co.uk/blog/",
+              "candidates": [
+                "https://brandingbeez.co.uk/blog/"
+              ]
+            },
+            "services": {
+              "servicesPagePresent": true,
+              "primary": "https://brandingbeez.co.uk/services/custom-app-development/",
+              "candidates": [
+                "https://brandingbeez.co.uk/services/custom-app-development/",
+                "https://brandingbeez.co.uk/services/dedicated-resources/",
+                "https://brandingbeez.co.uk/services/google-ads/",
+                "https://brandingbeez.co.uk/services/seo/",
+                "https://brandingbeez.co.uk/services/web-development/"
+              ]
+            }
+          },
+          "missing": [],
+          "sourcesByUrl": {
+            "https://brandingbeez.co.uk/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/about/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/contact/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/portfolio/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/pricing-calculator/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/blog/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/cookie-policy/": [
+              "crawl",
+              "links"
+            ],
+            "https://brandingbeez.co.uk/onboarding-wizard/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/privacy-policy/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/services/custom-app-development/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/services/dedicated-resources/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/services/google-ads/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/services/seo/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/services/web-development/": [
+              "links"
+            ],
+            "https://brandingbeez.co.uk/terms-of-service/": [
+              "links"
+            ]
+          },
+          "counts": {
+            "crawl": 7,
+            "sitemap": 0,
+            "links": 15,
+            "service_candidates": 0,
+            "merged": 15
+          }
+        },
+        "pagespeed": {
+          "fetchedAt": "2026-04-20T07:43:25.054176Z",
+          "url": "https://brandingbeez.co.uk/"
+        },
+        "screenshots": {
+          "desktop": {
+            "format": "png",
+            "width": 1366,
+            "height": 7789,
+            "fullPage": true,
+            "pageLayout": "landscape",
+            "title": "Desktop Screenshot",
+            "kind": "desktop",
+            "sliceCount": 9
+          },
+          "mobile": {
+            "format": "png",
+            "width": 390,
+            "height": 11975,
+            "fullPage": true,
+            "pageLayout": "portrait",
+            "title": "Mobile Screenshot",
+            "kind": "mobile",
+            "sliceCount": 23
+          }
+        },
+        "extraction": {
+          "linksEngine": {
+            "playwrightEnabled": true,
+            "seleniumEnabled": false
+          },
+          "siteType": "static",
+          "businessModelSiteType": "service_business",
+          "contentPagesUsedPlaywright": false
+        },
+        "crawlRegistrySummary": {
+          "mergedLinks": 15,
+          "crawl": 7,
+          "sitemap": 0,
+          "serviceCandidates": 0,
+          "contentPages": 8
+        },
+        "keyPagesDetected": [
+          {
+            "page": "About",
+            "present": "Yes",
+            "primaryUrl": "https://brandingbeez.co.uk/about/"
+          },
+          {
+            "page": "Contact",
+            "present": "Yes",
+            "primaryUrl": "https://brandingbeez.co.uk/contact/"
+          },
+          {
+            "page": "Services",
+            "present": "Yes",
+            "primaryUrl": "https://brandingbeez.co.uk/services/custom-app-development/"
+          },
+          {
+            "page": "Proof",
+            "present": "Yes",
+            "primaryUrl": "https://brandingbeez.co.uk/portfolio/"
+          },
+          {
+            "page": "Pricing",
+            "present": "Yes",
+            "primaryUrl": "https://brandingbeez.co.uk/pricing-calculator/"
+          },
+          {
+            "page": "Faq",
+            "present": "No",
+            "primaryUrl": "-"
+          },
+          {
+            "page": "Blog",
+            "present": "Yes",
+            "primaryUrl": "https://brandingbeez.co.uk/blog/"
+          }
+        ],
+        "extractionSnapshot": {
+          "siteType": "static",
+          "playwrightEnabled": false,
+          "seleniumEnabled": false,
+          "contentPagesUsed": 8,
+          "pagesCrawled": [
+            "https://brandingbeez.co.uk/",
+            "https://brandingbeez.co.uk/about/",
+            "https://brandingbeez.co.uk/contact/",
+            "https://brandingbeez.co.uk/portfolio/",
+            "https://brandingbeez.co.uk/pricing-calculator/",
+            "https://brandingbeez.co.uk/blog/",
+            "https://brandingbeez.co.uk/",
+            "https://brandingbeez.co.uk/cookie-policy/"
+          ]
+        }
+      },
+      "crawlRegistrySummary": {
+        "mergedLinks": 15,
+        "crawl": 7,
+        "sitemap": 0,
+        "serviceCandidates": 0,
+        "contentPages": 8
+      },
+      "extractionSnapshot": {
+        "siteType": "static",
+        "playwrightEnabled": false,
+        "seleniumEnabled": false,
+        "contentPagesUsed": 8,
+        "pagesCrawled": [
+          "https://brandingbeez.co.uk/",
+          "https://brandingbeez.co.uk/about/",
+          "https://brandingbeez.co.uk/contact/",
+          "https://brandingbeez.co.uk/portfolio/",
+          "https://brandingbeez.co.uk/pricing-calculator/",
+          "https://brandingbeez.co.uk/blog/",
+          "https://brandingbeez.co.uk/",
+          "https://brandingbeez.co.uk/cookie-policy/"
+        ]
+      },
+      "backlinkDataAvailable": true,
+      "screenshotsAvailable": true
+    },
+    "meta": {
+      "businessProfile": {
+        "businessModel": "service_business",
+        "businessModelConfidence": 62,
+        "classificationEvidence": [
+          "service_business: services were detected",
+          "service_business: service-business website signals detected"
+        ],
+        "offerType": "build_services",
+        "offerTypes": [
+          "build_services",
+          "marketing_services"
+        ],
+        "salesMotion": "inquiry_led",
+        "buyerType": "business_buyer",
+        "primaryGrowthMotion": "paid_acquisition",
+        "geographyType": "global",
+        "industry": "Web Development Agencie",
+        "location": "India",
+        "targetMarket": "US & UK Agencies",
+        "serviceDeliveryModel": "direct",
+        "serviceNames": [
+          "White-Label SEO",
+          "Design",
+          "PPC / Google Ads",
+          "Web Design & Development",
+          "BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies"
+        ],
+        "proofAssets": [
+          "testimonial_or_review_signals",
+          "public_review_profile",
+          "defined_service_menu"
+        ],
+        "reportToneProfile": {
+          "voice": "commercial_consultant",
+          "style": "evidence_based_and_business_specific",
+          "lexicon": "service clarity, trust, enquiries, conversion readiness",
+          "avoid": [
+            "generic marketing jargon",
+            "one-size-fits-all recommendations",
+            "unsupported industry claims"
+          ]
+        },
+        "businessLanguage": "service clarity, trust, enquiries, conversion readiness",
+        "summary": {
+          "headline": "Service Business | Build Services | Inquiry Led",
+          "commercialLens": "service clarity, trust, enquiries, conversion readiness",
+          "classificationConfidence": 62
+        }
+      },
+      "sectionContexts": {
+        "executiveSummary": {
+          "relevance": {
+            "level": "high",
+            "reason": "Always relevant; sets the commercial framing for the report."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive."
+          ],
+          "kpis": [
+            "overall score",
+            "confidence",
+            "biggest blocker",
+            "biggest opportunity"
+          ]
+        },
+        "websiteDigitalPresence": {
+          "relevance": {
+            "level": "high",
+            "reason": "Website structure, UX, and trust flow are foundational across all business models."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive."
+          ],
+          "kpis": [
+            "technical SEO score",
+            "content quality",
+            "UX / conversion score"
+          ],
+          "pageCoverage": {
+            "about": true,
+            "contact": true,
+            "services": true
+          }
+        },
+        "seoVisibility": {
+          "relevance": {
+            "level": "high",
+            "reason": "SEO matters for discoverability, but confidence depends on keyword and authority evidence."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive.",
+            "Local SEO should only dominate the narrative when the business model is locally dependent.",
+            "For agency and B2B businesses, non-brand keyword coverage matters more than map-pack presence."
+          ],
+          "kpis": [
+            "domain authority",
+            "ranking keywords",
+            "referring domains",
+            "non-brand visibility"
+          ],
+          "businessLens": "non-brand visibility + commercial page coverage",
+          "localSeoIsPrimary": false
+        },
+        "reputation": {
+          "relevance": {
+            "level": "high",
+            "reason": "Trust packaging matters across service, SaaS, and local businesses."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive."
+          ],
+          "kpis": [
+            "review score",
+            "review count",
+            "proof visibility",
+            "testimonial deployment"
+          ]
+        },
+        "servicesPositioning": {
+          "relevance": {
+            "level": "high",
+            "reason": "Offer clarity and positioning are central to service-led businesses."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive."
+          ],
+          "kpis": [
+            "service clarity",
+            "ICP match",
+            "proof per offer",
+            "pricing / packaging clarity"
+          ],
+          "serviceNames": [
+            "White-Label SEO",
+            "Design",
+            "PPC / Google Ads",
+            "Web Design & Development",
+            "BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies"
+          ]
+        },
+        "leadGeneration": {
+          "relevance": {
+            "level": "high",
+            "reason": "Lead capture and funnel readiness directly affect pipeline quality."
+          },
+          "evidenceStrength": "medium",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive."
+          ],
+          "kpis": [
+            "CTA clarity",
+            "lead quality",
+            "lead-to-meeting rate",
+            "channel readiness"
+          ],
+          "businessLens": "enquiry conversion"
+        },
+        "competitiveAnalysis": {
+          "relevance": {
+            "level": "medium",
+            "reason": "Competitive pressure is useful when valid direct peers are detected."
+          },
+          "evidenceStrength": "medium",
+          "businessFit": "medium",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive.",
+            "Competitor advice should be conservative when overlap evidence is weak."
+          ],
+          "kpis": [
+            "market overlap",
+            "proof gap",
+            "service overlap",
+            "positioning gap"
+          ]
+        },
+        "costOptimization": {
+          "relevance": {
+            "level": "high",
+            "reason": "Commercial efficiency is meaningful for any business, but precision depends on financial inputs."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive.",
+            "For services businesses, utilization, pricing, and qualification usually matter more than blunt cost cutting."
+          ],
+          "kpis": [
+            "avg deal size",
+            "gross margin",
+            "CAC / qualification efficiency",
+            "delivery efficiency"
+          ],
+          "businessLens": "channel / conversion efficiency",
+          "inputCoverage": {
+            "score": 100,
+            "availableKeys": [
+              "monthlyRevenue",
+              "monthlyAdSpend",
+              "monthlyLeads",
+              "closeRate",
+              "avgDealValue",
+              "currentTraffic",
+              "teamSize"
+            ],
+            "missingKeys": []
+          },
+          "modeledInputs": {
+            "monthlyRevenue": 1.5,
+            "monthlyAdSpend": 10,
+            "monthlyLeads": 60,
+            "closeRate": 12.5,
+            "avgDealValue": 12.5,
+            "teamSize": 15,
+            "traffic": 2500
+          }
+        },
+        "targetMarket": {
+          "relevance": {
+            "level": "high",
+            "reason": "ICP clarity and segment fit shape messaging, landing pages, and pipeline quality."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive.",
+            "If explicit segments are missing, segments should be inferred from services, geography, and offer model."
+          ],
+          "kpis": [
+            "segment clarity",
+            "landing page relevance",
+            "qualified lead rate",
+            "message-market fit"
+          ],
+          "inputCoverage": {
+            "targetMarket": "US & UK Agencies",
+            "buyerType": "business_buyer",
+            "geographyType": "global",
+            "serviceNames": [
+              "White-Label SEO",
+              "Design",
+              "PPC / Google Ads",
+              "Web Design & Development",
+              "BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies"
+            ]
+          }
+        },
+        "financialImpact": {
+          "relevance": {
+            "level": "high",
+            "reason": "Financial impact should be generated for all businesses, but some will be directional only."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive.",
+            "Financial impact should connect conversion, pricing, and acquisition logic rather than stand alone."
+          ],
+          "kpis": [
+            "monthly revenue",
+            "improvement potential",
+            "profit impact",
+            "ROI levers"
+          ],
+          "inputCoverage": {
+            "score": 100,
+            "availableKeys": [
+              "monthlyRevenue",
+              "monthlyAdSpend",
+              "monthlyLeads",
+              "closeRate",
+              "avgDealValue",
+              "currentTraffic",
+              "teamSize"
+            ],
+            "missingKeys": []
+          }
+        },
+        "actionPlan90Days": {
+          "relevance": {
+            "level": "high",
+            "reason": "Always relevant; should synthesize the highest-priority cross-section actions."
+          },
+          "evidenceStrength": "high",
+          "businessFit": "high",
+          "assumptions": [
+            "Recommendations should respect the detected business model.",
+            "Sections with weaker evidence should be treated as directional, not definitive."
+          ],
+          "kpis": [
+            "implementation cadence",
+            "owner-ready priorities",
+            "commercial outcomes"
+          ]
+        }
+      },
+      "reportToneProfile": {
+        "voice": "commercial_consultant",
+        "style": "evidence_based_and_business_specific",
+        "lexicon": "service clarity, trust, enquiries, conversion readiness",
+        "avoid": [
+          "generic marketing jargon",
+          "one-size-fits-all recommendations",
+          "unsupported industry claims"
+        ]
+      },
+      "businessModelPromptGuidance": {
+        "businessModel": "service_business",
+        "language": "Use service clarity, trust, enquiries, conversion-readiness, packaging, and buyer-fit language.",
+        "focus": [
+          "service pages",
+          "reviews",
+          "CTA clarity",
+          "proof",
+          "search visibility",
+          "buyer intent"
+        ],
+        "avoid": [
+          "unsupported enterprise terminology",
+          "generic SMB categories with no evidence",
+          "consumer-only framing when the buyer is a business"
+        ],
+        "sectionRules": {
+          "websiteDigitalPresence": "Emphasize core pages, proof, and conversion flow completeness.",
+          "costOptimization": "Prefer pricing, utilisation, fulfilment efficiency, proposal conversion, and qualification efficiency over generic cost cutting.",
+          "targetMarket": "Segment using buyer type, target geography, service mix, stated customer segments, and delivery model. Reject generic SMB buckets unless directly supported.",
+          "financialImpact": "Narrative should connect offer packaging, conversion quality, retained revenue, and delivery efficiency before traffic expansion."
+        },
+        "serviceNames": [
+          "White-Label SEO",
+          "Design",
+          "PPC / Google Ads",
+          "Web Design & Development",
+          "BrandingBeez | White-Label SEO, Design & AI for US & UK Agencies"
+        ],
+        "buyerType": "business_buyer",
+        "salesMotion": "inquiry_led",
+        "primaryGrowthMotion": "paid_acquisition",
+        "geographyType": "global"
+      },
+      "recommendationContext": {},
+      "planningEvidence": {
+        "actionCandidates": [
+          {
+            "title": "Optimize proposal conversion rates",
+            "sourceSection": "costOptimization",
+            "impact": "high",
+            "effort": "low",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "profitability",
+            "kpis": [
+              "gross margin",
+              "delivery efficiency"
+            ],
+            "priorityScore": 2.88
+          },
+          {
+            "title": "Resolve technical issue: No H1 heading detected on homepage.",
+            "sourceSection": "websiteDigitalPresence",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.9,
+            "pillar": "technical",
+            "kpis": [
+              "PageSpeed",
+              "crawl health"
+            ],
+            "priorityScore": 2.7
+          },
+          {
+            "title": "Resolve technical issue: Homepage appears thin on crawlable text (may reduce relevance signals).",
+            "sourceSection": "websiteDigitalPresence",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.9,
+            "pillar": "technical",
+            "kpis": [
+              "PageSpeed",
+              "crawl health"
+            ],
+            "priorityScore": 2.7
+          },
+          {
+            "title": "Add H1 heading to homepage.",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.85,
+            "pillar": "seo",
+            "kpis": [
+              "ranking keyword count",
+              "organic visibility"
+            ],
+            "priorityScore": 2.55
+          },
+          {
+            "title": "Structure dedicated services content for clarity.",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.85,
+            "pillar": "seo",
+            "kpis": [
+              "ranking keyword count",
+              "organic visibility"
+            ],
+            "priorityScore": 2.55
+          },
+          {
+            "title": "Merchandise review proof more visibly (0.9/5 from 0 reviews)",
+            "sourceSection": "reputation",
+            "impact": "medium",
+            "effort": "low",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "trust",
+            "kpis": [
+              "CTA click-through",
+              "lead-to-meeting rate"
+            ],
+            "priorityScore": 1.92
+          },
+          {
+            "title": "Refine client qualification process",
+            "sourceSection": "costOptimization",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "profitability",
+            "kpis": [
+              "gross margin",
+              "delivery efficiency"
+            ],
+            "priorityScore": 1.92
+          },
+          {
+            "title": "Standardize service packages",
+            "sourceSection": "costOptimization",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "profitability",
+            "kpis": [
+              "gross margin",
+              "delivery efficiency"
+            ],
+            "priorityScore": 1.92
+          },
+          {
+            "title": "Create messaging and landing-page strategy for segment: B2B Professional Service Firms",
+            "sourceSection": "targetMarket",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.75,
+            "pillar": "positioning",
+            "kpis": [
+              "qualified lead rate",
+              "landing-page conversion rate"
+            ],
+            "priorityScore": 1.8
+          },
+          {
+            "title": "Prioritize financial lever tied to: Current Monthly Revenue (estimated)",
+            "sourceSection": "financialImpact",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.7,
+            "pillar": "financial",
+            "kpis": [
+              "Current Monthly Revenue (estimated)"
+            ],
+            "priorityScore": 1.68
+          },
+          {
+            "title": "Prioritize financial lever tied to: Base Monthly Revenue Upside",
+            "sourceSection": "financialImpact",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.7,
+            "pillar": "financial",
+            "kpis": [
+              "Base Monthly Revenue Upside"
+            ],
+            "priorityScore": 1.68
+          },
+          {
+            "title": "Implement channel: Live chat / instant inquiry layer",
+            "sourceSection": "leadGeneration",
+            "impact": "medium",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.7,
+            "pillar": "acquisition",
+            "kpis": [
+              "leads/week",
+              "lead quality"
+            ],
+            "priorityScore": 1.12
+          }
+        ],
+        "topPriorityActions": [
+          {
+            "title": "Optimize proposal conversion rates",
+            "sourceSection": "costOptimization",
+            "impact": "high",
+            "effort": "low",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "profitability",
+            "kpis": [
+              "gross margin",
+              "delivery efficiency"
+            ],
+            "priorityScore": 2.88
+          },
+          {
+            "title": "Resolve technical issue: No H1 heading detected on homepage.",
+            "sourceSection": "websiteDigitalPresence",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.9,
+            "pillar": "technical",
+            "kpis": [
+              "PageSpeed",
+              "crawl health"
+            ],
+            "priorityScore": 2.7
+          },
+          {
+            "title": "Resolve technical issue: Homepage appears thin on crawlable text (may reduce relevance signals).",
+            "sourceSection": "websiteDigitalPresence",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.9,
+            "pillar": "technical",
+            "kpis": [
+              "PageSpeed",
+              "crawl health"
+            ],
+            "priorityScore": 2.7
+          },
+          {
+            "title": "Add H1 heading to homepage.",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.85,
+            "pillar": "seo",
+            "kpis": [
+              "ranking keyword count",
+              "organic visibility"
+            ],
+            "priorityScore": 2.55
+          },
+          {
+            "title": "Structure dedicated services content for clarity.",
+            "sourceSection": "seoVisibility",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "high",
+            "confidence": 0.85,
+            "pillar": "seo",
+            "kpis": [
+              "ranking keyword count",
+              "organic visibility"
+            ],
+            "priorityScore": 2.55
+          },
+          {
+            "title": "Merchandise review proof more visibly (0.9/5 from 0 reviews)",
+            "sourceSection": "reputation",
+            "impact": "medium",
+            "effort": "low",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "trust",
+            "kpis": [
+              "CTA click-through",
+              "lead-to-meeting rate"
+            ],
+            "priorityScore": 1.92
+          },
+          {
+            "title": "Refine client qualification process",
+            "sourceSection": "costOptimization",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "profitability",
+            "kpis": [
+              "gross margin",
+              "delivery efficiency"
+            ],
+            "priorityScore": 1.92
+          },
+          {
+            "title": "Standardize service packages",
+            "sourceSection": "costOptimization",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.8,
+            "pillar": "profitability",
+            "kpis": [
+              "gross margin",
+              "delivery efficiency"
+            ],
+            "priorityScore": 1.92
+          },
+          {
+            "title": "Create messaging and landing-page strategy for segment: B2B Professional Service Firms",
+            "sourceSection": "targetMarket",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.75,
+            "pillar": "positioning",
+            "kpis": [
+              "qualified lead rate",
+              "landing-page conversion rate"
+            ],
+            "priorityScore": 1.8
+          },
+          {
+            "title": "Prioritize financial lever tied to: Current Monthly Revenue (estimated)",
+            "sourceSection": "financialImpact",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.7,
+            "pillar": "financial",
+            "kpis": [
+              "Current Monthly Revenue (estimated)"
+            ],
+            "priorityScore": 1.68
+          },
+          {
+            "title": "Prioritize financial lever tied to: Base Monthly Revenue Upside",
+            "sourceSection": "financialImpact",
+            "impact": "high",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.7,
+            "pillar": "financial",
+            "kpis": [
+              "Base Monthly Revenue Upside"
+            ],
+            "priorityScore": 1.68
+          },
+          {
+            "title": "Implement channel: Live chat / instant inquiry layer",
+            "sourceSection": "leadGeneration",
+            "impact": "medium",
+            "effort": "medium",
+            "urgency": "medium",
+            "confidence": 0.7,
+            "pillar": "acquisition",
+            "kpis": [
+              "leads/week",
+              "lead quality"
+            ],
+            "priorityScore": 1.12
+          }
+        ]
+      },
+      "estimationMode": true,
+      "estimationInputs": {
+        "monthlyRevenue": null,
+        "monthlyAdSpend": null,
+        "monthlyLeads": null,
+        "closeRate": null,
+        "avgDealValue": null,
+        "currentTrafficPerMonth": null,
+        "teamSize": null,
+        "monthlyPayrollCost": null,
+        "monthlyToolsCost": null,
+        "monthlyOverheadCost": null,
+        "qualifiedLeadsPerMonth": null,
+        "teamSizeEstimate": null,
+        "monthlyRecurringRevenue": null,
+        "grossMargin": null,
+        "retentionRate": null,
+        "churnRate": null,
+        "salesCycleDays": null,
+        "monthlyAdSpendRange": "₹20,000 - ₹50,000",
+        "toolsStackEstimate": "GA4",
+        "teamSizeRange": "15",
+        "avgDealValueRange": "₹25,000 - ₹75,000",
+        "leadsPerMonthRange": "40-80",
+        "closeRateRange": "10-15%",
+        "currentTrafficPerMonthRange": "2000-3000",
+        "monthlyRevenueRange": "₹3,00,000 - ₹6,00,000",
+        "qualifiedLeadsPerMonthRange": "20-30",
+        "monthlyPayrollCostRange": "₹1,50,000 - ₹3,00,000",
+        "monthlyToolsCostRange": "₹10,000 - ₹25,000",
+        "monthlyOverheadCostRange": "₹30,000 - ₹60,000",
+        "idealCustomer": "Small to mid-sized agencies needing white-label development",
+        "primaryRegion": "UK,US",
+        "currency": null
+      },
+      "userFinancials": {
+        "monthlyAdSpend": 10,
+        "monthlyLeads": 60,
+        "avgDealValue": 12.5,
+        "currentTrafficPerMonth": 2500,
+        "teamSize": 15,
+        "closeRate": 12.5,
+        "monthlyRevenue": 1.5,
+        "qualifiedLeadsPerMonth": 25,
+        "monthlyPayrollCost": 25.5,
+        "monthlyToolsCost": 5,
+        "monthlyOverheadCost": 15,
+        "countriesServed": [
+          "UK",
+          "US",
+          "India"
+        ],
+        "additionalContext": "Tools stack estimate: GA4 Team size range: 15 Ideal customer: Small to mid-sized agencies needing white-label development",
+        "currency": "INR",
+        "monthlyRecurringRevenue": 50000,
+        "customerSegments": [
+          "UK Marketing Agencies",
+          "US Startups"
+        ],
+        "painPoints": [
+          "Lack of in-house dev team",
+          "Need white-label partners",
+          "Need fast MVP builds",
+          "Budget constraints"
+        ],
+        "segmentBudgets": [
+          "$2000-$8000",
+          "£1000-£5000 per project"
+        ],
+        "revenueByService": [
+          {
+            "service": "Website Development",
+            "amount": "60,000 ,"
+          },
+          {
+            "service": "SEO",
+            "amount": "25,000 ,"
+          },
+          {
+            "service": "Maintenance",
+            "amount": "15,000"
+          }
+        ],
+        "revenueByChannel": [
+          {
+            "channel": "Organic",
+            "amount": "40,000 ,"
+          },
+          {
+            "channel": "Referrals",
+            "amount": "30,000 ,"
+          },
+          {
+            "channel": "Paid Ads",
+            "amount": "20,000 ,"
+          },
+          {
+            "channel": "Social Media",
+            "amount": "10,000"
+          }
+        ],
+        "grossMargin": 30,
+        "retentionRate": 70,
+        "churnRate": 5,
+        "salesCycleDays": 21
+      },
+      "runtimeControls": {
+        "llmMode": 2,
+        "effectiveLlmMode": 2,
+        "skipReconcile": true,
+        "maxPromptChars": 18000,
+        "maxSystemPromptChars": 6000,
+        "maxUserPromptChars": 16000,
+        "maxTotalPromptChars": 18000,
+        "geminiMaxRetries": 2,
+        "openaiMaxRetries": 3,
+        "reconcileMaxRetries": 1,
+        "estimationMaxRetries": 2,
+        "finalPatchMaxRetries": 2,
+        "reconcileMaxTokens": 1800,
+        "estimationStageMaxTokens": 1800,
+        "finalExecSummaryMaxTokens": 1800,
+        "finalVisibilityMaxTokens": 1800,
+        "finalGrowthMaxTokens": 1700,
+        "finalGrowthCommercialMaxTokens": 1800,
+        "finalActionplanMaxTokens": 2000,
+        "minCallGapMs": 1500
+      }
+    }
+  },
+  "website": "https://brandingbeez.co.uk",
+  "companyName": "Brandingbeez",
+  "industry": "Web Development Agencie",
+  "email": "sathes.brandingbeez@gmail.com",
+  "reportDownloadToken": "59acebbd9c0f370a054d93e1258a5dd2",
+  "reportGeneratedAt": {
+    "$date": "2026-04-20T07:52:53.253Z"
+  },
+  "createdAt": {
+    "$date": "2026-04-20T07:48:09.179Z"
+  },
+  "domain": "brandingbeez.co.uk"
+}

@@ -402,7 +402,7 @@ app.use((req, res, next) => {
       console.error('Error setting up static file serving:', error);
       throw error;
     }
-  } else {
+  } else if (process.env.BACKEND_ONLY !== "true") {
     try {
       console.log('Setting up Vite development server...');
       const { setupVite } = await import('./vite');
@@ -412,6 +412,8 @@ app.use((req, res, next) => {
       console.error('Error setting up Vite development server:', error);
       throw error;
     }
+  } else {
+    console.log("Running API-only development server (Vite runs separately on port 5173).");
   }
 
   // const httpsOptions = {

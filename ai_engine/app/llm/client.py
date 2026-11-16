@@ -80,6 +80,38 @@ def _set_metadata(metadata_out: Optional[Dict[str, Any]], **values: Any) -> None
         metadata_out.update(values)
 
 
+def _record_openai_usage(metadata_out: Optional[Dict[str, Any]], data: Any) -> None:
+    if not isinstance(data, dict):
+        return
+    usage = data.get("usage") or {}
+    choices = data.get("choices") or []
+    finish_reason = choices[0].get("finish_reason") if choices and isinstance(choices[0], dict) else None
+    _set_metadata(
+        metadata_out,
+        actualInputTokens=usage.get("prompt_tokens"),
+        actualOutputTokens=usage.get("completion_tokens"),
+        actualTotalTokens=usage.get("total_tokens"),
+        finishReason=finish_reason,
+        outputTruncated=finish_reason in {"length", "max_tokens"},
+    )
+
+
+def _record_gemini_usage(metadata_out: Optional[Dict[str, Any]], data: Any) -> None:
+    if not isinstance(data, dict):
+        return
+    usage = data.get("usageMetadata") or {}
+    candidates = data.get("candidates") or []
+    finish_reason = candidates[0].get("finishReason") if candidates and isinstance(candidates[0], dict) else None
+    _set_metadata(
+        metadata_out,
+        actualInputTokens=usage.get("promptTokenCount"),
+        actualOutputTokens=usage.get("candidatesTokenCount"),
+        actualTotalTokens=usage.get("totalTokenCount"),
+        finishReason=finish_reason,
+        outputTruncated=finish_reason in {"MAX_TOKENS", "LENGTH"},
+    )
+
+
 def _compute_backoff_seconds(attempt: int, *, base_delay: float, max_delay: float) -> float:
     exp = base_delay * (2 ** max(0, attempt - 1))
     jitter = random.uniform(0.25, 1.0)
@@ -991,6 +1023,7 @@ def call_openai_json(
 
             r.raise_for_status()
             data = r.json()
+            _record_openai_usage(metadata_out, data)
             content = data["choices"][0]["message"]["content"]
             _note_openai_success()
             repair_cb = None
@@ -1116,6 +1149,7 @@ def call_gemini_json(
                 logger.warning("[LLM] Gemini error status=%s body=%s", r.status_code, (r.text or "")[:1000])
             r.raise_for_status()
             data = r.json()
+            _record_gemini_usage(metadata_out, data)
 
             text = _extract_gemini_text(data)
             logger.warning("[LLM_DEBUG] gemini_text_preview len=%s preview=%s", len(text), (text or "")[:240].replace("\n", " "))

@@ -109,8 +109,9 @@ Return exactly this structure:
 
 STRICT RULES:
 - Ground every item in the provided business model, services, target market, and financial inputs.
-- For white-label / agency contexts, prefer fulfilment margin, proposal conversion, retained packaging, partner onboarding, qualification efficiency, and delivery utilisation.
-- Do NOT use generic ops language like vendor relationships, operational overhead, internal processes, automation tools, software audit, tool subscriptions unless explicitly tied to agency fulfilment.
+- Use the provided costFocus list as the main domain filter.
+- Do NOT write generic phrases like service delivery efficiency, internal process improvement, operational overhead, vendor relationships, software audit, or automation unless tied to the actual business model/service economics.
+- Every opportunity must mention at least one domain-specific lever from the business data: pricing, margin, conversion, fulfilment/delivery, utilisation, retainers, CAC, churn, AOV, staffing, appointment conversion, inventory, or proposal efficiency as applicable.
 - Exactly 3 opportunities and 2 actionCandidates.
 - All strings under 90 chars. No extra keys.
 """
@@ -123,7 +124,10 @@ Return exactly this structure:
 STRICT RULES:
 - Exactly 2 segments only.
 - Segments MUST be grounded in provided target market, customer segments, services, countries served, or buyer type.
+- NEVER say "No business data provided", "insufficient data", "unknown business", or similar.
+- If inputs are partial, infer cautiously from businessModel, services, targetMarket, and geography.
 - Prefer agency / partner / white-label / retained-service segments when supported.
+- For white-label agency partner context, segments MUST reference agency/partner/white-label/outsourced delivery context.
 - DO NOT use generic buckets like Small Businesses, Entrepreneurs, Local Businesses, SMBs, Marketing Managers.
 - DO NOT include scenarios, budgets, currency values, disclaimers beyond estimationDisclaimer, or extra keys.
 - All strings under 90 chars.
@@ -248,15 +252,121 @@ def build_user_prompt_final_synthesis(final_report: dict, llm_context: dict) -> 
         f"{suffix}"
     )
 
+def _cost_focus_for_business_model(model: str, services: Any = None) -> list[str]:
+    model_l = str(model or "service_business").lower()
+    service_blob = " ".join(map(str, services or [])).lower() if isinstance(services, list) else str(services or "").lower()
+    combined = f"{model_l} {service_blob}"
+
+    if "white" in combined or "agency" in combined or "partner" in combined:
+        return [
+            "fulfilment margin",
+            "agency delivery cost",
+            "retainer packaging",
+            "proposal-to-close conversion",
+            "agency-fit lead qualification",
+            "standardised service bundles",
+        ]
+    if "saas" in combined or "software" in combined or "subscription" in combined:
+        return [
+            "CAC efficiency",
+            "plan packaging",
+            "trial-to-paid conversion",
+            "onboarding cost",
+            "churn reduction",
+            "support load reduction",
+        ]
+    if "ecommerce" in combined or "commerce" in combined or "retail" in combined or "shop" in combined:
+        return [
+            "gross margin by product/category",
+            "AOV improvement",
+            "ROAS efficiency",
+            "inventory carrying cost",
+            "fulfilment cost",
+            "repeat purchase rate",
+        ]
+    if "health" in combined or "clinic" in combined or "dental" in combined or "doctor" in combined:
+        return [
+            "appointment conversion",
+            "no-show reduction",
+            "local lead quality",
+            "staff utilisation",
+            "patient acquisition cost",
+            "follow-up automation tied to bookings",
+        ]
+    if "consult" in combined or "professional" in combined or "service_business" in combined:
+        return [
+            "billable utilisation",
+            "proposal close rate",
+            "retainer scope control",
+            "pricing tiers",
+            "lead qualification",
+            "delivery capacity planning",
+        ]
+    return [
+        "pricing efficiency",
+        "margin improvement",
+        "conversion rate improvement",
+        "delivery utilisation",
+        "lead qualification",
+        "recurring revenue packaging",
+    ]
+
+
 def build_user_prompt_cost_optimization(llm_context: dict) -> str:
     ctx = llm_context or {}
-    mini = _mini_ctx(ctx)
+    bp = ctx.get("businessProfile", {}) if isinstance(ctx, dict) else {}
+    ui = ctx.get("userInputs", {}) if isinstance(ctx, dict) else {}
+    uf = ctx.get("userFinancials", {}) if isinstance(ctx, dict) else {}
+    fin = ctx.get("financials", {}) if isinstance(ctx, dict) else {}
+
+    business_model = (
+        ctx.get("businessModel")
+        or (ctx.get("businessModelPromptGuidance") or {}).get("businessModel")
+        or bp.get("businessModel")
+        or "service_business"
+    )
+    services = (
+        ctx.get("serviceNames")
+        or ctx.get("services")
+        or bp.get("serviceNames")
+        or fin.get("services")
+        or []
+    )
+    target_market = (
+        ctx.get("targetMarket")
+        or ui.get("targetMarket")
+        or bp.get("targetMarket")
+        or fin.get("targetMarket")
+    )
+    financials = {
+        "monthlyRevenue": uf.get("monthlyRevenue") or fin.get("monthlyRevenue"),
+        "monthlyLeads": uf.get("monthlyLeads") or fin.get("monthlyLeads"),
+        "closeRate": uf.get("closeRate") or fin.get("closeRate"),
+        "avgDealValue": uf.get("avgDealValue") or fin.get("avgDealValue"),
+        "monthlyAdSpend": uf.get("monthlyAdSpend") or fin.get("monthlyAdSpend"),
+        "monthlyPayrollCost": uf.get("monthlyPayrollCost") or fin.get("monthlyPayrollCost"),
+        "monthlyToolsCost": uf.get("monthlyToolsCost") or fin.get("monthlyToolsCost"),
+        "monthlyOverheadCost": uf.get("monthlyOverheadCost") or fin.get("monthlyOverheadCost"),
+        "teamSize": uf.get("teamSize") or fin.get("teamSize"),
+    }
+    payload = {
+        "businessModel": business_model,
+        "buyerType": ctx.get("buyerType") or bp.get("buyerType") or fin.get("buyerType"),
+        "targetMarket": target_market,
+        "services": services[:5] if isinstance(services, list) else services,
+        "financials": financials,
+        "costFocus": _cost_focus_for_business_model(business_model, services),
+    }
     suffix = _business_prompt_suffix(ctx)
     return (
-        f"Business data: {mini}\n"
+        f"Business data: {_json(payload)}\n"
         f"{suffix}\n"
-        "Generate realistic cost optimization for this business. "
-        "Every item must clearly reflect the business context above."
+        "Generate ONLY business-model-specific cost optimization.\n"
+        "Rules:\n"
+        "- Use costFocus as the allowed domain lens.\n"
+        "- Match the levers to this business model and services; do not force agency wording unless the model supports it.\n"
+        "- Avoid generic advice; each item must name a concrete margin, pricing, conversion, delivery, CAC, staffing, AOV, appointment, utilisation, retainer, or fulfilment lever.\n"
+        "- Exactly 3 opportunities and 2 actionCandidates."
     )
 
 def build_user_prompt_target_market(llm_context: dict) -> str:
@@ -264,22 +374,62 @@ def build_user_prompt_target_market(llm_context: dict) -> str:
     bp = ctx.get("businessProfile", {}) if isinstance(ctx, dict) else {}
     ui = ctx.get("userInputs", {}) if isinstance(ctx, dict) else {}
     uf = ctx.get("userFinancials", {}) if isinstance(ctx, dict) else {}
+    fin = ctx.get("financials", {}) if isinstance(ctx, dict) else {}
+
+    # This function may receive either the full context OR the compacted estimation
+    # context. Read both shapes so Gemini never sees an empty business profile.
+    business_model = (
+        ctx.get("businessModel")
+        or (ctx.get("businessModelPromptGuidance") or {}).get("businessModel")
+        or bp.get("businessModel")
+        or "service_business"
+    )
+    services = (
+        ctx.get("serviceNames")
+        or ctx.get("services")
+        or bp.get("serviceNames")
+        or fin.get("services")
+        or []
+    )
+    target_market = (
+        ctx.get("targetMarket")
+        or ui.get("targetMarket")
+        or bp.get("targetMarket")
+        or fin.get("targetMarket")
+    )
+    countries = (
+        ctx.get("countriesServed")
+        or uf.get("countriesServed")
+        or bp.get("countriesServed")
+        or fin.get("countriesServed")
+        or []
+    )
+    customer_segments = (
+        ctx.get("customerSegments")
+        or uf.get("customerSegments")
+        or ui.get("customerSegments")
+        or fin.get("customerSegments")
+        or []
+    )
 
     payload = {
-        "targetMarket": ui.get("targetMarket") or bp.get("targetMarket"),
-        "countriesServed": (uf.get("countriesServed") or [])[:4] if isinstance(uf, dict) else [],
-        "customerSegments": (uf.get("customerSegments") or ui.get("customerSegments") or [])[:4],
-        "painPoints": (uf.get("painPoints") or [])[:4] if isinstance(uf, dict) else [],
-        "services": (bp.get("serviceNames") or [])[:5] if isinstance(bp, dict) else [],
-        "buyerType": bp.get("buyerType") if isinstance(bp, dict) else None,
+        "businessModel": business_model,
+        "targetMarket": target_market,
+        "countriesServed": countries[:4] if isinstance(countries, list) else countries,
+        "customerSegments": customer_segments[:4] if isinstance(customer_segments, list) else customer_segments,
+        "painPoints": (uf.get("painPoints") or fin.get("painPoints") or [])[:4] if isinstance(uf, dict) and isinstance((uf.get("painPoints") or fin.get("painPoints") or []), list) else [],
+        "services": services[:5] if isinstance(services, list) else services,
+        "buyerType": ctx.get("buyerType") or bp.get("buyerType") or fin.get("buyerType"),
     }
 
     return (
         f"Business data: {_json(payload)}\n"
         "Generate ONLY grounded target-market output.\n"
         "Rules:\n"
-        "- Use only segments supported by target market, geography, service mix, or customer-segment inputs.\n"
-        "- Prefer agency, partner, startup, retained-service, or white-label buyer segments when supported.\n"
+        "- NEVER say 'No business data provided' or 'insufficient data'.\n"
+        "- Use businessModel, services, target market, geography, and customer-segment inputs.\n"
+        "- Prefer agency, partner, retained-service, outsourced-delivery, or white-label segments when supported.\n"
+        "- For white-label agency partner context, both segments must mention agencies/partners/white-label delivery.\n"
         "- Exactly 2 segments.\n"
         "- No scenarios, budgets, currency values, or generic SMB labels."
     )

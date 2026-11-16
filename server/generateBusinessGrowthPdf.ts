@@ -117,6 +117,71 @@ function firstNonEmptyArray<T = any>(...values: any[]): T[] {
   return [];
 }
 
+function normalizeServiceRowsForPdf(report: Dict, servicesPositioning: Dict): any[] {
+  const candidates: any[] = [];
+  const pushService = (item: any) => {
+    if (!isMeaningful(item)) return;
+    if (typeof item === "string") {
+      const name = item.trim();
+      if (name) candidates.push({ name, service: name, description: `Detected service offering: ${name}` });
+      return;
+    }
+    if (typeof item === "object") {
+      const name = safeText(item.name ?? item.service ?? item.title ?? item.label ?? item.keyword, "");
+      if (name) candidates.push({ ...item, name, service: item.service ?? name });
+    }
+  };
+
+  const pushList = (value: any) => {
+    if (Array.isArray(value)) value.forEach(pushService);
+    else if (value && typeof value === "object") Object.values(value).forEach(pushService);
+  };
+
+  pushList(servicesPositioning?.services);
+  pushList(servicesPositioning?.mappedServices);
+  pushList(servicesPositioning?.detectedServices);
+  pushList(servicesPositioning?.serviceList);
+  pushList(report?.services);
+  pushList(report?.serviceSignals);
+  pushList(report?.servicesSignals?.services);
+  pushList(report?.marketDemand?.services);
+  pushList(report?.meta?.businessProfile?.serviceNames);
+  pushList(report?.reportMetadata?.scoreMeta?.businessProfile?.serviceNames);
+  pushList(report?.websiteDigitalPresence?.websiteKeywordAnalysis?.keywordCandidates);
+
+  const seen = new Set<string>();
+  return candidates.filter((item) => {
+    const name = safeText(item.name ?? item.service, "");
+    const key = name.toLowerCase().replace(/\s+/g, " ");
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    item.name = name;
+    item.service = item.service ?? name;
+    item.targetMarket = item.targetMarket ?? report?.meta?.businessProfile?.targetMarket ?? report?.reportMetadata?.scoreMeta?.businessProfile?.targetMarket;
+    item.description = item.description ?? `Detected service offering: ${name}`;
+    return true;
+  });
+}
+
+function normalizeGoogleReputationRowsForPdf(reputation: Dict): any[] {
+  const rows = truthyArray<any>(reputation?.summaryTable || reputation?.platforms || reputation?.reviewPlatforms);
+  const rating = reputation?.reviewScore ?? reputation?.rating ?? reputation?.googleRating ?? reputation?.averageRating;
+  const totalReviews = reputation?.totalReviews ?? reputation?.reviewCount ?? reputation?.googleReviewCount;
+  let foundGoogle = false;
+  const normalized = rows.map((row) => {
+    const platformName = safeText(row?.platform ?? row?.name, "");
+    const isGoogle = ["google", "google business profile"].includes(platformName.toLowerCase());
+    if (isGoogle) foundGoogle = true;
+    return isGoogle
+      ? { ...row, platform: platformName || "Google", rating: row?.rating === "N/A" || row?.rating == null ? rating : row.rating, totalReviews: row?.totalReviews || row?.reviewCount || totalReviews }
+      : row;
+  });
+  if (!foundGoogle && (isMeaningful(rating) || isMeaningful(totalReviews))) {
+    normalized.push({ platform: "Google", rating, totalReviews });
+  }
+  return normalized;
+}
+
 function formatMs(value: any): string {
   if (typeof value !== "number" || !Number.isFinite(value)) return "N/A";
   return `${Math.round(value)} ms`;
@@ -848,7 +913,7 @@ function buildHtml(report: BusinessGrowthReport): string {
     ["Services", metadata?.subScores?.services, "Offer clarity, positioning, and proof support"],
   ];
 
-  const platformSource = truthyArray<any>(reputation?.summaryTable || reputation?.platforms || reputation?.reviewPlatforms);
+  const platformSource = normalizeGoogleReputationRowsForPdf(reputation);
   const platformRows: TableRow[] = platformSource.map((platform) => {
     const platformName = platform?.platform ?? platform?.name;
     const platformKey = String(platformName ?? "").toLowerCase();
@@ -880,11 +945,12 @@ function buildHtml(report: BusinessGrowthReport): string {
     reputation?.totalReviews ??
     platformSource.reduce((sum, p) => sum + (Number(p?.reviews ?? p?.reviewCount ?? p?.count ?? p?.totalReviews) || 0), 0);
 
-  const servicesRows: TableRow[] = truthyArray<any>(services?.services).map((service) => [
-    service?.name,
-    service?.startingPrice,
-    service?.targetMarket,
-    service?.description,
+  const normalizedServiceRows = normalizeServiceRowsForPdf(rep as Dict, services);
+  const servicesRows: TableRow[] = normalizedServiceRows.map((service) => [
+    service?.name ?? service?.service ?? service?.title,
+    service?.startingPrice ?? service?.price ?? "N/A",
+    service?.targetMarket ?? effectiveTargetMarket ?? "N/A",
+    service?.description ?? service?.summary ?? `Detected service offering: ${service?.name ?? service?.service ?? "Service"}`,
   ]);
 
   const serviceGapRows: TableRow[] = truthyArray<any>(services?.serviceGaps).map((gap) => [
@@ -1034,7 +1100,7 @@ function buildHtml(report: BusinessGrowthReport): string {
     item?.demandScore,
   ]);
 
-  const currentServiceMenu = truthyArray<any>(services?.services).length
+  const currentServiceMenu = servicesRows.length
     ? renderTable(["Service", "Starting Price", "Target Market", "Description"], servicesRows, { compact: true })
     : renderParagraph(services?.currentServiceMenu || services?.notes, "No services were mapped.");
 

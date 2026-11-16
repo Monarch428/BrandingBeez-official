@@ -166,7 +166,7 @@ def _summarize_business_profile(bp: Any) -> Any:
         return bp
     return _shrink(
         _pick(bp, ["businessModel", "buyerType", "salesMotion", "primaryGrowthMotion",
-                   "offerType", "serviceNames", "countriesServed"]),
+                   "offerType", "serviceNames", "countriesServed", "targetMarket"]),
         max_str=100, max_list=5, max_dict_keys=12,
     )
 
@@ -391,22 +391,40 @@ def compact_estimation_context(ctx: Dict[str, Any], section_name: str) -> Dict[s
     ui = ctx.get("userInputs") or {}
     bp = ctx.get("businessProfile") or {}
 
-    # Pull financial values from whichever source has them
+    # Pull financial + commercial values from whichever source has them.
+    # Section 9 needs target-market context, not only numeric financials.
+    uf = ctx.get("userFinancials") if isinstance(ctx.get("userFinancials"), dict) else {}
     fin_keys = ["monthlyRevenue", "monthlyLeads", "closeRate", "avgDealValue",
                 "monthlyAdSpend", "teamSize", "currency", "location", "targetMarket",
-                "monthlyPayrollCost", "monthlyToolsCost"]
+                "monthlyPayrollCost", "monthlyToolsCost", "countriesServed",
+                "customerSegments", "painPoints"]
     financials = {}
     for k in fin_keys:
-        v = ei.get(k) or ui.get(k)
+        v = ei.get(k) or ui.get(k) or uf.get(k) or bp.get(k)
         if v is not None:
             financials[k] = v
+
+    service_names = (bp.get("serviceNames") or [])[:5]
+    if not service_names:
+        ss = ctx.get("servicesSignals") or {}
+        if isinstance(ss, dict):
+            service_names = [
+                s.get("name", "") if isinstance(s, dict) else str(s)
+                for s in (ss.get("services") or [])[:5]
+                if s
+            ]
 
     out: Dict[str, Any] = {
         "companyName": ctx.get("companyName", ""),
         "estimationMode": ctx.get("estimationMode", True),
         "businessModel": bp.get("businessModel", "service_business"),
-        "serviceNames": (bp.get("serviceNames") or [])[:3],
+        "buyerType": bp.get("buyerType"),
+        "targetMarket": ui.get("targetMarket") or bp.get("targetMarket") or financials.get("targetMarket"),
+        "countriesServed": bp.get("countriesServed") or financials.get("countriesServed") or [],
+        "customerSegments": financials.get("customerSegments") or [],
+        "serviceNames": service_names,
         "financials": financials,
+        "businessProfile": _shrink(_pick(bp, ["businessModel", "buyerType", "targetMarket", "serviceNames", "countriesServed"]), max_str=90, max_list=5, max_dict_keys=8),
     }
 
     # Add currency only if present
@@ -418,7 +436,7 @@ def compact_estimation_context(ctx: Dict[str, Any], section_name: str) -> Dict[s
         if sym or code:
             out["currency"] = {"symbol": sym, "code": code}
 
-    # Market demand for target_market and financial_impact
+    # Market + service demand for target_market and financial_impact
     if section_name in ("targetMarket", "target_market", "financialImpact", "financial_impact"):
         md = ctx.get("marketDemand") or {}
         if isinstance(md, dict):
@@ -429,16 +447,44 @@ def compact_estimation_context(ctx: Dict[str, Any], section_name: str) -> Dict[s
                     out["marketOpportunities"] = top_opps
             elif isinstance(summary, str) and summary:
                 out["marketSummary"] = summary[:120]
+            if isinstance(md.get("services"), list) and md.get("services"):
+                out.setdefault("serviceNames", md.get("services")[:5])
 
-    # Services for cost_optimization
+        # Preserve target context even after aggressive compaction.
+        out["targetContext"] = {
+            "businessModel": out.get("businessModel"),
+            "buyerType": out.get("buyerType"),
+            "targetMarket": out.get("targetMarket"),
+            "countriesServed": out.get("countriesServed"),
+            "customerSegments": out.get("customerSegments"),
+            "serviceNames": out.get("serviceNames"),
+        }
+
+    # Services + commercial context for cost_optimization.
+    # Keep this small, but do not strip the business model inputs that make
+    # Section 8 specific instead of generic.
     if section_name in ("costOptimization", "cost_optimization"):
         ss = ctx.get("servicesSignals") or {}
         if isinstance(ss, dict):
             svcs = ss.get("services") or []
-            out["services"] = [
+            extracted_services = [
                 s.get("name", "") if isinstance(s, dict) else str(s)
-                for s in svcs[:3]
+                for s in svcs[:5]
+                if s
             ]
+            if extracted_services:
+                out["services"] = extracted_services
+                if not out.get("serviceNames"):
+                    out["serviceNames"] = extracted_services
+
+        out["costContext"] = {
+            "businessModel": out.get("businessModel"),
+            "buyerType": out.get("buyerType"),
+            "targetMarket": out.get("targetMarket"),
+            "services": out.get("serviceNames") or out.get("services") or [],
+            "financials": _shrink(financials, max_str=80, max_list=4, max_dict_keys=12, max_depth=2),
+            "sectionContext": _compact_section_context((ctx.get("sectionContexts") or {}).get("costOptimization") if isinstance(ctx.get("sectionContexts"), dict) else {}),
+        }
 
     return out
 

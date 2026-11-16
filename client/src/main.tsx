@@ -1,15 +1,47 @@
+import { Component, lazy, Suspense, type ReactNode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
 import "./index.css";
 import { HelmetProvider } from "react-helmet-async";
+
+// Keep the entry point small and always render a visible state.  Previously an
+// exception while evaluating App.tsx happened before React mounted, which made
+// the browser show a completely blank white page with no actionable feedback.
+const App = lazy(() => import("./App"));
+
+class StartupErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <main className="min-h-screen grid place-items-center bg-slate-50 p-6 text-slate-900">
+          <section className="max-w-lg rounded-xl border border-rose-200 bg-white p-6 shadow-sm">
+            <h1 className="text-xl font-semibold">The site could not start</h1>
+            <p className="mt-2 text-sm text-slate-600">Refresh the page after checking the development-server console.</p>
+            {import.meta.env.DEV && <pre className="mt-4 overflow-auto rounded bg-slate-950 p-3 text-xs text-rose-200">{this.state.error.message}</pre>}
+          </section>
+        </main>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const rootElement = document.getElementById("root");
 
 if (rootElement) {
   createRoot(rootElement).render(
-    <HelmetProvider>
-      <App />
-    </HelmetProvider>
+    <StartupErrorBoundary>
+      <HelmetProvider>
+        <Suspense fallback={<main className="min-h-screen grid place-items-center bg-white text-slate-700">Loading BrandingBeez…</main>}>
+          <App />
+        </Suspense>
+      </HelmetProvider>
+    </StartupErrorBoundary>
   );
 }
 

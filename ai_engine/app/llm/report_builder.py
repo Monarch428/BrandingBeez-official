@@ -7,6 +7,7 @@ from typing import Any, Dict
 
 from app.core.config import settings
 from app.llm.client import call_llm_json, downgrade_llm_mode, get_effective_llm_mode
+from app.llm.token_budget import build_budget
 from app.llm.context_compactor import (
     compact_base_report,
     compact_estimation_context,
@@ -148,18 +149,18 @@ def _stage_pause(stage_name: str) -> None:
 
 
 def _stage_max_tokens(stage_name: str, default: int) -> int:
-    # v4: output shapes are now absolute minimum — hardcoded JSON templates
-    # Each limit is slightly above the actual expected token count of the template
+    # One source of truth for stage limits. Never fall back to undocumented tiny
+    # values: those were causing JSON truncation and silent deterministic reports.
     stage_defaults = {
-        "reconcile":                     int(getattr(settings, "LLM_RECONCILE_MAX_TOKENS", 800) or 800),
-        "cost_optimization":             int(getattr(settings, "LLM_ESTIMATION_STAGE_MAX_TOKENS", 700) or 700),
-        "target_market":                 int(getattr(settings, "LLM_ESTIMATION_STAGE_MAX_TOKENS", 700) or 700),
-        "financial_impact":              int(getattr(settings, "LLM_SECTION_MAX_TOKENS", 750) or 750),
-        "final_exec_summary":            int(getattr(settings, "LLM_FINAL_EXEC_SUMMARY_MAX_TOKENS", 550) or 550),
-        "final_visibility_patch":        int(getattr(settings, "LLM_FINAL_VISIBILITY_MAX_TOKENS", 350) or 350),
-        "final_growth_patch":            int(getattr(settings, "LLM_FINAL_GROWTH_MAX_TOKENS", 350) or 350),
-        "final_growth_commercial_patch": int(getattr(settings, "LLM_FINAL_VISIBILITY_MAX_TOKENS", 250) or 250),
-        "final_actionplan_patch":        int(getattr(settings, "LLM_FINAL_ACTIONPLAN_MAX_TOKENS", 700) or 700),
+        "reconcile":                     int(getattr(settings, "LLM_RECONCILE_MAX_TOKENS", default) or default),
+        "cost_optimization":             int(getattr(settings, "LLM_ESTIMATION_STAGE_MAX_TOKENS", default) or default),
+        "target_market":                 int(getattr(settings, "LLM_ESTIMATION_STAGE_MAX_TOKENS", default) or default),
+        "financial_impact":              int(getattr(settings, "LLM_ESTIMATION_STAGE_MAX_TOKENS", default) or default),
+        "final_exec_summary":            int(getattr(settings, "LLM_FINAL_EXEC_SUMMARY_MAX_TOKENS", default) or default),
+        "final_visibility_patch":        int(getattr(settings, "LLM_FINAL_VISIBILITY_MAX_TOKENS", default) or default),
+        "final_growth_patch":            int(getattr(settings, "LLM_FINAL_GROWTH_MAX_TOKENS", default) or default),
+        "final_growth_commercial_patch": int(getattr(settings, "LLM_FINAL_GROWTH_COMMERCIAL_MAX_TOKENS", default) or default),
+        "final_actionplan_patch":        int(getattr(settings, "LLM_FINAL_ACTIONPLAN_MAX_TOKENS", default) or default),
     }
     return int(stage_defaults.get(stage_name, default) or default)
 
@@ -615,6 +616,189 @@ def _target_section_is_specific(section: Dict[str, Any], llm_context: Dict[str, 
         return any(term in blob for term in ["agency","agencies","startup","startups","partner","white-label","white label","uk","us"])
 
 
+
+def _merge_missing_or_weak(base_section: Dict[str, Any], fallback_section: Dict[str, Any], *, list_keys: tuple[str, ...] = ()) -> Dict[str, Any]:
+    """Patch missing weak fields from fallback without replacing the whole LLM section."""
+    out = _copy_jsonable(base_section if isinstance(base_section, dict) else {})
+    fb = fallback_section if isinstance(fallback_section, dict) else {}
+    for key, value in fb.items():
+        if key == "scenarios":
+            continue
+        if key in list_keys:
+            current = out.get(key)
+            if not isinstance(current, list) or not current:
+                out[key] = _copy_jsonable(value)
+            continue
+        current = out.get(key)
+        if current in (None, "", [], {}):
+            out[key] = _copy_jsonable(value)
+    return out
+
+
+def _patch_cost_section_business_aware(section: Dict[str, Any], llm_context: Dict[str, Any], fallback_cost: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep usable LLM wording, but patch Section 8 with business-specific levers when weak."""
+    out = _merge_missing_or_weak(section, fallback_cost, list_keys=("opportunities", "actionCandidates"))
+    profile = llm_context.get("businessProfile") if isinstance(llm_context, dict) and isinstance(llm_context.get("businessProfile"), dict) else {}
+    ui = llm_context.get("userInputs") if isinstance(llm_context, dict) and isinstance(llm_context.get("userInputs"), dict) else {}
+    business_model = _business_model_from_context(llm_context or {})
+    services = _extract_service_names(llm_context or {}) or [str(x) for x in (profile.get("serviceNames") or []) if str(x).strip()]
+    target_market = str(ui.get("targetMarket") or profile.get("targetMarket") or "target customers").strip()
+    service_hint = ", ".join(services[:3]) if services else "core services"
+    combined = f"{business_model} {service_hint} {target_market}".lower()
+
+    if any(t in combined for t in ("white", "agency", "agencies", "partner", "outsourc")):
+        mentor = "Cost gains should come from fulfilment margin, retained packaging, proposal conversion, and agency-fit qualification."
+        patched_opps = [
+            {"title": "Protect fulfilment margin", "description": "Standardise white-label scope, QA, and delivery handoffs.", "impact": "Higher gross margin per agency partner", "effort": "medium"},
+            {"title": "Package retained agency tiers", "description": "Bundle SEO, PPC, and web delivery into clear retained partner plans.", "impact": "More predictable monthly revenue", "effort": "medium"},
+            {"title": "Tighten proposal-to-close flow", "description": "Qualify agency-fit leads before custom estimates and delivery calls.", "impact": "Less wasted sales and delivery time", "effort": "low"},
+        ]
+        patched_actions = [
+            {"title": "Create agency-fit qualification rules", "impact": "high", "effort": "low"},
+            {"title": "Publish retained fulfilment packages", "impact": "high", "effort": "medium"},
+        ]
+    else:
+        mentor = f"Cost gains should focus on pricing, qualification, delivery capacity, and recurring packaging for {service_hint}."
+        patched_opps = [
+            {"title": "Sharpen pricing tiers", "description": f"Package {service_hint} into clearer value tiers.", "impact": "Higher realised deal value", "effort": "medium"},
+            {"title": "Improve lead qualification", "description": f"Filter low-fit enquiries before proposal work for {target_market}.", "impact": "Less wasted sales time", "effort": "low"},
+            {"title": "Plan delivery capacity", "description": "Match scope, staffing, and timelines to profitable work.", "impact": "Better margin control", "effort": "medium"},
+        ]
+        patched_actions = [
+            {"title": "Create qualification checklist", "impact": "high", "effort": "low"},
+            {"title": "Standardise service packages", "impact": "medium", "effort": "medium"},
+        ]
+
+    if not _cost_section_is_specific(out, llm_context):
+        out["mentorNotes"] = mentor
+        out["opportunities"] = patched_opps
+        out["actionCandidates"] = patched_actions
+        out["confidenceScore"] = max(int(out.get("confidenceScore") or 0), 75)
+    else:
+        out = _merge_missing_or_weak(out, {"actionCandidates": patched_actions, "mentorNotes": mentor}, list_keys=("actionCandidates",))
+    out.setdefault("estimationDisclaimer", ESTIMATION_DISCLAIMER)
+    out.pop("scenarios", None)
+    return out
+
+
+def _patch_target_section_business_aware(section: Dict[str, Any], llm_context: Dict[str, Any], fallback_target: Dict[str, Any]) -> Dict[str, Any]:
+    """Keep usable LLM target-market wording, but patch generic/empty segments."""
+    out = _merge_missing_or_weak(section, fallback_target, list_keys=("segments", "currentTargetSegments", "detectedSegments", "actionCandidates"))
+    profile = llm_context.get("businessProfile") if isinstance(llm_context, dict) and isinstance(llm_context.get("businessProfile"), dict) else {}
+    ui = llm_context.get("userInputs") if isinstance(llm_context, dict) and isinstance(llm_context.get("userInputs"), dict) else {}
+    business_model = _business_model_from_context(llm_context or {})
+    services = _extract_service_names(llm_context or {}) or [str(x) for x in (profile.get("serviceNames") or []) if str(x).strip()]
+    service_hint = services[0] if services else "SEO, PPC, and web development"
+    target_market = str(ui.get("targetMarket") or profile.get("targetMarket") or "UK and US agencies").strip()
+    is_white_label = (
+        business_model == "white_label_agency_partner"
+        or "white-label" in _text_blob(profile)
+        or "white label" in _text_blob(profile)
+        or "agency" in target_market.lower()
+    )
+    if is_white_label:
+        patched_segments = [
+            {
+                "segment": "UK agencies needing white-label fulfilment",
+                "name": "UK agencies needing white-label fulfilment",
+                "marketCountry": "United Kingdom",
+                "notes": f"Best fit for outsourced {service_hint} delivery without increasing internal headcount.",
+                "painPoints": ["Need reliable partner delivery under their own brand", "Want predictable turnaround, reporting, and margin"],
+            },
+            {
+                "segment": "US agencies seeking retained delivery partners",
+                "name": "US agencies seeking retained delivery partners",
+                "marketCountry": "United States",
+                "notes": f"Strong fit for retained partner packages around {service_hint}.",
+                "painPoints": ["Need scalable fulfilment capacity for client growth", "Want proposal support and clear delivery packages"],
+            },
+        ]
+        mentor = "Targeting should prioritise UK/US agencies needing white-label fulfilment and retained delivery support."
+    else:
+        patched_segments = [
+            {
+                "segment": f"High-intent service buyers in {target_market}",
+                "name": f"High-intent service buyers in {target_market}",
+                "marketCountry": target_market,
+                "notes": f"Segment inferred from service mix and target market: {service_hint}.",
+                "painPoints": ["Need clearer proof before enquiry", "Want specific outcomes and pricing clarity"],
+            },
+            {
+                "segment": "Partner and referral-led growth accounts",
+                "name": "Partner and referral-led growth accounts",
+                "marketCountry": target_market,
+                "notes": "Best fit for recurring work, referrals, and packaged service expansion.",
+                "painPoints": ["Need dependable delivery", "Want predictable communication and reporting"],
+            },
+        ]
+        mentor = f"Targeting should focus on {target_market} with segments tied to {service_hint}."
+
+    if not _target_section_is_specific(out, llm_context):
+        out["mentorNotes"] = mentor
+        out["segments"] = patched_segments
+        out["currentTargetSegments"] = _copy_jsonable(patched_segments)
+        out["detectedSegments"] = _copy_jsonable(patched_segments)
+        out["confidenceScore"] = max(int(out.get("confidenceScore") or 0), 85)
+    else:
+        segs = out.get("segments") or out.get("currentTargetSegments") or out.get("detectedSegments") or []
+        out["segments"] = segs
+        out.setdefault("currentTargetSegments", _copy_jsonable(segs))
+        out.setdefault("detectedSegments", _copy_jsonable(segs))
+        out.setdefault("mentorNotes", mentor)
+    out.setdefault("estimationDisclaimer", ESTIMATION_DISCLAIMER)
+    out.pop("scenarios", None)
+    return out
+
+
+def _force_financial_impact_from_inputs(impact: Dict[str, Any], llm_context: Dict[str, Any], fallback_impact: Dict[str, Any]) -> Dict[str, Any]:
+    """Section 10 visible numbers must always come from deterministic financial inputs."""
+    out = _merge_missing_or_weak(impact, fallback_impact, list_keys=("revenueTable", "scenarios", "actionCandidates", "revenueOpportunities", "profitabilityLevers"))
+    fin = repair_financial_baseline(_context_user_financials(llm_context or {}))
+    deterministic_revenue = compute_monthly_revenue(fin)
+    if deterministic_revenue < 1000:
+        return out
+
+    symbol = _currency_symbol_from_context(llm_context or {})
+    leads = _safe_float(fin.get("monthlyLeads") or fin.get("qualifiedLeads") or fin.get("leadsPerMonth")) or 0
+    close_rate = _as_ratio(fin.get("closeRate") or fin.get("conversionRate")) or 0
+    avg_deal = normalize_money(fin.get("avgDealValue") or fin.get("avgDealSize") or fin.get("averageDealValue") or 0)
+    monthly_cost = _safe_float(fin.get("monthlyCost") or fin.get("currentMonthlyCost")) or 0
+
+    base_monthly_upside = deterministic_revenue * 0.20
+    annual_growth = base_monthly_upside * 12
+    annual_total = annual_growth + max(0, monthly_cost * 0.10 * 12)
+
+    rows = out.get("revenueTable")
+    if not isinstance(rows, list) or not rows:
+        rows = []
+    preserved = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        metric = str(row.get("metric") or row.get("label") or "").lower()
+        if any(k in metric for k in ("current monthly revenue", "current revenue estimate", "current monthly cost", "current monthly profit", "monthly leads", "close rate", "average deal", "base monthly revenue upside", "annual revenue growth", "annual financial impact")):
+            continue
+        preserved.append(row)
+
+    forced_rows = [
+        {"metric": "Current Monthly Revenue", "value": _format_report_money(deterministic_revenue, symbol)},
+        {"metric": "Current Monthly Cost", "value": _format_report_money(monthly_cost, symbol) if monthly_cost >= 1000 else "Directional only"},
+        {"metric": "Current Leads per Month", "value": str(int(round(leads))) if leads else "Directional only"},
+        {"metric": "Close Rate", "value": f"{int(round(close_rate * 100))}%" if close_rate else "Directional only"},
+        {"metric": "Average Deal Value", "value": _format_report_money(avg_deal, symbol) if avg_deal >= 1000 else "Directional only"},
+        {"metric": "Base Monthly Revenue Upside", "value": _format_report_money(base_monthly_upside, symbol)},
+        {"metric": "Annual Revenue Growth", "value": _format_report_money(annual_growth, symbol)},
+        {"metric": "Annual Financial Impact", "value": _format_report_money(annual_total, symbol)},
+    ]
+    out["revenueTable"] = forced_rows + preserved[:4]
+    out["currentRevenueEstimate"] = f"{_format_report_money(deterministic_revenue, symbol)}/mo current revenue"
+    out["improvementPotential"] = f"{_format_report_money(annual_growth, symbol)}/yr revenue growth"
+    out["projectedRevenueIncrease"] = f"{_format_report_money(annual_total, symbol)}/yr total impact"
+    out["summary"] = f"Financial baseline repaired from company inputs: monthlyLeads × avgDealValue × closeRate = {_format_report_money(deterministic_revenue, symbol)}/mo."
+    out.setdefault("mentorNotes", "Financial baseline uses deterministic company inputs, not LLM-estimated revenue.")
+    out.setdefault("estimationDisclaimer", fallback_impact.get("estimationDisclaimer") or ESTIMATION_DISCLAIMER)
+    return out
+
 def _has_substance(section: Dict[str, Any], list_key: str) -> bool:
     if not isinstance(section, dict):
         return False
@@ -629,7 +813,8 @@ def _build_deterministic_estimation_sections(llm_context: Dict[str, Any]) -> Dic
     ui = llm_context.get("userInputs") if isinstance(llm_context, dict) else {}
     logger.warning("[LLM_DEBUG] deterministic estimation raw_financials=%s", _context_user_financials(llm_context))
     ui = ui if isinstance(ui, dict) else {}
-    fin = _context_user_financials(llm_context)
+    fin = repair_financial_baseline(_context_user_financials(llm_context))
+    logger.warning("[LLM_DEBUG] deterministic estimation repaired_financials=%s", fin)
     services = _extract_service_names(llm_context)
     symbol = _currency_symbol_from_context(llm_context)
     business_model = _business_model_from_context(llm_context)
@@ -1279,14 +1464,29 @@ def _call_llm_stage_with_optional_cache(
             logger.info("[LLM] %s cache HIT", stage_name)
             return cached
 
-    call_meta: Dict[str, Any] = {}
+    budget = build_budget(stage_name, system_prompt, user_prompt, max_tokens)
+    # Prompts are already stage-compacted. Provider-side trimming is safer than
+    # dropping the entire stage when a dense JSON prompt estimates over budget.
+    if budget.compact_required:
+        logger.warning(
+            "[LLM] stage=%s input estimate=%s exceeds budget=%s; provider will apply final trim",
+            stage_name, budget.estimated_input_tokens, budget.max_input_tokens,
+        )
+    call_meta: Dict[str, Any] = {
+        "stage": stage_name,
+        "budgetProfile": budget.profile,
+        "estimatedInputTokens": budget.estimated_input_tokens,
+        "inputBudgetTokens": budget.max_input_tokens,
+        "requestedOutputTokens": budget.max_output_tokens,
+        "compactionRequired": budget.compact_required,
+    }
     stage_started = time.perf_counter()
     _stage_pause(stage_name)
     result = call_llm_json(
         "auto",
         system_prompt,
         user_prompt,
-        max_tokens=max_tokens,
+        max_tokens=budget.max_output_tokens,
         max_retries=max_retries,
         metadata_out=call_meta,
         expected_keys=expected_keys,
@@ -1343,13 +1543,6 @@ def _call_single_estimation_section(
     logger.warning("[LLM_DEBUG] %s prompt_chars=%s (system=%s user=%s)",
                    section_name, total_chars, len(system_prompt), len(prompt))
 
-    # Hard guard: if prompt is still too large, skip LLM and use fallback
-    _MAX_ESTIMATION_PROMPT = int(getattr(settings, "LLM_MAX_ESTIMATION_PROMPT_CHARS", 3000) or 3000)
-    if total_chars > _MAX_ESTIMATION_PROMPT:
-        logger.warning("[LLM] %s prompt too large (%s chars > %s) -> skipping LLM, using fallback",
-                       section_name, total_chars, _MAX_ESTIMATION_PROMPT)
-        return {}
-
     try:
         result = _call_llm_stage_with_optional_cache(
             stage_name=section_name,
@@ -1386,13 +1579,6 @@ def _call_final_patch_section(
     total_chars = len(system_prompt) + len(prompt)
     logger.warning("[LLM_DEBUG] %s prompt_chars=%s (system=%s user=%s)",
                    stage_name, total_chars, len(system_prompt), len(prompt))
-
-    # Hard guard: if prompt is still too large, skip LLM for this stage
-    _MAX_FINAL_PROMPT = int(getattr(settings, "LLM_MAX_FINAL_PATCH_PROMPT_CHARS", 3500) or 3500)
-    if total_chars > _MAX_FINAL_PROMPT:
-        logger.warning("[LLM] %s prompt too large (%s chars > %s) -> skipping",
-                       stage_name, total_chars, _MAX_FINAL_PROMPT)
-        return {}
 
     try:
         result = _call_llm_stage_with_optional_cache(
@@ -1546,41 +1732,33 @@ def build_sections_8_10_with_llm(
     ).model_dump()
 
     if not _has_substance(cost, "opportunities") or not _cost_section_is_specific(cost, stage_context):
-        cost = fallback_sections["costOptimization"]
-    if not _has_substance(target, "segments") or not _target_section_is_specific(target, stage_context):
-        target = fallback_sections["targetMarket"]
-    if not _has_substance(impact, "revenueTable"):
-        impact = fallback_sections["financialImpact"]
+        logger.warning("[LLM] costOptimization weak/off-context -> patching with business-specific fields, not replacing whole section")
+        cost = _patch_cost_section_business_aware(cost, stage_context, fallback_sections["costOptimization"])
     else:
-        # Sanity-check the baseline revenue figure. If the cached or LLM-generated
-        # financialImpact has a currentRevenueEstimate that is numerically < 100
-        # (e.g. "₹2/mo", "$5/mo") it means the model hallucinated or the cache is
-        # stale from a broken run. In that case, transplant the revenue rows from
-        # the freshly-computed deterministic fallback while keeping any other LLM
-        # narrative fields that are still valid.
-        _est_str = str(impact.get("currentRevenueEstimate") or "")
-        _baseline_val = _safe_float(impact.get("currentRevenueEstimateValue"))
-        if _baseline_val is None:
-            _baseline_val = _safe_float(_est_str) or 0.0
-        if _baseline_val < 100:
-            logger.warning(
-                "[LLM] financialImpact baseline revenue looks broken (%s) -> "
-                "transplanting revenueTable from deterministic fallback",
-                _est_str,
-            )
-            impact["revenueTable"] = fallback_sections["financialImpact"]["revenueTable"]
-            impact["currentRevenueEstimate"] = fallback_sections["financialImpact"]["currentRevenueEstimate"]
-            impact["improvementPotential"] = fallback_sections["financialImpact"]["improvementPotential"]
-            impact["projectedRevenueIncrease"] = fallback_sections["financialImpact"]["projectedRevenueIncrease"]
-            impact["summary"] = fallback_sections["financialImpact"].get("summary", impact.get("summary", ""))
+        cost = _patch_cost_section_business_aware(cost, stage_context, fallback_sections["costOptimization"])
 
-    # Backfill scenarios from deterministic fallback when LLM omits them
-    # (LLM prompts no longer request scenarios to reduce token usage)
-    for section, fallback_key in ((cost, "costOptimization"), (target, "targetMarket"), (impact, "financialImpact")):
-        if isinstance(section, dict) and not section.get("scenarios"):
-            fb_scenarios = fallback_sections[fallback_key].get("scenarios", [])
-            if fb_scenarios:
-                section["scenarios"] = fb_scenarios
+    if not _has_substance(target, "segments") or not _target_section_is_specific(target, stage_context):
+        logger.warning("[LLM] targetMarket weak/off-context -> patching with business-specific fields, not replacing whole section")
+        target = _patch_target_section_business_aware(target, stage_context, fallback_sections["targetMarket"])
+    else:
+        target = _patch_target_section_business_aware(target, stage_context, fallback_sections["targetMarket"])
+
+    if not _has_substance(impact, "revenueTable"):
+        impact = _merge_missing_or_weak(impact, fallback_sections["financialImpact"], list_keys=("revenueTable", "scenarios", "actionCandidates", "revenueOpportunities", "profitabilityLevers"))
+
+    # Section 10 visible baseline must never come from LLM/cached stale values.
+    # Always force currentRevenueEstimate and revenueTable from deterministic inputs.
+    impact = _force_financial_impact_from_inputs(impact, stage_context, fallback_sections["financialImpact"])
+
+    # Do not copy identical scenario tables into Sections 8 and 9; that made them look like fallback clones.
+    if isinstance(cost, dict):
+        cost.pop("scenarios", None)
+    if isinstance(target, dict):
+        target.pop("scenarios", None)
+    if isinstance(impact, dict) and not impact.get("scenarios"):
+        fb_scenarios = fallback_sections["financialImpact"].get("scenarios", [])
+        if fb_scenarios:
+            impact["scenarios"] = fb_scenarios
 
     if isinstance(target, dict):
         segs = target.get("segments") or target.get("currentTargetSegments") or target.get("detectedSegments") or []
@@ -1605,6 +1783,12 @@ def build_sections_8_10_with_llm(
         impact.setdefault("actionCandidates", fallback_sections["financialImpact"].get("actionCandidates", []))
         if not impact.get("estimationDisclaimer") or len(str(impact.get("estimationDisclaimer", ""))) < 20:
             impact["estimationDisclaimer"] = fallback_sections["financialImpact"].get("estimationDisclaimer", "")
+
+    if isinstance(cost, dict):
+        cost.pop("scenarios", None)
+    if isinstance(target, dict):
+        target.pop("scenarios", None)
+    impact = _force_financial_impact_from_inputs(impact, stage_context, fallback_sections["financialImpact"]) if isinstance(impact, dict) else impact
 
     logger.warning("[LLM_DEBUG] sections_8_10 mapped cost=%s target=%s financial=%s", bool(cost), bool(target), bool(impact))
     logger.info("[LLM] build_sections_8_10_with_llm ok")
@@ -1647,7 +1831,7 @@ def build_final_synthesis_with_llm(
         expected_keys=FINAL_EXEC_SUMMARY_EXPECTED_KEYS,
         cache_repo=cache_repo,
         cache_key=cache_key,
-    )
+    ) if bool(getattr(settings, "LLM_ENABLE_FINAL_EXEC_SUMMARY", True)) else {}
     visibility_patch = _call_final_patch_section(
         stage_name="final_visibility_patch",
         final_report=final_report,
@@ -1657,7 +1841,7 @@ def build_final_synthesis_with_llm(
         expected_keys=FINAL_VISIBILITY_EXPECTED_KEYS,
         cache_repo=cache_repo,
         cache_key=cache_key,
-    )
+    ) if bool(getattr(settings, "LLM_ENABLE_FINAL_VISIBILITY_PATCH", True)) else {}
     growth_patch = _call_final_patch_section(
         stage_name="final_growth_patch",
         final_report=final_report,
@@ -1667,7 +1851,7 @@ def build_final_synthesis_with_llm(
         expected_keys=FINAL_GROWTH_EXPECTED_KEYS,
         cache_repo=cache_repo,
         cache_key=cache_key,
-    )
+    ) if bool(getattr(settings, "LLM_ENABLE_FINAL_GROWTH_PATCH", True)) else {}
     growth_commercial_patch = _call_final_patch_section(
         stage_name="final_growth_commercial_patch",
         final_report=final_report,
@@ -1677,7 +1861,7 @@ def build_final_synthesis_with_llm(
         expected_keys=FINAL_GROWTH_COMMERCIAL_EXPECTED_KEYS,
         cache_repo=cache_repo,
         cache_key=cache_key,
-    )
+    ) if bool(getattr(settings, "LLM_ENABLE_FINAL_GROWTH_COMMERCIAL_PATCH", True)) else {}
     action_patch = _call_final_patch_section(
         stage_name="final_actionplan_patch",
         final_report=final_report,
@@ -1687,7 +1871,7 @@ def build_final_synthesis_with_llm(
         expected_keys=FINAL_ACTIONPLAN_EXPECTED_KEYS,
         cache_repo=cache_repo,
         cache_key=cache_key,
-    )
+    ) if bool(getattr(settings, "LLM_ENABLE_FINAL_ACTIONPLAN_PATCH", True)) else {}
 
     patch: Dict[str, Any] = {}
     for part in (exec_patch, visibility_patch, growth_patch, growth_commercial_patch, action_patch):

@@ -4,8 +4,8 @@ import re
 from typing import Any, Dict, Optional
 from urllib.parse import urlparse
 
-import requests
 from bs4 import BeautifulSoup
+from app.core.http import http_get
 
 
 def _visible(tag) -> bool:
@@ -64,7 +64,7 @@ def analyze_uiux(url: str, html: Optional[str] = None, timeout_s: int = 12) -> D
     """
     try:
         if html is None:
-            r = requests.get(url, timeout=timeout_s, headers={"User-Agent": "Mozilla/5.0"}, allow_redirects=True)
+            r = http_get(url, timeout=timeout_s)
             html = r.text or ""
     except Exception as e:
         return {

@@ -34,6 +34,17 @@ export default defineConfig(({ mode }) => {
       },
     },
     root: path.resolve(import.meta.dirname, "client"),
+    server: {
+      host: "127.0.0.1",
+      port: 5173,
+      strictPort: true,
+      proxy: {
+        "/api": {
+          target: process.env.VITE_BACKEND_URL || "http://127.0.0.1:5001",
+          changeOrigin: true,
+        },
+      },
+    },
     build: {
       outDir: path.resolve(import.meta.dirname, "dist/public"),
       emptyOutDir: true,

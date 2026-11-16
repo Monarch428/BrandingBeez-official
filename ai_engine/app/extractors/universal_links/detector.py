@@ -1,9 +1,9 @@
-import requests
 from app.core.config import settings
+from app.core.http import http_get
 
 def detect_site_type(url: str) -> str:
     try:
-        res = requests.get(url, timeout=int(getattr(settings, "LINK_REQUEST_TIMEOUT_SEC", 5)), headers={"User-Agent": "Mozilla/5.0"})
+        res = http_get(url, timeout=int(getattr(settings, "LINK_REQUEST_TIMEOUT_SEC", 5)))
         text = (res.text or "").lower()
 
         if "react" in text or "__next" in text or "vue" in text:

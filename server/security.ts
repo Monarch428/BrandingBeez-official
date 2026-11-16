@@ -418,8 +418,11 @@ export function securityHeaders() {
         // ✅ Workers (some libs use blob workers)
         workerSrc: ["'self'", "blob:"],
 
-        // keep your current behavior
-        upgradeInsecureRequests: [],
+        // Vite serves development modules over local HTTP. Emitting this
+        // directive in development upgrades those module requests to HTTPS and
+        // can leave the React root blank. Keep the protection in production.
+        upgradeInsecureRequests:
+          process.env.NODE_ENV === "production" ? [] : null,
       },
     },
 
@@ -662,6 +665,7 @@ export const corsOptions = {
       "http://localhost:3000",
       "https://localhost:3000",
       "http://localhost:5173",
+      "http://127.0.0.1:5173",
       "http://localhost:8000",
       "https://localhost:8000",
 

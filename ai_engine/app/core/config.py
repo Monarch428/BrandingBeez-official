@@ -86,6 +86,13 @@ class Settings(BaseSettings):
     LLM_MAX_USER_PROMPT_CHARS: int = 16000
     LLM_MAX_TOTAL_PROMPT_CHARS: int = 18000
     LLM_REPAIR_MAX_CHARS: int = 12000
+    # Adaptive report budget.  Keep these values in tokens; character limits are
+    # retained only as a final compatibility guard in the provider clients.
+    LLM_REPORT_PROFILE: str = "standard"  # brief | standard | detailed
+    LLM_CONTEXT_WINDOW_TOKENS: int = 16384
+    LLM_CONTEXT_SAFETY_TOKENS: int = 768
+    LLM_MAX_OUTPUT_TOKENS: int = 3200
+    LLM_MIN_STAGE_OUTPUT_TOKENS: int = 256
 
     # Stage toggles
     LLM_SKIP_RECONCILE: bool = True

@@ -45,9 +45,24 @@ function makeToken() {
 }
 
 const REPORT_DIR = path.join(process.cwd(), "tmp", "business-growth-reports");
+const REPORT_FILE_TTL_MS = Number(process.env.BUSINESS_GROWTH_PDF_TTL_HOURS || 24) * 60 * 60 * 1000;
+const PDF_TOKEN_RE = /^[a-f0-9]{32}$/i;
 
 function ensureReportDir() {
   if (!fs.existsSync(REPORT_DIR)) fs.mkdirSync(REPORT_DIR, { recursive: true });
+  // PDFs are a cache, not permanent storage. Mongo records expire after 12h;
+  // retain files slightly longer for email/download retries without accumulating
+  // sensitive report data indefinitely.
+  const cutoff = Date.now() - REPORT_FILE_TTL_MS;
+  for (const name of fs.readdirSync(REPORT_DIR)) {
+    if (!PDF_TOKEN_RE.test(name.replace(/\.pdf$/i, "")) || !name.endsWith(".pdf")) continue;
+    const candidate = path.join(REPORT_DIR, name);
+    try {
+      if (fs.statSync(candidate).mtimeMs < cutoff) fs.unlinkSync(candidate);
+    } catch {
+      // Another request/cleanup can race us; it is safe to ignore.
+    }
+  }
 }
 
 function getBaseUrl(req: any) {
@@ -379,6 +394,87 @@ function deepMergeReportPreservingAnalysis(base: any, overlay: any): any {
   return overlay !== undefined ? overlay : base;
 }
 
+
+function normalizeServiceRowsForStoredReport(report: any): any[] {
+  const candidates: any[] = [];
+  const push = (item: any) => {
+    if (item === null || item === undefined) return;
+    if (typeof item === "string") {
+      const name = item.trim();
+      if (name) candidates.push({ name, service: name, description: `Detected service offering: ${name}` });
+      return;
+    }
+    if (typeof item === "object") {
+      const name = String(item.name ?? item.service ?? item.title ?? item.label ?? item.keyword ?? "").trim();
+      if (name) candidates.push({ ...item, name, service: item.service ?? name });
+    }
+  };
+  const pushList = (value: any) => {
+    if (Array.isArray(value)) value.forEach(push);
+    else if (value && typeof value === "object") Object.values(value).forEach(push);
+  };
+
+  pushList(report?.servicesPositioning?.services);
+  pushList(report?.servicesPositioning?.mappedServices);
+  pushList(report?.servicesPositioning?.detectedServices);
+  pushList(report?.servicesPositioning?.serviceList);
+  pushList(report?.servicesSignals?.services);
+  pushList(report?.serviceSignals);
+  pushList(report?.marketDemand?.services);
+  pushList(report?.meta?.businessProfile?.serviceNames);
+  pushList(report?.reportMetadata?.scoreMeta?.businessProfile?.serviceNames);
+  pushList(report?.websiteDigitalPresence?.websiteKeywordAnalysis?.keywordCandidates);
+
+  const seen = new Set<string>();
+  return candidates.filter((item) => {
+    const key = String(item.name ?? item.service ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    item.targetMarket = item.targetMarket ?? report?.meta?.businessProfile?.targetMarket ?? report?.reportMetadata?.scoreMeta?.businessProfile?.targetMarket ?? report?.targetMarket;
+    return true;
+  });
+}
+
+function normalizeReputationForStoredReport(report: any): void {
+  const rep = report?.reputation;
+  if (!rep || typeof rep !== "object") return;
+  const rating = rep.reviewScore ?? rep.rating ?? rep.googleRating ?? rep.averageRating;
+  const reviews = rep.totalReviews ?? rep.reviewCount ?? rep.googleReviewCount;
+  if ((rep.rating == null || rep.rating === "N/A") && rating != null) rep.rating = rating;
+  if ((rep.reviewCount == null || rep.reviewCount === "N/A") && reviews != null) rep.reviewCount = reviews;
+  if (Array.isArray(rep.summaryTable)) {
+    rep.summaryTable = rep.summaryTable.map((row: any) => {
+      if (String(row?.platform ?? "").toLowerCase() !== "google") return row;
+      return {
+        ...row,
+        rating: row?.rating === "N/A" || row?.rating == null ? rating : row.rating,
+        totalReviews: row?.totalReviews || row?.reviewCount || reviews,
+      };
+    });
+  }
+}
+
+function normalizeStoredReportForPdf(report: any): any {
+  if (!report || typeof report !== "object") return report;
+  const services = normalizeServiceRowsForStoredReport(report);
+  if (services.length) {
+    report.servicesPositioning = report.servicesPositioning && typeof report.servicesPositioning === "object"
+      ? report.servicesPositioning
+      : {};
+    if (!Array.isArray(report.servicesPositioning.services) || report.servicesPositioning.services.length === 0) {
+      report.servicesPositioning.services = services;
+    }
+    if (!Array.isArray(report.servicesPositioning.mappedServices) || report.servicesPositioning.mappedServices.length === 0) {
+      report.servicesPositioning.mappedServices = services;
+    }
+    if (!report.servicesPositioning.currentServiceMenu) {
+      report.servicesPositioning.currentServiceMenu = services.map((s) => s.name).join(", ");
+    }
+  }
+  normalizeReputationForStoredReport(report);
+  return report;
+}
+
 function hasMeaningfulPipelineValue(value: unknown): boolean {
   if (value === null || value === undefined) return false;
   if (typeof value === "number") return Number.isFinite(value);
@@ -567,7 +663,9 @@ function buildNormalizedReportForPdf(args: {
     hydratedAnalysisSource,
   );
 
-  return deepMergeReportPreservingAnalysis(merged, hydratedAnalysisSource) as BusinessGrowthReport;
+  return normalizeStoredReportForPdf(
+    deepMergeReportPreservingAnalysis(merged, hydratedAnalysisSource),
+  ) as BusinessGrowthReport;
 }
 
 function hasAnyOptionalBusinessInput(inputs: OptionalBusinessInputs): boolean {
@@ -775,12 +873,14 @@ export function registerBusinessGrowthRoutes(app: Express) {
           : {}),
       };
 
+      console.info(`[AI-Growth] Dispatching analysis to Python engine for ${normalizedWebsite}`);
       const py = await callPythonAiEngineAnalyze({
         baseUrl,
         apiKey,
         payload,
         timeoutMs: 180 * 60_000,
       });
+      console.info(`[AI-Growth] Python engine completed analysis for ${normalizedWebsite}`);
 
       if (!py || py.ok !== true) {
         throw new Error(`Python engine returned failure: ${JSON.stringify(py)}`);
@@ -1093,10 +1193,15 @@ export function registerBusinessGrowthRoutes(app: Express) {
   });
 
   app.get("/api/ai-business-growth/report/:token.pdf", async (req, res) => {
-    const filePath = path.join(REPORT_DIR, `${req.params.token}.pdf`);
+    const token = String(req.params.token || "");
+    if (!PDF_TOKEN_RE.test(token)) return res.status(404).send("Report not found");
+    ensureReportDir();
+    const filePath = path.join(REPORT_DIR, `${token}.pdf`);
     if (!fs.existsSync(filePath)) return res.status(404).send("Report not found");
 
     res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Cache-Control", "private, no-store");
     res.setHeader("Content-Disposition", "inline");
     return fs.createReadStream(filePath).pipe(res);
   });

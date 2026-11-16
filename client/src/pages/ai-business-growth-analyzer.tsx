@@ -864,7 +864,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
     // 3) Proceed analysis
     setIsSubmitting(false);
     setStep("analysis");
-    void runAnalysis(normalizedUrl, { forceNewAnalysis: true });
+    // Await this transition so a successful "no existing report" lookup always
+    // proceeds into the backend/Python analysis request before this submit handler
+    // completes. Errors are handled by runAnalysis and shown in the summary UI.
+    await runAnalysis(normalizedUrl, { forceNewAnalysis: true });
   };
 
   const handleLeadChange = (field: keyof LeadFormState, value: string | boolean) => {
