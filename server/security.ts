@@ -679,6 +679,7 @@ export const corsOptions = {
       "https://brandingbeez.in",
       "https://www.brandingbeez.in",
       "https://api.brandingbeez.in",
+      "https://ai.brandingbeez.in",
       "https://brandingbeez.replit.app",
       "https://branding-beez-monarchteamai.replit.app",
       "https://monarchteamai-brandingbeez.replit.app",
