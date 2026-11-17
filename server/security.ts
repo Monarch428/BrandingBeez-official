@@ -676,6 +676,9 @@ export const corsOptions = {
       "https://www.brandingbeez.com",
       "https://brandingbeez.co.uk",
       "https://www.brandingbeez.co.uk",
+      "https://brandingbeez.in",
+      "https://www.brandingbeez.in",
+      "https://api.brandingbeez.in",
       "https://brandingbeez.replit.app",
       "https://branding-beez-monarchteamai.replit.app",
       "https://monarchteamai-brandingbeez.replit.app",
@@ -683,8 +686,10 @@ export const corsOptions = {
       "https://dff96945bd38.ngrok-free.app"
     ];
 
+    const configuredFrontendOrigin = process.env.FRONTEND_ORIGIN?.replace(/\/+$/, "");
     if (
       allowedOrigins.includes(origin) ||
+      (configuredFrontendOrigin && origin === configuredFrontendOrigin) ||
       (origin && origin.endsWith(".replit.app"))
     ) {
       callback(null, true);
