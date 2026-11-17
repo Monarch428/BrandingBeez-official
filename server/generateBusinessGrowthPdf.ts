@@ -2413,7 +2413,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
     await page.setViewport({ width: 1440, height: 2200, deviceScaleFactor: 1 });
 
     const html = buildHtml(report);
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    // The report is self-contained HTML (including embedded image data). Waiting
+    // for network idle can exceed Puppeteer's short default timeout on Render's
+    // shared CPU even though the page is ready to print. `load` is sufficient.
+    await page.setContent(html, { waitUntil: "load", timeout: 90_000 });
     // PDF pagination must use print media. With screen media Chromium can
     // treat a section break as ordinary flow and place the next report
     // section in unused space at the bottom of a physical A4 page.
@@ -2424,6 +2427,7 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
       printBackground: true,
       preferCSSPageSize: true,
       margin: { top: "0", right: "0", bottom: "0", left: "0" },
+      timeout: 120_000,
     });
 
     return Buffer.from(pdf);
