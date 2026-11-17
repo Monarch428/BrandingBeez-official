@@ -49,11 +49,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
   }
 
-  // Enable server push for HTTP/2
-  if (req.headers['accept'] && req.headers['accept'].includes('text/html')) {
-    // ✅ Keep only modulepreload (remove /src/index.css preload warning)
-    res.setHeader('Link', '</src/main.tsx>; rel=modulepreload');
-  }
+  // Do not preload Vite source modules here. `/src/main.tsx` only exists in
+  // development; a production build loads hashed files from `/assets`. Sending
+  // this header in production makes browsers request an HTML fallback as a
+  // JavaScript module, which can prevent or destabilize application startup.
 
   next();
 });
