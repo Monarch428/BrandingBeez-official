@@ -21,3 +21,4 @@ export * from "./schemavalidate/seo-case-study";
 export * from "./schemavalidate/ppc-case-study";
 export * from "./schemavalidate/web-case-study";
 export * from "./schemavalidate/dedicated-resource-case-study";
+export * from "./schemavalidate/seo-setup-leads";

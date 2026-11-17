@@ -24,6 +24,23 @@ export function ThankYouPopup({
   const [isClosing, setIsClosing] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const nextStepsCopy: Record<
+    NonNullable<ThankYouPopupProps["formType"]>,
+    string
+  > = {
+    strategy:
+      "Our team will reach out before the meeting with any follow-up questions over call or email.",
+
+    contact:
+      "Our team will review your message and get back to you shortly.",
+
+    inquiry:
+      "Our team will review your inquiry and follow up with clear next steps. No noise, no pressure just a thoughtful response focused on what makes sense for your business.",
+
+    newsletter:
+      "You’re all set. Your first email will arrive soon nothing else you need to do.",
+  };
+
   // ✅ Ensure portal mount (prevents SSR issues)
   useEffect(() => {
     setMounted(true);
@@ -184,9 +201,7 @@ export function ThankYouPopup({
                     What happens next?
                   </p>
                   <p>
-                    {formType === "strategy"
-                      ? "Our team will reach out before the meeting for more questions about you over call or email."
-                      : "Our team will review your submission and contact you shortly to discuss how we can help."}
+                    {nextStepsCopy[formType ?? "contact"]}
                   </p>
                 </div>
               </div>

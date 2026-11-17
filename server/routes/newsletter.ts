@@ -39,7 +39,7 @@ const authenticateAdmin = (
   next();
 };
 
-// Get all newsletter subscribers (for admin purposes)
+// Get all newsletter subscribers 
 router.get("/subscribers", authenticateAdmin, async (req: Request, res: Response) => {
   try {
     const subscribers = await storage.getAllNewsletterSubscribers();

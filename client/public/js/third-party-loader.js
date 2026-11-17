@@ -1,4 +1,6 @@
 (function () {
+  const GTM_ID = "GTM-KP5XRG5D";
+
   /* ================================
      BOT GUARD (Analytics Clean)
   ================================= */
@@ -44,85 +46,48 @@
     afterDelay(12000, run);
   }
 
-  function loadScriptOnce(id, src) {
+  function loadScriptOnce(id, src, onloadCb) {
     if (document.getElementById(id)) return;
+
     const s = document.createElement("script");
     s.id = id;
     s.async = true;
     s.src = src;
+
+    s.onload = () => {
+      if (typeof onloadCb === "function") onloadCb();
+    };
+
     document.head.appendChild(s);
   }
 
   /* ================================
-     CONFIG (IMPORTANT)
-     - If you load GTM, DO NOT also load vendors here.
-     - Put Meta/Clarity/Hotjar/LinkedIn tags INSIDE GTM.
+     CONFIG (GTM + FALLBACK DIRECT)
   ================================= */
   const USE_GTM = true;
-  const LOAD_VENDORS_DIRECTLY = false;
+  const LOAD_VENDORS_DIRECTLY = true;
 
   /* ================================
-     LOADERS (DUPLICATE SAFE)
+     LOADERS
   ================================= */
 
   function loadGTM() {
     if (window.google_tag_manager || window._gtm_loaded) return;
-    window._gtm_loaded = true;
 
+    window._gtm_loaded = true;
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
 
-    loadScriptOnce("bb-gtm", "https://www.googletagmanager.com/gtm.js?id=GTM-KP5XRG5D");
-  }
-
-  function loadMetaPixel() {
-    // If GTM is handling, skip
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
-
-    if (window.fbq || window._meta_loaded) return;
-    window._meta_loaded = true;
-
-    !(function (f, b, e, v, n, t, s) {
-      if (f.fbq) return;
-      n = (f.fbq = function () {
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      });
-      if (!f._fbq) f._fbq = n;
-      n.push = n;
-      n.loaded = true;
-      n.version = "2.0";
-      n.queue = [];
-      t = b.createElement(e);
-      t.async = true;
-      t.src = v;
-      s = b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t, s);
-    })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
-
-    window.fbq("init", "1914816149105645");
-    window.fbq("track", "PageView");
-  }
-
-  function loadLinkedIn() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
-
-    if (window.lintrk || window._li_loaded) return;
-    window._li_loaded = true;
-
-    window._linkedin_partner_id = "8407852";
-    window._linkedin_data_partner_ids = window._linkedin_data_partner_ids || [];
-    window._linkedin_data_partner_ids.push("8407852");
-
-    loadScriptOnce("bb-linkedin", "https://snap.licdn.com/li.lms-analytics/insight.min.js");
+    loadScriptOnce(
+      "bb-gtm",
+      "https://www.googletagmanager.com/gtm.js?id=" + GTM_ID
+    );
   }
 
   function loadClarity() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
-
     if (window.clarity || window._clarity_loaded) return;
     window._clarity_loaded = true;
 
-    // ✅ Official-style stub to avoid undefined/partial states
     (function (c, l, a, r, i, t, y) {
       c[a] =
         c[a] ||
@@ -138,12 +103,9 @@
   }
 
   function loadHotjar() {
-    if (USE_GTM && !LOAD_VENDORS_DIRECTLY) return;
-
     if (window.hj || window._hj_loaded) return;
-    window._hj_loaded = true;
 
-    // ✅ REQUIRED to prevent: "_hjSettings is not defined"
+    window._hj_loaded = true;
     window._hjSettings = { hjid: 6498478, hjsv: 6 };
 
     window.hj =
@@ -152,24 +114,35 @@
         (window.hj.q = window.hj.q || []).push(arguments);
       };
 
-    loadScriptOnce("bb-hotjar", "https://static.hotjar.com/c/hotjar-6498478.js?sv=6");
+    loadScriptOnce(
+      "bb-hotjar",
+      "https://static.hotjar.com/c/hotjar-6498478.js?sv=6"
+    );
   }
 
   /* ================================
-     STRATEGY
+     STRATEGY (FINAL)
   ================================= */
 
+  // 1) Always try GTM first
   if (USE_GTM) {
     onIdle(loadGTM, 500);
-    return;
   }
 
-  // If you ever set USE_GTM = false, this becomes your direct-loader strategy:
-  afterDelay(1500, () => onIdle(loadMetaPixel, 3000));
-  afterDelay(4000, () => onIdle(loadLinkedIn, 3000));
+  // 2) Fallback vendors if GTM does not load them
+  if (LOAD_VENDORS_DIRECTLY) {
+    afterDelay(3500, () => {
+      if (typeof window.clarity === "undefined") {
+        onIdle(loadClarity, 4000);
+      }
+    });
 
-  onceUserIntent(() => {
-    onIdle(loadClarity, 4000);
-    afterDelay(2000, () => onIdle(loadHotjar, 5000));
-  });
+    onceUserIntent(() => {
+      afterDelay(1500, () => {
+        if (typeof window.hj === "undefined") {
+          onIdle(loadHotjar, 5000);
+        }
+      });
+    });
+  }
 })();

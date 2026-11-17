@@ -1328,8 +1328,7 @@ export default function Home() {
       id: 1,
       name: "Mark Muse",
       company: "Founder, Muse Digital Media",
-      testimonial:
-        "Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
+      testimonial:"Brandingbeez understood not only the technical challenges but was also completely responsive throughout. They the provided framework, assets, and vision into a beautiful website tailored to a high-ticket offering, helping the end client stay competitive. The team stayed responsive and aware of the technical challenges, even with multiple change requests from the end client.",
       imageUrl: IMAGES.testimonials.mark,
       logoUrl: IMAGES.logos.muse,
     },
@@ -1337,8 +1336,7 @@ export default function Home() {
       id: 2,
       name: "Daniel Fechete",
       company: "COO, New Vision Tech",
-      testimonial:
-        "Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
+      testimonial:"Their attention to detail and interest in understanding our requirements perfectly stood out. Brandingbeez successfully designed the requested brochures, demonstrating a thorough understanding of the client's products and expectations. The detail-oriented team delivered the project on time and maintained constant communication through email, messaging apps, and virtual meetings.",
       imageUrl: IMAGES.testimonials.dani,
       logoUrl: IMAGES.logos.nvt,
     },
@@ -1346,8 +1344,7 @@ export default function Home() {
       id: 3,
       name: "Gemma Murphy",
       company: "Founder, Website Architect",
-      testimonial:
-        "Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
+      testimonial:"Branding Beez have been a great help to my business. Before meeting Raje and her team, I was doing the sales, building the websites and handling all the tech and aftercare. Now I have the time to grow the business, working ON it, instead of constantly 'IN' it. So they've been a gamechanger for me and my business. Even taking my first holiday this year WITHOUT my laptop! Thanks so much!",
       imageUrl: IMAGES.testimonials.gemma,
       logoUrl: IMAGES.logos.webArt,
     },
@@ -2083,8 +2080,7 @@ export default function Home() {
                   Subscribe to Our Newsletter!
                 </h2>
                 <p className="text-xs sm:text-sm md:text-base text-white/90 max-w-2xl mx-auto">
-                  Join 1000+ marketers &amp; agencies getting exclusive tips on
-                  SEO, AI, and growth strategies.
+                  Most businesses don’t fail. They just make slow, expensive decisions.
                 </p>
               </div>
 
@@ -2095,12 +2091,13 @@ export default function Home() {
                     Weekly 1-Minute Agency Growth Insights
                   </h3>
 
-                  <p className="text-sm text-gray-100 leading-normal">
-                    Get actionable tips, pricing tricks, automation tactics,
-                    fast client-winning strategies, proposal hacks, AI
-                    workflows, and real stories from growing agencies all
-                    delivered in simple 1-minute reads to help you scale smarter
-                    every week.
+                  <p className="text-gray-200 text-sm sm:text-base">
+                    2-minute reads on how businesses actually grow.
+                    What’s working. What’s not. And what to focus on next.
+                  </p>
+
+                  <p className="text-gray-300 text-xs sm:text-sm italic font-medium">
+                    No noise. No motivation talk.
                   </p>
                 </div>
 
@@ -2110,7 +2107,7 @@ export default function Home() {
                     Subscribe Free
                   </h3>
                   <p className="text-gray-200 text-center text-xs sm:text-sm mb-4">
-                    Join 3,000+ agency owners no spam.
+                    Join 1,000+ business owners reading this every week.
                   </p>
 
                   <form
@@ -2163,11 +2160,11 @@ export default function Home() {
               isOpen={showNewsletterThankYou}
               onClose={() => setShowNewsletterThankYou(false)}
               title="Thanks for Subscribing!"
-              message="You're all set! Check your email for exclusive agency growth tips and strategies. Welcome to the 3,000+ agency owners in our community!"
+              message="Your first issue will arrive soon. Each edition focuses on how business owners think, decide, and adjust as they scale so growth feels more intentional and less like guesswork."
               formType="newsletter"
             />
           </section>
-
+          
           {/* HomeTeamBanner at bottom for screens ≤ 480px also hidden */}
           {/* <section className="py-12 sm:py-14 bg-gradient-to-t from-[#CF4163] to-[#552265] hidden max-[480px]:hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">

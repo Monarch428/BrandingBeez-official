@@ -599,7 +599,7 @@ export default function Header() {
               <div className="flex-shrink-0 cursor-pointer">
                 <img
                   ref={logoImgRef}
-                  src="/images/BB_Christmas_Logo.webp"
+                  src="/images/BB_Logo_Color.webp"
                   alt="BrandingBeez"
                   className="block object-contain h-10 sm:h-12 md:h-14 lg:h-16 xl:h-[72px] w-auto max-w-[140px] sm:max-w-[180px] md:max-w-[220px] lg:max-w-[260px]"
                   width="140"
@@ -761,7 +761,7 @@ export default function Header() {
           {/* CTA */}
           <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
             {/* 📞 Phone */}
-            <a
+            {/* <a
               href="tel:+19792717552"
               className={[
                 "inline-flex items-center justify-center",
@@ -775,11 +775,10 @@ export default function Header() {
             >
               <Phone className="w-5 h-5 lg:w-4 lg:h-4 text-brand-coral" />
 
-              {/* 🔢 Number shows ONLY on lg+ */}
               <span className="hidden lg:inline ml-2 text-sm font-semibold">
                 +1 979 271 7552
               </span>
-            </a>
+            </a> */}
 
             {/* 📅 Book a call (sm+) */}
             <Suspense fallback={null}>

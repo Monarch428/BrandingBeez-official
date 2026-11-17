@@ -125,6 +125,8 @@ const ComingSoon = lazy(() => import("@/pages/coming-soon"));
 
 // Newsletter page - lazy loaded
 const Newsletter = lazy(() => import("@/pages/newsletter"));
+const SeoSetupLandingPage = lazy(() => import("@/pages/SeoSetupLandingPage"));
+const PatientBookingLandingPage = lazy(() => import("@/pages/PatientBookingLandingPage"));
 
 // Blog posts - handled by dynamic route
 const DynamicBlogPost = lazy(() => import("@/pages/blog/[slug]"));
@@ -197,20 +199,15 @@ function Router() {
   const Content = (
     <Switch>
       {/* CRITICAL: Home page loads immediately */}
-      <Route
-        path="/book-appointment"
-        component={() => <LazyRoute component={BookApiontment} />}
-      />
+      <Route path="/book-appointment" component={() => <LazyRoute component={BookApiontment} />}/>
+
       <Route path="/" component={Home} />
       {/* <Route path="/loader" component={BeeLoadingScreen} /> */}
       <Route path="/admin/case-studies" component={CaseStudyCardsPage} />
       <Route path="/seo-case-study/:slug" component={SeoCaseStudyPage} />
       <Route path="/ppc-case-study/:slug" component={PpcCaseStudySlugPage} />
       <Route path="/web-case-study/:slug" component={WebCaseStudySlugPage} />
-      <Route
-        path="/dedicated-resource-case-study/:slug"
-        component={DedicatedResourceCaseStudySlugPage}
-      />
+      <Route path="/dedicated-resource-case-study/:slug" component={DedicatedResourceCaseStudySlugPage}/>
 
       {/* LAZY: All other routes load on demand */}
       <Route path="/services" component={() => <LazyRoute component={Services} />} />
@@ -275,6 +272,9 @@ function Router() {
       <Route path="/privacy-policy" component={() => <LazyRoute component={PrivacyPolicyPage} />} />
       <Route path="/terms-of-service" component={() => <LazyRoute component={TermsOfServicePage} />} />
       <Route path="/security" component={() => <LazyRoute component={SecurityPage} />} />
+
+      <Route path="/30daysseosetup" component={() => <LazyRoute component={SeoSetupLandingPage} />} />
+      <Route path="/patient-booking" component={() => <LazyRoute component={PatientBookingLandingPage} />} />
 
       {/* 404 - This catches all unmatched routes */}
       <Route component={NotFound} />

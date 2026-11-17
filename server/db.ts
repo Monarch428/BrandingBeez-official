@@ -8,27 +8,23 @@ let connectionPromise: Promise<typeof mongoose> | null = null;
 function getDatabaseUrl(): string {
   const nodeEnv = process.env.NODE_ENV || "development";
 
-  if (nodeEnv === "production") {
-    const uri =
-      process.env.MONGODB_URI_PRODUCTION || process.env.MONGODB_URI || "";
-    if (!uri) {
-      throw new Error(
-        "MONGODB_URI_PRODUCTION or MONGODB_URI must be set for production environment.",
-      );
-    }
-    console.log("🚀 Connecting to MongoDB (production)");
-    return uri;
+  console.log("NODE_ENV:", nodeEnv);
+  console.log("MONGODB_URI:", process.env.MONGODB_URI);
+  console.log("MONGODB_URI_DEVELOPMENT:", process.env.MONGODB_URI_DEVELOPMENT);
+  console.log("MONGODB_URI_PRODUCTION:", process.env.MONGODB_URI_PRODUCTION);
+
+  const uri =
+    nodeEnv === "production"
+      ? process.env.MONGODB_URI_PRODUCTION || process.env.MONGODB_URI || ""
+      : process.env.MONGODB_URI_DEVELOPMENT || process.env.MONGODB_URI || "";
+
+  console.log("FINAL URI USED:", uri);
+
+  if (!uri) {
+    throw new Error(`MongoDB URI is missing for ${nodeEnv} environment.`);
   }
 
-  const devUri =
-    process.env.MONGODB_URI_DEVELOPMENT || process.env.MONGODB_URI || "";
-  if (!devUri) {
-    throw new Error(
-      "MONGODB_URI_DEVELOPMENT or MONGODB_URI must be set for development environment.",
-    );
-  }
-  console.log("🔧 Connecting to MongoDB (development)");
-  return devUri;
+  return uri;
 }
 
 function getDatabaseName(): string | undefined {

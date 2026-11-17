@@ -384,6 +384,7 @@ export default function WebDevelopment() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
 
                 {/* ✅ Right: Achievements Card (VIDEO FIRST ON MOBILE) */}
+                
                 <div className="order-1 lg:order-2 bg-white/10 backdrop-blur-sm rounded-xl p-3 sm:p-4 mt-0 lg:mt-0">
                   <div className="mb-0">
                     <LazyYouTube

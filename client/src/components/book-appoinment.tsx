@@ -37,7 +37,6 @@
 // import { Checkbox } from "@/components/ui/checkbox";
 // import { DialogClose } from "@/components/ui/dialog";
 
-
 // // 🧩 Modal UI (shadcn dialog)
 // import {
 //   Dialog,
@@ -174,7 +173,6 @@
 //       scrollToFormPanel("smooth");
 //     }
 //   }, [bookingStage, selectedSlot]);
-
 
 //   // Form state
 //   const [name, setName] = useState("");
@@ -1442,15 +1440,9 @@
 //     );
 //   };
 
-
 // // Keep old name for inline use
 // export const AppointmentCalendar = AppointmentCalendarContent;
 // export default AppointmentCalendarContent;
-
-
-
-
-
 
 //-----------------------------------------------------------------------------------------------------  //
 
@@ -2918,11 +2910,6 @@
 // export const AppointmentCalendar = AppointmentCalendarContent;
 // export default AppointmentCalendarContent;
 
-
-
-
-
-
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -3021,6 +3008,7 @@ const services = [
     value: "custom-app-development",
     label: "Custom Web & Mobile Application Development (AI-Powered)",
   },
+  { value: "patient-booking", label: "Patient Booking" },
 ];
 
 // 🔵 Light theme slot styles (Calendly-like)
@@ -3062,9 +3050,9 @@ function resolveTimeZone(tz: string) {
 
 function formatBaseAvailabilityForTimeZone(
   startIST: string, // "16:00"
-  endIST: string,   // "23:00"
+  endIST: string, // "23:00"
   date: Date,
-  timeZone: string
+  timeZone: string,
 ) {
   const resolvedTZ = resolveTimeZone(timeZone);
 
@@ -3219,8 +3207,7 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
   // ✅ Current timezone label (friendly)
   const timeZoneLabel = useMemo(() => {
     return (
-      timeZoneOptions.find((t) => t.id === timeZone)?.label ||
-      "Select timezone"
+      timeZoneOptions.find((t) => t.id === timeZone)?.label || "Select timezone"
     );
   }, [timeZone]);
 
@@ -3345,7 +3332,9 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     setShowGuestField(false);
     setFormStep(0);
     setFieldErrors({});
-    setSelectedServiceValues(serviceLocked && mainServiceValue ? [mainServiceValue] : []);
+    setSelectedServiceValues(
+      serviceLocked && mainServiceValue ? [mainServiceValue] : [],
+    );
   };
 
   const safeConsultantName = consultantName || "Raje";
@@ -3361,7 +3350,6 @@ export const AppointmentCalendarContent: React.FC<AppointmentCalendarProps> = ({
     resetForm();
     setTzOpen(false);
   };
-
 
   const handleBook = async () => {
     if (!selectedDate || !selectedSlot) {
@@ -3453,8 +3441,11 @@ Your meeting with ${safeConsultantName} (${safeConsultantTitle}) is confirmed.
 
 📅 Date: ${dateLabel}
 ⏰ Time: ${timeLabel}
-${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""}${result?.meetingLink ? `🔗 Google Meet link: ${result.meetingLink}\n` : ""
-          }
+${combinedServiceType ? `📌 Topic: ${combinedServiceType}\n` : ""}${
+          result?.meetingLink
+            ? `🔗 Google Meet link: ${result.meetingLink}\n`
+            : ""
+        }
 
 We’ve emailed you the confirmation and calendar invite. Looking forward to speaking with you!`,
         formType: "strategy",
@@ -3471,7 +3462,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
       resetAfterSuccessfulBooking();
 
       if (onClose) onClose();
-
     } catch (err: any) {
       setStatusType("error");
       setStatusMessage(
@@ -3526,7 +3516,7 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
     "16:00", // 4:00 PM IST
     "23:00", // 11:00 PM IST
     effectiveSelectedDate ?? new Date(),
-    timeZone
+    timeZone,
   );
 
   return (
@@ -3695,7 +3685,9 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                   const isDisabled = isPastDay || isWeekend;
 
                   const isSelected =
-                    !isDisabled && selectedDate && isSameDay(date, selectedDate);
+                    !isDisabled &&
+                    selectedDate &&
+                    isSameDay(date, selectedDate);
 
                   return (
                     <button
@@ -3747,11 +3739,11 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                 <p className="text-[11px] sm:text-[12px] text-slate-500 mt-0.5 truncate">
                   {selectedDate
                     ? selectedDate.toLocaleDateString("en-GB", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })
+                        weekday: "short",
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })
                     : "Pick a date to see available times"}
                 </p>
               </div>
@@ -3804,7 +3796,6 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                       ({timeZoneLabel})
                     </p>
 
-
                     {!selectedDate ? (
                       <p className="text-xs text-slate-500 shrink-0">
                         Choose a date to view time slots.
@@ -3845,10 +3836,11 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                             if (selectedDateKey < todayKey) {
                               isPastSlot = true;
                             } else if (selectedDateKey === todayKey) {
-                              const endMinutesLocal = getLocalMinutesFromISTSlot(
-                                slot.endTime,
-                                effectiveSelectedDate,
-                              );
+                              const endMinutesLocal =
+                                getLocalMinutesFromISTSlot(
+                                  slot.endTime,
+                                  effectiveSelectedDate,
+                                );
                               if (endMinutesLocal <= nowMinutesLocal) {
                                 isPastSlot = true;
                               }
@@ -3932,10 +3924,11 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                   )} */}
                                   {slot.status !== "available" && (
                                     <span className="text-[12px] text-red-500 font-bold">
-                                      {slot.blockedByCalendar ? "Booked (Calendar)" : "Booked"}
+                                      {slot.blockedByCalendar
+                                        ? "Booked (Calendar)"
+                                        : "Booked"}
                                     </span>
                                   )}
-
                                 </button>
 
                                 <div
@@ -4212,8 +4205,8 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                       setSelectedServiceValues((prev) =>
                                         isChecked
                                           ? prev.filter(
-                                            (v) => v !== service.value,
-                                          )
+                                              (v) => v !== service.value,
+                                            )
                                           : [...prev, service.value],
                                       );
                                     }}
@@ -4237,8 +4230,8 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                                             checked
                                               ? [...prev, service.value]
                                               : prev.filter(
-                                                (v) => v !== service.value,
-                                              ),
+                                                  (v) => v !== service.value,
+                                                ),
                                           );
                                         }}
                                       />
@@ -4319,8 +4312,9 @@ We’ve emailed you the confirmation and calendar invite. Looking forward to spe
                     </div>
 
                     <div
-                      className={`flex items-center pt-1 ${formStep === 0 ? "justify-end" : "justify-between"
-                        }`}
+                      className={`flex items-center pt-1 ${
+                        formStep === 0 ? "justify-end" : "justify-between"
+                      }`}
                     >
                       {formStep > 0 && (
                         <Button
@@ -4470,7 +4464,9 @@ interface BookCallButtonWithModalProps extends AppointmentCalendarProps {
   buttonSize?: "default" | "sm" | "lg" | "icon";
 }
 
-export const BookCallButtonWithModal: React.FC<BookCallButtonWithModalProps> = ({
+export const BookCallButtonWithModal: React.FC<
+  BookCallButtonWithModalProps
+> = ({
   buttonLabel,
   buttonClassName,
   className,
@@ -4480,7 +4476,9 @@ export const BookCallButtonWithModal: React.FC<BookCallButtonWithModalProps> = (
 }) => {
   const [open, setOpen] = useState(false);
 
-  const mergedClassName = [buttonClassName, className].filter(Boolean).join(" ");
+  const mergedClassName = [buttonClassName, className]
+    .filter(Boolean)
+    .join(" ");
   const labelToUse = buttonLabel || "Book a call";
   const variantToUse: "default" | "outline" | "secondary" | "ghost" | "link" =
     buttonVariant || "default";
@@ -4538,8 +4536,8 @@ export const BookCallButtonWithModal: React.FC<BookCallButtonWithModalProps> = (
             Book a strategy call
           </DialogTitleUI>
           <DialogDescription className="text-xs md:text-sm text-slate-500">
-            Choose a time that works for you. You’ll get a Google Meet invite via
-            email after booking.
+            Choose a time that works for you. You’ll get a Google Meet invite
+            via email after booking.
           </DialogDescription>
         </DialogHeaderUI>
 

@@ -21,6 +21,7 @@ import { ppcCaseStudyStorage } from "./db-storage/db-ppc-case-study";
 import { webCaseStudyStorage } from "./db-storage/db-web-case-study";
 import { dedicatedResourceCaseStudyStorage } from "./db-storage/db-dedicated-resource-case-study";
 import { authApiStorage } from "./db-storage/db-auth-api";
+import { seoSetupLeadStorage } from "./db-storage/db-seo-setup-leads";
 
 export const storage: IStorage = {
   ...userStorage,
@@ -43,4 +44,5 @@ export const storage: IStorage = {
   ...webCaseStudyStorage,
   ...dedicatedResourceCaseStudyStorage,
   ...authApiStorage,
+  ...seoSetupLeadStorage,
 };

@@ -12,7 +12,7 @@ import h7NetworksLogo from "@assets/h7_1752907520730.jpg";
 
 const superbLogo = "/images/superb.png";
 const semrushLogo = "/images/Semrush.png";
-const BB_Chris_Logo = "/images/BB_Christmas_Logo_White.webp";
+const BB_Chris_Logo = "/images/BB_Logo_footer.webp";
 
 
 import { BookCallButtonWithModal } from "./book-appoinment";

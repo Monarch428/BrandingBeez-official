@@ -46,6 +46,46 @@ export function dedicatedResourceCaseStudyAdminRouter(authenticateAdmin: Request
     }
   });
 
+  // upload LOGO image
+  router.post(
+    "/dedicated-resource-case-study/upload-logo-image",
+    authenticateAdmin,
+    (req, res, next) => {
+      upload.single("image")(req as any, res as any, (err: any) => {
+        if (err) {
+          console.error("❌ Logo image upload error:", err);
+          return res.status(400).json({
+            message: err?.message || "Image upload failed",
+            code: err?.code,
+          });
+        }
+        next();
+      });
+    },
+    async (req: Request, res: Response) => {
+      try {
+        const file: any = req.file;
+        if (!file) return res.status(400).json({ message: "No image uploaded" });
+
+        const imageUrl = file.path;
+        const publicId = file.filename;
+        const originalName = file.originalname;
+
+        if (!imageUrl || !publicId) {
+          return res.status(500).json({
+            message: "Upload completed but missing Cloudinary fields",
+            debug: { imageUrl, publicId },
+          });
+        }
+
+        return res.json({ imageUrl, publicId, originalName });
+      } catch (error) {
+        console.error("Logo image upload failed:", error);
+        return res.status(500).json({ message: "Failed to upload logo image" });
+      }
+    }
+  );
+
   // upload cover image (re-use Cloudinary middleware)
   router.post(
     "/dedicated-resource-case-study/upload-card-image",
@@ -94,6 +134,8 @@ export function dedicatedResourceCaseStudyAdminRouter(authenticateAdmin: Request
       res.status(500).json({ message: "Failed to create Dedicated Resources case study card" });
     }
   });
+
+
 
   router.put("/dedicated-resource-case-study/card/:slug", authenticateAdmin, async (req, res) => {
     try {

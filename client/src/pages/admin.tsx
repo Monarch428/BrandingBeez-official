@@ -15,6 +15,8 @@ import { ContactsManager } from "@/components/admin/contacts-manager";
 import { NewsletterSubscribersManager } from "@/components/admin/newsletter-subscribers-manager";
 import { BlogPostsManager } from "@/components/admin/blog-posts-manager";
 import { PortfolioItemsManager } from "@/components/admin/portfolio-items-manager";
+import { SeoSetupLeadsManager } from "@/components/admin/seo-setup-leads-manager";
+
 import { useQuery } from "@tanstack/react-query";
 import {
   CalendarClock,
@@ -35,6 +37,7 @@ import {
   PenTool,
   ImageIcon,
   KeyRound,
+  Search,
 } from "lucide-react";
 import { AppointmentsManager } from "@/components/admin/appointments-manager";
 import { SeoCaseStudiesManager } from "@/components/admin/seo-case-study/SeoCaseStudiesManager";
@@ -368,8 +371,8 @@ export default function Admin() {
                   </span>
                 </div>
                 <p className="text-yellow-700 text-sm">
-                  This admin panel is protected and only accessible to authorized
-                  users.
+                  This admin panel is protected and only accessible to
+                  authorized users.
                 </p>
               </div>
             </Card>
@@ -463,7 +466,9 @@ export default function Admin() {
                   <h1 className="text-3xl font-bold text-brand-purple">
                     Admin Dashboard
                   </h1>
-                  <p className="text-gray-600">Welcome back, {userInfo?.email}</p>
+                  <p className="text-gray-600">
+                    Welcome back, {userInfo?.email}
+                  </p>
                 </div>
               </div>
 
@@ -620,13 +625,24 @@ export default function Admin() {
                 >
                   Appointments
                 </TabsTrigger>
+
+                <TabsTrigger
+                  value="seo-leads"
+                  className="flex items-center gap-2"
+                >
+                  <Search className="h-4 w-4" />
+                  SEO Leads
+                </TabsTrigger>
               </TabsList>
             </div>
 
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {stats.map((stat, index) => (
-                  <Card key={index} className="hover:shadow-md transition-shadow">
+                  <Card
+                    key={index}
+                    className="hover:shadow-md transition-shadow"
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-center gap-4">
                         <div
@@ -638,7 +654,9 @@ export default function Admin() {
                           <div className="text-2xl font-bold text-brand-purple">
                             {stat.value}
                           </div>
-                          <div className="text-sm text-gray-600">{stat.title}</div>
+                          <div className="text-sm text-gray-600">
+                            {stat.title}
+                          </div>
                         </div>
                       </div>
                     </CardContent>
@@ -656,21 +674,21 @@ export default function Admin() {
                         <div className="text-2xl font-bold text-brand-purple">
                           {googleStatus}
                         </div>
-                        <div className="text-sm text-gray-600">Google Calendar</div>
+                        <div className="text-sm text-gray-600">
+                          Google Calendar
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-md transition-shadow">
+                {/* <Card className="hover:shadow-md transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex items-start gap-4">
-                      {/* Icon */}
                       <div className="w-12 h-12 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
                         🔐
                       </div>
 
-                      {/* Content */}
                       <div className="flex flex-col gap-2">
                         <div className="text-md font-bold text-brand-purple">
                           Google Auth API
@@ -680,8 +698,7 @@ export default function Admin() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-
+                </Card> */}
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -719,7 +736,9 @@ export default function Admin() {
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-gray-600">Business Automation</span>
+                        <span className="text-gray-600">
+                          Business Automation
+                        </span>
                         <Badge>
                           {featuredClientsQuery.data?.filter(
                             (c: any) => c.servicePage === "ai-development",
@@ -745,7 +764,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("featured-clients");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -760,7 +780,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("case-studies");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -776,7 +797,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("seo-case-studies");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -791,7 +813,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("ppc-case-studies");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -806,7 +829,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("web-case-studies");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -821,7 +845,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("dr-case-studies");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -836,7 +861,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("pricing");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -851,7 +877,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("service-pages");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -866,7 +893,8 @@ export default function Admin() {
                         onClick={() => {
                           setActiveTab("contacts");
                           setTimeout(
-                            () => window.scrollTo({ top: 0, behavior: "smooth" }),
+                            () =>
+                              window.scrollTo({ top: 0, behavior: "smooth" }),
                             100,
                           );
                         }}
@@ -953,6 +981,10 @@ export default function Admin() {
             <TabsContent value="appointments">
               <AppointmentsManager />
             </TabsContent>
+
+            <TabsContent value="seo-leads" className="mt-6">
+              <SeoSetupLeadsManager />
+            </TabsContent>
           </Tabs>
         </div>
       </main>
@@ -961,8 +993,6 @@ export default function Admin() {
     </div>
   );
 }
-
-
 
 // pages/admin.tsx
 // import { useState } from "react";

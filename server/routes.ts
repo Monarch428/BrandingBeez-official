@@ -2109,6 +2109,7 @@ import { blogPublicRouter } from "./routes/blog-public";
 import { authApiRouter } from "./routes/auth-api-router";
 import { registerBusinessGrowthRoutes } from "./routes/ai-business-growth";
 import { registerWebsiteReachableRoutes } from "./routes/website-reachable";
+import seoSetupLeadsRoutes from "./routes/seo-setup-leads.routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // ✅ Admin auth (login + authenticateAdmin middleware)
@@ -2130,6 +2131,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(securityLogger);
   app.use(securityHeaders());
   app.use(cors(corsOptions));
+
+  app.get("/api/security/headers", (req, res) => {
+    const csp = res.getHeader("Content-Security-Policy") || res.getHeader("content-security-policy");
+    // NOTE: These headers are set by Helmet BEFORE this route runs, so we can read them from response.
+    // But some platforms may normalize header names; we also read from req headers as fallback.
+
+    const headers = {
+      "content-security-policy":
+        (res.getHeader("Content-Security-Policy") as string) ||
+        (res.getHeader("content-security-policy") as string) ||
+        (req.headers["content-security-policy"] as string),
+      "strict-transport-security":
+        (res.getHeader("Strict-Transport-Security") as string) ||
+        (res.getHeader("strict-transport-security") as string) ||
+        (req.headers["strict-transport-security"] as string),
+      "x-content-type-options":
+        (res.getHeader("X-Content-Type-Options") as string) ||
+        (res.getHeader("x-content-type-options") as string) ||
+        (req.headers["x-content-type-options"] as string),
+      "referrer-policy":
+        (res.getHeader("Referrer-Policy") as string) ||
+        (res.getHeader("referrer-policy") as string) ||
+        (req.headers["referrer-policy"] as string),
+      "x-frame-options":
+        (res.getHeader("X-Frame-Options") as string) ||
+        (res.getHeader("x-frame-options") as string) ||
+        (req.headers["x-frame-options"] as string),
+    };
+
+    const detected = {
+      hasCsp: !!headers["content-security-policy"],
+      hasHsts: !!headers["strict-transport-security"],
+      hasXContentTypeOptions: !!headers["x-content-type-options"],
+      hasReferrerPolicy: !!headers["referrer-policy"],
+      hasXFrameOptions: !!headers["x-frame-options"],
+    };
+
+    res.json({
+      ok: true,
+      isHttps: req.secure || req.headers["x-forwarded-proto"] === "https",
+      headers,
+      detected,
+    });
+  });
+
   app.use("/api/", apiRateLimit);
 
   // -----------------------------
@@ -2138,9 +2184,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", createPortfolioRouter(authenticateAdmin, publicContentRateLimit));
   app.use("/api", appointmentsRouter);
   app.use("/api/google", googleAuthRoutes);
+  app.use("/api/newsletter", newsletterRoutes);
   app.use("/api/newsletter", authenticateAdmin, newsletterRoutes);
   app.use("/api", blogPublicRouter(publicContentRateLimit));
   app.use("/api/oauthapi", authApiRouter);
+  app.use("/api/seo-setup-leads", seoSetupLeadsRoutes);
+
 
   // -----------------------------
   // ADMIN ROUTES (case studies)
