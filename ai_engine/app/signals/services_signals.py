@@ -11,6 +11,7 @@ from app.signals.detection_utils import (
     detect_services,
     has_generic_service_cues,
     is_non_service_text,
+    is_reportable_service_name,
 )
 
 
@@ -153,7 +154,7 @@ def _is_scraped_service_valid(s: Dict[str, Any]) -> bool:
     if not name:
         return False
     # Apply the non-service filter
-    if is_non_service_text(name):
+    if is_non_service_text(name) or not is_reportable_service_name(name):
         return False
     return True
 

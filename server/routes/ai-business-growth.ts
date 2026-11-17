@@ -5,7 +5,7 @@ import path from "path";
 import crypto from "crypto";
 
 import { mergeBusinessGrowthReport, type BusinessGrowthReport } from "../openai";
-import { AiReportGeneratedModel } from "../models";
+import { AiReportGeneratedModel, SearchConsoleConnectionModel } from "../models";
 
 import {
   sendBusinessGrowthReportEmailWithDownload,
@@ -47,6 +47,38 @@ function makeToken() {
 const REPORT_DIR = path.join(process.cwd(), "tmp", "business-growth-reports");
 const REPORT_FILE_TTL_MS = Number(process.env.BUSINESS_GROWTH_PDF_TTL_HOURS || 24) * 60 * 60 * 1000;
 const PDF_TOKEN_RE = /^[a-f0-9]{32}$/i;
+const ANALYSIS_PROGRESS_ID_RE = /^[a-zA-Z0-9_-]{8,100}$/;
+const GSC_OWNER_COOKIE = "bb_gsc_owner";
+const GSC_STATE_COOKIE = "bb_gsc_oauth_state";
+const GSC_SCOPE = "openid https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/webmasters.readonly";
+const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
+const GSC_SITES_URL = "https://searchconsole.googleapis.com/webmasters/v3/sites";
+const GOOGLE_USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo";
+
+type AnalysisProgress = {
+  phase: "queued" | "validating" | "python" | "normalizing" | "saving" | "complete" | "error";
+  progress: number;
+  message: string;
+  updatedAt: string;
+};
+
+const analysisProgress = new Map<string, AnalysisProgress>();
+const analysisProgressListeners = new Map<string, Set<(event: AnalysisProgress) => void>>();
+
+function validProgressId(value: unknown): value is string {
+  return typeof value === "string" && ANALYSIS_PROGRESS_ID_RE.test(value);
+}
+
+function publishAnalysisProgress(id: string | undefined, event: Omit<AnalysisProgress, "updatedAt">) {
+  if (!id) return;
+  const next: AnalysisProgress = { ...event, updatedAt: new Date().toISOString() };
+  analysisProgress.set(id, next);
+  for (const listener of analysisProgressListeners.get(id) || []) listener(next);
+
+  if (next.phase === "complete" || next.phase === "error") {
+    setTimeout(() => analysisProgress.delete(id), 10 * 60 * 1000).unref?.();
+  }
+}
 
 function ensureReportDir() {
   if (!fs.existsSync(REPORT_DIR)) fs.mkdirSync(REPORT_DIR, { recursive: true });
@@ -69,6 +101,109 @@ function getBaseUrl(req: any) {
   const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
   const host = req.headers["x-forwarded-host"] || req.get("host");
   return `${proto}://${host}`;
+}
+
+function parseCookies(header: unknown): Record<string, string> {
+  if (typeof header !== "string") return {};
+  return header.split(";").reduce<Record<string, string>>((cookies, item) => {
+    const separator = item.indexOf("=");
+    if (separator < 0) return cookies;
+    const key = item.slice(0, separator).trim();
+    const value = item.slice(separator + 1).trim();
+    if (!key) return cookies;
+    try { cookies[key] = decodeURIComponent(value); } catch { cookies[key] = value; }
+    return cookies;
+  }, {});
+}
+
+function cookieOptions(req: any, maxAge: number) {
+  return { httpOnly: true, sameSite: "lax" as const, secure: req.secure || process.env.NODE_ENV === "production", path: "/", maxAge };
+}
+
+function gscEncryptionKey(): Buffer | null {
+  const raw = process.env.GSC_TOKEN_ENCRYPTION_KEY;
+  return raw && raw.trim() ? crypto.createHash("sha256").update(raw).digest() : null;
+}
+
+function encryptGscToken(token: string): string {
+  const key = gscEncryptionKey();
+  if (!key) throw new Error("GSC_TOKEN_ENCRYPTION_KEY is not configured");
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+  const encrypted = Buffer.concat([cipher.update(token, "utf8"), cipher.final()]);
+  return `${iv.toString("base64url")}.${cipher.getAuthTag().toString("base64url")}.${encrypted.toString("base64url")}`;
+}
+
+function decryptGscToken(payload: string): string {
+  const key = gscEncryptionKey();
+  if (!key) throw new Error("GSC_TOKEN_ENCRYPTION_KEY is not configured");
+  const [ivValue, tagValue, encryptedValue] = String(payload || "").split(".");
+  if (!ivValue || !tagValue || !encryptedValue) throw new Error("Invalid encrypted Search Console token");
+  const decipher = crypto.createDecipheriv("aes-256-gcm", key, Buffer.from(ivValue, "base64url"));
+  decipher.setAuthTag(Buffer.from(tagValue, "base64url"));
+  return Buffer.concat([decipher.update(Buffer.from(encryptedValue, "base64url")), decipher.final()]).toString("utf8");
+}
+
+async function refreshGscAccessToken(refreshToken: string) {
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  if (!clientId || !clientSecret) throw new Error("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET must be configured");
+  const response = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: "refresh_token" }),
+  });
+  const body: any = await response.json().catch(() => ({}));
+  if (!response.ok || !body.access_token) throw new Error(body.error_description || "Google could not refresh the Search Console connection");
+  return { accessToken: String(body.access_token), expiryDate: Date.now() + Number(body.expires_in || 3600) * 1000 };
+}
+
+async function gscProperties(accessToken: string) {
+  const response = await fetch(GSC_SITES_URL, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const body: any = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error?.message || "Google Search Console properties could not be loaded");
+  return (Array.isArray(body.siteEntry) ? body.siteEntry : [])
+    .filter((site: any) => typeof site?.siteUrl === "string")
+    .map((site: any) => ({ siteUrl: site.siteUrl, permissionLevel: site.permissionLevel }));
+}
+
+async function gscAccountEmail(accessToken: string): Promise<string | undefined> {
+  const response = await fetch(GOOGLE_USERINFO_URL, { headers: { Authorization: `Bearer ${accessToken}` } });
+  const body: any = await response.json().catch(() => ({}));
+  return response.ok && typeof body.email === "string" ? body.email : undefined;
+}
+
+function frontendOrigin(req: any): string {
+  if (process.env.FRONTEND_ORIGIN) return process.env.FRONTEND_ORIGIN.replace(/\/+$/, "");
+  if (process.env.NODE_ENV !== "production" && req.hostname === "127.0.0.1") return "http://127.0.0.1:5173";
+  return getBaseUrl(req);
+}
+
+async function resolveGscConnection(req: any, connectionId: unknown) {
+  const ownerId = parseCookies(req.headers.cookie)[GSC_OWNER_COOKIE];
+  const requestedId = typeof connectionId === "string" ? connectionId.trim() : "";
+  // A connection is optional. If a visitor has already connected one in this
+  // browser, use their latest selected property even if an older frontend
+  // bundle does not yet send searchConsoleConnectionId.
+  if (!ownerId) {
+    if (requestedId) throw new Error("Your Search Console session is no longer available. Please reconnect it.");
+    return null;
+  }
+  const connection = requestedId
+    ? await SearchConsoleConnectionModel.findOne({ _id: requestedId, ownerId })
+    : await SearchConsoleConnectionModel.findOne({ ownerId, selectedProperty: { $exists: true, $ne: "" } }).sort({ updatedAt: -1 });
+  if (!connection || !connection.selectedProperty) {
+    if (requestedId) throw new Error("The selected Search Console connection is unavailable.");
+    return null;
+  }
+  // Refresh immediately before a long analysis. This avoids handing the Python
+  // engine an access token that expires between dispatch and the GSC stage.
+  const refreshed = await refreshGscAccessToken(decryptGscToken(connection.refreshTokenCiphertext));
+  const accessToken = refreshed.accessToken;
+  connection.accessTokenCiphertext = encryptGscToken(accessToken);
+  connection.expiryDate = refreshed.expiryDate;
+  await connection.save();
+  return { accessToken, property: connection.selectedProperty };
 }
 
 function toOptionalString(value: unknown): string | null {
@@ -678,6 +813,138 @@ function hasAnyOptionalBusinessInput(inputs: OptionalBusinessInputs): boolean {
 }
 
 export function registerBusinessGrowthRoutes(app: Express) {
+  // Search Console is intentionally an opt-in, customer-owned connection.
+  // A shared .env refresh token must never be used for reports requested by
+  // unrelated visitors.
+  app.get("/api/ai-business-growth/search-console/status", async (req, res) => {
+    const ownerId = parseCookies(req.headers.cookie)[GSC_OWNER_COOKIE];
+    const configured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GSC_TOKEN_ENCRYPTION_KEY);
+    if (!ownerId) return res.json({ configured, connections: [] });
+    const connections = await SearchConsoleConnectionModel.find({ ownerId }).sort({ updatedAt: -1 }).lean();
+    return res.json({
+      configured,
+      connections: connections.map((connection) => ({
+        id: String(connection._id),
+        email: connection.email || null,
+        selectedProperty: connection.selectedProperty || null,
+        properties: connection.properties || [],
+        updatedAt: connection.updatedAt,
+      })),
+    });
+  });
+
+  app.get("/api/ai-business-growth/search-console/connect", (req, res) => {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    const encryptionKey = process.env.GSC_TOKEN_ENCRYPTION_KEY;
+    if (!clientId || !clientSecret || !encryptionKey) {
+      return res.status(503).send("Search Console connection is not configured on this server.");
+    }
+    // Reuse the browser-scoped owner id so one visitor can connect more than
+    // one Google account without hiding their prior connections.
+    const ownerId = parseCookies(req.headers.cookie)[GSC_OWNER_COOKIE] || crypto.randomBytes(24).toString("base64url");
+    const state = crypto.randomBytes(32).toString("base64url");
+    const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || `${getBaseUrl(req)}/api/ai-business-growth/search-console/callback`;
+    res.cookie(GSC_OWNER_COOKIE, ownerId, cookieOptions(req, 30 * 24 * 60 * 60 * 1000));
+    res.cookie(GSC_STATE_COOKIE, state, cookieOptions(req, 10 * 60 * 1000));
+    const authorizeUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    authorizeUrl.search = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: "code",
+      scope: GSC_SCOPE,
+      access_type: "offline",
+      prompt: "consent",
+      state,
+    }).toString();
+    return res.redirect(authorizeUrl.toString());
+  });
+
+  app.get("/api/ai-business-growth/search-console/callback", async (req, res) => {
+    const cookies = parseCookies(req.headers.cookie);
+    const code = typeof req.query.code === "string" ? req.query.code : "";
+    const state = typeof req.query.state === "string" ? req.query.state : "";
+    const ownerId = cookies[GSC_OWNER_COOKIE];
+    const redirectUri = process.env.GOOGLE_OAUTH_REDIRECT_URI || `${getBaseUrl(req)}/api/ai-business-growth/search-console/callback`;
+    const targetOrigin = frontendOrigin(req);
+    const fail = (message: string) => res.status(400).type("html").send(`<!doctype html><title>Connection failed</title><p>Google Search Console could not be connected. You can close this window and try again.</p><script>window.opener?.postMessage({type:'bb-gsc-connected',ok:false,message:${JSON.stringify(message)}},${JSON.stringify(targetOrigin)});</script>`);
+    if (!code || !ownerId || !state || state !== cookies[GSC_STATE_COOKIE]) return fail("The connection request expired. Please close this window and try again.");
+    try {
+      const response = await fetch(GOOGLE_TOKEN_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ client_id: process.env.GOOGLE_CLIENT_ID || "", client_secret: process.env.GOOGLE_CLIENT_SECRET || "", code, redirect_uri: redirectUri, grant_type: "authorization_code" }),
+      });
+      const tokenPayload: any = await response.json().catch(() => ({}));
+      if (!response.ok || !tokenPayload.access_token || !tokenPayload.refresh_token) throw new Error(tokenPayload.error_description || "Google did not return a reusable connection token");
+      const properties = await gscProperties(String(tokenPayload.access_token));
+      const email = await gscAccountEmail(String(tokenPayload.access_token));
+      const connection = await SearchConsoleConnectionModel.create({
+        ownerId,
+        ...(email ? { email } : {}),
+        accessTokenCiphertext: encryptGscToken(String(tokenPayload.access_token)),
+        refreshTokenCiphertext: encryptGscToken(String(tokenPayload.refresh_token)),
+        expiryDate: Date.now() + Number(tokenPayload.expires_in || 3600) * 1000,
+        properties,
+        selectedProperty: properties[0]?.siteUrl,
+      });
+      res.clearCookie(GSC_STATE_COOKIE, { path: "/" });
+      return res.type("html").send(`<!doctype html><title>Search Console connected</title><p>Google Search Console connected. You can close this window.</p><script>window.opener?.postMessage({type:'bb-gsc-connected',ok:true,connectionId:${JSON.stringify(String(connection._id))}},${JSON.stringify(targetOrigin)});window.close();</script>`);
+    } catch (error: any) {
+      console.error("[AI-Growth] Search Console OAuth callback failed", error);
+      return fail(error?.message || "Unable to connect Search Console.");
+    }
+  });
+
+  app.post("/api/ai-business-growth/search-console/select", async (req, res) => {
+    const ownerId = parseCookies(req.headers.cookie)[GSC_OWNER_COOKIE];
+    const connectionId = typeof req.body?.connectionId === "string" ? req.body.connectionId : "";
+    const property = typeof req.body?.property === "string" ? req.body.property.trim() : "";
+    if (!ownerId || !connectionId || !property) return res.status(400).json({ success: false, message: "A connected property is required." });
+    const connection = await SearchConsoleConnectionModel.findOne({ _id: connectionId, ownerId });
+    if (!connection || !connection.properties.some((entry) => entry.siteUrl === property)) return res.status(404).json({ success: false, message: "Search Console property not found." });
+    connection.selectedProperty = property;
+    await connection.save();
+    return res.json({ success: true, connection: { id: String(connection._id), selectedProperty: property } });
+  });
+
+  // The analysis itself is a long-running HTTP request.  This companion SSE
+  // channel reports real backend milestones; it never invents a percentage
+  // based on elapsed time.
+  app.get("/api/ai-business-growth/progress/:requestId", (req, res) => {
+    const requestId = req.params.requestId;
+    if (!validProgressId(requestId)) return res.status(400).json({ message: "Invalid analysis request id" });
+
+    res.status(200);
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
+    res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
+    res.flushHeaders();
+
+    const send = (event: AnalysisProgress) => {
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
+      (res as any).flush?.();
+    };
+    const listeners = analysisProgressListeners.get(requestId) || new Set();
+    listeners.add(send);
+    analysisProgressListeners.set(requestId, listeners);
+    send(analysisProgress.get(requestId) || {
+      phase: "queued",
+      progress: 0,
+      message: "Waiting for analysis to start…",
+      updatedAt: new Date().toISOString(),
+    });
+
+    const heartbeat = setInterval(() => res.write(": keep-alive\n\n"), 15_000);
+    req.on("close", () => {
+      clearInterval(heartbeat);
+      const activeListeners = analysisProgressListeners.get(requestId);
+      activeListeners?.delete(send);
+      if (activeListeners?.size === 0) analysisProgressListeners.delete(requestId);
+    });
+  });
+
   app.post("/api/ai-business-growth/latest", async (req, res) => {
     try {
       const { website, companyName } = req.body || {};
@@ -739,31 +1006,45 @@ export function registerBusinessGrowthRoutes(app: Express) {
       location,
       industry,
       targetMarket,
+      businessGoal,
       businessInputs,
       optionalBusinessInputs,
       estimationInputs,
       criteria,
       includeSections8to10,
       forceNewAnalysis,
+      requestId,
+      searchConsoleConnectionId,
     } = req.body || {};
+    const progressId = validProgressId(requestId) ? requestId : undefined;
+    publishAnalysisProgress(progressId, {
+      phase: "validating",
+      progress: 8,
+      message: "Validating the report request and preparing your business context…",
+    });
 
     if (!companyName || typeof companyName !== "string" || !companyName.trim()) {
+      publishAnalysisProgress(progressId, { phase: "error", progress: 0, message: "A company name is required to begin analysis." });
       return res.status(400).json({ success: false, message: "Company name is required" });
     }
 
     if (!website || typeof website !== "string" || !website.trim()) {
+      publishAnalysisProgress(progressId, { phase: "error", progress: 0, message: "A website is required to begin analysis." });
       return res.status(400).json({ success: false, message: "Website is required" });
     }
 
     if (!location || typeof location !== "string" || !location.trim()) {
+      publishAnalysisProgress(progressId, { phase: "error", progress: 0, message: "A location is required to begin analysis." });
       return res.status(400).json({ success: false, message: "Location is required" });
     }
 
     if (!industry || typeof industry !== "string" || !industry.trim()) {
+      publishAnalysisProgress(progressId, { phase: "error", progress: 0, message: "A primary service or industry is required to begin analysis." });
       return res.status(400).json({ success: false, message: "Primary services industry is required" });
     }
 
     if (!targetMarket || typeof targetMarket !== "string" || !targetMarket.trim()) {
+      publishAnalysisProgress(progressId, { phase: "error", progress: 0, message: "A target market is required to begin analysis." });
       return res.status(400).json({ success: false, message: "Target market is required" });
     }
 
@@ -781,6 +1062,8 @@ export function registerBusinessGrowthRoutes(app: Express) {
 
       const normalizedWebsite = normalizeWebsiteUrl(website);
       const normalizedTargetMarket = targetMarket.trim();
+      const normalizedBusinessGoal = toOptionalString(businessGoal);
+      const searchConsole = await resolveGscConnection(req, searchConsoleConnectionId);
 
       const sanitizedLegacyEstimationInputs = sanitizeLegacyEstimationInputs(estimationInputs);
       const includeLegacyEstimationInputs = hasAnyLegacyEstimationInput(
@@ -836,6 +1119,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
         ...(criteria && typeof criteria === "object" ? criteria : {}),
         location: location.trim(),
         primaryService: industry.trim(),
+        ...(normalizedBusinessGoal ? { businessGoal: normalizedBusinessGoal } : {}),
       };
 
       const payload: AnalyzeRequestPayload = {
@@ -851,6 +1135,7 @@ export function registerBusinessGrowthRoutes(app: Express) {
         industry: industry.trim(),
         targetMarket: normalizedTargetMarket,
         primaryTargetMarket: normalizedTargetMarket,
+        ...(normalizedBusinessGoal ? { businessGoal: normalizedBusinessGoal } : {}),
         languageCode: "en",
         reportType: "full",
         ...(typeof includeSections8to10 === "boolean"
@@ -860,6 +1145,14 @@ export function registerBusinessGrowthRoutes(app: Express) {
           ...mergedCriteria,
           language_code: "en",
         },
+        ...(searchConsole
+          ? {
+              // Ephemeral internal hand-off only. It is never returned to the
+              // browser or saved inside the final report document.
+              searchConsoleAccessToken: searchConsole.accessToken,
+              searchConsoleProperty: searchConsole.property,
+            }
+          : {}),
         ...(includeLegacyEstimationInputs
           ? {
               estimationInputs: sanitizedLegacyEstimationInputs,
@@ -873,6 +1166,11 @@ export function registerBusinessGrowthRoutes(app: Express) {
           : {}),
       };
 
+      publishAnalysisProgress(progressId, {
+        phase: "python",
+        progress: 20,
+        message: "Python AI engine is collecting website, market, and business-model evidence…",
+      });
       console.info(`[AI-Growth] Dispatching analysis to Python engine for ${normalizedWebsite}`);
       const py = await callPythonAiEngineAnalyze({
         baseUrl,
@@ -881,6 +1179,11 @@ export function registerBusinessGrowthRoutes(app: Express) {
         timeoutMs: 180 * 60_000,
       });
       console.info(`[AI-Growth] Python engine completed analysis for ${normalizedWebsite}`);
+      publishAnalysisProgress(progressId, {
+        phase: "normalizing",
+        progress: 72,
+        message: "AI analysis received. Validating scores, recommendations, and financial assumptions…",
+      });
 
       if (!py || py.ok !== true) {
         throw new Error(`Python engine returned failure: ${JSON.stringify(py)}`);
@@ -895,6 +1198,11 @@ export function registerBusinessGrowthRoutes(app: Express) {
       };
       const analysisToken = py.token;
 
+      publishAnalysisProgress(progressId, {
+        phase: "saving",
+        progress: 88,
+        message: "Preparing your report for download and securely saving the analysis…",
+      });
       const existing = await AiReportGeneratedModel.findOne({ token: analysisToken });
 
       if (!existing) {
@@ -913,6 +1221,11 @@ export function registerBusinessGrowthRoutes(app: Express) {
         });
       }
 
+      publishAnalysisProgress(progressId, {
+        phase: "complete",
+        progress: 100,
+        message: "Analysis complete. Your growth report is ready.",
+      });
       return res.json({
         success: true,
         analysis,
@@ -922,6 +1235,11 @@ export function registerBusinessGrowthRoutes(app: Express) {
       });
     } catch (err: any) {
       console.error("[AI-Growth] Python engine error", err);
+      publishAnalysisProgress(progressId, {
+        phase: "error",
+        progress: 0,
+        message: err?.message || "The analysis could not be completed.",
+      });
       return res.status(500).json({
         success: false,
         message: err?.message || "Analysis failed",

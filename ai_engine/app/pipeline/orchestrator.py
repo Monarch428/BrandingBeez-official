@@ -55,6 +55,7 @@ from app.signals.market_demand_signals import build_market_demand_bundle
 from app.signals.business_profile import build_business_profile
 from app.pipeline.section_contexts import build_section_contexts
 from app.llm.business_model_prompts import build_business_model_prompt_guidance
+from app.llm.consultant_brief import build_consultant_brief
 from app.llm.report_builder import build_report_with_llm, build_sections_8_10_with_llm, build_final_synthesis_with_llm
 from app.llm.client import get_effective_llm_mode
 from app.db.repositories.reports_repo import ReportsRepository
@@ -181,6 +182,47 @@ def _has_section_payload(section: Dict[str, Any], *, list_keys: List[str], text_
         if _has_meaningful_text(section.get(key)):
             return True
     return False
+
+
+def _build_analysis_coverage(
+    *,
+    homepage: Dict[str, Any],
+    pagespeed: Any,
+    robots_sitemap: Dict[str, Any],
+    links: List[Any],
+    reviews: Dict[str, Any],
+    google_places: Dict[str, Any],
+    business_profile: Dict[str, Any],
+    data_sources: List[Any],
+    data_gaps: List[Any],
+) -> Dict[str, Any]:
+    """Return an honest, presentation-ready account of evidence used in a report."""
+    checks = [
+        ("Website crawl", bool(homepage)),
+        ("Technical performance", bool(pagespeed)),
+        ("Crawl directives", bool(robots_sitemap)),
+        ("Site architecture", bool(links)),
+        ("Reputation signals", bool(reviews)),
+        ("Google Business signals", bool(google_places.get("used")) if isinstance(google_places, dict) else False),
+        ("Business-model profile", bool(business_profile)),
+    ]
+    captured = [label for label, present in checks if present]
+    unavailable = [label for label, present in checks if not present]
+    score = round((len(captured) / len(checks)) * 100) if checks else 0
+    source_names = [
+        str(item.get("source") or "").strip()
+        for item in data_sources
+        if isinstance(item, dict) and str(item.get("source") or "").strip()
+    ]
+    return {
+        "score": score,
+        "label": "High evidence coverage" if score >= 75 else "Moderate evidence coverage" if score >= 45 else "Early-stage evidence coverage",
+        "captured": captured,
+        "unavailable": unavailable,
+        "sources": list(dict.fromkeys(source_names))[:8],
+        "dataGaps": data_gaps[:8] if isinstance(data_gaps, list) else [],
+        "note": "Recommendations are grounded in the evidence captured during this analysis. Areas without accessible evidence are marked as directional.",
+    }
 
 
 def _build_pipeline_section_exports(report: Dict[str, Any]) -> Dict[str, Any]:
@@ -1065,6 +1107,7 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                         location=gp_location or None,
                         company_name=company,
                         company_website=(final_url or website),
+                        company_place_id=(criteria.get("googlePlaceId") or criteria.get("google_place_id") or None),
                         max_results=int(criteria.get("placesMaxResults") or 5),
                         max_reviews=int(criteria.get("placesMaxReviews") or 5),
                     )
@@ -1093,14 +1136,31 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
 
                 reviews_scraped.setdefault("summary", {})
                 reviews_scraped["summary"]["total_reviews"] = int(reviews_scraped["summary"].get("total_reviews") or 0) + len(google_reviews)
-    except Exception:
-        google_places_bundle = {}
+    except Exception as e:
+        logger.warning("[Pipeline] Google Places enrichment failed: %s", str(e))
+        google_places_bundle = {"error": str(e)[:500]}
 
     # Google Search Console (optional)
     gsc_summary = None
+    gsc_connection_requested = bool(
+        getattr(payload, "searchConsoleAccessToken", None)
+        and getattr(payload, "searchConsoleProperty", None)
+    )
     try:
-        gsc_summary = fetch_gsc_summary(final_url or website) if (final_url or website and callable(fetch_gsc_summary)) else None
+        gsc_summary = (
+            fetch_gsc_summary(
+                final_url or website,
+                access_token_override=getattr(payload, "searchConsoleAccessToken", None),
+                property_override=getattr(payload, "searchConsoleProperty", None),
+            )
+            if (final_url or website and callable(fetch_gsc_summary))
+            else None
+        )
     except Exception:
+        gsc_summary = None
+    gsc_error = None
+    if isinstance(gsc_summary, dict) and gsc_summary.get("_gsc_error"):
+        gsc_error = str(gsc_summary.get("_gsc_error"))
         gsc_summary = None
 
     # Ensure own_pages exists even if content-page fetch happens later
@@ -1335,15 +1395,48 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         pass
 
-    rep_section = ensure_dict(build_reputation_signals(
-        reviews_scraped,
-        company_name=company,
-        website=website,
-        homepage=homepage,
-        services=[],
-        target_market=top_target_market or criteria.get("targetMarket"),
-        location=top_location or criteria.get("location"),
-    ))
+    # Reputation providers are external and occasionally change their response
+    # schema. A malformed review must not fail the entire analysis/report.
+    try:
+        rep_section = ensure_dict(build_reputation_signals(
+            reviews_scraped,
+            company_name=company,
+            website=website,
+            homepage=homepage,
+            services=[],
+            target_market=top_target_market or criteria.get("targetMarket"),
+            location=top_location or criteria.get("location"),
+        ))
+    except Exception as exc:
+        logger.exception("[Pipeline] reputation signal analysis failed; continuing without review themes")
+        rep_section = {
+            "average_rating": 0,
+            "average_sentiment": 3,
+            "overall_score": 0,
+            "rating_scale": "out of 5",
+            "positive_themes": [],
+            "negative_themes": [],
+            "platforms": [],
+            "notes": "Review details could not be analyzed in this run; the rest of the report was completed.",
+            "collectionStatus": {"analysis": "error"},
+        }
+
+    # Preserve collection outcomes so the report can distinguish "no reviews
+    # found" from a mapping failure or an unconfigured provider.
+    try:
+        company_place_for_status = ensure_dict(google_places_bundle.get("company")) if isinstance(google_places_bundle, dict) else {}
+        bundle_errors = ensure_dict(reputation_bundle.get("errors")) if isinstance(reputation_bundle, dict) else {}
+        rep_section["collectionStatus"] = {
+            **ensure_dict(rep_section.get("collectionStatus")),
+            "googlePlaces": "found" if company_place_for_status else ("error" if google_places_bundle.get("error") else ("not_found" if getattr(settings, "GOOGLE_API_KEY", None) else "not_configured")),
+            "clutch": "available" if ensure_dict(ensure_dict(reputation_bundle.get("sources") if isinstance(reputation_bundle, dict) else {}).get("clutch")) else ("unavailable" if bundle_errors.get("clutch") else "not_found"),
+            "trustpilot": "available" if ensure_list(ensure_dict(ensure_dict(reputation_bundle.get("sources") if isinstance(reputation_bundle, dict) else {}).get("trustpilot")).get("reviews_sample")) else ("unavailable" if bundle_errors.get("trustpilot") else "not_found"),
+        }
+        if not rep_section.get("platforms"):
+            places_error = str(google_places_bundle.get("error") or "")
+            rep_section["notes"] = (f"Google Places review collection could not run: {places_error}" if places_error else "No verified public review profile was returned in this run. Review availability should be connected or confirmed manually before scoring reputation.")
+    except Exception:
+        logger.warning("[Pipeline] could not attach reputation collection status")
 
 
     # Ensure Google Places company profile is surfaced in the final reputation section
@@ -2443,10 +2536,14 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         if not gsc_summary:
             risks.append(
                 {
-                    "risk": "Lack of Search Console data hides organic issues",
+                    "risk": "Search Console performance data is unavailable",
                     "severity": "Medium",
                     "likelihood": "High",
-                    "mitigation": "Connect Google Search Console to monitor queries, pages, and coverage errors.",
+                    "mitigation": (
+                        "Verify the selected Search Console property has performance data and rerun the report."
+                        if gsc_connection_requested
+                        else "Connect Google Search Console to monitor queries, pages, and coverage errors."
+                    ),
                 }
             )
         if not ensure_dict(seo_section.get("domainAuthority")).get("score"):
@@ -2577,7 +2674,9 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
             "reportId": make_token("bbreport"),
             "companyName": company,
             "website": final_url or website,
-            "analysisDate": datetime.utcnow().strftime("%d %b %Y"),
+            # Use the host's local, timezone-aware date. UTC rolled this over
+            # incorrectly for reports generated shortly after midnight locally.
+            "analysisDate": datetime.now().astimezone().strftime("%d %b %Y"),
             "overallScore": overall,
             "subScores": {
                 "website": subs.get("website"),
@@ -2751,7 +2850,14 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     data_gaps: list[dict[str, Any]] = []
 
     if not gsc_summary:
-        if not (settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET):
+        if gsc_connection_requested:
+            data_gaps.append({
+                "area": "Google Search Console",
+                "missing": gsc_error or "The selected OAuth property returned no usable performance data.",
+                "impact": "Organic clicks, queries, landing pages, CTR, and average position are not included in this report.",
+                "howToFix": "Confirm the selected property matches the audited domain, the Google account has access, and the property has data older than 2-3 days. Then rerun the analysis.",
+            })
+        elif not (settings.GOOGLE_CLIENT_ID and settings.GOOGLE_CLIENT_SECRET):
             data_gaps.append(
                 {
                     "area": "Google Search Console",
@@ -2760,24 +2866,22 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
                     "howToFix": "Create OAuth client in Google Cloud (Web app) and set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET. Also set GOOGLE_REFRESH_TOKEN.",
                 }
             )
-        elif not settings.GOOGLE_REFRESH_TOKEN:
-            data_gaps.append(
-                {
-                    "area": "Google Search Console",
-                    "missing": "GOOGLE_REFRESH_TOKEN not set",
-                    "impact": "Cannot call Search Console API without a refresh token for offline access.",
-                    "howToFix": "Generate a refresh token once via OAuth consent (offline access) and set GOOGLE_REFRESH_TOKEN in AI engine .env.",
-                }
-            )
         else:
-            data_gaps.append(
-                {
-                    "area": "Google Search Console",
-                    "missing": "No matching site property / access denied",
-                    "impact": "Search Console metrics are not included.",
-                    "howToFix": "Verify the site property exists and the OAuth user has access (URL-prefix or sc-domain). Optionally set GSC_SITE_URL to the exact property.",
-                }
-            )
+            data_gaps.append({
+                "area": "Google Search Console",
+                "missing": "No customer Search Console connection was selected.",
+                "impact": "Search Console metrics are not included.",
+                "howToFix": "Connect a Google Search Console account in the report form and select the matching property.",
+            })
+
+    places_error = str(ensure_dict(google_places_bundle).get("error") or "")
+    if places_error:
+        data_gaps.append({
+            "area": "Google Business Profile reviews",
+            "missing": places_error,
+            "impact": "Verified Google rating, review volume, and review themes are unavailable.",
+            "howToFix": "Enable billing and Places API (New) for the Google Cloud project, then ensure the server API key is permitted to call the required Places endpoints.",
+        })
 
     da_score = ensure_dict(seo_section.get("domainAuthority")).get("score") if isinstance(seo_section, dict) else None
     if da_score in (None, "—", "N/A"):
@@ -2923,6 +3027,17 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "businessModelPromptGuidance": business_model_prompt_guidance,
         "reportToneProfile": ensure_dict(business_profile).get("reportToneProfile") if isinstance(business_profile, dict) else {},
         "userFinancials": user_financials if isinstance(user_financials, dict) else {},
+        "consultantBrief": build_consultant_brief(
+            business_profile=business_profile,
+            services=services_section,
+            data_sources=ensure_list(base_report["appendices"].get("dataSources")),
+            data_gaps=ensure_list(base_report["appendices"].get("dataGaps")),
+            user_inputs={
+                "location": criteria.get("location") or criteria.get("city") or criteria.get("region"),
+                "targetMarket": criteria.get("targetMarket") or top_target_market,
+                "businessGoal": criteria.get("businessGoal") or top_business_goal,
+            },
+        ),
 
         # High-signal user inputs (helps the LLM tie recommendations to intent/region)
         "userInputs": {
@@ -3028,6 +3143,19 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     except Exception:
         logger.exception("[Pipeline] enhanced post-LLM 90-day planning failed; keeping prior action plan")
     if isinstance(merged, dict):
+        # Preserve verified customer-owned GSC evidence after every LLM pass.
+        # It is factual telemetry, not material the model should be allowed to
+        # omit or rewrite.
+        if gsc_summary:
+            seo_visibility = ensure_dict(merged.get("seoVisibility"))
+            seo_visibility["searchConsole"] = gsc_summary
+            merged["seoVisibility"] = seo_visibility
+            appendices_merged = ensure_dict(merged.get("appendices"))
+            sources = ensure_list(appendices_merged.get("dataSources"))
+            if not any(isinstance(item, dict) and item.get("source") == "Google Search Console (customer OAuth)" for item in sources):
+                sources.append({"source": "Google Search Console (customer OAuth)", "use": "Verified clicks, impressions, CTR, average position, queries, and landing pages", "confidence": "High"})
+            appendices_merged["dataSources"] = sources
+            merged["appendices"] = appendices_merged
         merged["meta"] = deep_merge(
             ensure_dict(merged.get("meta")),
             {
@@ -3049,6 +3177,18 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
     repo = ReportsRepository()
     report_id, token = repo.save(merged, final_url)
 
+    analysis_coverage = _build_analysis_coverage(
+        homepage=homepage,
+        pagespeed=pagespeed,
+        robots_sitemap=robots_sitemap,
+        links=links if isinstance(links, list) else [],
+        reviews=reviews_scraped if isinstance(reviews_scraped, dict) else {},
+        google_places=google_places_bundle if isinstance(google_places_bundle, dict) else {},
+        business_profile=business_profile if isinstance(business_profile, dict) else {},
+        data_sources=ensure_list(base_report.get("appendices", {}).get("dataSources")) if isinstance(base_report.get("appendices"), dict) else [],
+        data_gaps=ensure_list(base_report.get("appendices", {}).get("dataGaps")) if isinstance(base_report.get("appendices"), dict) else [],
+    )
+
     meta = {
         "reportId": report_id,
         "llmRuntime": _current_llm_runtime_settings() if bool(getattr(settings, "LLM_INCLUDE_RUNTIME_META", True)) else {},
@@ -3068,12 +3208,16 @@ def run_analysis_pipeline(payload: AnalyzeRequest) -> AnalyzeResponse:
         "hasReviews": bool(reviews_scraped),
         "hasGooglePlaces": bool(google_places_bundle.get("used")) if isinstance(google_places_bundle, dict) else False,
         "totalPagesDiscovered": len(links) if isinstance(links, list) else None,
+        "analysisCoverage": analysis_coverage,
         "pdfUrl": final_url,
         "token": token,
     }
 
     if isinstance(merged, dict):
-        merged["meta"] = meta
+        # Preserve the business profile, section contexts, user inputs, and LLM
+        # runtime metadata assembled above.  Replacing this object here used to
+        # make the persisted JSON/PDF lose its business-specific context.
+        merged["meta"] = deep_merge(ensure_dict(merged.get("meta")), meta)
 
     # Normalize/assemble for downstream (PDF generator expects stable shape)
     merged = assemble_final_report(merged)

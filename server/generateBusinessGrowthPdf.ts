@@ -153,7 +153,10 @@ function normalizeServiceRowsForPdf(report: Dict, servicesPositioning: Dict): an
   return candidates.filter((item) => {
     const name = safeText(item.name ?? item.service, "");
     const key = name.toLowerCase().replace(/\s+/g, " ");
-    if (!key || seen.has(key)) return false;
+    // Keep the service menu commercial: scraped headings, FAQs, package CTAs,
+    // case-study titles, and slogans are evidence, not purchasable services.
+    const noise = /\b(what.?s included|case stud|frequently asked|\bfaq\b|choose your|top.?rated|drive high.?quality|common .* challenges|book a strategy|trusted by|technical seo, content|portfolio)\b/i;
+    if (!key || seen.has(key) || name.length > 85 || noise.test(name)) return false;
     seen.add(key);
     item.name = name;
     item.service = item.service ?? name;
@@ -501,6 +504,24 @@ function renderScoreStrip(items: Array<{ label: string; value: any }>): string {
   `;
 }
 
+function renderEvidenceCoverage(coverage: Dict): string {
+  const captured = normalizeStringList(coverage?.captured).slice(0, 7);
+  const unavailable = normalizeStringList(coverage?.unavailable).slice(0, 5);
+  const sources = normalizeStringList(coverage?.sources).slice(0, 6);
+  const score = scoreValue(coverage?.score);
+  const label = safeText(coverage?.label, "Evidence coverage");
+
+  return `
+    <div class="evidence-panel">
+      <div class="evidence-score"><strong>${escapeHtml(score)}%</strong><span>${escapeHtml(label)}</span></div>
+      <div class="evidence-copy">${escapeHtml(safeText(coverage?.note, "This report is grounded in the evidence available at the time of analysis."))}</div>
+      ${captured.length ? `<div class="evidence-group"><strong>Captured</strong><div class="chip-row">${captured.map((item) => `<span class="chip chip-positive">${escapeHtml(item)}</span>`).join("")}</div></div>` : ""}
+      ${sources.length ? `<div class="evidence-group"><strong>Sources used</strong><div class="chip-row">${sources.map((item) => `<span class="chip">${escapeHtml(item)}</span>`).join("")}</div></div>` : ""}
+      ${unavailable.length ? `<div class="evidence-group"><strong>Directional areas</strong><div class="chip-row">${unavailable.map((item) => `<span class="chip chip-muted">${escapeHtml(item)}</span>`).join("")}</div></div>` : ""}
+    </div>
+  `;
+}
+
 function renderCallout(title: string, body: any): string {
   if (!isMeaningful(body)) return "";
   const paragraphs = String(body)
@@ -637,9 +658,27 @@ function buildAdvantageRows(advantages: Dict): TableRow[] {
   return rows.filter((row) => row.some((cell) => isMeaningful(cell)));
 }
 
+function dataSourceLabel(item: any): string {
+  const explicit = safeText(item?.label ?? item?.name ?? item?.provider, "");
+  if (explicit) return explicit;
+
+  const source = safeText(item?.source ?? item?.url, "");
+  const normalized = source.toLowerCase();
+  if (normalized.includes("search console")) return "Google Search Console";
+  if (normalized.includes("pagespeed")) return "Google PageSpeed Insights";
+  if (normalized.includes("dataforseo")) return "DataForSEO";
+  if (normalized.includes("places.googleapis.com") || normalized.includes("google places")) return "Google Places";
+  try {
+    const host = new URL(source).hostname.replace(/^www\./, "");
+    return host || "Data source";
+  } catch {
+    return source || "Data source";
+  }
+}
+
 function renderDataSources(dataSources: any[]): string {
   const rows = truthyArray<any>(dataSources).map((item) => [
-    item?.label,
+    dataSourceLabel(item),
     item?.source,
     item?.collectedAt ? formatDate(item.collectedAt) : "N/A",
     item?.notes,
@@ -716,7 +755,14 @@ function renderSerpOrBacklinks(blocks: any[], title: string): string {
           const keys = Object.keys(item);
           const summary = keys
             .slice(0, 5)
-            .map((k) => `${k}: ${safeText(item[k], "-")}`)
+            .map((k) => {
+              const value = item[k];
+              // Raw Google redirect URLs are long, unstable evidence artifacts.
+              // They made the appendix unreadable without helping a decision.
+              if (/topurls?/i.test(k) && Array.isArray(value)) return `${k}: ${value.length} results sampled`;
+              const text = safeText(value, "-");
+              return `${k}: ${text.length > 180 ? `${text.slice(0, 177)}...` : text}`;
+            })
             .join(" | ");
           return [summary];
         }
@@ -849,7 +895,9 @@ function buildHtml(report: BusinessGrowthReport): string {
   );
   const effectiveTargetMarket = safeText(businessProfile?.targetMarket, safeText(guidance?.targetMarket, ""));
   const effectiveLocation = safeText(businessProfile?.location, "");
+  const isGlobalPartnerBusiness = /white[ -]?label|agency partner/i.test(effectiveBusinessModel) && /global/i.test(safeText(businessProfile?.geographyType, ""));
   const sectionContexts = (meta.sectionContexts ?? {}) as Dict;
+  const analysisCoverage = (meta.analysisCoverage ?? {}) as Dict;
 
   const reportId = safeText(metadata.reportId, "BB-AI-REPORT");
   const companyName = safeText(metadata.companyName, "Company");
@@ -866,6 +914,7 @@ function buildHtml(report: BusinessGrowthReport): string {
   const contentQuality = websiteDigitalPresence.contentQuality as Dict;
   const websiteHealth = websiteDigitalPresence.websiteHealth as Dict;
   const seoVisibility = (rep.seoVisibility ?? {}) as Dict;
+  const searchConsole = (seoVisibility?.searchConsole ?? (websiteDigitalPresence as any)?.searchConsole ?? {}) as Dict;
   const reputation = (rep.reputation ?? {}) as Dict;
   const services = (rep.servicesPositioning ?? {}) as Dict;
   const leadGen = (rep.leadGeneration ?? {}) as Dict;
@@ -1013,6 +1062,7 @@ function buildHtml(report: BusinessGrowthReport): string {
   ]);
 
   const advantageRows: TableRow[] = buildAdvantageRows(advantages);
+  const advantagesHaveDetail = advantageRows.some((row) => isMeaningful(row[1]) || isMeaningful(row[2]));
 
   const actionPlanRows: TableRow[] = (() => {
     if (Array.isArray(actionPlanRaw)) {
@@ -1137,17 +1187,23 @@ function buildHtml(report: BusinessGrowthReport): string {
 
     .page {
       width: 210mm;
-      min-height: 297mm;
-      page-break-after: always;
       background: white;
     }
 
-    .page:last-child { page-break-after: auto; }
+    /* Force the next report section to a fresh physical page. Applying the
+       break to the previous wrapper is unreliable once that wrapper spans
+       multiple printed pages in Chromium. */
+    .page + .page {
+      break-before: page;
+      page-break-before: always;
+    }
 
     .page-shell {
       padding: 12mm 14mm 13mm;
       min-height: 297mm;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     .cover-shell {
@@ -1169,10 +1225,7 @@ function buildHtml(report: BusinessGrowthReport): string {
     }
 
     .running-footer {
-      position: absolute;
-      left: 14mm;
-      right: 14mm;
-      bottom: 10mm;
+      margin-top: auto;
       display: flex;
       justify-content: space-between;
       color: var(--gray-700);
@@ -1218,9 +1271,45 @@ function buildHtml(report: BusinessGrowthReport): string {
     }
 
     .cover-score-box {
-      border: 1px solid var(--gray-300);
+      border: 1px solid #cfd7f4;
+      border-radius: 4mm;
+      background: linear-gradient(145deg, #f7f9ff, #ffffff);
       padding: 7mm 6mm;
     }
+
+    .cover-brief {
+      position: absolute;
+      left: 18mm;
+      right: 18mm;
+      bottom: 19mm;
+      border-top: 1px solid var(--gray-200);
+      padding-top: 4mm;
+      display: flex;
+      justify-content: space-between;
+      gap: 8mm;
+      color: var(--gray-700);
+      font-size: 8.8pt;
+    }
+
+    .cover-brief strong { color: var(--gray-900); }
+
+    .evidence-panel {
+      border: 1px solid var(--gray-200);
+      border-radius: 3mm;
+      padding: 4.2mm;
+      background: linear-gradient(135deg, #f8faff, #fff);
+      margin: 3mm 0 5mm;
+    }
+
+    .evidence-score { display: flex; align-items: baseline; gap: 2mm; color: var(--brand-blue); }
+    .evidence-score strong { font-size: 18pt; line-height: 1; }
+    .evidence-score span { font-size: 9pt; font-weight: 700; color: var(--gray-800); }
+    .evidence-copy { margin: 2mm 0 3mm; color: var(--gray-700); font-size: 9pt; }
+    .evidence-group { margin-top: 2.2mm; font-size: 8.7pt; color: var(--gray-800); }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 1.5mm; margin-top: 1.2mm; }
+    .chip { display: inline-block; border: 1px solid #dbe2f5; border-radius: 20mm; padding: 0.8mm 2mm; color: #334155; background: #fff; }
+    .chip-positive { border-color: #b7e4cf; background: #f0fdf4; color: #166534; }
+    .chip-muted { border-color: #e5e7eb; background: #f8fafc; color: #64748b; }
 
     .cover-score-label {
       font-size: 9pt;
@@ -1515,7 +1604,12 @@ function buildHtml(report: BusinessGrowthReport): string {
               { label: "Opportunity Score", value: opportunityScore },
               { label: "Risk Score", value: riskScore },
             ])}
+            ${Object.keys(analysisCoverage).length ? renderEvidenceCoverage(analysisCoverage) : ""}
           </div>
+        </div>
+        <div class="cover-brief">
+          <span><strong>Evidence-led growth review</strong><br/>Website, search, trust, conversion, and commercial signals.</span>
+          <span>Prepared for ${escapeHtml(companyName)}<br/>Confidential business analysis</span>
         </div>
       </div>
     </section>
@@ -1871,11 +1965,29 @@ pages.push(
       ${renderSectionSignals(sectionContexts?.seoVisibility)}
       ${renderCallout("Mentor Notes", seoVisibility?.mentorNotes)}
 
+      ${Object.keys(searchConsole).length ? `
+        ${subsectionHeading("Google Search Console Performance (Verified)")}
+        ${renderKeyValueRows([
+          { label: "Property", value: searchConsole?.property },
+          { label: "Reporting period", value: searchConsole?.dateRange ? `${searchConsole.dateRange.start} to ${searchConsole.dateRange.end}` : "-" },
+          { label: "Clicks", value: searchConsole?.totals?.clicks },
+          { label: "Impressions", value: searchConsole?.totals?.impressions },
+          { label: "CTR", value: typeof searchConsole?.totals?.ctr === "number" ? `${(searchConsole.totals.ctr * 100).toFixed(2)}%` : "-" },
+          { label: "Average position", value: typeof searchConsole?.totals?.position === "number" ? searchConsole.totals.position.toFixed(1) : "-" },
+        ])}
+        ${subsectionHeading("Top Search Queries")}
+        ${renderTable(["Query", "Clicks", "Impressions", "CTR", "Position"], truthyArray<any>(searchConsole?.topQueries).map((item) => [item?.query, item?.clicks, item?.impressions, typeof item?.ctr === "number" ? `${(item.ctr * 100).toFixed(2)}%` : "-", typeof item?.position === "number" ? item.position.toFixed(1) : "-"]), { compact: true, emptyText: "No query rows were returned for this period." })}
+        ${subsectionHeading("Top Organic Landing Pages")}
+        ${renderTable(["Page", "Clicks", "Impressions", "CTR", "Position"], truthyArray<any>(searchConsole?.topPages).map((item) => [item?.page, item?.clicks, item?.impressions, typeof item?.ctr === "number" ? `${(item.ctr * 100).toFixed(2)}%` : "-", typeof item?.position === "number" ? item.position.toFixed(1) : "-"]), { compact: true, emptyText: "No landing-page rows were returned for this period." })}
+        ${subsectionHeading("Verified Performance Interpretation")}
+        ${renderBulletLines(searchConsole?.insights, "No additional Search Console interpretation is available.")}
+      ` : ""}
+
       ${renderKeyValueRows([
         { label: "Domain Authority Score", value: `${scoreValue((seoVisibility?.domainAuthority as Dict)?.score)}/100` },
         { label: "Industry Average", value: seoVisibility?.domainAuthority?.benchmark?.industryAvg },
         { label: "Industry Range", value: seoVisibility?.domainAuthority?.benchmark?.industryAverageRange },
-        { label: "Local SEO Score", value: scoreValue((seoVisibility?.localSeo || seoVisibility?.localSEO || {})?.score) },
+        ...(!isGlobalPartnerBusiness ? [{ label: "Local SEO Score", value: scoreValue((seoVisibility?.localSeo || seoVisibility?.localSEO || {})?.score) }] : []),
       ])}
 
       ${subsectionHeading("Domain Authority Benchmark")}
@@ -1975,6 +2087,7 @@ pages.push(
         { compact: true, emptyText: "No direct competitor comparison available." },
       )}
 
+      ${!isGlobalPartnerBusiness ? `
       ${subsectionHeading("Local SEO")}
       ${renderTable(
         ["Metric", "Value"],
@@ -2008,6 +2121,7 @@ pages.push(
       ${renderBulletLines((seoVisibility?.localSeo || seoVisibility?.localSEO)?.localRankingGaps, "No local ranking gaps listed.")}
       ${renderParagraph((seoVisibility?.localSeo || seoVisibility?.localSEO)?.businessImpact || (seoVisibility?.localSeo || seoVisibility?.localSEO)?.impact)}
       ${renderParagraph((seoVisibility?.localSeo || seoVisibility?.localSEO)?.notes)}
+      ` : ""}
 
       ${subsectionHeading("Priority SEO Actions")}
       ${renderBulletLines(seoVisibility?.priorityActions, "No SEO priority actions available.")}
@@ -2175,7 +2289,9 @@ pages.push(
       companyName,
       `
         ${sectionHeading("12", "Competitive Advantages to Leverage")}
-        ${renderTable(["Advantage", "Why It Matters", "How To Leverage"], advantageRows, { compact: true, emptyText: "No competitive advantages were mapped." })}
+        ${advantagesHaveDetail
+          ? renderTable(["Advantage", "Why It Matters", "How To Leverage"], advantageRows, { compact: true, emptyText: "No competitive advantages were mapped." })
+          : renderTable(["Advantage"], advantageRows.map((row) => [row[0]]), { compact: true, emptyText: "No competitive advantages were mapped." })}
         ${sectionHeading("13", "Risk Assessment")}
         ${renderTable(["Risk", "Severity", "Likelihood", "Mitigation"], riskRows, { compact: true, emptyText: "No risks were listed." })}
       `,
@@ -2284,7 +2400,10 @@ export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthRepo
 
     const html = buildHtml(report);
     await page.setContent(html, { waitUntil: "networkidle0" });
-    await page.emulateMediaType("screen");
+    // PDF pagination must use print media. With screen media Chromium can
+    // treat a section break as ordinary flow and place the next report
+    // section in unused space at the bottom of a physical A4 page.
+    await page.emulateMediaType("print");
 
     const pdf = await page.pdf({
       format: "A4",

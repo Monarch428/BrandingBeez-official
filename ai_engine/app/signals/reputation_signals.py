@@ -87,6 +87,15 @@ def build_reputation_signals(
         sampled_count = len(items) if isinstance(items, list) else 0
         total_reviews = meta.get("totalReviews", meta.get("total_reviews", meta.get("reviewCount", sampled_count)))
         rating = meta.get("rating", "N/A")
+        # Do not render a platform simply because an attempted scraper created
+        # an empty key. Empty employment-review sources are not reputation data.
+        has_verified_value = (
+            sampled_count > 0
+            or isinstance(rating, (int, float))
+            or (isinstance(total_reviews, (int, float)) and total_reviews > 0)
+        )
+        if not has_verified_value:
+            continue
         top_reviews = items[:5] if isinstance(items, list) else []
         platforms.append({
             "platform": str(source).title(),
@@ -109,9 +118,11 @@ def build_reputation_signals(
             "reviewScore": "—",
             "googleRating": None,
             "googleReviewCount": 0,
-            "totalReviews": "—",
+            "totalReviews": 0,
             "industryStandardRange": "Not available (no review sources detected).",
-            "yourGap": "Not available (no review sources detected).",
+            "yourGap": "No verified public review profile was returned from the enabled sources. This is an availability gap, not a zero reputation score.",
+            "notes": "No verified public review records were returned from Google Places, Clutch, Trustpilot, or the attempted sources in this run.",
+            "collectionStatus": scraped.get("statuses", {}) or {},
             "summaryTable": [],
             "sentimentThemes": {
                 "positive": [],

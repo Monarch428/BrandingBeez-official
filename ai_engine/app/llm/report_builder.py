@@ -6,6 +6,12 @@ from datetime import datetime
 from typing import Any, Dict
 
 from app.core.config import settings
+from app.signals.detection_utils import is_reportable_service_name
+from app.utils.financials import (
+    compute_monthly_revenue,
+    normalize_money,
+    repair_financial_baseline,
+)
 from app.llm.client import call_llm_json, downgrade_llm_mode, get_effective_llm_mode
 from app.llm.token_budget import build_budget
 from app.llm.context_compactor import (
@@ -368,7 +374,7 @@ def _extract_service_names(llm_context: Dict[str, Any]) -> list[str]:
         if k and k not in seen:
             seen.add(k)
             out.append(n)
-    return out
+    return [name for name in out if is_reportable_service_name(name)][:12]
 
 
 def _business_model_from_context(llm_context: Dict[str, Any]) -> str:
@@ -702,6 +708,8 @@ def _patch_target_section_business_aware(section: Dict[str, Any], llm_context: D
                 "segment": "UK agencies needing white-label fulfilment",
                 "name": "UK agencies needing white-label fulfilment",
                 "marketCountry": "United Kingdom",
+                "currency": "GBP",
+                "expectedBudget": {"min": 1200, "max": 4000, "currency": "GBP", "period": "month", "note": "Directional agency-retainer range; validate with discovery data."},
                 "notes": f"Best fit for outsourced {service_hint} delivery without increasing internal headcount.",
                 "painPoints": ["Need reliable partner delivery under their own brand", "Want predictable turnaround, reporting, and margin"],
             },
@@ -709,6 +717,8 @@ def _patch_target_section_business_aware(section: Dict[str, Any], llm_context: D
                 "segment": "US agencies seeking retained delivery partners",
                 "name": "US agencies seeking retained delivery partners",
                 "marketCountry": "United States",
+                "currency": "USD",
+                "expectedBudget": {"min": 1500, "max": 5000, "currency": "USD", "period": "month", "note": "Directional agency-retainer range; validate with discovery data."},
                 "notes": f"Strong fit for retained partner packages around {service_hint}.",
                 "painPoints": ["Need scalable fulfilment capacity for client growth", "Want proposal support and clear delivery packages"],
             },
@@ -733,7 +743,10 @@ def _patch_target_section_business_aware(section: Dict[str, Any], llm_context: D
         ]
         mentor = f"Targeting should focus on {target_market} with segments tied to {service_hint}."
 
-    if not _target_section_is_specific(out, llm_context):
+    # A white-label model has a materially different ICP from generic service
+    # buyers. Always use these evidence-backed segments instead of retaining a
+    # superficially specific but incorrectly geo-mapped LLM list.
+    if is_white_label or not _target_section_is_specific(out, llm_context):
         out["mentorNotes"] = mentor
         out["segments"] = patched_segments
         out["currentTargetSegments"] = _copy_jsonable(patched_segments)
@@ -763,6 +776,13 @@ def _force_financial_impact_from_inputs(impact: Dict[str, Any], llm_context: Dic
     close_rate = _as_ratio(fin.get("closeRate") or fin.get("conversionRate")) or 0
     avg_deal = normalize_money(fin.get("avgDealValue") or fin.get("avgDealSize") or fin.get("averageDealValue") or 0)
     monthly_cost = _safe_float(fin.get("monthlyCost") or fin.get("currentMonthlyCost")) or 0
+    supplied_revenue = normalize_money(
+        fin.get("currentMonthlyRevenue")
+        or fin.get("monthlyRevenue")
+        or fin.get("currentRevenue")
+        or 0
+    )
+    funnel_revenue = int(round(leads * avg_deal * close_rate)) if leads and avg_deal and close_rate else 0
 
     base_monthly_upside = deterministic_revenue * 0.20
     annual_growth = base_monthly_upside * 12
@@ -794,7 +814,12 @@ def _force_financial_impact_from_inputs(impact: Dict[str, Any], llm_context: Dic
     out["currentRevenueEstimate"] = f"{_format_report_money(deterministic_revenue, symbol)}/mo current revenue"
     out["improvementPotential"] = f"{_format_report_money(annual_growth, symbol)}/yr revenue growth"
     out["projectedRevenueIncrease"] = f"{_format_report_money(annual_total, symbol)}/yr total impact"
-    out["summary"] = f"Financial baseline repaired from company inputs: monthlyLeads × avgDealValue × closeRate = {_format_report_money(deterministic_revenue, symbol)}/mo."
+    if supplied_revenue >= 1000:
+        out["summary"] = f"Financial baseline uses the company-provided revenue of {_format_report_money(supplied_revenue, symbol)}/mo."
+        if funnel_revenue >= 1000 and abs(funnel_revenue - supplied_revenue) / supplied_revenue >= 0.15:
+            out["summary"] += f" The supplied funnel inputs model {_format_report_money(funnel_revenue, symbol)}/mo and should be reconciled before forecasting."
+    else:
+        out["summary"] = f"Financial baseline is modelled from monthlyLeads × avgDealValue × closeRate = {_format_report_money(deterministic_revenue, symbol)}/mo."
     out.setdefault("mentorNotes", "Financial baseline uses deterministic company inputs, not LLM-estimated revenue.")
     out.setdefault("estimationDisclaimer", fallback_impact.get("estimationDisclaimer") or ESTIMATION_DISCLAIMER)
     return out
@@ -1733,15 +1758,11 @@ def build_sections_8_10_with_llm(
 
     if not _has_substance(cost, "opportunities") or not _cost_section_is_specific(cost, stage_context):
         logger.warning("[LLM] costOptimization weak/off-context -> patching with business-specific fields, not replacing whole section")
-        cost = _patch_cost_section_business_aware(cost, stage_context, fallback_sections["costOptimization"])
-    else:
-        cost = _patch_cost_section_business_aware(cost, stage_context, fallback_sections["costOptimization"])
+    cost = _patch_cost_section_business_aware(cost, stage_context, fallback_sections["costOptimization"])
 
     if not _has_substance(target, "segments") or not _target_section_is_specific(target, stage_context):
         logger.warning("[LLM] targetMarket weak/off-context -> patching with business-specific fields, not replacing whole section")
-        target = _patch_target_section_business_aware(target, stage_context, fallback_sections["targetMarket"])
-    else:
-        target = _patch_target_section_business_aware(target, stage_context, fallback_sections["targetMarket"])
+    target = _patch_target_section_business_aware(target, stage_context, fallback_sections["targetMarket"])
 
     if not _has_substance(impact, "revenueTable"):
         impact = _merge_missing_or_weak(impact, fallback_sections["financialImpact"], list_keys=("revenueTable", "scenarios", "actionCandidates", "revenueOpportunities", "profitabilityLevers"))
@@ -1783,12 +1804,6 @@ def build_sections_8_10_with_llm(
         impact.setdefault("actionCandidates", fallback_sections["financialImpact"].get("actionCandidates", []))
         if not impact.get("estimationDisclaimer") or len(str(impact.get("estimationDisclaimer", ""))) < 20:
             impact["estimationDisclaimer"] = fallback_sections["financialImpact"].get("estimationDisclaimer", "")
-
-    if isinstance(cost, dict):
-        cost.pop("scenarios", None)
-    if isinstance(target, dict):
-        target.pop("scenarios", None)
-    impact = _force_financial_impact_from_inputs(impact, stage_context, fallback_sections["financialImpact"]) if isinstance(impact, dict) else impact
 
     logger.warning("[LLM_DEBUG] sections_8_10 mapped cost=%s target=%s financial=%s", bool(cost), bool(target), bool(impact))
     logger.info("[LLM] build_sections_8_10_with_llm ok")

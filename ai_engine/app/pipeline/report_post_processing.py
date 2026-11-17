@@ -4,6 +4,8 @@ from copy import deepcopy
 from typing import Any, Dict, Iterable, List, Sequence
 import re
 
+from app.signals.detection_utils import is_reportable_service_name
+
 
 _PUNCT_RE = re.compile(r"[^a-z0-9]+")
 
@@ -271,6 +273,14 @@ def _derive_section_scores(report: Dict[str, Any]) -> Dict[str, int]:
     services = _as_dict(report.get("servicesPositioning"))
     lead = _as_dict(report.get("leadGeneration"))
 
+    review_score = reputation.get("reviewScore")
+    has_verified_reputation = isinstance(review_score, (int, float)) and review_score > 0
+    if not has_verified_reputation:
+        has_verified_reputation = any(
+            isinstance(item, dict) and isinstance(item.get("rating"), (int, float)) and item.get("rating") > 0
+            for item in _as_list(reputation.get("platforms") or reputation.get("summaryTable"))
+        )
+
     section_inputs = {
         "website": (
             metadata_scores.get("website"),
@@ -285,10 +295,10 @@ def _derive_section_scores(report: Dict[str, Any]) -> Dict[str, int]:
             _section_has_substance(seo),
         ),
         "reputation": (
-            metadata_scores.get("reputation"),
+            metadata_scores.get("reputation") if has_verified_reputation else None,
             reputation.get("overallScore"),
             None,
-            _section_has_substance(reputation),
+            has_verified_reputation,
         ),
         "leadGen": (
             metadata_scores.get("leadGen"),
@@ -351,7 +361,17 @@ def compute_data_completeness(report: Dict[str, Any]) -> int:
 
     completeness = (sum(1 for item in checks if item) / len(checks)) * 100
     fallback_penalty = min(15, _fallback_section_count(report) * 3)
-    return clamp_score(completeness - fallback_penalty)
+    # A populated section can still be directional when a source was not
+    # connected.  Surface that uncertainty instead of reporting 100% simply
+    # because placeholder sections were generated.
+    data_gaps = _as_list(appendices.get("dataGaps"))
+    unresolved_gaps = 0
+    for gap in data_gaps:
+        text = str(gap or "").lower()
+        if any(marker in text for marker in ("missing", "not connected", "unavailable", "not available", "not configured", "requires")):
+            unresolved_gaps += 1
+    evidence_gap_penalty = min(20, unresolved_gaps * 5)
+    return clamp_score(completeness - fallback_penalty - evidence_gap_penalty)
 
 
 def compute_core_score(report: Dict[str, Any]) -> int:
@@ -395,6 +415,11 @@ def compute_confidence_score(report: Dict[str, Any]) -> int:
     ux_score = _get_path(report, ("websiteDigitalPresence", "uxConversion", "score"))
     data_completeness = compute_data_completeness(report)
     missing_signals = _detect_missing_signals(report)
+    data_gaps = _as_list(_as_dict(report.get("appendices")).get("dataGaps"))
+    unavailable_sources = sum(
+        1 for gap in data_gaps
+        if any(marker in str(gap or "").lower() for marker in ("missing", "not connected", "unavailable", "not available", "not configured", "requires"))
+    )
     detection_reliability, reliability_penalties = _compute_detection_reliability(report)
 
     evidence_score = min(
@@ -412,14 +437,163 @@ def compute_confidence_score(report: Dict[str, Any]) -> int:
         return 0
 
     missing_penalty = min(18, len(missing_signals) * 3)
+    unavailable_source_penalty = min(24, unavailable_sources * 8)
     reliability_penalty = min(12, len(reliability_penalties) * 2)
     return clamp_score(
         (data_completeness * 0.55)
         + (evidence_score * 0.30)
         + (detection_reliability * 0.15)
         - missing_penalty
+        - unavailable_source_penalty
         - reliability_penalty
     )
+
+
+def _label_keyword_evidence(report: Dict[str, Any]) -> None:
+    """Keep keyword opportunities distinct from verified live rankings."""
+    seo = _as_dict(report.get("seoVisibility"))
+    rankings = _as_dict(seo.get("keywordRankings"))
+    if not rankings:
+        return
+    rows = _as_list(rankings.get("topRankingKeywords"))
+    has_verified_rank = any(
+        isinstance(row, dict) and isinstance(row.get("rank"), (int, float)) and row.get("rank") > 0
+        for row in rows
+    )
+    if has_verified_rank:
+        return
+    candidates = _as_list(rankings.get("targetKeywords"))
+    rankings["keywordOpportunityCount"] = len(candidates)
+    rankings["totalRankingKeywords"] = 0
+    rankings["rankingEvidenceStatus"] = "No verified live ranking positions returned in this run; listed terms are keyword opportunities."
+    seo["keywordRankings"] = rankings
+    report["seoVisibility"] = seo
+
+
+_NON_OFFER_TITLE_MARKERS = (
+    "case stud", "portfolio", "frequently asked", "faq", "choose your",
+    "what's included", "what’s included", "tips", "challenges", "approach",
+    "top-rated", "trusted platform", "stay on top", "drive high-quality",
+    "technical seo, content", "performance-first",
+)
+
+
+def _is_final_service_offer(name: Any) -> bool:
+    text = _clean_text(name)
+    lowered = text.lower()
+    return bool(text) and is_reportable_service_name(text) and not any(marker in lowered for marker in _NON_OFFER_TITLE_MARKERS)
+
+
+def _normalise_final_report_content(report: Dict[str, Any]) -> None:
+    """Apply report-level guardrails after cache, deterministic, and LLM merges."""
+    services_section = _as_dict(report.get("servicesPositioning"))
+    cleaned_services: List[Dict[str, Any]] = []
+    seen_services: set[str] = set()
+    for raw in _as_list(services_section.get("services")):
+        item = raw if isinstance(raw, dict) else {"name": raw}
+        name = _clean_text(item.get("name"))
+        if not _is_final_service_offer(name):
+            continue
+        key = _text_key(name)
+        if key in seen_services:
+            continue
+        seen_services.add(key)
+        cleaned_services.append(item)
+    if cleaned_services:
+        services_section["services"] = cleaned_services[:12]
+        offered = " ".join(_clean_text(item.get("name")).lower() for item in cleaned_services)
+        services_section["serviceGaps"] = [
+            gap for gap in _as_list(services_section.get("serviceGaps"))
+            if _text_key(_as_dict(gap).get("service")) not in _text_key(offered)
+        ]
+        report["servicesPositioning"] = services_section
+
+    metadata = _as_dict(report.get("reportMetadata"))
+    profile = _as_dict(_as_dict(report.get("meta")).get("businessProfile"))
+    is_white_label = profile.get("businessModel") == "white_label_agency_partner"
+    if is_white_label:
+        target = _as_dict(report.get("targetMarket"))
+        segments = [
+            {
+                "segment": "UK digital agencies needing white-label fulfilment",
+                "name": "UK digital agencies needing white-label fulfilment",
+                "marketCountry": "United Kingdom",
+                "currency": "GBP",
+                "expectedBudget": {"min": 1200, "max": 4000, "currency": "GBP", "period": "month", "note": "Directional retainer range; validate during discovery."},
+                "notes": "Partner agencies needing confidential SEO, PPC, or web delivery without adding permanent headcount.",
+            },
+            {
+                "segment": "US agencies seeking retained delivery capacity",
+                "name": "US agencies seeking retained delivery capacity",
+                "marketCountry": "United States",
+                "currency": "USD",
+                "expectedBudget": {"min": 1500, "max": 5000, "currency": "USD", "period": "month", "note": "Directional retainer range; validate during discovery."},
+                "notes": "Growing agencies needing dependable partner capacity, clear reporting, and agency-safe handoffs.",
+            },
+        ]
+        target["segments"] = segments
+        target["currentTargetSegments"] = deepcopy(segments)
+        target["detectedSegments"] = deepcopy(segments)
+        target["mentorNotes"] = "Prioritise UK and US agencies that need confidential, retained white-label delivery rather than targeting services as if they were customer segments."
+        for action in _as_list(target.get("actionCandidates")):
+            if isinstance(action, dict):
+                details = _as_dict(action.get("details"))
+                if action.get("sourceSection") == "targetMarket" or "landing pages" in _clean_text(action.get("title")).lower():
+                    details["recommendation"] = "Create dedicated UK and US agency-partner pages with delivery model, turnaround expectations, proof, and an agency-safe CTA."
+                    details["expectedOutcome"] = "Higher agency-fit enquiry quality and clearer white-label positioning."
+                    action["details"] = details
+        report["targetMarket"] = target
+        report["targetMarket"] = target
+
+        seo = _as_dict(report.get("seoVisibility"))
+        rankings = _as_dict(seo.get("keywordRankings"))
+        if rankings and not any(isinstance(row, dict) and isinstance(row.get("rank"), (int, float)) and row.get("rank") > 0 for row in _as_list(rankings.get("topRankingKeywords"))):
+            opportunities = [
+                "white label SEO services for agencies",
+                "white label Google Ads management",
+                "white label web development for agencies",
+                "dedicated development team for agencies",
+            ]
+            rankings["targetKeywords"] = opportunities
+            rankings["keywordOpportunityCount"] = len(opportunities)
+            rankings["topRankingKeywords"] = [
+                {"keyword": keyword, "rank": None, "yourRank": "Not ranking", "type": "commercial", "intent": "commercial", "priority": "high", "rankingStatus": "not ranking"}
+                for keyword in opportunities
+            ]
+            rankings["byPriority"] = {"high": opportunities, "medium": [], "low": []}
+            rankings["byIntent"] = {"commercial": opportunities, "local": []}
+            rankings["nonBrandedKeywords"] = deepcopy(rankings["topRankingKeywords"])
+            rankings["missingHighValueKeywords"] = deepcopy(rankings["topRankingKeywords"])
+            seo["keywordRankings"] = rankings
+            report["seoVisibility"] = seo
+
+    reputation = _as_dict(report.get("reputation"))
+    if _clean_text(reputation.get("reviewScore")) in {"", "—", "N/A", "-"}:
+        for phase in _as_list(report.get("actionPlan90Days")):
+            if not isinstance(phase, dict):
+                continue
+            actions = [str(action) for action in _as_list(phase.get("actions"))]
+            phase["actions"] = [action for action in actions if "merchandise review proof" not in action.lower()]
+            if "trust" in _clean_text(phase.get("title")).lower() and not phase["actions"]:
+                phase["actions"] = ["Verify and connect public review profiles, then implement a post-delivery review-request workflow."]
+
+    if is_white_label:
+        for phase in _as_list(report.get("actionPlan90Days")):
+            if not isinstance(phase, dict):
+                continue
+            actions = [str(action) for action in _as_list(phase.get("actions"))]
+            replacement = "Build UK/US agency-partner landing pages with delivery scope, turnaround, proof, and confidential handoff messaging."
+            phase["actions"] = [replacement if ("google business profile" in action.lower() or "local landing pages" in action.lower() or "citation coverage" in action.lower()) else action for action in actions]
+
+    subscores = _as_dict(metadata.get("subScores"))
+    if _clean_text(reputation.get("reviewScore")) in {"", "—", "N/A", "-"}:
+        subscores.pop("reputation", None)
+    # No connected spend/tooling source means cost efficiency is unmeasured,
+    # not a zero-quality category.
+    subscores.pop("costEfficiency", None)
+    if subscores:
+        metadata["subScores"] = subscores
+    report["reportMetadata"] = metadata
 
 
 def compute_opportunity_score(report: Dict[str, Any]) -> int:
@@ -511,6 +685,8 @@ def apply_report_scorecard(report: Dict[str, Any]) -> Dict[str, Any]:
         return {}
 
     out = deepcopy(report)
+    _normalise_final_report_content(out)
+    _label_keyword_evidence(out)
     metadata = _as_dict(out.get("reportMetadata"))
     section_scores = _derive_section_scores(out)
     previous_overall = _coerce_score(metadata.get("overallScore"))

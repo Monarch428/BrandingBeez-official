@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional, Tuple
 import time
 import urllib.parse
+import requests
 
 from app.core.config import settings
 from app.core.http import http_get
@@ -58,7 +59,7 @@ def _require_google_key() -> str:
 
 
 def text_search(service: str, location: str | None, max_results: int = 5) -> List[Dict[str, Any]]:
-    """Google Places Text Search: returns raw place search results (trimmed)."""
+    """Places API (New) Text Search, with legacy fallback for older projects."""
     api_key = _require_google_key()
 
     service = (service or "").strip()
@@ -72,20 +73,28 @@ def text_search(service: str, location: str | None, max_results: int = 5) -> Lis
         return cached
 
     query = f"{service} in {location}" if location else service
-    params = {
-        "query": query,
-        "key": api_key,
-    }
-    url = "https://maps.googleapis.com/maps/api/place/textsearch/json?" + urllib.parse.urlencode(params)
+    # Prefer the supported Places API (New). It is what Google Cloud enables
+    # for newly created projects and does not use query-string API keys.
+    r = requests.post(
+        "https://places.googleapis.com/v1/places:searchText",
+        headers={"X-Goog-Api-Key": api_key, "X-Goog-FieldMask": "places.id,places.displayName,places.formattedAddress,places.rating,places.userRatingCount,places.types"},
+        json={"textQuery": query, "pageSize": min(max_results or 5, 20)},
+        timeout=settings.HTTP_TIMEOUT_SEC,
+    )
+    if r.ok:
+        results = r.json().get("places", [])
+        trimmed = [{"place_id": p.get("id"), "name": (p.get("displayName") or {}).get("text"), "formatted_address": p.get("formattedAddress"), "rating": p.get("rating"), "user_ratings_total": p.get("userRatingCount"), "types": p.get("types") or []} for p in results]
+        _cache_set(cache_key, trimmed)
+        return trimmed
 
-    r = http_get(url)
-    if r.status_code >= 400:
-        raise PlacesAPIError(f"Places Text Search HTTP {r.status_code}: {r.text[:300]}")
-    data = r.json()
-
+    # Some established projects still deliberately expose only legacy Places.
+    params = {"query": query, "key": api_key}
+    legacy = http_get("https://maps.googleapis.com/maps/api/place/textsearch/json?" + urllib.parse.urlencode(params))
+    data = legacy.json() if legacy.ok else {}
     status = data.get("status")
     if status not in ("OK", "ZERO_RESULTS"):
-        raise PlacesAPIError(f"Places Text Search error: status={status}, message={data.get('error_message')}")
+        message = (r.json().get("error", {}).get("message") if r.headers.get("content-type", "").startswith("application/json") else r.text[:300])
+        raise PlacesAPIError(f"Places Text Search error: status={status or r.status_code}, message={message or data.get('error_message')}")
     results = data.get("results", [])[: max_results or 5]
 
     trimmed: List[Dict[str, Any]] = []
@@ -116,6 +125,18 @@ def place_details(place_id: str, fields: str = "name,rating,user_ratings_total,w
     cached = _cache_get(cache_key)
     if cached is not None:
         return cached
+
+    new_fields = "id,displayName,formattedAddress,rating,userRatingCount,websiteUri,internationalPhoneNumber,types,reviews"
+    new_response = requests.get(
+        f"https://places.googleapis.com/v1/places/{urllib.parse.quote(place_id, safe='')}",
+        headers={"X-Goog-Api-Key": api_key, "X-Goog-FieldMask": new_fields}, timeout=settings.HTTP_TIMEOUT_SEC,
+    )
+    if new_response.ok:
+        result = new_response.json()
+        reviews = (result.get("reviews") or [])[:max_reviews]
+        out = {"name": (result.get("displayName") or {}).get("text"), "rating": result.get("rating"), "user_ratings_total": result.get("userRatingCount"), "website": result.get("websiteUri"), "formatted_address": result.get("formattedAddress"), "international_phone_number": result.get("internationalPhoneNumber"), "reviews": reviews, "types": result.get("types") or []}
+        _cache_set(cache_key, out)
+        return out
 
     params = {
         "place_id": place_id,
@@ -179,19 +200,27 @@ def find_company_place(company_name: str, location: str | None = None, website: 
     """Try to find the most likely Google Place for the company itself."""
     q = (company_name or "").strip()
     loc = (location or "").strip() if location else ""
-    if not q:
+    target_domain = _domain_from_url(website or "")
+    # A user can enter their personal name rather than the business name.
+    # Add the website's registrable label as a search alias so the website
+    # match remains the authority for selecting the Google Business Profile.
+    domain_label = target_domain.split(".")[0].replace("-", " ") if target_domain else ""
+    queries = list(dict.fromkeys(value for value in (q, domain_label) if value))
+    if not queries:
         return {}
     # If we have a location, add it for disambiguation
-    if loc:
-        service = q
-        location_use = loc
-    else:
-        # fall back to searching without location (less accurate)
-        service = q
-        location_use = "near me"  # legacy text search needs both; this is a harmless fallback
-    candidates = find_services(service, location_use, max_results=5, max_reviews=10)
+    location_use = loc or "near me"
+    candidates: List[Dict[str, Any]] = []
+    seen_ids: set[str] = set()
+    for query in queries:
+        for candidate in find_services(query, location_use, max_results=5, max_reviews=10):
+            candidate_id = str(candidate.get("place_id") or candidate.get("placeId") or "")
+            if candidate_id and candidate_id in seen_ids:
+                continue
+            if candidate_id:
+                seen_ids.add(candidate_id)
+            candidates.append(candidate)
 
-    target_domain = _domain_from_url(website or "")
     if target_domain:
         for c in candidates:
             c_domain = _domain_from_url(str(c.get("website") or ""))
@@ -201,7 +230,7 @@ def find_company_place(company_name: str, location: str | None = None, website: 
 
 
 def build_google_reputation_bundle(service: str, location: str | None, company_name: str | None = None, company_website: str | None = None,
-                                  max_results: int = 5, max_reviews: int = 5) -> Dict[str, Any]:
+                                  company_place_id: str | None = None, max_results: int = 5, max_reviews: int = 5) -> Dict[str, Any]:
     """Return a bundle suitable for reputation analysis + competitive context."""
     bundle: Dict[str, Any] = {"query": {"service": service, "location": location or ""}, "company": {}, "profile": {}, "competitors": []}
 
@@ -210,8 +239,10 @@ def build_google_reputation_bundle(service: str, location: str | None, company_n
         competitors = find_services(service, location, max_results=max_results, max_reviews=max_reviews)
         bundle["competitors"] = competitors
 
-    if company_name:
-        company = find_company_place(company_name, location=location, website=company_website)
+    if company_name or company_place_id:
+        # A user-supplied Place ID wins over fuzzy text search. It is the most
+        # reliable way to prevent a same-name business being selected.
+        company = place_details(company_place_id, max_reviews=max_reviews) if company_place_id else find_company_place(company_name or "", location=location, website=company_website)
         bundle["company"] = company
         bundle["profile"] = _normalize_place_profile(company)
 
@@ -220,18 +251,28 @@ def build_google_reputation_bundle(service: str, location: str | None, company_n
 
 def to_review_analyzer_source(place: Dict[str, Any]) -> list[dict]:
     """Convert a Google place 'reviews' list into ReviewAnalyzer expected format."""
+    def localized_text(value: Any) -> str:
+        # Places API (New) provides review text as a LocalizedText object,
+        # whereas the legacy API returned a direct string.
+        if isinstance(value, str):
+            return value
+        if isinstance(value, dict):
+            return str(value.get("text") or value.get("value") or "")
+        return "" if value is None else str(value)
+
     out: list[dict] = []
     for r in (place or {}).get("reviews") or []:
         review = r or {}
-        text = review.get("text") or review.get("original_text") or ""
+        text = localized_text(review.get("text") or review.get("originalText") or review.get("original_text"))
         rating = review.get("rating") or ""
+        attribution = review.get("authorAttribution") if isinstance(review.get("authorAttribution"), dict) else {}
         out.append({
             "rating": rating,
             "pros": text,
             "cons": "",
-            "reviewer": review.get("author_name") or "",
-            "relativeTime": review.get("relative_time_description") or "",
-            "publishedAt": review.get("time") or "",
+            "reviewer": review.get("author_name") or attribution.get("displayName") or "",
+            "relativeTime": review.get("relative_time_description") or review.get("relativePublishTimeDescription") or "",
+            "publishedAt": review.get("time") or review.get("publishTime") or "",
             "source": "google",
         })
     return out

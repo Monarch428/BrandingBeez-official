@@ -21,6 +21,12 @@ logger = get_logger(__name__)
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 SITES_URL = "https://searchconsole.googleapis.com/webmasters/v3/sites"
 SEARCH_ANALYTICS_TMPL = "https://searchconsole.googleapis.com/webmasters/v3/sites/{site}/searchAnalytics/query"
+GSC_ERROR_KEY = "_gsc_error"
+
+
+def _unavailable(reason: str) -> Dict[str, Any]:
+    """Return a safe, reportable diagnostic; never include token data."""
+    return {GSC_ERROR_KEY: reason[:300]}
 
 
 def _now_epoch() -> int:
@@ -97,7 +103,7 @@ def _refresh_access_token(refresh_token: str) -> Optional[Dict[str, Any]]:
     access_token = payload.get("access_token")
     expires_in = payload.get("expires_in")  
     if not access_token:
-        return None
+        return _unavailable("No customer-authorised Search Console access token was supplied.")
     expires_at = _now_epoch() + int(expires_in or 0) if expires_in else None
 
     return {"access_token": access_token, "expires_at": expires_at}
@@ -192,7 +198,65 @@ def _pick_best_site_property(available_sites: list[dict], want: str) -> Optional
     return candidates[0] if candidates else None
 
 
-def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]:
+def _canonical_landing_page(value: Any) -> str:
+    """Remove tracking/query variants so GSC pages remain safe and useful."""
+    try:
+        parsed = urllib.parse.urlsplit(str(value or ""))
+        if not parsed.scheme or not parsed.netloc:
+            return str(value or "")
+        return urllib.parse.urlunsplit((parsed.scheme, parsed.netloc, parsed.path or "/", "", ""))
+    except Exception:
+        return str(value or "")
+
+
+def _aggregate_landing_pages(rows: list[dict]) -> list[dict]:
+    grouped: Dict[str, Dict[str, Any]] = {}
+    for row in rows:
+        page = _canonical_landing_page(row.get("page"))
+        if not page:
+            continue
+        current = grouped.setdefault(page, {"page": page, "clicks": 0.0, "impressions": 0.0, "weighted_position": 0.0})
+        clicks = float(row.get("clicks") or 0)
+        impressions = float(row.get("impressions") or 0)
+        current["clicks"] += clicks
+        current["impressions"] += impressions
+        current["weighted_position"] += float(row.get("position") or 0) * impressions
+    out = []
+    for item in grouped.values():
+        impressions = item["impressions"]
+        out.append({
+            "page": item["page"],
+            "clicks": int(item["clicks"]),
+            "impressions": int(impressions),
+            "ctr": (item["clicks"] / impressions) if impressions else 0,
+            "position": (item["weighted_position"] / impressions) if impressions else None,
+        })
+    return sorted(out, key=lambda item: (item["clicks"], item["impressions"]), reverse=True)[:10]
+
+
+def _performance_insights(totals: Dict[str, Any], top_queries: list[dict], top_pages: list[dict]) -> list[str]:
+    clicks = int(totals.get("clicks") or 0)
+    impressions = int(totals.get("impressions") or 0)
+    position = totals.get("position")
+    insights: list[str] = [f"Verified Search Console data shows {clicks} clicks from {impressions} impressions in the reporting period."]
+    if isinstance(position, (int, float)) and 8 <= position <= 20:
+        insights.append(f"Average position is {position:.1f}; prioritise pages and queries already close to page-one visibility before expanding into new topics.")
+    if top_pages and impressions:
+        homepage_impressions = next((int(row.get("impressions") or 0) for row in top_pages if str(row.get("page") or "").rstrip("/").count("/") <= 2), 0)
+        if homepage_impressions / impressions >= 0.6:
+            insights.append("Organic visibility is concentrated on the homepage; build and internally link focused service and agency-partner landing pages to distribute demand capture.")
+    if top_queries:
+        insights.append("Use the verified query list to refine title tags, H1s, FAQs, and dedicated landing pages; do not treat sampled third-party ranking data as a substitute for this first-party evidence.")
+    return insights
+
+
+def fetch_gsc_summary(
+    site_url: str,
+    days: int = 28,
+    access_token_override: Optional[str] = None,
+    property_override: Optional[str] = None,
+    allow_shared_credentials: bool = False,
+) -> Optional[Dict[str, Any]]:
     """Fetch Search Console performance summary for a site.
 
     Output schema is intentionally compact for your PDF:
@@ -203,7 +267,13 @@ def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]
 
     Returns None on missing credentials or access issues.
     """
-    access_token = _get_access_token()
+    # Customer-specific credentials take precedence. This lets a public report
+    # use the visitor's approved property without exposing or persisting their
+    # OAuth token in the browser or report data.
+    # Never silently use an operator's Search Console account for a public
+    # visitor's report. A shared credential remains available only to explicit
+    # internal callers that opt in for controlled development/admin jobs.
+    access_token = access_token_override or (_get_access_token() if allow_shared_credentials else None)
     if not access_token:
         return None
 
@@ -213,7 +283,7 @@ def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]
     start = (_dt.date.today() - _dt.timedelta(days=days)).strftime("%Y-%m-%d")
 
     # If user configured exact property, honor it
-    want_site = settings.GSC_SITE_URL or site_url
+    want_site = property_override or settings.GSC_SITE_URL or site_url
 
     try:
         # 1) list sites to identify property
@@ -221,12 +291,12 @@ def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]
         r = requests.get(SITES_URL, headers=headers, timeout=settings.HTTP_TIMEOUT_SEC)
         if r.status_code >= 400:
             logger.warning("[GSC] sites list failed: %s", r.text[:200])
-            return None
+            return _unavailable(f"Google Search Console property lookup failed (HTTP {r.status_code}).")
         payload = r.json() or {}
         entries = payload.get("siteEntry") or []
         best_site = _pick_best_site_property(entries, want_site)
         if not best_site:
-            return None
+            return _unavailable("The authorised Google account has no matching Search Console property.")
 
         site_enc = urllib.parse.quote(best_site, safe="")
         url = SEARCH_ANALYTICS_TMPL.format(site=site_enc)
@@ -239,7 +309,9 @@ def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]
 
         # 2) top queries + top pages
         q_payload = _post(["query"], 10)
-        p_payload = _post(["page"], 10)
+        # Request more rows before canonicalising URLs because Google can return
+        # several tracking-token variants of the same landing page.
+        p_payload = _post(["page"], 100)
 
         def _rows(payload: dict, key_name: str) -> list[dict]:
             out = []
@@ -255,12 +327,12 @@ def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]
             return out
 
         top_queries = _rows(q_payload, "query")
-        top_pages = _rows(p_payload, "page")
+        top_pages = _aggregate_landing_pages(_rows(p_payload, "page"))
 
         # 3) totals
         totals_payload = _post([], 1)
         totals = (totals_payload.get("rows") or [{}])[0] if (totals_payload.get("rows") or []) else {}
-        return {
+        result = {
             "property": best_site,
             "dateRange": {"start": start, "end": end, "days": days},
             "totals": {
@@ -272,7 +344,9 @@ def fetch_gsc_summary(site_url: str, days: int = 28) -> Optional[Dict[str, Any]]
             "topQueries": top_queries,
             "topPages": top_pages,
         }
+        result["insights"] = _performance_insights(result["totals"], top_queries, top_pages)
+        return result
 
     except Exception as e:
         logger.warning("[GSC] fetch failed: %s", str(e))
-        return None
+        return _unavailable(f"Google Search Console query failed: {str(e)}")

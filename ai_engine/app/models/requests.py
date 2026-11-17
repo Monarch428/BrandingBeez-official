@@ -73,6 +73,10 @@ class AnalyzeRequest(BaseModel):
     businessInputs: Optional[Dict[str, Any]] = None
     includeSections8to10: bool = True
     forceNewAnalysis: bool = False
+    # Set only by the Node backend after resolving a customer-owned OAuth
+    # connection. This value is transient and must not be persisted in reports.
+    searchConsoleAccessToken: Optional[str] = None
+    searchConsoleProperty: Optional[str] = None
 
 
 class AnalyzeResponse(BaseModel):

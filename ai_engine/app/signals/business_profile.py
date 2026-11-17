@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Tuple
 
+from app.signals.detection_utils import is_reportable_service_name
+
 
 JsonDict = Dict[str, Any]
 
@@ -79,7 +81,17 @@ def _extract_service_names(services_signals: JsonDict, homepage: JsonDict, own_p
             if isinstance(value, str) and value.strip() and any(tok in value.lower() for tok in ["seo", "web", "design", "development", "ppc", "automation", "branding"]):
                 names.append(value.strip())
 
-    return _dedupe_keep_order(names)
+    # Keep the profile concise and defensible.  The full crawl remains in the
+    # appendix, while the LLM gets only genuine, recognisable offer names.
+    filtered = _dedupe_keep_order([name for name in names if is_reportable_service_name(name)])
+    # Preserve explicit delivery-model evidence even when a large site exposes
+    # many valid services.  This prevents white-label agencies being described
+    # as generic consultants simply because that offer appears later in crawl
+    # order.
+    filtered.sort(key=lambda name: 0 if any(term in name.lower() for term in (
+        "white label", "white-label", "outsourc", "fulfilment", "fulfillment",
+    )) else 1)
+    return filtered[:12]
 
 
 def _detect_offer_types(service_names: List[str], full_text: str) -> List[str]:
@@ -122,9 +134,9 @@ def _detect_business_model(full_text: str, service_names: List[str], user_inputs
         scores[model] += points
         evidence.append(f"{model}: {reason}")
 
-    if any(k in text for k in ["white label", "whitelabel", "agency partner", "reseller", "outsourcing partner", "fulfilment partner", "fulfillment partner"]):
+    if any(k in text for k in ["white label", "white-label", "whitelabel", "agency partner", "reseller", "outsourcing partner", "fulfilment partner", "fulfillment partner"]):
         add("white_label_agency_partner", 5, "explicit partner/white-label wording detected")
-    if "agency" in target_market and any(k in text for k in ["white label", "delivery", "outsourcing", "fulfilment", "fulfillment"]):
+    if "agency" in target_market and any(k in text for k in ["white label", "white-label", "delivery", "outsourcing", "fulfilment", "fulfillment"]):
         add("white_label_agency_partner", 4, "target market references agencies + delivery model cues")
     if "agency" in target_market:
         add("b2b_agency", 2, "target market references agencies")

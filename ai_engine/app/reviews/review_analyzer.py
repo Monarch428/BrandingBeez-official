@@ -3,6 +3,23 @@ from collections import Counter, defaultdict
 from typing import Dict, List, Any, Tuple
 
 
+def _as_text(value: Any) -> str:
+    """Return text from provider values without allowing structured fields to crash analysis."""
+    if isinstance(value, str):
+        return value
+    # Google Places API (New) returns localized text as
+    # {"text": "…", "languageCode": "…"}.
+    if isinstance(value, dict):
+        for key in ("text", "value", "displayName", "name"):
+            candidate = value.get(key)
+            if isinstance(candidate, str):
+                return candidate
+        return ""
+    if value is None:
+        return ""
+    return str(value)
+
+
 class ReviewAnalyzer:
     # Lexicons used for coarse sentiment scoring (kept)
     POSITIVE_WORDS = [
@@ -62,8 +79,8 @@ class ReviewAnalyzer:
             return 0.0
 
     def sentiment_score(self, pros: str, cons: str) -> float:
-        pros = (pros or "").lower()
-        cons = (cons or "").lower()
+        pros = _as_text(pros).lower()
+        cons = _as_text(cons).lower()
 
         positive_count = sum(word in pros for word in self.POSITIVE_WORDS)
         negative_count = sum(word in cons for word in self.NEGATIVE_WORDS)
@@ -75,7 +92,7 @@ class ReviewAnalyzer:
         return max(1.0, min(5.0, score))
 
     def _tokenize(self, text: str) -> List[str]:
-        text = (text or "").lower()
+        text = _as_text(text).lower()
         tokens = re.findall(r"[a-z0-9']+", text)
         tokens = [t for t in tokens if len(t) >= 3 and t not in self.STOPWORDS]
         return tokens
@@ -201,8 +218,8 @@ class ReviewAnalyzer:
                 if rating > 0:
                     ratings.append(rating)
 
-                pros = (r or {}).get("pros", "") or ""
-                cons = (r or {}).get("cons", "") or ""
+                pros = _as_text((r or {}).get("pros", ""))
+                cons = _as_text((r or {}).get("cons", ""))
 
                 if pros.strip():
                     pros_texts.append(pros)

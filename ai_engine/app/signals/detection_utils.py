@@ -152,6 +152,28 @@ _NON_SERVICE_REJECT: list[re.Pattern] = [
 _MIN_SERVICE_NAME_LEN = 4
 _MAX_SERVICE_NAME_LEN = 65
 
+# A heading can be valid text but still not be a customer-facing offer. Keep
+# these labels out of services, keywords, and LLM context.
+_GENERIC_SERVICE_LABELS = {
+    "support", "flexibility", "our approach", "our process", "the process",
+    "how it works", "why choose us", "why us", "results", "case studies",
+    "case study", "our work", "our clients", "our team", "capabilities",
+    "solutions", "product-ready builds", "product ready builds", "our expertise",
+    "implementation process", "benefits you get", "application type",
+    "development approach", "agent architecture", "autonomous systems",
+    "graphic designer", "video editor", "seo specialist", "google ads expert",
+    "web developer", "full-stack developer", "small team (2–4 people)",
+    "large team (5+ people)",
+}
+_SERVICE_INTENT_TERMS = (
+    "seo", "ppc", "ads", "advertising", "marketing", "web", "website",
+    "design", "development", "app", "branding", "brand ", "identity",
+    "content", "copywriting", "social", "automation", "crm", "hubspot",
+    "conversion", "cro", "creative", "graphic", "video", "consulting",
+    "consultancy", "white label", "white-label", "fulfilment", "fulfillment",
+    "outsourcing", "ecommerce", "e-commerce", "software", "ui/ux", "ux",
+)
+
 
 def is_non_service_text(text: str) -> bool:
     """Return True if `text` looks like a non-service heading, label, or slogan."""
@@ -166,6 +188,17 @@ def is_non_service_text(text: str) -> bool:
         if pattern.search(cleaned):
             return True
     return False
+
+
+def is_reportable_service_name(text: str) -> bool:
+    """True only for a concise, recognisable customer-facing service."""
+    cleaned = " ".join(str(text or "").split()).strip()
+    lowered = cleaned.lower()
+    if lowered in {"seo", "ppc", "cro", "crm", "aeo"}:
+        return True
+    if not cleaned or lowered in _GENERIC_SERVICE_LABELS or is_non_service_text(cleaned):
+        return False
+    return any(term in lowered for term in _SERVICE_INTENT_TERMS)
 
 
 def deduplicate_list_preserve_order(items: Iterable[Any]) -> List[Any]:

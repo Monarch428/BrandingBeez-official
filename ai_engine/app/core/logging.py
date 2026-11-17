@@ -5,3 +5,8 @@ def configure_logging():
         level=logging.INFO,
         format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
     )
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Return a named logger for integrations and pipeline modules."""
+    return logging.getLogger(name)

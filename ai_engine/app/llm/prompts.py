@@ -475,10 +475,11 @@ def build_user_prompt_final_exec_summary(final_report: dict, llm_context: dict) 
         "totalReviews": rep.get("totalReviews"),
         "contentGaps": (website.get("contentGaps") or (website.get("contentQuality") or {}).get("gaps") or [])[:3],
         "services": [s.get("name") for s in (services.get("services") or [])[:3] if isinstance(s, dict) and s.get("name")],
+        "consultantBrief": ctx.get("consultantBrief") or {},
     }
     return (
         "Return ONLY executiveSummary patch with biggestOpportunity, mentorSnapshot, strengths, weaknesses, quickWins.\n"
-        "Use short business-specific language. No filler.\n"
+        "Use the consultant brief as the commercial lens. Separate verified facts from directional recommendations. No filler.\n"
         f"evidence:{_json(evidence)[:1800]}"
     )
 

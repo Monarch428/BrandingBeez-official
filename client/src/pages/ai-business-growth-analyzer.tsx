@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { BookCallButtonWithModal } from "@/components/book-appoinment";
 import AgencyContactSection from "@/components/agency-contact-section";
@@ -34,6 +35,8 @@ interface FormState {
   location: string;
   industry: string; // Primary services industry
   targetMarket: string;
+  businessGoal: string;
+  googlePlaceId: string;
 
   // Range / estimation inputs
   currency: string;
@@ -90,6 +93,21 @@ interface LeadFormErrors {
 type Step = "capture" | "existing" | "analysis" | "summary" | "lead" | "success";
 type CaptureFormStep = 1 | 2 | 3;
 type StageState = "pending" | "active" | "complete";
+type AnalysisPhase = "queued" | "validating" | "python" | "normalizing" | "saving" | "complete" | "error";
+
+type AnalysisProgressEvent = {
+  phase: AnalysisPhase;
+  progress: number;
+  message: string;
+  updatedAt: string;
+};
+
+type SearchConsoleConnection = {
+  id: string;
+  email: string | null;
+  selectedProperty: string | null;
+  properties: Array<{ siteUrl: string; permissionLevel?: string }>;
+};
 
 const stepOrder: Step[] = ["capture", "existing", "analysis", "summary", "lead", "success"];
 
@@ -164,23 +182,11 @@ interface BusinessGrowthReport {
 }
 
 const analysisStages = [
-  { label: "Initialization", duration: 2, progress: 5, message: "Connecting to your website..." },
-  { label: "Website Crawl", duration: 12, progress: 20, message: "Scanning website structure..." },
-  { label: "SEO Analysis", duration: 10, progress: 40, message: "Analyzing SEO performance..." },
-  { label: "Reputation Check", duration: 8, progress: 55, message: "Checking online reputation..." },
-  { label: "Lead Gen Audit", duration: 10, progress: 70, message: "Auditing lead generation funnels..." },
-  { label: "Cost Assessment", duration: 8, progress: 85, message: "Analyzing service delivery costs..." },
-  { label: "Speed Test (Core Web Vitals)", duration: 10, progress: 95, message: "Running real speed test (PageSpeed + CWV)..." },
-  { label: "Report Generation", duration: 5, progress: 99, message: "Compiling your report..." },
-  { label: "Complete", duration: 1, progress: 100, message: "Analysis complete!" },
-];
-
-const teaserMessages = [
-  "We found keyword opportunities you're missing...",
-  "Your competitors may be outranking you on high-value terms...",
-  "We identified untapped lead generation channels...",
-  "We found potential cost savings in your delivery process...",
-  "Your reputation score is strong, but review responses can improve trust...",
+  { label: "Request validation", message: "Preparing your business context" },
+  { label: "Python AI analysis", message: "Collecting live evidence and building the report" },
+  { label: "Quality validation", message: "Checking scores, recommendations, and assumptions" },
+  { label: "Report preparation", message: "Saving the analysis and preparing the response" },
+  { label: "Complete", message: "Your growth report is ready" },
 ];
 
 const disposableEmailDomains = ["mailinator.com", "guerrillamail.com", "10minutemail.com", "tempmail.com", "trashmail.com"];
@@ -430,6 +436,7 @@ async function checkLatestReportBestEffort(
 }
 
 export default function AIBusinessGrowthAnalyzerPage() {
+  const { toast } = useToast();
   const companyNameRef = useRef<HTMLInputElement | null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
 
@@ -441,6 +448,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
     location: "",
     industry: "",
     targetMarket: "",
+    businessGoal: "",
+    googlePlaceId: "",
     currency: "",
     monthlyRevenueRange: "",
     monthlyAdSpendRange: "",
@@ -492,11 +501,13 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [analysisToken, setAnalysisToken] = useState<string | null>(null);
   const [lastAnalyzedWebsite, setLastAnalyzedWebsite] = useState<string | null>(null);
 
-  // Progress simulation UI
+  // Live progress from the backend's SSE channel. This reflects actual request
+  // milestones rather than estimating progress from elapsed time.
   const [progress, setProgress] = useState(0);
   const [statusMessage, setStatusMessage] = useState("Ready to start");
-  const [stageStates, setStageStates] = useState<StageState[]>(Array(analysisStages.length - 1).fill("pending"));
-  const [teaserIndex, setTeaserIndex] = useState(0);
+  const [analysisPhase, setAnalysisPhase] = useState<AnalysisPhase>("queued");
+  const [stageStates, setStageStates] = useState<StageState[]>(Array(analysisStages.length).fill("pending"));
+  const progressStreamRef = useRef<EventSource | null>(null);
 
   // Report generation
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -509,6 +520,14 @@ export default function AIBusinessGrowthAnalyzerPage() {
   const [leadSubmitError, setLeadSubmitError] = useState<string | null>(null);
   const [isLeadSubmitting, setIsLeadSubmitting] = useState(false);
   const [leadId, setLeadId] = useState<string>("");
+
+  // Customer-owned Search Console connection. Only the opaque id is retained
+  // in the browser; OAuth tokens remain encrypted on the server.
+  const [searchConsoleConfigured, setSearchConsoleConfigured] = useState(false);
+  const [searchConsoleConnections, setSearchConsoleConnections] = useState<SearchConsoleConnection[]>([]);
+  const [searchConsoleConnectionId, setSearchConsoleConnectionId] = useState<string>("");
+  const [isConnectingSearchConsole, setIsConnectingSearchConsole] = useState(false);
+  const [searchConsoleError, setSearchConsoleError] = useState<string | null>(null);
 
   // Email send status
   const [isSendingReportEmail, setIsSendingReportEmail] = useState(false);
@@ -525,6 +544,10 @@ export default function AIBusinessGrowthAnalyzerPage() {
   }, []);
 
   const progressPercentage = useMemo(() => Math.max(0, Math.min(100, progress)), [progress]);
+  const activeSearchConsoleConnection = useMemo(
+    () => searchConsoleConnections.find((entry) => entry.id === searchConsoleConnectionId) || searchConsoleConnections[0] || null,
+    [searchConsoleConnectionId, searchConsoleConnections],
+  );
 
   const analysisDate = useMemo(() => {
     const d = analysisData?.reportMetadata?.analysisDate;
@@ -599,60 +622,107 @@ export default function AIBusinessGrowthAnalyzerPage() {
     [],
   );
 
-  // Rotate teaser messages during analysis
+  // Close a live progress stream when the page is left.
   useEffect(() => {
-    if (step !== "analysis") return;
-    const t = window.setInterval(() => setTeaserIndex((p) => (p + 1) % teaserMessages.length), 3500);
-    return () => window.clearInterval(t);
-  }, [step]);
+    return () => {
+      progressStreamRef.current?.close();
+    };
+  }, []);
 
-  // Progress stage simulation during analysis
+  const loadSearchConsoleConnections = async (preferConnectionId?: string) => {
+    try {
+      const response = await fetch("/api/ai-business-growth/search-console/status");
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload?.message || "Unable to load Search Console connections");
+      const connections = Array.isArray(payload?.connections) ? payload.connections as SearchConsoleConnection[] : [];
+      setSearchConsoleConfigured(Boolean(payload?.configured));
+      setSearchConsoleConnections(connections);
+      setSearchConsoleConnectionId((current) => {
+        if (preferConnectionId && connections.some((entry) => entry.id === preferConnectionId)) return preferConnectionId;
+        return current && connections.some((entry) => entry.id === current) ? current : (connections[0]?.id || "");
+      });
+    } catch {
+      // The public report still works with public-web and DataForSEO signals.
+    }
+  };
+
   useEffect(() => {
-    if (step !== "analysis") return;
-
-    let cancelled = false;
-    setProgress(0);
-    setStatusMessage(analysisStages[0].message);
-    setStageStates(Array(analysisStages.length - 1).fill("pending"));
-
-    const run = async () => {
-      for (let i = 0; i < analysisStages.length; i++) {
-        if (cancelled) return;
-
-        const current = analysisStages[i];
-
-        // Update states for non-terminal stages
-        if (i < analysisStages.length - 1) {
-          setStageStates((prev) => {
-            const next = [...prev];
-            for (let k = 0; k < next.length; k++) {
-              if (k < i) next[k] = "complete";
-              else if (k === i) next[k] = "active";
-              else next[k] = "pending";
-            }
-            return next;
-          });
-        } else {
-          // final stage
-          setStageStates((prev) => prev.map((s) => (s === "complete" ? s : "complete")));
-        }
-
-        setStatusMessage(current.message);
-        setProgress(current.progress);
-
-        await new Promise((r) => setTimeout(r, current.duration * 600));
+    void loadSearchConsoleConnections();
+    const onMessage = (event: MessageEvent) => {
+      const localBackendOrigin = `${window.location.protocol}//${window.location.hostname}:5001`;
+      if (![window.location.origin, localBackendOrigin].includes(event.origin) || event.data?.type !== "bb-gsc-connected") return;
+      setIsConnectingSearchConsole(false);
+      if (event.data?.ok) {
+        setSearchConsoleError(null);
+        void loadSearchConsoleConnections(event.data.connectionId);
+        toast({ title: "Google Search Console connected", description: "Your latest connected Google account is now selected for this report." });
+      } else {
+        const message = event.data?.message || "Google Search Console could not be connected. Please try again.";
+        setSearchConsoleError(message);
+        toast({ title: "Google Search Console connection failed", description: message, variant: "destructive" });
       }
     };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
 
-    void run();
-    return () => {
-      cancelled = true;
-    };
-  }, [step]);
+  const connectSearchConsole = () => {
+    setSearchConsoleError(null);
+    setIsConnectingSearchConsole(true);
+    const popup = window.open("/api/ai-business-growth/search-console/connect", "bb-search-console", "width=560,height=720,resizable=yes,scrollbars=yes");
+    if (!popup) {
+      setIsConnectingSearchConsole(false);
+      setSearchConsoleError("Your browser blocked the Google connection window. Please allow pop-ups and try again.");
+      return;
+    }
+    const timer = window.setInterval(() => {
+      if (!popup.closed) return;
+      window.clearInterval(timer);
+      setIsConnectingSearchConsole(false);
+      void loadSearchConsoleConnections();
+    }, 500);
+  };
+
+  const selectSearchConsoleProperty = async (connectionId: string, property: string) => {
+    setSearchConsoleConnectionId(connectionId);
+    const response = await fetch("/api/ai-business-growth/search-console/select", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ connectionId, property }),
+    });
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      setSearchConsoleError(payload?.message || "Unable to select this Search Console property.");
+      return;
+    }
+    setSearchConsoleError(null);
+    void loadSearchConsoleConnections();
+  };
 
   const handleInputChange = (key: keyof FormState, value: string) => {
     setFormState((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const applyProgressEvent = (event: AnalysisProgressEvent) => {
+    const phaseIndex: Record<AnalysisPhase, number> = {
+      queued: 0,
+      validating: 0,
+      python: 1,
+      normalizing: 2,
+      saving: 3,
+      complete: 4,
+      error: -1,
+    };
+    const activeIndex = phaseIndex[event.phase];
+    setAnalysisPhase(event.phase);
+    setProgress(Math.max(0, Math.min(100, Number(event.progress) || 0)));
+    setStatusMessage(event.message || "Analysis is in progress…");
+    if (activeIndex >= 0) {
+      setStageStates(analysisStages.map((_, index) => (
+        index < activeIndex ? "complete" : index === activeIndex ? (event.phase === "complete" ? "complete" : "active") : "pending"
+      )));
+    }
   };
 
   const runAnalysis = async (normalizedWebsite: string, opts?: { forceNewAnalysis?: boolean }) => {
@@ -662,6 +732,23 @@ export default function AIBusinessGrowthAnalyzerPage() {
     setReportDownloadUrl("");
     setReportError(null);
     setExistingPdfError(null);
+
+    const requestId = globalThis.crypto?.randomUUID?.() || `analysis_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    progressStreamRef.current?.close();
+    setProgress(0);
+    setAnalysisPhase("queued");
+    setStatusMessage("Connecting to the analysis service…");
+    setStageStates(Array(analysisStages.length).fill("pending"));
+
+    const stream = new EventSource(`/api/ai-business-growth/progress/${encodeURIComponent(requestId)}`);
+    progressStreamRef.current = stream;
+    stream.onmessage = (message) => {
+      try {
+        applyProgressEvent(JSON.parse(message.data) as AnalysisProgressEvent);
+      } catch {
+        // Ignore malformed heartbeat/proxy messages; the report request remains authoritative.
+      }
+    };
 
     setLastAnalyzedWebsite(normalizedWebsite);
 
@@ -675,6 +762,11 @@ export default function AIBusinessGrowthAnalyzerPage() {
           location: formState.location.trim(),
           industry: formState.industry.trim(),
           targetMarket: formState.targetMarket.trim(),
+          criteria: {
+            ...(toOptionalString(formState.googlePlaceId) ? { googlePlaceId: toOptionalString(formState.googlePlaceId) } : {}),
+          },
+          searchConsoleConnectionId: searchConsoleConnectionId || undefined,
+          businessGoal: toOptionalString(formState.businessGoal),
           estimationInputs: {
             currency: formState.currency.trim(),
             monthlyRevenueRange: formState.monthlyRevenueRange.trim(),
@@ -728,6 +820,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
             additionalContext: toOptionalString(formState.additionalContext),
           },
           forceNewAnalysis: Boolean(opts?.forceNewAnalysis),
+          requestId,
         }),
       });
 
@@ -748,6 +841,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
 
       setAnalysisData(payload.analysis as BusinessGrowthReport);
       if (payload?.analysisToken) setAnalysisToken(String(payload.analysisToken));
+      applyProgressEvent({ phase: "complete", progress: 100, message: "Analysis complete. Your growth report is ready.", updatedAt: new Date().toISOString() });
 
       // Once backend analysis is ready, go to summary screen
       setStep("summary");
@@ -757,6 +851,8 @@ export default function AIBusinessGrowthAnalyzerPage() {
       setAnalysisData(null);
       setStep("summary");
     } finally {
+      stream.close();
+      if (progressStreamRef.current === stream) progressStreamRef.current = null;
       setIsAnalyzingBackend(false);
     }
   };
@@ -1147,7 +1243,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                       {captureFormStep === 1 && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-800">Company Name <span className="text-red-500">*</span></label>
+                            <label className="text-sm font-semibold text-gray-800">Business / Brand Name <span className="text-red-500">*</span></label>
                             <Input
                               ref={companyNameRef}
                               placeholder="BrandingBeez"
@@ -1157,6 +1253,7 @@ export default function AIBusinessGrowthAnalyzerPage() {
                               aria-invalid={Boolean(errors.companyName)}
                               aria-describedby="companyNameError"
                             />
+                            <p className="text-xs text-gray-500">Use the name customers see for this website, not your personal name.</p>
                             {errors.companyName && <p id="companyNameError" className="text-sm text-red-500">{errors.companyName}</p>}
                           </div>
 
@@ -1172,6 +1269,49 @@ export default function AIBusinessGrowthAnalyzerPage() {
                             />
                             <p className="text-xs text-gray-500">We’ll analyze this and auto-fix prefixes.</p>
                             {errors.website && <p id="websiteError" className="text-sm text-red-500">{errors.website}</p>}
+                          </div>
+
+                          <div className="space-y-3 rounded-xl border border-blue-100 bg-blue-50/60 p-4 md:col-span-2">
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div>
+                                <p className="text-sm font-semibold text-gray-900">Google Search Console <span className="font-normal text-gray-500">(optional)</span></p>
+                                <p className="mt-1 text-xs text-gray-600">Connect your own property to include verified clicks, impressions, queries, and landing pages. Your Google token stays encrypted on our server.</p>
+                              </div>
+                              {searchConsoleConfigured && (
+                                <Button type="button" variant="outline" size="sm" onClick={connectSearchConsole} disabled={isConnectingSearchConsole}>
+                                  {isConnectingSearchConsole ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Globe2 className="mr-2 h-4 w-4" />}
+                                  Connect Google
+                                </Button>
+                              )}
+                            </div>
+                            {!searchConsoleConfigured && <p className="text-xs text-amber-700">Search Console connection is not configured on this environment. Public-web analysis will still run.</p>}
+                            {searchConsoleConnections.length > 0 && (
+                              <div className="space-y-2">
+                                <p className="flex items-center gap-2 text-xs font-medium text-emerald-700">
+                                  <CheckCircle2 className="h-4 w-4" />
+                                  Connected: {activeSearchConsoleConnection?.email || "Google account"}
+                                  {activeSearchConsoleConnection?.selectedProperty ? ` — ${activeSearchConsoleConnection.selectedProperty}` : ""}
+                                </p>
+                                <div className="grid gap-2 sm:grid-cols-2">
+                                <select
+                                  className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+                                  value={searchConsoleConnectionId}
+                                  onChange={(event) => setSearchConsoleConnectionId(event.target.value)}
+                                  aria-label="Connected Google account"
+                                >
+                                  {searchConsoleConnections.map((connection) => <option key={connection.id} value={connection.id}>{connection.email || "Connected Google account"}</option>)}
+                                </select>
+                                {(() => {
+                                  const connection = activeSearchConsoleConnection;
+                                  return <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={connection?.selectedProperty || ""} onChange={(event) => connection && void selectSearchConsoleProperty(connection.id, event.target.value)} aria-label="Search Console property">
+                                    <option value="" disabled>Select a verified property</option>
+                                    {(connection?.properties || []).map((property) => <option key={property.siteUrl} value={property.siteUrl}>{property.siteUrl}</option>)}
+                                  </select>;
+                                })()}
+                                </div>
+                              </div>
+                            )}
+                            {searchConsoleError && <p className="text-xs text-red-600">{searchConsoleError}</p>}
                           </div>
 
                           <div className="space-y-2">
@@ -1211,6 +1351,27 @@ export default function AIBusinessGrowthAnalyzerPage() {
                               aria-describedby="targetMarketError"
                             />
                             {errors.targetMarket && <p id="targetMarketError" className="text-sm text-red-500">{errors.targetMarket}</p>}
+                          </div>
+
+                          <div className="space-y-2 md:col-span-2">
+                            <label className="text-sm font-semibold text-gray-800">Primary Growth Goal <span className="text-gray-400 font-normal">(optional)</span></label>
+                            <Textarea
+                              placeholder="e.g., Generate more qualified agency leads, improve local visibility, increase retained revenue, or reduce delivery costs"
+                              value={formState.businessGoal}
+                              onChange={(e) => handleInputChange("businessGoal", e.target.value)}
+                              rows={2}
+                            />
+                            <p className="text-xs text-gray-500">If you leave this blank, the engine will infer the most relevant goal from the website, service mix, and market signals.</p>
+                          </div>
+
+                          <div className="space-y-2 md:col-span-2 rounded-xl border border-gray-200 bg-gray-50 p-4">
+                            <label className="text-sm font-semibold text-gray-800">Google Business Profile Place ID <span className="text-gray-400 font-normal">(optional, for verified reviews)</span></label>
+                            <Input
+                              placeholder="Optional: Google Place ID for this exact business profile"
+                              value={formState.googlePlaceId}
+                              onChange={(e) => handleInputChange("googlePlaceId", e.target.value)}
+                            />
+                            <p className="text-xs text-gray-500">Use this only when the automatic Google Business Profile match is wrong or ambiguous. It improves review reliability; it is not an OAuth credential.</p>
                           </div>
                         </div>
                       )}
@@ -1354,8 +1515,8 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                       <div className="flex flex-col gap-3 border-t border-gray-100 pt-4 md:flex-row md:items-center md:justify-between">
                         <p className="text-sm text-gray-500">
                           {captureFormStep === 1
-                            ? "Step 1 is required."
-                            : "Steps 2 and 3 are optional but strongly recommended for better Sections 8–10 modeling and benchmark analysis."}
+                            ? "Only the five core business facts are required. The engine sources website, technical, market, and reputation evidence automatically."
+                            : "Steps 2 and 3 are optional. Add only facts you know; the engine labels unavailable evidence as directional instead of inventing data."}
                         </p>
                         <div className="flex flex-col gap-3 sm:flex-row">
                           {captureFormStep > 1 && (
@@ -1416,10 +1577,10 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                         <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-amber-800 text-sm">{existingPdfError}</div>
                       )}
 
-                      <div className="flex flex-col md:flex-row gap-3">
+                      <div className="flex flex-wrap gap-3">
                         <Button
                           type="button"
-                          className="h-11"
+                          className="h-11 w-full sm:w-auto"
                           onClick={() => void handleDownloadOrGenerateExisting()}
                           disabled={isGeneratingExistingPdf || (!latestDownloadUrl && !latestAnalysisToken)}
                         >
@@ -1436,12 +1597,12 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                           )}
                         </Button>
 
-                        <Button type="button" variant="outline" className="h-11" onClick={handleRunNewAnalysis}>
+                        <Button type="button" variant="outline" className="h-11 w-full sm:w-auto" onClick={handleRunNewAnalysis}>
                           <RefreshCcw className="w-4 h-4 mr-2" />
                           Start new analysis
                         </Button>
 
-                        <Button type="button" variant="secondary" className="h-11" onClick={() => { setCaptureFormStep(1); setStep("capture"); }}>
+                        <Button type="button" variant="secondary" className="h-11 w-full sm:w-auto" onClick={() => { setCaptureFormStep(1); setStep("capture"); }}>
                           Back
                         </Button>
                       </div>
@@ -1474,16 +1635,16 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                             <span>{normalizeWebsiteUrl(formState.website)}</span>
                           </div>
 
-                          {progress >= 100 && isAnalyzingBackend && (
+                          {analysisPhase === "python" && isAnalyzingBackend && (
                             <div className="mt-3 flex items-center gap-2 text-sm text-primary">
                               <Loader2 className="w-4 h-4 animate-spin" />
-                              <span>Finalizing speed test + compiling results…</span>
+                              <span>The AI engine is still working. This step can take a few minutes for a full crawl.</span>
                             </div>
                           )}
                         </div>
 
                         <div className="space-y-3">
-                          {analysisStages.slice(0, -1).map((stage, idx) => (
+                          {analysisStages.map((stage, idx) => (
                             <StageItem key={stage.label} label={stage.label} state={stageStates[idx] ?? "pending"} message={stage.message} />
                           ))}
                         </div>
@@ -1491,11 +1652,11 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
 
                       <div className="space-y-4">
                         <div className="p-4 rounded-xl bg-white border shadow-sm">
-                          <p className="text-sm font-semibold text-gray-800">Live findings</p>
-                          <p className="mt-2 text-sm text-gray-600">{teaserMessages[teaserIndex]}</p>
+                          <p className="text-sm font-semibold text-gray-800">Live backend status</p>
+                          <p className="mt-2 text-sm text-gray-600">{statusMessage}</p>
                           <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
                             <Target className="w-4 h-4" />
-                            <span>Updating every few seconds</span>
+                            <span>Updated from real backend milestones</span>
                           </div>
                         </div>
 
@@ -1713,7 +1874,7 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                         <div className="p-3 rounded-lg border border-blue-200 bg-blue-50 text-blue-800 text-sm">{reportEmailStatus}</div>
                       )}
 
-                      <div className="flex flex-col md:flex-row gap-3 pt-2">
+                      <div className="flex flex-wrap gap-3 pt-2">
                         <Button
                           type="button"
                           disabled={!canDownload}
@@ -1721,7 +1882,7 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                             if (!reportDownloadUrl) return;
                             window.location.href = reportDownloadUrl;
                           }}
-                          className="h-11"
+                          className="h-11 w-full sm:w-auto"
                         >
                           <Download className="w-4 h-4 mr-2" />
                           Download PDF
@@ -1732,7 +1893,7 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                           variant="outline"
                           disabled={isSendingReportEmail || !analysisToken || !leadForm.email}
                           onClick={() => void sendReportEmail()}
-                          className="h-11"
+                          className="h-11 w-full sm:w-auto"
                         >
                           <Mail className="w-4 h-4 mr-2" />
                           Send to Email
@@ -1743,15 +1904,15 @@ Outbound: 5000`} value={formState.revenueByChannel} onChange={(e) => handleInput
                           variant="outline"
                           disabled={isGeneratingReport || (!analysisToken && !analysisData)}
                           onClick={() => void generateReport()}
-                          className="h-11"
+                          className="h-11 w-full sm:w-auto"
                         >
                           <RefreshCcw className="w-4 h-4 mr-2" />
                           Re-generate PDF
                         </Button>
 
-                        <BookCallButtonWithModal />
+                        <BookCallButtonWithModal buttonClassName="h-11 w-full sm:w-auto" />
 
-                        <Button type="button" variant="secondary" onClick={() => { setCaptureFormStep(1); setStep("capture"); }} className="h-11">
+                        <Button type="button" variant="secondary" onClick={() => { setCaptureFormStep(1); setStep("capture"); }} className="h-11 w-full sm:w-auto">
                           Run another analysis
                         </Button>
                       </div>

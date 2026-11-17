@@ -100,12 +100,26 @@ def compute_monthly_revenue(financials: Dict[str, Any]) -> int:
     """
     Source-of-truth monthly revenue calculation.
 
-    Formula:
+    A company-provided revenue baseline takes precedence.  When it is not
+    supplied, revenue is modelled from:
     monthlyRevenue = monthlyLeads * avgDealValue * closeRate
+
+    This keeps a real reported revenue figure from being overwritten by an
+    incomplete funnel model (for example, leads captured by only one channel).
     """
 
     if not isinstance(financials, dict):
         return 0
+
+    explicit_revenue = normalize_money(
+        financials.get("currentMonthlyRevenue")
+        or financials.get("monthlyRevenue")
+        or financials.get("currentRevenue")
+        or financials.get("monthlyRecurringRevenue")
+        or 0
+    )
+    if explicit_revenue >= 1000:
+        return int(round(explicit_revenue))
 
     leads = normalize_count(
         financials.get("monthlyLeads")

@@ -28,3 +28,4 @@ export * from "./model/casestudy/dr/dedicated-resource-case-study-card";
 export * from "./model/casestudy/dr/dedicated-resource-case-study-detail";
 export * from "./model/authApi.model";
 export * from "./model/seo-setup-lead.model";
+export * from "./model/searchConsoleConnection.model";
