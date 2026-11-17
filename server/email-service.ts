@@ -2,6 +2,7 @@
 import path from "path";
 import fs from "fs";
 import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 import { notificationService } from "./notification-service";
 
 type EmailTransportMethod = "smtp" | "console_log";
@@ -629,23 +630,20 @@ export async function sendBusinessGrowthReportEmailWithDownload({
 }): Promise<{ success: boolean; method: EmailTransportMethod }> {
   if (!toEmail) throw new Error("toEmail is required");
 
+  const sendgridApiKey = process.env.SENDGRID_API_KEY?.trim();
+  const sendgridFrom = (
+    process.env.SENDGRID_FROM_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER || ""
+  ).trim();
+
   const { host, port, secure, requireTLS, user, pass } = getSmtpConfig();
 
-  if (!host || !user || !pass) {
+  if (!sendgridApiKey && (!host || !user || !pass)) {
     console.log("[EMAIL DEV MODE] Business Growth Report Email (With Download Link)");
     console.log("To:", toEmail, "Name:", toName);
     console.log("Download:", downloadUrl);
     console.log("PDF bytes:", pdfBuffer?.length || 0);
     return { success: true, method: "console_log" };
   }
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    requireTLS,
-    auth: { user, pass },
-  });
 
   const company = analysis?.reportMetadata?.companyName || "your business";
   const website = analysis?.reportMetadata?.website || "";
@@ -691,6 +689,40 @@ export async function sendBusinessGrowthReportEmailWithDownload({
       </p>
     </div>
   `;
+
+  // Render free web services cannot make SMTP connections on ports 465/587.
+  // SendGrid's HTTPS API works on port 443 and is therefore the preferred
+  // production transport whenever its credentials are configured.
+  if (sendgridApiKey) {
+    if (!sendgridFrom) {
+      throw new Error("SENDGRID_FROM_EMAIL is required when SENDGRID_API_KEY is configured");
+    }
+
+    sgMail.setApiKey(sendgridApiKey);
+    await sgMail.send({
+      from: sendgridFrom,
+      to: toEmail,
+      subject,
+      html,
+      attachments: [
+        {
+          filename,
+          content: pdfBuffer.toString("base64"),
+          type: "application/pdf",
+          disposition: "attachment",
+        },
+      ],
+    });
+    return { success: true, method: "smtp" };
+  }
+
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure,
+    requireTLS,
+    auth: { user, pass },
+  });
 
   await transporter.sendMail({
     from: resolveFromAddress(user),

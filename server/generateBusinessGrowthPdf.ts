@@ -2389,10 +2389,24 @@ pages.push(
 }
 
 export async function generateBusinessGrowthPdfBuffer(report: BusinessGrowthReport): Promise<Buffer> {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox", "--font-render-hinting=medium"],
-  });
+  const executablePath = process.env.PUPPETEER_EXECUTABLE_PATH?.trim() || undefined;
+  let browser;
+
+  try {
+    browser = await puppeteer.launch({
+      headless: true,
+      ...(executablePath ? { executablePath } : {}),
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--font-render-hinting=medium"],
+    });
+  } catch (error: any) {
+    // The original error is retained in Render logs, while callers receive a
+    // clear deployment diagnosis instead of an opaque PDF-generation failure.
+    console.error("[PDF] Unable to launch Chromium", error);
+    throw new Error(
+      `PDF renderer could not start: ${error?.message || "Chromium is unavailable"}. ` +
+        "On Render, use `npm run render-build` so Puppeteer installs Chrome.",
+    );
+  }
 
   try {
     const page = await browser.newPage();
